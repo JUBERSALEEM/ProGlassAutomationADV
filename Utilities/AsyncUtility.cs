@@ -31,6 +31,7 @@ using ProGlassAutomation.Services.Logging;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
+using ProGlassAutomation.Services.Dialogs;
 
 namespace ProGlassAutomation.Utilities
 {
@@ -189,16 +190,14 @@ namespace ProGlassAutomation.Utilities
 
                 if (dispatcher.CheckAccess())
                 {
-                    System.Windows.MessageBox.Show(
-                        message, title,
+                    Prompts.Show(message, title,
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
                 }
                 else
                 {
                     dispatcher.BeginInvoke(new Action(() =>
-                        System.Windows.MessageBox.Show(
-                            message, title,
+                        Prompts.Show(message, title,
                             System.Windows.MessageBoxButton.OK,
                             System.Windows.MessageBoxImage.Warning)));
                 }

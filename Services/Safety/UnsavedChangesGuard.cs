@@ -18,6 +18,7 @@
 using ProGlassAutomation.Views.Shared;
 using System;
 using System.Threading.Tasks;
+using ProGlassAutomation.Services.Dialogs;
 
 namespace ProGlassAutomation.Services.Safety
 {
@@ -55,8 +56,7 @@ namespace ProGlassAutomation.Services.Safety
 
                         if (!saved)
                         {
-                            System.Windows.MessageBox.Show(
-                                "The save did not complete — fix the issue " +
+                            Prompts.Show("The save did not complete — fix the issue " +
                                 "or choose Discard.",
                                 "Unsaved Changes",
                                 System.Windows.MessageBoxButton.OK,

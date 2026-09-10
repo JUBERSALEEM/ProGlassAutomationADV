@@ -29,6 +29,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using SkiaSharp;
+using ProGlassAutomation.Services.Dialogs;
 
 namespace ProGlassAutomation.Services.Export
 {
@@ -415,8 +416,7 @@ namespace ProGlassAutomation.Services.Export
         {
             if (bitmap == null)
             {
-                System.Windows.MessageBox.Show(
-                    "The screenshot could not be rendered. See the log for details.",
+                Prompts.Show("The screenshot could not be rendered. See the log for details.",
                     "Screenshot Failed",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -458,8 +458,7 @@ namespace ProGlassAutomation.Services.Export
                     ? $"{info.Length / (1024.0 * 1024.0):F2} MB"
                     : $"{info.Length / 1024.0:F1} KB";
 
-                System.Windows.MessageBox.Show(
-                    $"Screenshot saved!\n\nFile: {filePath}\n" +
+                Prompts.Show($"Screenshot saved!\n\nFile: {filePath}\n" +
                     $"Resolution: {bitmap.PixelWidth} × {bitmap.PixelHeight}\n" +
                     $"Size: {size}",
                     "Screenshot",
@@ -477,8 +476,7 @@ namespace ProGlassAutomation.Services.Export
                         Class = nameof(ScreenshotService),
                         Operation = "Save"
                     });
-                System.Windows.MessageBox.Show(
-                    $"Error saving screenshot:\n\n{ex.Message}",
+                Prompts.Show($"Error saving screenshot:\n\n{ex.Message}",
                     "Screenshot Failed",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -527,8 +525,7 @@ namespace ProGlassAutomation.Services.Export
                     ? $"{info.Length / (1024.0 * 1024.0):F2} MB"
                     : $"{info.Length / 1024.0:F1} KB";
 
-                System.Windows.MessageBox.Show(
-                    $"Screenshot saved!\n\nFile: {filePath}\n" +
+                Prompts.Show($"Screenshot saved!\n\nFile: {filePath}\n" +
                     $"Resolution: {bitmap.Width} × {bitmap.Height}\n" +
                     $"Size: {size}",
                     "Screenshot",
@@ -546,8 +543,7 @@ namespace ProGlassAutomation.Services.Export
                         Class = nameof(ScreenshotService),
                         Operation = "SaveFullPage"
                     });
-                System.Windows.MessageBox.Show(
-                    $"Error saving screenshot:\n\n{ex.Message}",
+                Prompts.Show($"Error saving screenshot:\n\n{ex.Message}",
                     "Screenshot Failed",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);

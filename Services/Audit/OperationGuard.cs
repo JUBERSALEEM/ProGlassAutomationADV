@@ -19,7 +19,7 @@
 //
 // WHY A SEPARATE TYPE RATHER THAN REUSING PermissionService.Require
 // ─────────────────────────────────────────────────────────────────
-// PermissionService.Require() calls MessageBox.Show(). That is correct
+// PermissionService.Require() shows a themed prompt (Prompts.Show). That is correct
 // for a ViewModel and WRONG for a service:
 //
 //   • It blocks a background thread on a modal UI dialog.

@@ -14,6 +14,7 @@ using ProGlassAutomation.Services.Logging;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
+using ProGlassAutomation.Services.Dialogs;
 
 namespace ProGlassAutomation.Services.Common
 {
@@ -45,7 +46,7 @@ namespace ProGlassAutomation.Services.Common
 
             try
             {
-                MessageBox.Show(msg, $"{operation} — Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Prompts.Show(msg, $"{operation} — Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[ViewModelResultHelper] Error dialog could not be shown: " + ex.Message); }
 
@@ -74,7 +75,7 @@ namespace ProGlassAutomation.Services.Common
 
             try
             {
-                MessageBox.Show(msg, $"{operation} — Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Prompts.Show(msg, $"{operation} — Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[ViewModelResultHelper] Error dialog could not be shown: " + ex.Message); }
 

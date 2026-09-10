@@ -14,6 +14,7 @@ using ProGlassAutomation.Utilities;
 using System.Windows;
 using System.Windows.Controls;
 using ProGlassAutomation.ViewModels.Licensing;
+using ProGlassAutomation.Services.Dialogs;
 
 namespace ProGlassAutomation.Views.About.Sections
 {
@@ -70,7 +71,7 @@ namespace ProGlassAutomation.Views.About.Sections
                 string text = (value ?? string.Empty).Trim();
                 if (text.Length == 0 || text == "—" || text == "Computing…")
                 {
-                    MessageBox.Show(
+                    Prompts.Show(
                         emptyMessage,
                         title,
                         MessageBoxButton.OK,
@@ -82,7 +83,7 @@ namespace ProGlassAutomation.Views.About.Sections
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
+                Prompts.Show(
                     "Could not copy to clipboard: " + ExceptionMessages.Deep(ex),
                     title,
                     MessageBoxButton.OK,

@@ -9,87 +9,22 @@
      • Decorative emojis (search/clock/empty/mailbox) -> MDL2 glyphs
      Commands/bindings preserved; no ViewModel changes.
 ═══════════════════════════════════════════════════════════════ -->
-<Window x:Class="ProGlassAutomation.Views.SheetStore.SheetStoreBuy.BuyDialogView"
-             TextOptions.TextHintingMode="Fixed"
+<dialogs:ThemedDialogWindow x:Class="ProGlassAutomation.Views.SheetStore.SheetStoreBuy.BuyDialogView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+        xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
         Title="{DynamicResource SheetStore.BUYStock}"
         Width="480"
-        MinWidth="480"
-        MinHeight="520"
-        SizeToContent="Height"
-        MaxHeight="720"
-        WindowStartupLocation="CenterOwner"
-        WindowStyle="None"
-        AllowsTransparency="True"
-        ResizeMode="NoResize"
-        FontFamily="{DynamicResource AppFontFamily}"
-        Background="Transparent"
-        TextOptions.TextFormattingMode="Ideal"
-        TextOptions.TextRenderingMode="ClearType"
-        UseLayoutRounding="True"
-        SnapsToDevicePixels="True">
+        DialogIcon="&#xE7B8;"
+        DialogSubtitle="{DynamicResource SheetStore.AddMoreSheetsInventory}">
 
     <!-- Standard dialog: Esc → Cancel · Enter → Confirm -->
-    <Window.InputBindings>
-        <KeyBinding Key="Escape" Command="{Binding CancelCommand}"/>
-        <KeyBinding Key="Enter" Command="{Binding ConfirmCommand}"/>
-    </Window.InputBindings>
-
-    <Window.Resources>
-
-        <!-- Field label — 11 SemiBold UPPERCASE + MutedForeground -->
-        <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
-        </Style>
-
-        <!-- Quantity ± button (large, high contrast) -->
-
-        <!-- Cancel button — secondary neutral -->
-
-        <!-- Confirm button — primary Deep Forest (constructive) -->
-
-    </Window.Resources>
-
-    <!-- 2026-09-09 shell upgrade: the borderless professional chrome —
-         CardCornerRadiusLarge card + outline + soft elevation shadow;
-         the OS title bar / resize-grip frame is gone everywhere. -->
-    <Border Margin="18"
-            CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-            Background="{DynamicResource DialogSurfaceBrush}"
-            BorderBrush="{DynamicResource OutlineBrush}"
-            BorderThickness="1"
-            Padding="4,4,4,4"
-            SnapsToDevicePixels="True">
-        <Border.Effect>
-            <DropShadowEffect Color="Black" BlurRadius="24"
-                              ShadowDepth="0" Opacity="0.45"/>
-        </Border.Effect>
-    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled"
-                  CanContentScroll="False"
-                  IsDeferredScrollingEnabled="False"
-                  PanningMode="None"
-                  Focusable="True"
-                  FocusVisualStyle="{x:Null}"
-                  Background="Transparent"
-                  behaviors:SmoothScrollBehavior.IsEnabled="True">
-        <StackPanel Margin="24">
-
-            <!-- Header -->
-            <StackPanel Margin="0,0,0,16">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplay}" VerticalAlignment="Center"/>
-                    <TextBlock Text="{DynamicResource SheetStore.BUYStock}" FontSize="{StaticResource TextHeadline}" FontWeight="Bold" Margin="12,0,0,0"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                </StackPanel>
-                <TextBlock Text="{DynamicResource SheetStore.AddMoreSheetsInventory}"
-                           FontSize="{StaticResource TextBody}" Margin="0,4,0,0"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-            </StackPanel>
+    <!-- 2026-09 dialog audit: chrome (card/header/footer) comes from
+         ThemedDialogWindow; this file keeps only the form body. Field labels
+         use the shared DialogFieldLabelStyle; section cards use the shared
+         DialogInsetBrush token so every dialog's cards align identically. -->
+    <StackPanel>
 
             <!-- Sheet info card -->
             <Border Background="{DynamicResource DialogInsetBrush}"
@@ -138,14 +73,14 @@
             </Border>
 
             <!-- Quantity selector -->
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
+            <Border Background="{DynamicResource DialogInsetBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16"
                     SnapsToDevicePixels="True">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource SheetStore.QuantitySheets}"
-                               Style="{StaticResource FieldLabelStyle}"
+                               Style="{StaticResource DialogFieldLabelStyle}"
                                Margin="0,0,0,8"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -206,14 +141,14 @@
             </Border>
 
             <!-- Preview -->
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
+            <Border Background="{DynamicResource DialogInsetBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16"
                     SnapsToDevicePixels="True">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource SheetStore.PurchasePreview}"
-                               Style="{StaticResource FieldLabelStyle}"
+                               Style="{StaticResource DialogFieldLabelStyle}"
                                Margin="0,0,0,10"/>
                     <DockPanel Margin="0,0,0,6">
                         <TextBlock Text="{DynamicResource DeliveryNote.TotalSQM}" FontSize="{StaticResource TextBody}"
@@ -251,7 +186,10 @@
             </Border>
 
             <!-- Buttons -->
-            <Grid Margin="0,8,0,0">
+                </StackPanel>
+
+    <dialogs:ThemedDialogWindow.FooterContent>
+<Grid Margin="0,8,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
@@ -268,8 +206,5 @@
                         Command="{Binding ConfirmCommand}"
                         IsDefault="True"/>
             </Grid>
-
-        </StackPanel>
-    </ScrollViewer>
-    </Border>
-</Window>
+    </dialogs:ThemedDialogWindow.FooterContent>
+</dialogs:ThemedDialogWindow>

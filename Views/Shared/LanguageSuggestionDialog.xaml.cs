@@ -15,10 +15,11 @@
 
 using System.Windows;
 using ProGlassAutomation.Services.Localization;
+using ProGlassAutomation.Views.Shared.Dialogs;
 
 namespace ProGlassAutomation.Views.Shared
 {
-    public partial class LanguageSuggestionDialog : Window
+    public partial class LanguageSuggestionDialog : ThemedDialogWindow
     {
         /// <summary>
         /// True when the user chose the regional language. False for

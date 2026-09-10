@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Xps;
 using System.Windows.Xps.Packaging;
+using ProGlassAutomation.Services.Dialogs;
 
 namespace ProGlassAutomation.Services.Export.Pdf
 {
@@ -225,8 +226,7 @@ namespace ProGlassAutomation.Services.Export.Pdf
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show(
-                    $"Print failed:\n\n{ex.Message}",
+                Prompts.Show($"Print failed:\n\n{ex.Message}",
                     "Print Error",
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Error);

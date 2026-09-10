@@ -9,54 +9,19 @@
      • Decorative emojis (search/clock/empty/mailbox) -> MDL2 glyphs
      Commands/bindings preserved; no ViewModel changes.
 ═══════════════════════════════════════════════════════════════ -->
-<Window x:Class="ProGlassAutomation.Views.SheetStore.SheetStoreUse.UseDialogView"
-             TextOptions.TextFormattingMode="Ideal"
-             TextOptions.TextRenderingMode="ClearType"
-             TextOptions.TextHintingMode="Fixed"
-             SnapsToDevicePixels="True"
-             UseLayoutRounding="True"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
-        Title="{DynamicResource SheetStore.USEStock}"
-        Width="520"
-        MinWidth="520"
-        MinHeight="600"
-        SizeToContent="Height"
-        MaxHeight="760"
-        WindowStartupLocation="CenterOwner"
-        WindowStyle="None"
-        AllowsTransparency="True"
-        ResizeMode="NoResize"
-        FontFamily="{DynamicResource AppFontFamily}"
-        Background="Transparent">
+<dialogs:ThemedDialogWindow x:Class="ProGlassAutomation.Views.SheetStore.SheetStoreUse.UseDialogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
+             Title="{DynamicResource SheetStore.USEStock}"
+             Width="520"
+             DialogIcon="&#xE713;"
+             DialogSubtitle="{DynamicResource SheetStore.ConsumeSheetsInventoryProduction}">
 
-    <!-- 2026-09-09 shell upgrade: borderless professional chrome. -->
-    <Border Margin="18"
-            CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-            Background="{DynamicResource DialogSurfaceBrush}"
-            BorderBrush="{DynamicResource OutlineBrush}"
-            BorderThickness="1"
-            Padding="4"
-            SnapsToDevicePixels="True">
-        <Border.Effect>
-            <DropShadowEffect Color="Black" BlurRadius="24"
-                              ShadowDepth="0" Opacity="0.45"/>
-        </Border.Effect>
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="28">
-
-            <!-- Header -->
-            <StackPanel Margin="0,0,0,16">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplay}" VerticalAlignment="Center"/>
-                    <TextBlock Text="{DynamicResource SheetStore.USEStock}" FontSize="{StaticResource TextHeadline}" FontWeight="Bold" Margin="12,0,0,0"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                </StackPanel>
-                <TextBlock Text="{DynamicResource SheetStore.ConsumeSheetsInventoryProduction}"
-                           FontSize="{StaticResource TextBody}" Margin="0,4,0,0"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-            </StackPanel>
+    <!-- 2026-09 dialog audit: chrome (card/header/footer) comes from
+         ThemedDialogWindow; this file keeps only the form body. -->
+    <StackPanel>
 
             <!-- Sheet info card -->
             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource DialogInsetBrush}"
@@ -89,7 +54,7 @@
             </Border>
 
             <!-- Job Order Reference -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource ModuleBackgroundBrush}"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource DialogInsetBrush}"
                     CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource SheetStore.JOBOrderReferenceOptional}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
@@ -180,7 +145,7 @@
             </Border>
 
             <!-- Quantity selector -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource ModuleBackgroundBrush}"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource DialogInsetBrush}"
                     CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource SheetStore.QuantityUSESheets}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
@@ -238,7 +203,7 @@
             </Border>
 
             <!-- Preview -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource ModuleBackgroundBrush}"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource DialogInsetBrush}"
                     CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource SheetStore.UsagePreview}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
@@ -277,7 +242,10 @@
             </Border>
 
             <!-- Buttons -->
-            <Grid Margin="0,4,0,0">
+                </StackPanel>
+
+    <dialogs:ThemedDialogWindow.FooterContent>
+<Grid Margin="0,4,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
@@ -292,8 +260,5 @@
                         ToolTip="{DynamicResource SheetStore.ConfirmStockUsage}"
                         Command="{Binding ConfirmCommand}"/>
             </Grid>
-
-        </StackPanel>
-    </ScrollViewer>
-    </Border>
-</Window>
+    </dialogs:ThemedDialogWindow.FooterContent>
+</dialogs:ThemedDialogWindow>

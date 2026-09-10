@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ProGlassAutomation.Services.Dialogs;
 
 namespace ProGlassAutomation.Services.Audit
 {
@@ -245,8 +246,7 @@ namespace ProGlassAutomation.Services.Audit
                 $"({AuditService.CurrentUser?.Role ?? "?"}) tried " +
                 $"{operation} without {permission}");
 
-            System.Windows.MessageBox.Show(
-                $"You don't have permission for this action.\n\n" +
+            Prompts.Show($"You don't have permission for this action.\n\n" +
                 $"Required permission: {permission}\n" +
                 $"Current role: {AuditService.CurrentUser?.Role ?? "none"}\n\n" +
                 "Ask an administrator to change your role.",

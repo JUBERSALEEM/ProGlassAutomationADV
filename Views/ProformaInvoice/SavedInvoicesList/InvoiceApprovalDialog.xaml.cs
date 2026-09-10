@@ -23,7 +23,7 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
     /// FocusOnCheckedBehavior; Enter handled by IsDefault). This file only
     /// wires the VM.
     /// </summary>
-    public partial class InvoiceApprovalDialog : Window
+    public partial class InvoiceApprovalDialog : ThemedDialogWindow
     {
         private readonly InvoiceApprovalViewModel _vm;
 

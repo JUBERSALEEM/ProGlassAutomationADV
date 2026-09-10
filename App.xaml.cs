@@ -58,6 +58,7 @@ using System.Runtime.InteropServices;
 using Velopack;
 using System.Threading;
 using System.Threading.Tasks;
+using ProGlassAutomation.Services.Dialogs;
 using System.Windows;
 
 namespace ProGlassAutomation
@@ -248,7 +249,7 @@ namespace ProGlassAutomation
 
             try
             {
-                MessageBox.Show(
+                Prompts.Show(
                     "ProGlass could not finish starting up.\n\n" +
                     $"Error ID: {errorId}\n" +
                     $"Type:    {ex.GetType().Name}\n" +

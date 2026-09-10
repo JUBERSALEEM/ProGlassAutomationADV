@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
+using ProGlassAutomation.Services.Dialogs;
 
 namespace ProGlassAutomation.Views.Inquiry
 {
@@ -238,10 +239,10 @@ namespace ProGlassAutomation.Views.Inquiry
                 var d = new OpenFileDialog { Filter = "CSV file|*.csv" };
                 return d.ShowDialog() == true ? d.FileName : null;
             };
-            vm.ConfirmImportRequested = count => MessageBox.Show(
+            vm.ConfirmImportRequested = count => Prompts.Show(
                 $"Create {count} validated inquiry records?", "Import inquiries",
                 MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes;
-            vm.ConfirmDeleteAttachmentRequested = file => MessageBox.Show(
+            vm.ConfirmDeleteAttachmentRequested = file => Prompts.Show(
                 $"Delete attachment '{file.FileName}'? The file is removed from disk as well.",
                 "Delete attachment",
                 MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
@@ -249,7 +250,7 @@ namespace ProGlassAutomation.Views.Inquiry
             // and the action; the second message reminds the user that
             // this cannot be undone. The default button is No so a stray
             // Enter keypress can't drop the row.
-            vm.ConfirmDeleteInquiryRequested = row => MessageBox.Show(
+            vm.ConfirmDeleteInquiryRequested = row => Prompts.Show(
                 $"Delete inquiry {row.InquiryNumber} ({row.CustomerName} / {row.Project})?\n\n" +
                 "This permanently removes the inquiry AND its attachments " +
                 "and communications. The action is logged and cannot be undone.\n\n" +

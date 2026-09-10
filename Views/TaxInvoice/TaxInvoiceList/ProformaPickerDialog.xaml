@@ -1,111 +1,75 @@
-<Window x:Class="ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList.ProformaPickerDialog"
-             TextOptions.TextHintingMode="Fixed"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="{DynamicResource TaxInvoice.SelectProformaInvoice}"
-        Width="720" Height="580"
-        WindowStartupLocation="CenterOwner"
-        WindowStyle="None"
-        AllowsTransparency="True"
-        ResizeMode="NoResize"
-        Background="Transparent"
-        FontFamily="{DynamicResource AppFontFamily}"
-        TextOptions.TextFormattingMode="Ideal"
-        TextOptions.TextRenderingMode="ClearType"
-        UseLayoutRounding="True"
-        SnapsToDevicePixels="True">
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/TaxInvoice/TaxInvoiceList/ProformaPickerDialog.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Tax Invoice — pick the source Proforma Invoice
 
-    <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-            Background="{DynamicResource ModuleBackgroundBrush}"
-            BorderBrush="{DynamicResource OutlineBrush}"
-            BorderThickness="{DynamicResource CardBorderThickness}"
-            Margin="18">
-        <Border.Effect>
-            <DropShadowEffect BlurRadius="22" ShadowDepth="0"
-                              Opacity="0.22" Color="{DynamicResource LiquidShadowColor}"/>
-        </Border.Effect>
+     2026-09 dialog audit: rebuilt on the shared ThemedDialogWindow chrome
+     (accent header band + floating close chip replaced by the shared
+     header/footer; search + list unchanged). The selected-count label
+     lives with the buttons in the shared footer.
+     ═══════════════════════════════════════════════════════════════════ -->
 
+<dialogs:ThemedDialogWindow x:Class="ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList.ProformaPickerDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
+             Title="{DynamicResource TaxInvoice.SelectProformaInvoice}"
+             Width="720" Height="580"
+             MinWidth="560" MinHeight="420"
+             ResizeMode="CanResize"
+             DialogIcon="&#xE8A5;"
+             DialogSubtitle="{DynamicResource TaxInvoice.ChoosePICreateTaxInvoice}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ── SEARCH ──────────────────────────────────────────────── -->
+        <Border Grid.Row="0" Padding="0,0,0,10">
+            <TextBox x:Name="SearchBox"
+                     FontSize="{StaticResource TextBodyLarge}"
+                     TextChanged="OnSearchChanged"/>
+        </Border>
+
+        <!-- ── PI LIST ─────────────────────────────────────────────── -->
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel x:Name="PiList"/>
+        </ScrollViewer>
+    </Grid>
+
+    <dialogs:ThemedDialogWindow.FooterContent>
         <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-            <!-- ── HEADER ──────────────────────────────────────────────── -->
-            <Border Grid.Row="0"
-                    Background="{DynamicResource AccentBrush}"
-                    CornerRadius="{DynamicResource Radius.Top.Medium}"
-                    Padding="28,18">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0"
+                       x:Name="SelectedLabel"
+                       Text="{DynamicResource TaxInvoice.NoProformaInvoiceSelected}"
+                       FontSize="{StaticResource TextBody}" VerticalAlignment="Center"
+                       Margin="0,0,12,0"
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="{DynamicResource TaxInvoice.SelectProformaInvoice}"
-                                   FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Text="{DynamicResource TaxInvoice.ChoosePICreateTaxInvoice}"
-                                   FontSize="{StaticResource TextBody}" Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                   Opacity="0.85" Margin="0,3,0,0"/>
-                    </StackPanel>
+            <Button Grid.Column="1" Style="{StaticResource OutlinedPillButton}"
+                    Tag="&#xE711;" Content="{DynamicResource Action.Cancel}"
+                    Margin="0,0,10,0"
+                    ToolTip="{DynamicResource DeliveryNote.CloseWithoutCreating}"
+                    IsCancel="True"/>
 
-                    <Button Grid.Column="1" Style="{StaticResource RowOutlinedButton}"
-                            Tag="&#xE711;" MinWidth="40"
-                            IsCancel="True"
-                            ToolTip="{DynamicResource DeliveryNote.CloseEsc}"/>
-                </Grid>
-            </Border>
-
-            <!-- ── SEARCH ──────────────────────────────────────────────── -->
-            <Border Grid.Row="1" Padding="24,16,24,10">
-                <TextBox x:Name="SearchBox"
-                         FontSize="{StaticResource TextBodyLarge}"
-                         TextChanged="OnSearchChanged"/>
-            </Border>
-
-            <!-- ── PI LIST ─────────────────────────────────────────────── -->
-            <ScrollViewer Grid.Row="2"
-                          Margin="24,0,24,0"
-                          VerticalScrollBarVisibility="Auto">
-                <StackPanel x:Name="PiList"/>
-            </ScrollViewer>
-
-            <!-- ── FOOTER ──────────────────────────────────────────────── -->
-            <Border CornerRadius="{DynamicResource Radius.Bottom.Medium}" Grid.Row="3"
-                    Padding="24,14"
-                    BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="{DynamicResource Border.TopHairlineThickness}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <TextBlock Grid.Column="0"
-                               x:Name="SelectedLabel"
-                               Text="{DynamicResource TaxInvoice.NoProformaInvoiceSelected}"
-                               FontSize="{StaticResource TextBody}" VerticalAlignment="Center"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-
-                    <Button Grid.Column="1" Style="{StaticResource OutlinedPillButton}"
-                            Tag="&#xE711;" Content="{DynamicResource Action.Cancel}"
-                            ToolTip="{DynamicResource DeliveryNote.CloseWithoutCreating}"
-                            IsCancel="True"/>
-
-                    <Button Grid.Column="2"
-                            x:Name="ConfirmButton"
-                            Style="{StaticResource SuccessPillButton}"
-                            Tag="&#xE73E;" Content="{DynamicResource TaxInvoice.CreateTAXInvoice}"
-                            ToolTip="{DynamicResource TaxInvoice.CreateTaxInvoiceProforma}"
-                            Click="OnConfirmClick"
-                            IsEnabled="False"/>
-                </Grid>
-            </Border>
+            <Button Grid.Column="2"
+                    x:Name="ConfirmButton"
+                    Style="{StaticResource SuccessPillButton}"
+                    Tag="&#xE73E;" Content="{DynamicResource TaxInvoice.CreateTAXInvoice}"
+                    ToolTip="{DynamicResource TaxInvoice.CreateTaxInvoiceProforma}"
+                    Click="OnConfirmClick"
+                    IsEnabled="False"/>
         </Grid>
-    </Border>
-</Window>
+    </dialogs:ThemedDialogWindow.FooterContent>
+</dialogs:ThemedDialogWindow>

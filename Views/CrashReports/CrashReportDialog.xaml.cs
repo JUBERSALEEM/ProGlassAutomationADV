@@ -23,11 +23,12 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.ViewModels.CrashReports;
+using ProGlassAutomation.Views.Shared.Dialogs;
 using System.Windows;
 
 namespace ProGlassAutomation.Views.CrashReports
 {
-    public partial class CrashReportDialog : Window
+    public partial class CrashReportDialog : ThemedDialogWindow
     {
         /// <summary>
         /// Show the dialog modally. Returns when the user

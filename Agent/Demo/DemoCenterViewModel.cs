@@ -17,6 +17,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Dialogs;
 
 namespace ProGlassAutomation.Agent.Demo
 {
@@ -506,7 +507,7 @@ namespace ProGlassAutomation.Agent.Demo
             RaiseFlags();
             try
             {
-                MessageBox.Show(message, title, MessageBoxButton.OK, icon);
+                Prompts.Show(message, title, MessageBoxButton.OK, icon);
             }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DemoCenterViewModel] Alert: status line still updated: " + ex.Message); }
         }

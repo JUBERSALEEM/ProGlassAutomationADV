@@ -1,44 +1,348 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Themes/Styles/DialogStyles.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Unified dialog platform (2026-09 senior dialog audit)
+
+     THE single source of truth for every popup / dialog in the app:
+
+       1. The implicit chrome template for ThemedDialogWindow — one glass
+          card, one header (icon badge + wrapping title + subtitle + close),
+          one scroll-clamped body, one footer strip. ~28 per-dialog chrome
+          copies used to live in the dialogs themselves; they are gone.
+       2. Shared dialog building-block styles (Dialog*) so every dialog's
+          field labels, body text, section cards and footers align by
+          construction instead of by copy-paste.
+       3. The app-wide implicit ToolTip style (wrapping, theme surfaces,
+          never runs off-screen).
+
+     DESIGN CONTRACT (see docs/DIALOG_SYSTEM_AUDIT.md):
+       • All colors/brushes are DynamicResource — Light/Dark + accent react
+         live; never hard-code a color here.
+       • Font sizes always come from TypeScaleTokens (Text*).
+       • Radius/border thickness always from DesignTokens.
+     ═══════════════════════════════════════════════════════════════════ -->
+
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
+                    xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
+                    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
 
-    <!-- ═══════════════════════════════════════════════════════════════════
-         SHARED DIALOG CHROME (Phase 8/9 — design-system consolidation)
+    <!-- ═══════════════════════════════════════════════════════════════
+         TOKENS
+         ═══════════════════════════════════════════════════════════════ -->
 
-         A single theme-adaptive dialog card primitive composed from the
-         design tokens (CardCornerRadiusLarge) and the global
-         CardBorderThickness. Modal windows / popups should compose from
-         these instead of each dialog re-declaring its own radius, border and
-         shadow, so dialogs stay consistent and follow Light/Dark + accent.
+    <!-- Transparent band around the card that carries the drop shadow.
+         Symmetric-ish (a touch more at the bottom for ShadowDepth) so
+         CenterOwner centers the VISIBLE card, not the transparent rect. -->
+    <Thickness x:Key="Dialog.ShadowMargin">26,22,26,30</Thickness>
 
-         Adoption is incremental (see Docs/DESIGN_SYSTEM.md) — this
-         dictionary makes the shared definition available.
-    ═══════════════════════════════════════════════════════════════════ -->
+    <!-- Default breathing room around dialog body content. -->
+    <Thickness x:Key="Dialog.ContentPadding">24</Thickness>
 
-    <!-- Floating dialog card — layered glass with crystal edge and shadow. -->
-    <Style x:Key="DialogCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+    <!-- Soft elevation for the shared tooltip. -->
+    <DropShadowEffect x:Key="Dialog.ToolTipShadow"
+                      BlurRadius="12" ShadowDepth="3"
+                      Opacity="0.35" Color="{DynamicResource LiquidShadowColor}"/>
 
-        <Setter Property="Padding" Value="24"/>
+    <!-- ═══════════════════════════════════════════════════════════════
+         SHARED DIALOG BUILDING BLOCKS
+         ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- Header icon badge (42×42 soft inset square; glyph tinted by dialog). -->
+    <Style x:Key="DialogIconBadgeStyle" TargetType="Border">
+        <Setter Property="Width" Value="42"/>
+        <Setter Property="Height" Value="42"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+        <Setter Property="Background" Value="{DynamicResource DialogInsetBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="UseLayoutRounding" Value="True"/>
-        <Setter Property="Effect" Value="{DynamicResource ShadowElevated}"/>
     </Style>
 
-    <!-- Rounded dialog footer strip (buttons row). -->
-    <Style x:Key="DialogFooterStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="Background" Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource Surface.Secondary.BorderBrush}"/>
-        <Setter Property="BorderThickness" Value="0,1,0,0"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource Surface.Secondary.CornerRadius}"/>
-        <Setter Property="Padding" Value="24,16"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-    </Style>
-
-    <!-- Dialog title (module-independent). -->
+    <!-- Dialog title — wraps so localized captions can never clip. -->
     <Style x:Key="DialogTitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextTitle}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="TextTrimming" Value="None"/>
     </Style>
+
+    <!-- Optional one-liner under the title. -->
+    <Style x:Key="DialogSubtitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Margin" Value="0,2,0,0"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <!-- Field label — the one label treatment for form fields in dialogs
+         (replaces ApprovalFieldLabel / FieldLabelStyle / DnLabel… copies). -->
+    <Style x:Key="DialogFieldLabelStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Margin" Value="2,0,0,6"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <!-- Body / explanatory copy. -->
+    <Style x:Key="DialogBodyTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="LineHeight" Value="{StaticResource TextBodyLarge}"/>
+    </Style>
+
+    <!-- Small hint / validation text. -->
+    <Style x:Key="DialogHintTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="Margin" Value="2,6,0,0"/>
+    </Style>
+
+    <!-- Inset section card — the one inner-card treatment so cards align
+         identically in every dialog (replaces the 14,10 / 12,9 / 10,6
+         hand-rolled variants). -->
+    <Style x:Key="DialogSectionCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource DialogInsetBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Medium}"/>
+        <Setter Property="Padding" Value="14,12"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- Footer strip (kept key for backwards compatibility). -->
+    <Style x:Key="DialogFooterStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+        <Setter Property="Background" Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Surface.Secondary.BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="0,1,0,0"/>
+        <Setter Property="Padding" Value="20,14"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- Header ✕ close button. -->
+    <Style x:Key="DialogCloseButtonStyle" TargetType="Button">
+        <Setter Property="Width" Value="34"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="Content" Value="&#xE711;"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Chrome"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="Background"
+                                    Value="{DynamicResource MenuHoverBrush}"/>
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource PrimaryForegroundBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome" Property="Background"
+                                    Value="{DynamicResource DialogInsetBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         SHARED DIALOG CHROME — implicit template for ThemedDialogWindow
+         (and therefore for every dialog that derives from it).
+
+         Sizing rules live in ThemedDialogWindow (SizeToContent=Height +
+         work-area clamps); this template guarantees the BODY SCROLLS when
+         the clamp engages, so text is always reachable — never clipped.
+         ═══════════════════════════════════════════════════════════════ -->
+
+    <Style x:Key="{x:Type dialogs:ThemedDialogWindow}"
+           TargetType="{x:Type dialogs:ThemedDialogWindow}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type dialogs:ThemedDialogWindow}">
+                    <Grid Margin="{StaticResource Dialog.ShadowMargin}"
+                          Background="Transparent">
+
+                        <!-- The card: single glass surface + outline + elevation. -->
+                        <Border x:Name="PART_Card"
+                                Background="{DynamicResource DialogSurfaceBrush}"
+                                BorderBrush="{DynamicResource OutlineBrush}"
+                                BorderThickness="{DynamicResource CardBorderThickness}"
+                                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                                Effect="{DynamicResource ShadowElevated}"
+                                SnapsToDevicePixels="True">
+
+                            <Border ClipToBounds="True"
+                                    CornerRadius="{DynamicResource CardCornerRadiusLarge}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- ═══ HEADER (drag area) ═══ -->
+                                    <Border x:Name="PART_TitleBar"
+                                            Grid.Row="0"
+                                            Background="Transparent"
+                                            Padding="24,18,14,0">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Border x:Name="IconBadge"
+                                                    Style="{StaticResource DialogIconBadgeStyle}"
+                                                    Margin="0,0,14,0">
+                                                <TextBlock Text="{TemplateBinding DialogIcon}"
+                                                           FontFamily="Segoe MDL2 Assets"
+                                                           FontSize="{StaticResource TextTitle}"
+                                                           Foreground="{TemplateBinding DialogIconBrush}"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
+                                            </Border>
+
+                                            <StackPanel Grid.Column="1"
+                                                        VerticalAlignment="Center"
+                                                        Margin="0,0,10,0">
+                                                <TextBlock Text="{TemplateBinding Title}"
+                                                           Style="{StaticResource DialogTitleStyle}"/>
+                                                <TextBlock x:Name="SubtitleText"
+                                                           Text="{TemplateBinding DialogSubtitle}"
+                                                           Style="{StaticResource DialogSubtitleStyle}"/>
+                                            </StackPanel>
+
+                                            <Button x:Name="PART_CloseButton"
+                                                    Grid.Column="2"
+                                                    Style="{StaticResource DialogCloseButtonStyle}"
+                                                    VerticalAlignment="Top"
+                                                    ToolTip="{DynamicResource Action.Close}"/>
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- ═══ BODY (scrolls when the work-area
+                                         clamp engages — text can never be
+                                         pushed out of reach) ═══ -->
+                                    <ScrollViewer x:Name="PART_ContentScroll"
+                                                  Grid.Row="1"
+                                                  Margin="0,16,0,0"
+                                                  VerticalScrollBarVisibility="Auto"
+                                                  HorizontalScrollBarVisibility="Disabled"
+                                                  behaviors:SmoothScrollBehavior.IsEnabled="True">
+                                        <ContentPresenter Margin="{TemplateBinding DialogContentPadding}"/>
+                                    </ScrollViewer>
+
+                                    <!-- ═══ FOOTER (visible only when a dialog
+                                         supplies FooterContent) ═══ -->
+                                    <Border x:Name="FooterRoot"
+                                            Grid.Row="2"
+                                            Margin="0,14,0,0"
+                                            Style="{StaticResource DialogFooterStyle}">
+                                        <ContentPresenter Content="{TemplateBinding FooterContent}"
+                                                          HorizontalAlignment="Right"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </Border>
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+                        <!-- No icon glyph → hide the badge entirely. -->
+                        <Trigger Property="DialogIcon" Value="">
+                            <Setter TargetName="IconBadge" Property="Visibility"
+                                    Value="Collapsed"/>
+                        </Trigger>
+                        <!-- No subtitle → keep the header compact. -->
+                        <Trigger Property="DialogSubtitle" Value="">
+                            <Setter TargetName="SubtitleText" Property="Visibility"
+                                    Value="Collapsed"/>
+                        </Trigger>
+                        <Trigger Property="ShowCloseButton" Value="False">
+                            <Setter TargetName="PART_CloseButton" Property="Visibility"
+                                    Value="Collapsed"/>
+                        </Trigger>
+                        <Trigger Property="FooterContent" Value="{x:Null}">
+                            <Setter TargetName="FooterRoot" Property="Visibility"
+                                    Value="Collapsed"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         APP-WIDE TOOLTIP — the one implicit ToolTip style.
+
+         Merged from App.xaml for the whole product. This is the exact
+         treatment previously carried by WizardStyles' implicit style
+         (which shadowed everything app-wide); it is centralized here so
+         there is exactly ONE tooltip definition:
+           • opaque theme surface (the old ModuleBackgroundBrush variant
+             was alpha-00 → white-on-white "invisible" tooltips);
+           • always wraps, MaxWidth-bounded → never runs off-screen;
+           • theme-aware foreground (never hard-coded White).
+         ═══════════════════════════════════════════════════════════════ -->
+
+    <Style x:Key="AppToolTipStyle" TargetType="ToolTip">
+        <Setter Property="HasDropShadow" Value="False"/>
+        <Setter Property="HorizontalOffset" Value="0"/>
+        <Setter Property="VerticalOffset" Value="6"/>
+        <Setter Property="Placement" Value="Bottom"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToolTip">
+                    <Border Background="{DynamicResource PopupSurfaceBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderThickness="1"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            Padding="12,8"
+                            MaxWidth="360"
+                            SnapsToDevicePixels="True"
+                            Effect="{StaticResource Dialog.ToolTipShadow}">
+                        <ContentPresenter TextElement.Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                          TextElement.FontSize="{StaticResource TextBody}"
+                                          TextElement.FontFamily="{DynamicResource AppFontFamily}">
+                            <ContentPresenter.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextWrapping" Value="Wrap"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+                                    <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+                                </Style>
+                            </ContentPresenter.Resources>
+                        </ContentPresenter>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Every ToolTip in the app picks this up implicitly. -->
+    <Style TargetType="ToolTip" BasedOn="{StaticResource AppToolTipStyle}"/>
 
 </ResourceDictionary>

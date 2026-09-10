@@ -1,4 +1,5 @@
 using System.Windows;
+using ProGlassAutomation.Views.Shared.Dialogs;
 
 namespace ProGlassAutomation.Views.Shared
 {
@@ -12,7 +13,7 @@ namespace ProGlassAutomation.Views.Shared
     /// <summary>
     /// Cancel / Discard / Save &amp; Continue confirmation (§28).
     /// </summary>
-    public partial class UnsavedChangesDialog : Window
+    public partial class UnsavedChangesDialog : ThemedDialogWindow
     {
         private UnsavedChangesChoice _choice = UnsavedChangesChoice.Cancel;
 

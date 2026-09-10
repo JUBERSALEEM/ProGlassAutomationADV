@@ -20,7 +20,7 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.Views.Reports.Workflow
 {
-    public partial class WorkflowWarningDialog : Window
+    public partial class WorkflowWarningDialog : ProGlassAutomation.Views.Shared.Dialogs.ThemedDialogWindow
     {
         private readonly WorkflowWarningViewModel _vm;
 

@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Views/Reports/Workflow/WorkflowProgressDialog.xaml.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report — Workflow Engine (Chat 17)
@@ -27,7 +27,7 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.Views.Reports.Workflow
 {
-    public partial class WorkflowProgressDialog : Window
+    public partial class WorkflowProgressDialog : ProGlassAutomation.Views.Shared.Dialogs.ThemedDialogWindow
     {
         private readonly WorkflowProgressViewModel _vm;
 

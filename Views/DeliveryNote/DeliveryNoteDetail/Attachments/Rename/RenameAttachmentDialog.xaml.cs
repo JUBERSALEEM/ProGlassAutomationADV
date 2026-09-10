@@ -1,37 +1,29 @@
 using ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail;
+using ProGlassAutomation.Views.Shared.Dialogs;
 using System.Windows;
-using System.Windows.Input;
 
 namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteDetail.Attachments.Rename
 {
     /// <summary>
     /// Modal dialog for renaming an attachment on upload (Phase 10.6a).
     ///
-    /// Design (Phase 10.6a polish):
-    ///   - Frameless glassy card, 20px rounded corners, drop shadow
-    ///   - Custom title bar with drag support + close button
-    ///   - Gradient icon pill + title + subtitle
+    /// Design (2026-09 dialog audit rebuild):
+    ///   - Shared ThemedDialogWindow chrome (header badge/title/subtitle,
+    ///     close button, drag, footer strip) — one source of truth
     ///   - Filename TextBox + attached extension pill (indigo focus glow)
     ///   - Inline red-tinted validation banner (only when error present)
-    ///   - Gradient Save button + soft Cancel — footer strip with tint
     ///
     /// Interaction:
     ///   - Enter = Save (IsDefault → SaveCommand)
     ///   - Escape = Cancel (IsCancel)
-    ///   - Click header = drag window (WindowStyle=None + AllowsTransparency)
-    ///
-    /// 2026-09-02 (Phase 3.7): editing + validation moved to
-    /// ViewModels/DeliveryNote/DeliveryNoteDetail/RenameAttachmentViewModel.cs
-    /// (WorkflowProgressDialog pattern — the view wires RequestClose to
-    /// DialogResult). Remaining here are the by-design window keeps:
-    /// frameless drag + focus/select-all on load.
+    ///   - Header drag handled by the shared chrome
     ///
     /// Usage:
-    ///   var dlg = _dialogs.Create<RenameAttachmentDialog>("IMG_1234.jpg");
+    ///   var dlg = _dialogs.Create&lt;RenameAttachmentDialog&gt;("IMG_1234.jpg");
     ///   if (dlg.ShowDialog() == true)
     ///       var newName = dlg.ResultFileName;  // e.g. "front-view.jpg"
     /// </summary>
-    public partial class RenameAttachmentDialog : Window
+    public partial class RenameAttachmentDialog : ThemedDialogWindow
     {
         private readonly RenameAttachmentViewModel _vm;
 
@@ -60,13 +52,6 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteDetail.Attachments.R
                 FileNameTextBox.Focus();
                 FileNameTextBox.SelectAll();
             };
-        }
-
-        // ── Frameless window drag support (window-chrome keep) ────────────
-        private void OnHeaderMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-                DragMove();
         }
     }
 }

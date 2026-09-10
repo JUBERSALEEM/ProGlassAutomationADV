@@ -42,7 +42,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList.ProformaPicker
     /// (BuildCard / BuildApprovalBadge / ShowMessage), re-rendering when the
     /// VM raises Items / EmptyMessage.
     /// </summary>
-    public partial class JobOrderProformaPickerDialog : Window
+    public partial class JobOrderProformaPickerDialog : ProGlassAutomation.Views.Shared.Dialogs.ThemedDialogWindow
     {
         private readonly JobOrderProformaPickerViewModel _vm = new();
 

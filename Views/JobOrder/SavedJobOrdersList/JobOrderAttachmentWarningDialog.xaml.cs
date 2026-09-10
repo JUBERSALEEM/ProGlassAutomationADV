@@ -16,11 +16,11 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System.Windows;
-using System.Windows.Input;
+using ProGlassAutomation.Views.Shared.Dialogs;
 
 namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
 {
-    public partial class JobOrderAttachmentWarningDialog : Window
+    public partial class JobOrderAttachmentWarningDialog : ThemedDialogWindow
     {
         /// <summary>
         /// True when the user chose DELETE ATTACHMENTS; false for KEEP.

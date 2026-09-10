@@ -1,5 +1,6 @@
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.ViewModels.Shared;
+using ProGlassAutomation.Views.Shared.Dialogs;
 using System.Collections.Generic;
 using System.Windows;
 
@@ -8,7 +9,7 @@ namespace ProGlassAutomation.Views.Shared
     /// <summary>
     /// Professional who/when/what/why audit report for one activity row.
     /// </summary>
-    public partial class AuditReportDialog : Window
+    public partial class AuditReportDialog : ThemedDialogWindow
     {
         private AuditReportDialog()
         {

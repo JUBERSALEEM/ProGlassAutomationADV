@@ -40,7 +40,7 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceDetail
     /// <summary>
     /// Select which family drafts to issue. Pills default ON.
     /// </summary>
-    public partial class IssueDraftsDialog : Window
+    public partial class IssueDraftsDialog : ThemedDialogWindow
     {
         private readonly ObservableCollection<IssueDraftPick> _picks = new();
         private bool _confirmed;

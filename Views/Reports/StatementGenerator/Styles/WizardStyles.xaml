@@ -350,7 +350,12 @@
          White text below survived review. It is merged app-wide from
          App.xaml, so a mistake here is not a Statement Generator problem — it
          is every tooltip in the product. -->
-    <Style TargetType="ToolTip" BasedOn="{StaticResource WizardToolTipStyle}"/>
+
+    <!-- Global implicit style REMOVED (2026-09 dialog audit): the app-wide
+         implicit ToolTip style now lives centrally in
+         Themes/Styles/DialogStyles.xaml (AppToolTipStyle — identical
+         treatment: PopupSurfaceBrush, wrap, MaxWidth, theme foreground).
+         This keyed style is retained for any explicit opt-in. -->
 
     <!-- ═════════════════════════════════════════════════════════════════
          WIZARD CARD STYLES

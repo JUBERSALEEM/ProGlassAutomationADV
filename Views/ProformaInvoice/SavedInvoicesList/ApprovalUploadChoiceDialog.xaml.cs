@@ -1,4 +1,5 @@
 using System.Windows;
+using ProGlassAutomation.Views.Shared.Dialogs;
 
 namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
 {
@@ -8,7 +9,7 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
     /// JPG / image or a PDF (the signed Proforma Invoice or the LPO), then the
     /// shell opens Step 8 with the matching uploader.
     /// </summary>
-    public partial class ApprovalUploadChoiceDialog : Window
+    public partial class ApprovalUploadChoiceDialog : ThemedDialogWindow
     {
         /// <summary>True when the user picked a type (not cancel).</summary>
         public bool Chosen { get; private set; }

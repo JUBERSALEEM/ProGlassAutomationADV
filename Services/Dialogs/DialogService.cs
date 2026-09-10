@@ -3,9 +3,13 @@
 // PROJECT: ProGlassAutomation
 // MODULE: MVVM leakage sweep (Phase 2, audit item 2.1)
 //
-// Default IDialogService: delegates to MessageBox.Show with identical
-// semantics (zero behaviour change during migration). Registered as a
-// singleton in DI and exposed as App.Dialogs.
+// Default IDialogService. Message prompts (Show/Info/Warning/Error/
+// Confirm) render the THEMED message box — ThemedMessageBoxWindow, the
+// shared ThemedDialogWindow chrome — since the 2026-09 senior dialog
+// audit (previously the native OS MessageBox, which did not follow the
+// theme and clipped long localized text). Window dialogs (Create/
+// ShowDialog/Show) are unchanged. Registered as a singleton in DI and
+// exposed as App.Dialogs.
 //
 // THREAD AFFINITY (Sept 2026 senior audit — Sharing Center STA crash)
 // ───────────────────────────────────────────────────────────────────
@@ -72,19 +76,24 @@ namespace ProGlassAutomation.Services.Dialogs
 
         public void Show<TWindow>(params object[] ctorArgs) where TWindow : System.Windows.Window
             => OnUi(() => Create<TWindow>(ctorArgs).Show());
+        // ─────────────────────────────────────────────────────────────────
+        //  MESSAGE PROMPTS — themed (2026-09 senior dialog audit)
+        // ─────────────────────────────────────────────────────────────────
+        //  These previously delegated to the native OS MessageBox (unthemed,
+        //  non-wrapping, tiny) — the root cause of the "broken text / window
+        //  too small" reports on Delivery Note delete/void and ~260 other
+        //  prompts. They now render ThemedMessageBoxWindow (shared dialog
+        //  chrome: wrapping + scrolling message, theme surfaces, owner
+        //  awareness, native default/cancel semantics) with a native
+        //  fallback so a prompt can never be swallowed.
+
         public MessageBoxResult Show(string message, string? caption = null,
             MessageBoxButton button = MessageBoxButton.OK,
             MessageBoxImage icon = MessageBoxImage.None,
             MessageBoxResult defaultResult = MessageBoxResult.None)
-            => OnUi(() =>
-            {
-                var owner = System.Windows.Application.Current?.MainWindow;
-                return owner != null && owner.IsLoaded
-                    ? MessageBox.Show(owner, message, caption ?? string.Empty,
-                        button, icon, defaultResult)
-                    : MessageBox.Show(message, caption ?? string.Empty,
-                        button, icon, defaultResult);
-            });
+            => OnUi(() => ThemedMessageBox.Show(
+                ResolveOwner(), message, caption ?? string.Empty,
+                button, icon, defaultResult));
 
         public void Info(string message, string? caption = null)
             => Show(message, caption, MessageBoxButton.OK, MessageBoxImage.Information);
@@ -98,5 +107,38 @@ namespace ProGlassAutomation.Services.Dialogs
         public bool Confirm(string message, string? caption = null)
             => Show(message, caption, MessageBoxButton.YesNo, MessageBoxImage.Question)
                == MessageBoxResult.Yes;
+
+        /// <summary>Loaded main window (or null — ThemedMessageBox then shows
+        /// owner-less, centred on screen, like the native fallback).</summary>
+        private static Window? ResolveOwner()
+        {
+            var owner = Application.Current?.MainWindow;
+            return owner != null && owner.IsLoaded ? owner : null;
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  Prompts — the entry point for NON-ViewModel code (views, services,
+    //  utilities, app shell). Previously ~39 call sites rendered the raw
+    //  OS MessageBox; they now go through the same themed dialog platform
+    //  as everything else (2026-09 senior dialog audit).
+    //
+    //  Headless/test safety: when the app has not started (App.Dialogs not
+    //  yet assigned) this degrades to the native MessageBox — identical
+    //  behaviour to before, never a NullReferenceException.
+    // ═══════════════════════════════════════════════════════════════════
+    public static class Prompts
+    {
+        public static MessageBoxResult Show(string message, string? caption = null,
+            MessageBoxButton button = MessageBoxButton.OK,
+            MessageBoxImage icon = MessageBoxImage.None,
+            MessageBoxResult defaultResult = MessageBoxResult.None)
+        {
+            IDialogService? service = ProGlassAutomation.App.Dialogs;
+            if (service != null)
+                return service.Show(message, caption, button, icon, defaultResult);
+            return MessageBox.Show(message, caption ?? string.Empty,
+                button, icon, defaultResult);
+        }
     }
 }

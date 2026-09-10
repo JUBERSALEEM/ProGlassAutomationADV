@@ -9,6 +9,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Dialogs;
 
 namespace ProGlassAutomation.Views.Inquiry
 {
@@ -57,10 +58,10 @@ namespace ProGlassAutomation.Views.Inquiry
             _closeRequestedHandler = saved => { DialogResult = saved; };
             vm.CloseRequested += _closeRequestedHandler;
             vm.SelectFilesRequested = SelectFiles;
-            vm.ConfirmDiscardRequested = () => MessageBox.Show(
+            vm.ConfirmDiscardRequested = () => Prompts.Show(
                 "Discard unsaved changes to this inquiry?", "Unsaved changes",
                 MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
-            vm.ConfirmDeleteRequested = file => MessageBox.Show(
+            vm.ConfirmDeleteRequested = file => Prompts.Show(
                 $"Delete attachment '{file.FileName}'? The file is removed from disk as well.",
                 "Delete attachment",
                 MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
@@ -234,7 +235,7 @@ namespace ProGlassAutomation.Views.Inquiry
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Could not attach the dropped files: " + ExceptionMessages.Deep(ex),
+                Prompts.Show("Could not attach the dropped files: " + ExceptionMessages.Deep(ex),
                     "Attachment", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }

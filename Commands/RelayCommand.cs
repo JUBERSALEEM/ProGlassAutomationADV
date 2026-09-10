@@ -26,6 +26,7 @@ using System;
 using ProGlassAutomation.Services.Logging;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Dialogs;
 
 namespace ProGlassAutomation.Commands
 {
@@ -81,8 +82,7 @@ namespace ProGlassAutomation.Commands
                         Operation = "PermissionDenied"
                     });
 
-                System.Windows.MessageBox.Show(
-                    denied.UserMessage, "Permission Denied",
+                Prompts.Show(denied.UserMessage, "Permission Denied",
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Warning);
             }

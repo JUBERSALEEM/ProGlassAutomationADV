@@ -14,6 +14,7 @@ using Microsoft.Win32;
 using ProGlassAutomation.Services.Licensing;
 using ProGlassAutomation.Services.Logging;
 using ThemeManager = ProGlassAutomation.Services.ThemeManager;
+using ProGlassAutomation.Services.Dialogs;
 
 namespace ProGlassAutomation.Views.Licensing
 {
@@ -372,8 +373,7 @@ namespace ProGlassAutomation.Views.Licensing
             if (activePlan != null && activePlan.Days > pastedPlan.Days)
             {
                 string until = SafeLocalDate(current.Payload?.ExpiresAt);
-                var answer = MessageBox.Show(owner,
-                    "A " + activePlan.Name + " license is already active on this app" +
+                var answer = Prompts.Show("A " + activePlan.Name + " license is already active on this app" +
                     (until == null ? "." : " and runs until " + until + ".") + "\n\n" +
                     "The key you pasted is a " + pastedPlan.Name + " key. Applying it would " +
                     "REPLACE the active " + activePlan.Name + " license with a shorter one — " +
@@ -387,8 +387,7 @@ namespace ProGlassAutomation.Views.Licensing
             // 2) Same plan already active → replace confirmation.
             if (activePlan != null && activePlan.Days == pastedPlan.Days)
             {
-                var answer = MessageBox.Show(owner,
-                    "A " + activePlan.Name + " license is already active. " +
+                var answer = Prompts.Show("A " + activePlan.Name + " license is already active. " +
                     "Applying this key replaces it.\n\nContinue?",
                     "License already active",
                     MessageBoxButton.YesNo,
@@ -400,8 +399,7 @@ namespace ProGlassAutomation.Views.Licensing
             string selected = SelectedPlanName();
             if (!string.Equals(selected, pastedPlan.Name, StringComparison.OrdinalIgnoreCase))
             {
-                var answer = MessageBox.Show(owner,
-                    "You selected \"" + selected + "\" in the plans, but the key you pasted " +
+                var answer = Prompts.Show("You selected \"" + selected + "\" in the plans, but the key you pasted " +
                     "is a " + pastedPlan.Name + " key.\n\nIf you ordered \"" + selected +
                     "\", this is the wrong key — ask your vendor to re-check. " +
                     "Apply the " + pastedPlan.Name + " key anyway?",
@@ -475,8 +473,7 @@ namespace ProGlassAutomation.Views.Licensing
                 // still shown in the dialog so nothing is lost.
             }
 
-            MessageBox.Show(OwnerWindow(),
-                "Your request is copied to the clipboard — send it to your vendor " +
+            Prompts.Show("Your request is copied to the clipboard — send it to your vendor " +
                 "(email, WhatsApp, chat). They will reply with a single key block " +
                 "starting with PGKEY1; paste it in the box at the top and press " +
                 "APPLY LICENSE KEY to activate instantly.\n\n" +

@@ -19,7 +19,7 @@ using System.Windows;
 
 namespace ProGlassAutomation.Views.Sharing
 {
-    public partial class ShareComposerWindow : Window
+    public partial class ShareComposerWindow : ProGlassAutomation.Views.Shared.Dialogs.ThemedDialogWindow
     {
         private readonly ShareComposerViewModel _vm;
 

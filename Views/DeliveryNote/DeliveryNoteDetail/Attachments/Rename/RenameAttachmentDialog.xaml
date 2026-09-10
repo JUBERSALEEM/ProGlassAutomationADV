@@ -1,65 +1,26 @@
-<Window x:Class="ProGlassAutomation.Views.DeliveryNote.DeliveryNoteDetail.Attachments.Rename.RenameAttachmentDialog"
-             TextOptions.TextHintingMode="Fixed"
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/DeliveryNote/DeliveryNoteDetail/Attachments/Rename/RenameAttachmentDialog.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Delivery Note — attachment rename on upload (Phase 10.6a)
+
+     2026-09 dialog audit: rebuilt on the shared ThemedDialogWindow chrome
+     (drag header, close button, icon badge and footer now come from the
+     one template). Keeps the by-design pieces: filename TextBox with
+     select-all + indigo focus glow, attached extension pill, and the
+     fixed-height validation strip (reserved with Visibility=Hidden so the
+     footer never jumps when an error appears).
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<dialogs:ThemedDialogWindow x:Class="ProGlassAutomation.Views.DeliveryNote.DeliveryNoteDetail.Attachments.Rename.RenameAttachmentDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+        xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
         Title="{DynamicResource DeliveryNote.SaveAttachment}"
         Width="560"
-        Height="400"
-        WindowStartupLocation="CenterOwner"
-        ResizeMode="NoResize"
-        ShowInTaskbar="False"
-        WindowStyle="None"
-        AllowsTransparency="True"
-        Background="Transparent"
-        FontFamily="{DynamicResource AppFontFamily}"
-        TextOptions.TextFormattingMode="Ideal"
-        TextOptions.TextRenderingMode="ClearType"
-        UseLayoutRounding="True"
-        SnapsToDevicePixels="True">
+        DialogIcon="&#xE8E5;">
 
     <Window.Resources>
-
-        <!-- ── CLOSE (X) button — 36px circle, subtle hover, right of the
-             drag header. Larger than the 26px row buttons so the dialog's
-             only dismiss affordance is a comfortable hit target. ──────── -->
-        <Style x:Key="DialogCloseButtonStyle" TargetType="Button">
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Width" Value="36"/>
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg"
-                                Background="Transparent"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                SnapsToDevicePixels="True">
-                            <TextBlock Text="&#xE711;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextBody}"
-                                       Foreground="{TemplateBinding Foreground}"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background"
-                                        Value="{DynamicResource MenuHoverBrush}"/>
-                                <Setter Property="Foreground"
-                                        Value="{DynamicResource DangerBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Background"
-                                        Value="{DynamicResource TintRedBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
         <!-- ── FILENAME TEXTBOX — rounded, indigo focus glow ───────────── -->
         <Style x:Key="FileNameTextBoxStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
@@ -98,164 +59,68 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
     </Window.Resources>
 
-    <!-- ═══════════════════════════════════════════════════════════════════
-         GLASSY CARD — rounded 12px, drop shadow, subtle border.
-         FIXED window height (no SizeToContent): the dialog never
-         re-measures when the validation banner appears, so it can never
-         jump or collapse. The validation strip is ALWAYS laid out
-         (Visibility=Hidden when clean) at a fixed height, so showing an
-         error changes nothing in the layout. No '*' rows — the card is
-         exactly as tall as its content. Margin is large enough for the
-         drop shadow to render fully (no square clipping at the edges).
-    ═══════════════════════════════════════════════════════════════════ -->
-    <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-            Background="{DynamicResource ModuleBackgroundBrush}"
-            BorderBrush="{DynamicResource OutlineBrush}"
-            BorderThickness="{DynamicResource CardBorderThickness}"
-            Margin="24,20,24,28">
-        <Border.Effect>
-            <DropShadowEffect BlurRadius="22" ShadowDepth="0"
-                              Opacity="0.25" Color="{DynamicResource LiquidShadowColor}"/>
-        </Border.Effect>
-
+    <StackPanel>
+        <!-- ── FILENAME INPUT ROW ──────────────────────────────────────── -->
         <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <!-- Header bar (drag + close) -->
-                <RowDefinition Height="Auto"/>
-                <!-- Icon + title area -->
-                <RowDefinition Height="Auto"/>
-                <!-- Filename input -->
-                <RowDefinition Height="Auto"/>
-                <!-- Validation strip (fixed height, hidden when clean) -->
-                <RowDefinition Height="Auto"/>
-                <!-- Buttons -->
-            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-            <!-- ── DRAG HEADER + CLOSE BUTTON ─────────────────────────── -->
-            <Grid Grid.Row="0"
-                  Height="44"
-                  MouseLeftButtonDown="OnHeaderMouseDown">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0"
+                     x:Name="FileNameTextBox"
+                     Style="{StaticResource FileNameTextBoxStyle}"
+                     Text="{Binding FileName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                <!-- Left area is draggable — no visible content -->
-                <Border Grid.Column="0" Background="Transparent"/>
-
-                <Button Grid.Column="1"
-                        Style="{StaticResource DialogCloseButtonStyle}"
-                        Margin="0,4,4,0"
-                        VerticalAlignment="Top"
-                        Command="{Binding CancelCommand}"
-                        ToolTip="{DynamicResource DeliveryNote.CloseEsc}"/>
-            </Grid>
-
-            <!-- ── HEADER (icon + title + subtitle) ───────────────────── -->
-            <StackPanel Grid.Row="1"
-                        Margin="28,4,28,20">
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
-                    <!-- Icon pill -->
-                    <Border Width="44" Height="44"
-                            CornerRadius="{DynamicResource CardCornerRadius}"
-                            Margin="0,0,14,0">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
-                                <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <TextBlock Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="{StaticResource TextHeadline}"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
-
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="{DynamicResource DeliveryNote.SaveAttachment}"
-                                   FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Text="{DynamicResource DeliveryNote.GiveMeaningfulNameExtensionStays}"
-                                   FontSize="{StaticResource TextBody}"
-                                   Margin="0,2,0,0"
-                                   TextTrimming="CharacterEllipsis"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                    </StackPanel>
-                </StackPanel>
-            </StackPanel>
-
-            <!-- ── FILENAME INPUT ROW ──────────────────────────────────── -->
-            <Grid Grid.Row="2" Margin="28,0,28,4">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <TextBox Grid.Column="0"
-                         x:Name="FileNameTextBox"
-                         Style="{StaticResource FileNameTextBoxStyle}"
-                         Text="{Binding FileName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-
-                <!-- Extension pill — right-attached to textbox -->
-                <Border Grid.Column="1"
-                        Background="{DynamicResource TintIndigoBrush}"
-                        BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="{DynamicResource Border.BoxNoLeftThickness}"
-                        CornerRadius="{DynamicResource Radius.Right.Medium}"
-                        Padding="16,10"
-                        VerticalAlignment="Stretch">
-                    <TextBlock Text="{Binding Extension}"
-                               FontSize="{StaticResource TextSection}"
-                               FontWeight="Bold"
-                               VerticalAlignment="Center"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                </Border>
-            </Grid>
-
-            <!-- ── VALIDATION STRIP — always reserved at a fixed height;
-                 Visibility toggles Hidden/Visible only, so the window and
-                 footer never move when an error appears ─────────────── -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="3"
-                    Height="36"
-                    Margin="28,14,28,0"
-                    Padding="14,8"
-                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                    Background="{DynamicResource TintRedBrush}"
-                    VerticalAlignment="Top"
-                    Visibility="{Binding ValidationVisibility}">
-                <TextBlock Text="{Binding ValidationMessage}"
-                           FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                           TextWrapping="Wrap"
-                           Foreground="{DynamicResource DangerBrush}"/>
+            <!-- Extension pill — right-attached to textbox -->
+            <Border Grid.Column="1"
+                    Background="{DynamicResource TintIndigoBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
+                    BorderThickness="{DynamicResource Border.BoxNoLeftThickness}"
+                    CornerRadius="{DynamicResource Radius.Right.Medium}"
+                    Padding="16,10"
+                    VerticalAlignment="Stretch">
+                <TextBlock Text="{Binding Extension}"
+                           FontSize="{StaticResource TextSection}"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
             </Border>
-
-            <!-- ── ACTION BUTTONS ──────────────────────────────────────── -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="4"
-                    Background="{DynamicResource MenuHoverBrush}"
-                    CornerRadius="{DynamicResource Radius.Bottom.Medium}"
-                    Padding="24,16"
-                    Margin="0,20,0,0">
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Right">
-                    <Button Style="{StaticResource OutlinedPillButton}"
-                            Tag="&#xE711;" Content="{DynamicResource Action.Cancel}"
-                            Margin="0,0,10,0"
-                            ToolTip="{DynamicResource DeliveryNote.CloseWithoutSaving}"
-                            
-                            IsCancel="True"/>
-                    <Button Style="{StaticResource PrimaryPillButton}"
-                            Tag="&#xE74E;" Content="{DynamicResource Action.Save}"
-                            ToolTip="{DynamicResource DeliveryNote.SaveNewFileName}"
-                            Command="{Binding SaveCommand}"
-                            IsDefault="True"/>
-                </StackPanel>
-            </Border>
-
         </Grid>
-    </Border>
-</Window>
+
+        <!-- ── VALIDATION STRIP — always reserved at a fixed height;
+             Visibility toggles Hidden/Visible only, so the window and
+             footer never move when an error appears ─────────────────── -->
+        <Border BorderBrush="{DynamicResource OutlineBrush}"
+                BorderThickness="{DynamicResource CardBorderThickness}"
+                Height="36"
+                Margin="0,14,0,0"
+                Padding="14,8"
+                CornerRadius="{DynamicResource ControlCornerRadius}"
+                Background="{DynamicResource TintRedBrush}"
+                VerticalAlignment="Top"
+                Visibility="{Binding ValidationVisibility}">
+            <TextBlock Text="{Binding ValidationMessage}"
+                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource DangerBrush}"/>
+        </Border>
+    </StackPanel>
+
+    <dialogs:ThemedDialogWindow.FooterContent>
+        <StackPanel Orientation="Horizontal">
+            <Button Style="{StaticResource OutlinedPillButton}"
+                    Tag="&#xE711;" Content="{DynamicResource Action.Cancel}"
+                    Margin="0,0,10,0"
+                    ToolTip="{DynamicResource DeliveryNote.CloseWithoutSaving}"
+                    IsCancel="True"/>
+            <Button Style="{StaticResource PrimaryPillButton}"
+                    Tag="&#xE74E;" Content="{DynamicResource Action.Save}"
+                    ToolTip="{DynamicResource DeliveryNote.SaveNewFileName}"
+                    Command="{Binding SaveCommand}"
+                    IsDefault="True"/>
+        </StackPanel>
+    </dialogs:ThemedDialogWindow.FooterContent>
+</dialogs:ThemedDialogWindow>

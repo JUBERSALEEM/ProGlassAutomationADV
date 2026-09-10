@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.ViewModels.Shared;
+using ProGlassAutomation.Views.Shared.Dialogs;
 
 namespace ProGlassAutomation.Views.Shared
 {
@@ -13,7 +14,7 @@ namespace ProGlassAutomation.Views.Shared
     ///   if (dlg.ShowDialog() == true)
     ///       var reason = dlg.ResultReason;
     /// </summary>
-    public partial class VoidReasonDialog : Window
+    public partial class VoidReasonDialog : ThemedDialogWindow
     {
         private readonly VoidReasonViewModel _vm;
 

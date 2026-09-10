@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using ProGlassAutomation.Services.Dialogs;
 
 namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
 {
@@ -93,7 +94,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
                     return;
                 }
 
-                MessageBox.Show(
+                Prompts.Show(
                     "Dispatched delivery notes open from God View.\n\n" +
                     "Use NEW DN on this row for remaining balance.",
                     "Open from God View",
@@ -154,7 +155,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
                                 latestDn.Status, s);
                         if (!transition.IsValid)
                         {
-                            MessageBox.Show(
+                            Prompts.Show(
                                 transition.Reason ?? "Invalid status change.",
                                 "Status Change Not Allowed",
                                 MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -168,7 +169,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(
+                        Prompts.Show(
                             $"Failed to change status:\n\n{ExceptionMessages.Deep(ex)}",
                             "Update Failed",
                             MessageBoxButton.OK,
@@ -224,7 +225,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
                 if (latestRow != null)
                     vm.DeleteCommand.Execute(latestRow);
                 else
-                    MessageBox.Show(
+                    Prompts.Show(
                         "Could not find the delivery note to delete.\n\n" +
                         "Please refresh the list and try again.",
                         "Not Found",

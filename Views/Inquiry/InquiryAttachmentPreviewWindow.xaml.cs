@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using ProGlassAutomation.Services.Dialogs;
 
 namespace ProGlassAutomation.Views.Inquiry
 {
@@ -67,7 +68,7 @@ namespace ProGlassAutomation.Views.Inquiry
         {
             var result = _service.Open(_attachment);
             if (!result.IsSuccess)
-                MessageBox.Show(this, result.Error, "Open attachment",
+                Prompts.Show(result.Error, "Open attachment",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 

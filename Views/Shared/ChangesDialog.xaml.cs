@@ -1,4 +1,5 @@
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Views.Shared.Dialogs;
 using System.Collections.Generic;
 using System.Windows;
 
@@ -8,7 +9,7 @@ namespace ProGlassAutomation.Views.Shared
     /// GitHub-style before/after viewer for audit change sets.
     /// Usage: ChangesDialog.Show(owner, "PI-2026-001 — edited", changes);
     /// </summary>
-    public partial class ChangesDialog : Window
+    public partial class ChangesDialog : ThemedDialogWindow
     {
         private ChangesDialog()
         {
@@ -21,7 +22,8 @@ namespace ProGlassAutomation.Views.Shared
         {
             if (changes == null || changes.Count == 0)
             {
-                MessageBox.Show(
+                ThemedMessageBox.Show(
+                    owner,
                     "This entry has no field-level change details.",
                     "Changes",
                     MessageBoxButton.OK,
@@ -30,10 +32,9 @@ namespace ProGlassAutomation.Views.Shared
             }
 
             var dialog = new ChangesDialog { Owner = owner };
-            dialog.SubtitleText.Text = subtitle;
+            dialog.DialogSubtitle = subtitle;
             dialog.ChangesList.ItemsSource = changes;
             dialog.ShowDialog();
         }
-
-        }
+    }
 }

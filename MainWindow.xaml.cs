@@ -23,6 +23,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using ProGlassAutomation.Services.Dialogs;
 
 namespace ProGlassAutomation
 {
@@ -209,7 +210,7 @@ namespace ProGlassAutomation
                     "\n   • ",
                     Services.Safety.CriticalOperationTracker.ActiveOperations);
 
-                var answer = MessageBox.Show(
+                var answer = Prompts.Show(
                     "ProGlass is still finishing work that must not be " +
                     "interrupted:\n\n   • " + running + "\n\n" +
                     "Closing now could leave a document half-written.\n\n" +

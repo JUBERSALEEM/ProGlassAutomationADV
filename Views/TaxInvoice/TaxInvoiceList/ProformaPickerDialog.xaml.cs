@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +20,7 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
     ///      (confirmed from ProformaInvoicePdfLayout.cs: entity.GrandTotalVatInclusive)
     /// FIX: All Thickness constructors verified — WPF accepts 1 or 4 args only.
     /// </summary>
-    public partial class ProformaPickerDialog : Window
+    public partial class ProformaPickerDialog : ProGlassAutomation.Views.Shared.Dialogs.ThemedDialogWindow
     {
         // ── Result ────────────────────────────────────────────────────────
 

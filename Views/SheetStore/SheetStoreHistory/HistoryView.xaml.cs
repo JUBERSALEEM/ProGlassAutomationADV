@@ -3,7 +3,7 @@ using System.Windows;
 
 namespace ProGlassAutomation.Views.SheetStore.SheetStoreHistory
 {
-    public partial class HistoryView : Window
+    public partial class HistoryView : ProGlassAutomation.Views.Shared.Dialogs.ThemedDialogWindow
     {
         public HistoryView() : this(new HistoryViewModel()) { }
 

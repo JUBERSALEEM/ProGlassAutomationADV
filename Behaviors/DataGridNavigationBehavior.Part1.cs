@@ -10,6 +10,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using ProGlassAutomation.Services.Dialogs;
 
 namespace ProGlassAutomation.Behaviors
 {
@@ -284,7 +285,7 @@ namespace ProGlassAutomation.Behaviors
                 return;
             }
 
-            MessageBox.Show(
+            Prompts.Show(
                 "Paste not supported here. Click a cell inside the grid first.",
                 "Paste",
                 MessageBoxButton.OK,
@@ -648,7 +649,7 @@ namespace ProGlassAutomation.Behaviors
 
                     if (foundRow == null)
                     {
-                        MessageBox.Show(
+                        Prompts.Show(
                             $"No rows found containing \"{searchText}\".",
                             "Find",
                             MessageBoxButton.OK,
@@ -702,7 +703,7 @@ namespace ProGlassAutomation.Behaviors
                     int count = pasteable.FindAndReplace(findText, replaceText ?? "");
                     InvalidateTextBoxCache(container);
 
-                    MessageBox.Show(
+                    Prompts.Show(
                         count > 0
                             ? $"Replaced {count} occurrence(s) successfully."
                             : "No matches found.",

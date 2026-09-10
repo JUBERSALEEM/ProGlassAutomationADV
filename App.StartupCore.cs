@@ -38,6 +38,7 @@ using Velopack;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using ProGlassAutomation.Services.Dialogs;
 
 namespace ProGlassAutomation
 {
@@ -94,7 +95,7 @@ namespace ProGlassAutomation
                             Operation = "PermissionDenied"
                         });
 
-                    MessageBox.Show(
+                    Prompts.Show(
                         denied.UserMessage, "Permission Denied",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
 
@@ -200,7 +201,7 @@ namespace ProGlassAutomation
                             Operation = "SessionEnding"
                         });
 
-                    var answer = MessageBox.Show(
+                    var answer = Prompts.Show(
                         "ProGlass is still finishing work that must not " +
                         "be interrupted:\n\n   • " + running + "\n\n" +
                         "Postpone shutdown so it can finish?",

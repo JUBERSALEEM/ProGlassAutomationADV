@@ -1,4 +1,5 @@
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Views.Shared.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -30,7 +31,7 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
     /// Version history for one invoice. Restore hands the chosen
     /// snapshot back to the caller (opens it in the wizard).
     /// </summary>
-    public partial class VersionsDialog : Window
+    public partial class VersionsDialog : ThemedDialogWindow
     {
         /// <summary>Set when the user clicks Restore on a version.</summary>
         public int? RestoreVersionId { get; private set; }
@@ -49,7 +50,7 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
             List<RecordVersion> versions)
         {
             var dialog = new VersionsDialog { Owner = owner };
-            dialog.SubtitleText.Text =
+            dialog.DialogSubtitle =
                 $"{invoiceId} — {versions.Count} version(s). " +
                 "Restoring opens that version in the editor; saving it " +
                 "creates a new version.";
@@ -73,7 +74,8 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
                 button.Tag is not VersionRowDisplay row)
                 return;
 
-            var confirm = MessageBox.Show(
+            var confirm = ThemedMessageBox.Show(
+                this,
                 $"Open Version {row.VersionNo} " +
                 $"({row.TimestampLocal}) in the editor?\n\n" +
                 "Your current wizard content will be replaced. " +
@@ -88,7 +90,8 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
             var full = await VersionHistoryService.GetByIdAsync(row.VersionId);
             if (full == null || string.IsNullOrEmpty(full.SnapshotJson))
             {
-                MessageBox.Show(
+                ThemedMessageBox.Show(
+                    this,
                     "This version has no restorable snapshot.",
                     "Restore Version",
                     MessageBoxButton.OK,
@@ -100,6 +103,5 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
             DialogResult = true;
             Close();
         }
-
-        }
+    }
 }

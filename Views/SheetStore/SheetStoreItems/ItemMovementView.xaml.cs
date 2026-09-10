@@ -9,7 +9,7 @@ namespace ProGlassAutomation.Views.SheetStore.SheetStoreItems
     /// never calls InitializeComponent(), so the visual tree never loads
     /// and every x:Name field stays null — silently.
     /// </summary>
-    public partial class ItemMovementView : Window
+    public partial class ItemMovementView : ProGlassAutomation.Views.Shared.Dialogs.ThemedDialogWindow
     {
         public ItemMovementView(ItemMovementViewModel vm)
         {
