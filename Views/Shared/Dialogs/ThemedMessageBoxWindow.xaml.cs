@@ -6,7 +6,19 @@
 // Behavioural twin of System.Windows.MessageBox: same MessageBoxButton /
 // MessageBoxImage / MessageBoxResult vocabulary, same default-button and
 // Esc semantics, rendered with the shared ThemedDialogWindow chrome.
-// Constructed and driven only through the ThemedMessageBox facade.
+//
+// PURE CODE — deliberately NO .xaml companion file (2026-09-10). A XAML
+// window generates InitializeComponent + named fields (MessageText) into
+// a .g.cs that only exists after the compiler processes the .xaml — when
+// the file is hand-synced without its .xaml twin the project fails with
+// CS0103 "MessageText/InitializeComponent does not exist". Building the
+// single TextBlock here makes this class one self-contained file: there
+// is nothing left to miss.
+//
+// Contains both halves of the themed prompt stack:
+//   • ThemedMessageBoxWindow — the window
+//   • ThemedMessageBox       — the static Show(...) facade used by
+//                              DialogService / Prompts
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -16,15 +28,23 @@ using System.Windows.Threading;
 
 namespace ProGlassAutomation.Views.Shared.Dialogs
 {
-    public partial class ThemedMessageBoxWindow : ThemedDialogWindow
+    public class ThemedMessageBoxWindow : ThemedDialogWindow
     {
+        private readonly TextBlock _messageText;
         private MessageBoxButton _buttons;
         private MessageBoxResult _result;
 
         private ThemedMessageBoxWindow()
         {
-            InitializeComponent();
-            MessageText.Text = string.Empty;
+            _messageText = new TextBlock
+            {
+                TextWrapping = TextWrapping.Wrap,
+                LineHeight = 20,
+                FontSize = TryFindResource("TextBodyLarge") is double size ? size : 14d
+            };
+            _messageText.SetResourceReference(TextBlock.ForegroundProperty, "PrimaryForegroundBrush");
+            _messageText.SetResourceReference(TextBlock.FontFamilyProperty, "AppFontFamily");
+            Content = _messageText;
         }
 
         /// <summary>Configures the box; returns the window ready to ShowDialog().</summary>
@@ -53,8 +73,8 @@ namespace ProGlassAutomation.Views.Shared.Dialogs
 
         internal string Message
         {
-            get => MessageText.Text;
-            set => MessageText.Text = value ?? string.Empty;
+            get => _messageText.Text;
+            set => _messageText.Text = value ?? string.Empty;
         }
 
         /// <summary>The result of ShowDialog(); use GetResult() after it closes.</summary>
@@ -182,6 +202,23 @@ namespace ProGlassAutomation.Views.Shared.Dialogs
         };
     }
 
+    // ═══════════════════════════════════════════════════════════════════
+    //  Prompts facade — MessageBox.Show-shaped entry point.
+    //
+    //  Services/Dialogs/DialogService routes Info / Warning / Error /
+    //  Confirm / Show through this, which converts every one of the ~263
+    //  prompt call sites (Delivery Note delete/void included) to the
+    //  themed dialog chrome without touching a single ViewModel.
+    //
+    //  THREAD AFFINITY: mirrors DialogService.OnUi — window creation and
+    //  ShowDialog always run on the UI (STA) thread; callers from
+    //  background threads are marshalled with Dispatcher.Invoke (modal
+    //  semantics kept).
+    //
+    //  SAFETY: any failure building/showing the themed window falls back
+    //  to the native MessageBox so a prompt is never silently swallowed
+    //  (e.g. headless test hosts).
+    // ═══════════════════════════════════════════════════════════════════
     public static class ThemedMessageBox
     {
         public static MessageBoxResult Show(

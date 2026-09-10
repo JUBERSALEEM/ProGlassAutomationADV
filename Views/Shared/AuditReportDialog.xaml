@@ -64,9 +64,13 @@
     ═══════════════════════════════════════════════════════════════════
     -->
 
+    <StackPanel>
+
             <!-- Operation id chip — moved out of the removed header
                  (the shared chrome supplies title + subtitle now). Bounded
-                 and wrapping so a long id can never squeeze anything. -->
+                 and wrapping so a long id can never squeeze anything.
+                 First child of the ONE body content panel (a Window may
+                 have only a single content child — XLS0501/MC3089). -->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,14">
                 <Border Background="{DynamicResource TintIndigoBrush}"
                         CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -80,7 +84,6 @@
                 </Border>
             </StackPanel>
 
-    <StackPanel>
                 <!-- ── SECTION 1 — IDENTITY, AS A DEFINITION LIST ────────
                      Replaces the 4-across UniformGrid. Each row is an Auto
                      label column and a * value column, so the values always
