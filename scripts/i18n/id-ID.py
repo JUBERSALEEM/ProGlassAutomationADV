@@ -194,6 +194,8 @@ STRINGS = {
     "Common.Settings": "Pengaturan",
     "Common.Specification": "Spesifikasi",
     "Common.Status": "Status",
+    "Reports.Common.SortBy": 'Urutkan menurut',
+    "Reports.Common.SortByTip": 'Pilih cara mengurutkan hasil',
     "Common.To": "Ke",
     "Common.ToDate": "Sampai tanggal",
     "Common.Total": "Total",

@@ -194,6 +194,8 @@ STRINGS = {
     "Common.Settings": "设置",
     "Common.Specification": "规格",
     "Common.Status": "状态",
+    "Reports.Common.SortBy": '排序方式',
+    "Reports.Common.SortByTip": '选择结果的排序方式',
     "Common.To": "至",
     "Common.ToDate": "结束日期",
     "Common.Total": "合计",

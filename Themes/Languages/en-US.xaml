@@ -1374,6 +1374,8 @@
     <sys:String x:Key="Reports.CentralReporting">Central Reporting</sys:String>
     <sys:String x:Key="Reports.ClearSearch">Clear search</sys:String>
     <sys:String x:Key="Reports.CollapseNavigationRail">Collapse navigation rail</sys:String>
+    <sys:String x:Key="Reports.Common.SortBy">Sort by</sys:String>
+    <sys:String x:Key="Reports.Common.SortByTip">Choose how to order the results</sys:String>
     <sys:String x:Key="Reports.CreateFirstAccountStatementTrackInvoices">Create your first account statement to track invoices, payments, and outstanding balances.</sys:String>
     <sys:String x:Key="Reports.CreateInvoice">CREATE INVOICE</sys:String>
     <sys:String x:Key="Reports.CustomerStatements">Customer statements</sys:String>

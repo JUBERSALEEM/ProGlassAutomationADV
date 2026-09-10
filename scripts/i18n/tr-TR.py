@@ -194,6 +194,8 @@ STRINGS = {
     "Common.Settings": "Ayarlar",
     "Common.Specification": "Spesifikasyon",
     "Common.Status": "Durum",
+    "Reports.Common.SortBy": 'Sırala',
+    "Reports.Common.SortByTip": 'Sonuçların nasıl sıralanacağını seçin',
     "Common.To": "Bitiş",
     "Common.ToDate": "Bitiş tarihi",
     "Common.Total": "Toplam",

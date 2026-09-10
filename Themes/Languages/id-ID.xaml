@@ -1374,6 +1374,8 @@
     <sys:String x:Key="Reports.CentralReporting">Pelaporan terpusat</sys:String>
     <sys:String x:Key="Reports.ClearSearch">Bersihkan pencarian</sys:String>
     <sys:String x:Key="Reports.CollapseNavigationRail">Ciutkan rel navigasi</sys:String>
+    <sys:String x:Key="Reports.Common.SortBy">Urutkan menurut</sys:String>
+    <sys:String x:Key="Reports.Common.SortByTip">Pilih cara mengurutkan hasil</sys:String>
     <sys:String x:Key="Reports.CreateFirstAccountStatementTrackInvoices">Buat pernyataan akun pertama Anda untuk melacak faktur, pembayaran, dan saldo tertunggak.</sys:String>
     <sys:String x:Key="Reports.CreateInvoice">BUAT FAKTUR</sys:String>
     <sys:String x:Key="Reports.CustomerStatements">Pernyataan pelanggan</sys:String>

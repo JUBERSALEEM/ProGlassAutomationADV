@@ -194,6 +194,8 @@ STRINGS = {
     "Common.Settings": "الإعدادات",
     "Common.Specification": "المواصفة",
     "Common.Status": "الحالة",
+    "Reports.Common.SortBy": 'ترتيب حسب',
+    "Reports.Common.SortByTip": 'اختر كيفية ترتيب النتائج',
     "Common.To": "إلى",
     "Common.ToDate": "إلى تاريخ",
     "Common.Total": "الإجمالي",

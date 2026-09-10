@@ -194,6 +194,8 @@ STRINGS = {
     "Common.Settings": "सेटिंग्स",
     "Common.Specification": "विनिर्देश",
     "Common.Status": "स्थिति",
+    "Reports.Common.SortBy": 'इसके अनुसार क्रमबद्ध करें',
+    "Reports.Common.SortByTip": 'परिणामों को क्रमबद्ध करने का तरीका चुनें',
     "Common.To": "तक",
     "Common.ToDate": "तिथि तक",
     "Common.Total": "कुल",

@@ -1374,6 +1374,8 @@
     <sys:String x:Key="Reports.CentralReporting">中央报告</sys:String>
     <sys:String x:Key="Reports.ClearSearch">清除搜索</sys:String>
     <sys:String x:Key="Reports.CollapseNavigationRail">折叠导航栏</sys:String>
+    <sys:String x:Key="Reports.Common.SortBy">排序方式</sys:String>
+    <sys:String x:Key="Reports.Common.SortByTip">选择结果的排序方式</sys:String>
     <sys:String x:Key="Reports.CreateFirstAccountStatementTrackInvoices">创建您的第一份账户对账单，以跟踪发票、付款和未付余额。</sys:String>
     <sys:String x:Key="Reports.CreateInvoice">创建发票</sys:String>
     <sys:String x:Key="Reports.CustomerStatements">客户对账单</sys:String>

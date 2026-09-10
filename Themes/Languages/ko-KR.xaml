@@ -1374,6 +1374,8 @@
     <sys:String x:Key="Reports.CentralReporting">중앙 보고</sys:String>
     <sys:String x:Key="Reports.ClearSearch">검색 지우기</sys:String>
     <sys:String x:Key="Reports.CollapseNavigationRail">내비게이션 레일 접기</sys:String>
+    <sys:String x:Key="Reports.Common.SortBy">정렬 기준</sys:String>
+    <sys:String x:Key="Reports.Common.SortByTip">결과 정렬 방식을 선택하세요</sys:String>
     <sys:String x:Key="Reports.CreateFirstAccountStatementTrackInvoices">첫 번째 계정 명세서를 만들어 청구서, 결제, 미지급 잔액을 추적하세요.</sys:String>
     <sys:String x:Key="Reports.CreateInvoice">청구서 만들기</sys:String>
     <sys:String x:Key="Reports.CustomerStatements">고객 명세서</sys:String>

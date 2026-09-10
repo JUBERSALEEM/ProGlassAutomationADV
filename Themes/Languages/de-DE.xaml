@@ -1374,6 +1374,8 @@
     <sys:String x:Key="Reports.CentralReporting">Zentrale Berichterstattung</sys:String>
     <sys:String x:Key="Reports.ClearSearch">Suche löschen</sys:String>
     <sys:String x:Key="Reports.CollapseNavigationRail">Navigationsleiste einklappen</sys:String>
+    <sys:String x:Key="Reports.Common.SortBy">Sortieren nach</sys:String>
+    <sys:String x:Key="Reports.Common.SortByTip">Wählen Sie die Reihenfolge der Ergebnisse</sys:String>
     <sys:String x:Key="Reports.CreateFirstAccountStatementTrackInvoices">Erstellen Sie Ihren ersten Kontoauszug, um Rechnungen, Zahlungen und offene Salden zu verfolgen.</sys:String>
     <sys:String x:Key="Reports.CreateInvoice">RECHNUNG ERSTELLEN</sys:String>
     <sys:String x:Key="Reports.CustomerStatements">Kundenkontoauszüge</sys:String>

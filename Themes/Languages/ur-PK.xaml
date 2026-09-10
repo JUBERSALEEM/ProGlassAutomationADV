@@ -1374,6 +1374,8 @@
     <sys:String x:Key="Reports.CentralReporting">مرکزی رپورٹنگ</sys:String>
     <sys:String x:Key="Reports.ClearSearch">تلاش صاف کریں</sys:String>
     <sys:String x:Key="Reports.CollapseNavigationRail">نیویگیشن ریل سمیٹیں</sys:String>
+    <sys:String x:Key="Reports.Common.SortBy">ترتیب دیں</sys:String>
+    <sys:String x:Key="Reports.Common.SortByTip">منتخب کریں کہ نتائج کیسے ترتیب دیے جائیں</sys:String>
     <sys:String x:Key="Reports.CreateFirstAccountStatementTrackInvoices">انوائسز، ادائیگیوں اور واجب الادا بیلنس کو ٹریک کرنے کے لیے اپنا پہلا اکاؤنٹ سٹیٹمنٹ بنائیں۔</sys:String>
     <sys:String x:Key="Reports.CreateInvoice">انوائس بنائیں</sys:String>
     <sys:String x:Key="Reports.CustomerStatements">کسٹمر سٹیٹمنٹس</sys:String>

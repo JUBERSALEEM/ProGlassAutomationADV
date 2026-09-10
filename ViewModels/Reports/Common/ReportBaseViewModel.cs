@@ -143,6 +143,52 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
         public bool HasNextPage => Page < TotalPages;
         public bool HasPrevPage => Page > 1;
 
+        // ── Sort ──────────────────────────────────────────────────────────
+        // Each concrete report calls SetSortOptions(...) with the user-facing
+        // sort keys it supports and a default. Changing the selection or the
+        // direction reloads from page 1 (sort is applied server-side for
+        // paged reports and in-VM for the in-memory aggregate reports).
+        private List<string> _sortOptions = new();
+        public List<string> SortOptions { get => _sortOptions; protected set { _sortOptions = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasSortOptions)); } }
+        public bool HasSortOptions => _sortOptions.Count > 0;
+
+        private string _selectedSort = "";
+        public string SelectedSort
+        {
+            get => _selectedSort;
+            set { if (_selectedSort == value) return; _selectedSort = value ?? ""; OnPropertyChanged(); ReloadNow(); }
+        }
+
+        private bool _sortDescending = true;
+        public bool SortDescending
+        {
+            get => _sortDescending;
+            set { if (_sortDescending == value) return; _sortDescending = value; OnPropertyChanged(); OnPropertyChanged(nameof(SortDirectionGlyph)); OnPropertyChanged(nameof(SortDirectionTooltip)); ReloadNow(); }
+        }
+
+        /// <summary>Segoe MDL2 glyph reflecting the current sort direction.</summary>
+        public string SortDirectionGlyph => _sortDescending ? "\uE74B" : "\uE74A"; // SortDown / SortUp
+        public string SortDirectionTooltip => _sortDescending ? "Descending (click for ascending)" : "Ascending (click for descending)";
+
+        public ICommand ToggleSortDirectionCommand { get; protected set; } = null!;
+
+        /// <summary>
+        /// Registers the sort keys this report supports. The first key (or the
+        /// supplied default) becomes the active selection without triggering a
+        /// reload (setup happens before the first load).
+        /// </summary>
+        protected void SetSortOptions(IEnumerable<string> options, string? defaultOption = null, bool defaultDescending = true)
+        {
+            var list = (options ?? Enumerable.Empty<string>()).ToList();
+            SortOptions = list;
+            _sortDescending = defaultDescending;
+            _selectedSort = defaultOption ?? list.FirstOrDefault() ?? "";
+            OnPropertyChanged(nameof(SelectedSort));
+            OnPropertyChanged(nameof(SortDescending));
+            OnPropertyChanged(nameof(SortDirectionGlyph));
+            OnPropertyChanged(nameof(SortDirectionTooltip));
+        }
+
         // ── State ─────────────────────────────────────────────────────────
         private bool _isLoading;
         public bool IsLoading { get => _isLoading; protected set { if (_isLoading == value) return; _isLoading = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsEmpty)); OnPropertyChanged(nameof(IsContentVisible)); } }
@@ -182,6 +228,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
             RefreshCommand = new RelayCommand(async _ => await LoadAsync());
             NextPageCommand = new RelayCommand(_ => { if (HasNextPage) Page++; }, _ => HasNextPage);
             PrevPageCommand = new RelayCommand(_ => { if (HasPrevPage) Page--; }, _ => HasPrevPage);
+            ToggleSortDirectionCommand = new RelayCommand(_ => SortDescending = !SortDescending);
             ExportCsvCommand = new RelayCommand(async _ => await ExportAsync(ExportFormat.Csv));
             ExportExcelCommand = new RelayCommand(async _ => await ExportAsync(ExportFormat.Excel));
             ExportPdfCommand = new RelayCommand(async _ => await ExportAsync(ExportFormat.Pdf));
@@ -210,6 +257,8 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
                 Project = string.IsNullOrWhiteSpace(SelectedProject) ? null : SelectedProject.Trim(),
                 Salesman = string.IsNullOrWhiteSpace(SelectedSalesman) ? null : SelectedSalesman.Trim(),
                 Status = string.IsNullOrWhiteSpace(SelectedStatus) ? null : SelectedStatus.Trim(),
+                SortField = string.IsNullOrWhiteSpace(SelectedSort) ? null : SelectedSort.Trim(),
+                SortDescending = SortDescending,
                 Page = Page,
                 PageSize = PageSize
             };

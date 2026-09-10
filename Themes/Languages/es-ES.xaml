@@ -1374,6 +1374,8 @@
     <sys:String x:Key="Reports.CentralReporting">Reportes centrales</sys:String>
     <sys:String x:Key="Reports.ClearSearch">Borrar búsqueda</sys:String>
     <sys:String x:Key="Reports.CollapseNavigationRail">Plegar barra de navegación</sys:String>
+    <sys:String x:Key="Reports.Common.SortBy">Ordenar por</sys:String>
+    <sys:String x:Key="Reports.Common.SortByTip">Elija cómo ordenar los resultados</sys:String>
     <sys:String x:Key="Reports.CreateFirstAccountStatementTrackInvoices">Cree su primer estado de cuenta para rastrear facturas, pagos y saldos pendientes.</sys:String>
     <sys:String x:Key="Reports.CreateInvoice">CREAR FACTURA</sys:String>
     <sys:String x:Key="Reports.CustomerStatements">Estados de cuenta de clientes</sys:String>

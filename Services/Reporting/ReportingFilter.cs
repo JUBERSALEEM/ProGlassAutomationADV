@@ -50,6 +50,15 @@ namespace ProGlassAutomation.Services.Reporting
         // Global text search
         public string? SearchText { get; set; }
 
+        // ── Sort ────────────────────────────────────────────────────────
+        // Report-defined sort key (e.g. "Date", "Amount", "Customer",
+        // "Outstanding"). null/empty = the report's natural default order.
+        // Each report maps its own known keys; unknown keys fall back to the
+        // default so a stale key can never break a query.
+        public string? SortField { get; set; }
+        public bool SortDescending { get; set; } = true;
+        public bool HasSort => !string.IsNullOrWhiteSpace(SortField);
+
         // Pagination
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 100;

@@ -146,8 +146,21 @@ namespace ProGlassAutomation.Services.Reporting
             if (totalCount == 0)
                 return new PagedResult<PiReportRow> { Items = new List<PiReportRow>(), TotalCount = 0, Page = filter.Page, PageSize = filter.PageSize };
 
+            // User-selectable sort (applied server-side, before paging, so it
+            // is correct across pages). Unknown keys fall back to Date.
+            bool desc = filter.SortDescending;
+            IOrderedQueryable<SavedProformaInvoice> ordered = (filter.SortField) switch
+            {
+                "Amount"   => desc ? query.OrderByDescending(i => i.GrandTotalVatInclusive) : query.OrderBy(i => i.GrandTotalVatInclusive),
+                "Customer" => desc ? query.OrderByDescending(i => i.CustomerName) : query.OrderBy(i => i.CustomerName),
+                "Company"  => desc ? query.OrderByDescending(i => i.CompanyName) : query.OrderBy(i => i.CompanyName),
+                "Status"   => desc ? query.OrderByDescending(i => i.Status) : query.OrderBy(i => i.Status),
+                "Created"  => desc ? query.OrderByDescending(i => i.CreatedAt) : query.OrderBy(i => i.CreatedAt),
+                _          => desc ? query.OrderByDescending(i => i.IssueDate) : query.OrderBy(i => i.IssueDate),
+            };
+
             // DB-side Skip & Take — only loads JSON for the 20-50 rows on current page!
-            var pageItems = await query.OrderByDescending(i => i.CreatedAt)
+            var pageItems = await ordered
                 .Skip(filter.Skip)
                 .Take(filter.Take)
                 .Select(i => new

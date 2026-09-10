@@ -443,15 +443,25 @@
                                                 </Grid>
                                             </Border>
 
+                                            <!-- Audit timestamps: aligned label/value grid so the
+                                                 date never touches its label and both rows line up. -->
                                             <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="12,10" Margin="0,8,0,0">
                                                 <StackPanel>
-                                                    <TextBlock Text="{DynamicResource Reports.JoReport.Audit}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,6"/>
-                                                    <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                                        <Run Text="{DynamicResource Reports.JoReport.Created}"/><Run Text="{Binding CreatedAt, Mode=OneWay, StringFormat={}{0:dd MMM yyyy HH:mm}}"/>
-                                                    </TextBlock>
-                                                    <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,3,0,0">
-                                                        <Run Text="{DynamicResource Reports.JoReport.LastUpdated}"/><Run Text="{Binding UpdatedAt, Mode=OneWay, StringFormat={}{0:dd MMM yyyy HH:mm}}"/>
-                                                    </TextBlock>
+                                                    <TextBlock Text="{DynamicResource Reports.JoReport.Audit}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,8"/>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="108"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+                                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource Reports.JoReport.Created}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CreatedAt, Mode=OneWay, StringFormat={}{0:dd MMM yyyy  HH:mm}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource Reports.JoReport.LastUpdated}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding UpdatedAt, Mode=OneWay, StringFormat={}{0:dd MMM yyyy  HH:mm}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,2"/>
+                                                    </Grid>
                                                 </StackPanel>
                                             </Border>
                                         </StackPanel>

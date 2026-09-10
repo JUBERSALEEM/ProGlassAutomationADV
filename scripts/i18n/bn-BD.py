@@ -194,6 +194,8 @@ STRINGS = {
     "Common.Settings": "সেটিংস",
     "Common.Specification": "স্পেসিফিকেশন",
     "Common.Status": "অবস্থা",
+    "Reports.Common.SortBy": 'সাজান',
+    "Reports.Common.SortByTip": 'ফলাফল কীভাবে সাজানো হবে তা নির্বাচন করুন',
     "Common.To": "পর্যন্ত",
     "Common.ToDate": "তারিখ পর্যন্ত",
     "Common.Total": "মোট",

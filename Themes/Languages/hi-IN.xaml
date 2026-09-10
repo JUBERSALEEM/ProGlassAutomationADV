@@ -1374,6 +1374,8 @@
     <sys:String x:Key="Reports.CentralReporting">केंद्रीय रिपोर्टिंग</sys:String>
     <sys:String x:Key="Reports.ClearSearch">खोज साफ़ करें</sys:String>
     <sys:String x:Key="Reports.CollapseNavigationRail">नेविगेशन रेल संक्षिप्त करें</sys:String>
+    <sys:String x:Key="Reports.Common.SortBy">इसके अनुसार क्रमबद्ध करें</sys:String>
+    <sys:String x:Key="Reports.Common.SortByTip">परिणामों को क्रमबद्ध करने का तरीका चुनें</sys:String>
     <sys:String x:Key="Reports.CreateFirstAccountStatementTrackInvoices">इनवॉइस, भुगतान और बकाया शेष ट्रैक करने के लिए अपना पहला खाता विवरण बनाएँ।</sys:String>
     <sys:String x:Key="Reports.CreateInvoice">इनवॉइस बनाएँ</sys:String>
     <sys:String x:Key="Reports.CustomerStatements">ग्राहक विवरण</sys:String>

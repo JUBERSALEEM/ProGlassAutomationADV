@@ -43,6 +43,7 @@ namespace ProGlassAutomation.ViewModels.Reports.PiReport
         {
             _dialogs = dialogs!;
             InitCommands();
+            SetSortOptions(new[] { "Date", "Amount", "Customer", "Company", "Status", "Created" }, "Date");
             SelectedStatus = AllStatusesOption;
             _ = LoadFilterOptionsAsync();
             _ = LoadStatusOptionsAsync();

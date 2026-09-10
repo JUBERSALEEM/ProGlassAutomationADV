@@ -1374,6 +1374,8 @@
     <sys:String x:Key="Reports.CentralReporting">কেন্দ্রীয় রিপোর্টিং</sys:String>
     <sys:String x:Key="Reports.ClearSearch">অনুসন্ধান মুছুন</sys:String>
     <sys:String x:Key="Reports.CollapseNavigationRail">ন্যাভিগেশন রেল ভাঁজ করুন</sys:String>
+    <sys:String x:Key="Reports.Common.SortBy">সাজান</sys:String>
+    <sys:String x:Key="Reports.Common.SortByTip">ফলাফল কীভাবে সাজানো হবে তা নির্বাচন করুন</sys:String>
     <sys:String x:Key="Reports.CreateFirstAccountStatementTrackInvoices">ইনভয়েস, পেমেন্ট ও বকেয়া ব্যালেন্স ট্র্যাক করতে আপনার প্রথম অ্যাকাউন্ট স্টেটমেন্ট তৈরি করুন।</sys:String>
     <sys:String x:Key="Reports.CreateInvoice">ইনভয়েস তৈরি করুন</sys:String>
     <sys:String x:Key="Reports.CustomerStatements">গ্রাহক স্টেটমেন্ট</sys:String>

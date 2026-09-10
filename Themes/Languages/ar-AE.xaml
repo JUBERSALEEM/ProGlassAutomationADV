@@ -1374,6 +1374,8 @@
     <sys:String x:Key="Reports.CentralReporting">التقارير المركزية</sys:String>
     <sys:String x:Key="Reports.ClearSearch">مسح البحث</sys:String>
     <sys:String x:Key="Reports.CollapseNavigationRail">طي شريط التنقل</sys:String>
+    <sys:String x:Key="Reports.Common.SortBy">ترتيب حسب</sys:String>
+    <sys:String x:Key="Reports.Common.SortByTip">اختر كيفية ترتيب النتائج</sys:String>
     <sys:String x:Key="Reports.CreateFirstAccountStatementTrackInvoices">أنشئ أول كشف حساب لتتبع الفواتير والمدفوعات والأرصدة المستحقة.</sys:String>
     <sys:String x:Key="Reports.CreateInvoice">إنشاء فاتورة</sys:String>
     <sys:String x:Key="Reports.CustomerStatements">كشوف حسابات العملاء</sys:String>

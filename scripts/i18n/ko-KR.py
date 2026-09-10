@@ -194,6 +194,8 @@ STRINGS = {
     "Common.Settings": "설정",
     "Common.Specification": "사양",
     "Common.Status": "상태",
+    "Reports.Common.SortBy": '정렬 기준',
+    "Reports.Common.SortByTip": '결과 정렬 방식을 선택하세요',
     "Common.To": "까지",
     "Common.ToDate": "종료 날짜",
     "Common.Total": "합계",

@@ -1374,6 +1374,8 @@
     <sys:String x:Key="Reports.CentralReporting">一元化レポート</sys:String>
     <sys:String x:Key="Reports.ClearSearch">検索をクリア</sys:String>
     <sys:String x:Key="Reports.CollapseNavigationRail">ナビゲーションレールを折りたたむ</sys:String>
+    <sys:String x:Key="Reports.Common.SortBy">並べ替え</sys:String>
+    <sys:String x:Key="Reports.Common.SortByTip">結果の並び順を選択します</sys:String>
     <sys:String x:Key="Reports.CreateFirstAccountStatementTrackInvoices">最初の口座明細書を作成して、請求書、支払い、未払い残高を追跡します。</sys:String>
     <sys:String x:Key="Reports.CreateInvoice">請求書を作成</sys:String>
     <sys:String x:Key="Reports.CustomerStatements">顧客明細書</sys:String>

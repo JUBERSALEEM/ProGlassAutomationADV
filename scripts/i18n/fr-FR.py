@@ -194,6 +194,8 @@ STRINGS = {
     "Common.Settings": "Paramètres",
     "Common.Specification": "Spécification",
     "Common.Status": "Statut",
+    "Reports.Common.SortBy": 'Trier par',
+    "Reports.Common.SortByTip": "Choisissez l'ordre des résultats",
     "Common.To": "À",
     "Common.ToDate": "Jusqu'au",
     "Common.Total": "Total",

@@ -1374,6 +1374,8 @@
     <sys:String x:Key="Reports.CentralReporting">Merkezi raporlar</sys:String>
     <sys:String x:Key="Reports.ClearSearch">Aramayı temizle</sys:String>
     <sys:String x:Key="Reports.CollapseNavigationRail">Gezinme çubuğunu daralt</sys:String>
+    <sys:String x:Key="Reports.Common.SortBy">Sırala</sys:String>
+    <sys:String x:Key="Reports.Common.SortByTip">Sonuçların nasıl sıralanacağını seçin</sys:String>
     <sys:String x:Key="Reports.CreateFirstAccountStatementTrackInvoices">Faturaları, ödemeleri ve bekleyen bakiyeleri takip etmek için ilk hesap özetinizi oluşturun.</sys:String>
     <sys:String x:Key="Reports.CreateInvoice">FATURA OLUŞTUR</sys:String>
     <sys:String x:Key="Reports.CustomerStatements">Müşteri hesap özetleri</sys:String>

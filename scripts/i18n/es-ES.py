@@ -194,6 +194,8 @@ STRINGS = {
     "Common.Settings": "Configuración",
     "Common.Specification": "Especificación",
     "Common.Status": "Estado",
+    "Reports.Common.SortBy": 'Ordenar por',
+    "Reports.Common.SortByTip": 'Elija cómo ordenar los resultados',
     "Common.To": "Hasta",
     "Common.ToDate": "Hasta fecha",
     "Common.Total": "Total",

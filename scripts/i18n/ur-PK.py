@@ -194,6 +194,8 @@ STRINGS = {
     "Common.Settings": "ترتیبات",
     "Common.Specification": "وضاحت",
     "Common.Status": "حالت",
+    "Reports.Common.SortBy": 'ترتیب دیں',
+    "Reports.Common.SortByTip": 'منتخب کریں کہ نتائج کیسے ترتیب دیے جائیں',
     "Common.To": "تا",
     "Common.ToDate": "تاریخ تک",
     "Common.Total": "کل",

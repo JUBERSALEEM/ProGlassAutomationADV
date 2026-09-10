@@ -1374,6 +1374,8 @@
     <sys:String x:Key="Reports.CentralReporting">Центральные отчёты</sys:String>
     <sys:String x:Key="Reports.ClearSearch">Очистить поиск</sys:String>
     <sys:String x:Key="Reports.CollapseNavigationRail">Свернуть навигационную панель</sys:String>
+    <sys:String x:Key="Reports.Common.SortBy">Сортировать по</sys:String>
+    <sys:String x:Key="Reports.Common.SortByTip">Выберите порядок сортировки результатов</sys:String>
     <sys:String x:Key="Reports.CreateFirstAccountStatementTrackInvoices">Создайте свою первую выписку, чтобы отслеживать счета, платежи и неоплаченные остатки.</sys:String>
     <sys:String x:Key="Reports.CreateInvoice">СОЗДАТЬ СЧЁТ</sys:String>
     <sys:String x:Key="Reports.CustomerStatements">Выписки клиентов</sys:String>
