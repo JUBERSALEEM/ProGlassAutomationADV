@@ -40,7 +40,7 @@
         WindowState="Maximized"
         WindowStyle="None"
         ResizeMode="NoResize"
-        Background="#060E20"
+        Background="{DynamicResource AppBackgroundBrush}"
         ShowInTaskbar="False"
         Topmost="True"
         behaviors:ViewportFitBehavior.DisableZoom="True"
@@ -60,119 +60,103 @@
         <BlurEffect x:Key="HaloBlur" Radius="30" RenderingBias="Performance"/>
 
         <!-- ═══════════════════════════════════════════════════════════
-             FROZEN SPLASH PALETTE  (2026-09-10 redesign)
-             The splash is a BRAND MOMENT, not a theme consumer. Binding
-             theme brushes here (the previous approach) booted the app
-             under the startup-merged theme and visibly flip-flopped
-             mid-boot when the saved theme engaged — and left the whole
-             stage looking flat/washed-out whenever a theme Color it
-             referenced (e.g. WindowBackgroundColor) was undefined.
+             THEME-AWARE SPLASH PALETTE  (2026-09-10, owner directive:
+             "match the app theme")
+             The splash now follows the active Light/Dark theme, sharing
+             the exact Liquid* design language used by the About page so
+             the two screens finally have ONE identity. This is safe now
+             because startup applies the saved theme (App.StartupCore
+             ~L506) BEFORE the splash window is created (~L715), so there
+             is no longer a mid-boot theme flip — the reason the palette
+             was previously frozen.
 
-             Every value below is now a HARD-FROZEN design-time colour:
-             a deliberate, premium deep-space-navy + cerulean identity
-             that renders identically on every machine and every theme.
-             Colors and brushes are SEPARATE resources on purpose:
+             Colours vs brushes are still SEPARATE resources on purpose:
              GradientStop.Color / DropShadowEffect.Color demand a
-             System.Windows.Media.Color — handing them a SolidColorBrush
-             is the XDG-0001 "incompatible type" crash. Colours first,
-             brushes reuse them so the palette stays single-source.
-        ═══════════════════════════════════════════════════════════ -->
-        <!-- Stage -->
-        <Color x:Key="StageTopColor">#0A1730</Color>
-        <Color x:Key="StageMidColor">#0C1E3E</Color>
-        <Color x:Key="StageDeepColor">#060E20</Color>
-        <!-- Cerulean family -->
-        <Color x:Key="CeruleanColor">#38BDF8</Color>
-        <Color x:Key="CeruleanLiteColor">#7DD3FC</Color>
-        <Color x:Key="CeruleanDeepColor">#0284C7</Color>
-        <Color x:Key="SplashCeruleanDarkColor">#2563EB</Color>
-        <!-- Ink / frost / plate -->
-        <Color x:Key="FrostColor">#DBEAFE</Color>
-        <Color x:Key="IceColor">#F8FAFC</Color>
-        <Color x:Key="MutedColor">#93A6C6</Color>
-        <Color x:Key="PlateHiColor">#16294A</Color>
-        <Color x:Key="PlateLoColor">#0B1730</Color>
-        <Color x:Key="OutlineColor">#263B5E</Color>
-        <Color x:Key="GlassFillColor">#14243F</Color>
+             System.Windows.Media.Color, never a Brush (the XDG-0001
+             "incompatible type" crash). Every theme provides these Color
+             tokens in both Light and Dark. -->
 
-        <SolidColorBrush x:Key="Cerulean" Color="{StaticResource CeruleanColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="Frost"    Color="{StaticResource FrostColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="Ice"      Color="{StaticResource IceColor}" po:Freeze="True"/>
-
-        <SolidColorBrush x:Key="SplashCerulean"      Color="{StaticResource CeruleanColor}"      po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashCeruleanDark"  Color="{StaticResource SplashCeruleanDarkColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashCeruleanLite"  Color="{StaticResource CeruleanLiteColor}"  po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashCeruleanDeep"  Color="{StaticResource CeruleanDeepColor}"  po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashOutline"       Color="{StaticResource OutlineColor}"       po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashPillBg"        Color="#66132743"                            po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashTrackBg"       Color="#33223B5E"                            po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashTextPrimary"   Color="{StaticResource IceColor}"           po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashTextSecondary" Color="{StaticResource MutedColor}"         po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashOnAccent"      Color="#041020"                              po:Freeze="True"/>
+        <!-- Local corner tokens (unchanged) -->
         <CornerRadius  x:Key="SplashCorner">10</CornerRadius>
         <CornerRadius  x:Key="SplashCornerLarge">16</CornerRadius>
 
-        <!-- ═══ STAGE — deep-space navy mesh (diagonal, 4-stop) ═══ -->
+        <!-- Brand-name / progress accents pulled from the live theme -->
+        <SolidColorBrush x:Key="SplashCerulean"      Color="{DynamicResource AccentLightColor}"/>
+        <SolidColorBrush x:Key="SplashCeruleanDark"  Color="{DynamicResource AccentColor}"/>
+        <SolidColorBrush x:Key="SplashCeruleanLite"  Color="{DynamicResource AccentLightColor}"/>
+        <SolidColorBrush x:Key="SplashCeruleanDeep"  Color="{DynamicResource AccentDarkColor}"/>
+        <SolidColorBrush x:Key="SplashOutline"       Color="{DynamicResource BorderColor}"/>
+        <!-- Translucent glass surfaces so the stage shows through -->
+        <SolidColorBrush x:Key="SplashPillBg"        Color="#22808080"/>
+        <SolidColorBrush x:Key="SplashTrackBg"       Color="#22808080"/>
+        <SolidColorBrush x:Key="SplashTextPrimary"   Color="{DynamicResource PrimaryForegroundColor}"/>
+        <SolidColorBrush x:Key="SplashTextSecondary" Color="{DynamicResource SecondaryForegroundColor}"/>
+        <SolidColorBrush x:Key="SplashOnAccent"      Color="#FFFFFF"/>
+
+        <!-- ═══ STAGE — a rich theme-aware diagonal mesh built from the
+             theme's own background + accent Color tokens ═══ -->
         <LinearGradientBrush x:Key="PageBg" StartPoint="0.05,0" EndPoint="0.85,1">
-            <GradientStop Color="{StaticResource StageTopColor}"  Offset="0.0"/>
-            <GradientStop Color="{StaticResource StageMidColor}"  Offset="0.42"/>
-            <GradientStop Color="{StaticResource StageTopColor}"  Offset="0.72"/>
-            <GradientStop Color="{StaticResource StageDeepColor}" Offset="1.0"/>
+            <GradientStop Color="{DynamicResource WindowBackgroundColor}" Offset="0.0"/>
+            <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="0.45"/>
+            <GradientStop Color="{DynamicResource WindowBackgroundColor}" Offset="0.72"/>
+            <GradientStop Color="{DynamicResource AccentDarkColor}"       Offset="1.0"/>
         </LinearGradientBrush>
 
-        <!-- Soft spotlight behind the hero brand block -->
-        <RadialGradientBrush x:Key="HeroGlow"
-                             Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
-            <GradientStop Color="#5538BDF8" Offset="0.0"/>
-            <GradientStop Color="#221D4ED8" Offset="0.55"/>
-            <GradientStop Color="#00060E20" Offset="1.0"/>
-        </RadialGradientBrush>
+        <!-- Accent orbs — theme-aware with alpha falloff to transparent so
+             they read as soft light, not solid discs. -->
         <RadialGradientBrush x:Key="OrbRight"
                              Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
-            <GradientStop Color="#7D38BDF8" Offset="0.0"/>
-            <GradientStop Color="#2E0EA5E9" Offset="0.55"/>
-            <GradientStop Color="#000EA5E9" Offset="1.0"/>
+            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0.0"/>
+            <GradientStop Color="{DynamicResource AccentColor}"      Offset="0.55"/>
+            <GradientStop Color="#00000000"                          Offset="1.0"/>
         </RadialGradientBrush>
         <RadialGradientBrush x:Key="OrbLeft"
                              Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
-            <GradientStop Color="#666366F1" Offset="0.0"/>
-            <GradientStop Color="#282563EB" Offset="0.55"/>
-            <GradientStop Color="#002563EB" Offset="1.0"/>
+            <GradientStop Color="{DynamicResource AccentColor}"     Offset="0.0"/>
+            <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="0.55"/>
+            <GradientStop Color="#00000000"                          Offset="1.0"/>
         </RadialGradientBrush>
 
-        <!-- ═══ BRAND NAME — metallic crystal gradient ═══ -->
+        <!-- Soft spotlight behind the hero brand block (theme-aware, alpha
+             falloff to transparent so it reads as light, not a disc). -->
+        <RadialGradientBrush x:Key="HeroGlow"
+                             Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+            <GradientStop Color="{DynamicResource AccentColor}"     Offset="0.0"/>
+            <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="0.5"/>
+            <GradientStop Color="#00000000"                          Offset="1.0"/>
+        </RadialGradientBrush>
+
+        <!-- ═══ BRAND NAME — metallic gradient built from theme inks ═══ -->
         <LinearGradientBrush x:Key="NameGradient" StartPoint="0,0" EndPoint="1,0.15">
-            <GradientStop Color="{StaticResource IceColor}"        Offset="0.0"/>
-            <GradientStop Color="{StaticResource FrostColor}"      Offset="0.45"/>
-            <GradientStop Color="{StaticResource CeruleanLiteColor}" Offset="1.0"/>
+            <GradientStop Color="{DynamicResource PrimaryForegroundColor}" Offset="0.0"/>
+            <GradientStop Color="{DynamicResource AccentLightColor}"       Offset="1.0"/>
         </LinearGradientBrush>
 
-        <!-- ═══ LOGO TILE — crystal plate + top-edge sheen ═══ -->
+        <!-- ═══ LOGO TILE — theme surface plate + translucent top sheen ═══ -->
         <LinearGradientBrush x:Key="SplashPlate" StartPoint="0,0" EndPoint="0.85,1">
-            <GradientStop Color="{StaticResource PlateHiColor}" Offset="0.0"/>
-            <GradientStop Color="{StaticResource PlateLoColor}" Offset="1.0"/>
+            <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="0.0"/>
+            <GradientStop Color="{DynamicResource WindowBackgroundColor}" Offset="1.0"/>
         </LinearGradientBrush>
-        <!-- Translucent glass highlight: bright at the top edge, fading to
-             fully transparent by ~55% so the app icon underneath stays
-             fully visible. (The old version was OPAQUE dark on both stops
-             and painted a solid slab over the logo.) -->
+        <!-- Translucent white highlight fading to fully transparent by 55%
+             so the app icon stays fully visible (the old version was OPAQUE
+             on both stops and painted a solid slab over the logo). -->
         <LinearGradientBrush x:Key="TileSheen" StartPoint="0,0" EndPoint="0.35,1">
             <GradientStop Color="#4CFFFFFF" Offset="0.0"/>
             <GradientStop Color="#12FFFFFF" Offset="0.30"/>
             <GradientStop Color="#00FFFFFF" Offset="0.55"/>
         </LinearGradientBrush>
 
-        <!-- ═══ PROGRESS — luminous cerulean sweep ═══ -->
+        <!-- ═══ PROGRESS — luminous accent sweep (theme-aware) ═══ -->
         <LinearGradientBrush x:Key="ProgressGradient" StartPoint="0,0" EndPoint="1,0">
-            <GradientStop Color="{StaticResource CeruleanDeepColor}" Offset="0.0"/>
-            <GradientStop Color="{StaticResource CeruleanColor}"     Offset="0.5"/>
-            <GradientStop Color="{StaticResource FrostColor}"        Offset="1.0"/>
+            <GradientStop Color="{DynamicResource AccentDarkColor}"  Offset="0.0"/>
+            <GradientStop Color="{DynamicResource AccentColor}"      Offset="0.5"/>
+            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <!-- ═══ CRYSTAL SHADOWS ═══ -->
-        <DropShadowEffect x:Key="IconShadow" Color="{StaticResource CeruleanColor}"
+        <!-- ═══ CRYSTAL SHADOWS (theme accent glow) ═══ -->
+        <DropShadowEffect x:Key="IconShadow" Color="{DynamicResource AccentColor}"
                           BlurRadius="34" ShadowDepth="0" Opacity="0.45"/>
-        <DropShadowEffect x:Key="SplashGlow" Color="{StaticResource CeruleanColor}"
+        <DropShadowEffect x:Key="SplashGlow" Color="{DynamicResource AccentColor}"
                           BlurRadius="18" ShadowDepth="0" Opacity="0.35"/>
 
         <!-- ═══ TRUST CHIP (top badges) — slim glass ═══ -->
@@ -180,8 +164,8 @@
             <Setter Property="Background">
                 <Setter.Value>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                        <GradientStop Color="#3D1B3355" Offset="0.0"/>
-                        <GradientStop Color="#26102341" Offset="1.0"/>
+                        <GradientStop Color="#28808080" Offset="0.0"/>
+                        <GradientStop Color="#18808080" Offset="1.0"/>
                     </LinearGradientBrush>
                 </Setter.Value>
             </Setter>
@@ -681,7 +665,7 @@
                            HorizontalAlignment="Center"
                            Foreground="{DynamicResource SplashTextPrimary}">
                     <TextBlock.Effect>
-                        <DropShadowEffect Color="{StaticResource CeruleanColor}" BlurRadius="18"
+                        <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="18"
                                           ShadowDepth="0" Opacity="0.35"/>
                     </TextBlock.Effect>
                 </TextBlock>
