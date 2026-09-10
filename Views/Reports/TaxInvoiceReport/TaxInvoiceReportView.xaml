@@ -42,6 +42,8 @@
                             <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
@@ -53,14 +55,56 @@
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{DynamicResource Dashboard.TaxInvoices}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding Summary.TotalInvoices}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalAmount, Mode=OneWay, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.TaxInvoiceReport.InvoicesIssued}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
 
                         <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
+                        <!-- INVOICABLE — confirmed quotations value -->
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total invoicable amount: grand total of confirmed quotations under the current filters">
+                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="INVOICABLE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding Summary.InvoicableAmount, Mode=OneWay, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="confirmed quotations" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+
+                        <!-- INVOICED — billed to customers -->
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Invoiced amount: gross total of tax invoices under the current filters">
+                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="INVOICED" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalAmount, Mode=OneWay, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="billed to customers" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+
+                        <!-- BALANCE INVOICABLE -->
+                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Balance invoicable amount: invoicable minus invoiced — what is still left to bill">
+                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintAmberBrush}" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE71C;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="BALANCE INVOICABLE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding Summary.BalanceInvoicableAmount, Mode=OneWay, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="invoicable − invoiced" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Grid.Column="7" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+
                         <!-- Outstanding -->
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="{DynamicResource Reports.TaxInvoiceReport.UncollectedBalanceIssuedOverdueInvoices}">
+                        <StackPanel Grid.Column="8" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="{DynamicResource Reports.TaxInvoiceReport.UncollectedBalanceIssuedOverdueInvoices}">
                             <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintAmberBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE71C;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
@@ -77,10 +121,10 @@
                             </StackPanel>
                         </StackPanel>
 
-                        <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+                        <Border Grid.Column="9" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
                         <!-- Overdue -->
-                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="{DynamicResource Reports.TaxInvoiceReport.InvoicesPastPaymentTermsRequiringCollection}">
+                        <StackPanel Grid.Column="10" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="{DynamicResource Reports.TaxInvoiceReport.InvoicesPastPaymentTermsRequiringCollection}">
                             <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintRedBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE730;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
@@ -88,20 +132,6 @@
                                 <TextBlock Text="{DynamicResource Common.Overdue}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding Summary.Overdue}" Style="{StaticResource ModuleListKpiValueStyle}"/>
                                 <TextBlock Text="{DynamicResource Reports.TaxInvoiceReport.NeedsCollection}" Style="{StaticResource ModuleListKpiHintStyle}"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
-
-                        <!-- Pending Invoice -->
-                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="{DynamicResource Reports.TaxInvoiceReport.ConfirmedDeliveredProformaInvoicesNoTax}">
-                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Reports.TaxInvoiceReport.PendingInvoice}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.PendingInvoice}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="{DynamicResource Reports.TaxInvoiceReport.ConfirmedWithoutTI}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
                     </Grid>
@@ -415,6 +445,9 @@
                                                     <TextBlock Text="{DynamicResource Reports.TaxInvoiceReport.QuantityAREA}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,6"/>
                                                     <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}">
                                                         <Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text="{DynamicResource Reports.StatementGenerator.Pcs}"/><Run Text="{Binding TotalSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=area}"/>
+                                                    </TextBlock>
+                                                    <TextBlock FontSize="{StaticResource TextBody}" Margin="0,2,0,0">
+                                                        <Run Text="Delivered " Foreground="{DynamicResource MutedForegroundBrush}"/><Run Text="{Binding TotalDeliveredQty, Mode=OneWay, StringFormat={}{0:N0}}" FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}"/><Run Text=" pcs" Foreground="{DynamicResource MutedForegroundBrush}"/><Run Text="  ·  Balance " Foreground="{DynamicResource MutedForegroundBrush}"/><Run Text="{Binding TotalBalanceQty, Mode=OneWay, StringFormat={}{0:N0}}" FontWeight="SemiBold" Foreground="{DynamicResource WarningBrush}"/><Run Text=" pcs" Foreground="{DynamicResource MutedForegroundBrush}"/>
                                                     </TextBlock>
                                                 </StackPanel>
                                             </Border>

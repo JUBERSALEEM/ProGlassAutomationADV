@@ -311,14 +311,17 @@
                                                         <TextBlock Grid.Row="1" Grid.Column="0" Text="Job Orders" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
                                                         <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding JobOrderCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
 
-                                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Tax Invoices" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding TaxInvoiceCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Delivery Notes" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding DnCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
 
-                                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Invoiced" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="3" Grid.Column="1" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SuccessBrush}" Margin="0,2"><Run Text="AED "/><Run Text="{Binding InvoicedValue, Mode=OneWay, StringFormat={}{0:N2}}"/></TextBlock>
+                                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Tax Invoices" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding TaxInvoiceCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
 
-                                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Outstanding" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="4" Grid.Column="1" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" Margin="0,2"><Run Text="AED "/><Run Text="{Binding Outstanding, Mode=OneWay, StringFormat={}{0:N2}}"/></TextBlock>
+                                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Invoiced" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="4" Grid.Column="1" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SuccessBrush}" Margin="0,2"><Run Text="AED "/><Run Text="{Binding InvoicedValue, Mode=OneWay, StringFormat={}{0:N2}}"/></TextBlock>
+
+                                                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Outstanding" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="5" Grid.Column="1" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" Margin="0,2"><Run Text="AED "/><Run Text="{Binding Outstanding, Mode=OneWay, StringFormat={}{0:N2}}"/></TextBlock>
                                                     </Grid>
                                                 </StackPanel>
                                             </Grid>

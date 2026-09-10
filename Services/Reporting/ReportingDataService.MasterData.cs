@@ -100,6 +100,30 @@ namespace ProGlassAutomation.Services.Reporting
             }
             catch (Exception ex) { AppLogService.Warning($"Company TI count warning: {ex.Message}"); }
 
+            // ── Delivery note counts (the missing DOCUMENT ACTIVITY row) ──
+            // DNs carry no company column; they map through their proforma.
+            // Live non-master notes only, matching every DN list screen.
+            try
+            {
+                using var dnDb = new DeliveryNotesDbContext();
+                var dnPairs = await dnDb.DeliveryNotes.AsNoTracking()
+                    .Where(d => !d.IsVoid && !d.IsMasterDn && d.ProformaId != null)
+                    .Select(d => new { d.ProformaId, d.DeliveryNoteId })
+                    .ToListAsync(ct).ConfigureAwait(false);
+
+                var dnCountByPi = dnPairs
+                    .GroupBy(d => d.ProformaId!, StringComparer.OrdinalIgnoreCase)
+                    .ToDictionary(g => g.Key, g => g.Select(x => x.DeliveryNoteId).Distinct().Count(),
+                                  StringComparer.OrdinalIgnoreCase);
+
+                foreach (var g in groups)
+                {
+                    if (!piByCompany.TryGetValue(g.CompanyName, out var pis)) continue;
+                    g.DeliveryCount = pis.Sum(pi => dnCountByPi.TryGetValue(pi, out var c) ? c : 0);
+                }
+            }
+            catch (Exception ex) { AppLogService.Warning($"Company DN count warning: {ex.Message}"); }
+
             var total = groups.Count;
             bool coDesc = filter.SortDescending;
             IOrderedEnumerable<CompanyReportRow> coOrdered = (filter.SortField) switch

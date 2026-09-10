@@ -55,6 +55,13 @@ namespace ProGlassAutomation.Services.Reporting
             summary.PendingInvoice = await CountPendingInvoicesAsync(filter, ct)
                 .ConfigureAwait(false);
 
+            // INVOICABLE pipeline: confirmed quotations value under the same
+            // filter; balance = invoicable − invoiced (what is left to bill).
+            summary.InvoicableAmount = await SumConfirmedPiValueAsync(filter, ct)
+                .ConfigureAwait(false);
+            summary.BalanceInvoicableAmount =
+                Math.Max(0m, summary.InvoicableAmount - summary.TotalAmount);
+
             if (summary.TotalInvoices == 0) return summary;
 
             var tiAmounts = await query.Select(t => new { t.GrandTotal, t.VatAmount, t.Status, t.DueDate }).ToListAsync(ct).ConfigureAwait(false);
@@ -150,6 +157,31 @@ namespace ProGlassAutomation.Services.Reporting
             {
                 AppLogService.Warning($"Pending-invoice count warning: {ex.Message}");
                 return 0;
+            }
+        }
+
+        /// <summary>
+        /// Sum of GrandTotalVatInclusive across CONFIRMED quotations under
+        /// the filter — the "total invoicable amount" for the Tax Invoice
+        /// hub. Best-effort: degrades to 0 with a warning.
+        /// </summary>
+        private static async Task<decimal> SumConfirmedPiValueAsync(ReportingFilter filter, CancellationToken ct)
+        {
+            try
+            {
+                using var piDb = new ProformaInvoicesDbContext();
+                var values = await ApplyPiFilters(
+                        Live(piDb.ProformaInvoices.AsNoTracking()).AsQueryable(), filter)
+                    .Where(i => i.Status == "Approved" || i.Status == "Confirmed" || i.Status == "Issued")
+                    .Select(i => i.GrandTotalVatInclusive)
+                    .ToListAsync(ct).ConfigureAwait(false);
+                return values.Sum();
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception ex)
+            {
+                AppLogService.Warning($"Invoicable value warning: {ex.Message}");
+                return 0m;
             }
         }
 
@@ -258,6 +290,49 @@ namespace ProGlassAutomation.Services.Reporting
             catch (Exception ex)
             {
                 AppLogService.Warning($"TI report enrichment failed: {ex.Message}");
+            }
+
+            // ── Delivered / balance for the QUANTITY & AREA panel ──────────
+            // Row-level reconciliation per quotation — the same predicate
+            // family as the Delivery report (live parents, master notes
+            // contribute 0, per-row MAX ordered so splits never inflate).
+            try
+            {
+                using var dnDb = new DeliveryNotesDbContext();
+                var raw = await dnDb.DeliveryNoteItems.AsNoTracking()
+                    .Where(i => i.DeliveryNote != null
+                                && !i.DeliveryNote.IsVoid
+                                && !i.DeliveryNote.IsMasterDn
+                                && i.DeliveryNote.ProformaId != null
+                                && piIds.Contains(i.DeliveryNote.ProformaId))
+                    .Select(i => new
+                    {
+                        ProformaId = i.DeliveryNote!.ProformaId!,
+                        i.SpecGroupNumber,
+                        i.SerialNumber,
+                        i.OrderedQty,
+                        Delivered = i.DeliveryNote!.IsMasterDn ? 0 : i.DeliveredQty
+                    })
+                    .ToListAsync(ct).ConfigureAwait(false);
+
+                var byPi = raw
+                    .GroupBy(x => x.ProformaId, StringComparer.OrdinalIgnoreCase)
+                    .ToDictionary(g => g.Key, g => (
+                        Ordered: g.GroupBy(x => new { x.SpecGroupNumber, x.SerialNumber })
+                                  .Sum(rg => rg.Max(x => x.OrderedQty)),
+                        Delivered: g.Sum(x => x.Delivered)),
+                    StringComparer.OrdinalIgnoreCase);
+
+                foreach (var r in rows)
+                {
+                    if (!byPi.TryGetValue(r.ProformaId, out var v)) continue;
+                    r.TotalDeliveredQty = v.Delivered;
+                    r.TotalBalanceQty = Math.Max(0, v.Ordered - v.Delivered);
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning($"TI delivery reconciliation failed: {ex.Message}");
             }
         }
 

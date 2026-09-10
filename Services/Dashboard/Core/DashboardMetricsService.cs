@@ -445,11 +445,38 @@ namespace ProGlassAutomation.Services.Dashboard.Core
                     r.DeliveryType == Models.DeliveryNote.Common.DeliveryType.DeliveryTypeValues.Rework ||
                     r.DeliveryType == Models.DeliveryNote.Common.DeliveryType.DeliveryTypeValues.Return);
 
-                // Safe to sum: TotalDeliveredQty is the quantity delivered
-                // BY THIS NOTE, so the sum across notes is the true total.
-                m.PiecesDeliveredTotal = rows
-                    .Where(r => !DeliveryNoteStatusValues.IsPreparing(r.Status))
-                    .Sum(r => r.TotalDeliveredQty);
+                // PIECE METRICS COME FROM ITEM ROWS, not the denormalized
+                // note header. TotalDeliveredQty is a header copy that only
+                // some save paths refresh — a stale/mis-seeded header showed
+                // an item's SR NO as "delivered pcs" on the Overview
+                // (2026-09-10 report: one note, tile showed 34 = its row
+                // serial). DeliveryNoteItems.DeliveredQty is what the
+                // Delivery report reconciles from, so the dashboard now
+                // reads the same truth. Master DNs contribute 0 by rule.
+                var sentStatuses = new[]
+                {
+                    DeliveryNoteStatusValues.Dispatched,
+                    DeliveryNoteStatusValues.Delivered,
+                    DeliveryNoteStatusValues.Signed,
+                    DeliveryNoteStatusValues.Received
+                };
+
+                var pcsQuery = db.DeliveryNoteItems.AsNoTracking()
+                    .Where(i => i.DeliveryNote != null
+                                && !i.DeliveryNote.IsVoid
+                                && !i.DeliveryNote.IsMasterDn
+                                && sentStatuses.Contains(i.DeliveryNote.Status));
+
+                var todayStart = today;
+                var todayEnd = today.AddDays(1);
+
+                m.PiecesDeliveredTotal = await pcsQuery
+                    .SumAsync(i => (int?)i.DeliveredQty, ct).ConfigureAwait(false) ?? 0;
+
+                m.PiecesDeliveredToday = await pcsQuery
+                    .Where(i => i.DeliveryNote!.DeliveryDate >= todayStart
+                                && i.DeliveryNote!.DeliveryDate < todayEnd)
+                    .SumAsync(i => (int?)i.DeliveredQty, ct).ConfigureAwait(false) ?? 0;
 
                 // Canonical() collapses Draft/Dispatching, which
                 // DeliveryNoteStatusMeta already renders as one label.

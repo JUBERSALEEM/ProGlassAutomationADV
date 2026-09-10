@@ -50,6 +50,14 @@ namespace ProGlassAutomation.Services.Reporting
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
+        /// <summary>
+        /// The spec PRICE from the actual proforma invoice — "AED 170 / m²"
+        /// for a single rate, "AED 150–190 / m²" when the PI's spec rows
+        /// carry several rates. Stamped during page enrichment from the
+        /// snapshot's priced rows (never derived from totals).
+        /// </summary>
+        public string RateDisplay { get; set; } = "";
+
         // ── Completeness / draft signals ──────────────────────────────
         /// <summary>
         /// True when the proforma is still a Draft — it has not been sent,
@@ -245,6 +253,14 @@ namespace ProGlassAutomation.Services.Reporting
         public decimal TotalSqm { get; set; }
         public DateTime CreatedAt { get; set; }
 
+        /// <summary>Delivered pieces for this invoice's quotation, reconciled
+        /// from live delivery-note items (row-level, master excluded).
+        /// (2026-09-10)</summary>
+        public int TotalDeliveredQty { get; set; }
+
+        /// <summary>Ordered − delivered, clamped at 0.</summary>
+        public int TotalBalanceQty { get; set; }
+
         /// <summary>Inline expander state (single grid — no side panel).</summary>
         public bool IsExpanded { get; set; }
     }
@@ -272,6 +288,10 @@ namespace ProGlassAutomation.Services.Reporting
         public string CompanyTrn { get; set; } = "";
         public int PiCount { get; set; }
         public int JobOrderCount { get; set; }
+        /// <summary>Live (non-void, non-master) delivery notes mapped to
+        /// this company through its proformas. Hydrated 2026-09-10 — the
+        /// field existed but was never assigned, so company details showed
+        /// no delivery activity.</summary>
         public int DeliveryCount { get; set; }
         public int TaxInvoiceCount { get; set; }
         public int StatementCount { get; set; }
@@ -532,6 +552,16 @@ namespace ProGlassAutomation.Services.Reporting
         public decimal TotalAmount { get; set; }
         public decimal TotalVat { get; set; }
         public decimal Outstanding { get; set; }
+
+        /// <summary>
+        /// INVOICABLE pipeline value: grand total of CONFIRMED quotations
+        /// (Approved / Confirmed / Issued — the statuses the PI report maps
+        /// to Confirmed) under the same filter. (2026-09-10)
+        /// </summary>
+        public decimal InvoicableAmount { get; set; }
+
+        /// <summary>Invoicable − invoiced (clamped at 0).</summary>
+        public decimal BalanceInvoicableAmount { get; set; }
     }
 
     public class StatementReportSummary

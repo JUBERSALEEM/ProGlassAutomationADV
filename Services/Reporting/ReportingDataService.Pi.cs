@@ -241,9 +241,20 @@ namespace ProGlassAutomation.Services.Reporting
                 var salesman = snap?.Client?.SalesRepresentative ?? "";
                 var preparedBy = snap?.PreparedBy?.PreparedByName ?? "";
 
+                // The SPEC RATE(S) straight from this PI's priced rows —
+                // what the user entered per m² in the quotation (a display
+                // bug previously showed the AREA wearing a "/m²" mask).
+                var rates = rows.Select(x => x.Rate).Where(v => v > 0m).Distinct().ToList();
+                var rateDisplay = rates.Count == 1
+                    ? $"AED {rates[0]:0.##} / m²"
+                    : rates.Count > 1
+                        ? $"AED {rates.Min():0.##}–{rates.Max():0.##} / m²"
+                        : "";
+
                 resultRows.Add(new PiReportRow
                 {
                     Id = (int)r.Id,
+                    RateDisplay = rateDisplay,
                     ProformaId = r.ProformaId,
                     Status = r.Status,
                     CompanyName = r.CompanyName,

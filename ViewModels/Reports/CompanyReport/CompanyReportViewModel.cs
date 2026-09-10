@@ -59,6 +59,7 @@ namespace ProGlassAutomation.ViewModels.Reports.CompanyReport
         // ── Analytics (ReportingDataService) ─────────────────────────
         public int PiCount { get; set; }
         public int JobOrderCount { get; set; }
+        public int DnCount { get; set; }
         public int TaxInvoiceCount { get; set; }
         public decimal PiValue { get; set; }
         public decimal InvoicedValue { get; set; }
@@ -79,6 +80,7 @@ namespace ProGlassAutomation.ViewModels.Reports.CompanyReport
             CompanyTrn = CompanyTrn,
             PiCount = PiCount,
             JobOrderCount = JobOrderCount,
+            DeliveryCount = DnCount,
             TaxInvoiceCount = TaxInvoiceCount,
             PiValue = PiValue,
             InvoicedValue = InvoicedValue,
@@ -202,6 +204,7 @@ namespace ProGlassAutomation.ViewModels.Reports.CompanyReport
                     CompanyTrn = a.CompanyTrn,
                     PiCount = a.PiCount,
                     JobOrderCount = a.JobOrderCount,
+                    DnCount = a.DeliveryCount,
                     TaxInvoiceCount = a.TaxInvoiceCount,
                     PiValue = a.PiValue,
                     InvoicedValue = a.InvoicedValue,
