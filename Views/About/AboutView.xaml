@@ -120,71 +120,19 @@
          -->
     <Grid>
         <!-- 2026-09-10 fluid upgrade: the two aurora orbs drift and
-             breathe continuously (named transforms + this Grid.Triggers
-             loop). Motion is slow (17-24s), eased and AutoReverse — a
-             calm living backdrop, never a distraction. Purely decorative
-             transforms, so the live theme/accent re-tint still works.
-             NOTE: Grid.Triggers is a property element and MUST sit before
-             ALL child content (WPF MC3088), hence it leads the Grid. -->
-        <Grid.Triggers>
-            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <!-- Orb A: drift + gentle swell -->
-                        <DoubleAnimation Storyboard.TargetName="AboutOrbAMove"
-                                         Storyboard.TargetProperty="X"
-                                         From="0" To="-30" Duration="0:0:21"
-                                         AutoReverse="True" RepeatBehavior="Forever">
-                            <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
-                        </DoubleAnimation>
-                        <DoubleAnimation Storyboard.TargetName="AboutOrbAMove"
-                                         Storyboard.TargetProperty="Y"
-                                         From="0" To="24" Duration="0:0:24"
-                                         AutoReverse="True" RepeatBehavior="Forever">
-                            <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
-                        </DoubleAnimation>
-                        <DoubleAnimation Storyboard.TargetName="AboutOrbAScale"
-                                         Storyboard.TargetProperty="ScaleX"
-                                         From="1" To="1.07" Duration="0:0:17"
-                                         AutoReverse="True" RepeatBehavior="Forever">
-                            <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
-                        </DoubleAnimation>
-                        <DoubleAnimation Storyboard.TargetName="AboutOrbAScale"
-                                         Storyboard.TargetProperty="ScaleY"
-                                         From="1" To="1.07" Duration="0:0:17"
-                                         AutoReverse="True" RepeatBehavior="Forever">
-                            <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
-                        </DoubleAnimation>
-
-                        <!-- Orb B: counter-drift + swell (offset periods) -->
-                        <DoubleAnimation Storyboard.TargetName="AboutOrbBMove"
-                                         Storyboard.TargetProperty="X"
-                                         From="0" To="26" Duration="0:0:23"
-                                         AutoReverse="True" RepeatBehavior="Forever">
-                            <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
-                        </DoubleAnimation>
-                        <DoubleAnimation Storyboard.TargetName="AboutOrbBMove"
-                                         Storyboard.TargetProperty="Y"
-                                         From="0" To="-20" Duration="0:0:19"
-                                         AutoReverse="True" RepeatBehavior="Forever">
-                            <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
-                        </DoubleAnimation>
-                        <DoubleAnimation Storyboard.TargetName="AboutOrbBScale"
-                                         Storyboard.TargetProperty="ScaleX"
-                                         From="1.05" To="1" Duration="0:0:20"
-                                         AutoReverse="True" RepeatBehavior="Forever">
-                            <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
-                        </DoubleAnimation>
-                        <DoubleAnimation Storyboard.TargetName="AboutOrbBScale"
-                                         Storyboard.TargetProperty="ScaleY"
-                                         From="1.05" To="1" Duration="0:0:20"
-                                         AutoReverse="True" RepeatBehavior="Forever">
-                            <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
-                        </DoubleAnimation>
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
-        </Grid.Triggers>
+             breathe continuously. IMPORTANT (crash fix ERR-CDF43D):
+             AboutView is instantiated inside a DataTemplate, and inline
+             FrameworkElement.Triggers (<Grid.Triggers>/<Ellipse.Triggers>
+             with an EventTrigger) are INCOMPATIBLE with WPF's optimised
+             template load path — the template wraps the subtree in
+             BeginInit/EndInit and the inline trigger issues its own
+             BeginInit ("Cannot have nested BeginInit calls on the same
+             instance"). Style.Triggers is processed by StyleHelper, not
+             that path, so the ambient loops now live in each element's
+             own Style and animate its own RenderTransform via property
+             path (no TargetName, which a Style has no namescope for).
+             Purely decorative, so the live theme/accent re-tint still
+             works. -->
         <Ellipse Width="560" Height="560"
                  HorizontalAlignment="Right" VerticalAlignment="Top"
                  Margin="0,-180,-140,0" IsHitTestVisible="False"
@@ -192,10 +140,45 @@
                  RenderTransformOrigin="0.5,0.5">
             <Ellipse.RenderTransform>
                 <TransformGroup>
-                    <ScaleTransform x:Name="AboutOrbAScale" ScaleX="1" ScaleY="1"/>
-                    <TranslateTransform x:Name="AboutOrbAMove" X="0" Y="0"/>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                    <TranslateTransform X="0" Y="0"/>
                 </TransformGroup>
             </Ellipse.RenderTransform>
+            <Ellipse.Style>
+                <!-- Orb A: drift + gentle swell. Loaded EventTrigger inside
+                     a Style is template-load safe (unlike Ellipse.Triggers).
+                     Children[0]=Scale, Children[1]=Translate. -->
+                <Style TargetType="Ellipse">
+                    <Style.Triggers>
+                        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.X)"
+                                                     From="0" To="-30" Duration="0:0:21"
+                                                     AutoReverse="True" RepeatBehavior="Forever">
+                                        <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)"
+                                                     From="0" To="24" Duration="0:0:24"
+                                                     AutoReverse="True" RepeatBehavior="Forever">
+                                        <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"
+                                                     From="1" To="1.07" Duration="0:0:17"
+                                                     AutoReverse="True" RepeatBehavior="Forever">
+                                        <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"
+                                                     From="1" To="1.07" Duration="0:0:17"
+                                                     AutoReverse="True" RepeatBehavior="Forever">
+                                        <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Ellipse.Style>
         </Ellipse>
         <Ellipse Width="420" Height="420"
                  HorizontalAlignment="Left" VerticalAlignment="Bottom"
@@ -204,10 +187,43 @@
                  RenderTransformOrigin="0.5,0.5">
             <Ellipse.RenderTransform>
                 <TransformGroup>
-                    <ScaleTransform x:Name="AboutOrbBScale" ScaleX="1" ScaleY="1"/>
-                    <TranslateTransform x:Name="AboutOrbBMove" X="0" Y="0"/>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                    <TranslateTransform X="0" Y="0"/>
                 </TransformGroup>
             </Ellipse.RenderTransform>
+            <Ellipse.Style>
+                <!-- Orb B: counter-drift + swell on offset periods. -->
+                <Style TargetType="Ellipse">
+                    <Style.Triggers>
+                        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.X)"
+                                                     From="0" To="26" Duration="0:0:23"
+                                                     AutoReverse="True" RepeatBehavior="Forever">
+                                        <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)"
+                                                     From="0" To="-20" Duration="0:0:19"
+                                                     AutoReverse="True" RepeatBehavior="Forever">
+                                        <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"
+                                                     From="1.05" To="1" Duration="0:0:20"
+                                                     AutoReverse="True" RepeatBehavior="Forever">
+                                        <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"
+                                                     From="1.05" To="1" Duration="0:0:20"
+                                                     AutoReverse="True" RepeatBehavior="Forever">
+                                        <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Ellipse.Style>
         </Ellipse>
 
         <ScrollViewer x:Name="RootScrollViewer"
@@ -247,20 +263,27 @@
                                          Opacity="0.5" IsHitTestVisible="False"
                                          RenderTransformOrigin="0.5,0.5">
                                     <Ellipse.RenderTransform>
-                                        <RotateTransform x:Name="AboutIconRingRotate" Angle="0"/>
+                                        <RotateTransform Angle="0"/>
                                     </Ellipse.RenderTransform>
-                                    <Ellipse.Triggers>
-                                        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <DoubleAnimation Storyboard.TargetName="AboutIconRingRotate"
-                                                                     Storyboard.TargetProperty="Angle"
-                                                                     From="0" To="360" Duration="0:0:60"
-                                                                     RepeatBehavior="Forever"/>
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </EventTrigger>
-                                    </Ellipse.Triggers>
+                                    <Ellipse.Style>
+                                        <!-- Slow orbit ring. Style.Triggers (not
+                                             Ellipse.Triggers) so it is safe inside
+                                             the templated AboutView; targets its own
+                                             RotateTransform via property path. -->
+                                        <Style TargetType="Ellipse">
+                                            <Style.Triggers>
+                                                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                                                             From="0" To="360" Duration="0:0:60"
+                                                                             RepeatBehavior="Forever"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </EventTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
                                 </Ellipse>
                                 <Border Width="84" Height="84"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
