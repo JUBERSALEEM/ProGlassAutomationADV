@@ -351,6 +351,15 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 ReceiverName = _entity.ReceiverName;
                 Notes = _entity.Notes;
 
+                // Self-heal the two denormalized cross-DN figures against
+                // their authoritative sources BEFORE computing balances:
+                //   1. OrderedQty  ← Job Order snapshot (true order qty)
+                //   2. PreviouslyDeliveredQty ← confirmed sibling DNs
+                // Order matters: Prev heal + balance both read the corrected
+                // OrderedQty. Without step 1, a legacy row whose OrderedQty was
+                // stored as the balance showed Ordered=64/Prev=0 on the next DN.
+                await HealItemOrderedQtyAsync(_entity);
+
                 // Persist sibling totals onto Master, then heal PREV
                 // with spec+serial so closed lines drop from the grid.
                 await SyncMasterBalancesAsync();
@@ -470,6 +479,60 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             foreach (var item in entity.Items)
             {
                 item.PreviouslyDeliveredQty = LookupPrev(prevMap, item);
+            }
+        }
+
+        /// <summary>
+        /// Re-derive OrderedQty for every line straight from the authoritative
+        /// Job Order snapshot — the ERP source of truth. OrderedQty is a
+        /// denormalized value copied master → DN → DN; if a historical build
+        /// ever stored the *balance* into OrderedQty, that wrong number
+        /// propagates forever because nothing recomputes it. This is the
+        /// missing counterpart to HealItemPrevQtyAsync: together they make the
+        /// KPI strip (Ordered / Prev / This DN / Balance) self-healing and
+        /// correct even on rows saved by older, buggy builds.
+        ///
+        /// Keys are (SpecGroupNumber | continuous SerialNumber), matching how
+        /// DeliveryNoteMapper.FromJobOrder assigns line identity, so the map
+        /// aligns 1:1 with the stored DeliveryNoteItem rows. If the JO can't be
+        /// read (deleted, or a legacy Dummy with no JO), stored values are left
+        /// untouched — never zero a line just because the source is missing.
+        /// </summary>
+        private async Task HealItemOrderedQtyAsync(SavedDeliveryNote entity)
+        {
+            try
+            {
+                if (entity == null || string.IsNullOrWhiteSpace(entity.JobOrderId))
+                    return;
+
+                var jobOrder = await ProGlassAutomation.App.Jobs
+                    .GetByJobOrderIdAsync(entity.JobOrderId);
+                if (jobOrder == null) return;
+
+                var joSnapshot = ProGlassAutomation.Services.JobOrder.Mapper
+                    .JobOrderMapper.DeserializeSnapshot(jobOrder);
+                if (joSnapshot == null) return;
+
+                var orderedMap = DeliveryNoteMapper.BuildOrderedQtyMap(joSnapshot);
+                if (orderedMap.Count == 0) return;
+
+                foreach (var item in entity.Items)
+                {
+                    var key = DeliveryNoteWorkflow.LineKey(
+                        item.SpecGroupNumber, item.SerialNumber);
+                    if (orderedMap.TryGetValue(key, out var trueOrdered)
+                        && trueOrdered > 0
+                        && trueOrdered != item.OrderedQty)
+                    {
+                        item.OrderedQty = trueOrdered;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug(
+                    "[DN] HealItemOrderedQty skipped: "
+                    + ExceptionMessages.Deep(ex));
             }
         }
 

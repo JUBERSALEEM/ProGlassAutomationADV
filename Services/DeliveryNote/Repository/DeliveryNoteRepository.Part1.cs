@@ -213,6 +213,17 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             var deliveredMap = BuildDeliveredLookup(allRealItems);
 
+            // Self-heal the master's OrderedQty from the authoritative Job
+            // Order snapshot. The master is the template every new DN copies
+            // OrderedQty from (DeliveryNoteMapper.FromMasterBalance), so if the
+            // master ever stored the balance as OrderedQty, every child DN
+            // inherited the wrong number (Ordered=64 instead of 76, Prev=0).
+            // Rebuild the true per-line ordered map keyed exactly like
+            // FromJobOrder, then correct the master in place below. If the JO
+            // can't be read, leave stored values untouched.
+            var orderedMap = await BuildJobOrderOrderedMapAsync(jobOrderId)
+                .ConfigureAwait(false);
+
             // Recompute PREV/DELIVERED/BALANCE on the master's OWN tracked
             // children, IN PLACE. EF flags each as Modified and issues UPDATEs.
             //
@@ -226,6 +237,15 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             // and re-add tracked children to "refresh" them: mutate in place.
             foreach (var masterItem in masterDn.Items)
             {
+                // Heal OrderedQty from the Job Order (source of truth) first.
+                var orderedKey = SpecKey(masterItem);
+                if (orderedMap.TryGetValue(orderedKey, out var trueOrdered)
+                    && trueOrdered > 0
+                    && trueOrdered != masterItem.OrderedQty)
+                {
+                    masterItem.OrderedQty = trueOrdered;
+                }
+
                 int totalDelivered = LookupDelivered(deliveredMap, masterItem);
                 masterItem.PreviouslyDeliveredQty = totalDelivered;
                 masterItem.DeliveredQty = 0;
@@ -233,6 +253,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                     masterItem.OrderedQty - totalDelivered);
             }
 
+            masterDn.TotalOrderedQty =
+                masterDn.Items.Sum(i => i.OrderedQty);
             masterDn.TotalDeliveredQty =
                 masterDn.Items.Sum(i => i.PreviouslyDeliveredQty);
             masterDn.TotalBalanceQty =
@@ -814,6 +836,40 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
         private static string SpecKey(DeliveryNoteItem i) =>
             $"{i.SpecGroupNumber}|{i.SerialNumber}";
+
+        /// <summary>
+        /// Authoritative per-line ordered quantities for a job order, keyed
+        /// (SpecGroupNumber|SerialNumber) exactly like the DN mapper. Read
+        /// from the Job Order snapshot — the ERP source of truth for ordered
+        /// qty. Empty map (never throws) when the JO is missing/unreadable, so
+        /// callers safely fall back to stored values.
+        /// </summary>
+        private static async Task<Dictionary<string, int>>
+            BuildJobOrderOrderedMapAsync(string jobOrderId)
+        {
+            try
+            {
+                if (App.Jobs == null || string.IsNullOrWhiteSpace(jobOrderId))
+                    return new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+                var jobOrder = await App.Jobs
+                    .GetByJobOrderIdAsync(jobOrderId).ConfigureAwait(false);
+                if (jobOrder == null)
+                    return new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+                var joSnapshot = ProGlassAutomation.Services.JobOrder.Mapper
+                    .JobOrderMapper.DeserializeSnapshot(jobOrder);
+
+                return ProGlassAutomation.Services.DeliveryNote.Mapper
+                    .DeliveryNoteMapper.BuildOrderedQtyMap(joSnapshot);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug(
+                    "[DN] BuildJobOrderOrderedMap skipped: " + ex.Message);
+                return new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            }
+        }
 
         private static void Acc(Dictionary<string, int> map, string key, int qty)
         {

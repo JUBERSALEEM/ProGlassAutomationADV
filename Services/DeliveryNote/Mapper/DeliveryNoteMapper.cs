@@ -161,6 +161,50 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
         }
 
         // ════════════════════════════════════════════════════════════════
+        //  AUTHORITATIVE ORDERED-QTY MAP (self-heal source of truth)
+        //
+        //  OrderedQty is denormalized onto every DN line and copied
+        //  master → DN → DN. If any historical build ever stored the
+        //  *balance* into OrderedQty, that wrong number propagates forever
+        //  because nothing re-derives it. This rebuilds the TRUE ordered
+        //  quantity per line straight from the Job Order snapshot, keyed
+        //  EXACTLY the way FromJobOrder assigns line identity
+        //  (SpecGroupNumber + continuous global SerialNumber), so the keys
+        //  line up with the stored DeliveryNoteItem rows. Callers use it to
+        //  heal OrderedQty at load — the same pattern as HealItemPrevQty.
+        // ════════════════════════════════════════════════════════════════
+
+        public static Dictionary<string, int> BuildOrderedQtyMap(
+            JobOrderSnapshot? joSnapshot)
+        {
+            var map = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var pi = joSnapshot?.EmbeddedInvoice;
+            if (pi?.SpecGroups == null) return map;
+
+            int globalSerialCounter = 1;  // MUST mirror FromJobOrder numbering
+            foreach (var group in pi.SpecGroups)
+            {
+                if (group.ItemRows == null || group.ItemRows.Count == 0)
+                    continue;
+
+                var rowsBySerial = group.ItemRows
+                    .Where(r => !(string.IsNullOrWhiteSpace(r.GlassRef)
+                                  && r.W1 == 0 && r.H1 == 0))
+                    .Where(r => r.Qty > 0)
+                    .GroupBy(r => r.SerialNumber);
+
+                foreach (var rowGroup in rowsBySerial)
+                {
+                    int serial = globalSerialCounter++;
+                    int ordered = rowGroup.Max(r => r.Qty);
+                    map[$"{group.GroupNumber}|{serial}"] = ordered;
+                }
+            }
+
+            return map;
+        }
+
+        // ════════════════════════════════════════════════════════════════
         //  PATH A2 — Master remaining balance → New Dispatching DN
         //
         //  SerialNumber is copied from the Master line. Reassigning 1..N
