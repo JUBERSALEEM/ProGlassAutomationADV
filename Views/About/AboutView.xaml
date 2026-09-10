@@ -119,36 +119,13 @@
          also exactly what made the page ignore Settings → Appearance.)
          -->
     <Grid>
-        <!-- 2026-09-10 fluid upgrade: the two aurora orbs now drift and
-             breathe continuously (named transforms + Grid.Triggers loop
-             below). Motion is slow (18-24s), eased and AutoReverse — a
+        <!-- 2026-09-10 fluid upgrade: the two aurora orbs drift and
+             breathe continuously (named transforms + this Grid.Triggers
+             loop). Motion is slow (17-24s), eased and AutoReverse — a
              calm living backdrop, never a distraction. Purely decorative
-             transforms, so the live theme/accent re-tint still works. -->
-        <Ellipse Width="560" Height="560"
-                 HorizontalAlignment="Right" VerticalAlignment="Top"
-                 Margin="0,-180,-140,0" IsHitTestVisible="False"
-                 Fill="{DynamicResource LiquidOrbA}"
-                 RenderTransformOrigin="0.5,0.5">
-            <Ellipse.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform x:Name="AboutOrbAScale" ScaleX="1" ScaleY="1"/>
-                    <TranslateTransform x:Name="AboutOrbAMove" X="0" Y="0"/>
-                </TransformGroup>
-            </Ellipse.RenderTransform>
-        </Ellipse>
-        <Ellipse Width="420" Height="420"
-                 HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                 Margin="-120,0,0,-120" IsHitTestVisible="False"
-                 Fill="{DynamicResource LiquidOrbB}"
-                 RenderTransformOrigin="0.5,0.5">
-            <Ellipse.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform x:Name="AboutOrbBScale" ScaleX="1" ScaleY="1"/>
-                    <TranslateTransform x:Name="AboutOrbBMove" X="0" Y="0"/>
-                </TransformGroup>
-            </Ellipse.RenderTransform>
-        </Ellipse>
-
+             transforms, so the live theme/accent re-tint still works.
+             NOTE: Grid.Triggers is a property element and MUST sit before
+             ALL child content (WPF MC3088), hence it leads the Grid. -->
         <Grid.Triggers>
             <EventTrigger RoutedEvent="FrameworkElement.Loaded">
                 <BeginStoryboard>
@@ -208,6 +185,30 @@
                 </BeginStoryboard>
             </EventTrigger>
         </Grid.Triggers>
+        <Ellipse Width="560" Height="560"
+                 HorizontalAlignment="Right" VerticalAlignment="Top"
+                 Margin="0,-180,-140,0" IsHitTestVisible="False"
+                 Fill="{DynamicResource LiquidOrbA}"
+                 RenderTransformOrigin="0.5,0.5">
+            <Ellipse.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform x:Name="AboutOrbAScale" ScaleX="1" ScaleY="1"/>
+                    <TranslateTransform x:Name="AboutOrbAMove" X="0" Y="0"/>
+                </TransformGroup>
+            </Ellipse.RenderTransform>
+        </Ellipse>
+        <Ellipse Width="420" Height="420"
+                 HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                 Margin="-120,0,0,-120" IsHitTestVisible="False"
+                 Fill="{DynamicResource LiquidOrbB}"
+                 RenderTransformOrigin="0.5,0.5">
+            <Ellipse.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform x:Name="AboutOrbBScale" ScaleX="1" ScaleY="1"/>
+                    <TranslateTransform x:Name="AboutOrbBMove" X="0" Y="0"/>
+                </TransformGroup>
+            </Ellipse.RenderTransform>
+        </Ellipse>
 
         <ScrollViewer x:Name="RootScrollViewer"
                       VerticalScrollBarVisibility="Auto"

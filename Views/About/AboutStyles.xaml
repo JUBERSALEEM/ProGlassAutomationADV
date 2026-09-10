@@ -242,6 +242,12 @@
                 </TransformGroup>
             </Border.RenderTransform>
             <Border.Style>
+                <!-- Hover-lift micro-interaction. A Style trigger has no
+                     NameScope, so Storyboard.TargetName is illegal here
+                     (WPF MC4011). Instead the animations target the styled
+                     Border ITSELF via a property path into its own
+                     RenderTransform: Children[0] is the ScaleTransform,
+                     Children[1] the TranslateTransform declared above. -->
                 <Style TargetType="Border">
                     <Style.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
@@ -249,18 +255,15 @@
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
                                     <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="ModuleChipScale"
-                                                         Storyboard.TargetProperty="ScaleX"
+                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"
                                                          To="1.02" Duration="0:0:0.18">
                                             <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
                                         </DoubleAnimation>
-                                        <DoubleAnimation Storyboard.TargetName="ModuleChipScale"
-                                                         Storyboard.TargetProperty="ScaleY"
+                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"
                                                          To="1.02" Duration="0:0:0.18">
                                             <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
                                         </DoubleAnimation>
-                                        <DoubleAnimation Storyboard.TargetName="ModuleChipLift"
-                                                         Storyboard.TargetProperty="Y"
+                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)"
                                                          To="-4" Duration="0:0:0.18">
                                             <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
                                         </DoubleAnimation>
@@ -270,18 +273,15 @@
                             <Trigger.ExitActions>
                                 <BeginStoryboard>
                                     <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="ModuleChipScale"
-                                                         Storyboard.TargetProperty="ScaleX"
+                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"
                                                          To="1" Duration="0:0:0.22">
                                             <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
                                         </DoubleAnimation>
-                                        <DoubleAnimation Storyboard.TargetName="ModuleChipScale"
-                                                         Storyboard.TargetProperty="ScaleY"
+                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"
                                                          To="1" Duration="0:0:0.22">
                                             <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
                                         </DoubleAnimation>
-                                        <DoubleAnimation Storyboard.TargetName="ModuleChipLift"
-                                                         Storyboard.TargetProperty="Y"
+                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)"
                                                          To="0" Duration="0:0:0.22">
                                             <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
                                         </DoubleAnimation>
