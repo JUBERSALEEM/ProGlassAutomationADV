@@ -145,19 +145,25 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
 
         // ── Sort ──────────────────────────────────────────────────────────
         // Each concrete report calls SetSortOptions(...) with the user-facing
-        // sort keys it supports and a default. Changing the selection or the
-        // direction reloads from page 1 (sort is applied server-side for
-        // paged reports and in-VM for the in-memory aggregate reports).
-        private List<string> _sortOptions = new();
-        public List<string> SortOptions { get => _sortOptions; protected set { _sortOptions = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasSortOptions)); } }
+        // sort keys it supports and a default. The dropdown binds to a
+        // SortOption (stable Key + localized Display) so the UI shows proper
+        // translated labels while the filter still travels by a stable key.
+        // Changing the selection or the direction reloads from page 1 (sort
+        // is applied server-side for paged reports and in-VM for the
+        // in-memory aggregate reports).
+        private List<SortOption> _sortOptions = new();
+        public List<SortOption> SortOptions { get => _sortOptions; protected set { _sortOptions = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasSortOptions)); } }
         public bool HasSortOptions => _sortOptions.Count > 0;
 
-        private string _selectedSort = "";
-        public string SelectedSort
+        private SortOption? _selectedSort;
+        public SortOption? SelectedSort
         {
             get => _selectedSort;
-            set { if (_selectedSort == value) return; _selectedSort = value ?? ""; OnPropertyChanged(); ReloadNow(); }
+            set { if (ReferenceEquals(_selectedSort, value)) return; _selectedSort = value; OnPropertyChanged(); ReloadNow(); }
         }
+
+        /// <summary>The stable sort key of the current selection (for the filter).</summary>
+        protected string SelectedSortKey => _selectedSort?.Key ?? "";
 
         private bool _sortDescending = true;
         public bool SortDescending
@@ -168,21 +174,82 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
 
         /// <summary>Segoe MDL2 glyph reflecting the current sort direction.</summary>
         public string SortDirectionGlyph => _sortDescending ? "\uE74B" : "\uE74A"; // SortDown / SortUp
-        public string SortDirectionTooltip => _sortDescending ? "Descending (click for ascending)" : "Ascending (click for descending)";
+        public string SortDirectionTooltip => _sortDescending
+            ? Loc("Reports.Common.SortDescending", "Descending (click for ascending)")
+            : Loc("Reports.Common.SortAscending", "Ascending (click for descending)");
 
         public ICommand ToggleSortDirectionCommand { get; protected set; } = null!;
+
+        // Stable sort key → localization resource key. Keys are report-defined
+        // (see each report's SetSortOptions) and reused across reports where
+        // the concept is identical, so one table serves every report.
+        private static readonly IReadOnlyDictionary<string, string> SortLabelKeys =
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["Date"] = "Common.Date",
+                ["Amount"] = "Common.Amount",
+                ["Customer"] = "Common.Customer",
+                ["Company"] = "Common.Company",
+                ["Project"] = "Common.Project",
+                ["Status"] = "Common.Status",
+                ["Name"] = "Common.Name",
+                ["Salesman"] = "Common.Salesman",
+                ["Created"] = "Reports.Sort.Created",
+                ["Invoice"] = "Reports.Sort.Invoice",
+                ["DueDate"] = "Reports.Sort.DueDate",
+                ["JobOrder"] = "Reports.Sort.JobOrder",
+                ["Delivery"] = "Reports.Sort.Delivery",
+                ["Ordered"] = "Reports.Sort.Ordered",
+                ["Balance"] = "Reports.Sort.Balance",
+                ["Qty"] = "Reports.Sort.Qty",
+                ["Area"] = "Reports.Sort.Area",
+                ["Proforma"] = "Reports.Sort.Proforma",
+                ["Statement"] = "Reports.Sort.Statement",
+                ["Invoiced"] = "Reports.Sort.Invoiced",
+                ["Outstanding"] = "Reports.Sort.Outstanding",
+                ["Overdue"] = "Reports.Sort.Overdue",
+                ["Value"] = "Reports.Sort.Value",
+                ["PiCount"] = "Reports.Sort.PiCount",
+                ["Revenue"] = "Reports.Sort.Revenue",
+                ["Profit"] = "Reports.Sort.Profit",
+                ["Margin"] = "Reports.Sort.Margin",
+                ["Customers"] = "Reports.Sort.Customers",
+            };
+
+        private static string Loc(string resourceKey, string fallback)
+        {
+            try
+            {
+                var v = Services.Localization.LocalizationService.Instance.T(resourceKey);
+                return string.IsNullOrWhiteSpace(v) || v == resourceKey ? fallback : v;
+            }
+            catch { return fallback; }
+        }
+
+        /// <summary>A sort choice: stable key for the filter, localized text for the UI.</summary>
+        public sealed class SortOption
+        {
+            public string Key { get; }
+            public string Display { get; }
+            public SortOption(string key, string display) { Key = key; Display = display; }
+            public override string ToString() => Display;
+        }
 
         /// <summary>
         /// Registers the sort keys this report supports. The first key (or the
         /// supplied default) becomes the active selection without triggering a
-        /// reload (setup happens before the first load).
+        /// reload (setup happens before the first load). Each key is resolved
+        /// to a localized display label.
         /// </summary>
         protected void SetSortOptions(IEnumerable<string> options, string? defaultOption = null, bool defaultDescending = true)
         {
-            var list = (options ?? Enumerable.Empty<string>()).ToList();
+            var list = (options ?? Enumerable.Empty<string>())
+                .Select(k => new SortOption(k,
+                    SortLabelKeys.TryGetValue(k, out var rk) ? Loc(rk, k) : k))
+                .ToList();
             SortOptions = list;
             _sortDescending = defaultDescending;
-            _selectedSort = defaultOption ?? list.FirstOrDefault() ?? "";
+            _selectedSort = list.FirstOrDefault(o => o.Key == defaultOption) ?? list.FirstOrDefault();
             OnPropertyChanged(nameof(SelectedSort));
             OnPropertyChanged(nameof(SortDescending));
             OnPropertyChanged(nameof(SortDirectionGlyph));
@@ -257,7 +324,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
                 Project = string.IsNullOrWhiteSpace(SelectedProject) ? null : SelectedProject.Trim(),
                 Salesman = string.IsNullOrWhiteSpace(SelectedSalesman) ? null : SelectedSalesman.Trim(),
                 Status = string.IsNullOrWhiteSpace(SelectedStatus) ? null : SelectedStatus.Trim(),
-                SortField = string.IsNullOrWhiteSpace(SelectedSort) ? null : SelectedSort.Trim(),
+                SortField = string.IsNullOrWhiteSpace(SelectedSortKey) ? null : SelectedSortKey,
                 SortDescending = SortDescending,
                 Page = Page,
                 PageSize = PageSize

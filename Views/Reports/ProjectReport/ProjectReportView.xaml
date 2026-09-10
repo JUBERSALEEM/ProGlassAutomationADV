@@ -118,7 +118,7 @@
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Reports.Common.SortBy}" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                 <StackPanel Orientation="Horizontal">
-                                    <ComboBox Width="120" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}" ToolTip="{DynamicResource Reports.Common.SortByTip}"/>
+                                    <ComboBox Width="120" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}" DisplayMemberPath="Display" ToolTip="{DynamicResource Reports.Common.SortByTip}"/>
                                     <Button Command="{Binding ToggleSortDirectionCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" Margin="6,0,0,0" ToolTip="{Binding SortDirectionTooltip}" Content="{Binding SortDirectionGlyph}" FontFamily="Segoe MDL2 Assets"/>
                                 </StackPanel>
                             </StackPanel>
