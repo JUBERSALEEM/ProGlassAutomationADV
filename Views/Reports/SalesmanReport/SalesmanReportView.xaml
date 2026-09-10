@@ -166,9 +166,10 @@
                         </StackPanel>
                     </Border>
 
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <ItemsControl ItemsSource="{Binding Rows}">
-                            <ItemsControl.ItemTemplate>
+                    <ListBox ItemsSource="{Binding Rows}"
+                             Style="{StaticResource ModuleReportListBoxStyle}"
+                             Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Border BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.BottomHairlineThickness}" Padding="16,9">
                                         <Grid>
@@ -207,9 +208,8 @@
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
                 </Grid>
 
                 <!-- ══ 5. PAGINATION FOOTER ══ -->

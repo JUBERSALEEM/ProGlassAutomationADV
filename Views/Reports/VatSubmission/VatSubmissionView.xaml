@@ -337,7 +337,7 @@
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="0.9*"/>
-                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="132"/>
                                     <ColumnDefinition Width="1.0*"/>
                                     <ColumnDefinition Width="1.0*"/>
                                     <ColumnDefinition Width="0.9*"/>
@@ -347,7 +347,9 @@
                                     <ColumnDefinition Width="0.9*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="{DynamicResource Reports.DeliveryReport.PINumber}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{DynamicResource Reports.VatSubmission.DATETIME}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                                <!-- Left-aligned with a right gutter so the timestamp never collides
+                                     with the Company column when PI/Company star columns grow. -->
+                                <TextBlock Grid.Column="1" Text="{DynamicResource Reports.VatSubmission.DATETIME}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Left" Margin="0,0,14,0"/>
                                 <TextBlock Grid.Column="2" Text="{DynamicResource Common.Company}" Style="{StaticResource ReportHeaderTextStyle}"/>
                                 <TextBlock Grid.Column="3" Text="{DynamicResource Common.Customer}" Style="{StaticResource ReportHeaderTextStyle}"/>
                                 <TextBlock Grid.Column="4" Text="{DynamicResource Common.Project}" Style="{StaticResource ReportHeaderTextStyle}"/>
@@ -386,7 +388,7 @@
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="0.9*"/>
-                                                <ColumnDefinition Width="110"/>
+                                                <ColumnDefinition Width="132"/>
                                                 <ColumnDefinition Width="1.0*"/>
                                                 <ColumnDefinition Width="1.0*"/>
                                                 <ColumnDefinition Width="0.9*"/>
@@ -399,8 +401,9 @@
                                             <!-- PI Number -->
                                             <TextBlock Grid.Column="0" Text="{Binding ProformaId}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
 
-                                            <!-- Date / Time -->
-                                            <TextBlock Grid.Column="1" Text="{Binding IssueDateDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            <!-- Date / Time: left-aligned with a right gutter so the
+                                                 timestamp keeps clear space from the Company column. -->
+                                            <TextBlock Grid.Column="1" Text="{Binding IssueDateDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Left" TextTrimming="CharacterEllipsis" Margin="0,0,14,0"/>
 
                                             <!-- Company -->
                                             <TextBlock Grid.Column="2" Text="{Binding CompanyName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
