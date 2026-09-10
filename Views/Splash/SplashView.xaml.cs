@@ -107,23 +107,39 @@ namespace ProGlassAutomation.Views.Splash
 
             var glyph = AccentGlyph();
 
-            // 12 modules — rendered as a 6×2 uniform grid (see
-            // FeaturePanel in the XAML) so every chip is the same width
-            // and the block stays perfectly aligned.
+            // Splash module showcase — mirrors the REAL application module
+            // set (MainWindow sidebar), not a hard-coded list. Labels are
+            // resolved from the live Nav.* localization resources so the
+            // splash is correct in every shipped language; glyphs match the
+            // sidebar's Segoe MDL2 icons. Shown as frosted glass tiles in a
+            // centered WrapPanel (see FeaturePanel in the XAML).
+            static string Nav(string key, string fallback)
+            {
+                if (System.Windows.Application.Current?
+                        .TryFindResource("Nav." + key) is string s
+                    && !string.IsNullOrWhiteSpace(s))
+                    return s;
+                return fallback;
+            }
+
             return new[]
             {
-                new FeatureItem("\uE9F9", "Dashboard",    glyph),
-                new FeatureItem("\uE721", "Inquiry",      glyph),
-                new FeatureItem("\uE8A5", "Proforma",     glyph),
-                new FeatureItem("\uE9D9", "Job Orders",   glyph),
-                new FeatureItem("\uE7B8", "Delivery",     glyph),
-                new FeatureItem("\uE8C7", "Tax Invoice",  glyph),
-                new FeatureItem("\uE8F7", "Statements",   glyph),
-                new FeatureItem("\uE8C8", "Reports",      glyph),
-                new FeatureItem("\uEA37", "Sheet Store",  glyph),
-                new FeatureItem("\uE9CE", "Optimization", glyph),
-                new FeatureItem("\uE8F2", "AI Assistant", glyph),
-                new FeatureItem("\uE713", "Settings",     glyph),
+                new FeatureItem("\uE80F", Nav("Dashboard",          "Dashboard"),     glyph),
+                new FeatureItem("\uE7B8", Nav("SheetStore",         "Sheet Store"),   glyph),
+                new FeatureItem("\uE8F1", Nav("Specifications",     "Specifications"),glyph),
+                new FeatureItem("\uE721", Nav("Inquiry",            "Inquiry"),       glyph),
+                new FeatureItem("\uE8A5", Nav("ProformaInvoice",    "Proforma"),      glyph),
+                new FeatureItem("\uE9D9", Nav("JobOrder",           "Job Order"),     glyph),
+                new FeatureItem("\uE8C7", Nav("TaxInvoice",         "Tax Invoice"),   glyph),
+                new FeatureItem("\uE8C6", Nav("ProductionItems",    "Production"),    glyph),
+                new FeatureItem("\uE9CE", Nav("Optimization",       "Optimization"),  glyph),
+                new FeatureItem("\uE7F4", Nav("Dispatch",           "Dispatch"),      glyph),
+                new FeatureItem("\uE8F7", Nav("StatementGenerator", "Statements"),    glyph),
+                new FeatureItem("\uE9F9", Nav("Reports",            "Reports"),       glyph),
+                new FeatureItem("\uE90E", Nav("JobProfitability",   "Profitability"), glyph),
+                new FeatureItem("\uE8C8", Nav("VatSubmission",      "VAT"),           glyph),
+                new FeatureItem("\uE822", Nav("MasterDataItems",    "Master Data"),   glyph),
+                new FeatureItem("\uE713", Nav("System",             "System"),        glyph),
             };
         }
 

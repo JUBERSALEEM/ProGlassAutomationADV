@@ -664,7 +664,7 @@
                 <ItemsControl x:Name="FeaturePanel"
                               ItemTemplate="{StaticResource FeatureBadgeTemplate}"
                               HorizontalAlignment="Center"
-                              MaxWidth="912"
+                              MaxWidth="1216"
                               Margin="0,26,0,0"
                               Opacity="0">
                     <ItemsControl.ItemsPanel>
