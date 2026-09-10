@@ -453,19 +453,24 @@ namespace ProGlassAutomation.Services.Dashboard.Core
                 // serial). DeliveryNoteItems.DeliveredQty is what the
                 // Delivery report reconciles from, so the dashboard now
                 // reads the same truth. Master DNs contribute 0 by rule.
-                var sentStatuses = new[]
-                {
-                    DeliveryNoteStatusValues.Dispatched,
-                    DeliveryNoteStatusValues.Delivered,
-                    DeliveryNoteStatusValues.Signed,
-                    DeliveryNoteStatusValues.Received
-                };
-
+                // SENT-OUT predicate: constant OR-ed equality, deliberately
+                // NOT a string[] closure with .Contains. Under a modern
+                // Roslyn (VS 17.12+ / newer SDK), T[].Contains inside an
+                // expression tree binds to MemoryExtensions.Contains with an
+                // implicit ReadOnlySpan<string> conversion; EF Core 8's
+                // parameter funcletizer then evaluates that conversion in
+                // its interpreter and dies with "GenericArguments[1],
+                // ReadOnlySpan`1[String] ... violates TRet" — the exact
+                // Overview crash reported 2026-09-10. Constant == compares
+                // carry no parameters and no spans, on every SDK.
                 var pcsQuery = db.DeliveryNoteItems.AsNoTracking()
                     .Where(i => i.DeliveryNote != null
                                 && !i.DeliveryNote.IsVoid
                                 && !i.DeliveryNote.IsMasterDn
-                                && sentStatuses.Contains(i.DeliveryNote.Status));
+                                && (i.DeliveryNote.Status == DeliveryNoteStatusValues.Dispatched
+                                    || i.DeliveryNote.Status == DeliveryNoteStatusValues.Delivered
+                                    || i.DeliveryNote.Status == DeliveryNoteStatusValues.Signed
+                                    || i.DeliveryNote.Status == DeliveryNoteStatusValues.Received));
 
                 var todayStart = today;
                 var todayEnd = today.AddDays(1);
