@@ -38,6 +38,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -64,20 +65,65 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         // dashboard load.
         private readonly ITaxInvoiceMetricsService? _taxInvoiceMetrics;
 
+        // LIVE REFRESH: any document write anywhere in the app (PI / JO /
+        // DN / TI / statement) raises DocumentLifecycle. The report pages
+        // reload on that signal — this dashboard did not, so its KPI tiles
+        // stayed stale until the user navigated away and back. Debounced
+        // (400ms) so a burst of writes coalesces into ONE reload.
+        // (2026-09-10)
+        private readonly IDatabaseServices? _database;
+        private CancellationTokenSource? _docChangeCts;
+
         public OverviewDashboardViewModel(IDashboardFilterService? dashboardFilter, IDashboardMetricsService? dashboardMetrics, IProformaInvoiceRepository? invoices)
             : this(dashboardFilter, dashboardMetrics, invoices, null) { }
 
-        public OverviewDashboardViewModel(IDashboardFilterService? dashboardFilter, IDashboardMetricsService? dashboardMetrics, IProformaInvoiceRepository? invoices, ITaxInvoiceMetricsService? taxInvoiceMetrics)
+        public OverviewDashboardViewModel(IDashboardFilterService? dashboardFilter, IDashboardMetricsService? dashboardMetrics, IProformaInvoiceRepository? invoices, ITaxInvoiceMetricsService? taxInvoiceMetrics, IDatabaseServices? database = null)
         {
             _dashboardFilter = dashboardFilter!;
             _dashboardMetrics = dashboardMetrics!;
             _invoices = invoices!;
             _taxInvoiceMetrics = taxInvoiceMetrics;
-        
+            _database = database;
+
+            // KPI tiles follow the data, not the last navigation: the same
+            // cross-module signal the document lists and report pages use.
+            _database?.SubscribeDocumentsChanged(OnDocumentChangedAsync);
+
             // ERR-633EEB: run shared initialization on EVERY construction
             // path. DI selects this (greediest) ctor, so without this call the
             // parameterless ctor's setup never ran and commands stayed null.
             InitializeCore();
+        }
+
+        /// <summary>Debounced reload when any document changes anywhere.</summary>
+        private async Task OnDocumentChangedAsync()
+        {
+            _docChangeCts?.Cancel();
+            _docChangeCts = new CancellationTokenSource();
+            var token = _docChangeCts.Token;
+            try
+            {
+                await Task.Delay(400, token).ConfigureAwait(true);
+                if (token.IsCancellationRequested) return;
+
+                // Tiles are ObservableCollections — touch them on the UI
+                // thread only. LoadAsync itself is reentrancy-guarded by
+                // DashboardPageBase, so a load already in flight wins.
+                var dispatcher = Application.Current?.Dispatcher;
+                if (dispatcher != null && !dispatcher.CheckAccess())
+                    await dispatcher.InvokeAsync(LoadAsync).Task.ConfigureAwait(true);
+                else
+                    await LoadAsync();
+            }
+            catch (TaskCanceledException)
+            {
+                // Superseded by a newer change — nothing to do.
+            }
+            catch (Exception ex)
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                    $"Overview auto-refresh failed: {ExceptionMessages.Deep(ex)}");
+            }
         }
 
         public override string TabTitle => "Overview";
@@ -267,7 +313,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             App.ServiceProvider?.GetService<IDashboardFilterService>()!,
             App.ServiceProvider?.GetService<IDashboardMetricsService>()!,
             App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!,
-            App.ServiceProvider?.GetService<ITaxInvoiceMetricsService>()){ }
+            App.ServiceProvider?.GetService<ITaxInvoiceMetricsService>(),
+            App.ServiceProvider?.GetService<IDatabaseServices>()){ }
 
         // ── Shared initialization (ERR-633EEB) ─────────────────────
         // Extracted verbatim from the parameterless ctor so both it

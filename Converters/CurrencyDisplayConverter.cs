@@ -44,6 +44,12 @@ namespace ProGlassAutomation.Converters
         {
             "suffix" => svc.Format(amount, layout: CurrencyService.CurrencyLayout.Suffix),
             "sqm" => $"{svc.Format(amount)} / m²",
+            // AREA: a plain area (pcs spread over m²), NOT a per-m² rate.
+            // The "sqm" branch above renders a PRICE PER m² — binding an
+            // area to it displayed "AED 45.70 / m²" everywhere (found
+            // 2026-09-10: PI/JO KPI hints + PI/TI rows). Use "area" for
+            // TotalSqm-style values.
+            "area" => $"{amount:N2} m²",
             "minus" => $"- {svc.Format(amount)}",
             "plus" => $"+ {svc.Format(amount)}",
             "surcharge" => $"{LocalizationService.Instance.T("Currency.WithSurcharge")} {svc.Format(amount)}",

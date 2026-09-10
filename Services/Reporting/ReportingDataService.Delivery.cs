@@ -55,6 +55,26 @@ namespace ProGlassAutomation.Services.Reporting
             var glassTypeKeys = await ResolveGlassTypeKeysAsync(filter.GlassType, ct);
             var query = BuildDeliveryRowQuery(db, filter, salesmanJobIds, glassTypeKeys);
 
+            // Status filter must narrow the SUMMARY too — the rows page
+            // applies the same CASE WHEN projection, and a status-filtered
+            // grid with unfiltered KPI cards reads as a wrong total. Same
+            // bucket predicates as the DeliveryRowProjection in
+            // GetDeliveryRowsAsync (2026-09-10).
+            if (!string.IsNullOrWhiteSpace(filter.Status))
+            {
+                // Plain branches, not Eq()/ternary chains — this must stay
+                // SQL-translatable (Eq uses StringComparison, which EF Core
+                // cannot translate). The three values are exactly what the
+                // view's StatusOptions offer.
+                var st = filter.Status.Trim();
+                if (st.Equals("Not delivered", StringComparison.OrdinalIgnoreCase))
+                    query = query.Where(x => x.DeliveredQty <= 0);
+                else if (st.Equals("Fully delivered", StringComparison.OrdinalIgnoreCase))
+                    query = query.Where(x => x.DeliveredQty > 0 && x.DeliveredQty >= x.TotalQty);
+                else if (st.Equals("Partially delivered", StringComparison.OrdinalIgnoreCase))
+                    query = query.Where(x => x.DeliveredQty > 0 && x.DeliveredQty < x.TotalQty);
+            }
+
             summary.TotalRows = await query.CountAsync(ct).ConfigureAwait(false);
             if (summary.TotalRows == 0) return summary;
 

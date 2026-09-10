@@ -414,7 +414,7 @@
                                                 <StackPanel>
                                                     <TextBlock Text="{DynamicResource Reports.TaxInvoiceReport.QuantityAREA}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,6"/>
                                                     <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                                        <Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text="{DynamicResource Reports.StatementGenerator.Pcs}"/><Run Text="{Binding TotalSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=sqm}"/>
+                                                        <Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text="{DynamicResource Reports.StatementGenerator.Pcs}"/><Run Text="{Binding TotalSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=area}"/>
                                                     </TextBlock>
                                                 </StackPanel>
                                             </Border>

@@ -172,6 +172,10 @@ namespace ProGlassAutomation.Services.Dashboard.Core
 
             var rows = await db.ProformaInvoices
                 .AsNoTracking()
+                // Voided proformas are soft-deleted — every list screen
+                // hides them, so the dashboard must not count them either.
+                // (2026-09-10: sales band counted void documents.)
+                .Where(i => !i.IsVoid)
                 .Select(i => new InvoiceRow
                 {
                     CustomerName = i.CustomerName,
@@ -251,6 +255,8 @@ namespace ProGlassAutomation.Services.Dashboard.Core
 
             var rows = await db.JobOrders
                 .AsNoTracking()
+                // Voided job orders are soft-deleted — same rule as above.
+                .Where(j => !j.IsVoid)
                 .Select(j => new JobRow
                 {
                     Status                 = j.Status,
@@ -372,6 +378,10 @@ namespace ProGlassAutomation.Services.Dashboard.Core
             var rows = await db.DeliveryNotes
                 .AsNoTracking()
                 .Where(d => !d.IsMasterDn)
+                // Voided notes are soft-deleted and invisible on every DN
+                // list — counting them inflated Preparing / Dispatched /
+                // Total Delivered on the Overview. (2026-09-10)
+                .Where(d => !d.IsVoid)
                 .Select(d => new DnRow
                 {
                     Status            = d.Status,
@@ -670,7 +680,7 @@ namespace ProGlassAutomation.Services.Dashboard.Core
                 // found by Tests/Architecture/MasterDnFilterParityTests.cs.
                 result.DeliveryNotes = await db.DeliveryNotes
                     .AsNoTracking()
-                    .Where(d => !d.IsMasterDn)
+                    .Where(d => !d.IsMasterDn && !d.IsVoid)
                     .OrderByDescending(d => d.UpdatedAt)
                     .Take(limit)
                     .Select(d => new RecentDeliveryRow

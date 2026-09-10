@@ -106,7 +106,7 @@
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{DynamicResource Common.Quantity}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding Summary.TotalQty, StringFormat={}{0:N0} pcs}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=sqm}" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=area}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
                     </Grid>
@@ -321,7 +321,7 @@
                                             <TextBlock Grid.Column="6" Text="{Binding GrandTotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
 
                                             <TextBlock Grid.Column="7" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextAlignment="Right" Margin="0,0,6,0">
-                                                <Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text=" pcs"/><LineBreak/><Run Text="{Binding TotalSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=sqm}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                <Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text=" pcs"/><LineBreak/><Run Text="{Binding TotalSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=area}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}"/>
                                             </TextBlock>
 
                                             <TextBlock Grid.Column="8" Text="{Binding TotalRows}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
