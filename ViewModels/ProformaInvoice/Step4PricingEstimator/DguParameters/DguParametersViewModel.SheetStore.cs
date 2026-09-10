@@ -417,8 +417,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             ObservableCollection<string> target,
             System.Collections.Generic.IEnumerable<string> values)
         {
-            target.Clear();
-            foreach (var v in values) target.Add(v);
+            // Marshalled: store refreshes run on thread-pool continuations
+            // and CollectionView rejects off-dispatcher source changes.
+            SheetStorePricingService.PostToUi(() =>
+            {
+                target.Clear();
+                foreach (var v in values) target.Add(v);
+            });
         }
 
         private void UpdateHint() =>

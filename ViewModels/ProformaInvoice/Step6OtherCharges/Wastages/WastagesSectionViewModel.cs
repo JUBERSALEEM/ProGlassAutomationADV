@@ -28,6 +28,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
         // continuation when the async consumption finishes.
         private readonly System.Collections.Concurrent.ConcurrentDictionary<Guid, byte> _autoUseInFlight = new();
 
+        // NET sheets already consumed per row THIS SESSION. Committing a
+        // quantity consumes the DELTA against this number, so correcting a
+        // typo (5 → 3) or typing through intermediate keystrokes can never
+        // over-consume. Cleared when a row is removed / all rows cleared;
+        // a negative delta is NOT auto-reversed (no silent inventory
+        // mutation) — the operator gets an explicit warning instead.
+        private readonly System.Collections.Concurrent.ConcurrentDictionary<Guid, int> _consumedNetPerRow = new();
+
         /// <summary>Master switch for auto-consuming sheets from inventory. Default ON.</summary>
         public bool AutoUseFromInventory
         {
@@ -84,6 +92,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                 if (p is WastageRow r)
                 {
                     DetachRow(r);
+                    _consumedNetPerRow.TryRemove(r.Id, out _);
                     WastageRows.Remove(r);
                     RecalculateTotal();
                 }
@@ -118,7 +127,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
         public void ClearWastageRows()
         {
             foreach (var row in WastageRows.ToList())
+            {
                 DetachRow(row);
+                _consumedNetPerRow.TryRemove(row.Id, out _);
+            }
 
             WastageRows.Clear();
             RecalculateTotal();
@@ -556,8 +568,36 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                 return;
             }
 
+            // DELTA commit: only the difference against what this row
+            // already consumed this session is taken from inventory.
+            int netAlready = _consumedNetPerRow.TryGetValue(row.Id, out var prev)
+                ? prev : 0;
+            int delta = qty - netAlready;
+
+            if (delta == 0)
+            {
+                SetRowInventoryStatus(row,
+                    $"Sheet QTY unchanged — {netAlready} sheet(s) already " +
+                    "consumed from inventory for this row.");
+                return;
+            }
+
+            if (delta < 0)
+            {
+                SetRowInventoryStatus(row,
+                    $"Quantity reduced ({netAlready} consumed → {qty} now). " +
+                    "Auto-return to inventory is not supported — adjust the " +
+                    "balance in Sheet Store history if needed.",
+                    isWarning: true);
+                return;
+            }
+
+            // Thickness narrows the match: read the primary source's Step 4
+            // section and parse the leading mm of the generated spec name.
+            int thicknessMm = ResolveRowThicknessMm(row);
+
             var sheet = await SheetStockLinkService
-                .ResolveSheetAsync(color, w, h)
+                .ResolveSheetAsync(color, w, h, thicknessMm)
                 .ConfigureAwait(false);
 
             if (sheet == null)
@@ -569,27 +609,50 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                 return;
             }
 
-            if (sheet.Balance < qty)
-            {
-                SetRowInventoryStatus(row,
-                    $"Insufficient stock — {sheet.Color} {sheet.ThicknessMm}mm " +
-                    $"{sheet.SizeDisplay} balance is {sheet.Balance}, {qty} required.",
-                    isWarning: true);
-                return;
-            }
-
             var (reference, customer, project, salesman) =
                 _jobContextProvider?.Invoke() ?? ("", "", "", "");
 
             var result = await SheetStockLinkService.CommitConsumptionAsync(
-                sheet, qty,
+                sheet, delta,
                 jobReference: reference,
                 customerName: customer,
                 projectName: project,
                 salesman: salesman,
-                origin: "Step 6 Wastage").ConfigureAwait(false);
+                origin: "Step 6 Wastage (automatic)").ConfigureAwait(false);
 
-            SetRowInventoryStatus(row, result.Message, isWarning: !result.Success);
+            if (result.Success)
+                _consumedNetPerRow.AddOrUpdate(
+                    row.Id, delta, (_, old) => old + delta);
+
+            SetRowInventoryStatus(row,
+                result.Success
+                    ? $"{result.Message} Row total consumed: {netAlready + delta}."
+                    : result.Message,
+                isWarning: !result.Success);
+        }
+
+        /// <summary>
+        /// Thickness (mm) for the inventory match: taken from the primary
+        /// checked source's Step 4 section — the generated spec name leads
+        /// with the pane thickness ("6mm Clear FT"), which ParseMm reads.
+        /// 0 = unknown → the resolver falls back to best balance match.
+        /// </summary>
+        private int ResolveRowThicknessMm(WastageRow row)
+        {
+            try
+            {
+                int spec = (row.AvailableSources.FirstOrDefault(s => s.IsChecked)
+                            ?? row.AvailableSources.FirstOrDefault())
+                           ?.SpecNumber ?? 0;
+                if (spec <= 0) return 0;
+
+                var sections = _step4SectionsProvider?.Invoke();
+                if (sections == null || spec > sections.Count) return 0;
+
+                return SheetStorePricingService.ParseMm(
+                    sections[spec - 1]?.GeneratedSpecName);
+            }
+            catch { return 0; }
         }
 
         private void SetRowInventoryStatus(WastageRow row, string text, bool isWarning)

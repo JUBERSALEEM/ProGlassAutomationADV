@@ -61,6 +61,7 @@
 
 using ProGlassAutomation.Services.ProformaInvoice;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -106,12 +107,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         };
 
         // 2026-09-10: built-in colour defaults REMOVED by request; the
-        // hybrid now reads the SAME Sheet Store colours as the other
+        // GLASS PANE combos read the SAME Sheet Store colours as the other
         // panels (LoadStoreColorsAsync, fired from PricingEstimator's
         // LoadSheetStoreDataAsync). ObservableCollection so the combos
         // refresh when inventory changes.
         public System.Collections.ObjectModel.ObservableCollection<string>
             ColorOptions { get; } = new();
+
+        // Cross-check fix (2026-09-10): the INTERLAYER is a PVB film, not a
+        // stocked glass sheet — it must keep the classic interlayer palette
+        // instead of inheriting the glass inventory list.
+        public System.Collections.ObjectModel.ObservableCollection<string>
+            InterlayerColorOptions { get; } = new(
+                new[] { "Clear", "Frosted", "Milky White", "Grey", "Bronze", "Blue", "Green" });
 
         /// <summary>
         /// Fills the pane-colour combos from Sheet Store inventory only.
@@ -131,7 +139,32 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
                     "[DguLamParametersViewModel] colour load failed: " +
                     ex.Message);
             }
+            finally
+            {
+                // The list was replaced wholesale — the outer-pane colour
+                // may have stopped (or started) being stocked.
+                OnPropertyChanged(nameof(SheetStoreHint));
+                OnPropertyChanged(nameof(HasSheetStoreHint));
+            }
         }
+
+        // ── Cross-check hardening (2026-09-10): the hybrid previously had
+        // NO not-in-store warning even though its colours are store-only.
+        // Same contract as the SGU/DGU/LAM panels so the Step 4 banner can
+        // cover all four glass families. Evaluated on the OUTER pane — the
+        // leaf every build family quotes against.
+        public const string NotInStoreHint =
+            "This glass is not in Sheet Store — check Sheet Store or enter manually (skippable).";
+
+        public string SheetStoreHint =>
+            (ColorOptions.Count == 0 ||
+             !ColorOptions.Any(c =>
+                 SheetStorePricingService.Norm(c) ==
+                 SheetStorePricingService.Norm(OuterGlassColor)))
+                ? NotInStoreHint
+                : "";
+
+        public bool HasSheetStoreHint => !string.IsNullOrWhiteSpace(SheetStoreHint);
 
         // ══════════════════════════════════════════════════════════════
         //  FABRICATION EXTRAS
@@ -248,10 +281,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         }
 
         private string _outerGlassColor = "HD Grey";
+
         public string OuterGlassColor
         {
             get => _outerGlassColor;
-            set { if (_outerGlassColor == value) return; _outerGlassColor = value; Changed(); }
+            set
+            {
+                if (_outerGlassColor == value) return;
+                _outerGlassColor = value;
+                Changed();
+                OnPropertyChanged(nameof(SheetStoreHint));
+                OnPropertyChanged(nameof(HasSheetStoreHint));
+            }
         }
 
         private string _outerTreatment = "FT";

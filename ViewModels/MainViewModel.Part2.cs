@@ -202,7 +202,21 @@ namespace ProGlassAutomation.ViewModels
             {
                 case "Dashboard": CurrentViewModel = DashboardVM; break;
                 case "Inquiry": CurrentViewModel = InquiryVM; break;
-                case "SheetStore": CurrentViewModel = SheetStoreVM; break;
+                case "SheetStore":
+                    CurrentViewModel = SheetStoreVM;
+                    // Cross-check hardening (2026-09-10): after any inventory
+                    // ledger mutation (add/edit/buy/use/CSV) the Step 4
+                    // panels re-read colours, sizes and prices — the operator
+                    // no longer reopens the wizard to see a sheet added a
+                    // moment ago. Idempotent subscription, wired on first
+                    // navigation to keep the module's lazy creation.
+                    if (!_sheetStoreLedgerHooked)
+                    {
+                        SheetStoreVM.StockLedgerChanged += (_, _) =>
+                            ProformaInvoiceVM.Step4VM.RefreshSheetStoreData();
+                        _sheetStoreLedgerHooked = true;
+                    }
+                    break;
                 case "Specifications": CurrentViewModel = SpecificationsVM; break;
                 case "ProformaInvoice": CurrentViewModel = ProformaInvoiceVM; break;
                 case "JobOrder": CurrentViewModel = JobOrderVM; break;

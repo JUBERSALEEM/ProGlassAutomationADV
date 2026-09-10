@@ -34,5 +34,15 @@ namespace ProGlassAutomation.ViewModels.SheetStore
     public partial class SheetStoreViewModel : ViewModelBase,
         ProGlassAutomation.Agent.Context.IAgentContextAware
     {
+        /// <summary>
+        /// Raised after a LEDGER MUTATION (add / edit / buy / use / CSV
+        /// import) has been persisted. Cross-module consumers (Step 4
+        /// pricing panels) refresh their Sheet Store reads so a return
+        /// from the store shows new colours/prices without reopening the
+        /// wizard. Never raised on plain navigation/loads.
+        /// </summary>
+        public event EventHandler? StockLedgerChanged;
+        internal void RaiseStockLedgerChanged()
+            => StockLedgerChanged?.Invoke(this, EventArgs.Empty);
     }
 }

@@ -161,7 +161,7 @@
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="{DynamicResource ProformaInvoice.Colour}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox ItemsSource="{Binding ColorOptions}" Text="{Binding InterlayerColor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4EditableComboStyle}"/>
+                                <ComboBox ItemsSource="{Binding InterlayerColorOptions}" Text="{Binding InterlayerColor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4EditableComboStyle}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="4">
                                 <TextBlock Text="{DynamicResource Common.Type}" Style="{StaticResource ModuleFieldLabelStyle}"/>

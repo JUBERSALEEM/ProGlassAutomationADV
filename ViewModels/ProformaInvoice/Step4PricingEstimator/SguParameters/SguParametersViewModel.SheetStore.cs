@@ -205,8 +205,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
 
             if (epoch != _sheetStoreEpoch || _suspendSheetStoreRefresh) return;
 
-            SheetSizeOptions.Clear();
-            foreach (var sz in sizes) SheetSizeOptions.Add(sz.Display);
+            SheetStorePricingService.PostToUi(() =>
+            {
+                SheetSizeOptions.Clear();
+                foreach (var sz in sizes) SheetSizeOptions.Add(sz.Display);
+            });
 
             _isAutoFilling = true;
             if (sizes.Count > 0)

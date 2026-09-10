@@ -160,6 +160,13 @@
                                         </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Visible"/>
                                     </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding SelectedGlassType.Code}" Value="DGU+LAM"/>
+                                            <Condition Binding="{Binding DguLamVM.HasSheetStoreHint}" Value="True"/>
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </MultiDataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
@@ -191,6 +198,9 @@
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding SelectedGlassType.Code}" Value="LAM">
                                                     <Setter Property="Text" Value="{Binding LamVM.SheetStoreHint}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding SelectedGlassType.Code}" Value="DGU+LAM">
+                                                    <Setter Property="Text" Value="{Binding DguLamVM.SheetStoreHint}"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>

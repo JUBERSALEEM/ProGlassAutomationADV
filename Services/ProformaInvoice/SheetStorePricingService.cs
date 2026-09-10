@@ -113,19 +113,38 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             LoadAllAsync();
 
         /// <summary>
+        /// UI-thread marshaller for ObservableCollection mutations. The
+        /// wizard fires store loads via SafeFireAndForget, so continuations
+        /// run on the thread pool — WPF CollectionView throws when the
+        /// SOURCE collection changes off-dispatcher, therefore every
+        /// list swap must land on the UI thread. (Cross-check hardening,
+        /// 2026-09-10: also covers the stock-ledger refresh path.)
+        /// </summary>
+        internal static void PostToUi(Action action)
+        {
+            var dispatcher = System.Windows.Application.Current?.Dispatcher;
+            if (dispatcher == null || dispatcher.CheckAccess()) action();
+            else dispatcher.BeginInvoke(action);
+        }
+
+        /// <summary>
         /// REPLACES the target combo list with exactly the Sheet Store
         /// colours (2026-09-10: built-in defaults removed by request —
         /// the dropdown must offer only what inventory actually stocks).
         /// Single shared mechanism for SGU / DGU / LAM / DGU+LAM.
         /// Never throws; leaves the list empty when the store is empty.
+        /// Marshalled to the UI thread (see <see cref="PostToUi"/>).
         /// </summary>
         public static async Task LoadColorsIntoAsync(
             ObservableCollection<string> target)
         {
             if (target == null) return;
             var colors = await GetColorsAsync().ConfigureAwait(true);
-            target.Clear();
-            foreach (var color in colors) target.Add(color);
+            PostToUi(() =>
+            {
+                target.Clear();
+                foreach (var color in colors) target.Add(color);
+            });
         }
 
         /// <summary>

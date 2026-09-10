@@ -60,3 +60,32 @@ battery; runtime verification happens on the user's next build.**
   Step 4 remains the source of thickness quoting.
 - Localization: new keys shipped in English across all 15 dictionaries —
   translation sweep is the carried task.
+
+---
+
+# CROSS-CHECK HARDENING (2026-09-10, second pass)
+
+Senior self-audit of the five phases above. Findings → fixes:
+
+| # | Finding | Severity | Fix |
+|---|---|---|---|
+| 1 | **Double-consumption on QTY correction** — typing 5 then correcting to 3 consumed 5+3=8; keystroke commits compounded it | HIGH | Per-row net-consumption ledger; each commit takes only the DELTA. Zero-delta = "already consumed" notice; negative delta = explicit warning, never silent auto-return |
+| 2 | **TOCTOU race** — balance checked against a snapshot that could be minutes old (another window/use dialog in between) | HIGH | `CommitConsumptionAsync` re-fetches the CURRENT row (`GetByIdAsync`) and validates against it immediately before the write |
+| 3 | **Cross-thread `ObservableCollection` mutation** — store loads run on thread-pool continuations (`ConfigureAwait(true)` ≠ UI thread); `ColorOptions.Clear/Add` + size-list swaps could throw `InvalidOperationException` under WPF CollectionView (pre-existing latent hazard, amplified by the new ledger-refresh wiring) | HIGH | `SheetStorePricingService.PostToUi` marshaller; colour lists + SGU size list + DGU/LAM `ReplaceSizes` all land on the dispatcher |
+| 4 | **DGU+LAM had no not-in-store warning** although its colours became store-only | MED | `HasSheetStoreHint`/`SheetStoreHint` on the hybrid VM (outer-pane rule, same contract as other panels); banner triggers + text case added — all four glass families now covered |
+| 5 | **Interlayer combo fed glass-inventory colours** — a PVB interlayer is a film, not a stocked sheet | MED | Dedicated `InterlayerColorOptions` (classic palette); glass pane combos stay store-only |
+| 6 | **Step 4 went stale after editing inventory** — add a sheet, return to wizard, colours/prices unchanged until reopen | MED | `SheetStoreViewModel.StockLedgerChanged` raised on all 5 ledger write paths (add/edit/buy/use/CSV import) → MainViewModel (lazily, idempotent — preserves deferred module creation) → `Step4VM.RefreshSheetStoreData()` |
+| 7 | Misleading history wording — manual dialog entries said "auto from Sheet Store" | LOW | Neutral "via Sheet Store (manual)" / "via Step 6 Wastage (automatic)" |
+| 8 | Thickness not used in Step 6 resolution — could match wrong thickness when sizes drift | LOW | Primary checked source's Step 4 section → spec-name leading mm → 4-tier resolver now thickness-aware (0 = graceful wildcard) |
+| 9 | `GetBalanceAsync` dead public API | LOW | Removed (tight surface) |
+
+**Verified:** XAML ET-parse 42/42 · C# brace/paren balance 104/104 · semantic
+chain checks GREEN. Static-only (no SDK in sandbox) — runtime confirmation
+on next user build.
+
+**Carried recommendations (not implemented, by design):**
+- Persisted per-invoice consumption ledger (DB table) so RE-OPENED invoices
+  know historical consumption; today a session ledger covers the common
+  new-invoice flow and the status line makes consumption visible.
+- Negative-delta auto-return via `SheetHistoryRepository.ReverseMovementAsync`.
+- Translation of the new EN strings (×15 dictionaries carry EN for now).

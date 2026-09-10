@@ -133,6 +133,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                     catch { /* best-effort */ }
 
                     await LoadAsync();
+                    RaiseStockLedgerChanged();
                 }
                 catch (Exception ex) { ShowError("Could not add stock.\n\n" + ExceptionMessages.Deep(ex)); }
             }
@@ -177,7 +178,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                     customerName: vm.CustomerName ?? "",
                     projectName: vm.ProjectName ?? "",
                     salesman: vm.Salesman ?? "",
-                    origin: "Sheet Store").ConfigureAwait(true);
+                    origin: "Sheet Store (manual)").ConfigureAwait(true);
 
                 if (!link.Success)
                 {
@@ -187,6 +188,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
                 try { await LoadAsync(); }
                 catch { /* list refresh is best-effort */ }
+
+                RaiseStockLedgerChanged();
             }
         }
 

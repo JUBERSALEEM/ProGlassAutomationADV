@@ -890,6 +890,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 }
 
                 await LoadAsync();
+                RaiseStockLedgerChanged();
 
                 _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.ImportCompleteXNewSheets"), addedCount, stockAddedCount, updatedCount, skippedCount),
@@ -937,6 +938,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 catch { /* best-effort */ }
 
                 await LoadAsync();
+                RaiseStockLedgerChanged();
             }
             catch (Exception ex) { ShowError("Could not add glass sheet.\n\n" + ExceptionMessages.Deep(ex)); }
         }
@@ -1010,6 +1012,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 catch { /* best-effort */ }
 
                 await LoadAsync();
+                RaiseStockLedgerChanged();
             }
             catch (Exception ex) { ShowError("Could not update.\n\n" + ExceptionMessages.Deep(ex)); }
         }

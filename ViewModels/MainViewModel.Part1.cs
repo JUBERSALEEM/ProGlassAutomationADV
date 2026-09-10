@@ -91,6 +91,7 @@ namespace ProGlassAutomation.ViewModels
         public ProGlassAutomation.Agent.UI.AgentChatViewModel AgentChatVM { get; }
 
         private SheetStoreViewModel? _lazySheetStoreVM;
+        private bool _sheetStoreLedgerHooked;
         public SheetStoreViewModel SheetStoreVM => _lazySheetStoreVM ??= ResolveOrNew<SheetStoreViewModel>();
 
         /// <summary>Specifications Center — catalogue of saved specs.</summary>
@@ -743,6 +744,10 @@ namespace ProGlassAutomation.ViewModels
             // License gate runs inside Navigate, same as every rail item.
             ProformaInvoiceVM.Step4VM.NavigateToSheetStoreRequested += (_, _) =>
                 NavigateFromAgent("SheetStore");
+
+            // Cross-check hardening: the stock-ledger → Step 4 refresh
+            // subscription is wired lazily in Navigate("SheetStore") so the
+            // module VM keeps its deferred creation semantics.
 
             // Right-click per-stage navigation from the inquiry rail.
             // The right-click "Open Proforma/Job Order/Delivery Note/

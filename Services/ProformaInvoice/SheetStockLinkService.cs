@@ -143,17 +143,28 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             if (quantity <= 0)
                 return Fail("Sheet quantity must be at least 1.");
 
-            if (sheet.Balance <= 0)
-                return Fail(
-                    $"No stock available — {Describe(sheet)} balance is 0.");
-
-            if (quantity > sheet.Balance)
-                return Fail(
-                    $"Insufficient stock — {Describe(sheet)} has a balance " +
-                    $"of {sheet.Balance} sheet(s), {quantity} requested.");
-
             try
             {
+                // Check-then-act close (cross-check hardening 2026-09-10):
+                // the resolved snapshot may be minutes old while another
+                // window/dialog consumed stock meanwhile. Re-read the CURRENT
+                // row and validate against it, so the balance check and the
+                // write are one atomic decision per repository call.
+                var current = await _repo.GetByIdAsync(sheet.Id)
+                    .ConfigureAwait(false)
+                    ?? sheet;
+
+                if (current.Balance <= 0)
+                    return Fail(
+                        $"No stock available — {Describe(current)} balance is 0.");
+
+                if (quantity > current.Balance)
+                    return Fail(
+                        $"Insufficient stock — {Describe(current)} has a balance " +
+                        $"of {current.Balance} sheet(s), {quantity} requested.");
+
+                sheet = current;
+
                 int oldUsed = sheet.Used;
                 await _repo.UseStockAsync(sheet.Id, quantity).ConfigureAwait(false);
 
@@ -166,7 +177,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                 {
                     await _historyRepo.LogAsync(
                         sheet.Id, Describe(sheet), "Used",
-                        $"Consumed {quantity} sheet(s) — auto from {origin}. " +
+                        $"Consumed {quantity} sheet(s) via {origin}. " +
                         $"{jobTag} Used: {oldUsed} → {oldUsed + quantity}. " +
                         $"Value: {value:N2} AED.",
                         quantity, value,
@@ -183,7 +194,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                     AuditService.Log(
                         AuditSections.SheetStore, "Stock used",
                         $"{Describe(sheet)} — {quantity} sheet(s) " +
-                        $"(auto from {origin}){jobTag}",
+                        $"(via {origin}){jobTag}",
                         "SHEET", sheet.Id.ToString());
                 }
                 catch { /* audit is best-effort */ }
@@ -192,7 +203,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                 {
                     Success = true,
                     Message = $"Used {quantity} sheet(s) from inventory — " +
-                              $"{Describe(sheet)}.",
+                              $"{Describe(sheet)} (via {origin}).",
                     ConsumedQuantity = quantity,
                     RemainingBalance = sheet.Balance - quantity,
                     ValueAed = value,
@@ -207,18 +218,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                     "Inventory update failed — " +
                     $"{ExceptionMessages.Deep(ex)}");
             }
-        }
-
-        /// <summary>
-        /// Live balance for the sheet a row refers to (0 when unresolvable).
-        /// Used by Step 6 status chips without consuming anything.
-        /// </summary>
-        public static async Task<int> GetBalanceAsync(
-            string? color, int widthMm, int heightMm, int thicknessMm = 0)
-        {
-            var sheet = await ResolveSheetAsync(
-                color, widthMm, heightMm, thicknessMm).ConfigureAwait(false);
-            return sheet?.Balance ?? 0;
         }
 
         private static string Describe(GlassSheet s) =>
