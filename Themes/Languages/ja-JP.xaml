@@ -384,6 +384,10 @@
     <sys:String x:Key="DeliveryNote.GODVIEW">概要</sys:String>
     <sys:String x:Key="DeliveryNote.GiveMeaningfulNameExtensionStays">意味のある名前を付けてください — 拡張子はそのままです。</sys:String>
     <sys:String x:Key="DeliveryNote.GlassRef">ガラス参照:</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnMany">{0} 品目はすでに完納 — 非表示。このDNに残数量はありません。</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnOne">1 品目はすでに完納 — 非表示。このDNに残数量はありません。</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterMany">{0} 品目が完納 — 非表示。残数量のみ表示しています。</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterOne">1 品目が完納 — 非表示。残数量のみ表示しています。</sys:String>
     <sys:String x:Key="DeliveryNote.History">履歴</sys:String>
     <sys:String x:Key="DeliveryNote.Image">画像</sys:String>
     <sys:String x:Key="DeliveryNote.Items">項目</sys:String>

@@ -384,6 +384,10 @@
     <sys:String x:Key="DeliveryNote.GODVIEW">GENEL GÖRÜNÜM</sys:String>
     <sys:String x:Key="DeliveryNote.GiveMeaningfulNameExtensionStays">Anlamlı bir ad verin — uzantı aynı kalır.</sys:String>
     <sys:String x:Key="DeliveryNote.GlassRef">Cam ref:</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnMany">{0} kalem zaten tamamen teslim edildi — gizlendi. Bu irsaliyede kalan adet yok.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnOne">1 kalem zaten tamamen teslim edildi — gizlendi. Bu irsaliyede kalan adet yok.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterMany">{0} kalem tamamen teslim edildi — gizlendi. Yalnızca kalan bakiye gösteriliyor.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterOne">1 kalem tamamen teslim edildi — gizlendi. Yalnızca kalan bakiye gösteriliyor.</sys:String>
     <sys:String x:Key="DeliveryNote.History">GEÇMİŞ</sys:String>
     <sys:String x:Key="DeliveryNote.Image">GÖRSEL</sys:String>
     <sys:String x:Key="DeliveryNote.Items">kalem</sys:String>

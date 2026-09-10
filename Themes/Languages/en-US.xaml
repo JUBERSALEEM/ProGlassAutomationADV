@@ -384,6 +384,10 @@
     <sys:String x:Key="DeliveryNote.GODVIEW">GOD VIEW</sys:String>
     <sys:String x:Key="DeliveryNote.GiveMeaningfulNameExtensionStays">Give it a meaningful name — extension stays the same.</sys:String>
     <sys:String x:Key="DeliveryNote.GlassRef">Glass ref:</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnMany">{0} items already fully delivered — hidden. No qty left on this DN.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnOne">1 item already fully delivered — hidden. No qty left on this DN.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterMany">{0} items fully delivered — hidden. Showing remaining balance only.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterOne">1 item fully delivered — hidden. Showing remaining balance only.</sys:String>
     <sys:String x:Key="DeliveryNote.History">HISTORY</sys:String>
     <sys:String x:Key="DeliveryNote.Image">IMAGE</sys:String>
     <sys:String x:Key="DeliveryNote.Items">items</sys:String>

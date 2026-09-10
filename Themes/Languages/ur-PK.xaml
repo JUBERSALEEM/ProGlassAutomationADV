@@ -384,6 +384,10 @@
     <sys:String x:Key="DeliveryNote.GODVIEW">گاڈ ویو</sys:String>
     <sys:String x:Key="DeliveryNote.GiveMeaningfulNameExtensionStays">اسے ایک معنی خیز نام دیں — ایکسٹینشن وہی رہتا ہے۔</sys:String>
     <sys:String x:Key="DeliveryNote.GlassRef">گلاس حوالہ:</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnMany">{0} آئٹمز پہلے ہی مکمل فراہم — پوشیدہ۔ اس DN پر کوئی مقدار باقی نہیں۔</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnOne">1 آئٹم پہلے ہی مکمل فراہم — پوشیدہ۔ اس DN پر کوئی مقدار باقی نہیں۔</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterMany">{0} آئٹمز مکمل فراہم — پوشیدہ۔ صرف باقی بیلنس دکھایا جا رہا ہے۔</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterOne">1 آئٹم مکمل فراہم — پوشیدہ۔ صرف باقی بیلنس دکھایا جا رہا ہے۔</sys:String>
     <sys:String x:Key="DeliveryNote.History">ہسٹری</sys:String>
     <sys:String x:Key="DeliveryNote.Image">تصویر</sys:String>
     <sys:String x:Key="DeliveryNote.Items">اشیاء</sys:String>

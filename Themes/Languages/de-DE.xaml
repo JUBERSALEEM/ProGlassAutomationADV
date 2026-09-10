@@ -384,6 +384,10 @@
     <sys:String x:Key="DeliveryNote.GODVIEW">GOTT-ANSICHT</sys:String>
     <sys:String x:Key="DeliveryNote.GiveMeaningfulNameExtensionStays">Geben Sie einen aussagekräftigen Namen — die Endung bleibt gleich.</sys:String>
     <sys:String x:Key="DeliveryNote.GlassRef">Glasref.:</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnMany">{0} Positionen bereits vollständig geliefert — ausgeblendet. Keine Menge auf diesem LS.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnOne">1 Position bereits vollständig geliefert — ausgeblendet. Keine Menge auf diesem LS.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterMany">{0} Positionen vollständig geliefert — ausgeblendet. Nur Restmenge angezeigt.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterOne">1 Position vollständig geliefert — ausgeblendet. Nur Restmenge angezeigt.</sys:String>
     <sys:String x:Key="DeliveryNote.History">HISTORIE</sys:String>
     <sys:String x:Key="DeliveryNote.Image">BILD</sys:String>
     <sys:String x:Key="DeliveryNote.Items">Positionen</sys:String>

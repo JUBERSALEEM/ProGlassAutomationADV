@@ -384,6 +384,10 @@
     <sys:String x:Key="DeliveryNote.GODVIEW">IKHTISAR</sys:String>
     <sys:String x:Key="DeliveryNote.GiveMeaningfulNameExtensionStays">Beri nama yang bermakna — ekstensi tetap sama.</sys:String>
     <sys:String x:Key="DeliveryNote.GlassRef">Ref. kaca:</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnMany">{0} item sudah terkirim penuh — disembunyikan. Tidak ada qty tersisa pada DN ini.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnOne">1 item sudah terkirim penuh — disembunyikan. Tidak ada qty tersisa pada DN ini.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterMany">{0} item terkirim penuh — disembunyikan. Menampilkan sisa saldo saja.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterOne">1 item terkirim penuh — disembunyikan. Menampilkan sisa saldo saja.</sys:String>
     <sys:String x:Key="DeliveryNote.History">RIWAYAT</sys:String>
     <sys:String x:Key="DeliveryNote.Image">GAMBAR</sys:String>
     <sys:String x:Key="DeliveryNote.Items">item</sys:String>

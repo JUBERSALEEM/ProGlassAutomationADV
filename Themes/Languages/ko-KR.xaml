@@ -384,6 +384,10 @@
     <sys:String x:Key="DeliveryNote.GODVIEW">개요</sys:String>
     <sys:String x:Key="DeliveryNote.GiveMeaningfulNameExtensionStays">의미 있는 이름을 지정하세요 — 확장자는 그대로 유지됩니다.</sys:String>
     <sys:String x:Key="DeliveryNote.GlassRef">유리 참조:</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnMany">{0}개 품목 이미 전량 배송 완료 — 숨김. 이 DN에 남은 수량 없음.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnOne">1개 품목 이미 전량 배송 완료 — 숨김. 이 DN에 남은 수량 없음.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterMany">{0}개 품목 전량 배송 완료 — 숨김. 잔여 수량만 표시합니다.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterOne">1개 품목 전량 배송 완료 — 숨김. 잔여 수량만 표시합니다.</sys:String>
     <sys:String x:Key="DeliveryNote.History">기록</sys:String>
     <sys:String x:Key="DeliveryNote.Image">이미지</sys:String>
     <sys:String x:Key="DeliveryNote.Items">항목</sys:String>

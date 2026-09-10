@@ -525,14 +525,21 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public bool HasNoPendingBalanceItems =>
             _itemRows.Count > 0 && _visibleRows.Count == 0 && !_showFullMaster;
 
-        public string HiddenFullyDeliveredSummary =>
-            _isMasterDn
-                ? (HiddenFullyDeliveredCount == 1
-                    ? "1 item fully delivered — hidden. Showing remaining balance only."
-                    : $"{HiddenFullyDeliveredCount} items fully delivered — hidden. Showing remaining balance only.")
-                : (HiddenFullyDeliveredCount == 1
-                    ? "1 item already fully delivered — hidden. No qty left on this DN."
-                    : $"{HiddenFullyDeliveredCount} items already fully delivered — hidden. No qty left on this DN.");
+        public string HiddenFullyDeliveredSummary
+        {
+            get
+            {
+                var loc = LocalizationService.Instance;
+                string key = _isMasterDn
+                    ? (HiddenFullyDeliveredCount == 1
+                        ? "DeliveryNote.HiddenMasterOne"
+                        : "DeliveryNote.HiddenMasterMany")
+                    : (HiddenFullyDeliveredCount == 1
+                        ? "DeliveryNote.HiddenDnOne"
+                        : "DeliveryNote.HiddenDnMany");
+                return string.Format(loc.T(key), HiddenFullyDeliveredCount);
+            }
+        }
 
         /// <summary>
         /// Materialized remaining (or live) rows. Never bind the grid to

@@ -384,6 +384,10 @@
     <sys:String x:Key="DeliveryNote.GODVIEW">VUE GÉNÉRALE</sys:String>
     <sys:String x:Key="DeliveryNote.GiveMeaningfulNameExtensionStays">Donnez-lui un nom significatif — l&#x27;extension reste la même.</sys:String>
     <sys:String x:Key="DeliveryNote.GlassRef">Réf. verre :</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnMany">{0} articles déjà entièrement livrés — masqués. Aucune quantité restante sur ce BL.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnOne">1 article déjà entièrement livré — masqué. Aucune quantité restante sur ce BL.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterMany">{0} articles entièrement livrés — masqués. Affichage du solde restant uniquement.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterOne">1 article entièrement livré — masqué. Affichage du solde restant uniquement.</sys:String>
     <sys:String x:Key="DeliveryNote.History">HISTORIQUE</sys:String>
     <sys:String x:Key="DeliveryNote.Image">IMAGE</sys:String>
     <sys:String x:Key="DeliveryNote.Items">articles</sys:String>

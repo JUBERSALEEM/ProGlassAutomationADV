@@ -384,6 +384,10 @@
     <sys:String x:Key="DeliveryNote.GODVIEW">ОБЩИЙ ВИД</sys:String>
     <sys:String x:Key="DeliveryNote.GiveMeaningfulNameExtensionStays">Дайте осмысленное имя — расширение останется прежним.</sys:String>
     <sys:String x:Key="DeliveryNote.GlassRef">Ссылка стекла:</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnMany">{0} позиций уже полностью доставлены — скрыты. Остатка по этой накладной нет.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnOne">1 позиция уже полностью доставлена — скрыта. Остатка по этой накладной нет.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterMany">{0} позиций полностью доставлены — скрыты. Показан только остаток.</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterOne">1 позиция полностью доставлена — скрыта. Показан только остаток.</sys:String>
     <sys:String x:Key="DeliveryNote.History">ИСТОРИЯ</sys:String>
     <sys:String x:Key="DeliveryNote.Image">ИЗОБРАЖЕНИЕ</sys:String>
     <sys:String x:Key="DeliveryNote.Items">позиций</sys:String>

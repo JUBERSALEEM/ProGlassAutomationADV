@@ -384,6 +384,10 @@
     <sys:String x:Key="DeliveryNote.GODVIEW">概览</sys:String>
     <sys:String x:Key="DeliveryNote.GiveMeaningfulNameExtensionStays">起一个有意义的名称 — 扩展名保持不变。</sys:String>
     <sys:String x:Key="DeliveryNote.GlassRef">玻璃参考：</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnMany">{0} 个项目已全部交付 — 已隐藏。此送货单无剩余数量。</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnOne">1 个项目已全部交付 — 已隐藏。此送货单无剩余数量。</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterMany">{0} 个项目已全部交付 — 已隐藏。仅显示剩余余量。</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterOne">1 个项目已全部交付 — 已隐藏。仅显示剩余余量。</sys:String>
     <sys:String x:Key="DeliveryNote.History">历史记录</sys:String>
     <sys:String x:Key="DeliveryNote.Image">图像</sys:String>
     <sys:String x:Key="DeliveryNote.Items">项</sys:String>

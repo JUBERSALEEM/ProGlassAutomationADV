@@ -384,6 +384,10 @@
     <sys:String x:Key="DeliveryNote.GODVIEW">গড ভিউ</sys:String>
     <sys:String x:Key="DeliveryNote.GiveMeaningfulNameExtensionStays">এটিকে একটি অর্থপূর্ণ নাম দিন — এক্সটেনশন একই থাকে।</sys:String>
     <sys:String x:Key="DeliveryNote.GlassRef">গ্লাস রেফারেন্স:</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnMany">{0}টি আইটেম ইতিমধ্যে সম্পূর্ণ সরবরাহ হয়েছে — লুকানো। এই DN-এ কোনো পরিমাণ বাকি নেই।</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenDnOne">১টি আইটেম ইতিমধ্যে সম্পূর্ণ সরবরাহ হয়েছে — লুকানো। এই DN-এ কোনো পরিমাণ বাকি নেই।</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterMany">{0}টি আইটেম সম্পূর্ণ সরবরাহ হয়েছে — লুকানো। শুধু অবশিষ্ট ব্যালেন্স দেখানো হচ্ছে।</sys:String>
+    <sys:String x:Key="DeliveryNote.HiddenMasterOne">১টি আইটেম সম্পূর্ণ সরবরাহ হয়েছে — লুকানো। শুধু অবশিষ্ট ব্যালেন্স দেখানো হচ্ছে।</sys:String>
     <sys:String x:Key="DeliveryNote.History">ইতিহাস</sys:String>
     <sys:String x:Key="DeliveryNote.Image">ছবি</sys:String>
     <sys:String x:Key="DeliveryNote.Items">আইটেম</sys:String>
