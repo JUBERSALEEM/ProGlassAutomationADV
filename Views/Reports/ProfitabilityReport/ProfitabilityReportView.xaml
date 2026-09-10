@@ -142,8 +142,10 @@
                 </Border>
 
                 <!-- TABLE HEADER -->
+                <!-- Header grid margin removed to match the row Border padding
+                     (16,x) below so columns align. -->
                 <Border Grid.Row="3" Style="{StaticResource ReportTableHeaderStyle}">
-                    <Grid Margin="10,0,10,0">
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1.4*"/>
                             <ColumnDefinition Width="1.1*"/>
@@ -179,7 +181,7 @@
                         <ItemsControl ItemsSource="{Binding Rows}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Padding="10,8" Margin="0,1" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1">
+                                    <Border Padding="16,8" Margin="0,1" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="1.4*"/>
