@@ -46,6 +46,12 @@
     <Color x:Key="BorderColor">#CBD5E1</Color>
     <Color x:Key="ModuleBackgroundColor">#F8FAFC</Color>
     <Color x:Key="SideMenuBackgroundColor">#F8FAFC</Color>
+    <!-- Warm off-white — the Color counterpart of WindowBackgroundBrush's
+         central stop. Consumed by the Splash (PageBg / SplashPlate) and the
+         Login surface backdrop gradients, which need a Color (not a Brush).
+         Was previously undefined, so those DynamicResource stops silently
+         fell back to transparent and flattened both backdrops. -->
+    <Color x:Key="WindowBackgroundColor">#FBF8F1</Color>
     <Color x:Key="TextPrimaryColor">#111827</Color>
     <Color x:Key="TextSecondaryColor">#99475569</Color>
     <Color x:Key="LiquidShadowColor">#331E293B</Color>

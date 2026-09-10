@@ -25,6 +25,12 @@
     <Color x:Key="BorderColor">#3B4A63</Color>
     <Color x:Key="ModuleBackgroundColor">#0B1220</Color>
     <Color x:Key="SideMenuBackgroundColor">#0B1220</Color>
+    <!-- Mid dusk-navy — the Color counterpart of WindowBackgroundBrush's
+         central stop. Consumed by the Splash (PageBg / SplashPlate) and the
+         Login surface backdrop gradients, which need a Color (not a Brush).
+         Was previously undefined, so those DynamicResource stops silently
+         fell back to transparent and flattened both backdrops. -->
+    <Color x:Key="WindowBackgroundColor">#102244</Color>
     <Color x:Key="TextPrimaryColor">#F5F5F7</Color>
     <Color x:Key="TextSecondaryColor">#8CF5F5F7</Color>
     <Color x:Key="LiquidShadowColor">#FF000410</Color>
