@@ -337,6 +337,11 @@
     <SolidColorBrush x:Key="LiquidSnow" Color="#F8FAFC" po:Freeze="True"/>
     <SolidColorBrush x:Key="LiquidAccent" Color="{StaticResource AccentColor}"/>
     <SolidColorBrush x:Key="LiquidAccentDeep" Color="{StaticResource AccentDarkColor}"/>
+    <!-- Glossy accent-gradient badge (About icon tiles = splash tile badges). -->
+    <LinearGradientBrush x:Key="LiquidAccentGradient" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <GradientStop Color="{StaticResource AccentLightColor}" Offset="0.0"/>
+        <GradientStop Color="{StaticResource AccentDarkColor}"  Offset="1.0"/>
+    </LinearGradientBrush>
     <SolidColorBrush x:Key="LiquidMuted" Color="#8FB3E6" po:Freeze="True"/>
 
 
