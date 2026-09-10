@@ -89,6 +89,20 @@
         <!-- Translucent glass surfaces so the stage shows through -->
         <SolidColorBrush x:Key="SplashPillBg"        Color="#22808080"/>
         <SolidColorBrush x:Key="SplashTrackBg"       Color="#22808080"/>
+
+        <!-- ═══ MODULE-TILE GLASS ═══ frosted, theme-aware, with a soft
+             top sheen so each chip reads as a raised glass tile (matches
+             the approved mockup's chunky frosted modules). ═══ -->
+        <LinearGradientBrush x:Key="TileGlassBg" StartPoint="0,0" EndPoint="0.4,1">
+            <GradientStop Color="#33FFFFFF" Offset="0.0"/>
+            <GradientStop Color="#14808080" Offset="0.45"/>
+            <GradientStop Color="#0D000000" Offset="1.0"/>
+        </LinearGradientBrush>
+        <!-- Icon-badge fill: accent-tinted frosted square behind each glyph -->
+        <LinearGradientBrush x:Key="TileIconBadgeBg" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0.0"/>
+            <GradientStop Color="{DynamicResource AccentDarkColor}"  Offset="1.0"/>
+        </LinearGradientBrush>
         <SolidColorBrush x:Key="SplashTextPrimary"   Color="{DynamicResource PrimaryForegroundColor}"/>
         <SolidColorBrush x:Key="SplashTextSecondary" Color="{DynamicResource SecondaryForegroundColor}"/>
         <SolidColorBrush x:Key="SplashOnAccent"      Color="#FFFFFF"/>
@@ -237,33 +251,50 @@
         </Style>
 
         <!-- ═══ MODULE CHIP (feature strip) — quiet 6-wide grid ═══ -->
-        <!-- Module PILL — auto-width, fully rounded, icon + label. Flows in
-             a centered WrapPanel so all real modules read as one clean band. -->
+        <!-- Module GLASS TILE — taller frosted card with an accent icon
+             badge above the label. Flows in a centered WrapPanel so all
+             real modules read as a premium grid of glass tiles (matches
+             the approved mockup's chunky frosted modules). -->
         <DataTemplate x:Key="FeatureBadgeTemplate">
-            <Border Height="34"
-                    Margin="5,5"
-                    Padding="14,0"
-                    CornerRadius="17"
+            <Border Width="132" Height="88"
+                    Margin="8"
+                    CornerRadius="16"
                     BorderBrush="{DynamicResource SplashOutline}"
                     BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    Background="{DynamicResource SplashPillBg}"
+                    Background="{DynamicResource TileGlassBg}"
+                    Effect="{StaticResource SplashGlow}"
                     SnapsToDevicePixels="True"
                     UseLayoutRounding="True"
                     IsHitTestVisible="False">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Icon}"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="{StaticResource TextBody}"
-                               Foreground="{Binding BorderBrush}"
-                               VerticalAlignment="Center"
-                               Margin="0,0,8,0"/>
-                    <TextBlock Text="{Binding Label}"
-                               FontSize="{StaticResource TextBody}"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource SplashTextPrimary}"
-                               VerticalAlignment="Center"
-                               TextWrapping="NoWrap"/>
-                </StackPanel>
+                <Grid>
+                    <!-- top-edge crystal sheen -->
+                    <Border CornerRadius="16"
+                            Background="{DynamicResource TileSheen}"
+                            IsHitTestVisible="False"/>
+                    <StackPanel VerticalAlignment="Center"
+                                HorizontalAlignment="Center">
+                        <!-- accent icon badge -->
+                        <Border Width="40" Height="40"
+                                CornerRadius="12"
+                                HorizontalAlignment="Center"
+                                Background="{DynamicResource TileIconBadgeBg}"
+                                SnapsToDevicePixels="True">
+                            <TextBlock Text="{Binding Icon}"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="{StaticResource TextBodyLarge}"
+                                       Foreground="#FFFFFF"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="{Binding Label}"
+                                   FontSize="{StaticResource TextBody}"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource SplashTextPrimary}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,9,0,0"
+                                   TextWrapping="NoWrap"/>
+                    </StackPanel>
+                </Grid>
             </Border>
         </DataTemplate>
 
@@ -633,7 +664,7 @@
                 <ItemsControl x:Name="FeaturePanel"
                               ItemTemplate="{StaticResource FeatureBadgeTemplate}"
                               HorizontalAlignment="Center"
-                              MaxWidth="1080"
+                              MaxWidth="912"
                               Margin="0,26,0,0"
                               Opacity="0">
                     <ItemsControl.ItemsPanel>

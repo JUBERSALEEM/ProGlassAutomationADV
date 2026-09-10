@@ -190,9 +190,19 @@
                                 <ColumnDefinition Width="210"/>
                             </Grid.ColumnDefinitions>
 
-                            <!-- App icon -->
-                            <Grid Grid.Row="0" Grid.Column="0" Margin="0,0,26,0">
-                                <Ellipse Width="104" Height="104"
+                            <!-- App icon — larger frosted brand tile with a
+                                 soft accent halo + slow dashed orbit ring, so
+                                 the About hero mirrors the splash brand moment. -->
+                            <Grid Grid.Row="0" Grid.Column="0" Margin="0,0,30,0">
+                                <!-- accent halo bloom -->
+                                <Ellipse Width="128" Height="128"
+                                         Fill="{DynamicResource LiquidAccent}"
+                                         Opacity="0.22" IsHitTestVisible="False">
+                                    <Ellipse.Effect>
+                                        <BlurEffect Radius="34"/>
+                                    </Ellipse.Effect>
+                                </Ellipse>
+                                <Ellipse Width="122" Height="122"
                                          Stroke="{DynamicResource LiquidAccent}"
                                          StrokeThickness="1" StrokeDashArray="4 6"
                                          Opacity="0.5" IsHitTestVisible="False"
@@ -206,14 +216,14 @@
                                         <RotateTransform x:Name="IconRingRotate" Angle="0"/>
                                     </Ellipse.RenderTransform>
                                 </Ellipse>
-                                <Border Width="84" Height="84"
-                                        CornerRadius="{DynamicResource CardCornerRadius}"
+                                <Border Width="100" Height="100"
+                                        CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                                         Background="{DynamicResource AboutInteractiveHoverBrush}"
                                         BorderBrush="{DynamicResource AboutInteractiveBorderStrongBrush}"
                                         BorderThickness="{DynamicResource CardBorderThickness}"
                                         SnapsToDevicePixels="True">
-                                    <Border Width="76" Height="76"
-                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    <Border Width="90" Height="90"
+                                            CornerRadius="{DynamicResource CardCornerRadius}"
                                             ClipToBounds="True">
                                         <!--
                                           Shared frozen app icon
