@@ -674,14 +674,24 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         {
             RecalculateTotals();
             MarkDirty();   // v2 §28: user changed a delivered quantity
+            // Dispatch / Save / Fill-remaining / Reset all gate their
+            // CanExecute on the live delivered/balance qty, so re-query them
+            // as soon as a row changes — otherwise the Dispatch button stayed
+            // disabled until some unrelated property nudged the command manager.
+            ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
         }
 
         private void RecalculateTotals()
         {
-            // Calculate totals from ALL items (not filtered), so the KPI strip
-            // shows the complete picture even when fully delivered items are hidden
-            var totals = Services.DeliveryNote.DeliveryNoteLineService.CalculateTotals(
-                _entity?.Items ?? Enumerable.Empty<Models.DeliveryNote.SavedDeliveryNote.DeliveryNoteItem>());
+            // SOURCE OF TRUTH = _itemRows (the live, editable row VMs the user
+            // types into), NOT _entity.Items. The entity's Items are only
+            // synced back on Save/Dispatch, and they are deduped/filtered at
+            // load — so reading them here made the "This DN", Balance and
+            // Progress KPIs frozen while the user edited a delivered qty
+            // (the reported bug). Totals are computed over ALL rows (not the
+            // filtered VisibleItemRows) so the KPI strip still shows the
+            // complete picture even when fully-delivered lines are hidden.
+            var totals = Services.DeliveryNote.DeliveryNoteLineService.CalculateTotals(_itemRows);
             TotalOrderedQty = totals.Ordered;
             TotalPreviouslyDeliveredQty = totals.PrevDelivered;
             TotalDeliveredQty = totals.Delivered;

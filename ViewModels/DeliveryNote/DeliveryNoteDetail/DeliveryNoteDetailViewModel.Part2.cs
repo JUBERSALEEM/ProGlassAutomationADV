@@ -411,11 +411,15 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 foreach (var item in _entity.Items)
                     item.BalanceQty = item.ComputedBalanceQty;
 
-                var displayItems = DetectMaster(_entity)
-                    ? dedupedItems
-                    : dedupedItems.Where(i => i.DeliveredQty > 0 || i.ComputedBalanceQty > 0).ToList();
-
-                var rows = displayItems
+                // _itemRows holds the COMPLETE deduped line set — including
+                // lines already fully delivered on a sibling DN (This=0,
+                // Balance=0). Do NOT pre-filter here: the KPI strip needs the
+                // whole picture (Ordered / Prev-delivered are JO-level,
+                // cross-DN figures), and the "N items fully delivered — hidden"
+                // banner counts exactly the lines that pre-filtering used to
+                // silently drop. Visibility is decided once, in
+                // RebuildGroupedView → ShouldDisplayRow.
+                var rows = dedupedItems
                     .Select(i => new DnItemRowViewModel(i))
                     .ToList();
 

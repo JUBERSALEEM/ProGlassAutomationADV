@@ -213,6 +213,17 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             var deliveredMap = BuildDeliveredLookup(allRealItems);
 
+            // Recompute PREV/DELIVERED/BALANCE on the master's OWN tracked
+            // children, IN PLACE. EF flags each as Modified and issues UPDATEs.
+            //
+            // BUG FIX (master DN showing empty rows): the previous version
+            // mutated masterDn.Items in place AND THEN did
+            //   RemoveRange(existingItems); ctx.DeliveryNotes.Update(masterDn);
+            // where `existingItems` were the SAME tracked instances as
+            // masterDn.Items. EF resolved that to "Deleted", so SaveChanges
+            // wiped every master line and re-inserted nothing — leaving the
+            // Master DN with zero rows on the next open. Never re-load, delete
+            // and re-add tracked children to "refresh" them: mutate in place.
             foreach (var masterItem in masterDn.Items)
             {
                 int totalDelivered = LookupDelivered(deliveredMap, masterItem);
@@ -231,13 +242,9 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             masterDn.LastUpdatedFromDnId = triggeredByDnId;
             masterDn.UpdatedAt = DateTime.Now;
 
-            var existingItems = await ctx.DeliveryNoteItems
-                .Where(i => i.DeliveryNoteId == masterDn.DeliveryNoteId)
-                .ToListAsync().ConfigureAwait(false);
-            ctx.DeliveryNoteItems.RemoveRange(existingItems);
-
-            masterDn.Attachments.Clear();
-            ctx.DeliveryNotes.Update(masterDn);
+            // The master DN and its Items are already tracked (loaded with
+            // Include above), so the change tracker persists the in-place
+            // edits — no explicit Update()/RemoveRange() needed.
             await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
         }
 
