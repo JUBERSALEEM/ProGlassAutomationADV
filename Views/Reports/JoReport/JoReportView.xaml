@@ -250,8 +250,8 @@
                             <TextBlock Grid.Column="4" Text="{DynamicResource Common.Salesman}" Style="{StaticResource ReportHeaderTextStyle}"/>
                             <TextBlock Grid.Column="5" Text="{DynamicResource Inquiry.Prepared2}" Style="{StaticResource ReportHeaderTextStyle}"/>
                             <TextBlock Grid.Column="6" Text="{DynamicResource Common.Status}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="7" Text="TOTAL" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
-                            <TextBlock Grid.Column="8" Text="{DynamicResource Reports.JoReport.QTYSQM}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="7" Text="TOTAL" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right" Margin="0,0,14,0"/>
+                            <TextBlock Grid.Column="8" Text="{DynamicResource Reports.JoReport.QTYSQM}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right" Margin="0,0,14,0"/>
                             <TextBlock Grid.Column="9" Text="{DynamicResource Reports.JoReport.DelivBAL}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
                         </Grid>
                     </Border>
@@ -343,8 +343,8 @@
                                                 </TextBlock>
                                             </Border>
 
-                                            <TextBlock Grid.Column="7" Text="{Binding GrandTotal, StringFormat={}AED {0:N0}}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="8" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,6,0">
+                                            <TextBlock Grid.Column="7" Text="{Binding GrandTotal, StringFormat={}AED {0:N0}}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                                            <TextBlock Grid.Column="8" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,14,0">
                                                 <Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding TotalSqm, Mode=OneWay, StringFormat={}{0:N1}}"/>
                                             </TextBlock>
                                             <TextBlock Grid.Column="9" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="{StaticResource TextBody}">
