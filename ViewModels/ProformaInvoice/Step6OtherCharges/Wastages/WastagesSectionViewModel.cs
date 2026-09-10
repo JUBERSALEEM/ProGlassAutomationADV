@@ -24,7 +24,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
         // SHARED SheetStockLinkService core). The store module is NEVER
         // opened. Utilization stays with Step 9 (Step6SheetAllocation).
         private Func<(string Reference, string Customer, string Project, string Salesman)>? _jobContextProvider;
-        private readonly HashSet<Guid> _autoUseInFlight = new();
+        // Concurrent: Add happens on the UI thread, Remove on a threadpool
+        // continuation when the async consumption finishes.
+        private readonly System.Collections.Concurrent.ConcurrentDictionary<Guid, byte> _autoUseInFlight = new();
 
         /// <summary>Master switch for auto-consuming sheets from inventory. Default ON.</summary>
         public bool AutoUseFromInventory
@@ -521,12 +523,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
 
             // One consumption per row at a time; rapid retyping collapses
             // into the latest quantity once the current run finishes.
-            if (!_autoUseInFlight.Add(row.Id)) return;
+            if (!_autoUseInFlight.TryAdd(row.Id, 0)) return;
 
             _ = System.Threading.Tasks.Task.Run(async () =>
             {
                 try { await AutoUseFromInventoryAsync(row).ConfigureAwait(false); }
-                finally { _autoUseInFlight.Remove(row.Id); }
+                finally { _autoUseInFlight.TryRemove(row.Id, out _); }
             });
         }
 
