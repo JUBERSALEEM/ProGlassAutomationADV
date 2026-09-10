@@ -2455,7 +2455,6 @@
     <sys:String x:Key="Splash.AcceptContinue">接受并继续</sys:String>
     <sys:String x:Key="Splash.AcceptText">我已阅读并接受这些条款，并对所生成记录的准确性负责。</sys:String>
     <sys:String x:Key="Splash.AgreeUseSoftwareProduceFalseMisleading">您同意不使用本软件制作虚假、误导或欺诈性的发票或记录，或用于阿联酋联邦或酋长国法律禁止的任何目的。</sys:String>
-    <sys:String x:Key="Splash.BarautUttarPradeshIndia">·  印度北方邦巴拉乌特</sys:String>
     <sys:String x:Key="Splash.Copyright">© 2026 ProGlass 自动化</sys:String>
     <sys:String x:Key="Splash.DeclineExit">拒绝并退出</sys:String>
     <sys:String x:Key="Splash.Enterprise">企业版</sys:String>

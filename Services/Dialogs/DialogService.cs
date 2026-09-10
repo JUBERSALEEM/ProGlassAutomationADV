@@ -31,6 +31,7 @@
 using System;
 using System.Windows;
 using System.Windows.Threading;
+using ProGlassAutomation.Views.Shared.Dialogs;
 
 namespace ProGlassAutomation.Services.Dialogs
 {

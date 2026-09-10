@@ -2455,7 +2455,6 @@
     <sys:String x:Key="Splash.AcceptContinue">ACCEPT AND CONTINUE</sys:String>
     <sys:String x:Key="Splash.AcceptText">I have read and accept these terms, and I accept responsibility for the accuracy of the records I produce.</sys:String>
     <sys:String x:Key="Splash.AgreeUseSoftwareProduceFalseMisleading">You agree not to use this software to produce false, misleading or fraudulent invoices or records, or for any purpose unlawful under UAE federal or emirate law.</sys:String>
-    <sys:String x:Key="Splash.BarautUttarPradeshIndia">·  Baraut, Uttar Pradesh, India</sys:String>
     <sys:String x:Key="Splash.Copyright">© 2026 ProGlass Automation</sys:String>
     <sys:String x:Key="Splash.DeclineExit">DECLINE AND EXIT</sys:String>
     <sys:String x:Key="Splash.Enterprise">ENTERPRISE</sys:String>

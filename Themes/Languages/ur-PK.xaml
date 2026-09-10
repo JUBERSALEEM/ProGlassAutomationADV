@@ -2455,7 +2455,6 @@
     <sys:String x:Key="Splash.AcceptContinue">قبول کریں اور جاری رکھیں</sys:String>
     <sys:String x:Key="Splash.AcceptText">میں نے یہ شرائط پڑھ کر قبول کی ہیں، اور اپنے بنائے ریکارڈ کی درستگی کی ذمہ داری قبول کرتا ہوں۔</sys:String>
     <sys:String x:Key="Splash.AgreeUseSoftwareProduceFalseMisleading">آپ اس بات سے متفق ہیں کہ اس سافٹ ویئر کو جھوٹی، گمراہ کن یا جعلی انوائسز یا ریکارڈ بنانے، یا UAE وفاقی یا اماراتی قانون کے تحت غیر قانونی کسی مقصد کے لیے استعمال نہیں کریں گے۔</sys:String>
-    <sys:String x:Key="Splash.BarautUttarPradeshIndia">· باروت، اتر پردیش، ہندوستان</sys:String>
     <sys:String x:Key="Splash.Copyright">© 2026 پرو-گلاس آٹومیشن</sys:String>
     <sys:String x:Key="Splash.DeclineExit">مسترد کریں اور خارج ہوں</sys:String>
     <sys:String x:Key="Splash.Enterprise">انٹرپرائز</sys:String>

@@ -12,6 +12,7 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace ProGlassAutomation.Views.Shared.Dialogs
 {
@@ -165,18 +166,69 @@ namespace ProGlassAutomation.Views.Shared.Dialogs
                    && !string.Equals(value, key, StringComparison.Ordinal);
         }
 
+        // WPF's MessageBoxImage members alias the same underlying values
+        // (Information == Asterisk = 64, Warning == Exclamation = 48,
+        // Error == Hand == Stop = 16), so each VALUE gets exactly ONE arm —
+        // listing alias names as extra arms is unreachable code (CS8510).
+        // Note: 'Help' does not exist on System.Windows.MessageBoxImage
+        // (that is Windows.Forms.MessageBoxIcon) — CS0117 if added.
         private static (string Glyph, string? BrushKey) MapIcon(MessageBoxImage icon) => icon switch
         {
-            MessageBoxImage.Information => ("\uE946", "InfoBrush"),
-            MessageBoxImage.Asterisk => ("\uE946", "InfoBrush"),
-            MessageBoxImage.Warning => ("\uE7BA", "WarningBrush"),
-            MessageBoxImage.Exclamation => ("\uE7BA", "WarningBrush"),
-            MessageBoxImage.Error => ("\uE783", "DangerBrush"),
-            MessageBoxImage.Hand => ("\uE783", "DangerBrush"),
-            MessageBoxImage.Stop => ("\uE783", "DangerBrush"),
-            MessageBoxImage.Question => ("\uE897", null),
-            MessageBoxImage.Help => ("\uE897", null),
-            _ => (string.Empty, null)
+            MessageBoxImage.Information => ("\uE946", "InfoBrush"),   // 64 (Asterisk)
+            MessageBoxImage.Warning => ("\uE7BA", "WarningBrush"),    // 48 (Exclamation)
+            MessageBoxImage.Error => ("\uE783", "DangerBrush"),       // 16 (Hand, Stop)
+            MessageBoxImage.Question => ("\uE897", null),             // 32
+            _ => (string.Empty, null)                                 // None + fallback
         };
+    }
+
+    public static class ThemedMessageBox
+    {
+        public static MessageBoxResult Show(
+            string message,
+            string caption = "",
+            MessageBoxButton button = MessageBoxButton.OK,
+            MessageBoxImage icon = MessageBoxImage.None,
+            MessageBoxResult defaultResult = MessageBoxResult.None)
+            => Show(null, message, caption, button, icon, defaultResult);
+
+        public static MessageBoxResult Show(
+            Window? owner,
+            string message,
+            string caption = "",
+            MessageBoxButton button = MessageBoxButton.OK,
+            MessageBoxImage icon = MessageBoxImage.None,
+            MessageBoxResult defaultResult = MessageBoxResult.None)
+            => OnUi(() =>
+            {
+                owner ??= Application.Current?.MainWindow;
+                if (owner == null || !owner.IsLoaded)
+                    owner = null;
+
+                try
+                {
+                    var window = ThemedMessageBoxWindow.Create(
+                        message, caption, button, icon, defaultResult);
+
+                    if (owner != null)
+                        window.Owner = owner;
+
+                    window.ShowDialog();
+                    return window.GetResult();
+                }
+                catch
+                {
+                    // Never swallow a prompt: degrade to the native box.
+                    return MessageBox.Show(owner, message, caption, button, icon);
+                }
+            });
+
+        private static T OnUi<T>(Func<T> work)
+        {
+            Dispatcher? dispatcher = Application.Current?.Dispatcher;
+            if (dispatcher == null || dispatcher.CheckAccess())
+                return work();
+            return dispatcher.Invoke(work);
+        }
     }
 }

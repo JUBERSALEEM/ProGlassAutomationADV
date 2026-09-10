@@ -96,13 +96,15 @@
                                                Margin="0,6,0,0"
                                                TextWrapping="Wrap"
                                                IsHitTestVisible="False"/>
+                                    <!-- Owner directive 2026-09-10: the city/state
+                                         address line leaves the product — the
+                                         country branding run is all that remains. -->
                                     <TextBlock FontSize="{StaticResource TextBody}"
                                                Foreground="{DynamicResource LiquidCerulean}"
                                                Margin="0,6,0,0"
                                                TextWrapping="Wrap"
                                                IsHitTestVisible="False">
                                         <Run Text="{DynamicResource About.MadeInIndia}"/>
-                                        <Run Text="{Binding Country, Mode=OneWay}"/>
                                     </TextBlock>
                                 </StackPanel>
                             </StackPanel>

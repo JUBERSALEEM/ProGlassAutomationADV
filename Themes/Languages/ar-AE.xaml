@@ -2455,7 +2455,6 @@
     <sys:String x:Key="Splash.AcceptContinue">أقبل وأتابع</sys:String>
     <sys:String x:Key="Splash.AcceptText">قرأت هذه الشروط وقبلتها، وأتحمل مسؤولية دقة السجلات التي أُصدرها.</sys:String>
     <sys:String x:Key="Splash.AgreeUseSoftwareProduceFalseMisleading">أنت توافق على عدم استخدام هذا البرنامج لإنتاج فواتير أو سجلات كاذبة أو مضللة أو احتيالية، أو لأي غرض غير قانوني بموجب القانون الاتحادي أو قانون الإمارة.</sys:String>
-    <sys:String x:Key="Splash.BarautUttarPradeshIndia">·  باروت، أتر برديش، الهند</sys:String>
     <sys:String x:Key="Splash.Copyright">© 2026 بروجلاس أوتوميشن</sys:String>
     <sys:String x:Key="Splash.DeclineExit">أرفض وأخرج</sys:String>
     <sys:String x:Key="Splash.Enterprise">المؤسسات</sys:String>

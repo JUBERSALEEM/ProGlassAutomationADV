@@ -2455,7 +2455,6 @@
     <sys:String x:Key="Splash.AcceptContinue">গ্রহণ করুন এবং চালিয়ে যান</sys:String>
     <sys:String x:Key="Splash.AcceptText">আমি এই শর্তাবলী পড়েছি ও গ্রহণ করেছি; আমার তৈরি রেকর্ডের নির্ভুলতার দায়িত্ব আমি নিচ্ছি।</sys:String>
     <sys:String x:Key="Splash.AgreeUseSoftwareProduceFalseMisleading">আপনি সম্মত হন যে এই সফটওয়্যারটি মিথ্যা, বিভ্রান্তিকর বা প্রতারণামূলক ইনভয়েস বা রেকর্ড তৈরি করতে, অথবা UAE ফেডারেল বা আমিরাত আইনের অধীনে অবৈধ কোনো উদ্দেশ্যে ব্যবহার করবেন না।</sys:String>
-    <sys:String x:Key="Splash.BarautUttarPradeshIndia">· বারাউত, উত্তর প্রদেশ, ভারত</sys:String>
     <sys:String x:Key="Splash.Copyright">© 2026 প্রো-গ্লাস অটোমেশন</sys:String>
     <sys:String x:Key="Splash.DeclineExit">প্রত্যাখ্যান করুন এবং বের হন</sys:String>
     <sys:String x:Key="Splash.Enterprise">এন্টারপ্রাইজ</sys:String>

@@ -2455,7 +2455,6 @@
     <sys:String x:Key="Splash.AcceptContinue">KABUL ET VE DEVAM ET</sys:String>
     <sys:String x:Key="Splash.AcceptText">Bu koşulları okudum ve kabul ediyorum; ürettiğim kayıtların doğruluğu sorumluluğunu üstleniyorum.</sys:String>
     <sys:String x:Key="Splash.AgreeUseSoftwareProduceFalseMisleading">Bu yazılımı sahte, yanıltıcı veya hileli fatura veya kayıt üretmek için ya da BAE federal veya emirlik yasalarına aykırı herhangi bir amaçla kullanmamayı kabul edersiniz.</sys:String>
-    <sys:String x:Key="Splash.BarautUttarPradeshIndia">·  Baraut, Uttar Pradeş, Hindistan</sys:String>
     <sys:String x:Key="Splash.Copyright">© 2026 ProGlass Automation</sys:String>
     <sys:String x:Key="Splash.DeclineExit">REDDET VE ÇIK</sys:String>
     <sys:String x:Key="Splash.Enterprise">KURUMSAL</sys:String>

@@ -130,7 +130,7 @@ public static class LicenseGeneratorCore
             // what makes "generate → paste → instant active" guaranteed.
             var verify = LicenseService.VerifyAndValidate(
                 gen.LicenseJson,
-                appVersion: "2.0.0",
+                appVersion: "2.0.1",
                 utcNow: DateTime.UtcNow,
                 trustedPublicKeys: new Dictionary<string, string>(StringComparer.Ordinal)
                 {

@@ -2455,7 +2455,6 @@
     <sys:String x:Key="Splash.AcceptContinue">承認して続行</sys:String>
     <sys:String x:Key="Splash.AcceptText">これらの条項を読み、同意します。作成する記録の正確性について責任を負います。</sys:String>
     <sys:String x:Key="Splash.AgreeUseSoftwareProduceFalseMisleading">このソフトウェアを使用して虚偽、誤解を招く、または不正な請求書や記録を生成しないこと、またUAE連邦法または首長国法に違反する目的に使用しないことに同意します。</sys:String>
-    <sys:String x:Key="Splash.BarautUttarPradeshIndia">·  インド、ウッタル・プラデーシュ州バラウト</sys:String>
     <sys:String x:Key="Splash.Copyright">© 2026 ProGlass Automation</sys:String>
     <sys:String x:Key="Splash.DeclineExit">拒否して終了</sys:String>
     <sys:String x:Key="Splash.Enterprise">エンタープライズ</sys:String>

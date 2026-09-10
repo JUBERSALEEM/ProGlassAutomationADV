@@ -12,7 +12,7 @@ public sealed class OfflineActivationProtocolTests
         MachineFingerprint = "MACHINE-ABC",
         RequestNonce = "NONCE-123",
         RequestedAtUtc = new DateTime(2026, 8, 29, 10, 30, 0, DateTimeKind.Utc),
-        ApplicationVersion = "2.0.0"
+        ApplicationVersion = "2.0.1"
     };
 
     private static OfflineActivationResponseDocument BuildResponse() => new()

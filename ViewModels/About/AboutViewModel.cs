@@ -15,11 +15,12 @@
 //   ✓ ALL other v2.9 properties/collections preserved verbatim
 //     (LeftPillars, RightPillars, SalesCycle, ProductionStages,
 //     DispatchBilling, Modules, TechStack, CapabilitiesTop,
-//     CapabilitiesBottom, all 7 core string properties)
+//     CapabilitiesBottom, all 6 core string properties)
 //
 // PRESERVED (zero regression):
-//   • ALL 7 core string properties (AppName, AppTagline, Version,
-//     DeveloperName, Country, Email, Copyright)
+//   • ALL 6 core string properties (AppName, AppTagline, Version,
+//     DeveloperName, Email, Copyright) — Country (address) removed
+//     2026-09-10 per owner directive
 //   • Version v1.1.0
 //   • Dynamic copyright year (2026 floor)
 //   • LeftPillars / RightPillars (hero triptych)
@@ -94,7 +95,7 @@ public sealed class AboutViewModel : ViewModelBase
 
     /// <summary>
     /// One-line release note shown as a chip under the version pill on the
-    /// About page (2.1.0 — the unified dialog platform release). Keep it to
+    /// About page (2.0.1 — the unified dialog platform release). Keep it to
     /// a single short line; the chip wraps if a future note runs long.
     /// </summary>
     public string WhatsNew { get; } = "NEW · Unified dialogs, themed prompts & tooltips";
@@ -181,15 +182,12 @@ public sealed class AboutViewModel : ViewModelBase
     /// <summary>Developer's display name.</summary>
     public string DeveloperName { get; } = "Juber Saleem";
 
-    /// <summary>Developer's city + state + country.</summary>
-    public string Country { get; } = "Baraut, Uttar Pradesh, India";
-
     /// <summary>
     /// Developer contact email.
     /// Bound to a clickable pill in the Developer section — click launches
     /// the OS default mailto handler via DeveloperSection.xaml.cs.
     /// </summary>
-    public string Email { get; } = "jubersaleem01@gmail.com";
+    public string Email { get; } = "proglassautomation@gmail.com";
 
     // ══════════════════════════════════════════════════════════════════
     //  LEGAL

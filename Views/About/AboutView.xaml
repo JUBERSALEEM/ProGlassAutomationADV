@@ -16,7 +16,7 @@
 
      PRESERVED:
        • AboutViewModel bindings (AppName, AppTagline, Version, Build,
-         DeveloperName, Country, Email, Copyright, PrivacyLines,
+         DeveloperName, Email, Copyright, PrivacyLines,
          LeftPillars, RightPillars, SalesCycle, ProductionStages,
          DispatchBilling, Modules, TechStack, CapabilitiesTop/Bottom)
        • RootScrollViewer x:Name + SmoothScrollBehavior
@@ -280,7 +280,7 @@
                                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                IsHitTestVisible="False"/>
                                 </Border>
-                                <!-- 2.1.0 release note — one-line chip under the
+                                <!-- 2.0.1 release note — one-line chip under the
                                      version pill (bound from AboutViewModel). -->
                                 <Border Style="{StaticResource ChipStyle}" Margin="0,8,0,0"
                                         HorizontalAlignment="Stretch">

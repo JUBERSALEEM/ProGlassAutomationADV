@@ -2455,7 +2455,6 @@
     <sys:String x:Key="Splash.AcceptContinue">ПРИНЯТЬ И ПРОДОЛЖИТЬ</sys:String>
     <sys:String x:Key="Splash.AcceptText">Я прочитал и принимаю эти условия и несу ответственность за точность создаваемых мной записей.</sys:String>
     <sys:String x:Key="Splash.AgreeUseSoftwareProduceFalseMisleading">Вы соглашаетесь не использовать это программное обеспечение для создания ложных, вводящих в заблуждение или мошеннических счетов или записей, а также для любых целей, запрещённых федеральным законом ОАЭ или законом эмирата.</sys:String>
-    <sys:String x:Key="Splash.BarautUttarPradeshIndia">·  Бараут, Уттар-Прадеш, Индия</sys:String>
     <sys:String x:Key="Splash.Copyright">© 2026 ProGlass Automation</sys:String>
     <sys:String x:Key="Splash.DeclineExit">ОТКЛОНИТЬ И ВЫЙТИ</sys:String>
     <sys:String x:Key="Splash.Enterprise">ПРЕДПРИЯТИЕ</sys:String>

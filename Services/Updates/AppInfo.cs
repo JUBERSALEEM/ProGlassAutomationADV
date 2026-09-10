@@ -23,7 +23,7 @@ namespace ProGlassAutomation.Services.Updates
         public const string GitHubRepo = "ProGlassAutomationADV";
 
         /// <summary>Fallback only — real value comes from the assembly.</summary>
-        private const string FallbackVersion = "2.1.0";
+        private const string FallbackVersion = "2.0.1";
 
         /// <summary>
         /// Current application version (MAJOR.MINOR.PATCH), resolved once
