@@ -376,6 +376,39 @@
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 </StackPanel>
                             </Border>
+
+                            <!-- Master: some fully-delivered lines are hidden. Explain + let user reveal them. -->
+                            <Border Margin="4,4,4,6" Padding="12,8"
+                                    Background="{DynamicResource TintIndigoBrush}"
+                                    BorderBrush="{DynamicResource OutlineBrush}"
+                                    BorderThickness="{DynamicResource CardBorderThickness}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Visibility="{Binding HasFullyDeliveredLines,
+                                                 Converter={StaticResource BoolToVisibilityConverter}}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="&#xE7BA;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="{StaticResource TextBodyLarge}"
+                                               VerticalAlignment="Center" Margin="0,0,10,0"
+                                               Foreground="{DynamicResource AccentBrush}"/>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding MasterScopeBannerText}"
+                                               TextWrapping="Wrap" VerticalAlignment="Center"
+                                               FontSize="{StaticResource TextBody}"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <Button Grid.Column="2"
+                                            Style="{StaticResource RowOutlinedButton}"
+                                            Tag="&#xE7B3;"
+                                            Content="{Binding MasterScopeButtonText}"
+                                            Command="{Binding ToggleFullMasterCommand}"
+                                            VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                </Grid>
+                            </Border>
                             </StackPanel>
 
                             <ScrollViewer Grid.Row="1"

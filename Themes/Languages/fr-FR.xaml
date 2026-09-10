@@ -398,6 +398,9 @@
     <sys:String x:Key="DeliveryNote.KpiPrevTip">Pièces déjà livrées sur des bons de livraison confirmés antérieurs.</sys:String>
     <sys:String x:Key="DeliveryNote.KpiThisDnTip">Pièces marquées prêtes à expédier sur CE bon. Modifiez chaque ligne pour changer.</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">Dernier :</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeRemainingOnly">Solde uniquement</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowFull">Tout afficher</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowingAll">Affichage de toutes les lignes, dont {0} entièrement livrées.</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">Aucune pièce jointe pour l&#x27;instant</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">Aucun ordre de travail sélectionné</sys:String>
     <sys:String x:Key="DeliveryNote.NoRemainingBalanceDeliver">Aucun solde restant à livrer.</sys:String>

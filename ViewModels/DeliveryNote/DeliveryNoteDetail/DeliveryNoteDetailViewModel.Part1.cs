@@ -125,6 +125,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 OnPropertyChanged(nameof(HasHiddenFullyDeliveredRows));
                 OnPropertyChanged(nameof(HasNoPendingBalanceItems));
                 OnPropertyChanged(nameof(HiddenFullyDeliveredSummary));
+                OnPropertyChanged(nameof(MasterScopeBannerText));
                 RebuildGroupedView();
             }
         }
@@ -132,9 +133,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public bool IsShowingRemainingOnly => _isMasterDn && !_showFullMaster;
 
         public string MasterScopeButtonText =>
-            _showFullMaster
-                ? "REMAINING ONLY"
-                : "SHOW FULL MASTER";
+            LocalizationService.Instance.T(
+                _showFullMaster
+                    ? "DeliveryNote.MasterScopeRemainingOnly"
+                    : "DeliveryNote.MasterScopeShowFull");
 
         // ── loading state ─────────────────────────────────────────────────
 
@@ -514,6 +516,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(HasHiddenFullyDeliveredRows));
                 OnPropertyChanged(nameof(HiddenFullyDeliveredSummary));
+                OnPropertyChanged(nameof(MasterScopeBannerText));
             }
         }
 
@@ -521,6 +524,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         public bool HasHiddenFullyDeliveredRows =>
             !_showFullMaster && HiddenFullyDeliveredCount > 0;
+
+        // Master has fully-delivered lines that CAN be hidden — true regardless of
+        // the current scope, so the reveal/hide banner stays available both ways.
+        private int _fullyDeliveredLineCount;
+        public bool HasFullyDeliveredLines =>
+            _isMasterDn && _fullyDeliveredLineCount > 0;
 
         public bool HasNoPendingBalanceItems =>
             _itemRows.Count > 0 && _visibleRows.Count == 0 && !_showFullMaster;
@@ -538,6 +547,23 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                         ? "DeliveryNote.HiddenDnOne"
                         : "DeliveryNote.HiddenDnMany");
                 return string.Format(loc.T(key), HiddenFullyDeliveredCount);
+            }
+        }
+
+        /// <summary>
+        /// Banner text for the master scope toggle — adapts to the current
+        /// scope so it reads correctly whether rows are hidden or all shown.
+        /// </summary>
+        public string MasterScopeBannerText
+        {
+            get
+            {
+                var loc = LocalizationService.Instance;
+                if (_showFullMaster)
+                    return string.Format(
+                        loc.T("DeliveryNote.MasterScopeShowingAll"),
+                        _fullyDeliveredLineCount);
+                return HiddenFullyDeliveredSummary;
             }
         }
 
@@ -625,6 +651,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             var displayed = _itemRows.Where(ShouldDisplayRow).ToList();
             _visibleRows = new ObservableCollection<DnItemRowViewModel>(displayed);
             HiddenFullyDeliveredCount = _itemRows.Count - displayed.Count;
+
+            // Scope-independent: how many lines WOULD be hidden in "remaining only"
+            // mode. Keeps the reveal/hide banner available even while showing all.
+            _fullyDeliveredLineCount =
+                _itemRows.Count(r => r.BalanceQty <= 0);
+            OnPropertyChanged(nameof(HasFullyDeliveredLines));
+            OnPropertyChanged(nameof(MasterScopeBannerText));
 
             VisibleGroups = new ObservableCollection<DnSpecGroupViewModel>(
                 displayed

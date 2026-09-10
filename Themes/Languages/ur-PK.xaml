@@ -398,6 +398,9 @@
     <sys:String x:Key="DeliveryNote.KpiPrevTip">اس جاب آرڈر کے پچھلے تصدیق شدہ ڈیلیوری نوٹس پر پہلے سے فراہم کردہ پیس۔</sys:String>
     <sys:String x:Key="DeliveryNote.KpiThisDnTip">اس ڈیلیوری نوٹ پر ڈسپیچ کے لیے تیار نشان زد پیس۔ تبدیل کرنے کے لیے ہر قطار میں ترمیم کریں۔</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">تازہ ترین:</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeRemainingOnly">صرف بیلنس</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowFull">سب دکھائیں</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowingAll">تمام لائنیں دکھائی جا رہی ہیں، بشمول {0} مکمل فراہم کردہ۔</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">ابھی کوئی منسلکہ نہیں</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">کوئی جاب آرڈر منتخب نہیں</sys:String>
     <sys:String x:Key="DeliveryNote.NoRemainingBalanceDeliver">ڈیلیور کرنے کے لیے کوئی باقی بیلنس نہیں۔</sys:String>

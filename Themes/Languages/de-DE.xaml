@@ -398,6 +398,9 @@
     <sys:String x:Key="DeliveryNote.KpiPrevTip">Bereits mit früheren bestätigten Lieferscheinen gelieferte Stück.</sys:String>
     <sys:String x:Key="DeliveryNote.KpiThisDnTip">Auf DIESEM Lieferschein zum Versand markierte Stück. Zeilenweise änderbar.</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">Neueste:</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeRemainingOnly">Nur Restmenge</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowFull">Alle anzeigen</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowingAll">Alle Positionen werden angezeigt, einschließlich {0} vollständig geliefert.</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">Noch keine Anhänge</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">Kein Auftrag ausgewählt</sys:String>
     <sys:String x:Key="DeliveryNote.NoRemainingBalanceDeliver">Kein Restsaldo zu liefern.</sys:String>

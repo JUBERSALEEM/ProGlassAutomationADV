@@ -398,6 +398,9 @@
     <sys:String x:Key="DeliveryNote.KpiPrevTip">此工单先前已确认送货单中已交付的件数。</sys:String>
     <sys:String x:Key="DeliveryNote.KpiThisDnTip">本送货单上标记为可发货的件数。逐行编辑可更改。</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">最新：</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeRemainingOnly">仅余量</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowFull">显示全部</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowingAll">正在显示所有明细，含 {0} 项已全部交付。</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">还没有附件</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">未选择工单</sys:String>
     <sys:String x:Key="DeliveryNote.NoRemainingBalanceDeliver">没有剩余余额可交付。</sys:String>

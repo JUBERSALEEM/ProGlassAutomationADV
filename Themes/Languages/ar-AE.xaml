@@ -398,6 +398,9 @@
     <sys:String x:Key="DeliveryNote.KpiPrevTip">القطع التي تم تسليمها بالفعل في سندات تسليم مؤكدة سابقة لأمر العمل هذا.</sys:String>
     <sys:String x:Key="DeliveryNote.KpiThisDnTip">القطع المحددة جاهزة للإرسال في سند التسليم هذا. عدّل كل صف لتغييرها.</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">الأحدث:</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeRemainingOnly">الرصيد فقط</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowFull">عرض الكل</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowingAll">عرض جميع البنود، بما في ذلك {0} تم تسليمها بالكامل.</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">لا توجد مرفقات بعد</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">لم يتم اختيار أمر عمل</sys:String>
     <sys:String x:Key="DeliveryNote.NoRemainingBalanceDeliver">لا يوجد رصيد متبقٍ للتسليم.</sys:String>

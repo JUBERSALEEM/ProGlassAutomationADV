@@ -398,6 +398,9 @@
     <sys:String x:Key="DeliveryNote.KpiPrevTip">Peças já entregues em notas de entrega confirmadas anteriores.</sys:String>
     <sys:String x:Key="DeliveryNote.KpiThisDnTip">Peças marcadas prontas para despacho NESTA nota. Edite cada linha para alterar.</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">Último:</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeRemainingOnly">Apenas saldo</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowFull">Mostrar tudo</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowingAll">Mostrando todas as linhas, incluindo {0} totalmente entregues.</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">Ainda não há anexos</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">Nenhuma ordem de serviço selecionada</sys:String>
     <sys:String x:Key="DeliveryNote.NoRemainingBalanceDeliver">Nenhum saldo restante para entregar.</sys:String>

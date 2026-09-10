@@ -398,6 +398,9 @@
     <sys:String x:Key="DeliveryNote.KpiPrevTip">この作業指示の以前の確定納品書で既に納品された数。</sys:String>
     <sys:String x:Key="DeliveryNote.KpiThisDnTip">この納品書で出荷準備完了として指定した数。各行で編集できます。</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">最新:</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeRemainingOnly">残数のみ</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowFull">すべて表示</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowingAll">完納 {0} 件を含む全明細を表示しています。</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">まだ添付ファイルがありません</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">作業指示書が選択されていません</sys:String>
     <sys:String x:Key="DeliveryNote.NoRemainingBalanceDeliver">納品する残高がありません。</sys:String>

@@ -398,6 +398,9 @@
     <sys:String x:Key="DeliveryNote.KpiPrevTip">Pieces already delivered on earlier confirmed delivery notes for this job order.</sys:String>
     <sys:String x:Key="DeliveryNote.KpiThisDnTip">Pieces marked ready for dispatch on THIS delivery note. Edit each row to change it.</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">Latest:</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeRemainingOnly">Balance only</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowFull">Show all</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowingAll">Showing all lines, including {0} fully delivered.</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">No attachments yet</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">No job order selected</sys:String>
     <sys:String x:Key="DeliveryNote.NoRemainingBalanceDeliver">No remaining balance to deliver.</sys:String>

@@ -398,6 +398,9 @@
     <sys:String x:Key="DeliveryNote.KpiPrevTip">Штук уже доставлено по прежним подтверждённым накладным этого заказа.</sys:String>
     <sys:String x:Key="DeliveryNote.KpiThisDnTip">Штук, отмеченных к отправке в ЭТОЙ накладной. Меняйте построчно.</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">Последнее:</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeRemainingOnly">Только остаток</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowFull">Показать все</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowingAll">Показаны все строки, включая {0} полностью доставленных.</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">Вложений пока нет</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">Заказ на работу не выбран</sys:String>
     <sys:String x:Key="DeliveryNote.NoRemainingBalanceDeliver">Нет оставшегося остатка для доставки.</sys:String>

@@ -398,6 +398,9 @@
     <sys:String x:Key="DeliveryNote.KpiPrevTip">इस जॉब ऑर्डर के पिछले पुष्ट डिलीवरी नोट्स पर पहले से वितरित पीस।</sys:String>
     <sys:String x:Key="DeliveryNote.KpiThisDnTip">इस डिलीवरी नोट पर डिस्पैच के लिए तैयार चिह्नित पीस। बदलने के लिए प्रत्येक पंक्ति संपादित करें।</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">नवीनतम:</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeRemainingOnly">केवल शेष</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowFull">सभी दिखाएं</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowingAll">सभी लाइनें दिखा रहे हैं, {0} पूरी तरह वितरित सहित।</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">अभी कोई अटैचमेंट नहीं</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">कोई जॉब ऑर्डर चयनित नहीं</sys:String>
     <sys:String x:Key="DeliveryNote.NoRemainingBalanceDeliver">वितरित करने के लिए कोई शेष शेष नहीं।</sys:String>

@@ -398,6 +398,9 @@
     <sys:String x:Key="DeliveryNote.KpiPrevTip">Bu iş emrinde önceki onaylı irsaliyelerde teslim edilmiş adet.</sys:String>
     <sys:String x:Key="DeliveryNote.KpiThisDnTip">BU irsaliyede sevkiyata hazır işaretlenen adet. Değiştirmek için satırları düzenleyin.</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">Son:</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeRemainingOnly">Yalnızca bakiye</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowFull">Tümünü göster</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowingAll">Tüm satırlar gösteriliyor; {0} tanesi tamamen teslim edildi.</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">Henüz ek yok</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">İş emri seçilmedi</sys:String>
     <sys:String x:Key="DeliveryNote.NoRemainingBalanceDeliver">Teslim edilecek kalan bakiye yok.</sys:String>

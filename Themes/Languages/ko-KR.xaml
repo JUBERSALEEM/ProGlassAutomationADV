@@ -398,6 +398,9 @@
     <sys:String x:Key="DeliveryNote.KpiPrevTip">이 작업 지시의 이전 확정 납품서에서 이미 배송된 수량.</sys:String>
     <sys:String x:Key="DeliveryNote.KpiThisDnTip">이 납품서에서 출고 준비로 표시한 수량. 각 행에서 편집하세요.</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">최신:</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeRemainingOnly">잔여만</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowFull">모두 표시</sys:String>
+    <sys:String x:Key="DeliveryNote.MasterScopeShowingAll">전량 배송된 {0}개 포함 모든 라인을 표시합니다.</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">아직 첨부 파일이 없습니다</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">선택된 작업 지시서 없음</sys:String>
     <sys:String x:Key="DeliveryNote.NoRemainingBalanceDeliver">배송할 남은 잔액이 없습니다.</sys:String>
