@@ -389,6 +389,10 @@
     <sys:String x:Key="DeliveryNote.Items">artículos</sys:String>
     <sys:String x:Key="DeliveryNote.ItemsFullyDelivered">Todos los artículos entregados por completo</sys:String>
     <sys:String x:Key="DeliveryNote.JO">JO:</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiBalanceTip">Piezas por entregar = Pedido − Entregado antes − Esta DN.</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiOrderedTip">Total de piezas pedidas en esta orden (de la orden / DN maestro).</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiPrevTip">Piezas ya entregadas en notas de entrega confirmadas anteriores.</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiThisDnTip">Piezas marcadas listas para despacho en ESTA nota. Edite cada fila para cambiarlo.</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">Último:</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">Aún no hay adjuntos</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">No se seleccionó ninguna orden de trabajo</sys:String>

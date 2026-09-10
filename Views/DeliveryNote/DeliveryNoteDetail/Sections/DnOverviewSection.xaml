@@ -43,7 +43,8 @@
                     <ColumnDefinition Width="1.4*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Style="{StaticResource CompactStatTileStyle}">
+                <Border Grid.Column="0" Style="{StaticResource CompactStatTileStyle}"
+                        ToolTip="{DynamicResource DeliveryNote.KpiOrderedTip}">
                     <StackPanel HorizontalAlignment="Center">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding TotalOrderedQty}"
@@ -58,7 +59,8 @@
                         Style="{StaticResource CompactStatTileStyle}"
                         Background="{DynamicResource TintIndigoBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}">
+                        BorderThickness="{DynamicResource CardBorderThickness}"
+                        ToolTip="{DynamicResource DeliveryNote.KpiPrevTip}">
                     <StackPanel HorizontalAlignment="Center">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding TotalPreviouslyDeliveredQty}"
@@ -75,7 +77,8 @@
                         Style="{StaticResource CompactStatTileStyle}"
                         Background="{DynamicResource TintGreenBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}">
+                        BorderThickness="{DynamicResource CardBorderThickness}"
+                        ToolTip="{DynamicResource DeliveryNote.KpiThisDnTip}">
                     <StackPanel HorizontalAlignment="Center">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding TotalDeliveredQty}"
@@ -92,7 +95,8 @@
                         Style="{StaticResource CompactStatTileStyle}"
                         Background="{DynamicResource TintAmberBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}">
+                        BorderThickness="{DynamicResource CardBorderThickness}"
+                        ToolTip="{DynamicResource DeliveryNote.KpiBalanceTip}">
                     <StackPanel HorizontalAlignment="Center">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding TotalBalanceQty}"

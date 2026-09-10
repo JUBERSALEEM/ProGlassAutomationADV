@@ -389,6 +389,10 @@
     <sys:String x:Key="DeliveryNote.Items">articles</sys:String>
     <sys:String x:Key="DeliveryNote.ItemsFullyDelivered">Tous les articles entièrement livrés</sys:String>
     <sys:String x:Key="DeliveryNote.JO">JO :</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiBalanceTip">Pièces restant à livrer = Commandé − Déjà livré − Ce BL.</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiOrderedTip">Total des pièces commandées sur cet ordre (ordre / BL maître).</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiPrevTip">Pièces déjà livrées sur des bons de livraison confirmés antérieurs.</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiThisDnTip">Pièces marquées prêtes à expédier sur CE bon. Modifiez chaque ligne pour changer.</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">Dernier :</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">Aucune pièce jointe pour l&#x27;instant</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">Aucun ordre de travail sélectionné</sys:String>

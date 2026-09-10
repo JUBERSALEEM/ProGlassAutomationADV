@@ -389,6 +389,10 @@
     <sys:String x:Key="DeliveryNote.Items">项</sys:String>
     <sys:String x:Key="DeliveryNote.ItemsFullyDelivered">所有项目已完全交付</sys:String>
     <sys:String x:Key="DeliveryNote.JO">工单：</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiBalanceTip">待交付的剩余件数 = 订购 − 之前已交付 − 本送货单。</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiOrderedTip">此工单订购的总件数（来自工单/主送货单）。</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiPrevTip">此工单先前已确认送货单中已交付的件数。</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiThisDnTip">本送货单上标记为可发货的件数。逐行编辑可更改。</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">最新：</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">还没有附件</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">未选择工单</sys:String>

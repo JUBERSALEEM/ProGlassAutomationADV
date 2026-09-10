@@ -389,6 +389,10 @@
     <sys:String x:Key="DeliveryNote.Items">позиций</sys:String>
     <sys:String x:Key="DeliveryNote.ItemsFullyDelivered">Все позиции полностью доставлены</sys:String>
     <sys:String x:Key="DeliveryNote.JO">JO:</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiBalanceTip">Осталось доставить = Заказано − Ранее доставлено − Эта накладная.</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiOrderedTip">Всего заказано штук по этому заказу (из заказа / мастер-накладной).</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiPrevTip">Штук уже доставлено по прежним подтверждённым накладным этого заказа.</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiThisDnTip">Штук, отмеченных к отправке в ЭТОЙ накладной. Меняйте построчно.</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">Последнее:</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">Вложений пока нет</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">Заказ на работу не выбран</sys:String>

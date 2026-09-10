@@ -389,6 +389,10 @@
     <sys:String x:Key="DeliveryNote.Items">items</sys:String>
     <sys:String x:Key="DeliveryNote.ItemsFullyDelivered">All items fully delivered</sys:String>
     <sys:String x:Key="DeliveryNote.JO">JO:</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiBalanceTip">Remaining pieces still to deliver = Ordered − Previously delivered − This DN.</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiOrderedTip">Total pieces ordered on this job order (from the Job Order / Master DN).</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiPrevTip">Pieces already delivered on earlier confirmed delivery notes for this job order.</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiThisDnTip">Pieces marked ready for dispatch on THIS delivery note. Edit each row to change it.</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">Latest:</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">No attachments yet</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">No job order selected</sys:String>

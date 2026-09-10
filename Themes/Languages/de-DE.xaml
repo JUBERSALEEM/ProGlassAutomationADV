@@ -389,6 +389,10 @@
     <sys:String x:Key="DeliveryNote.Items">Positionen</sys:String>
     <sys:String x:Key="DeliveryNote.ItemsFullyDelivered">Alle Positionen vollständig geliefert</sys:String>
     <sys:String x:Key="DeliveryNote.JO">JO:</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiBalanceTip">Noch zu liefernde Stück = Bestellt − Bereits geliefert − Dieser LS.</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiOrderedTip">Gesamtstückzahl dieses Auftrags (aus Auftrag / Master-Lieferschein).</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiPrevTip">Bereits mit früheren bestätigten Lieferscheinen gelieferte Stück.</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiThisDnTip">Auf DIESEM Lieferschein zum Versand markierte Stück. Zeilenweise änderbar.</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">Neueste:</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">Noch keine Anhänge</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">Kein Auftrag ausgewählt</sys:String>

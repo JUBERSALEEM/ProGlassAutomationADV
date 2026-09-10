@@ -389,6 +389,10 @@
     <sys:String x:Key="DeliveryNote.Items">항목</sys:String>
     <sys:String x:Key="DeliveryNote.ItemsFullyDelivered">모든 항목이 완전히 배송됨</sys:String>
     <sys:String x:Key="DeliveryNote.JO">JO:</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiBalanceTip">아직 배송할 잔여 수량 = 주문 − 기존 배송 − 이 DN.</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiOrderedTip">이 작업 지시의 총 주문 수량(작업 지시/마스터 DN 기준).</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiPrevTip">이 작업 지시의 이전 확정 납품서에서 이미 배송된 수량.</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiThisDnTip">이 납품서에서 출고 준비로 표시한 수량. 각 행에서 편집하세요.</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">최신:</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">아직 첨부 파일이 없습니다</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">선택된 작업 지시서 없음</sys:String>

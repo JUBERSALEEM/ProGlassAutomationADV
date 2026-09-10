@@ -389,6 +389,10 @@
     <sys:String x:Key="DeliveryNote.Items">kalem</sys:String>
     <sys:String x:Key="DeliveryNote.ItemsFullyDelivered">Tüm kalemler tamamen teslim edildi</sys:String>
     <sys:String x:Key="DeliveryNote.JO">JO:</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiBalanceTip">Teslim edilecek kalan adet = Sipariş − Önceden teslim − Bu İrsaliye.</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiOrderedTip">Bu iş emrinde sipariş edilen toplam adet (İş Emri / Ana İrsaliye).</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiPrevTip">Bu iş emrinde önceki onaylı irsaliyelerde teslim edilmiş adet.</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiThisDnTip">BU irsaliyede sevkiyata hazır işaretlenen adet. Değiştirmek için satırları düzenleyin.</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">Son:</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">Henüz ek yok</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">İş emri seçilmedi</sys:String>

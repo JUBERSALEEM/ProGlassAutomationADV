@@ -389,6 +389,10 @@
     <sys:String x:Key="DeliveryNote.Items">item</sys:String>
     <sys:String x:Key="DeliveryNote.ItemsFullyDelivered">Semua item terkirim penuh</sys:String>
     <sys:String x:Key="DeliveryNote.JO">JO:</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiBalanceTip">Sisa pcs yang harus dikirim = Dipesan − Sudah dikirim − DN ini.</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiOrderedTip">Total pcs yang dipesan pada job order ini (dari Job Order / Master DN).</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiPrevTip">Pcs yang sudah dikirim pada surat jalan terkonfirmasi sebelumnya.</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiThisDnTip">Pcs yang ditandai siap kirim pada surat jalan INI. Edit tiap baris untuk mengubah.</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">Terakhir:</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">Belum ada lampiran</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">Tidak ada order kerja yang dipilih</sys:String>

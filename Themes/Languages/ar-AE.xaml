@@ -389,6 +389,10 @@
     <sys:String x:Key="DeliveryNote.Items">أصناف</sys:String>
     <sys:String x:Key="DeliveryNote.ItemsFullyDelivered">جميع الأصناف مسلَّمة بالكامل</sys:String>
     <sys:String x:Key="DeliveryNote.JO">أمر العمل:</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiBalanceTip">القطع المتبقية للتسليم = المطلوب − المُسلّم سابقًا − سند التسليم هذا.</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiOrderedTip">إجمالي القطع المطلوبة في أمر العمل هذا (من أمر العمل / سند التسليم الرئيسي).</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiPrevTip">القطع التي تم تسليمها بالفعل في سندات تسليم مؤكدة سابقة لأمر العمل هذا.</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiThisDnTip">القطع المحددة جاهزة للإرسال في سند التسليم هذا. عدّل كل صف لتغييرها.</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">الأحدث:</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">لا توجد مرفقات بعد</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">لم يتم اختيار أمر عمل</sys:String>

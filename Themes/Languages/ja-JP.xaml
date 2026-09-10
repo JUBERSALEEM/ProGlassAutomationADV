@@ -389,6 +389,10 @@
     <sys:String x:Key="DeliveryNote.Items">項目</sys:String>
     <sys:String x:Key="DeliveryNote.ItemsFullyDelivered">すべての項目が完全に納品済み</sys:String>
     <sys:String x:Key="DeliveryNote.JO">JO:</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiBalanceTip">未納の残数 = 注文 − 既納 − 今回のDN。</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiOrderedTip">この作業指示で注文された総数（作業指示／マスターDNより）。</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiPrevTip">この作業指示の以前の確定納品書で既に納品された数。</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiThisDnTip">この納品書で出荷準備完了として指定した数。各行で編集できます。</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">最新:</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">まだ添付ファイルがありません</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">作業指示書が選択されていません</sys:String>

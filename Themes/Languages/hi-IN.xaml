@@ -389,6 +389,10 @@
     <sys:String x:Key="DeliveryNote.Items">आइटम</sys:String>
     <sys:String x:Key="DeliveryNote.ItemsFullyDelivered">सभी आइटम पूर्ण रूप से वितरित</sys:String>
     <sys:String x:Key="DeliveryNote.JO">जॉब ऑर्डर:</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiBalanceTip">अभी वितरित करने योग्य शेष पीस = ऑर्डर − पहले वितरित − यह DN।</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiOrderedTip">इस जॉब ऑर्डर पर ऑर्डर किए गए कुल पीस (जॉब ऑर्डर / मास्टर DN से)।</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiPrevTip">इस जॉब ऑर्डर के पिछले पुष्ट डिलीवरी नोट्स पर पहले से वितरित पीस।</sys:String>
+    <sys:String x:Key="DeliveryNote.KpiThisDnTip">इस डिलीवरी नोट पर डिस्पैच के लिए तैयार चिह्नित पीस। बदलने के लिए प्रत्येक पंक्ति संपादित करें।</sys:String>
     <sys:String x:Key="DeliveryNote.Latest">नवीनतम:</sys:String>
     <sys:String x:Key="DeliveryNote.NoAttachmentsYet">अभी कोई अटैचमेंट नहीं</sys:String>
     <sys:String x:Key="DeliveryNote.NoJobOrderSelected">कोई जॉब ऑर्डर चयनित नहीं</sys:String>
