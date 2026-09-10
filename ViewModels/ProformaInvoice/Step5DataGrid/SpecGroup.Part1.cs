@@ -551,41 +551,26 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     _ = LoadAllTypesFallbackAsync();
                 }
 
-                var exact = _specSource.FirstOrDefault(s =>
-                    string.Equals(
-                        s.SpecName, _specTypedText,
-                        StringComparison.OrdinalIgnoreCase));
+                // 2026-09-10: SUGGEST-ONLY typing. Matching the popup
+                // list is the operator's job — a typed spec name that
+                // happens to equal an existing spec must NOT auto-commit,
+                // auto-switch the glass type or auto-fill the rate. The
+                // dropdown suggests; ONLY an explicit pick (click or
+                // Enter on the highlighted suggestion — SelectedSpecItem)
+                // commits. Free-typed names remain fully supported below.
+                _selectedSpecName = _specTypedText;
+                OnPropertyChanged(nameof(SelectedSpecName));
+                OnPropertyChanged(nameof(SpecDisplayName));
 
-                _isProgrammaticSpecChange = true;
-                try
+                if (_selectedSpecItem != null &&
+                    !_isProgrammaticSpecChange &&
+                    !string.Equals(
+                        _selectedSpecItem.SpecName, _specTypedText,
+                        StringComparison.OrdinalIgnoreCase))
                 {
-                    if (exact != null)
-                    {
-                        _selectedSpecName = exact.SpecName;
-                        OnPropertyChanged(nameof(SelectedSpecName));
-                        OnPropertyChanged(nameof(SpecDisplayName));
-
-                        _selectedSpecItem = exact;
-                        OnPropertyChanged(nameof(SelectedSpecItem));
-
-                        RefreshGlassColorsFromSpecName();
-                        TryAutoFillRate();
-                        HandleSpecCommit(exact.SpecName);
-                    }
-                    else
-                    {
-                        _selectedSpecName = _specTypedText;
-                        OnPropertyChanged(nameof(SelectedSpecName));
-                        OnPropertyChanged(nameof(SpecDisplayName));
-
-                        if (_selectedSpecItem != null)
-                        {
-                            _selectedSpecItem = null;
-                            OnPropertyChanged(nameof(SelectedSpecItem));
-                        }
-                    }
+                    _selectedSpecItem = null;
+                    OnPropertyChanged(nameof(SelectedSpecItem));
                 }
-                finally { _isProgrammaticSpecChange = false; }
             }
         }
 
