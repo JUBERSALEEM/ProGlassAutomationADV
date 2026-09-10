@@ -190,6 +190,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         public ICommand RemoveCalculationSectionCommand { get; private set; }
         public ICommand ApplyRateCommand { get; private set; }
 
+        /// <summary>
+        /// 2026-09-10: raised by the "Open Sheet Store — Add Sheet" button.
+        /// MainViewModel wires this to a license-gated navigation, so the
+        /// operator can add missing inventory without hunting for the
+        /// module in the rail.
+        /// </summary>
+        public event EventHandler? NavigateToSheetStoreRequested;
+        public ICommand OpenSheetStoreCommand { get; private set; }
+
         public PricingEstimatorViewModel()
          : this(
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
@@ -279,6 +288,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                      && !string.IsNullOrWhiteSpace(
                             GetCurrentSpecName(SelectedGlassType?.Code ?? "")));
 
+            OpenSheetStoreCommand = new RelayCommand(_ =>
+                NavigateToSheetStoreRequested?.Invoke(this, EventArgs.Empty));
+
             // Default selection = SGU
             SelectedGlassType = GlassTypes[0];
 
@@ -312,6 +324,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 await SguVM.LoadSheetStoreAsync().ConfigureAwait(true);
                 await DguVM.LoadSheetStoreAsync().ConfigureAwait(true);
                 await LamVM.LoadSheetStoreAsync().ConfigureAwait(true);
+                await DguLamVM.LoadStoreColorsAsync().ConfigureAwait(true);
             }
             catch (Exception ex)
             {

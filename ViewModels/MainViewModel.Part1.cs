@@ -739,6 +739,11 @@ namespace ProGlassAutomation.ViewModels
                 Navigate("Inquiry");
             };
 
+            // 2026-09-10: Step 4 "Open Sheet Store — Add Sheet" button.
+            // License gate runs inside Navigate, same as every rail item.
+            ProformaInvoiceVM.Step4VM.NavigateToSheetStoreRequested += (_, _) =>
+                NavigateFromAgent("SheetStore");
+
             // Right-click per-stage navigation from the inquiry rail.
             // The right-click "Open Proforma/Job Order/Delivery Note/
             // Tax Invoice/Statement" items in the inquiry rail now

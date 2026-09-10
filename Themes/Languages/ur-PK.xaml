@@ -1323,7 +1323,9 @@
     <sys:String x:Key="ProformaInvoice.ShareExcel">Excel شیئر کریں</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetH">شیٹ اونچائی</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetHeight">شیٹ اونچائی</sys:String>
-    <sys:String x:Key="ProformaInvoice.SheetQTY">شیٹ مقدار</sys:String>
+        <sys:String x:Key="ProformaInvoice.NotInSheetStore">⚠ NOT IN SHEET STORE</sys:String>
+    <sys:String x:Key="ProformaInvoice.OpenSheetStoreAddSheet">Open Sheet Store — Add Sheet</sys:String>
+<sys:String x:Key="ProformaInvoice.SheetQTY">شیٹ مقدار</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSIZE">شیٹ سائز</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSQMPrice">شیٹ / مربع میٹر قیمت</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetStorePurchasePriceSellingPriceMatching">آف = شیٹ سٹور خرید قیمت۔ آن = مرحلہ 4 بنیادی شرحوں سے مطابقت رکھنے والی فروخت قیمت۔</sys:String>

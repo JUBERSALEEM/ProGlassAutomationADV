@@ -1323,7 +1323,9 @@
     <sys:String x:Key="ProformaInvoice.ShareExcel">EXCELを共有</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetH">シート高さ</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetHeight">シート高さ</sys:String>
-    <sys:String x:Key="ProformaInvoice.SheetQTY">シート数量</sys:String>
+        <sys:String x:Key="ProformaInvoice.NotInSheetStore">⚠ NOT IN SHEET STORE</sys:String>
+    <sys:String x:Key="ProformaInvoice.OpenSheetStoreAddSheet">Open Sheet Store — Add Sheet</sys:String>
+<sys:String x:Key="ProformaInvoice.SheetQTY">シート数量</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSIZE">シートサイズ</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSQMPrice">シート / M²あたり価格</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetStorePurchasePriceSellingPriceMatching">オフ = シートストア購入価格。オン = ステップ4の基本レートに一致する販売価格。</sys:String>

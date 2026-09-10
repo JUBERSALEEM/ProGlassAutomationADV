@@ -59,9 +59,11 @@
 // edit — it is written as numbered steps for exactly that reason.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Services.ProformaInvoice;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.DguLamParameters
 {
@@ -103,10 +105,33 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             "0.38mm", "0.76mm", "1.14mm", "1.52mm", "2.28mm"
         };
 
-        public List<string> ColorOptions { get; } = new()
+        // 2026-09-10: built-in colour defaults REMOVED by request; the
+        // hybrid now reads the SAME Sheet Store colours as the other
+        // panels (LoadStoreColorsAsync, fired from PricingEstimator's
+        // LoadSheetStoreDataAsync). ObservableCollection so the combos
+        // refresh when inventory changes.
+        public System.Collections.ObjectModel.ObservableCollection<string>
+            ColorOptions { get; } = new();
+
+        /// <summary>
+        /// Fills the pane-colour combos from Sheet Store inventory only.
+        /// Never throws (mirrors the other panels' store adapters).
+        /// </summary>
+        public async Task LoadStoreColorsAsync()
         {
-            "Clear", "Frosted", "Milky White", "Grey", "Bronze", "Blue", "Green"
-        };
+            try
+            {
+                await SheetStorePricingService
+                    .LoadColorsIntoAsync(ColorOptions)
+                    .ConfigureAwait(true);
+            }
+            catch (Exception ex)
+            {
+                Services.Logging.AppLogService.Debug(
+                    "[DguLamParametersViewModel] colour load failed: " +
+                    ex.Message);
+            }
+        }
 
         // ══════════════════════════════════════════════════════════════
         //  FABRICATION EXTRAS

@@ -147,24 +147,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
         // ═══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Merges Sheet Store colours into <c>ColorOptions</c> (never
-        /// removes built-ins) and refreshes sizes and price. Idempotent.
+        /// Refills <c>ColorOptions</c> from the Sheet Store ONLY (no
+        /// built-in defaults since 2026-09-10) and refreshes sizes and
+        /// price. Idempotent.
         /// </summary>
         public async Task LoadSheetStoreAsync()
         {
             try
             {
-                var colors = await SheetStorePricingService.GetColorsAsync()
+                await SheetStorePricingService
+                    .LoadColorsIntoAsync(ColorOptions)
                     .ConfigureAwait(true);
-
-                foreach (var color in colors)
-                {
-                    bool exists = ColorOptions.Any(c =>
-                        SheetStorePricingService.Norm(c) ==
-                        SheetStorePricingService.Norm(color));
-
-                    if (!exists) ColorOptions.Add(color);
-                }
 
                 await RefreshFromStoreAsync().ConfigureAwait(true);
             }

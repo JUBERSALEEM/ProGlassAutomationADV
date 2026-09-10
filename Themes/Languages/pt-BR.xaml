@@ -1323,7 +1323,9 @@
     <sys:String x:Key="ProformaInvoice.ShareExcel">COMPARTILHAR EXCEL</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetH">ALTURA DA CHAPA</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetHeight">Altura da chapa</sys:String>
-    <sys:String x:Key="ProformaInvoice.SheetQTY">QUANTIDADE DE CHAPAS</sys:String>
+        <sys:String x:Key="ProformaInvoice.NotInSheetStore">⚠ NOT IN SHEET STORE</sys:String>
+    <sys:String x:Key="ProformaInvoice.OpenSheetStoreAddSheet">Open Sheet Store — Add Sheet</sys:String>
+<sys:String x:Key="ProformaInvoice.SheetQTY">QUANTIDADE DE CHAPAS</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSIZE">TAMANHO DA CHAPA</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSQMPrice">CHAPA / PREÇO POR M²</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetStorePurchasePriceSellingPriceMatching">Desligado = preço de compra do depósito de chapas. Ligado = preço de venda correspondente às tarifas base da etapa 4.</sys:String>

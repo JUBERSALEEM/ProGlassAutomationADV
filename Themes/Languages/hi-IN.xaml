@@ -1323,7 +1323,9 @@
     <sys:String x:Key="ProformaInvoice.ShareExcel">Excel साझा करें</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetH">शीट ऊँचाई</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetHeight">शीट ऊँचाई</sys:String>
-    <sys:String x:Key="ProformaInvoice.SheetQTY">शीट मात्रा</sys:String>
+        <sys:String x:Key="ProformaInvoice.NotInSheetStore">⚠ NOT IN SHEET STORE</sys:String>
+    <sys:String x:Key="ProformaInvoice.OpenSheetStoreAddSheet">Open Sheet Store — Add Sheet</sys:String>
+<sys:String x:Key="ProformaInvoice.SheetQTY">शीट मात्रा</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSIZE">शीट आकार</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSQMPrice">शीट / वर्ग मी मूल्य</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetStorePurchasePriceSellingPriceMatching">बंद = शीट स्टोर क्रय मूल्य। चालू = चरण 4 आधार दरों से मेल खाता विक्रय मूल्य।</sys:String>

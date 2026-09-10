@@ -1323,7 +1323,9 @@
     <sys:String x:Key="ProformaInvoice.ShareExcel">共享 EXCEL</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetH">板材高度</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetHeight">板材高度</sys:String>
-    <sys:String x:Key="ProformaInvoice.SheetQTY">板材数量</sys:String>
+        <sys:String x:Key="ProformaInvoice.NotInSheetStore">⚠ NOT IN SHEET STORE</sys:String>
+    <sys:String x:Key="ProformaInvoice.OpenSheetStoreAddSheet">Open Sheet Store — Add Sheet</sys:String>
+<sys:String x:Key="ProformaInvoice.SheetQTY">板材数量</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSIZE">板材尺寸</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSQMPrice">板材 / 每 M² 价格</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetStorePurchasePriceSellingPriceMatching">关闭 = 板材库采购价。开启 = 与第 4 步基本费率匹配的销售价。</sys:String>

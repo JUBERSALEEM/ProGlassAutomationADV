@@ -34,6 +34,7 @@ using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -110,6 +111,22 @@ namespace ProGlassAutomation.Services.ProformaInvoice
         /// </summary>
         public static Task<List<GlassSheet>> GetAllSheetsAsync() =>
             LoadAllAsync();
+
+        /// <summary>
+        /// REPLACES the target combo list with exactly the Sheet Store
+        /// colours (2026-09-10: built-in defaults removed by request —
+        /// the dropdown must offer only what inventory actually stocks).
+        /// Single shared mechanism for SGU / DGU / LAM / DGU+LAM.
+        /// Never throws; leaves the list empty when the store is empty.
+        /// </summary>
+        public static async Task LoadColorsIntoAsync(
+            ObservableCollection<string> target)
+        {
+            if (target == null) return;
+            var colors = await GetColorsAsync().ConfigureAwait(true);
+            target.Clear();
+            foreach (var color in colors) target.Add(color);
+        }
 
         /// <summary>
         /// Distinct glass colors present in the Sheet Store, in the

@@ -125,13 +125,19 @@
                                     Content="{DynamicResource ProformaInvoice.Remove}"/>
                         </StackPanel>
                     </Grid>
-                    <TextBlock FontSize="{StaticResource TextBody}"
-                               Foreground="{DynamicResource WarningBrush}"
-                               TextWrapping="Wrap" Margin="0,6,0,0">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
+                    <!-- 2026-09-10: proper warning banner (repo TintAmber
+                         pattern) instead of the thin footer hint line, plus
+                         the "Open Sheet Store — Add Sheet" action. Shows
+                         whenever the selected colour/thickness/size is not
+                         stocked (SheetStoreHint from the panel VMs). -->
+                    <Border Background="{DynamicResource TintAmberBrush}"
+                            BorderBrush="{DynamicResource WarningBrush}"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            Padding="12,8" Margin="0,6,0,0">
+                        <Border.Style>
+                            <Style TargetType="Border">
                                 <Setter Property="Visibility" Value="Collapsed"/>
-                                <Setter Property="Text" Value=""/>
                                 <Style.Triggers>
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
@@ -139,7 +145,6 @@
                                             <Condition Binding="{Binding SguVM.HasSheetStoreHint}" Value="True"/>
                                         </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Visible"/>
-                                        <Setter Property="Text" Value="{Binding SguVM.SheetStoreHint}"/>
                                     </MultiDataTrigger>
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
@@ -147,7 +152,6 @@
                                             <Condition Binding="{Binding DguVM.HasSheetStoreHint}" Value="True"/>
                                         </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Visible"/>
-                                        <Setter Property="Text" Value="{Binding DguVM.SheetStoreHint}"/>
                                     </MultiDataTrigger>
                                     <MultiDataTrigger>
                                         <MultiDataTrigger.Conditions>
@@ -155,13 +159,53 @@
                                             <Condition Binding="{Binding LamVM.HasSheetStoreHint}" Value="True"/>
                                         </MultiDataTrigger.Conditions>
                                         <Setter Property="Visibility" Value="Visible"/>
-                                        <Setter Property="Text" Value="{Binding LamVM.SheetStoreHint}"/>
                                     </MultiDataTrigger>
                                 </Style.Triggers>
                             </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                    <TextBlock Text="{Binding ApplyStatusMessage}" FontSize="{StaticResource TextBody}"
+                        </Border.Style>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="&#xE7BA;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="{StaticResource TextSection}"
+                                       Foreground="{DynamicResource WarningBrush}"
+                                       VerticalAlignment="Top" Margin="0,1,10,0"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource ProformaInvoice.NotInSheetStore}"
+                                           FontSize="{StaticResource TextCaption}"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource WarningBrush}"/>
+                                <TextBlock FontSize="{StaticResource TextBody}"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                           TextWrapping="Wrap" Margin="0,2,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="{Binding SguVM.SheetStoreHint}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedGlassType.Code}" Value="DGU">
+                                                    <Setter Property="Text" Value="{Binding DguVM.SheetStoreHint}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding SelectedGlassType.Code}" Value="LAM">
+                                                    <Setter Property="Text" Value="{Binding LamVM.SheetStoreHint}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                            <Button Grid.Column="2"
+                                    Command="{Binding OpenSheetStoreCommand}"
+                                    Style="{StaticResource PiGhostChipButton}"
+                                    Height="30" Margin="12,0,0,0"
+                                    VerticalAlignment="Center"
+                                    Content="{DynamicResource ProformaInvoice.OpenSheetStoreAddSheet}"/>
+                        </Grid>
+                    </Border>
+<TextBlock Text="{Binding ApplyStatusMessage}" FontSize="{StaticResource TextBody}"
                                Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap" Margin="0,4,0,0">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">

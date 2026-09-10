@@ -1323,7 +1323,9 @@
     <sys:String x:Key="ProformaInvoice.ShareExcel">COMPARTIR EXCEL</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetH">ALTO DE LÁMINA</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetHeight">ALTO DE LÁMINA</sys:String>
-    <sys:String x:Key="ProformaInvoice.SheetQTY">CANTIDAD DE LÁMINAS</sys:String>
+        <sys:String x:Key="ProformaInvoice.NotInSheetStore">⚠ NOT IN SHEET STORE</sys:String>
+    <sys:String x:Key="ProformaInvoice.OpenSheetStoreAddSheet">Open Sheet Store — Add Sheet</sys:String>
+<sys:String x:Key="ProformaInvoice.SheetQTY">CANTIDAD DE LÁMINAS</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSIZE">TAMAÑO DE LÁMINA</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSQMPrice">LÁMINA / PRECIO POR M²</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetStorePurchasePriceSellingPriceMatching">Apagado = precio de compra del almacén de láminas. Encendido = precio de venta que coincide con las tarifas base del paso 4.</sys:String>

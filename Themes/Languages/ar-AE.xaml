@@ -1323,7 +1323,9 @@
     <sys:String x:Key="ProformaInvoice.ShareExcel">مشاركة Excel</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetH">ارتفاع اللوح</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetHeight">ارتفاع اللوح</sys:String>
-    <sys:String x:Key="ProformaInvoice.SheetQTY">كمية الألواح</sys:String>
+        <sys:String x:Key="ProformaInvoice.NotInSheetStore">⚠ NOT IN SHEET STORE</sys:String>
+    <sys:String x:Key="ProformaInvoice.OpenSheetStoreAddSheet">Open Sheet Store — Add Sheet</sys:String>
+<sys:String x:Key="ProformaInvoice.SheetQTY">كمية الألواح</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSIZE">مقاس اللوح</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSQMPrice">سعر اللوح / م²</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetStorePurchasePriceSellingPriceMatching">إيقاف = سعر الشراء من مخزن الألواح. تشغيل = سعر البيع مطابق لأسعار أساس الخطوة 4.</sys:String>

@@ -332,18 +332,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             "3mm", "4mm", "5mm", "6mm", "8mm", "10mm", "12mm", "15mm", "19mm"
         };
 
-        public ObservableCollection<string> ColorOptions { get; } = new()
-        {
-            "Clear",
-            "HD Grey",
-            "Bronze",
-            "Green",
-            "Blue",
-            "Silver",
-            "Reflective Grey",
-            "Ford Blue",
-            "Dark Grey"
-        };
+        // 2026-09-10: built-in colour defaults REMOVED by request.
+        // Filled exclusively from Sheet Store inventory — see .SheetStore.cs
+        public ObservableCollection<string> ColorOptions { get; } = new();
 
         public List<string> TreatmentOptions { get; } = new()
         {

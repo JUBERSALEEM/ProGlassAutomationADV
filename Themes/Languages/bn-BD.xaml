@@ -1323,7 +1323,9 @@
     <sys:String x:Key="ProformaInvoice.ShareExcel">Excel শেয়ার করুন</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetH">শিট উচ্চতা</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetHeight">শিট উচ্চতা</sys:String>
-    <sys:String x:Key="ProformaInvoice.SheetQTY">শিট পরিমাণ</sys:String>
+        <sys:String x:Key="ProformaInvoice.NotInSheetStore">⚠ NOT IN SHEET STORE</sys:String>
+    <sys:String x:Key="ProformaInvoice.OpenSheetStoreAddSheet">Open Sheet Store — Add Sheet</sys:String>
+<sys:String x:Key="ProformaInvoice.SheetQTY">শিট পরিমাণ</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSIZE">শিট আকার</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSQMPrice">শিট / বর্গমিটার মূল্য</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetStorePurchasePriceSellingPriceMatching">বন্ধ = শিট স্টোর ক্রয় মূল্য। চালু = ধাপ ৪ বেস হারের সাথে মিলে বিক্রয় মূল্য।</sys:String>

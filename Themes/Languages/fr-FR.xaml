@@ -1323,7 +1323,9 @@
     <sys:String x:Key="ProformaInvoice.ShareExcel">PARTAGER EXCEL</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetH">HAUTEUR DE FEUILLE</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetHeight">Hauteur de feuille</sys:String>
-    <sys:String x:Key="ProformaInvoice.SheetQTY">QUANTITÉ DE FEUILLES</sys:String>
+        <sys:String x:Key="ProformaInvoice.NotInSheetStore">⚠ NOT IN SHEET STORE</sys:String>
+    <sys:String x:Key="ProformaInvoice.OpenSheetStoreAddSheet">Open Sheet Store — Add Sheet</sys:String>
+<sys:String x:Key="ProformaInvoice.SheetQTY">QUANTITÉ DE FEUILLES</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSIZE">TAILLE DE FEUILLE</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSQMPrice">FEUILLE / PRIX AU M²</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetStorePurchasePriceSellingPriceMatching">Désactivé = prix d&#x27;achat du stock de feuilles. Activé = prix de vente correspondant aux tarifs de base de l&#x27;étape 4.</sys:String>
