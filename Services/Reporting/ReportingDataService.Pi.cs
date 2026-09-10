@@ -46,30 +46,7 @@ namespace ProGlassAutomation.Services.Reporting
             using var db = new ProformaInvoicesDbContext();
             var query = Live(db.ProformaInvoices.AsNoTracking()).AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(filter.Company))
-                query = query.Where(i => EF.Functions.Like(i.CompanyName, $"%{filter.Company}%"));
-            if (!string.IsNullOrWhiteSpace(filter.Customer))
-                query = query.Where(i => EF.Functions.Like(i.CustomerName, $"%{filter.Customer}%"));
-            if (!string.IsNullOrWhiteSpace(filter.ProformaId))
-                query = query.Where(i => i.ProformaId == filter.ProformaId);
-            if (!string.IsNullOrWhiteSpace(filter.Status))
-                query = query.Where(i => i.Status == filter.Status);
-            if (!string.IsNullOrWhiteSpace(filter.Project))
-                query = query.Where(i => i.ProjectName == filter.Project);
-            if (filter.DateFrom.HasValue)
-                query = query.Where(i => i.IssueDate >= filter.DateFrom.Value || (i.IssueDate == default && i.CreatedAt >= filter.DateFrom.Value));
-            if (filter.DateTo.HasValue)
-                query = query.Where(i => i.IssueDate <= filter.DateTo.Value || (i.IssueDate == default && i.CreatedAt <= filter.DateTo.Value));
-
-            if (filter.HasSearch)
-            {
-                var term = filter.SearchText.Trim();
-                query = query.Where(i =>
-                    EF.Functions.Like(i.ProformaId, $"%{term}%") ||
-                    EF.Functions.Like(i.CustomerName, $"%{term}%") ||
-                    EF.Functions.Like(i.CompanyName, $"%{term}%") ||
-                    EF.Functions.Like(i.ProjectName, $"%{term}%"));
-            }
+            query = ApplyPiFilters(query, filter);
 
             // DB-side counts & sums
             summary.TotalPi = await query.CountAsync(ct).ConfigureAwait(false);
@@ -110,13 +87,17 @@ namespace ProGlassAutomation.Services.Reporting
             return summary;
         }
 
-        public async Task<PagedResult<PiReportRow>> GetPiRowsAsync(ReportingFilter filter, CancellationToken ct = default)
+        /// <summary>
+        /// THE proforma filter — single source of truth for how a
+        /// ReportingFilter narrows the PI table. Used by the PI summary, the
+        /// PI rows, the executive cohort funnel and the pending-invoice
+        /// count, so none of them can drift apart again. (Extracted
+        /// 2026-09-10 from two identical inline copies. DateTo compares
+        /// against the true end of day — entity dates carry a time.)
+        /// </summary>
+        private static IQueryable<SavedProformaInvoice> ApplyPiFilters(
+            IQueryable<SavedProformaInvoice> query, ReportingFilter filter)
         {
-            filter ??= new ReportingFilter();
-            using var db = new ProformaInvoicesDbContext();
-
-            var query = Live(db.ProformaInvoices.AsNoTracking()).AsQueryable();
-
             if (!string.IsNullOrWhiteSpace(filter.Company))
                 query = query.Where(i => EF.Functions.Like(i.CompanyName, $"%{filter.Company}%"));
             if (!string.IsNullOrWhiteSpace(filter.Customer))
@@ -128,10 +109,11 @@ namespace ProGlassAutomation.Services.Reporting
             if (!string.IsNullOrWhiteSpace(filter.Project))
                 query = query.Where(i => i.ProjectName == filter.Project);
             if (filter.DateFrom.HasValue)
-                query = query.Where(i => i.IssueDate >= filter.DateFrom.Value || (i.IssueDate == default && i.CreatedAt >= filter.DateFrom.Value));
+                query = query.Where(i => i.IssueDate >= filter.DateFrom.Value
+                                         || (i.IssueDate == default && i.CreatedAt >= filter.DateFrom.Value));
             if (filter.DateTo.HasValue)
-                query = query.Where(i => i.IssueDate <= filter.DateTo.Value || (i.IssueDate == default && i.CreatedAt <= filter.DateTo.Value));
-
+                query = query.Where(i => i.IssueDate <= DayEnd(filter.DateTo)
+                                         || (i.IssueDate == default && i.CreatedAt <= DayEnd(filter.DateTo)));
             if (filter.HasSearch)
             {
                 var term = filter.SearchText.Trim();
@@ -141,6 +123,17 @@ namespace ProGlassAutomation.Services.Reporting
                     EF.Functions.Like(i.CompanyName, $"%{term}%") ||
                     EF.Functions.Like(i.ProjectName, $"%{term}%"));
             }
+            return query;
+        }
+
+        public async Task<PagedResult<PiReportRow>> GetPiRowsAsync(ReportingFilter filter, CancellationToken ct = default)
+        {
+            filter ??= new ReportingFilter();
+            using var db = new ProformaInvoicesDbContext();
+
+            var query = Live(db.ProformaInvoices.AsNoTracking()).AsQueryable();
+
+            query = ApplyPiFilters(query, filter);
 
             var totalCount = await query.CountAsync(ct).ConfigureAwait(false);
             if (totalCount == 0)

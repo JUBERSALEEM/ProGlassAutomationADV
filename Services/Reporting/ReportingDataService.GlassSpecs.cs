@@ -57,7 +57,7 @@ namespace ProGlassAutomation.Services.Reporting
             if (filter.DateFrom.HasValue)
                 query = query.Where(p => p.IssueDate >= filter.DateFrom.Value || (p.IssueDate == default && p.CreatedAt >= filter.DateFrom.Value));
             if (filter.DateTo.HasValue)
-                query = query.Where(p => p.IssueDate <= filter.DateTo.Value || (p.IssueDate == default && p.CreatedAt <= filter.DateTo.Value));
+                query = query.Where(p => p.IssueDate <= DayEnd(filter.DateTo) || (p.IssueDate == default && p.CreatedAt <= DayEnd(filter.DateTo)));
 
             // Load PI records (limit snapshot stream if unbounded)
             var piList = await query.OrderByDescending(p => p.CreatedAt)

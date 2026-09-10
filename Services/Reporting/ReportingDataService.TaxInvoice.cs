@@ -44,38 +44,17 @@ namespace ProGlassAutomation.Services.Reporting
             using var db = new TaxInvoiceDbContext();
             var query = Live(db.TaxInvoices.AsNoTracking()).AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(filter.ProformaId))
-                query = query.Where(t => t.ProformaId == filter.ProformaId);
-            if (!string.IsNullOrWhiteSpace(filter.TaxInvoiceNumber))
-                query = query.Where(t => t.InvoiceNumber == filter.TaxInvoiceNumber);
-            if (!string.IsNullOrWhiteSpace(filter.Customer))
-                query = query.Where(t => EF.Functions.Like(t.CustomerName, $"%{filter.Customer}%"));
-            if (!string.IsNullOrWhiteSpace(filter.Company))
-                query = query.Where(t => EF.Functions.Like(t.CompanyName, $"%{filter.Company}%"));
-            if (!string.IsNullOrWhiteSpace(filter.Status))
-            {
-                var st = filter.Status.Trim();
-                if (Eq(st, "Partially Paid") || Eq(st, "PartiallyPaid"))
-                    query = query.Where(t => t.Status == "PartiallyPaid" || t.Status == "Partially Paid");
-                else
-                    query = query.Where(t => t.Status == st);
-            }
-            if (filter.DateFrom.HasValue)
-                query = query.Where(t => t.IssueDate >= filter.DateFrom.Value);
-            if (filter.DateTo.HasValue)
-                query = query.Where(t => t.IssueDate <= filter.DateTo.Value);
-
-            if (filter.HasSearch)
-            {
-                var term = filter.SearchText.Trim();
-                query = query.Where(t =>
-                    EF.Functions.Like(t.InvoiceNumber, $"%{term}%") ||
-                    EF.Functions.Like(t.ProformaId, $"%{term}%") ||
-                    EF.Functions.Like(t.CustomerName, $"%{term}%"));
-            }
+            query = ApplyTiFilters(query, filter);
 
             var summary = new TaxInvoiceReportSummary();
             summary.TotalInvoices = await query.CountAsync(ct).ConfigureAwait(false);
+
+            // PENDING INVOICE must be computed even when this period has no
+            // invoices at all — confirmed quotes without a TI are exactly
+            // the interesting number then.
+            summary.PendingInvoice = await CountPendingInvoicesAsync(filter, ct)
+                .ConfigureAwait(false);
+
             if (summary.TotalInvoices == 0) return summary;
 
             var tiAmounts = await query.Select(t => new { t.GrandTotal, t.VatAmount, t.Status, t.DueDate }).ToListAsync(ct).ConfigureAwait(false);
@@ -92,12 +71,16 @@ namespace ProGlassAutomation.Services.Reporting
             return summary;
         }
 
-        public async Task<PagedResult<TaxInvoiceReportRow>> GetTaxInvoiceRowsAsync(ReportingFilter filter, CancellationToken ct = default)
+        /// <summary>
+        /// THE tax-invoice filter — single source of truth for how a
+        /// ReportingFilter narrows the TI table (summary, rows and the
+        /// executive cohort funnel share it). (Extracted 2026-09-10 from two
+        /// identical inline copies. DateTo compares against the true end of
+        /// day — IssueDate is stamped with DateTime.Now.)
+        /// </summary>
+        private static IQueryable<SavedTaxInvoice> ApplyTiFilters(
+            IQueryable<SavedTaxInvoice> query, ReportingFilter filter)
         {
-            filter ??= new ReportingFilter();
-            using var db = new TaxInvoiceDbContext();
-            var query = Live(db.TaxInvoices.AsNoTracking()).AsQueryable();
-
             if (!string.IsNullOrWhiteSpace(filter.ProformaId))
                 query = query.Where(t => t.ProformaId == filter.ProformaId);
             if (!string.IsNullOrWhiteSpace(filter.TaxInvoiceNumber))
@@ -117,8 +100,7 @@ namespace ProGlassAutomation.Services.Reporting
             if (filter.DateFrom.HasValue)
                 query = query.Where(t => t.IssueDate >= filter.DateFrom.Value);
             if (filter.DateTo.HasValue)
-                query = query.Where(t => t.IssueDate <= filter.DateTo.Value);
-
+                query = query.Where(t => t.IssueDate <= DayEnd(filter.DateTo));
             if (filter.HasSearch)
             {
                 var term = filter.SearchText.Trim();
@@ -127,6 +109,57 @@ namespace ProGlassAutomation.Services.Reporting
                     EF.Functions.Like(t.ProformaId, $"%{term}%") ||
                     EF.Functions.Like(t.CustomerName, $"%{term}%"));
             }
+            return query;
+        }
+
+        /// <summary>
+        /// Confirmed quotes (same statuses the PI report maps to Confirmed)
+        /// that have no live tax invoice yet. Best-effort: a failure here
+        /// degrades to 0 with a warning — which was the previous behaviour
+        /// anyway, because the field was never assigned before 2026-09-10
+        /// (both the TaxInvoice KPI and the executive UNINVOICED card read a
+        /// constant 0).
+        /// </summary>
+        private static async Task<int> CountPendingInvoicesAsync(ReportingFilter filter, CancellationToken ct)
+        {
+            try
+            {
+                List<string> confirmedIds;
+                using (var piDb = new ProformaInvoicesDbContext())
+                {
+                    confirmedIds = await ApplyPiFilters(
+                            Live(piDb.ProformaInvoices.AsNoTracking()).AsQueryable(), filter)
+                        .Where(i => i.Status == "Approved" || i.Status == "Confirmed" || i.Status == "Issued")
+                        .Select(i => i.ProformaId)
+                        .ToListAsync(ct).ConfigureAwait(false);
+                }
+
+                if (confirmedIds.Count == 0) return 0;
+
+                using var tiDb = new TaxInvoiceDbContext();
+                var invoicedCount = await Live(tiDb.TaxInvoices.AsNoTracking())
+                    .Where(t => confirmedIds.Contains(t.ProformaId))
+                    .Select(t => t.ProformaId)
+                    .Distinct()
+                    .CountAsync(ct).ConfigureAwait(false);
+
+                return Math.Max(0, confirmedIds.Count - invoicedCount);
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception ex)
+            {
+                AppLogService.Warning($"Pending-invoice count warning: {ex.Message}");
+                return 0;
+            }
+        }
+
+        public async Task<PagedResult<TaxInvoiceReportRow>> GetTaxInvoiceRowsAsync(ReportingFilter filter, CancellationToken ct = default)
+        {
+            filter ??= new ReportingFilter();
+            using var db = new TaxInvoiceDbContext();
+            var query = Live(db.TaxInvoices.AsNoTracking()).AsQueryable();
+
+            query = ApplyTiFilters(query, filter);
 
             var totalCount = await query.CountAsync(ct).ConfigureAwait(false);
             if (totalCount == 0)

@@ -18,6 +18,13 @@
 //  A stage that drops sharply is where the business is losing money, and
 //  it is invisible in any single-module report.
 //
+//  SINCE 2026-09-10 every stage counts QUOTES FROM THE SAME COHORT that
+//  reached the milestone (became a job order → fully delivered → invoiced
+//  → paid). The earlier per-stage document counts mixed units — delivery
+//  spec rows outnumbered quotes and "conversion" exceeded 100% — so the
+//  percentages were mathematically meaningless. See
+//  docs/EXECUTIVE_FUNNEL_FIX.md.
+//
 //  All figures come from the existing per-module summaries under ONE
 //  shared filter, so the executive page and the module reports can never
 //  disagree — the cardinal rule from slice 1 applied across modules.
@@ -57,6 +64,23 @@ namespace ProGlassAutomation.Services.Reporting
         public string ValueDisplay => Value.ToString("N2");
         public string SharePctDisplay => $"{SharePct:0.#}%";
         public string StepConversionDisplay => $"{StepConversionPct:0.#}%";
+
+        /// <summary>
+        /// Size of the cohort every stage is measured against (the first
+        /// stage's count). Milestone rows render "x of N" instead of a bare
+        /// count, which is what makes a cohort funnel readable. 0 = cohort
+        /// size unknown.
+        /// </summary>
+        public int FirstStageCount { get; set; }
+
+        /// <summary>
+        /// "x of N" for milestone stages; falls back to the plain count for
+        /// the first stage (where x IS N) and when the cohort size is unset.
+        /// </summary>
+        public string CountOfDisplay =>
+            FirstStageCount > 0 && Count != FirstStageCount
+                ? $"{Count:N0} of {FirstStageCount:N0}"
+                : CountDisplay;
 
         /// <summary>
         /// Flags an unusually large drop so the reader does not have to

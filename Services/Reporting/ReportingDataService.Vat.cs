@@ -161,7 +161,7 @@ namespace ProGlassAutomation.Services.Reporting
                 if (filter.DateFrom.HasValue)
                     query = query.Where(i => i.IssueDate >= filter.DateFrom.Value);
                 if (filter.DateTo.HasValue)
-                    query = query.Where(i => i.IssueDate <= filter.DateTo.Value);
+                    query = query.Where(i => i.IssueDate <= DayEnd(filter.DateTo));
                 // EF Core cannot translate the local helpers Eq()/ContainsCI()
                 // -- they are plain C# methods using StringComparison, which
                 // has no SQL equivalent. Passing them to Where() made EF throw

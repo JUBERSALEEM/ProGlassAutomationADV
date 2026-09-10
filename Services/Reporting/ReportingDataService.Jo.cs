@@ -61,7 +61,7 @@ namespace ProGlassAutomation.Services.Reporting
             if (filter.DateFrom.HasValue)
                 query = query.Where(j => j.DeliveryDate == null || j.DeliveryDate >= filter.DateFrom.Value);
             if (filter.DateTo.HasValue)
-                query = query.Where(j => j.DeliveryDate == null || j.DeliveryDate <= filter.DateTo.Value);
+                query = query.Where(j => j.DeliveryDate == null || j.DeliveryDate <= DayEnd(filter.DateTo));
 
             if (filter.HasSearch)
             {
@@ -124,7 +124,7 @@ namespace ProGlassAutomation.Services.Reporting
             if (filter.DateFrom.HasValue)
                 query = query.Where(j => j.DeliveryDate == null || j.DeliveryDate >= filter.DateFrom.Value);
             if (filter.DateTo.HasValue)
-                query = query.Where(j => j.DeliveryDate == null || j.DeliveryDate <= filter.DateTo.Value);
+                query = query.Where(j => j.DeliveryDate == null || j.DeliveryDate <= DayEnd(filter.DateTo));
 
             if (filter.HasSearch)
             {

@@ -49,7 +49,7 @@ namespace ProGlassAutomation.Services.Reporting
             if (filter.DateFrom.HasValue)
                 query = query.Where(s => s.CreatedAt >= filter.DateFrom.Value);
             if (filter.DateTo.HasValue)
-                query = query.Where(s => s.CreatedAt <= filter.DateTo.Value);
+                query = query.Where(s => s.CreatedAt <= DayEnd(filter.DateTo));
 
             if (filter.HasSearch)
             {
@@ -83,7 +83,7 @@ namespace ProGlassAutomation.Services.Reporting
             if (filter.DateFrom.HasValue)
                 query = query.Where(s => s.CreatedAt >= filter.DateFrom.Value);
             if (filter.DateTo.HasValue)
-                query = query.Where(s => s.CreatedAt <= filter.DateTo.Value);
+                query = query.Where(s => s.CreatedAt <= DayEnd(filter.DateTo));
 
             if (filter.HasSearch)
             {
@@ -159,7 +159,7 @@ namespace ProGlassAutomation.Services.Reporting
             if (filter.DateFrom.HasValue)
                 items = items.Where(i => i.IssueDate >= filter.DateFrom.Value);
             if (filter.DateTo.HasValue)
-                items = items.Where(i => i.IssueDate <= filter.DateTo.Value);
+                items = items.Where(i => i.IssueDate <= DayEnd(filter.DateTo));
 
             if (filter.HasSearch)
             {

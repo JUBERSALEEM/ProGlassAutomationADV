@@ -19,6 +19,11 @@
 //  automatically.
 // ═══════════════════════════════════════════════════════════════════════
 
+using Microsoft.EntityFrameworkCore;
+using ProGlassAutomation.Services.DeliveryNote.Database;
+using ProGlassAutomation.Services.JobOrder.Database;
+using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using ProGlassAutomation.Services.TaxInvoice.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,13 +55,14 @@ namespace ProGlassAutomation.Services.Reporting
                 // Every stage under the SAME filter — that is what keeps the
                 // executive page reconciled with the module reports.
                 var pi = await GetPiSummaryAsync(filter, ct).ConfigureAwait(false);
-                var jo = await GetJoSummaryAsync(filter, ct).ConfigureAwait(false);
                 var dn = await GetDeliverySummaryAsync(filter, ct).ConfigureAwait(false);
                 var ti = await GetTaxInvoiceSummaryAsync(filter, ct).ConfigureAwait(false);
 
                 ct.ThrowIfCancellationRequested();
 
-                BuildFunnel(result, pi, jo, dn, ti);
+                // Cohort milestone funnel — see method docs. (2026-09-10)
+                await BuildCohortFunnelAsync(result, filter, pi, ti, ct)
+                    .ConfigureAwait(false);
 
                 result.QuotedValue = pi?.TotalValue ?? 0m;
                 result.InvoicedValue = ti?.TotalAmount ?? 0m;
@@ -97,45 +103,150 @@ namespace ProGlassAutomation.Services.Reporting
             }
         }
 
-        private static void BuildFunnel(
+        // ═════════════════════════════════════════════════════════════════
+        //  THE COHORT FUNNEL (2026-09-10 rewrite — the percentages were
+        //  wrong before this)
+        // ═════════════════════════════════════════════════════════════════
+        //  The old funnel mixed UNITS per stage: quotes (documents) vs job
+        //  orders (documents, but with an open-ended date filter that kept
+        //  every undelivered JO ever) vs DELIVERY SPEC ROWS vs tax
+        //  invoices. A quote has many spec rows, so "Delivered" routinely
+        //  outnumbered "Quoted" and the step conversions exceeded 100%.
+        //  A percentage between two different units is not an estimate of
+        //  anything — it is noise.
+        //
+        //  The fix is a true COHORT MILESTONE funnel. Stage 1 is the set of
+        //  quotes in the period; EVERY later stage counts how many of THOSE
+        //  SAME QUOTES reached the milestone:
+        //
+        //      Quoted → became a job order → fully delivered → invoiced →
+        //      paid
+        //
+        //  Every count is a distinct-ProformaId count, so units can never
+        //  mix again and every rate is a real "share of quotes". The dates
+        //  on downstream stages are intentionally ignored (ever-happened
+        //  semantics): the question is what became of this period's quotes,
+        //  not when each event happened. All filters flow through
+        //  ApplyPiFilters / ApplyTiFilters so the funnel, the module
+        //  reports and the KPI cards cannot disagree.
+        // ═════════════════════════════════════════════════════════════════
+        private async Task BuildCohortFunnelAsync(
             ExecutiveSummary result,
+            ReportingFilter filter,
             PiReportSummary? pi,
-            JoReportSummary? jo,
-            DeliveryReportSummary? dn,
-            TaxInvoiceReportSummary? ti)
+            TaxInvoiceReportSummary? ti,
+            CancellationToken ct)
         {
+            int quoted = pi?.TotalPi ?? 0;
+
+            // ── The cohort: quotes in the period (PI summary's own filter) ──
+            var piIds = new List<string>();
+            if (quoted > 0)
+            {
+                using var piDb = new ProformaInvoicesDbContext();
+                piIds = await ApplyPiFilters(
+                        Live(piDb.ProformaInvoices.AsNoTracking()).AsQueryable(), filter)
+                    .Select(i => i.ProformaId)
+                    .ToListAsync(ct).ConfigureAwait(false);
+            }
+
+            // ── Stage 2: cohort quotes that became job orders ───────────────
+            int inProduction = 0;
+            if (piIds.Count > 0)
+            {
+                using var joDb = new JobOrdersDbContext();
+                inProduction = await Live(joDb.JobOrders.AsNoTracking())
+                    .Where(j => j.SourceProformaId != null && piIds.Contains(j.SourceProformaId))
+                    .Select(j => j.SourceProformaId)
+                    .Distinct()
+                    .CountAsync(ct).ConfigureAwait(false);
+            }
+
+            // ── Stage 3: cohort quotes FULLY delivered ──────────────────────
+            // Row predicates mirror BuildDeliveryRowQuery (non-void parents,
+            // no phantom rows, real quantities) so this stage can never
+            // disagree with the Delivery report about what a completed row
+            // is. A quote counts when EVERY one of its spec rows is
+            // complete — a partially delivered quote has not converted to
+            // cash yet.
+            int delivered = 0;
+            if (piIds.Count > 0)
+            {
+                using var dnDb = new DeliveryNotesDbContext();
+                var rows = await dnDb.DeliveryNoteItems.AsNoTracking()
+                    .Where(i => i.DeliveryNote != null
+                                && !i.DeliveryNote.IsVoid
+                                && !string.IsNullOrWhiteSpace(i.JobOrderId)
+                                && i.DeliveryNote.ProformaId != null
+                                && piIds.Contains(i.DeliveryNote.ProformaId)
+                                && !(string.IsNullOrWhiteSpace(i.GlassRef) && i.W1 == 0 && i.H1 == 0)
+                                && (i.OrderedQty > 0 || i.DeliveredQty > 0))
+                    .GroupBy(i => new { i.DeliveryNote!.ProformaId, i.SpecGroupNumber, i.SerialNumber })
+                    .Select(g => new FunnelRowAgg
+                    {
+                        ProformaId = g.Key.ProformaId ?? "",
+                        TotalQty = g.Max(i => i.OrderedQty),
+                        DeliveredQty = g.Sum(i => i.DeliveryNote!.IsMasterDn ? 0 : i.DeliveredQty)
+                    })
+                    .ToListAsync(ct).ConfigureAwait(false);
+
+                delivered = rows
+                    .GroupBy(r => r.ProformaId)
+                    .Count(g => g.All(r => r.TotalQty > 0 && r.DeliveredQty >= r.TotalQty));
+            }
+
+            // ── Stages 4 + 5: cohort quotes invoiced / paid ─────────────────
+            int invoiced = 0;
+            int paid = 0;
+            decimal invoicedValue = 0m;
+            if (piIds.Count > 0)
+            {
+                using var tiDb = new TaxInvoiceDbContext();
+                var pairs = await ApplyTiFilters(
+                        Live(tiDb.TaxInvoices.AsNoTracking()).AsQueryable(), filter)
+                    .Where(t => piIds.Contains(t.ProformaId))
+                    .Select(t => new { t.ProformaId, t.Status, t.GrandTotal })
+                    .ToListAsync(ct).ConfigureAwait(false);
+
+                invoiced = pairs.Select(p => p.ProformaId).Distinct().Count();
+                paid = pairs
+                    .Where(p => p.Status == "Paid")
+                    .Select(p => p.ProformaId)
+                    .Distinct()
+                    .Count();
+                invoicedValue = pairs.Sum(p => p.GrandTotal);
+            }
+
             var stages = new List<FunnelStage>
             {
                 new()
                 {
                     Label = "Quoted (Proforma)",
-                    Count = pi?.TotalPi ?? 0,
+                    Count = quoted,
                     Value = pi?.TotalValue ?? 0m
                 },
                 new()
                 {
                     Label = "In production (Job Order)",
-                    Count = jo?.TotalJo ?? 0,
-                    Value = jo?.TotalValue ?? 0m
+                    Count = inProduction,
+                    Value = 0m
                 },
                 new()
                 {
-                    // Rows fully delivered, not rows touched — a partially
-                    // delivered row has not converted to cash yet.
-                    Label = "Delivered",
-                    Count = dn?.FullyDelivered ?? 0,
+                    Label = "Delivered (full order)",
+                    Count = delivered,
                     Value = 0m
                 },
                 new()
                 {
                     Label = "Invoiced (Tax Invoice)",
-                    Count = ti?.TotalInvoices ?? 0,
-                    Value = ti?.TotalAmount ?? 0m
+                    Count = invoiced,
+                    Value = invoicedValue
                 },
                 new()
                 {
                     Label = "Paid",
-                    Count = ti?.Paid ?? 0,
+                    Count = paid,
                     Value = 0m
                 }
             };
@@ -145,6 +256,7 @@ namespace ProGlassAutomation.Services.Reporting
             for (int i = 0; i < stages.Count; i++)
             {
                 var s = stages[i];
+                s.FirstStageCount = (int)first;
 
                 s.SharePct = first <= 0m
                     ? 0m
@@ -168,6 +280,14 @@ namespace ProGlassAutomation.Services.Reporting
             }
 
             result.Funnel = stages;
+        }
+
+        /// <summary>Minimal per-spec-row aggregate for the delivered stage.</summary>
+        private sealed class FunnelRowAgg
+        {
+            public string ProformaId { get; set; } = "";
+            public int TotalQty { get; set; }
+            public int DeliveredQty { get; set; }
         }
 
         private async Task AddProfitabilityAsync(

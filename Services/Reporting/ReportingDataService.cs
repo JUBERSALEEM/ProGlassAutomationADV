@@ -193,6 +193,17 @@ namespace ProGlassAutomation.Services.Reporting
         private static bool Eq(string? a, string b) =>
             string.Equals((a ?? "").Trim(), b, StringComparison.OrdinalIgnoreCase);
 
+        /// <summary>
+        /// The last tick of the selected day (23:59:59.9999999). Entity date
+        /// fields are stamped with DateTime.Now and therefore carry a
+        /// time-of-day, so comparing them against a bare DateTo (midnight)
+        /// silently dropped the ENTIRE LAST DAY of every filtered range
+        /// (found 2026-09-10). Use for every "… <= DateTo" report filter.
+        /// </summary>
+        internal static DateTime DayEnd(DateTime? d) => d.HasValue
+            ? d.Value.Date.AddDays(1).AddTicks(-1)
+            : DateTime.MinValue;
+
         private static bool ContainsCI(string? source, string? term)
         {
             if (string.IsNullOrWhiteSpace(term)) return true;

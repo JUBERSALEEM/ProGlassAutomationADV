@@ -41,6 +41,12 @@ namespace ProGlassAutomation.ViewModels.Reports.ExecutiveReport
         private readonly IReportingDataService _service;
         private CancellationTokenSource? _cts;
 
+        // Monotonic run id: a stale load (superseded while its await was in
+        // flight) must never touch state that belongs to the newer run —
+        // previously its finally block cleared IsLoading mid-load and an
+        // out-of-date result could land after the fresh one.
+        private int _runId;
+
         public ExecutiveReportViewModel() : this(
             App.ServiceProvider?.GetService<IDialogService>() ?? new DialogService(),
             App.ServiceProvider?.GetService<IReportingDataService>())
@@ -140,6 +146,7 @@ namespace ProGlassAutomation.ViewModels.Reports.ExecutiveReport
 
         public async Task LoadAsync()
         {
+            int run = ++_runId;
             _cts?.Cancel();
             _cts = new CancellationTokenSource();
             var token = _cts.Token;
@@ -153,17 +160,22 @@ namespace ProGlassAutomation.ViewModels.Reports.ExecutiveReport
                     DateTo = _dateTo
                 };
                 var summary = await _service.GetExecutiveSummaryAsync(filter, token);
-                if (token.IsCancellationRequested) return;
+                if (run != _runId || token.IsCancellationRequested) return;
 
                 Summary = summary;
                 HasData = summary.HasData;
             }
             catch (Exception ex) when (!(ex is OperationCanceledException))
             {
+                if (run != _runId) return;
                 HasError = true; ErrorMessage = ExceptionMessages.Deep(ex);
                 AppLogService.Warning($"ExecutiveReport LoadAsync error: {ExceptionMessages.Deep(ex)}");
             }
-            finally { IsLoading = false; }
+            finally
+            {
+                // Only the newest run may end the loading state.
+                if (run == _runId) IsLoading = false;
+            }
         }
     }
 }

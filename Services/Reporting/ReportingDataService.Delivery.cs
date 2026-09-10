@@ -281,7 +281,7 @@ namespace ProGlassAutomation.Services.Reporting
                                         && i.DeliveryNote!.DeliveryDate >= filter.DateFrom.Value);
             if (filter.DateTo.HasValue)
                 items = items.Where(i => !i.DeliveryNote!.IsMasterDn
-                                        && i.DeliveryNote!.DeliveryDate <= filter.DateTo.Value);
+                                        && i.DeliveryNote!.DeliveryDate <= DayEnd(filter.DateTo));
 
             if (!string.IsNullOrWhiteSpace(filter.ProformaId))
                 items = items.Where(i => i.DeliveryNote!.ProformaId == filter.ProformaId);

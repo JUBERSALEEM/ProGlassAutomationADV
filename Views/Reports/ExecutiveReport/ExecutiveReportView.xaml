@@ -105,7 +105,7 @@
 
                                                 <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                                     <TextBlock Text="{Binding Label}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
-                                                    <TextBlock Text="{Binding CountDisplay}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                    <TextBlock Text="{Binding CountOfDisplay}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" ToolTip="Quotes that reached this stage, out of the quoted cohort"/>
                                                 </StackPanel>
 
                                                 <!-- Proportional bar (share of first stage) -->

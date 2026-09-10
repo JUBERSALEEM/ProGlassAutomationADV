@@ -84,7 +84,7 @@ namespace ProGlassAutomation.Services.Reporting
             if (filter.DateFrom.HasValue)
                 query = query.Where(p => p.IssueDate >= filter.DateFrom.Value || (p.IssueDate == default && p.CreatedAt >= filter.DateFrom.Value));
             if (filter.DateTo.HasValue)
-                query = query.Where(p => p.IssueDate <= filter.DateTo.Value || (p.IssueDate == default && p.CreatedAt <= filter.DateTo.Value));
+                query = query.Where(p => p.IssueDate <= DayEnd(filter.DateTo) || (p.IssueDate == default && p.CreatedAt <= DayEnd(filter.DateTo)));
 
             var totalCount = await query.CountAsync(ct).ConfigureAwait(false);
             if (totalCount == 0)
