@@ -280,6 +280,18 @@
                                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                IsHitTestVisible="False"/>
                                 </Border>
+                                <!-- 2.1.0 release note — one-line chip under the
+                                     version pill (bound from AboutViewModel). -->
+                                <Border Style="{StaticResource ChipStyle}" Margin="0,8,0,0"
+                                        HorizontalAlignment="Stretch">
+                                    <TextBlock Text="{Binding WhatsNew}"
+                                               FontSize="{StaticResource TextCaption}"
+                                               FontWeight="SemiBold"
+                                               TextAlignment="Center"
+                                               TextWrapping="Wrap"
+                                               Foreground="{DynamicResource LiquidAccent}"
+                                               IsHitTestVisible="False"/>
+                                </Border>
                                 <Border Style="{StaticResource ChipStyle}" Margin="0,8,0,0"
                                         HorizontalAlignment="Stretch">
                                     <TextBlock Text="{Binding Build}"

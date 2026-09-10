@@ -1,5 +1,6 @@
 using ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList;
 using System.Windows;
+using ProGlassAutomation.Views.Shared.Dialogs;
 
 namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
 {

@@ -93,6 +93,13 @@ public sealed class AboutViewModel : ViewModelBase
         "v" + Services.Updates.AppInfo.Version;
 
     /// <summary>
+    /// One-line release note shown as a chip under the version pill on the
+    /// About page (2.1.0 — the unified dialog platform release). Keep it to
+    /// a single short line; the chip wraps if a future note runs long.
+    /// </summary>
+    public string WhatsNew { get; } = "NEW · Unified dialogs, themed prompts & tooltips";
+
+    /// <summary>
     /// The current license status as a bindable view
     /// model. Singleton — the same instance is shared
     /// with the Settings → Data → Database Health card
