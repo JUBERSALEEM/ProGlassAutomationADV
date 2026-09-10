@@ -46,6 +46,36 @@ namespace ProGlassAutomation.Services.Reporting
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
+        // ── Completeness / draft signals ──────────────────────────────
+        /// <summary>
+        /// True when the proforma is still a Draft — it has not been sent,
+        /// approved or otherwise progressed, so its figures are provisional
+        /// and should not be treated as committed pipeline.
+        /// </summary>
+        public bool IsDraft =>
+            string.Equals(Status?.Trim(), "Draft", System.StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// True when the proforma carries no priced glass rows (Step-5 data
+        /// grid empty) — i.e. it was created but the specification / cut-list
+        /// was never filled in. Such a PI has a grand total but nothing to
+        /// manufacture, so it needs an operator's attention.
+        /// </summary>
+        public bool IsMissingLineItems => TotalRows <= 0 || SpecGroupCount <= 0;
+
+        /// <summary>
+        /// Any condition that warrants a visible warning badge on the row:
+        /// a draft, or a proforma with no line items.
+        /// </summary>
+        public bool HasWarning => IsDraft || IsMissingLineItems;
+
+        /// <summary>Short human-readable reason for the warning badge tooltip.</summary>
+        public string WarningReason =>
+            IsMissingLineItems && IsDraft ? "Draft with no glass line items (Step 5 not completed)"
+            : IsMissingLineItems ? "No glass line items — Step 5 not completed"
+            : IsDraft ? "Draft — not yet sent or approved"
+            : "";
+
         // ── Inline expander state ─────────────────────────────────────
         public bool IsExpanded { get; set; }
 

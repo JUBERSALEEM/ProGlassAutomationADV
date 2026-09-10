@@ -256,8 +256,21 @@
                                             </Grid.ColumnDefinitions>
 
                                             <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,6,0">
-                                                <TextBlock Text="{Binding ProformaId}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" TextTrimming="CharacterEllipsis"/>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding ProformaId}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                                    <!-- Warning glyph: draft or missing Step-5 line items. -->
+                                                    <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource WarningBrush}" Margin="6,0,0,0" VerticalAlignment="Center" ToolTip="{Binding WarningReason}" Visibility="{Binding HasWarning, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                </StackPanel>
                                                 <TextBlock Text="{Binding IssueDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0"/>
+                                                <!-- Compact warning chips so the state is legible without hover. -->
+                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0" Visibility="{Binding HasWarning, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <Border Background="{DynamicResource TintGrayBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Visibility="{Binding IsDraft, Converter={StaticResource BoolToVisibilityConverter}}" ToolTip="Draft — not yet sent or approved">
+                                                        <TextBlock Text="DRAFT" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                    </Border>
+                                                    <Border Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Margin="4,0,0,0" Visibility="{Binding IsMissingLineItems, Converter={StaticResource BoolToVisibilityConverter}}" ToolTip="No glass line items — Step 5 not completed">
+                                                        <TextBlock Text="NO ITEMS" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                                                    </Border>
+                                                </StackPanel>
                                             </StackPanel>
 
                                             <TextBlock Grid.Column="1" Text="{Binding PreparedBy}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
@@ -276,6 +289,7 @@
                                                             <DataTrigger Binding="{Binding Status}" Value="Approved"><Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/></DataTrigger>
                                                             <DataTrigger Binding="{Binding Status}" Value="Sent"><Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/></DataTrigger>
                                                             <DataTrigger Binding="{Binding Status}" Value="Rejected"><Setter Property="Background" Value="{DynamicResource TintRedBrush}"/></DataTrigger>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Draft"><Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/></DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
                                                 </Border.Style>
@@ -287,6 +301,7 @@
                                                                 <DataTrigger Binding="{Binding Status}" Value="Approved"><Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/></DataTrigger>
                                                                 <DataTrigger Binding="{Binding Status}" Value="Sent"><Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/></DataTrigger>
                                                                 <DataTrigger Binding="{Binding Status}" Value="Rejected"><Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/></DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Draft"><Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/></DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
                                                     </TextBlock.Style>
