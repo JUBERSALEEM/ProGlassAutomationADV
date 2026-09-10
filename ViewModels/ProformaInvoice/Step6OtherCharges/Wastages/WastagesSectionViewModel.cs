@@ -17,6 +17,28 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
         private readonly DataGridViewModel _dataGrid;
         private Func<IReadOnlyList<Step4PricingSnapshot>>? _step4SectionsProvider;
 
+        // ── 2026-09-10: automatic inventory consumption ─────────────────
+        // Entering SHEET QTY on a wastage row consumes that many sheets
+        // from Sheet Store inventory (resolve colour + size the row's
+        // sources carry → UseStockAsync + history + audit through the
+        // SHARED SheetStockLinkService core). The store module is NEVER
+        // opened. Utilization stays with Step 9 (Step6SheetAllocation).
+        private Func<(string Reference, string Customer, string Project, string Salesman)>? _jobContextProvider;
+        private readonly HashSet<Guid> _autoUseInFlight = new();
+
+        /// <summary>Master switch for auto-consuming sheets from inventory. Default ON.</summary>
+        public bool AutoUseFromInventory
+        {
+            get => _autoUseFromInventory;
+            set
+            {
+                if (_autoUseFromInventory == value) return;
+                _autoUseFromInventory = value;
+                OnPropertyChanged();
+            }
+        }
+        private bool _autoUseFromInventory = true;
+
         public ObservableCollection<WastageRow> WastageRows { get; } = new();
 
         private decimal _totalWastageValue;
@@ -33,6 +55,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
 
         public ICommand AddWastageCommand { get; }
         public ICommand RemoveWastageCommand { get; }
+
+        /// <summary>
+        /// Job context for inventory history entries (customer / project /
+        /// salesman / reference), supplied by ProformaInvoiceViewModel so
+        /// the consumption ledger reads like the manual Use dialog's.
+        /// </summary>
+        public void BindJobContext(
+            Func<(string Reference, string Customer, string Project, string Salesman)>? provider)
+        {
+            _jobContextProvider = provider;
+        }
 
         public void BindStep4SectionsProvider(Func<IReadOnlyList<Step4PricingSnapshot>> provider)
         {
@@ -470,12 +503,109 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             if (row == null) return;
             row.PropertyChanged -= OnWastageRowChanged;
             row.PropertyChanged += OnWastageRowChanged;
+            row.SheetQuantityCommittedByUser -= OnRowQuantityCommittedByUser;
+            row.SheetQuantityCommittedByUser += OnRowQuantityCommittedByUser;
         }
 
         private void DetachRow(WastageRow row)
         {
             if (row == null) return;
             row.PropertyChanged -= OnWastageRowChanged;
+            row.SheetQuantityCommittedByUser -= OnRowQuantityCommittedByUser;
+        }
+
+        private void OnRowQuantityCommittedByUser(object? sender, EventArgs e)
+        {
+            if (sender is not WastageRow row) return;
+            if (!AutoUseFromInventory || !row.IsActive) return;
+
+            // One consumption per row at a time; rapid retyping collapses
+            // into the latest quantity once the current run finishes.
+            if (!_autoUseInFlight.Add(row.Id)) return;
+
+            _ = System.Threading.Tasks.Task.Run(async () =>
+            {
+                try { await AutoUseFromInventoryAsync(row).ConfigureAwait(false); }
+                finally { _autoUseInFlight.Remove(row.Id); }
+            });
+        }
+
+        /// <summary>
+        /// Resolves the stocked sheet for this row (colour + source sheet
+        /// size) and consumes the entered quantity. Never throws; every
+        /// outcome lands in the row's status line.
+        /// </summary>
+        private async System.Threading.Tasks.Task AutoUseFromInventoryAsync(WastageRow row)
+        {
+            int qty = row.SheetQuantity;
+            if (qty <= 0) return;
+
+            string color = string.IsNullOrWhiteSpace(row.SelectedAvailableColor)
+                ? row.ColorName
+                : row.SelectedAvailableColor;
+            int w = row.SelectedSheetWidthMm;
+            int h = row.SelectedSheetHeightMm;
+
+            if (string.IsNullOrWhiteSpace(color) || w <= 0 || h <= 0)
+            {
+                SetRowInventoryStatus(row,
+                    "Sheet size or colour is missing — check Step 4 / Step 5 sources.",
+                    isWarning: true);
+                return;
+            }
+
+            var sheet = await SheetStockLinkService
+                .ResolveSheetAsync(color, w, h)
+                .ConfigureAwait(false);
+
+            if (sheet == null)
+            {
+                SetRowInventoryStatus(row,
+                    $""{color}" {w} × {h} is not in Sheet Store inventory — " +
+                    "add it there or enter quantity manually later.",
+                    isWarning: true);
+                return;
+            }
+
+            if (sheet.Balance < qty)
+            {
+                SetRowInventoryStatus(row,
+                    $"Insufficient stock — {sheet.Color} {sheet.ThicknessMm}mm " +
+                    $"{sheet.SizeDisplay} balance is {sheet.Balance}, {qty} required.",
+                    isWarning: true);
+                return;
+            }
+
+            var (reference, customer, project, salesman) =
+                _jobContextProvider?.Invoke() ?? ("", "", "", "");
+
+            var result = await SheetStockLinkService.CommitConsumptionAsync(
+                sheet, qty,
+                jobReference: reference,
+                customerName: customer,
+                projectName: project,
+                salesman: salesman,
+                origin: "Step 6 Wastage").ConfigureAwait(false);
+
+            SetRowInventoryStatus(row, result.Message, isWarning: !result.Success);
+        }
+
+        private void SetRowInventoryStatus(WastageRow row, string text, bool isWarning)
+        {
+            // Row may have been removed while the async work ran.
+            if (!WastageRows.Contains(row)) return;
+            var dispatcher = System.Windows.Application.Current?.Dispatcher;
+            if (dispatcher != null && !dispatcher.CheckAccess())
+                dispatcher.BeginInvoke(new Action(() =>
+                {
+                    row.InventoryStatusText = text;
+                    row.IsInventoryWarning = isWarning;
+                }));
+            else
+            {
+                row.InventoryStatusText = text;
+                row.IsInventoryWarning = isWarning;
+            }
         }
 
         private void OnWastageRowChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)

@@ -1323,7 +1323,8 @@
     <sys:String x:Key="ProformaInvoice.ShareExcel">EXCEL TEILEN</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetH">PLATTEN-H</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetHeight">PLATTENHÖHE</sys:String>
-        <sys:String x:Key="ProformaInvoice.NotInSheetStore">⚠ NOT IN SHEET STORE</sys:String>
+            <sys:String x:Key="ProformaInvoice.AutoUseInventory">AUTO-USE SHEETS FROM INVENTORY</sys:String>
+<sys:String x:Key="ProformaInvoice.NotInSheetStore">⚠ NOT IN SHEET STORE</sys:String>
     <sys:String x:Key="ProformaInvoice.OpenSheetStoreAddSheet">Open Sheet Store — Add Sheet</sys:String>
 <sys:String x:Key="ProformaInvoice.SheetQTY">PLATTENMENGE</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSIZE">PLATTENGRÖSSE</sys:String>

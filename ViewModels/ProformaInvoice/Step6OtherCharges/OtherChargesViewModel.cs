@@ -145,6 +145,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
             RefreshWastageSelectionSurface();
         }
 
+        /// <summary>
+        /// 2026-09-10: job context (customer / project / salesman / ref)
+        /// forwarded to the wastage section so inventory consumption
+        /// history entries carry the same identification the manual
+        /// Sheet Store Use dialog writes.
+        /// </summary>
+        public void BindJobContext(
+            Func<(string Reference, string Customer, string Project, string Salesman)>? provider)
+        {
+            WastagesSection.BindJobContext(provider);
+        }
+
         public void BindLaminationEditors(
             LamParametersViewModel lamVm,
             DguLamParametersViewModel dguLamVm)

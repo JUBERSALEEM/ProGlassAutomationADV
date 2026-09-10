@@ -340,10 +340,56 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
             {
                 if (int.TryParse(value, out int parsed) && parsed > 0)
                 {
+                    bool changed = parsed != _sheetQuantity;
                     SheetQuantity = parsed;
+
+                    // 2026-09-10: raised ONLY for a real operator edit of
+                    // the SHEET QTY box (the TextBox binds this property).
+                    // Programmatic flows (restore, suggestions) assign
+                    // SheetQuantity directly and never pass through here,
+                    // so saved invoices can never double-consume stock.
+                    if (changed)
+                        SheetQuantityCommittedByUser?.Invoke(this, EventArgs.Empty);
                 }
             }
         }
+
+        /// <summary>
+        /// Fired when the OPERATOR commits a new SHEET QTY. Step 6 uses it
+        /// to auto-consume the sheets from Sheet Store inventory.
+        /// </summary>
+        public event EventHandler? SheetQuantityCommittedByUser;
+
+        // ═══ Inventory link status (auto-use feedback) ═══
+
+        private string _inventoryStatusText = "";
+        /// <summary>One-line result of the last inventory auto-use attempt.</summary>
+        public string InventoryStatusText
+        {
+            get => _inventoryStatusText;
+            set
+            {
+                if (_inventoryStatusText == value) return;
+                _inventoryStatusText = value ?? "";
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasInventoryStatus));
+            }
+        }
+
+        private bool _isInventoryWarning;
+        /// <summary>True when the status is a problem (missing/insufficient stock).</summary>
+        public bool IsInventoryWarning
+        {
+            get => _isInventoryWarning;
+            set
+            {
+                if (_isInventoryWarning == value) return;
+                _isInventoryWarning = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HasInventoryStatus => !string.IsNullOrWhiteSpace(InventoryStatusText);
 
         public ObservableCollection<SpecGroupColorSide> AvailableSources { get; } = new();
 

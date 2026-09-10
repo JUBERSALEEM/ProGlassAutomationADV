@@ -230,6 +230,11 @@ public ProformaInvoiceViewModel() : this(
             Step5VM = new Step5DataGrid.DataGridViewModel(_dialogs, _specs);
             Step6VM = new Step6OtherCharges.OtherChargesViewModel(Step5VM);
             Step6VM.BindStep4Pricing(() => Step4VM.CaptureSectionSnapshots());
+            // 2026-09-10: inventory auto-use history context (customer from
+            // Step 2; consumption entries identify the job like the manual
+            // Sheet Store Use dialog does).
+            Step6VM.BindJobContext(() =>
+                ("", Step2VM?.SelectedClientName ?? "", "", ""));
             Step6VM.BindLaminationEditors(Step4VM.LamVM, Step4VM.DguLamVM);
             Step4VM.PropertyChanged += OnStep4PropertyChanged;
 

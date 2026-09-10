@@ -1323,7 +1323,8 @@
     <sys:String x:Key="ProformaInvoice.ShareExcel">BAGIKAN EXCEL</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetH">TINGGI LEMBARAN</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetHeight">Tinggi lembaran</sys:String>
-        <sys:String x:Key="ProformaInvoice.NotInSheetStore">⚠ NOT IN SHEET STORE</sys:String>
+            <sys:String x:Key="ProformaInvoice.AutoUseInventory">AUTO-USE SHEETS FROM INVENTORY</sys:String>
+<sys:String x:Key="ProformaInvoice.NotInSheetStore">⚠ NOT IN SHEET STORE</sys:String>
     <sys:String x:Key="ProformaInvoice.OpenSheetStoreAddSheet">Open Sheet Store — Add Sheet</sys:String>
 <sys:String x:Key="ProformaInvoice.SheetQTY">JUMLAH LEMBARAN</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSIZE">UKURAN LEMBARAN</sys:String>
