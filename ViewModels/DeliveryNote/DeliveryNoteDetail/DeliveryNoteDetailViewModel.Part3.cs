@@ -681,6 +681,36 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
         }
 
+        /// <summary>
+        /// Pushes the live edited row VMs back onto the persisted entity items
+        /// and recomputes the entity's stored totals. Single source of the
+        /// row→entity mapping, shared by Save and Dispatch (both used to
+        /// duplicate this block, which is how they could drift).
+        /// </summary>
+        private void SyncRowsToEntity()
+        {
+            if (_entity == null) return;
+
+            foreach (var row in ItemRows)
+            {
+                var item = _entity.Items.FirstOrDefault(i =>
+                    i.SpecGroupNumber == row.SpecGroupNumber &&
+                    i.SerialNumber == row.SerialNumber);
+                if (item == null) continue;
+
+                item.DeliveredQty = row.DeliveredQty;
+                item.BalanceQty = Math.Max(0,
+                    item.OrderedQty - item.PreviouslyDeliveredQty - item.DeliveredQty);
+                item.Notes = row.Notes;
+            }
+
+            _entity.TotalOrderedQty = _entity.Items.Sum(i => i.OrderedQty);
+            _entity.TotalDeliveredQty = _entity.Items.Sum(i => i.DeliveredQty);
+            _entity.TotalBalanceQty = _entity.Items.Sum(i => i.BalanceQty);
+            _entity.TotalPreviouslyDeliveredQty =
+                _entity.Items.Sum(i => i.PreviouslyDeliveredQty);
+        }
+
         private void RecalculateTotals()
         {
             // SOURCE OF TRUTH = _itemRows (the live, editable row VMs the user

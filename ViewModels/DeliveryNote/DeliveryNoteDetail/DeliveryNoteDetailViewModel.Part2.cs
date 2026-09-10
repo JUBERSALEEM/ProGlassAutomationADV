@@ -570,6 +570,20 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             if (_entity == null || _deliveryNotes == null) return;
             if (_entity.IsMasterDn) return;
 
+            // ERP guard: run the centralized validation (delivered ≤ remaining,
+            // non-negative) before touching the DB. This service was registered
+            // and unit-tested but never actually invoked on the Save path.
+            var saveCheck = DeliveryNoteValidationService.ValidateSave(_entity, ItemRows);
+            if (saveCheck.IsFailure)
+            {
+                _dialogs.Show(
+                    string.IsNullOrWhiteSpace(saveCheck.Error) ? "Delivery note failed validation." : saveCheck.Error,
+                    LocalizationService.Instance.T("Msg.CapSaveFailed"),
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
             try
             {
                 IsSaving = true;
@@ -581,28 +595,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 _entity.ReceiverName = ReceiverName;
                 _entity.Notes = Notes;
 
-                foreach (var row in ItemRows)
-                {
-                    var item = _entity.Items.FirstOrDefault(i =>
-                        i.SpecGroupNumber == row.SpecGroupNumber &&
-                        i.SerialNumber == row.SerialNumber);
-                    if (item == null) continue;
-
-                    item.DeliveredQty = row.DeliveredQty;
-                    item.BalanceQty = Math.Max(0,
-                        item.OrderedQty
-                        - item.PreviouslyDeliveredQty
-                        - item.DeliveredQty);
-                    item.Notes = row.Notes;
-                }
-
-                _entity.TotalOrderedQty = _entity.Items.Sum(i => i.OrderedQty);
-                _entity.TotalDeliveredQty =
-                    _entity.Items.Sum(i => i.DeliveredQty);
-                _entity.TotalBalanceQty =
-                    _entity.Items.Sum(i => i.BalanceQty);
-                _entity.TotalPreviouslyDeliveredQty =
-                    _entity.Items.Sum(i => i.PreviouslyDeliveredQty);
+                SyncRowsToEntity();
 
                 var joRef = _snapshot?.JobOrderRef;
                 DeliveryNoteMapper.RefreshSnapshot(_entity, joRef);
@@ -779,8 +772,22 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             if (_entity == null || _deliveryNotes == null) return;
             if (_entity.IsMasterDn) return;
 
-            bool hasDelivery = ItemRows.Any(r => r.DeliveredQty > 0);
-            if (!hasDelivery)
+            // ERP guards, centralized: (1) qty sanity (delivered ≤ remaining),
+            // (2) at least one delivered pc, (3) the Dispatching→Dispatched
+            // transition is legal. These previously lived only as ad-hoc
+            // inline checks; route them through the shared validation service.
+            var qtyCheck = DeliveryNoteValidationService.ValidateQuantities(ItemRows);
+            if (qtyCheck.IsFailure)
+            {
+                _dialogs.Show(
+                    string.IsNullOrWhiteSpace(qtyCheck.Error) ? "Delivery quantities are invalid." : qtyCheck.Error,
+                    LocalizationService.Instance.T("Msg.CapDispatchFailed"),
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var dispatchCheck = DeliveryNoteValidationService.ValidateDispatch(ItemRows, _entity.IsMasterDn);
+            if (dispatchCheck.IsFailure)
             {
                 _dialogs.Show(
                     LocalizationService.Instance.T("Msg.CannotDispatchNoItemsHave"),
@@ -790,10 +797,21 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 return;
             }
 
+            var transitionCheck = DeliveryNoteValidationService.ValidateStatusTransition(
+                Status, DeliveryNoteStatusValues.Dispatched);
+            if (transitionCheck.IsFailure)
+            {
+                _dialogs.Show(
+                    string.IsNullOrWhiteSpace(transitionCheck.Error) ? "This delivery note cannot be dispatched from its current status." : transitionCheck.Error,
+                    LocalizationService.Instance.T("Msg.CapDispatchFailed"),
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             try
             {
                 IsSaving = true;
-                Status = "Dispatched";
+                Status = DeliveryNoteStatusValues.Dispatched;
 
                 _entity.Status = Status;
                 _entity.IsFoc = IsFoc;
@@ -802,28 +820,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 _entity.ReceiverName = ReceiverName;
                 _entity.Notes = Notes;
 
-                foreach (var row in ItemRows)
-                {
-                    var item = _entity.Items.FirstOrDefault(i =>
-                        i.SpecGroupNumber == row.SpecGroupNumber &&
-                        i.SerialNumber == row.SerialNumber);
-                    if (item == null) continue;
-
-                    item.DeliveredQty = row.DeliveredQty;
-                    item.BalanceQty = Math.Max(0,
-                        item.OrderedQty
-                        - item.PreviouslyDeliveredQty
-                        - item.DeliveredQty);
-                    item.Notes = row.Notes;
-                }
-
-                _entity.TotalOrderedQty = _entity.Items.Sum(i => i.OrderedQty);
-                _entity.TotalDeliveredQty =
-                    _entity.Items.Sum(i => i.DeliveredQty);
-                _entity.TotalBalanceQty =
-                    _entity.Items.Sum(i => i.BalanceQty);
-                _entity.TotalPreviouslyDeliveredQty =
-                    _entity.Items.Sum(i => i.PreviouslyDeliveredQty);
+                SyncRowsToEntity();
 
                 var joRef = _snapshot?.JobOrderRef;
                 DeliveryNoteMapper.RefreshSnapshot(_entity, joRef);
