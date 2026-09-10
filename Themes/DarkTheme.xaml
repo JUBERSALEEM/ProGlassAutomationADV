@@ -433,11 +433,11 @@
     </LinearGradientBrush>
     <RadialGradientBrush x:Key="AuroraA" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5" po:Freeze="True">
         <GradientStop Color="#4D38BDF8" Offset="0.0"/>
-        <GradientStop Color="#1D38BDF800" Offset="1.0"/>
+        <GradientStop Color="#0038BDF8" Offset="1.0"/>
     </RadialGradientBrush>
     <RadialGradientBrush x:Key="AuroraB" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5" po:Freeze="True">
         <GradientStop Color="#408183F4" Offset="0.0"/>
-        <GradientStop Color="#1D6366F100" Offset="1.0"/>
+        <GradientStop Color="#006366F1" Offset="1.0"/>
     </RadialGradientBrush>
 
 
@@ -502,7 +502,7 @@
     ═══════════════════════════════════════════════════════════════ -->
     <LinearGradientBrush x:Key="DashAmbientBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
         <GradientStop Color="#4D38BDF8" Offset="0.0"/>
-        <GradientStop Color="#1D38BDF800" Offset="1.0"/>
+        <GradientStop Color="#0038BDF8" Offset="1.0"/>
     </LinearGradientBrush>
     <RadialGradientBrush x:Key="DashAmbientBlob1Brush" Center="0.85,0.15" RadiusX="0.5" RadiusY="0.5" po:Freeze="True">
         <GradientStop Color="#4D3B82F6" Offset="0.0"/>
