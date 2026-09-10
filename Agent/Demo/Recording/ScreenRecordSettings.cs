@@ -66,8 +66,12 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         //   2. COST IS ENCODER-SIDE, NOT UI-SIDE. The GDI blit still
         //      captures at the window's native size; the scale to 2160p
         //      happens inside ffmpeg's lanczos filter on its own thread.
-        //      A weak CPU slows ENCODE, which the pipe absorbs; the
-        //      wall-clock time base keeps duration exact regardless.
+        //      A weak CPU slows ENCODE (fewer frames land), which the
+        //      one-frame-per-capture pipe absorbs; the save-time
+        //      -itsscale re-time (WindowScreenRecorder.RetimeScale +
+        //      FfmpegMp4Composer.RetimeCopyAsync) then stretches the file
+        //      back to the real elapsed duration, so a 3-minute recording
+        //      is always 3 minutes long regardless of encoder speed.
         //   3. EVERY SETTING REMAINS AVAILABLE — 720p→2K@30 in two
         //      clicks for users on small machines.
         public ScreenRecordQuality Quality { get; set; } = ScreenRecordQuality.Uhd4K;

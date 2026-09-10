@@ -490,7 +490,9 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// Target frame rate: 30, 40, 50 or 60. Seed default 60: YouTube
         /// gives 2160p60 material its top bitrate tier; the adaptive
         /// capture throttle still protects UI responsiveness at record
-        /// time, and duration stays exact via the wall-clock time base.
+        /// time, and duration stays exact via the save-time -itsscale
+        /// re-time (frames written one-per-capture, then rescaled to the
+        /// real elapsed length on stop).
         /// </summary>
         public int Fps { get; set; } = 60;
 

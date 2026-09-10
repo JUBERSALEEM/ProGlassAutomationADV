@@ -73,6 +73,57 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         public DateTime StartedUtc => _started;
         public TimeSpan Duration { get; private set; }
 
+        /// <summary>
+        /// Nominal frame rate the raw H.264 pipe was started with (the
+        /// value baked into ffmpeg's <c>-framerate</c>). The encoded file
+        /// therefore CLAIMS a duration of <see cref="EncodedFrames"/> /
+        /// this value. Because captures happen at the real (throttled)
+        /// wall-clock rate — not this nominal rate — that claimed duration
+        /// is almost always shorter than reality, which is exactly why a
+        /// 3-minute recording used to play back as ~1 minute. The save
+        /// path uses this together with <see cref="EncodedFrames"/> and
+        /// <see cref="Duration"/> to re-time the file to real duration.
+        /// Zero until the pipe has started.
+        /// </summary>
+        public int CaptureNominalFps { get; private set; }
+
+        /// <summary>
+        /// Timestamp-rescale factor that stretches the raw capture's
+        /// claimed duration (<see cref="EncodedFrames"/> / <see
+        /// cref="CaptureNominalFps"/>) onto the real elapsed wall-clock
+        /// time (<see cref="Duration"/>). Fed to ffmpeg's <c>-itsscale</c>
+        /// during the stream-copy save, so the final MP4's duration equals
+        /// the real recording length no matter how many frames the machine
+        /// actually managed to encode. Returns 1.0 (no change) when the
+        /// inputs are not yet meaningful. Clamped to a sane range so a
+        /// pathological frame count can never produce an absurd duration.
+        /// </summary>
+        public double RetimeScale =>
+            ComputeRetimeScale(EncodedFrames, CaptureNominalFps, Duration.TotalSeconds);
+
+        /// <summary>
+        /// Pure, side-effect-free re-time factor: how much the raw
+        /// capture's claimed duration (<paramref name="encodedFrames"/> /
+        /// <paramref name="nominalFps"/>) must be stretched to match the
+        /// real elapsed <paramref name="realSeconds"/>. Returns 1.0 (no
+        /// change) whenever the inputs are not yet meaningful, and clamps
+        /// the result to [0.02, 50] so a pathological frame count can never
+        /// yield an absurd duration. Extracted static so the timing
+        /// contract behind the "3 minutes plays as 1 minute" fix is unit
+        /// testable without a live capture.
+        /// </summary>
+        public static double ComputeRetimeScale(
+            int encodedFrames, int nominalFps, double realSeconds)
+        {
+            if (encodedFrames <= 0 || nominalFps <= 0 || realSeconds <= 0.05)
+                return 1.0;
+
+            double claimed = encodedFrames / (double)nominalFps;
+            if (claimed <= 0.001) return 1.0;
+
+            return Math.Clamp(realSeconds / claimed, 0.02, 50.0);
+        }
+
         // Incremented from BOTH the capture loop and thread-pool encode
         // tasks. Plain ++ on an int is a read-modify-write and loses counts
         // under contention, which made the HUD's dropped/encoded figures
@@ -318,10 +369,12 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         /// stutter, and DWM's surface includes owned popups, dropdowns and
         /// dialogs — content the old visual-tree render could not see.
         ///
-        /// Timing is frame-indexed against an absolute grid so it cannot
-        /// drift, and a late frame is repeated rather than dropped: a
-        /// constant-frame-rate stream keeps audio in sync, whereas a
-        /// missing frame silently shortens the video.
+        /// One frame is written per real capture (no CFR dup-fill); the
+        /// file therefore claims nominal-fps timing but is rescaled to the
+        /// real elapsed duration at save via -itsscale (see RetimeScale /
+        /// FfmpegMp4Composer.RetimeCopyAsync), which is what keeps a
+        /// 3-minute recording 3 minutes long even when the encoder cannot
+        /// sustain the nominal frame rate (e.g. 4K/60 on a CPU encoder).
         /// </summary>
         private async Task RawLoopAsync(string framesFolder, CancellationToken ct)
         {
@@ -365,6 +418,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             }
 
             _rawActive = true;
+            CaptureNominalFps = fps;
             int srcW = capture.Width, srcH = capture.Height;
             var buffer = new byte[srcW * 4 * srcH];
             int frameBytes = buffer.Length;
@@ -375,30 +429,40 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             int blankStreak = 0;
             bool warnedFallback = false;
 
-            // ── WALL-CLOCK TIME BASE (playback-speed fix) ────────────
+            // ── ONE-FRAME-PER-CAPTURE + RE-TIME-AT-SAVE (2026-09-10) ─
             //
+            // ROOT CAUSE OF "3 minutes records as 1 minute".
             // The ffmpeg raw pipe stamps every written frame at exactly
-            // 1/nominal-fps. The loop below, however, paces CAPTURES at
-            // the adaptive (throttled) interval and used to hand the
-            // pipe one frame per iteration — so 20 real seconds recorded
-            // at a throttled 6 captures/s produced ~120 frames, which
-            // ffmpeg then played back at 30fps = a 4-second video of a
-            // 20-second recording. The "video plays too fast" defect.
+            // 1/nominal-fps, so the encoded file CLAIMS a duration of
+            // framesWritten / nominal-fps. The previous loop tried to keep
+            // that honest by DUPLICATING the latest frame into every
+            // elapsed nominal slot ("wall-clock fill"). Two things made
+            // that collapse the duration on any real machine, and worst of
+            // all at the shipped 4K/60 default:
             //
-            // The encoder's time base must therefore stay at the NOMINAL
-            // rate and be driven by the wall clock, not by the capture
-            // cadence: after each capture we fill every elapsed nominal
-            // slot with a copy of the latest buffer. Byte-identical dub
-            // frames cost x264 almost nothing (skip macroblocks), keep
-            // the stream constant-frame-rate, and keep DURATION exact
-            // even when the adaptive throttle halves the capture rate.
+            //   1. A 4K BGRA frame is ~33 MB — far larger than the OS pipe
+            //      buffer — so WriteFrame BLOCKS on x264 backpressure.
+            //      x264 cannot swallow 60 fps of 4K, so the loop can only
+            //      write frames as fast as the encoder drains them (say
+            //      ~20 equivalent fps). Over 180 real seconds it writes
+            //      ~3600 frames -> 3600/60 = 60 s of claimed video. The
+            //      exact reported 3:1 shrink.
+            //   2. The dup-fill was then CLAMPED (`pending > fps`) and the
+            //      overflow *discarded* as "dropped" — so whenever the
+            //      encoder fell behind for even one second, that real wall
+            //      time was thrown away and the video got shorter still.
             //
-            // `writeEpoch` and `writtenSlots` are a separate timeline
-            // from the pacing `epoch`/`slot` pair on purpose: pacing
-            // decides WHEN to capture (throttled), writing decides WHAT
-            // time the video claims (nominal).
-            var writeEpoch = DateTime.UtcNow;
-            long writtenSlots = 0;
+            // THE FIX. Stop pretending the stream is a fixed-rate CFR
+            // stream at capture time. Write EXACTLY ONE frame per real
+            // capture — no dup-fill, no clamp, nothing discarded — which
+            // also removes the biggest source of encoder load so 4K is
+            // actually feasible and smooth. The file still nominally
+            // claims nominal-fps timing, but the SAVE path rescales its
+            // timestamps (ffmpeg -itsscale, a stream-copy, no re-encode)
+            // so the final MP4 duration equals the REAL elapsed wall-clock
+            // time (see RetimeScale + FfmpegMp4Composer.RetimeCopyAsync).
+            // Duration is then correct at any resolution, any fps, on any
+            // machine, however far the encoder fell behind.
 
             // ── ADAPTIVE THROTTLE (Phase 1 freeze fix) ───────────────
             //
@@ -427,14 +491,12 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                 {
                     try { await Task.Delay(50, ct).ConfigureAwait(false); }
                     catch (OperationCanceledException) { break; }
-                    // Rebase BOTH clocks on resume. The write clock must
-                    // use writtenSlots (nominal timeline) and the pacing
-                    // clock effInterval (what wake-ups are actually
-                    // scheduled with) — using the nominal interval here
-                    // made waits grow by (eff-nominal)*slot, eventually
-                    // freezing the loop for good after any pause taken
-                    // while the throttle was active.
-                    writeEpoch = DateTime.UtcNow - TimeSpan.FromTicks(interval.Ticks * writtenSlots);
+                    // Rebase the pacing clock on resume so the wait math
+                    // does not try to "catch up" the paused interval with
+                    // a burst of back-to-back captures. Duration excludes
+                    // paused time via Elapsed, and the save-time rescale
+                    // maps frames onto that real (un-paused) duration, so
+                    // there is no separate write clock to rebase anymore.
                     epoch = DateTime.UtcNow - TimeSpan.FromTicks(effInterval.Ticks * slot);
                     continue;
                 }
@@ -500,43 +562,30 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
                 if (haveFrame)
                 {
-                    // ── Fill the nominal wall-clock timeline ─────────
-                    // One frame per iteration is WRONG once the throttle
-                    // slows captures: the rawvideo demuxer advances time
-                    // by 1/nominal-fps per written frame, so the video
-                    // would play back at nominal/effective speed (the
-                    // 20s -> 3-4s defect). Fill every nominal slot that
-                    // has elapsed with a copy of the LATEST buffer —
-                    // motion is authored at the capture rate, duration
-                    // stays at real time, CFR stays intact for the mux.
-                    long dueSlots = Math.Max(
-                        1,
-                        (DateTime.UtcNow - writeEpoch).Ticks / interval.Ticks);
-                    long pending = dueSlots - writtenSlots;
-
-                    // Bounded catch-up: a multi-second capture stall must
-                    // not dump minutes of duplicates into the pipe. The
-                    // lost wall time in that pathological case is counted
-                    // instead of materialized.
-                    if (pending > fps)
+                    // ── Write exactly ONE frame per real capture ─────
+                    // No dup-fill, no clamp: every captured frame is a
+                    // real moment in time, and the save-time -itsscale
+                    // rescale (see RetimeScale) stretches the stream back
+                    // onto real wall-clock duration. This is what keeps a
+                    // 3-minute recording 3 minutes long even when the
+                    // encoder can only sustain a fraction of nominal fps.
+                    if (!_rawPipe.WriteFrame(buffer, frameBytes))
                     {
-                        Interlocked.Add(ref _droppedFrames,
-                            (int)Math.Min(pending - fps, int.MaxValue));
-                        pending = fps;
+                        haveFrame = false;   // encoder died -> break outer loop
                     }
-
-                    for (long i = 0; i < pending; i++)
+                    else
                     {
-                        if (!_rawPipe.WriteFrame(buffer, frameBytes))
-                        {
-                            haveFrame = false;   // encoder died -> break outer loop
-                            break;
-                        }
-                        writtenSlots++;
                         Interlocked.Increment(ref _encodedFrames);
                     }
-                    if (!_rawPipe.IsOpen && pending > 0)
+
+                    if (!_rawPipe.IsOpen)
                         break;   // encoder died
+
+                    // A written frame consumes the "have a fresh frame"
+                    // flag so a stalled capture does not re-pipe the same
+                    // stale buffer indefinitely; the next successful
+                    // TryCapture re-arms it.
+                    haveFrame = false;
                 }
                 else
                 {

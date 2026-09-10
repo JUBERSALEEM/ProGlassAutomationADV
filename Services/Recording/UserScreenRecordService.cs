@@ -367,18 +367,30 @@ namespace ProGlassAutomation.Services.Recording
                 // The off-thread capture pipeline already produced a
                 // finished H.264 MP4 while recording. Re-encoding it from
                 // JPEGs would add generation loss AND several seconds of
-                // waiting for no benefit, so mux the audio in (stream-copy
-                // the video) or just adopt the file when there is no audio.
+                // waiting for no benefit.
+                //
+                // But that raw file's timestamps run at the NOMINAL fps,
+                // so on any machine that could not sustain nominal fps its
+                // duration is too short and playback races (the reported
+                // "3 minutes plays as 1 minute"). RetimeCopyAsync stretches
+                // the video timestamps onto the REAL elapsed duration via
+                // -itsscale while STREAM-COPYING the video (no re-encode),
+                // then muxes the audio. When the encoder DID keep up
+                // (scale ≈ 1) it transparently falls back to a plain mux.
                 if (recorder.RawCaptureActive
                     && !string.IsNullOrWhiteSpace(recorder.RawVideoPath)
                     && File.Exists(recorder.RawVideoPath))
                 {
                     recorder.EncodeStage = "Finishing…";
                     recorder.EncodePercent = 80;
-                    DemoRecordingChrome.UpdateStage("Finishing…");
+                    double retime = recorder.RetimeScale;
+                    DemoRecordingChrome.UpdateStage(
+                        retime > 1.02
+                            ? $"Correcting duration ×{retime:0.0}…"
+                            : "Finishing…");
 
                     string? merged = await FfmpegMp4Composer
-                        .MuxVideoWithAudioAsync(recorder.RawVideoPath!, liveMix, mp4, ct)
+                        .RetimeCopyAsync(recorder.RawVideoPath!, liveMix, mp4, retime, ct)
                         .ConfigureAwait(false);
 
                     if (merged != null && FfmpegMp4Composer.IsValidMp4(mp4))

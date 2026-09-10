@@ -401,7 +401,39 @@ namespace ProGlassAutomation.Agent.Demo
                     recorder.EncodedFrames / Math.Max(1, recorder.Duration.TotalSeconds),
                     1, 60);
 
-                if (jpegs.Count > 0)
+                // ── PRIMARY: direct raw-capture MP4 (2026-09-10) ──────
+                // The live pipeline encodes H.264 straight from the capture
+                // surface (recorder.RawVideoPath); it no longer writes the
+                // intermediate JPEGs the old concat path below expected, so
+                // that path is now a fallback only. Re-time the raw file
+                // onto the real elapsed duration (see RetimeCopyAsync /
+                // WindowScreenRecorder.RetimeScale) so the demo video is
+                // never sped-up, then mux the narration/live mix.
+                if (produced == null
+                    && recorder.RawCaptureActive
+                    && !string.IsNullOrWhiteSpace(recorder.RawVideoPath)
+                    && File.Exists(recorder.RawVideoPath))
+                {
+                    Set(DemoJobState.Rendering,
+                        $"{outW}×{outH} — finalising captured video ({recorder.EncodedFrames} frames).");
+                    recorder.EncodeStage = "Finalising captured video…";
+                    recorder.EncodePercent = 60;
+
+                    produced = await FfmpegMp4Composer
+                        .RetimeCopyAsync(
+                            recorder.RawVideoPath!, audioForMux, mp4,
+                            recorder.RetimeScale, ft)
+                        .ConfigureAwait(false);
+                    if (produced != null && !FfmpegMp4Composer.IsValidMp4(produced))
+                        produced = null;
+
+                    log.AppendLine(produced != null
+                        ? $"Saved direct capture ({recorder.EncodedFrames} frames, " +
+                          $"re-timed ×{recorder.RetimeScale:0.000} to {recorder.Duration.TotalSeconds:0.0}s)."
+                        : "Direct capture finalise failed — trying frame compose.");
+                }
+
+                if (produced == null && jpegs.Count > 0)
                 {
                     Set(DemoJobState.Rendering,
                         $"{outW}×{outH} @ {actualFps:F1} fps — composing from {jpegs.Count} captured frames.");

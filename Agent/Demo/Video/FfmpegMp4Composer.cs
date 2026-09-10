@@ -411,6 +411,86 @@ namespace ProGlassAutomation.Agent.Demo.Video
         }
 
         /// <summary>
+        /// Re-times an already-encoded H.264 MP4 to a corrected duration
+        /// and muxes optional audio — WITHOUT re-encoding the video.
+        ///
+        /// WHY THIS EXISTS ("3 minutes records as 1 minute").
+        /// The raw capture pipe stamps frames at a fixed nominal fps, so
+        /// the file it produces claims a duration of framesWritten /
+        /// nominal-fps. On any machine that cannot sustain nominal fps —
+        /// which is every machine at 4K/60 — that is far shorter than the
+        /// real recording, so playback races. <paramref name="itsScale"/>
+        /// (from <c>WindowScreenRecorder.RetimeScale</c> = realSeconds /
+        /// claimedSeconds) is applied via ffmpeg's <c>-itsscale</c> input
+        /// option, which multiplies every video timestamp on the way in.
+        /// The video packets are STREAM-COPIED (<c>-c:v copy</c>): only the
+        /// container timestamps change, so there is no generation loss and
+        /// the operation takes about as long as a plain remux.
+        ///
+        /// The result is a constant-frame-rate H.264 MP4 whose duration
+        /// equals the real recording length. Audio (already real-time) is
+        /// muxed unscaled and <c>-shortest</c> trims the tail.
+        /// </summary>
+        public static async Task<string?> RetimeCopyAsync(
+            string videoPath, string? wavPath, string mp4Path,
+            double itsScale, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(videoPath) || !File.Exists(videoPath))
+                return null;
+
+            // A scale of ~1 (within 1.5%) means the encoder kept up and the
+            // claimed duration is already right; skip the rescale and take
+            // the ordinary copy-mux path so we never pay for a no-op.
+            bool needsRescale = itsScale > 0 && Math.Abs(itsScale - 1.0) > 0.015;
+            if (!needsRescale)
+                return await MuxVideoWithAudioAsync(videoPath, wavPath, mp4Path, ct)
+                    .ConfigureAwait(false);
+
+            string? ffmpeg = Find();
+            if (ffmpeg == null) return null;
+
+            itsScale = Math.Clamp(itsScale, 0.02, 50.0);
+            bool hasAudio = !string.IsNullOrWhiteSpace(wavPath) && File.Exists(wavPath);
+
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(mp4Path)!);
+                string packingPath = mp4Path + ".packing.mp4";
+                try { if (File.Exists(packingPath)) File.Delete(packingPath); }
+                catch (Exception ex) { AppLogService.Debug("[Retime] stale packing delete: " + ex.Message); }
+
+                string scale = itsScale.ToString("0.000000", CultureInfo.InvariantCulture);
+
+                // -itsscale applies ONLY to the input it precedes, so the
+                // video is stretched and the audio input (added after) is
+                // left at real time. -c:v copy => timestamps only, no
+                // re-encode. -video_track_timescale keeps a clean CFR
+                // timebase after the scale.
+                string args = hasAudio
+                    ? $"-y -itsscale {scale} -i \"{videoPath}\" -i \"{wavPath}\" " +
+                      $"-map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 320k -ar 48000 " +
+                      $"-video_track_timescale 90000 -shortest -movflags +faststart \"{packingPath}\""
+                    : $"-y -itsscale {scale} -i \"{videoPath}\" " +
+                      $"-map 0:v:0 -c:v copy -video_track_timescale 90000 " +
+                      $"-movflags +faststart \"{packingPath}\"";
+
+                string? packed = await RunComposeAsync(ffmpeg, args, packingPath, ct)
+                    .ConfigureAwait(false);
+                if (packed == null) return null;
+
+                File.Move(packingPath, mp4Path, overwrite: true);
+                return IsValidMp4(mp4Path) ? mp4Path : null;
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Re-time copy failed: {ex.Message}",
+                    new LogContext { Module = "Recording", Operation = "RetimeCopy" });
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Copy an already-encoded video and mux a WAV. Seconds, not a
         /// second full encode — this is the instant-save path.
         /// </summary>

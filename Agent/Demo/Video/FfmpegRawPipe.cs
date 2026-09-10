@@ -91,17 +91,36 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 $"scale={outW}:{outH}:flags=lanczos:force_original_aspect_ratio=decrease," +
                 $"pad={outW}:{outH}:(ow-iw)/2:(oh-ih)/2:color=black,format=yuv420p";
 
+            // ── RESOLUTION-AWARE PRESET (4K UHD support, 2026-09-10) ──
+            // The x264 preset trades CPU per frame against compression.
+            // Because each frame is now written on real capture (see
+            // WindowScreenRecorder: one-frame-per-capture) and the file is
+            // re-timed at save, the encoder's ONLY job is to keep up with
+            // the capture rate — the faster it drains each 33 MB 4K frame,
+            // the higher the sustained capture rate and the smoother the
+            // result. So the bigger the output, the faster the preset:
+            //
+            //   ≤1080p : veryfast — plenty of headroom, best compression.
+            //   1440p  : superfast.
+            //   2160p  : ultrafast — 4K raw is ~33 MB/frame; only the
+            //            cheapest preset sustains a usable rate on a CPU
+            //            encoder. Quality is preserved by the low CRF, and
+            //            YouTube re-encodes on upload anyway.
+            long outPixels = (long)outW * outH;
+            string preset =
+                outPixels >= 3840L * 2160 ? "ultrafast" :
+                outPixels >= 2560L * 1440 ? "superfast" :
+                "veryfast";
+
             // -tune stillimage: x264 tuning aimed at sharp static detail
             //   rather than film grain — correct for UI capture.
-            // -preset veryfast: realtime headroom while still compressing
-            //   far better than ultrafast, which was chosen only because
-            //   the old pipe was fighting the UI thread for CPU.
             // -g: one keyframe per second, so seeking/scrubbing is usable.
+            // -threads 0: let x264 use every core; 4K needs all of them.
             string args =
                 $"-y -f rawvideo -pix_fmt bgra -s {srcW}x{srcH} -framerate {fps} " +
                 $"-use_wallclock_as_timestamps 0 -i - " +
-                $"-an -vf \"{vf}\" -c:v libx264 -preset veryfast -tune stillimage " +
-                $"-crf {crf} -g {fps} -pix_fmt yuv420p " +
+                $"-an -vf \"{vf}\" -c:v libx264 -preset {preset} -tune stillimage " +
+                $"-threads 0 -crf {crf} -g {fps} -pix_fmt yuv420p " +
                 // Explicit BT.709 tagging: screen capture IS sRGB (≈709).
                 // Untagged files leave the primaries to guesswork, and a
                 // 4K upscale interpreted as BT.2020 / flat-range
