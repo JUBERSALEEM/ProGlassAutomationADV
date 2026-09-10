@@ -43,15 +43,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         {
             if (entity == null) return;
 
-            // Always ask JPG or PDF and forward to Step 8 — even if the
-            // invoice already has attachments, so the user re-checks the
-            // confirmation document before it is approved.
-            var choice = _dialogs.Create<ApprovalUploadChoiceDialog>();
-            if (choice.ShowDialog() != true || !choice.Chosen)
-                return;   // cancelled — status unchanged
-
-            // Open Step 8 (Attachments) with the matching uploader.
-            OnInvoiceUploadRequested?.Invoke(entity.Id, choice.UploadPdf);
+            // 2026-09-10 unification — single merged approve flow: forward
+            // straight to Step 8, whose ONE "APPROVE INVOICE" action takes
+            // the confirmation document (image OR PDF, type auto-detected)
+            // and then runs the Signed-PI / LPO confirmation. Cancelling at
+            // any point leaves the status unchanged. (The old JPG-vs-PDF
+            // choice dialog is deleted — see docs/STEP8_APPROVE_UNIFICATION.md.)
+            OnInvoiceApproveRequested?.Invoke(entity.Id);
+            await Task.CompletedTask;
         }
 
         /// <summary>

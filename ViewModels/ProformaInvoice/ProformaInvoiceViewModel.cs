@@ -81,6 +81,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         private int _furthestStepReached = 1;
         private int? _pendingApprovalInvoiceId;
 
+        /// <summary>
+        /// The invoice currently loaded in the wizard (set by
+        /// LoadInvoiceIntoWizardAsync). Lets the standalone Step 8
+        /// "APPROVE INVOICE" action resolve which invoice to approve
+        /// when the flow did not start from the Saved-Invoices list
+        /// (2026-09-10 Step 8 approve unification).
+        /// </summary>
+        private int? _loadedInvoiceId;
+
         public WizardStep CurrentStep
         {
             get => _currentStep;
@@ -319,10 +328,10 @@ public ProformaInvoiceViewModel() : this(
             SavedInvoicesListVM.OnInvoiceLoadRequested = id =>
                 AsyncUtility.SafeFireAndForget(() => LoadInvoiceIntoWizardAsync(id), $"PI Load {id}");
 
-            SavedInvoicesListVM.OnInvoiceUploadRequested = (id, uploadPdf) =>
+            SavedInvoicesListVM.OnInvoiceApproveRequested = id =>
             {
                 _pendingApprovalInvoiceId = id;
-                AsyncUtility.SafeFireAndForget(() => OpenInvoiceAtStepAndUploadAsync(id, uploadPdf), $"PI Upload {id}");
+                AsyncUtility.SafeFireAndForget(() => OpenInvoiceAtStepAndApproveAsync(id), $"PI Approve {id}");
             };
 
             Step8VM.AttachmentUploaded += OnStep8AttachmentUploaded;
@@ -714,26 +723,34 @@ public ProformaInvoiceViewModel() : this(
             // when the invoice was last saved.
             int restored = Step7VM.PrintableInvoice.FurthestStepReached;
             _furthestStepReached = Math.Max(1, restored);
+            _loadedInvoiceId = invoiceId;   // for the standalone Step 8 approve action
             CurrentStep = WizardSteps[0];
             foreach (var ws in WizardSteps)
                 ws.IsCompleted = ws.StepNumber < _furthestStepReached;
             IsListView = false;
         }
 
-        private async Task OpenInvoiceAtStepAndUploadAsync(int invoiceId, bool uploadPdf)
+        /// <summary>
+        /// 2026-09-10 unification: opens the invoice at Step 8 and runs the
+        /// SAME single "APPROVE INVOICE" command the user sees on the step —
+        /// one picker for images and PDFs (type auto-detected). Replaces the
+        /// old flow that smuggled a pre-answered uploadPdf bool and fired
+        /// AddImage/AddPdf from the dispatcher after navigation.
+        /// </summary>
+        private async Task OpenInvoiceAtStepAndApproveAsync(int invoiceId)
         {
             await LoadInvoiceIntoWizardAsync(invoiceId);
             GoToStep(8);
             Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                if (uploadPdf) Step8VM.AddPdfCommand.Execute(null);
-                else Step8VM.AddImageCommand.Execute(null);
-            }));
+                Step8VM.ApproveInvoiceCommand.Execute(null)));
         }
 
         private void OnStep8AttachmentUploaded()
         {
-            int? id = _pendingApprovalInvoiceId;
+            // Approve started from the list uses the pending id; a standalone
+            // APPROVE INVOICE pressed directly in Step 8 falls back to the
+            // invoice currently loaded in the wizard (same pipeline either way).
+            int? id = _pendingApprovalInvoiceId ?? _loadedInvoiceId;
             if (id == null) return;
             _pendingApprovalInvoiceId = null;
             AsyncUtility.SafeFireAndForget(() => SavedInvoicesListVM.CompleteApprovalAsync(id.Value), $"PI CompleteApproval {id}");

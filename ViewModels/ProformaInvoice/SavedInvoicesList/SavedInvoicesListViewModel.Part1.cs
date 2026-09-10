@@ -73,10 +73,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         /// <summary>
         /// Fired when approving and the invoice has no Step 8 attachments:
         /// the shell opens that invoice in the wizard AT Step 8 (Attachments)
-        /// with the matching uploader open. The bool is true for a PDF upload,
-        /// false for a JPG / image upload.
+        /// and runs the single APPROVE INVOICE action there (one picker for
+        /// images AND PDFs — the type is auto-detected). 2026-09-10: the
+        /// uploadPdf bool died with the merged choice dialog.
         /// </summary>
-        public Action<int, bool> OnInvoiceUploadRequested { get; set; }
+        public Action<int> OnInvoiceApproveRequested { get; set; }
 
         private List<SavedInvoiceListItem> _allItems = new();
         public BulkObservableCollection<SavedInvoiceListItem> FilteredItems { get; } = new();

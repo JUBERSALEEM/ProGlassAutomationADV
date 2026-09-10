@@ -53,10 +53,8 @@ public AttachmentsStepViewModel(IDialogService? dialogs,
             _dialogs = dialogs!;
             _company = company;
 
-            AddImageCommand = new RelayCommand(
-                _ => AsyncUtility.SafeFireAndForget(AddImageAsync, "PI Step8"));
-            AddPdfCommand = new RelayCommand(
-                _ => AsyncUtility.SafeFireAndForget(AddPdfAsync, "PI Step8"));
+            ApproveInvoiceCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(ApproveInvoiceAsync, "PI Step8"));
             OpenAttachmentCommand = new RelayCommand(param =>
             {
                 if (param is ProformaAttachmentRowViewModel row)
@@ -127,8 +125,7 @@ public AttachmentsStepViewModel(IDialogService? dialogs,
         //  COMMANDS
         // ══════════════════════════════════════════════════════════════
 
-        public ICommand AddImageCommand { get; }
-        public ICommand AddPdfCommand { get; }
+        public ICommand ApproveInvoiceCommand { get; }
         public ICommand OpenAttachmentCommand { get; }
         public ICommand RenameAttachmentCommand { get; }
         public ICommand DeleteAttachmentCommand { get; }
@@ -177,24 +174,24 @@ public AttachmentsStepViewModel(IDialogService? dialogs,
         }
 
         // ══════════════════════════════════════════════════════════════
-        //  ADD IMAGE / PDF
+        //  APPROVE INVOICE — the single merged action (2026-09-10)
         // ══════════════════════════════════════════════════════════════
+        //  ONE picker accepts images AND PDFs; each chosen file's type is
+        //  auto-detected from its extension. Replaces the old split flow
+        //  (JPG-vs-PDF choice dialog → pre-chosen AddImage/AddPdf command)
+        //  — see docs/STEP8_APPROVE_UNIFICATION.md. After a successful
+        //  attach the shell continues the approval (Signed-PI / LPO dialog
+        //  → status → Job Order) — the same pipeline the list's approve
+        //  action drives.
 
-        private async Task AddImageAsync()
+        private async Task ApproveInvoiceAsync()
         {
             await AddFileAsync(
-                AttachmentLimits.ImageDialogFilter,
-                isImage: true);
+                AttachmentLimits.CombinedDialogFilter,
+                isImage: null);   // null = auto-detect per chosen file
         }
 
-        private async Task AddPdfAsync()
-        {
-            await AddFileAsync(
-                AttachmentLimits.PdfDialogFilter,
-                isImage: false);
-        }
-
-        private async Task AddFileAsync(string dialogFilter, bool isImage)
+        private async Task AddFileAsync(string dialogFilter, bool? isImage)
         {
             if (!HasProformaId)
             {
@@ -210,9 +207,11 @@ public AttachmentsStepViewModel(IDialogService? dialogs,
             {
                 Filter = dialogFilter,
                 Multiselect = true,
-                Title = isImage
+                Title = isImage == true
                     ? "Select images to attach"
-                    : "Select PDFs to attach"
+                    : isImage == false
+                        ? "Select PDFs to attach"
+                        : "Select the signed confirmation document (image or PDF)"
             };
 
             if (dialog.ShowDialog() != true) return;
@@ -224,8 +223,14 @@ public AttachmentsStepViewModel(IDialogService? dialogs,
             {
                 foreach (var sourcePath in dialog.FileNames)
                 {
+                    // ── Detect the file's type (replaces the pre-answered
+                    //    JPG-vs-PDF question — the type is a property of the
+                    //    chosen file, not a user decision) ────────────────
+                    bool fileIsImage = isImage
+                        ?? _attachments.IsValidImageExtension(sourcePath);
+
                     // ── Validate (same rules as Delivery Note) ────────
-                    bool validType = isImage
+                    bool validType = fileIsImage
                         ? _attachments.IsValidImageExtension(sourcePath)
                         : _attachments.IsValidPdfExtension(sourcePath);
 
@@ -255,7 +260,7 @@ public AttachmentsStepViewModel(IDialogService? dialogs,
                         continue;   // user cancelled this file
 
                     // ── Copy file + persist manifest ──────────────────
-                    var record = isImage
+                    var record = fileIsImage
                         ? await _attachments.CopyImageAsync(
                             sourcePath, ProformaId)
                         : await _attachments.CopyPdfAsync(

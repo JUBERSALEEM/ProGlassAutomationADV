@@ -159,7 +159,7 @@ if window creation ever fails (tests, headless hosts).
 | Window | Migration |
 |---|---|
 | Shared: VoidReason, UnsavedChanges, LanguageSuggestion, Changes, AuditReport | → `ThemedDialogWindow` chrome |
-| Proforma: InvoiceApproval, ApprovalUploadChoice, Versions | → chrome |
+| Proforma: InvoiceApproval, Versions | → chrome · ApprovalUploadChoice was **deleted 2026-09-10** (its JPG/PDF choice merged into the single Step 8 "Approve Invoice" action — see docs/STEP8_APPROVE_UNIFICATION.md) |
 | DeliveryNote: RenameAttachment, JobOrderPicker | → chrome |
 | JobOrder: JobOrderAttachmentWarning, JobOrderProformaPicker | → chrome |
 | TaxInvoice: IssueDrafts, ProformaPicker | → chrome |

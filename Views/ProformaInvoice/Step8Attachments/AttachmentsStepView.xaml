@@ -1,6 +1,7 @@
 <!--
     Step 8 — Files. Full-bleed industrial vault:
-    TYPE | NAME | SIZE | ADDED | ACTIONS. + IMAGE + PDF.
+    TYPE | NAME | SIZE | ADDED | ACTIONS. + single APPROVE INVOICE action
+    (one picker for images AND PDFs — 2026-09-10 unification).
 -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step8Attachments.AttachmentsStepView"
              TextOptions.TextFormattingMode="Ideal"
@@ -29,17 +30,19 @@
                         </TextBlock>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <Button Style="{StaticResource PiGhostChipButton}"
-                                Content="{DynamicResource ProformaInvoice.Image}"
-                                ToolTip="{DynamicResource ProformaInvoice.AttachImageFile}"
-                                Command="{Binding AddImageCommand}"
-                                IsEnabled="{Binding HasProformaId}"/>
-                        <Button Style="{StaticResource PiGhostChipButton}"
-                                Content="{DynamicResource ProformaInvoice.PDF}"
-                                Margin="8,0,0,0"
-                                ToolTip="{DynamicResource ProformaInvoice.AttachPDFFile}"
-                                Command="{Binding AddPdfCommand}"
-                                IsEnabled="{Binding HasProformaId}"/>
+                        <!-- 2026-09-10 unification: ONE "APPROVE INVOICE"
+                             action replaces the old IMAGE + PDF chips. The
+                             picker accepts images and PDFs (type auto-
+                             detected); after the attach the Signed-PI / LPO
+                             confirmation runs — the same pipeline the Saved
+                             Invoices list approve action drives. -->
+                        <Button Style="{StaticResource SuccessPillButton}"
+                                Tag="&#xE73E;"
+                                Content="{DynamicResource ProformaInvoice.ApproveInvoice}"
+                                ToolTip="{DynamicResource ProformaInvoice.ApproveConvertJobOrder}"
+                                Command="{Binding ApproveInvoiceCommand}"
+                                IsEnabled="{Binding HasProformaId}"
+                                MinWidth="180"/>
                         <Button Style="{StaticResource PiIconButtonStyle}"
                                 Margin="8,0,0,0"
                                 Command="{Binding RefreshCommand}"

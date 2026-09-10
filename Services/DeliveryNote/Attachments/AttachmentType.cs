@@ -1,4 +1,4 @@
-﻿namespace ProGlassAutomation.Services.DeliveryNote.Attachments
+namespace ProGlassAutomation.Services.DeliveryNote.Attachments
 {
     /// <summary>
     /// Type of file attached to a delivery note.
@@ -36,5 +36,14 @@
         /// <summary>WPF file dialog filter string for PDFs.</summary>
         public const string PdfDialogFilter =
             "PDF files|*.pdf|All files|*.*";
+
+        /// <summary>
+        /// WPF file dialog filter accepting BOTH images and PDFs — the single
+        /// Approve-Invoice picker (Step 8). The type of each chosen file is
+        /// auto-detected from its extension afterwards, so the user never has
+        /// to pre-answer "image or PDF?" (2026-09-10 unification).
+        /// </summary>
+        public const string CombinedDialogFilter =
+            "Confirmation document (image or PDF)|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.webp;*.pdf|All files|*.*";
     }
 }
