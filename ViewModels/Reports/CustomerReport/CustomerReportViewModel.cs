@@ -81,6 +81,9 @@ namespace ProGlassAutomation.ViewModels.Reports.CustomerReport
         public bool HasOutstanding => Outstanding > 0m;
         public string Initials => ReportInitials.From(CustomerName);
 
+        // Row-local UI state for the inline details expander (see CompanyRow).
+        public bool IsExpanded { get; set; }
+
         /// <summary>Projects the merged row back onto the export contract so
         /// the CSV/Excel/PDF exporters can reuse CustomerHeaders/CustomerMap.</summary>
         public CustomerReportRow ToReportRow() => new()

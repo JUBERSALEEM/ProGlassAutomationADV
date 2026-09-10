@@ -141,16 +141,22 @@
                 </Border>
 
                 <!-- ══ 3. TABLE HEADER ══ -->
+                <!-- TABLE HEADER
+                     Widths mirror the row grid 1:1. The row is now a full-width
+                     Border (no Expander chevron) so header/rows align; the old
+                     34px margin fudge is removed. Trailing 32px spacer matches
+                     the row. -->
                 <Border Grid.Row="2" Style="{StaticResource ReportTableHeaderStyle}">
-                    <Grid Margin="34,0,0,0">
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1.6*"/>
                             <ColumnDefinition Width="1.1*"/>
                             <ColumnDefinition Width="1.0*"/>
-                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="70"/>
                             <ColumnDefinition Width="0.9*"/>
                             <ColumnDefinition Width="0.9*"/>
                             <ColumnDefinition Width="1.0*"/>
+                            <ColumnDefinition Width="32"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="CUSTOMER" Style="{StaticResource ReportHeaderTextStyle}"/>
                         <TextBlock Grid.Column="1" Text="SALESMAN" Style="{StaticResource ReportHeaderTextStyle}"/>
@@ -159,6 +165,7 @@
                         <TextBlock Grid.Column="4" Text="PI VALUE" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
                         <TextBlock Grid.Column="5" Text="INVOICED" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
                         <TextBlock Grid.Column="6" Text="OUTSTANDING" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="7" Text="" Style="{StaticResource ReportHeaderTextStyle}"/>
                     </Grid>
                 </Border>
 
@@ -176,21 +183,24 @@
                         </StackPanel>
                     </Border>
 
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <ItemsControl ItemsSource="{Binding Rows}">
-                            <ItemsControl.ItemTemplate>
+                    <ListBox ItemsSource="{Binding Rows}"
+                             Style="{StaticResource ModuleReportListBoxStyle}"
+                             Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Expander Margin="0,1">
-                                        <Expander.Header>
+                                    <StackPanel>
+                                        <!-- Full-width aligned row (no chevron). -->
+                                        <Border Style="{StaticResource ModuleListRowStyle}" Padding="14,9">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="1.6*"/>
                                                     <ColumnDefinition Width="1.1*"/>
                                                     <ColumnDefinition Width="1.0*"/>
-                                                    <ColumnDefinition Width="60"/>
+                                                    <ColumnDefinition Width="70"/>
                                                     <ColumnDefinition Width="0.9*"/>
                                                     <ColumnDefinition Width="0.9*"/>
                                                     <ColumnDefinition Width="1.0*"/>
+                                                    <ColumnDefinition Width="32"/>
                                                 </Grid.ColumnDefinitions>
 
                                                 <!-- Customer identity -->
@@ -227,10 +237,18 @@
                                                     </TextBlock.Style>
                                                 </TextBlock>
                                             </Grid>
-                                        </Expander.Header>
+                                        </Border>
 
+                                        <!-- Details expander below the aligned row. -->
+                                        <Expander IsExpanded="{Binding IsExpanded, Mode=TwoWay}" Margin="0,2,0,6">
+                                            <Expander.Header>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Customer details" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Expander.Header>
                                         <!-- Inline roster + analytics detail -->
-                                        <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Margin="34,4,8,10">
+                                        <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Margin="0,8,0,0">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
@@ -316,11 +334,11 @@
                                                 </StackPanel>
                                             </Grid>
                                         </Border>
-                                    </Expander>
+                                        </Expander>
+                                    </StackPanel>
                                 </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
                 </Grid>
 
                 <!-- ══ 5. PAGINATION FOOTER ══ -->

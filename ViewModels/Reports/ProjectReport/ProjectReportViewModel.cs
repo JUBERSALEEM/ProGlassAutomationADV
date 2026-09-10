@@ -67,6 +67,9 @@ namespace ProGlassAutomation.ViewModels.Reports.ProjectReport
         public bool HasOutstanding => Outstanding > 0m;
         public string Initials => ReportInitials.From(ProjectName);
 
+        // Row-local UI state for the inline details expander (see CompanyRow).
+        public bool IsExpanded { get; set; }
+
         public ProjectReportRow ToReportRow() => new()
         {
             ProjectName = ProjectName,
