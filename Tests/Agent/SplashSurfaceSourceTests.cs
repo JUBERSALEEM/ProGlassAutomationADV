@@ -111,9 +111,16 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("Panel.ZIndex=\"11\"", view);   // login
             Assert.Contains("Panel.ZIndex=\"12\"", view);   // setup
 
-            // Brand assets.
-            Assert.Contains("proglass_icon_256.png", view);
-            Assert.Contains("UniformGrid Columns=\"6\"", view);
+            // Brand mark — the splash hero is the vector PGA monogram
+            // (recreated as XAML), not the raster app icon.
+            Assert.Contains("Text=\"PGA\"", view);
+            Assert.Contains("OrbitRingRotate", view);
+            // Module band — all real modules flow as pills in a WrapPanel.
+            Assert.Contains("<WrapPanel", view);
+            Assert.Contains("FeatureBadgeTemplate", view);
+            // Two-tone wordmark lockup.
+            Assert.Contains("Text=\"ProGlass \"", view);
+            Assert.Contains("Text=\"Automation\"", view);
         }
 
         [Fact]

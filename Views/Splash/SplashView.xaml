@@ -153,6 +153,49 @@
             <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1.0"/>
         </LinearGradientBrush>
 
+        <!-- ═══ CONSTELLATION TEXTURE — faint network dot/line mesh tiled
+             across the stage (matches the mockup's backdrop). Theme-aware:
+             it's drawn in the accent colour at very low opacity so it reads
+             as a subtle premium texture in both Light and Dark. ═══ -->
+        <DrawingBrush x:Key="ConstellationBrush"
+                      TileMode="Tile" Viewport="0,0,340,300" ViewportUnits="Absolute"
+                      Stretch="None" Opacity="0.5">
+            <DrawingBrush.Drawing>
+                <DrawingGroup>
+                    <GeometryDrawing Brush="{DynamicResource SplashCerulean}">
+                        <GeometryDrawing.Geometry>
+                            <GeometryGroup>
+                                <EllipseGeometry Center="30,40"   RadiusX="1.6" RadiusY="1.6"/>
+                                <EllipseGeometry Center="150,30"  RadiusX="1.2" RadiusY="1.2"/>
+                                <EllipseGeometry Center="250,90"  RadiusX="1.8" RadiusY="1.8"/>
+                                <EllipseGeometry Center="90,140"  RadiusX="1.3" RadiusY="1.3"/>
+                                <EllipseGeometry Center="200,180" RadiusX="1.5" RadiusY="1.5"/>
+                                <EllipseGeometry Center="320,220" RadiusX="1.2" RadiusY="1.2"/>
+                                <EllipseGeometry Center="40,250"  RadiusX="1.6" RadiusY="1.6"/>
+                                <EllipseGeometry Center="140,270" RadiusX="1.3" RadiusY="1.3"/>
+                            </GeometryGroup>
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing>
+                        <GeometryDrawing.Pen>
+                            <Pen Thickness="0.6" Brush="{DynamicResource SplashCerulean}"/>
+                        </GeometryDrawing.Pen>
+                        <GeometryDrawing.Geometry>
+                            <GeometryGroup>
+                                <LineGeometry StartPoint="30,40"   EndPoint="150,30"/>
+                                <LineGeometry StartPoint="150,30"  EndPoint="250,90"/>
+                                <LineGeometry StartPoint="90,140"  EndPoint="200,180"/>
+                                <LineGeometry StartPoint="200,180" EndPoint="320,220"/>
+                                <LineGeometry StartPoint="90,140"  EndPoint="30,40"/>
+                                <LineGeometry StartPoint="40,250"  EndPoint="140,270"/>
+                                <LineGeometry StartPoint="140,270" EndPoint="200,180"/>
+                            </GeometryGroup>
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                </DrawingGroup>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
+
         <!-- ═══ CRYSTAL SHADOWS (theme accent glow) ═══ -->
         <DropShadowEffect x:Key="IconShadow" Color="{DynamicResource AccentColor}"
                           BlurRadius="34" ShadowDepth="0" Opacity="0.45"/>
@@ -194,39 +237,33 @@
         </Style>
 
         <!-- ═══ MODULE CHIP (feature strip) — quiet 6-wide grid ═══ -->
+        <!-- Module PILL — auto-width, fully rounded, icon + label. Flows in
+             a centered WrapPanel so all real modules read as one clean band. -->
         <DataTemplate x:Key="FeatureBadgeTemplate">
-            <Border Height="38"
-                    Margin="6,4"
+            <Border Height="34"
+                    Margin="5,5"
                     Padding="14,0"
-                    CornerRadius="{DynamicResource Radius.Medium}"
-                    HorizontalAlignment="Stretch"
+                    CornerRadius="17"
                     BorderBrush="{DynamicResource SplashOutline}"
                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                     Background="{DynamicResource SplashPillBg}"
                     SnapsToDevicePixels="True"
                     UseLayoutRounding="True"
                     IsHitTestVisible="False">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0"
-                               Text="{Binding Icon}"
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Icon}"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="{StaticResource TextBody}"
                                Foreground="{Binding BorderBrush}"
                                VerticalAlignment="Center"
-                               Margin="0,0,9,0"/>
-                    <TextBlock Grid.Column="1"
-                               Text="{Binding Label}"
+                               Margin="0,0,8,0"/>
+                    <TextBlock Text="{Binding Label}"
                                FontSize="{StaticResource TextBody}"
                                FontWeight="SemiBold"
                                Foreground="{DynamicResource SplashTextPrimary}"
                                VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis"
                                TextWrapping="NoWrap"/>
-                </Grid>
+                </StackPanel>
             </Border>
         </DataTemplate>
 
@@ -409,6 +446,11 @@
 
     <Grid Background="{DynamicResource PageBg}">
 
+        <!-- Constellation network texture (subtle, theme-aware) -->
+        <Rectangle Fill="{DynamicResource ConstellationBrush}"
+                   IsHitTestVisible="False"
+                   Opacity="0.35"/>
+
         <!-- ── ATMOSPHERE — soft accent orbs + hero spotlight ──
              2026-09-10 upgrade: every atmosphere layer now carries a named
              render transform so the Window.Triggers storyboard can give the
@@ -499,8 +541,10 @@
                         MaxWidth="880"
                         Margin="8,18">
 
-                <!-- Logo — crystal tile + halo + orbit ring + sheen -->
-                <Border x:Name="LogoBorder" Width="152" Height="152"
+                <!-- Logo — frosted crystal tile + cyan halo + elliptical
+                     orbit ring + vector PGA monogram + glass sheen.
+                     (Matches the approved brand-moment mockup.) -->
+                <Border x:Name="LogoBorder" Width="168" Height="168"
                         HorizontalAlignment="Center"
                         RenderOptions.BitmapScalingMode="HighQuality"
                         IsHitTestVisible="False"
@@ -509,33 +553,49 @@
                         <ScaleTransform x:Name="LogoScale" ScaleX="0.92" ScaleY="0.92"/>
                     </Border.RenderTransform>
                     <Grid>
-                        <Ellipse Width="152" Height="152" Fill="{DynamicResource SplashCerulean}" Opacity="0.22" Effect="{StaticResource HaloBlur}"/>
-                        <Ellipse Width="142" Height="142"
-                                 Stroke="{DynamicResource SplashCerulean}" Opacity="0.5" StrokeThickness="1"
+                        <!-- Broad cyan halo bloom behind the tile -->
+                        <Ellipse Width="168" Height="168"
+                                 Fill="{DynamicResource SplashCerulean}"
+                                 Opacity="0.30" Effect="{StaticResource HaloBlur}"/>
+
+                        <!-- Elliptical dashed orbit ring (horizontal, like the
+                             mockup): a circle squashed on Y, rotating slowly. -->
+                        <Ellipse Width="176" Height="96"
+                                 Stroke="{DynamicResource SplashCerulean}"
+                                 Opacity="0.6" StrokeThickness="1.2"
                                  StrokeDashArray="2 6"
                                  RenderTransformOrigin="0.5,0.5">
                             <Ellipse.RenderTransform>
                                 <RotateTransform x:Name="OrbitRingRotate" Angle="0"/>
                             </Ellipse.RenderTransform>
                         </Ellipse>
-                        <Ellipse Width="120" Height="120"
-                                 Stroke="{DynamicResource SplashOutline}" StrokeThickness="1"/>
-                        <Border Width="104" Height="104" CornerRadius="{DynamicResource Radius.Hero}"
+
+                        <!-- Crystal glass tile -->
+                        <Border Width="112" Height="112" CornerRadius="26"
                                 Effect="{StaticResource IconShadow}"
                                 Background="{DynamicResource SplashPlate}"
+                                BorderBrush="{DynamicResource SplashCerulean}"
+                                BorderThickness="1"
                                 SnapsToDevicePixels="True">
                             <Grid>
-                                <Border Width="96" Height="96" CornerRadius="{DynamicResource Radius.Hero}"
-                                        BorderBrush="{DynamicResource Surface.Secondary.BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                        ClipToBounds="True">
-                                    <Border.Background>
-                                        <ImageBrush ImageSource="pack://application:,,,/Resources/proglass_icon_256.png"
-                                                    Stretch="UniformToFill"
-                                                    RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    </Border.Background>
-                                </Border>
+                                <!-- Vector PGA hexagon monogram -->
+                                <Viewbox Width="66" Height="66">
+                                    <Grid Width="72" Height="72">
+                                        <!-- pointy-top hexagon outline -->
+                                        <Path Stroke="{DynamicResource SplashCerulean}"
+                                              StrokeThickness="3"
+                                              StrokeLineJoin="Round"
+                                              Data="M36,3 L64,19 L64,53 L36,69 L8,53 L8,19 Z"/>
+                                        <TextBlock Text="PGA"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   FontSize="22" FontWeight="Bold"
+                                                   Foreground="{DynamicResource SplashCeruleanLite}"/>
+                                    </Grid>
+                                </Viewbox>
+
                                 <!-- Top-edge crystal sheen on the tile -->
-                                <Border Width="96" Height="96" CornerRadius="{DynamicResource Radius.Hero}"
+                                <Border Width="112" Height="112" CornerRadius="26"
                                         Background="{DynamicResource TileSheen}"
                                         IsHitTestVisible="False"/>
                             </Grid>
@@ -543,18 +603,19 @@
                     </Grid>
                 </Border>
 
-                <!-- Wordmark — metallic gradient (NameGradient was defined
-                     but never wired; now the brand gets its glow) -->
+                <!-- Wordmark — two-tone brand lockup: "ProGlass" in the
+                     theme ink, "Automation" in the accent (matches the
+                     approved mockup). The brand logotype is intentionally
+                     the latin two-tone mark on the splash; every other
+                     surface still uses the localized Shell.AppTitle. -->
                 <TextBlock x:Name="AppNameText"
-                           Text="{DynamicResource Shell.AppTitle}"
                            FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
                            HorizontalAlignment="Center"
-                           Margin="0,20,0,0"
-                           Foreground="{DynamicResource NameGradient}"
+                           Margin="0,22,0,0"
                            Opacity="0">
                     <TextBlock.RenderTransform>
                         <TranslateTransform x:Name="AppNameTranslate" Y="12"/>
-                    </TextBlock.RenderTransform>
+                    </TextBlock.RenderTransform><Run Text="ProGlass " Foreground="{DynamicResource SplashTextPrimary}"/><Run Text="Automation" Foreground="{DynamicResource SplashCerulean}"/>
                 </TextBlock>
 
                 <TextBlock x:Name="TaglineText"
@@ -565,17 +626,19 @@
                            Foreground="{DynamicResource SplashCerulean}"
                            Opacity="0"/>
 
-                <!-- Module chips — 6-wide uniform grid, one clean block -->
+                <!-- Module pills — all real modules, flowing centered in a
+                     WrapPanel so they read as one clean row band (matches
+                     the approved mockup's pill styling). -->
                 <ItemsControl x:Name="FeaturePanel"
                               ItemTemplate="{StaticResource FeatureBadgeTemplate}"
-                              HorizontalAlignment="Stretch"
-                              MaxWidth="1180"
-                              Margin="0,24,0,0"
+                              HorizontalAlignment="Center"
+                              MaxWidth="1080"
+                              Margin="0,26,0,0"
                               Opacity="0">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <UniformGrid Columns="6"
-                                         HorizontalAlignment="Center"/>
+                            <WrapPanel Orientation="Horizontal"
+                                       HorizontalAlignment="Center"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
