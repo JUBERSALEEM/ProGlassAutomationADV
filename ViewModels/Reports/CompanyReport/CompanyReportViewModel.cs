@@ -68,6 +68,11 @@ namespace ProGlassAutomation.ViewModels.Reports.CompanyReport
         public bool HasOutstanding => Outstanding > 0m;
         public string Initials => ReportInitials.From(CompanyName);
 
+        // Row-local UI state for the inline details expander. Plain auto-property
+        // is sufficient: the Expander two-way binds to it and rows are recreated
+        // on every reload, so no change notification is required for correctness.
+        public bool IsExpanded { get; set; }
+
         public CompanyReportRow ToReportRow() => new()
         {
             CompanyName = CompanyName,

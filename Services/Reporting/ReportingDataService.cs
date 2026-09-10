@@ -165,6 +165,31 @@ namespace ProGlassAutomation.Services.Reporting
 
     public sealed partial class ReportingDataService : IReportingDataService
     {
+        // ── VOIDED / SOFT-DELETED EXCLUSION (ERP correctness) ─────────────
+        // Every document (PI/JO/DN/TI) carries an IsVoid soft-delete flag.
+        // The user-facing module LISTS hide voided rows by default
+        // (SavedInvoicesListViewModel: query.Where(x => !x.IsVoid)), so a
+        // voided PI/JO/DN/TI is, to the operator, "deleted — it no longer
+        // exists". The reporting layer historically queried the raw tables
+        // with NO void filter, so every operational/analytics report counted
+        // and valued documents the user had already voided — the "reports
+        // read old data that doesn't exist anymore" bug.
+        //
+        // These helpers apply the exact same exclusion the module lists use.
+        // Applied to OPERATIONAL / ANALYTICS reads (Company, Project,
+        // Customer, Salesman, PI, JO, Delivery, TaxInvoice, Profitability,
+        // GlassSpecs, DrillDown option lists). Deliberately NOT applied to
+        // the VAT return, which is a statutory filing that must remain
+        // complete — a voided tax invoice still has to be declared/reversed,
+        // so VAT keeps its own (unfiltered) source by design.
+        //
+        // IsVoid is a plain mapped bool column on every entity, so these
+        // translate to SQL and stay server-side (no client evaluation).
+        private static IQueryable<SavedProformaInvoice> Live(IQueryable<SavedProformaInvoice> q) => q.Where(x => !x.IsVoid);
+        private static IQueryable<SavedJobOrder> Live(IQueryable<SavedJobOrder> q) => q.Where(x => !x.IsVoid);
+        private static IQueryable<SavedDeliveryNote> Live(IQueryable<SavedDeliveryNote> q) => q.Where(x => !x.IsVoid);
+        private static IQueryable<SavedTaxInvoice> Live(IQueryable<SavedTaxInvoice> q) => q.Where(x => !x.IsVoid);
+
         private static bool Eq(string? a, string b) =>
             string.Equals((a ?? "").Trim(), b, StringComparison.OrdinalIgnoreCase);
 

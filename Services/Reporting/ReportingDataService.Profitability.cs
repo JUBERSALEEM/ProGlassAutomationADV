@@ -66,7 +66,7 @@ namespace ProGlassAutomation.Services.Reporting
             var rows = new List<ProfitabilityRow>();
 
             using var piDb = new ProformaInvoicesDbContext();
-            var query = piDb.ProformaInvoices.AsNoTracking().AsQueryable();
+            var query = Live(piDb.ProformaInvoices.AsNoTracking()).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filter.Company))
                 query = query.Where(p => EF.Functions.Like(p.CompanyName, $"%{filter.Company}%"));

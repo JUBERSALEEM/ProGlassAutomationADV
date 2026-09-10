@@ -44,7 +44,7 @@ namespace ProGlassAutomation.Services.Reporting
             var summary = new PiReportSummary();
 
             using var db = new ProformaInvoicesDbContext();
-            var query = db.ProformaInvoices.AsNoTracking().AsQueryable();
+            var query = Live(db.ProformaInvoices.AsNoTracking()).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filter.Company))
                 query = query.Where(i => EF.Functions.Like(i.CompanyName, $"%{filter.Company}%"));
@@ -97,7 +97,7 @@ namespace ProGlassAutomation.Services.Reporting
             {
                 using var joDb = new JobOrdersDbContext();
                 var piIds = await query.Select(i => i.ProformaId).ToListAsync(ct).ConfigureAwait(false);
-                var convertedCount = await joDb.JobOrders.AsNoTracking()
+                var convertedCount = await Live(joDb.JobOrders.AsNoTracking())
                     .Where(j => piIds.Contains(j.SourceProformaId))
                     .Select(j => j.SourceProformaId)
                     .Distinct()
@@ -115,7 +115,7 @@ namespace ProGlassAutomation.Services.Reporting
             filter ??= new ReportingFilter();
             using var db = new ProformaInvoicesDbContext();
 
-            var query = db.ProformaInvoices.AsNoTracking().AsQueryable();
+            var query = Live(db.ProformaInvoices.AsNoTracking()).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filter.Company))
                 query = query.Where(i => EF.Functions.Like(i.CompanyName, $"%{filter.Company}%"));
@@ -167,7 +167,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var joDb = new JobOrdersDbContext();
-                var jos = await joDb.JobOrders.AsNoTracking()
+                var jos = await Live(joDb.JobOrders.AsNoTracking())
                     .Where(j => pagePiIds.Contains(j.SourceProformaId))
                     .Select(j => j.SourceProformaId).ToListAsync(ct).ConfigureAwait(false);
                 foreach (var id in jos.Where(s => !string.IsNullOrWhiteSpace(s))) joSet.Add(id!);
@@ -177,7 +177,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var dnDb = new DeliveryNotesDbContext();
-                var dns = await dnDb.DeliveryNotes.AsNoTracking()
+                var dns = await Live(dnDb.DeliveryNotes.AsNoTracking())
                     .Where(d => !d.IsMasterDn && pagePiIds.Contains(d.ProformaId))
                     .Select(d => d.ProformaId).ToListAsync(ct).ConfigureAwait(false);
                 foreach (var id in dns.Where(s => !string.IsNullOrWhiteSpace(s))) dnSet.Add(id!);
@@ -187,7 +187,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var tiDb = new TaxInvoiceDbContext();
-                var tis = await tiDb.TaxInvoices.AsNoTracking()
+                var tis = await Live(tiDb.TaxInvoices.AsNoTracking())
                     .Where(t => pagePiIds.Contains(t.ProformaId))
                     .Select(t => t.ProformaId).ToListAsync(ct).ConfigureAwait(false);
                 foreach (var id in tis.Where(s => !string.IsNullOrWhiteSpace(s))) tiSet.Add(id!);

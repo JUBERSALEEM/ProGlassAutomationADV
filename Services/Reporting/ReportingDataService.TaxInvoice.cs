@@ -42,7 +42,7 @@ namespace ProGlassAutomation.Services.Reporting
         {
             filter ??= new ReportingFilter();
             using var db = new TaxInvoiceDbContext();
-            var query = db.TaxInvoices.AsNoTracking().AsQueryable();
+            var query = Live(db.TaxInvoices.AsNoTracking()).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filter.ProformaId))
                 query = query.Where(t => t.ProformaId == filter.ProformaId);
@@ -96,7 +96,7 @@ namespace ProGlassAutomation.Services.Reporting
         {
             filter ??= new ReportingFilter();
             using var db = new TaxInvoiceDbContext();
-            var query = db.TaxInvoices.AsNoTracking().AsQueryable();
+            var query = Live(db.TaxInvoices.AsNoTracking()).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filter.ProformaId))
                 query = query.Where(t => t.ProformaId == filter.ProformaId);
@@ -182,7 +182,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var piDb = new ProformaInvoicesDbContext();
-                var snapshots = await piDb.ProformaInvoices.AsNoTracking()
+                var snapshots = await Live(piDb.ProformaInvoices.AsNoTracking())
                     .Where(p => piIds.Contains(p.ProformaId))
                     .Select(p => new { p.ProformaId, p.FullSnapshotJson })
                     .ToListAsync(ct).ConfigureAwait(false);
@@ -221,12 +221,12 @@ namespace ProGlassAutomation.Services.Reporting
                 using var piDb = new ProformaInvoicesDbContext();
                 using var tiDb = new TaxInvoiceDbContext();
 
-                var confirmedPis = await piDb.ProformaInvoices.AsNoTracking()
+                var confirmedPis = await Live(piDb.ProformaInvoices.AsNoTracking())
                     .Where(p => p.Status == "Approved" || p.Status == "Confirmed" || p.Status == "Issued" || p.Status == "Sent")
                     .Select(p => new { p.ProformaId, p.CustomerName, p.ProjectName, p.CompanyName, p.GrandTotalVatInclusive, p.IssueDate })
                     .ToListAsync(ct).ConfigureAwait(false);
 
-                var invoicedPis = (await tiDb.TaxInvoices.AsNoTracking().Select(t => t.ProformaId).ToListAsync(ct))
+                var invoicedPis = (await Live(tiDb.TaxInvoices.AsNoTracking()).Select(t => t.ProformaId).ToListAsync(ct))
                     .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
                 foreach (var pi in confirmedPis.Where(p => !invoicedPis.Contains(p.ProformaId)))

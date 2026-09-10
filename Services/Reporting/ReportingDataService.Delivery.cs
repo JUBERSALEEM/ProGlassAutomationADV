@@ -253,7 +253,9 @@ namespace ProGlassAutomation.Services.Reporting
         {
             IQueryable<DeliveryNoteItem> items = db.DeliveryNoteItems
                 .AsNoTracking()
-                .Where(i => i.DeliveryNote != null && !string.IsNullOrWhiteSpace(i.JobOrderId))
+                // Exclude items whose parent delivery note has been voided
+                // (soft-deleted) — they no longer exist to the operator.
+                .Where(i => i.DeliveryNote != null && !i.DeliveryNote.IsVoid && !string.IsNullOrWhiteSpace(i.JobOrderId))
                 // Exclude PHANTOM rows: a spec group without real row data
                 // (blank glass ref + zero dims, or zero quantity) must never
                 // appear in the delivery report. This filters existing data
@@ -354,7 +356,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var joDb = new JobOrdersDbContext();
-                var snapshots = await joDb.JobOrders.AsNoTracking()
+                var snapshots = await Live(joDb.JobOrders.AsNoTracking())
                     .Where(j => jobIds.Contains(j.JobOrderId))
                     .Select(j => new { j.JobOrderId, j.FullSnapshotJson })
                     .ToListAsync(ct).ConfigureAwait(false);
@@ -415,7 +417,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var joDb = new JobOrdersDbContext();
-                var snapshots = await joDb.JobOrders.AsNoTracking()
+                var snapshots = await Live(joDb.JobOrders.AsNoTracking())
                     .Select(j => new { j.JobOrderId, j.FullSnapshotJson })
                     .ToListAsync(ct).ConfigureAwait(false);
 
@@ -455,7 +457,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var joDb = new JobOrdersDbContext();
-                var snapshots = await joDb.JobOrders.AsNoTracking()
+                var snapshots = await Live(joDb.JobOrders.AsNoTracking())
                     .Select(j => new { j.JobOrderId, j.FullSnapshotJson })
                     .ToListAsync(ct).ConfigureAwait(false);
 

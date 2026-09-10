@@ -42,7 +42,7 @@ namespace ProGlassAutomation.Services.Reporting
         {
             filter ??= new ReportingFilter();
             using var piDb = new ProformaInvoicesDbContext();
-            var piAll = await piDb.ProformaInvoices.AsNoTracking()
+            var piAll = await Live(piDb.ProformaInvoices.AsNoTracking())
                 .Select(p => new { p.CompanyName, p.ProformaId, p.Status, p.GrandTotalVatInclusive })
                 .ToListAsync(ct).ConfigureAwait(false);
 
@@ -65,7 +65,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var joDb = new JobOrdersDbContext();
-                var joAll = await joDb.JobOrders.AsNoTracking().Select(j => j.SourceProformaId).ToListAsync(ct).ConfigureAwait(false);
+                var joAll = await Live(joDb.JobOrders.AsNoTracking()).Select(j => j.SourceProformaId).ToListAsync(ct).ConfigureAwait(false);
                 var joSet = joAll.Where(s => !string.IsNullOrWhiteSpace(s)).ToHashSet(StringComparer.OrdinalIgnoreCase);
                 foreach (var g in groups)
                 {
@@ -78,7 +78,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var tiDb = new TaxInvoiceDbContext();
-                var tiAll = await tiDb.TaxInvoices.AsNoTracking().Select(t => new { t.ProformaId, t.GrandTotal, t.Status }).ToListAsync(ct).ConfigureAwait(false);
+                var tiAll = await Live(tiDb.TaxInvoices.AsNoTracking()).Select(t => new { t.ProformaId, t.GrandTotal, t.Status }).ToListAsync(ct).ConfigureAwait(false);
                 var tiByPi = tiAll.GroupBy(t => t.ProformaId, StringComparer.OrdinalIgnoreCase)
                     .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.OrdinalIgnoreCase);
                 foreach (var g in groups)
@@ -109,7 +109,7 @@ namespace ProGlassAutomation.Services.Reporting
         {
             filter ??= new ReportingFilter();
             using var piDb = new ProformaInvoicesDbContext();
-            var piAll = await piDb.ProformaInvoices.AsNoTracking()
+            var piAll = await Live(piDb.ProformaInvoices.AsNoTracking())
                 .Select(p => new { p.CustomerName, p.ProformaId, p.GrandTotalVatInclusive, p.FullSnapshotJson })
                 .ToListAsync(ct).ConfigureAwait(false);
 
@@ -162,7 +162,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var joDb = new JobOrdersDbContext();
-                var joPis = (await joDb.JobOrders.AsNoTracking().Select(j => j.SourceProformaId).ToListAsync(ct)).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                var joPis = (await Live(joDb.JobOrders.AsNoTracking()).Select(j => j.SourceProformaId).ToListAsync(ct)).ToHashSet(StringComparer.OrdinalIgnoreCase);
                 foreach (var g in groups)
                     if (piByCustomer.TryGetValue(g.CustomerName, out var pis))
                         g.JoCount = pis.Count(pi => joPis.Contains(pi));
@@ -172,7 +172,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var tiDb = new TaxInvoiceDbContext();
-                var tiAll = await tiDb.TaxInvoices.AsNoTracking().Select(t => new { t.ProformaId, t.GrandTotal }).ToListAsync(ct).ConfigureAwait(false);
+                var tiAll = await Live(tiDb.TaxInvoices.AsNoTracking()).Select(t => new { t.ProformaId, t.GrandTotal }).ToListAsync(ct).ConfigureAwait(false);
                 var tiByPi = tiAll.GroupBy(t => t.ProformaId, StringComparer.OrdinalIgnoreCase).ToDictionary(g => g.Key, g => g.Sum(x => x.GrandTotal), StringComparer.OrdinalIgnoreCase);
                 foreach (var g in groups)
                 {
@@ -196,7 +196,7 @@ namespace ProGlassAutomation.Services.Reporting
         {
             filter ??= new ReportingFilter();
             using var piDb = new ProformaInvoicesDbContext();
-            var piAll = await piDb.ProformaInvoices.AsNoTracking()
+            var piAll = await Live(piDb.ProformaInvoices.AsNoTracking())
                 .Select(p => new { p.ProformaId, p.Status, p.GrandTotalVatInclusive, p.CustomerName, p.ProjectName, p.FullSnapshotJson })
                 .ToListAsync(ct).ConfigureAwait(false);
 
@@ -239,7 +239,7 @@ namespace ProGlassAutomation.Services.Reporting
         {
             filter ??= new ReportingFilter();
             using var piDb = new ProformaInvoicesDbContext();
-            var piAll = await piDb.ProformaInvoices.AsNoTracking()
+            var piAll = await Live(piDb.ProformaInvoices.AsNoTracking())
                 .Select(p => new { p.ProformaId, p.ProjectName, p.CustomerName, p.CompanyName, p.GrandTotalVatInclusive, p.FullSnapshotJson })
                 .ToListAsync(ct).ConfigureAwait(false);
 
@@ -292,7 +292,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var joDb = new JobOrdersDbContext();
-                var joPis = (await joDb.JobOrders.AsNoTracking().Select(j => j.SourceProformaId).ToListAsync(ct))
+                var joPis = (await Live(joDb.JobOrders.AsNoTracking()).Select(j => j.SourceProformaId).ToListAsync(ct))
                     .Where(s => !string.IsNullOrWhiteSpace(s)).ToHashSet(StringComparer.OrdinalIgnoreCase);
                 foreach (var r in list)
                     if (piByProject.TryGetValue(r.ProjectName, out var pis))
@@ -303,7 +303,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var tiDb = new TaxInvoiceDbContext();
-                var tiByPi = (await tiDb.TaxInvoices.AsNoTracking().Select(t => new { t.ProformaId, t.GrandTotal }).ToListAsync(ct))
+                var tiByPi = (await Live(tiDb.TaxInvoices.AsNoTracking()).Select(t => new { t.ProformaId, t.GrandTotal }).ToListAsync(ct))
                     .GroupBy(t => t.ProformaId, StringComparer.OrdinalIgnoreCase)
                     .ToDictionary(g => g.Key, g => g.Sum(x => x.GrandTotal), StringComparer.OrdinalIgnoreCase);
                 foreach (var r in list)

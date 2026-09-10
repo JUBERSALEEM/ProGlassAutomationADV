@@ -42,7 +42,7 @@ namespace ProGlassAutomation.Services.Reporting
         {
             filter ??= new ReportingFilter();
             using var db = new JobOrdersDbContext();
-            var query = db.JobOrders.AsNoTracking().AsQueryable();
+            var query = Live(db.JobOrders.AsNoTracking()).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filter.ProformaId))
                 query = query.Where(j => j.SourceProformaId == filter.ProformaId);
@@ -105,7 +105,7 @@ namespace ProGlassAutomation.Services.Reporting
         {
             filter ??= new ReportingFilter();
             using var db = new JobOrdersDbContext();
-            var query = db.JobOrders.AsNoTracking().AsQueryable();
+            var query = Live(db.JobOrders.AsNoTracking()).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filter.ProformaId))
                 query = query.Where(j => j.SourceProformaId == filter.ProformaId);
@@ -162,7 +162,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var dnDb = new DeliveryNotesDbContext();
-                var realDnIds = await dnDb.DeliveryNotes.AsNoTracking()
+                var realDnIds = await Live(dnDb.DeliveryNotes.AsNoTracking())
                     .Where(d => !d.IsMasterDn && pageJoIds.Contains(d.JobOrderId))
                     .Select(d => d.DeliveryNoteId)
                     .ToListAsync(ct).ConfigureAwait(false);
