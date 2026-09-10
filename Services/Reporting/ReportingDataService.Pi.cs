@@ -84,6 +84,39 @@ namespace ProGlassAutomation.Services.Reporting
             }
             catch (Exception ex) { AppLogService.Warning($"Conversion count warning: {ex.Message}"); }
 
+            // ── Quantity / area for the QUANTITY KPI card ───────────────
+            // Pieces and m² live inside each PI's snapshot JSON (not
+            // columns), so this is a bounded snapshot scan over the
+            // filtered set — newest first, capped at 1000 like the
+            // GlassSpec engine. Best effort: a failure leaves the card at
+            // 0 instead of blanking the report. (2026-09-10 — the card
+            // previously read a permanent 0: the fields were never
+            // assigned anywhere.)
+            try
+            {
+                var snapPage = await query
+                    .OrderByDescending(i => i.CreatedAt)
+                    .Take(1000)
+                    .Select(i => new { i.ProformaId, i.CompanyName, i.CustomerName, i.IssueDate, i.Status, i.FullSnapshotJson })
+                    .ToListAsync(ct).ConfigureAwait(false);
+
+                long qtySum = 0;
+                decimal sqmSum = 0m;
+                foreach (var r in snapPage)
+                {
+                    var snap = TryDeserializePiSnapshot(r.FullSnapshotJson);
+                    var glassRows = ExtractGlassRowsFromPiSnapshot(
+                        snap ?? new ProformaInvoiceSnapshot(), r.ProformaId,
+                        r.CompanyName, r.CustomerName,
+                        snap?.Client?.SalesRepresentative ?? "", r.IssueDate, r.Status);
+                    qtySum += glassRows.Sum(x => x.Qty);
+                    sqmSum += glassRows.Sum(x => x.TotalSqm);
+                }
+                summary.TotalQty = (int)qtySum;
+                summary.TotalSqm = Math.Round(sqmSum, 3);
+            }
+            catch (Exception ex) { AppLogService.Warning($"PI quantity summary warning: {ex.Message}"); }
+
             return summary;
         }
 

@@ -122,6 +122,10 @@ namespace ProGlassAutomation.Services.Reporting
                 Project = filter.Project, GlassType = filter.GlassType, Specification = filter.Specification,
                 Colour = filter.Colour, Thickness = filter.Thickness, GlassRef = filter.GlassRef,
                 SearchText = filter.SearchText, ProformaId = filter.ProformaId,
+                // Status must ride along: the KPI strip aggregates the same
+                // scope the grid shows — a status-filtered grid with
+                // unfiltered KPIs reads as a wrong total. (2026-09-10)
+                Status = filter.Status,
                 Page = 1, PageSize = 5000
             }, ct);
 

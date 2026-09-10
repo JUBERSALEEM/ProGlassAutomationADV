@@ -454,8 +454,17 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
             finally { IsExporting = false; }
         }
 
+        // Monotonic load generation: bumped on every CancelPrevious. A
+        // superseded load must not touch state owned by the newer run —
+        // its finally block used to clear IsLoading while the newer load
+        // was still in flight (spinner vanished mid-load on every report).
+        // Capture _loadGen right after CancelPrevious() and compare in the
+        // finally. (2026-09-10)
+        protected int _loadGen;
+
         protected void CancelPrevious()
         {
+            _loadGen++;
             try { _cts?.Cancel(); _cts?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
             _cts = new CancellationTokenSource();
         }

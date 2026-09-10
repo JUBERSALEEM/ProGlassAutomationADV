@@ -175,6 +175,7 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
             }
             
             CancelPrevious();
+            int gen = _loadGen; // generation of THIS load — see ReportBaseViewModel
             var token = LoadToken;
             IsLoading = true; 
             HasError = false;
@@ -204,7 +205,7 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
                 ErrorMessage = ExceptionMessages.Deep(ex);
                 Services.Logging.AppLogService.Error($"VAT load error: {ExceptionMessages.Deep(ex)}", ex);
             }
-            finally { IsLoading = false; }
+            finally { if (gen == _loadGen) IsLoading = false; }
         }
 
         protected override void InitCommands()

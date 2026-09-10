@@ -44,33 +44,7 @@ namespace ProGlassAutomation.Services.Reporting
             using var db = new JobOrdersDbContext();
             var query = Live(db.JobOrders.AsNoTracking()).AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(filter.ProformaId))
-                query = query.Where(j => j.SourceProformaId == filter.ProformaId);
-            if (!string.IsNullOrWhiteSpace(filter.JobOrderId))
-                query = query.Where(j => j.JobOrderId == filter.JobOrderId);
-            if (!string.IsNullOrWhiteSpace(filter.Customer))
-                query = query.Where(j => EF.Functions.Like(j.CustomerName, $"%{filter.Customer}%"));
-            if (!string.IsNullOrWhiteSpace(filter.Status))
-            {
-                var st = filter.Status.Trim();
-                if (Eq(st, "In Production") || Eq(st, "InProduction"))
-                    query = query.Where(j => j.Status == "InProduction" || j.Status == "In Production");
-                else
-                    query = query.Where(j => j.Status == st);
-            }
-            if (filter.DateFrom.HasValue)
-                query = query.Where(j => j.DeliveryDate == null || j.DeliveryDate >= filter.DateFrom.Value);
-            if (filter.DateTo.HasValue)
-                query = query.Where(j => j.DeliveryDate == null || j.DeliveryDate <= DayEnd(filter.DateTo));
-
-            if (filter.HasSearch)
-            {
-                var term = filter.SearchText.Trim();
-                query = query.Where(j =>
-                    EF.Functions.Like(j.JobOrderId, $"%{term}%") ||
-                    EF.Functions.Like(j.SourceProformaId, $"%{term}%") ||
-                    EF.Functions.Like(j.CustomerName, $"%{term}%"));
-            }
+            query = ApplyJoFilters(query, filter);
 
             var summary = new JoReportSummary();
             summary.TotalJo = await query.CountAsync(ct).ConfigureAwait(false);
@@ -101,18 +75,27 @@ namespace ProGlassAutomation.Services.Reporting
             return summary;
         }
 
-        public async Task<PagedResult<JoReportRow>> GetJoRowsAsync(ReportingFilter filter, CancellationToken ct = default)
-        {
-            filter ??= new ReportingFilter();
-            using var db = new JobOrdersDbContext();
-            var query = Live(db.JobOrders.AsNoTracking()).AsQueryable();
 
+        /// <summary>
+        /// THE job-order filter — single source of truth for how a
+        /// ReportingFilter narrows the JO table (summary + rows share it,
+        /// so the KPI cards and the grid can never disagree). Note the
+        /// open-ended date semantic: a JO with no delivery date is still
+        /// open, so it always belongs to the scope regardless of period.
+        /// (Extracted 2026-09-10 from two identical inline copies; Project
+        /// is a mapped column and now filters DB-side.)
+        /// </summary>
+        private static IQueryable<SavedJobOrder> ApplyJoFilters(
+            IQueryable<SavedJobOrder> query, ReportingFilter filter)
+        {
             if (!string.IsNullOrWhiteSpace(filter.ProformaId))
                 query = query.Where(j => j.SourceProformaId == filter.ProformaId);
             if (!string.IsNullOrWhiteSpace(filter.JobOrderId))
                 query = query.Where(j => j.JobOrderId == filter.JobOrderId);
             if (!string.IsNullOrWhiteSpace(filter.Customer))
                 query = query.Where(j => EF.Functions.Like(j.CustomerName, $"%{filter.Customer}%"));
+            if (!string.IsNullOrWhiteSpace(filter.Project))
+                query = query.Where(j => j.ProjectName == filter.Project);
             if (!string.IsNullOrWhiteSpace(filter.Status))
             {
                 var st = filter.Status.Trim();
@@ -134,6 +117,16 @@ namespace ProGlassAutomation.Services.Reporting
                     EF.Functions.Like(j.SourceProformaId, $"%{term}%") ||
                     EF.Functions.Like(j.CustomerName, $"%{term}%"));
             }
+            return query;
+        }
+
+        public async Task<PagedResult<JoReportRow>> GetJoRowsAsync(ReportingFilter filter, CancellationToken ct = default)
+        {
+            filter ??= new ReportingFilter();
+            using var db = new JobOrdersDbContext();
+            var query = Live(db.JobOrders.AsNoTracking()).AsQueryable();
+
+            query = ApplyJoFilters(query, filter);
 
             var totalCount = await query.CountAsync(ct).ConfigureAwait(false);
             if (totalCount == 0)

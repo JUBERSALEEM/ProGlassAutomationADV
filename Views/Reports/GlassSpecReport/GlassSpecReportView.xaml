@@ -141,6 +141,12 @@
                                 <TextBlock Text="{DynamicResource Common.Project}" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                 <ComboBox Width="150" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding ProjectOptions}" SelectedItem="{Binding SelectedProject}" ToolTip="Filter by project"/>
                             </StackPanel>
+
+                            <!-- Company -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="150" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding CompanyOptions}" SelectedItem="{Binding SelectedCompany}" ToolTip="Filter by company"/>
+                            </StackPanel>
                             <!-- Sort by + direction -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Reports.Common.SortBy}" Style="{StaticResource ModuleFieldLabelStyle}"/>

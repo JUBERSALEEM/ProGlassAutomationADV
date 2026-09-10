@@ -166,6 +166,12 @@
                                 <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding CustomerOptions}" SelectedItem="{Binding SelectedCustomer}" ToolTip="{DynamicResource Reports.DeliveryReport.FilterCustomer}"/>
                             </StackPanel>
 
+                            <!-- Company -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="130" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding CompanyOptions}" SelectedItem="{Binding SelectedCompany}" ToolTip="{DynamicResource Reports.PiReport.FilterCompany}"/>
+                            </StackPanel>
+
                             <!-- Status -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Common.Status}" Style="{StaticResource ModuleFieldLabelStyle}"/>

@@ -347,6 +347,7 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
         public override async Task LoadAsync()
         {
             CancelPrevious();
+            int gen = _loadGen; // generation of THIS load — see ReportBaseViewModel
             var token = LoadToken;
             IsLoading = true; HasError = false;
             try
@@ -367,7 +368,7 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
             }
             catch (Exception ex) when (!(ex is OperationCanceledException))
             { HasError = true; ErrorMessage = ExceptionMessages.Deep(ex); }
-            finally { IsLoading = false; }
+            finally { if (gen == _loadGen) IsLoading = false; }
         }
 
         protected override async Task ExportAsync(ExportFormat format)

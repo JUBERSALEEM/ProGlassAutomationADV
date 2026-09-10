@@ -135,6 +135,7 @@ namespace ProGlassAutomation.ViewModels.Reports.SalesmanReport
         public override async Task LoadAsync()
         {
             CancelPrevious();
+            int gen = _loadGen; // generation of THIS load — see ReportBaseViewModel
             var token = LoadToken;
             IsLoading = true; HasError = false;
             try
@@ -171,7 +172,7 @@ namespace ProGlassAutomation.ViewModels.Reports.SalesmanReport
                 HasError = true; ErrorMessage = ExceptionMessages.Deep(ex);
                 AppLogService.Warning($"SalesmanReport LoadAsync error: {ExceptionMessages.Deep(ex)}");
             }
-            finally { IsLoading = false; }
+            finally { if (gen == _loadGen) IsLoading = false; }
         }
 
         private async Task<List<SalesmanRow>> BuildMergedRowsAsync(IEnumerable<SalesmanReportRow> analytics)
