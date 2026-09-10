@@ -106,6 +106,8 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
 
             // ── Activity commands ─────────────────────────────────────
             RefreshActivityCommand = new RelayCommand(_ => LoadActivityAsync());
+            SetScopeCommand = new RelayCommand(
+                param => SelectedScope = param as string ?? ScopeAll);
 
             // Phase 4: Named handlers — detachable, no lambda leak
             AuditService.ActivityLogged += OnActivityLogged;
@@ -346,8 +348,80 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
         }
 
         // ══════════════════════════════════════════════════════════════
-        //  ACTIVITY TAB
+        //  ACTIVITY TAB — ACTION-FOCUSED (redesigned 2026-09-10)
+        //
+        //  The DB keeps recording EVERYTHING (audit integrity is never
+        //  reduced). Only the SURFACED view is narrowed:
+        //    • Scope chips  — Transactions / Inventory / Users & Security
+        //                     / System, or All for the compliance view.
+        //    • Important ON — hides low-signal rows (viewed / opened /
+        //                     started / session / heartbeat …). Security
+        //                     sections always pass.
+        //    • Search       — free text over action, details, user.
+        //  We fetch a larger window (1500) and filter client-side, so a
+        //  narrow scope still shows real actions instead of 300 recent
+        //  noise rows.
         // ══════════════════════════════════════════════════════════════
+
+        private const int FetchActivityRows = 1500;
+
+        /// <summary>Section sets behind the scope chips (AuditSections values).</summary>
+        private static readonly Dictionary<string, HashSet<string>> ScopeMap =
+            new()
+            {
+                ["Transactions"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    AuditSections.Proforma, AuditSections.JobOrder,
+                    AuditSections.DeliveryNote, AuditSections.TaxInvoice,
+                    AuditSections.CreditNote, AuditSections.Statement,
+                    AuditSections.Inquiry
+                },
+                ["Inventory"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    AuditSections.SheetStore, AuditSections.Specifications,
+                    AuditSections.MasterData
+                },
+                ["UsersSecurity"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    AuditSections.Users, AuditSections.Settings,
+                    AuditSections.Sharing, AuditSections.Updates
+                },
+                ["System"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    AuditSections.App, AuditSections.Dashboard,
+                    AuditSections.Reports, AuditSections.Ai
+                }
+            };
+
+        /// <summary>
+        /// Security-relevant sections are ALWAYS important — they never get
+        /// hidden by the noise-verb filter.
+        /// </summary>
+        private static bool IsSecuritySection(string section) =>
+            section == AuditSections.Users ||
+            section == AuditSections.Settings ||
+            section == AuditSections.Sharing;
+
+        /// <summary>
+        /// Low-signal verbs. Conservative deny-list on purpose: when in
+        /// doubt, a row stays visible.
+        /// </summary>
+        private static readonly string[] NoiseVerbs =
+            { "view", "opened", "open ", "session", "heartbeat",
+              "presence", "refresh", "hover", "navigat", "startup" };
+
+        private static bool IsNoiseAction(ActivityLogEntry e)
+        {
+            if (IsSecuritySection(e.Section)) return false;
+            var action = e.Action ?? string.Empty;
+            foreach (var verb in NoiseVerbs)
+            {
+                if (action.ToLowerInvariant().Contains(verb)) return true;
+            }
+            return false;
+        }
+
+        private List<ActivityLogEntry> _allRecentEntries = new();
 
         private ObservableCollection<Shared.ActivityRowViewModel>
             _activityRows = new();
@@ -357,31 +431,85 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
             private set { _activityRows = value; OnPropertyChanged(); }
         }
 
-        private List<string> _sectionFilters = new();
-        /// <summary>"All sections" + every section that has activity.</summary>
-        public List<string> SectionFilters
-        {
-            get => _sectionFilters;
-            private set { _sectionFilters = value; OnPropertyChanged(); }
-        }
+        // ── Scope chips ───────────────────────────────────────────────
 
-        private string _selectedSectionFilter = "All sections";
-        public string SelectedSectionFilter
+        public const string ScopeAll = "All";
+        private string _selectedScope = ScopeAll;
+        /// <summary>One of: All / Transactions / Inventory / UsersSecurity / System.</summary>
+        public string SelectedScope
         {
-            get => _selectedSectionFilter;
+            get => _selectedScope;
             set
             {
-                // Guard: ComboBox rebinding (ItemsSource refresh) can
-                // re-fire the setter — ignore no-op/null writes so we
-                // never trigger a reload loop.
-                if (string.IsNullOrEmpty(value) ||
-                    _selectedSectionFilter == value)
-                    return;
-
-                _selectedSectionFilter = value;
+                var next = string.IsNullOrWhiteSpace(value) ? ScopeAll : value;
+                if (_selectedScope == next) return;
+                _selectedScope = next;
                 OnPropertyChanged();
-                LoadActivityAsync();
+                RaiseScopeFlags();
+                ApplyActivityFilters();
             }
+        }
+
+        public bool IsScopeAll => _selectedScope == ScopeAll;
+        public bool IsScopeTransactions => _selectedScope == "Transactions";
+        public bool IsScopeInventory => _selectedScope == "Inventory";
+        public bool IsScopeUsersSecurity => _selectedScope == "UsersSecurity";
+        public bool IsScopeSystem => _selectedScope == "System";
+
+        private void RaiseScopeFlags()
+        {
+            OnPropertyChanged(nameof(IsScopeAll));
+            OnPropertyChanged(nameof(IsScopeTransactions));
+            OnPropertyChanged(nameof(IsScopeInventory));
+            OnPropertyChanged(nameof(IsScopeUsersSecurity));
+            OnPropertyChanged(nameof(IsScopeSystem));
+        }
+
+        public ICommand SetScopeCommand { get; private set; }
+
+        // ── Important-only + search ───────────────────────────────────
+
+        private bool _importantOnly = true;
+        /// <summary>Default ON: show actions, not every heartbeat.</summary>
+        public bool ImportantOnly
+        {
+            get => _importantOnly;
+            set
+            {
+                if (_importantOnly == value) return;
+                _importantOnly = value;
+                OnPropertyChanged();
+                ApplyActivityFilters();
+            }
+        }
+
+        private string _activitySearch = "";
+        public string ActivitySearch
+        {
+            get => _activitySearch;
+            set
+            {
+                var next = value ?? "";
+                if (_activitySearch == next) return;
+                _activitySearch = next;
+                OnPropertyChanged();
+                ApplyActivityFilters();
+            }
+        }
+
+        private int _activityTotal;
+        /// <summary>Rows in the current fetch window before filtering.</summary>
+        public int ActivityTotal
+        {
+            get => _activityTotal;
+            private set { _activityTotal = value; OnPropertyChanged(); }
+        }
+
+        private string _activityCountDisplay = "";
+        public string ActivityCountDisplay
+        {
+            get => _activityCountDisplay;
+            private set { _activityCountDisplay = value; OnPropertyChanged(); }
         }
 
         private bool _activityEmpty = true;
@@ -393,47 +521,72 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
 
         public ICommand RefreshActivityCommand { get; private set; }
 
-        /// <summary>Loads the audit trail (filtered by selected section).</summary>
+        /// <summary>
+        /// Loads a wide audit window and applies the action-focused filters.
+        /// </summary>
         public async Task LoadActivityAsync()
         {
-            string? section = SelectedSectionFilter == "All sections"
-                ? null
-                : SelectedSectionFilter;
-
             var entries = await AuditService.GetRecentAsync(
-                MaxActivityRows, section);
+                FetchActivityRows, section: null);
 
-            // PERF: single collection swap instead of 300 Add() calls.
-            var rows = entries.Select(ToRow).ToList();
-            var sections = await AuditService.GetSectionsWithActivityAsync();
-            var filters = new List<string> { "All sections" };
-            filters.AddRange(sections);
+            _allRecentEntries = entries ?? new List<ActivityLogEntry>();
+            ActivityTotal = _allRecentEntries.Count;
+
+            UiDispatch.Run(ApplyActivityFilters);
+        }
+
+        /// <summary>
+        /// Single client-side pipeline: scope → importance → search → cap.
+        /// Runs on whatever thread observed the change; the collection swap
+        /// lands on the UI thread.
+        /// </summary>
+        private void ApplyActivityFilters()
+        {
+            IEnumerable<ActivityLogEntry> q = _allRecentEntries;
+
+            if (SelectedScope != ScopeAll &&
+                ScopeMap.TryGetValue(SelectedScope, out var sections))
+            {
+                q = q.Where(e => sections.Contains(e.Section ?? ""));
+            }
+
+            if (ImportantOnly)
+                q = q.Where(e => !IsNoiseAction(e));
+
+            var term = (ActivitySearch ?? "").Trim();
+            if (term.Length > 0)
+            {
+                q = q.Where(e =>
+                    (e.Action ?? "").Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    (e.Details ?? "").Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    (e.Username ?? "").Contains(term, StringComparison.OrdinalIgnoreCase));
+            }
+
+            var rows = q.Take(MaxActivityRows).Select(ToRow).ToList();
+            int shown = rows.Count;
 
             UiDispatch.Run(() =>
             {
                 ActivityRows =
                     new ObservableCollection<Shared.ActivityRowViewModel>(rows);
                 _lastActivityLoadUtc = DateTime.UtcNow;
-                ActivityEmpty = rows.Count == 0;
-                SectionFilters = filters;
-                if (!filters.Contains(SelectedSectionFilter))
-                    SelectedSectionFilter = "All sections";
+                ActivityEmpty = shown == 0;
+                ActivityCountDisplay = string.Format(
+                    LocalizationService.Instance.T(
+                        "SystemCenter.ActionsShownFormat"),
+                    shown, ActivityTotal);
             });
         }
 
         private void OnActivityLogged(object? sender, ActivityEventArgs e)
         {
-            // Respect the active filter.
-            if (SelectedSectionFilter != "All sections" &&
-                e.Entry.Section != SelectedSectionFilter)
-                return;
+            // Keep the wide window fresh; the pipeline decides visibility.
+            _allRecentEntries.Insert(0, e.Entry);
+            if (_allRecentEntries.Count > FetchActivityRows)
+                _allRecentEntries.RemoveAt(_allRecentEntries.Count - 1);
+            ActivityTotal = _allRecentEntries.Count;
 
-            ActivityRows.Insert(0, ToRow(e.Entry));
-
-            while (ActivityRows.Count > MaxActivityRows)
-                ActivityRows.RemoveAt(ActivityRows.Count - 1);
-
-            ActivityEmpty = ActivityRows.Count == 0;
+            ApplyActivityFilters();
         }
 
         private static Shared.ActivityRowViewModel ToRow(ActivityLogEntry e)

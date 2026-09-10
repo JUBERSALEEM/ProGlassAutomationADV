@@ -62,7 +62,7 @@
          All commands, bindings, and code-behind wiring preserved.
          No ViewModel changes required.
     ═══════════════════════════════════════════════════════════════ -->
-    <Grid Margin="24">
+    <Grid Margin="20,16,20,16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -70,7 +70,7 @@
         </Grid.RowDefinitions>
 
         <!-- ══ HEADER ═════════════════════════════════════════════════ -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,12">
+        <StackPanel Grid.Row="0" Margin="0,0,0,8">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="&#xE90F;" FontFamily="Segoe MDL2 Assets"
                            FontSize="{StaticResource TextTitle}" VerticalAlignment="Center"
@@ -91,7 +91,7 @@
         <!-- ══ TAB STRIP ══════════════════════════════════════════════ -->
         <Border Grid.Row="1"
                 Style="{StaticResource ModuleTabStripStyle}"
-                Margin="0,0,0,16">
+                Margin="0,0,0,10">
             <StackPanel Orientation="Horizontal">
 
                 <!-- TAB Users — STEP D two-button visibility pattern -->
@@ -176,16 +176,25 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- LEFT: create user + switch user -->
-            <StackPanel Grid.Column="0" Margin="0,0,20,0">
+            <!-- LEFT: create user + switch user + online network.
+                 2026-09-10 FIX: this column used to be a bare StackPanel —
+                 on laptop heights the ONLINE NETWORK (nearby connected PC
+                 users) card fell below the viewport with no way to reach
+                 it. Cards are compacted AND the column now scrolls. -->
+            <ScrollViewer Grid.Column="0"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          Focusable="False"
+                          Margin="0,0,16,0">
+            <StackPanel Margin="0">
 
                 <Border Background="{DynamicResource ElevatedSurfaceBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="18">
+                        Padding="14,12">
                     <StackPanel>
-<StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+<StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                             <TextBlock Text="&#xE710;"
                                        FontFamily="Segoe MDL2 Assets"
                                        FontSize="{StaticResource TextTitle}"
@@ -203,21 +212,21 @@
                                  Text="{Binding NewUsername, UpdateSourceTrigger=PropertyChanged}"/>
 
                         <TextBlock Text="{DynamicResource Login.DisplayNAME}" Style="{StaticResource ScFieldLabel}"
-                                   Margin="0,10,0,5"/>
+                                   Margin="0,8,0,4"/>
                         <TextBox Style="{StaticResource ScTextBox}"
                                  Text="{Binding NewDisplayName, UpdateSourceTrigger=PropertyChanged}"/>
 
                         <TextBlock Text="{DynamicResource SystemCenter.ROLE}" Style="{StaticResource ScFieldLabel}"
-                                   Margin="0,10,0,5"/>
+                                   Margin="0,8,0,4"/>
                         <ComboBox ItemsSource="{Binding RoleOptions}"
                                   SelectedItem="{Binding SelectedRole}"
                                   Padding="10,7"
                                   FontSize="{StaticResource TextBodyLarge}"/>
 
                         <TextBlock Text="{DynamicResource Login.Password}" Style="{StaticResource ScFieldLabel}"
-                                   Margin="0,10,0,5"/>
+                                   Margin="0,8,0,4"/>
                         <PasswordBox x:Name="NewPasswordBox"
-                                     Padding="10,7"
+                                     Padding="10,6"
                                      FontSize="{StaticResource TextBodyLarge}"
                                      Background="{DynamicResource MenuHoverBrush}"
                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -225,7 +234,7 @@
                                      PasswordChanged="NewPasswordBox_PasswordChanged"/>
 
                         <Button Style="{StaticResource PrimaryPillButton}"
-                                Margin="0,16,0,0"
+                                Margin="0,10,0,0"
                                 HorizontalAlignment="Stretch"
                                 Tag="&#xE710;" Content="{DynamicResource SystemCenter.CreateUSER}"
                                 ToolTip="{DynamicResource SystemCenter.CreateNewUserAccount}"
@@ -233,7 +242,7 @@
 
                         <TextBlock Text="{Binding UserFormMessage}"
                                    FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                   Margin="0,10,0,0"
+                                   Margin="0,6,0,0"
                                    TextWrapping="Wrap"
                                    Foreground="{DynamicResource AccentBrush}"/>
                     </StackPanel>
@@ -243,8 +252,8 @@
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="18"
-                        Margin="0,14,0,0">
+                        Padding="14,12"
+                        Margin="0,12,0,0">
                     <StackPanel>
 <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                             <TextBlock Text="&#xE895;"
@@ -261,16 +270,16 @@
                         <TextBlock Text="{DynamicResource SystemCenter.FutureActionsRecordedActiveUser}"
                                    FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   Margin="0,0,0,12"/>
+                                   Margin="0,0,0,8"/>
 
                         <TextBlock Text="{DynamicResource Login.Username}" Style="{StaticResource ScFieldLabel}"/>
                         <TextBox Style="{StaticResource ScTextBox}"
                                  Text="{Binding SwitchUsername, UpdateSourceTrigger=PropertyChanged}"/>
 
                         <TextBlock Text="{DynamicResource Login.Password}" Style="{StaticResource ScFieldLabel}"
-                                   Margin="0,10,0,5"/>
+                                   Margin="0,8,0,4"/>
                         <PasswordBox x:Name="SwitchPasswordBox"
-                                     Padding="10,7"
+                                     Padding="10,6"
                                      FontSize="{StaticResource TextBodyLarge}"
                                      Background="{DynamicResource MenuHoverBrush}"
                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -278,7 +287,7 @@
                                      PasswordChanged="SwitchPasswordBox_PasswordChanged"/>
 
                         <Button Style="{StaticResource PrimaryPillButton}"
-                                Margin="0,16,0,0"
+                                Margin="0,10,0,0"
                                 HorizontalAlignment="Stretch"
                                 Tag="&#xE895;" Content="{DynamicResource Login.SwitchUser}"
                                 ToolTip="{DynamicResource SystemCenter.SignUser}"
@@ -286,7 +295,7 @@
 
                         <TextBlock Text="{Binding SwitchMessage}"
                                    FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                   Margin="0,10,0,0"
+                                   Margin="0,6,0,0"
                                    TextWrapping="Wrap"
                                    Foreground="{DynamicResource AccentBrush}"/>
                     </StackPanel>
@@ -297,8 +306,8 @@
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="18"
-                        Margin="0,14,0,0">
+                        Padding="14,12"
+                        Margin="0,12,0,4">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                             <TextBlock Text="&#xE839;"
@@ -337,7 +346,7 @@
                         <ItemsControl ItemsSource="{Binding OnlinePeers}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Padding="10,7" Margin="0,0,0,6"
+                                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Padding="8,5" Margin="0,0,0,4"
                                             Background="{DynamicResource MenuHoverBrush}"
                                             CornerRadius="{DynamicResource ControlCornerRadius}">
                                         <Grid>
@@ -369,6 +378,7 @@
                     </StackPanel>
                 </Border>
             </StackPanel>
+            </ScrollViewer>
 
             <!-- RIGHT: user table -->
             <Border Grid.Column="1"
@@ -568,27 +578,178 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="0"
-                        Orientation="Horizontal"
-                        Margin="0,0,0,12">
+            <!-- 2026-09-10: ACTION-FOCUSED toolbar — scope chips +
+                 important-only + search replace the flat section combo.
+                 The DB still records everything; this only narrows the
+                 surfaced view (All = full compliance trail). -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,8">
+                <StackPanel Orientation="Horizontal">
 
-                <TextBlock Text="{DynamicResource SystemCenter.Section}"
-                           FontSize="{StaticResource TextBody}"
-                           VerticalAlignment="Center"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                <ComboBox ItemsSource="{Binding SectionFilters}"
-                          SelectedItem="{Binding SelectedSectionFilter}"
-                          Margin="8,0,0,0"
-                          MinWidth="180"
-                          Padding="10,6"
-                          FontSize="{StaticResource TextBody}"
-                          VerticalAlignment="Center"/>
+                    <!-- Scope chips: STEP D two-button pattern -->
+                    <Button Command="{Binding SetScopeCommand}" CommandParameter="All"
+                            Tag="&#xE81C;" Content="{DynamicResource SystemCenter.ScopeAll}"
+                            ToolTip="{DynamicResource SystemCenter.ScopeAllTooltip}" Margin="0,0,6,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsScopeAll}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button IsHitTestVisible="False" Focusable="False"
+                            Tag="&#xE81C;" Content="{DynamicResource SystemCenter.ScopeAll}"
+                            Margin="0,0,6,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsScopeAll}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
 
-                <Button Style="{StaticResource PrimaryPillButton}"
-                        Margin="12,0,0,0"
-                        Tag="&#xE72C;" Content="{DynamicResource Action.Refresh}"
-                        ToolTip="{DynamicResource SystemCenter.ReloadActivityLog}"
-                        Command="{Binding RefreshActivityCommand}"/>
+                    <Button Command="{Binding SetScopeCommand}" CommandParameter="Transactions"
+                            Tag="&#xE8A5;" Content="{DynamicResource SystemCenter.ScopeTransactions}"
+                            ToolTip="{DynamicResource SystemCenter.ScopeTransactionsTooltip}" Margin="0,0,6,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsScopeTransactions}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button IsHitTestVisible="False" Focusable="False"
+                            Tag="&#xE8A5;" Content="{DynamicResource SystemCenter.ScopeTransactions}"
+                            Margin="0,0,6,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsScopeTransactions}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Command="{Binding SetScopeCommand}" CommandParameter="Inventory"
+                            Tag="&#xE719;" Content="{DynamicResource SystemCenter.ScopeInventory}"
+                            ToolTip="{DynamicResource SystemCenter.ScopeInventoryTooltip}" Margin="0,0,6,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsScopeInventory}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button IsHitTestVisible="False" Focusable="False"
+                            Tag="&#xE719;" Content="{DynamicResource SystemCenter.ScopeInventory}"
+                            Margin="0,0,6,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsScopeInventory}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Command="{Binding SetScopeCommand}" CommandParameter="UsersSecurity"
+                            Tag="&#xE195;" Content="{DynamicResource SystemCenter.ScopeUsersSecurity}"
+                            ToolTip="{DynamicResource SystemCenter.ScopeUsersSecurityTooltip}" Margin="0,0,6,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsScopeUsersSecurity}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button IsHitTestVisible="False" Focusable="False"
+                            Tag="&#xE195;" Content="{DynamicResource SystemCenter.ScopeUsersSecurity}"
+                            Margin="0,0,6,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsScopeUsersSecurity}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Command="{Binding SetScopeCommand}" CommandParameter="System"
+                            Tag="&#xE7F8;" Content="{DynamicResource SystemCenter.ScopeSystem}"
+                            ToolTip="{DynamicResource SystemCenter.ScopeSystemTooltip}" Margin="0,0,10,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsScopeSystem}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button IsHitTestVisible="False" Focusable="False"
+                            Tag="&#xE7F8;" Content="{DynamicResource SystemCenter.ScopeSystem}"
+                            Margin="0,0,10,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsScopeSystem}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <!-- Important-actions-only -->
+                    <TextBlock Text="{DynamicResource SystemCenter.ImportantActionsOnly}"
+                               FontSize="{StaticResource TextBody}"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               VerticalAlignment="Center" Margin="6,0,8,0"/>
+                    <ToggleButton Style="{StaticResource PiToggleSwitch}"
+                                  IsChecked="{Binding ImportantOnly}"
+                                  VerticalAlignment="Center" Margin="0,0,14,0"
+                                  AutomationProperties.Name="Important actions only"
+                                  ToolTip="{DynamicResource SystemCenter.ImportantActionsOnlyTooltip}"/>
+
+                    <!-- Search -->
+                    <TextBox Style="{StaticResource ScTextBox}"
+                             Text="{Binding ActivitySearch, UpdateSourceTrigger=PropertyChanged}"
+                             Width="220" VerticalAlignment="Center"
+                             AutomationProperties.Name="Search activity"
+                             ToolTip="{DynamicResource SystemCenter.SearchActionsTooltip}"/>
+
+                    <Button Style="{StaticResource PrimaryPillButton}"
+                            Margin="10,0,0,0"
+                            Tag="&#xE72C;" Content="{DynamicResource Action.Refresh}"
+                            ToolTip="{DynamicResource SystemCenter.ReloadActivityLog}"
+                            Command="{Binding RefreshActivityCommand}"/>
+                </StackPanel>
+
+                <TextBlock Text="{Binding ActivityCountDisplay}"
+                           FontSize="{StaticResource TextCaption}"
+                           Foreground="{DynamicResource MutedForegroundBrush}"
+                           Margin="2,6,0,0"/>
             </StackPanel>
 
             <Border Grid.Row="1"
