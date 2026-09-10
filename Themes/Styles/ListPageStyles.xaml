@@ -100,6 +100,40 @@
         <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
+    <!-- ═══ REPORTS HUB — inventory-grade filter card (2026-09-10) ══════
+         Mirrors the SheetStore filter card so every report page reads
+         like the inventory module: padded rounded card, labeled 40px
+         fields, pill clear button, and a full-width accent search band.
+         Scoped keys on purpose — the shared ModuleList* styles stay
+         untouched for the other module list pages. -->
+    <Style x:Key="ReportFilterCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+        <Setter Property="Padding" Value="20,16"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="ReportSearchBandStyle" TargetType="Border">
+        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
+        <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+        <Setter Property="Padding" Value="12,7"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="ReportSearchInputStyle" TargetType="TextBox">
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.NoneThickness}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="MinHeight" Value="40"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
     <!-- Pale table header (one-sided 12 px — cannot bind CornerRadius resource) -->
     <Style x:Key="ModuleListTableHeaderStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>

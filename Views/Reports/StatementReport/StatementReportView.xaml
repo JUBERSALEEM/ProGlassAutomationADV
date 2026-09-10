@@ -103,60 +103,58 @@
                 <!-- ══════════════════════════════════════════════════════════
                      2. FILTER BAR
                 ══════════════════════════════════════════════════════════════ -->
-                <Border Grid.Row="1" Style="{StaticResource ModuleListFilterBarStyle}">
+                <Border Grid.Row="1" Style="{StaticResource ReportFilterCardStyle}">
                     <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <WrapPanel Grid.Column="0" VerticalAlignment="Center">
-                            <!-- Search -->
-                            <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="{DynamicResource Action.Search}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Width="170" Height="34" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}" Tag="Invoice # / PI # / DN #..." ToolTip="{DynamicResource Reports.StatementReport.SearchInvoiceNumberPIDeliveryNoteStatement}"/>
-                            </StackPanel>
-
+                        <WrapPanel Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
                             <!-- Date From -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Common.FromDate}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateFrom}" ToolTip="{DynamicResource Reports.StatementReport.FilterInvoiceIssueDateStart}"/>
+                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" Height="40" SelectedDate="{Binding DateFrom}" ToolTip="{DynamicResource Reports.StatementReport.FilterInvoiceIssueDateStart}"/>
                             </StackPanel>
 
                             <!-- Date To -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Common.ToDate}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateTo}" ToolTip="{DynamicResource Reports.StatementReport.FilterInvoiceIssueDateEnd}"/>
+                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" Height="40" SelectedDate="{Binding DateTo}" ToolTip="{DynamicResource Reports.StatementReport.FilterInvoiceIssueDateEnd}"/>
                             </StackPanel>
 
                             <!-- Company -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding CompanyOptions}" SelectedItem="{Binding SelectedCompany}" ToolTip="{DynamicResource Reports.PiReport.FilterCompany}"/>
+                                <ComboBox Width="140" Style="{StaticResource ModernComboBoxStyle}" Height="40" MinHeight="40" ItemsSource="{Binding CompanyOptions}" SelectedItem="{Binding SelectedCompany}" ToolTip="{DynamicResource Reports.PiReport.FilterCompany}"/>
                             </StackPanel>
 
                             <!-- Customer -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Common.Customer}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding CustomerOptions}" SelectedItem="{Binding SelectedCustomer}" ToolTip="{DynamicResource Reports.DeliveryReport.FilterCustomer}"/>
+                                <ComboBox Width="140" Style="{StaticResource ModernComboBoxStyle}" Height="40" MinHeight="40" ItemsSource="{Binding CustomerOptions}" SelectedItem="{Binding SelectedCustomer}" ToolTip="{DynamicResource Reports.DeliveryReport.FilterCustomer}"/>
                             </StackPanel>
 
                             <!-- Sort by + direction -->
                             <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="{DynamicResource Reports.Common.SortBy}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.Common.SortBy}" Style="{StaticResource ModuleFieldLabelStyle}" Foreground="{DynamicResource AccentBrush}"/>
                                 <StackPanel Orientation="Horizontal">
-                                    <ComboBox Width="120" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}" DisplayMemberPath="Display" ToolTip="{DynamicResource Reports.Common.SortByTip}"/>
+                                    <ComboBox Width="120" Style="{StaticResource ModernComboBoxStyle}" Height="40" MinHeight="40" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}" DisplayMemberPath="Display" ToolTip="{DynamicResource Reports.Common.SortByTip}"/>
                                     <Button Command="{Binding ToggleSortDirectionCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" Margin="6,0,0,0" ToolTip="{Binding SortDirectionTooltip}" Content="{Binding SortDirectionGlyph}" FontFamily="Segoe MDL2 Assets"/>
                                 </StackPanel>
                             </StackPanel>
 
                             <!-- Action Buttons -->
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,6,6">
-                                <Button Content="{DynamicResource Action.Clear}" Command="{Binding ClearFilterCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" ToolTip="{DynamicResource Reports.DeliveryReport.ResetFilters}"/>
+                                <Button Content="{DynamicResource Action.Clear}" Tag="&#xE711;" Command="{Binding ClearFilterCommand}" Style="{StaticResource OutlinedPillButton}" MinWidth="110" ToolTip="{DynamicResource Reports.DeliveryReport.ResetFilters}"/>
                             </StackPanel>
                         </WrapPanel>
 
-                        <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Margin="8,0,0,6">
+                        <StackPanel Grid.Column="1" Grid.Row="0" VerticalAlignment="Bottom" Margin="8,0,0,6">
                             <TextBlock Text="{DynamicResource Action.Export}" Style="{StaticResource ModuleFieldLabelStyle}" HorizontalAlignment="Right"/>
                             <StackPanel Orientation="Horizontal">
                                 <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="{DynamicResource Reports.StatementReport.ExportLedgerCSV}"/>
@@ -165,7 +163,19 @@
                                 <Button Content="&#xE72D;" FontFamily="Segoe MDL2 Assets" Command="{Binding ShareCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="{DynamicResource Sharing.Share}"/>
                             </StackPanel>
                         </StackPanel>
-                    </Grid>
+                    
+                        <!-- Full-width search band — inventory-style accent
+                             magnifier + borderless input (2026-09-10). -->
+                        <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource ReportSearchBandStyle}" Margin="0,12,0,0">
+                            <DockPanel>
+                                <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}"
+                                           Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <TextBox Style="{StaticResource ReportSearchInputStyle}"
+                                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+                                         ToolTip="Invoice # / PI # / DN #..."/>
+                            </DockPanel>
+                        </Border>
+</Grid>
                 </Border>
 
                                 <!-- ══════════════════════════════════════════════════════════

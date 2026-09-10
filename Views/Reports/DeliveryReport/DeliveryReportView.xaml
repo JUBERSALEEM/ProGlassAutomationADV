@@ -115,18 +115,22 @@
                 <!-- ══════════════════════════════════════════════════════════
                      2. FILTER BAR
                 ══════════════════════════════════════════════════════════════ -->
-                <Border Grid.Row="1" Style="{StaticResource ModuleListFilterBarStyle}">
+                <Border Grid.Row="1" Style="{StaticResource ReportFilterCardStyle}">
                     <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <WrapPanel Grid.Column="0" VerticalAlignment="Center">
+                        <WrapPanel Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
                             <!-- PI number -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Reports.DeliveryReport.PINumber}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="130" Style="{StaticResource ModuleListFilterComboStyle}"
+                                <ComboBox Width="130" Style="{StaticResource ModernComboBoxStyle}" Height="40" MinHeight="40"
                                           ItemsSource="{Binding PiOptions}"
                                           SelectedItem="{Binding PiFilter}"
                                           ToolTip="{DynamicResource Reports.DeliveryReport.FilterProformaInvoiceNumber}"/>
@@ -135,7 +139,7 @@
                             <!-- Specification -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Common.Specification}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="210" Style="{StaticResource ModuleListFilterComboStyle}"
+                                <ComboBox Width="210" Style="{StaticResource ModernComboBoxStyle}" Height="40" MinHeight="40"
                                           ItemsSource="{Binding SpecificationOptions}"
                                           SelectedItem="{Binding SpecificationFilter}"
                                           ToolTip="{DynamicResource Reports.DeliveryReport.FilterExactGlassSpecification}"/>
@@ -144,7 +148,7 @@
                             <!-- Glass ref -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource DeliveryNote.GlassRef}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="110" Style="{StaticResource ModuleListFilterComboStyle}"
+                                <ComboBox Width="110" Style="{StaticResource ModernComboBoxStyle}" Height="40" MinHeight="40"
                                           ItemsSource="{Binding GlassRefOptions}"
                                           SelectedItem="{Binding GlassRefFilter}"
                                           ToolTip="{DynamicResource Reports.DeliveryReport.FilterExactGlassReference}"/>
@@ -153,7 +157,7 @@
                             <!-- Glass type -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource JobOrder.GlassType}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="120" Style="{StaticResource ModuleListFilterComboStyle}"
+                                <ComboBox Width="120" Style="{StaticResource ModernComboBoxStyle}" Height="40" MinHeight="40"
                                           ItemsSource="{Binding GlassTypeOptions}"
                                           SelectedItem="{Binding GlassTypeFilter}"
                                           ToolTip="{DynamicResource Reports.DeliveryReport.FilterGlassTypeSGUDGULAMDGULAM}"/>
@@ -162,7 +166,7 @@
                             <!-- Salesman -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Common.Salesman}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}"
+                                <ComboBox Width="140" Style="{StaticResource ModernComboBoxStyle}" Height="40" MinHeight="40"
                                           ItemsSource="{Binding DeliverySalesmanOptions}"
                                           SelectedItem="{Binding SalesmanFilter}"
                                           ToolTip="{DynamicResource Reports.DeliveryReport.FilterSalesRepresentative}"/>
@@ -171,7 +175,7 @@
                             <!-- Project -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Common.Project}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="150" Style="{StaticResource ModuleListFilterComboStyle}"
+                                <ComboBox Width="150" Style="{StaticResource ModernComboBoxStyle}" Height="40" MinHeight="40"
                                           ItemsSource="{Binding DeliveryProjectOptions}"
                                           SelectedItem="{Binding ProjectFilter}"
                                           ToolTip="{DynamicResource Reports.DeliveryReport.FilterProject}"/>
@@ -180,7 +184,7 @@
                             <!-- Customer -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Common.Customer}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="150" Style="{StaticResource ModuleListFilterComboStyle}"
+                                <ComboBox Width="150" Style="{StaticResource ModernComboBoxStyle}" Height="40" MinHeight="40"
                                           ItemsSource="{Binding DeliveryCustomerOptions}"
                                           SelectedItem="{Binding CustomerFilter}"
                                           ToolTip="{DynamicResource Reports.DeliveryReport.FilterCustomer}"/>
@@ -189,7 +193,7 @@
                             <!-- Delivery status -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Common.Status}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}"
+                                <ComboBox Width="140" Style="{StaticResource ModernComboBoxStyle}" Height="40" MinHeight="40"
                                           ItemsSource="{Binding StatusOptions}"
                                           SelectedItem="{Binding SelectedStatus}"
                                           ToolTip="{DynamicResource Reports.DeliveryReport.FilterDeliveryStatus}"/>
@@ -198,31 +202,31 @@
                             <!-- Date From -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Common.FromDate}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateFrom}" ToolTip="{DynamicResource Reports.DeliveryReport.FilterRowsDeliveryDateStart}"/>
+                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" Height="40" SelectedDate="{Binding DateFrom}" ToolTip="{DynamicResource Reports.DeliveryReport.FilterRowsDeliveryDateStart}"/>
                             </StackPanel>
 
                             <!-- Date To -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Common.ToDate}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateTo}" ToolTip="{DynamicResource Reports.DeliveryReport.FilterRowsDeliveryDateEnd}"/>
+                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" Height="40" SelectedDate="{Binding DateTo}" ToolTip="{DynamicResource Reports.DeliveryReport.FilterRowsDeliveryDateEnd}"/>
                             </StackPanel>
 
                             <!-- Sort by + direction -->
                             <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="{DynamicResource Reports.Common.SortBy}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.Common.SortBy}" Style="{StaticResource ModuleFieldLabelStyle}" Foreground="{DynamicResource AccentBrush}"/>
                                 <StackPanel Orientation="Horizontal">
-                                    <ComboBox Width="120" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}" DisplayMemberPath="Display" ToolTip="{DynamicResource Reports.Common.SortByTip}"/>
+                                    <ComboBox Width="120" Style="{StaticResource ModernComboBoxStyle}" Height="40" MinHeight="40" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}" DisplayMemberPath="Display" ToolTip="{DynamicResource Reports.Common.SortByTip}"/>
                                     <Button Command="{Binding ToggleSortDirectionCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" Margin="6,0,0,0" ToolTip="{Binding SortDirectionTooltip}" Content="{Binding SortDirectionGlyph}" FontFamily="Segoe MDL2 Assets"/>
                                 </StackPanel>
                             </StackPanel>
 
                             <!-- Action Buttons -->
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,6,6">
-                                <Button Content="{DynamicResource Action.Clear}" Command="{Binding ClearFilterCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" ToolTip="{DynamicResource Reports.DeliveryReport.ResetFilters}"/>
+                                <Button Content="{DynamicResource Action.Clear}" Tag="&#xE711;" Command="{Binding ClearFilterCommand}" Style="{StaticResource OutlinedPillButton}" MinWidth="110" ToolTip="{DynamicResource Reports.DeliveryReport.ResetFilters}"/>
                             </StackPanel>
                         </WrapPanel>
 
-                        <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Margin="8,0,0,6">
+                        <StackPanel Grid.Column="1" Grid.Row="0" VerticalAlignment="Bottom" Margin="8,0,0,6">
                             <TextBlock Text="{DynamicResource Action.Export}" Style="{StaticResource ModuleFieldLabelStyle}" HorizontalAlignment="Right"/>
                             <StackPanel Orientation="Horizontal">
                                 <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="{DynamicResource Reports.DeliveryReport.ExportRowLevelReportCSV}"/>

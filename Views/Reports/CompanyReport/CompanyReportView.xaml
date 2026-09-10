@@ -94,33 +94,33 @@
                 </Border>
 
                 <!-- FILTER BAR -->
-                <Border Grid.Row="1" Style="{StaticResource ModuleListFilterBarStyle}">
+                <Border Grid.Row="1" Style="{StaticResource ReportFilterCardStyle}">
                     <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <WrapPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                            <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="{DynamicResource Action.Search}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Width="220" Height="34" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}" Tag="Company / TRN / bank..." ToolTip="Search company, TRN, representative, email, bank, location"/>
-                            </StackPanel>
+                        <WrapPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                             <!-- Sort by + direction -->
                             <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="{DynamicResource Reports.Common.SortBy}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.Common.SortBy}" Style="{StaticResource ModuleFieldLabelStyle}" Foreground="{DynamicResource AccentBrush}"/>
                                 <StackPanel Orientation="Horizontal">
-                                    <ComboBox Width="120" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}" DisplayMemberPath="Display" ToolTip="{DynamicResource Reports.Common.SortByTip}"/>
+                                    <ComboBox Width="120" Style="{StaticResource ModernComboBoxStyle}" Height="40" MinHeight="40" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}" DisplayMemberPath="Display" ToolTip="{DynamicResource Reports.Common.SortByTip}"/>
                                     <Button Command="{Binding ToggleSortDirectionCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" Margin="6,0,0,0" ToolTip="{Binding SortDirectionTooltip}" Content="{Binding SortDirectionGlyph}" FontFamily="Segoe MDL2 Assets"/>
                                 </StackPanel>
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,6,6">
-                                <Button Content="{DynamicResource Action.Clear}" Command="{Binding ClearFilterCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" ToolTip="Reset filters"/>
+                                <Button Content="{DynamicResource Action.Clear}" Tag="&#xE711;" Command="{Binding ClearFilterCommand}" Style="{StaticResource OutlinedPillButton}" MinWidth="110" ToolTip="Reset filters"/>
                             </StackPanel>
                         </WrapPanel>
 
-                        <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Margin="8,0,0,6">
+                        <StackPanel Grid.Column="1" Grid.Row="0" VerticalAlignment="Bottom" Margin="8,0,0,6">
                             <TextBlock Text="{DynamicResource Action.Export}" Style="{StaticResource ModuleFieldLabelStyle}" HorizontalAlignment="Right"/>
                             <StackPanel Orientation="Horizontal">
                                 <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="Export filtered companies to CSV"/>
@@ -129,7 +129,19 @@
                                 <Button Content="&#xE72D;" FontFamily="Segoe MDL2 Assets" Command="{Binding ShareCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="{DynamicResource Sharing.Share}"/>
                             </StackPanel>
                         </StackPanel>
-                    </Grid>
+                    
+                        <!-- Full-width search band — inventory-style accent
+                             magnifier + borderless input (2026-09-10). -->
+                        <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource ReportSearchBandStyle}" Margin="0,12,0,0">
+                            <DockPanel>
+                                <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}"
+                                           Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <TextBox Style="{StaticResource ReportSearchInputStyle}"
+                                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+                                         ToolTip="Company / TRN / bank..."/>
+                            </DockPanel>
+                        </Border>
+</Grid>
                 </Border>
 
                 <!-- TABLE HEADER
