@@ -465,7 +465,7 @@
 
                                         <TextBlock Grid.Column="0" Padding="0,0,6,0" Text="{Binding SerialNumber}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="1" Padding="6,0" Text="{Binding ProformaId}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Grid.Column="2" Padding="6,0" Text="{Binding Specification}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"  ToolTip="{Binding Specification}"/>
+                                        <TextBlock Grid.Column="2" Padding="6,0" Text="{Binding SpecificationDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"  ToolTip="{Binding SpecificationDisplay}"/>
                                         <TextBlock Grid.Column="3" Padding="6,0" Text="{Binding GlassType}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                                         <TextBlock Grid.Column="4" Padding="6,0" Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                                         <TextBlock Grid.Column="5" Padding="6,0" Text="{Binding CustomerName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
@@ -546,7 +546,7 @@
                                     <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="12,10" Margin="0,0,0,12"
                                             Background="{DynamicResource TintBlueBrush}" BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}">
                                         <StackPanel>
-                                            <TextBlock Text="{Binding SelectedRow.Specification}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                            <TextBlock Text="{Binding SelectedRow.SpecificationDisplay}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
                                             <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,4,0,0">
                                                 <Run Text="{DynamicResource JobOrder.GlassType}"/><Run Text="{Binding SelectedRow.GlassType, Mode=OneWay}" FontWeight="SemiBold"/>

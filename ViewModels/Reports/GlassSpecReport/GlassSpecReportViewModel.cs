@@ -121,7 +121,11 @@ namespace ProGlassAutomation.ViewModels.Reports.GlassSpecReport
                 var paged = await _service.GetGlassSpecRowsAsync(filter, token);
                 if (token.IsCancellationRequested) return;
 
-                Rows = new ObservableCollection<GlassSpecReportRow>(paged.Items);
+                // Page-scoped Sr (1..N of the visible page) for the row column.
+                var pageItems = paged.Items.ToList();
+                for (int i = 0; i < pageItems.Count; i++)
+                    pageItems[i].DisplaySerial = i + 1;
+                Rows = new ObservableCollection<GlassSpecReportRow>(pageItems);
                 TotalCount = paged.TotalCount;
                 TotalPages = paged.TotalPages == 0 ? 1 : paged.TotalPages;
                 // The engine scans up to 1000 PIs when no ProformaId is set;

@@ -236,6 +236,10 @@ namespace ProGlassAutomation.Services.Reporting
                 });
             }
 
+            // Page-scoped Sr for the report's serial column (2026-09-10).
+            for (int i = 0; i < rows.Count; i++)
+                rows[i].SerialNumber = i + 1;
+
             return new PagedResult<JoReportRow> { Items = rows, TotalCount = totalCount, Page = filter.Page, PageSize = filter.PageSize };
         }
     }

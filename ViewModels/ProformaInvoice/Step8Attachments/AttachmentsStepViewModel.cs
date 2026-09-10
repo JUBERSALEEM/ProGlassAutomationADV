@@ -186,6 +186,27 @@ public AttachmentsStepViewModel(IDialogService? dialogs,
 
         private async Task ApproveInvoiceAsync()
         {
+            // ── ERP hardening (2026-09-10): guard against accidental
+            //    duplicate confirmation documents. If this PI already has
+            //    attachments on file, the operator must explicitly confirm
+            //    that ANOTHER document is intended before the picker opens.
+            //    (Cancel here leaves the invoice status untouched.)
+            if (HasAttachments)
+            {
+                bool proceed = _dialogs.Confirm(
+                    $"{ProformaId} already has {AttachmentsCount} attachment" +
+                    $"{(AttachmentsCount == 1 ? "" : "s")} on file.\n\n" +
+                    "Do you want to attach another confirmation document " +
+                    "and continue the approval?",
+                    "Attachments already exist");
+                if (!proceed)
+                {
+                    StatusMessage = $"✓ Kept the existing {AttachmentsCount} attachment" +
+                                    $"{(AttachmentsCount == 1 ? "" : "s")} — approval not changed.";
+                    return;
+                }
+            }
+
             await AddFileAsync(
                 AttachmentLimits.CombinedDialogFilter,
                 isImage: null);   // null = auto-detect per chosen file

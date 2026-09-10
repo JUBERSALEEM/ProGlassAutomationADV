@@ -301,7 +301,10 @@
                                                 <ColumnDefinition Width="0.7*"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <TextBlock Grid.Column="0" Text="{Binding JobOrderId}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,6,0">
+                                                <TextBlock Text="{Binding SerialNumber}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="0,0,8,0" ToolTip="Serial number on this page"/>
+                                                <TextBlock Text="{Binding JobOrderId}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
                                             <TextBlock Grid.Column="1" Text="{Binding SourceProformaId}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
                                             <TextBlock Grid.Column="2" Text="{Binding CompanyName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
                                             <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,6,0">

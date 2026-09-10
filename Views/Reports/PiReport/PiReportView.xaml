@@ -266,6 +266,7 @@
 
                                             <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,6,0">
                                                 <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding SerialNumber}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="0,0,8,0" ToolTip="Serial number on this page"/>
                                                     <TextBlock Text="{Binding ProformaId}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
                                                     <!-- Warning glyph: draft or missing Step-5 line items. -->
                                                     <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource WarningBrush}" Margin="6,0,0,0" VerticalAlignment="Center" ToolTip="{Binding WarningReason}" Visibility="{Binding HasWarning, Converter={StaticResource BoolToVisibilityConverter}}"/>

@@ -226,13 +226,19 @@
                                                 <ColumnDefinition Width="1.1*"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
-                                                <TextBlock Text="{Binding GlassType}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                            <!-- Sr + glass identity. Sr is page-scoped (stamped by the VM). -->
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding DisplaySerial}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                           Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"
+                                                           Margin="0,0,10,0" ToolTip="Row number on this page"/>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Text="{Binding GlassType}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                </StackPanel>
                                             </StackPanel>
 
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding SpecName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding SpecDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis" ToolTip="{Binding SpecDisplay}"/>
                                                 <TextBlock FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis"><Run Text="{Binding ProformaId, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding ProjectName, Mode=OneWay}"/></TextBlock>
                                             </StackPanel>
 

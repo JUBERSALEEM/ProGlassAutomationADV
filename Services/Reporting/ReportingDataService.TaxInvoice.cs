@@ -173,6 +173,10 @@ namespace ProGlassAutomation.Services.Reporting
             // from the linked PI snapshot JSON — never the full dataset.
             await EnrichTiPageAsync(page, ct);
 
+            // Page-scoped Sr for the report's serial column (2026-09-10).
+            for (int i = 0; i < page.Count; i++)
+                page[i].SerialNumber = i + 1;
+
             return new PagedResult<TaxInvoiceReportRow> { Items = page, TotalCount = totalCount, Page = filter.Page, PageSize = filter.PageSize };
         }
 

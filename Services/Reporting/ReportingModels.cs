@@ -26,6 +26,10 @@ namespace ProGlassAutomation.Services.Reporting
     public class PiReportRow
     {
         public int Id { get; set; }
+
+        /// <summary>Page-scoped serial (1..N of the visible page) for the
+        /// Sr column — stamped by ReportingDataService on return.</summary>
+        public int SerialNumber { get; set; }
         public string ProformaId { get; set; } = "";
         public string Status { get; set; } = "";
         public string CompanyName { get; set; } = "";
@@ -92,6 +96,10 @@ namespace ProGlassAutomation.Services.Reporting
     public class JoReportRow
     {
         public int Id { get; set; }
+
+        /// <summary>Page-scoped serial (1..N of the visible page) for the
+        /// Sr column — stamped by ReportingDataService on return.</summary>
+        public int SerialNumber { get; set; }
         public string JobOrderId { get; set; } = "";
         public string SourceProformaId { get; set; } = "";
         public string CompanyName { get; set; } = "";
@@ -126,6 +134,15 @@ namespace ProGlassAutomation.Services.Reporting
 
         // ── Display columns ─────────────────────────────────────────
         public string Specification { get; set; } = "";
+
+        /// <summary>
+        /// "Spec 1 - 6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass" —
+        /// the spec NUMBER and build-up in one string, so every delivery row
+        /// is traceable to its PI spec at a glance (2026-09-10).
+        /// </summary>
+        public string SpecificationDisplay =>
+            SpecGroupNumber > 0 ? $"Spec {SpecGroupNumber} - {Specification}" : Specification;
+
         public string CompanyName { get; set; } = "";
         public string CustomerName { get; set; } = "";
         public string ProjectName { get; set; } = "";
@@ -205,6 +222,10 @@ namespace ProGlassAutomation.Services.Reporting
     public class TaxInvoiceReportRow
     {
         public int Id { get; set; }
+
+        /// <summary>Page-scoped serial (1..N of the visible page) for the
+        /// Sr column — stamped by ReportingDataService on return.</summary>
+        public int SerialNumber { get; set; }
         public string InvoiceNumber { get; set; } = "";
         public string ProformaId { get; set; } = "";
         public string JobOrderId { get; set; } = "";
@@ -352,6 +373,15 @@ namespace ProGlassAutomation.Services.Reporting
         public int GroupNumber { get; set; }
         public string GroupName { get; set; } = "";
         public int SerialNumber { get; set; }
+
+        /// <summary>Page-scoped serial (1..N of the visible page) for the
+        /// Sr column — stamped by the ViewModel when the page is loaded.</summary>
+        public int DisplaySerial { get; set; }
+
+        /// <summary>"Spec 2 - 6mm Clear FT Glass + 12mm ASP + ..." — spec
+        /// number + build-up in one string (2026-09-10).</summary>
+        public string SpecDisplay =>
+            GroupNumber > 0 ? $"Spec {GroupNumber} - {SpecName}" : SpecName;
 
         // Sheet provenance
         public int OuterSheetWidthMm { get; set; }

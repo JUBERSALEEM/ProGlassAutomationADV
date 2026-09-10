@@ -55,6 +55,12 @@ LIST row "Approve" ──────────────┐
         InvoiceApprovalDialog (Signed PI vs LPO) → validate → Approved → audit → JO
 ```
 
+**Hardening (2026-09-10, second pass):** pressing APPROVE INVOICE when the PI
+**already has attachments** now raises a confirmation popup first ("X already
+has N attachment(s) on file… attach another confirmation document?") —
+declining keeps the existing documents and leaves the approval untouched,
+so a duplicate confirmation document can never be attached by reflex.
+
 **Rules encoded in the design**
 - **R1 — one intent, one action.** Step 8's toolbar exposes a single
   `APPROVE INVOICE` primary pill (`SuccessPillButton`, ✔ glyph). The two ghost

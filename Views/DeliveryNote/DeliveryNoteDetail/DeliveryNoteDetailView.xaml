@@ -228,6 +228,12 @@
          Row 3: Stats + Attachments
          Row 4: Items + History
     -->
+    <!-- 2026-09-10: page-level scroller — Master DN (and tall detail
+         pages generally) could clip the balance stats below the fold with
+         no way to reach them. Star rows size to content under the
+         ScrollViewer's infinite measure, so nothing else changes. -->
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
     <Grid Margin="{DynamicResource DensityPageMargin}"
           Background="{DynamicResource ModuleBackgroundBrush}">
         <Grid.RowDefinitions>
@@ -465,4 +471,5 @@
                 Visibility="{Binding IsHistoryTab, Converter={StaticResource BoolToVisibilityConverter}}"/>
         </Grid>
     </Grid>
+    </ScrollViewer>
 </UserControl>

@@ -271,9 +271,12 @@
                                                 <ColumnDefinition Width="0.6*"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,6,0">
-                                                <TextBlock Text="{Binding InvoiceNumber}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" TextTrimming="CharacterEllipsis"/>
-                                                <TextBlock Text="{Binding IssueDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0"/>
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,6,0">
+                                                <TextBlock Text="{Binding SerialNumber}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="0,0,8,0" ToolTip="Serial number on this page"/>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding InvoiceNumber}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Text="{Binding IssueDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0"/>
+                                                </StackPanel>
                                             </StackPanel>
                                             <TextBlock Grid.Column="1" Text="{Binding ProformaId}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
                                             <TextBlock Grid.Column="2" Text="{Binding CompanyName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
