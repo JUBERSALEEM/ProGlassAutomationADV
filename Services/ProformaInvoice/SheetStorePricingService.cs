@@ -105,6 +105,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice
         // ═══════════════════════════════════════════════════════════════
 
         /// <summary>
+        /// Full store snapshot for linkage consumers (Step 6 auto-use).
+        /// Same never-throw path as every other lookup. Empty on failure.
+        /// </summary>
+        public static Task<List<GlassSheet>> GetAllSheetsAsync() =>
+            LoadAllAsync();
+
+        /// <summary>
         /// Distinct glass colors present in the Sheet Store, in the
         /// original casing of the first row that used them, alphabetical.
         /// Empty list when the store is empty or unreadable.

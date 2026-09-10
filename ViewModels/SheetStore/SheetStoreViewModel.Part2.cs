@@ -12,6 +12,7 @@ using ProGlassAutomation.Services.SheetStore.SheetStoreCsv;
 using ProGlassAutomation.Services.SheetStore.SheetStoreExcel;
 using ProGlassAutomation.Services.SheetStore.SheetStorePdf;
 using ProGlassAutomation.Services.SheetStore.SheetStoreHistory;
+using ProGlassAutomation.Services.ProformaInvoice;
 using ProGlassAutomation.Views.SheetStore;
 using ProGlassAutomation.Views.SheetStore.SheetStoreBuy;
 using ProGlassAutomation.Views.SheetStore.SheetStoreCsv;
@@ -167,40 +168,25 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
             if (vm.DialogResult == true && vm.Quantity > 0)
             {
-                try
+                // Shared consumption core (repo.UseStockAsync + history +
+                // audit) — the SAME path Step 6 auto-use takes, so the
+                // manual dialog and the wizard can never drift apart.
+                var link = await SheetStockLinkService.CommitConsumptionAsync(
+                    sheet, vm.Quantity,
+                    jobReference: vm.JobOrderReference ?? "",
+                    customerName: vm.CustomerName ?? "",
+                    projectName: vm.ProjectName ?? "",
+                    salesman: vm.Salesman ?? "",
+                    origin: "Sheet Store").ConfigureAwait(true);
+
+                if (!link.Success)
                 {
-                    var oldUsed = sheet.Used;
-                    await _repo.UseStockAsync(sheet.Id, vm.Quantity);
-                    var value = vm.Quantity * sheet.SqmPerSheet * sheet.SellPricePerSqm;
-
-                    var jobRef = string.IsNullOrWhiteSpace(vm.JobOrderReference)
-                        ? ""
-                        : $" [Job: {vm.JobOrderReference.Trim()}]";
-
-                    try
-                    {
-                        await _historyRepo.LogAsync(
-                            sheet.Id, DescribeSheet(sheet), "Used",
-                            $"Consumed {vm.Quantity} sheets.{jobRef} Used: {oldUsed} → {oldUsed + vm.Quantity}. Value: {value:N2} AED.",
-                            vm.Quantity, value,
-                            documentReference: vm.JobOrderReference,
-                            customerName: vm.CustomerName,
-                            projectName: vm.ProjectName,
-                            salesman: vm.Salesman,
-                            panePosition: vm.PanePosition);
-                    }
-                    catch { /* best-effort */ }
-                    try
-                    {
-                        AuditService.Log(AuditSections.SheetStore, "Stock used",
-                            $"{DescribeSheet(sheet)} — {vm.Quantity} sheets{jobRef}",
-                            "SHEET", sheet.Id.ToString());
-                    }
-                    catch { /* best-effort */ }
-
-                    await LoadAsync();
+                    ShowError(link.Message);
+                    return;
                 }
-                catch (Exception ex) { ShowError(ExceptionMessages.Deep(ex)); }
+
+                try { await LoadAsync(); }
+                catch { /* list refresh is best-effort */ }
             }
         }
 
