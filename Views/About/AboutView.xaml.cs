@@ -149,9 +149,9 @@ namespace ProGlassAutomation.Views.About
         {
             try
             {
-                HookReveal(OverviewSection, OverviewShift);
-                HookReveal(ModulesSectionHost, ModulesShift);
-                HookReveal(DeveloperSectionHost, DeveloperShift);
+                HookReveal(OverviewSection);
+                HookReveal(ModulesSectionHost);
+                HookReveal(DeveloperSectionHost);
             }
             catch (System.Exception ex)
             {
@@ -159,7 +159,11 @@ namespace ProGlassAutomation.Views.About
             }
         }
 
-        private static void HookReveal(UIElement? section, TranslateTransform? shift)
+        // The section's TranslateTransform is intentionally NOT named in XAML
+        // (a section is a UserControl with its own sealed NameScope — naming a
+        // transform set as its RenderTransform throws MC3093). We reach it here
+        // via the FrameworkElement.RenderTransform property instead.
+        private static void HookReveal(FrameworkElement? section)
         {
             if (section == null) return;
 
@@ -177,7 +181,7 @@ namespace ProGlassAutomation.Views.About
                     };
                     section.BeginAnimation(OpacityProperty, fade);
 
-                    if (shift != null)
+                    if (section.RenderTransform is TranslateTransform shift)
                     {
                         var slide = new DoubleAnimation
                         {

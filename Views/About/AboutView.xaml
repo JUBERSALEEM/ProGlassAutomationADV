@@ -362,8 +362,13 @@
                 <Grid>
                     <aboutSections:AboutOverviewSection x:Name="OverviewSection"
                                                         RenderTransformOrigin="0.5,0.5">
+                        <!-- The RenderTransform is NOT named: a section is a
+                             UserControl with its own (sealed) NameScope, so
+                             naming a transform set as its RenderTransform throws
+                             MC3093. Code-behind reaches it via
+                             OverviewSection.RenderTransform instead. -->
                         <aboutSections:AboutOverviewSection.RenderTransform>
-                            <TranslateTransform x:Name="OverviewShift" Y="0"/>
+                            <TranslateTransform Y="0"/>
                         </aboutSections:AboutOverviewSection.RenderTransform>
                         <aboutSections:AboutOverviewSection.Style>
                             <Style TargetType="UserControl">
@@ -380,7 +385,7 @@
                     <aboutSections:ModulesSection x:Name="ModulesSectionHost"
                                                   RenderTransformOrigin="0.5,0.5">
                         <aboutSections:ModulesSection.RenderTransform>
-                            <TranslateTransform x:Name="ModulesShift" Y="0"/>
+                            <TranslateTransform Y="0"/>
                         </aboutSections:ModulesSection.RenderTransform>
                         <aboutSections:ModulesSection.Style>
                             <Style TargetType="UserControl">
@@ -397,7 +402,7 @@
                     <aboutSections:DeveloperSection x:Name="DeveloperSectionHost"
                                                     RenderTransformOrigin="0.5,0.5">
                         <aboutSections:DeveloperSection.RenderTransform>
-                            <TranslateTransform x:Name="DeveloperShift" Y="0"/>
+                            <TranslateTransform Y="0"/>
                         </aboutSections:DeveloperSection.RenderTransform>
                         <aboutSections:DeveloperSection.Style>
                             <Style TargetType="UserControl">
