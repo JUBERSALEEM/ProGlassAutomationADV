@@ -581,11 +581,12 @@
                                 <!-- Vector PGA hexagon monogram -->
                                 <Viewbox Width="66" Height="66">
                                     <Grid Width="72" Height="72">
-                                        <!-- pointy-top hexagon outline -->
+                                        <!-- flat-top hexagon outline (matches
+                                             the approved app-icon monogram) -->
                                         <Path Stroke="{DynamicResource SplashCerulean}"
                                               StrokeThickness="3"
                                               StrokeLineJoin="Round"
-                                              Data="M36,3 L64,19 L64,53 L36,69 L8,53 L8,19 Z"/>
+                                              Data="M20,5 L52,5 L68,36 L52,67 L20,67 L4,36 Z"/>
                                         <TextBlock Text="PGA"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"
