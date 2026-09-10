@@ -95,7 +95,18 @@ namespace ProGlassAutomation.Services.Reporting
                 }
             }
 
-            var sorted = allRows.OrderByDescending(r => r.IssueDate).ThenBy(r => r.ProformaId).ThenBy(r => r.GroupNumber).ThenBy(r => r.SerialNumber).ToList();
+            bool gsDesc = filter.SortDescending;
+            IOrderedEnumerable<GlassSpecReportRow> gsOrdered = (filter.SortField) switch
+            {
+                "Amount"   => gsDesc ? allRows.OrderByDescending(r => r.Amount) : allRows.OrderBy(r => r.Amount),
+                "Customer" => gsDesc ? allRows.OrderByDescending(r => r.CustomerName) : allRows.OrderBy(r => r.CustomerName),
+                "Company"  => gsDesc ? allRows.OrderByDescending(r => r.CompanyName) : allRows.OrderBy(r => r.CompanyName),
+                "Qty"      => gsDesc ? allRows.OrderByDescending(r => r.Qty) : allRows.OrderBy(r => r.Qty),
+                "Area"     => gsDesc ? allRows.OrderByDescending(r => r.TotalSqm) : allRows.OrderBy(r => r.TotalSqm),
+                "Proforma" => gsDesc ? allRows.OrderByDescending(r => r.ProformaId) : allRows.OrderBy(r => r.ProformaId),
+                _          => gsDesc ? allRows.OrderByDescending(r => r.IssueDate) : allRows.OrderBy(r => r.IssueDate),
+            };
+            var sorted = gsOrdered.ThenBy(r => r.ProformaId).ThenBy(r => r.GroupNumber).ThenBy(r => r.SerialNumber).ToList();
             var total = sorted.Count;
             var page = sorted.Skip(filter.Skip).Take(filter.Take).ToList();
 

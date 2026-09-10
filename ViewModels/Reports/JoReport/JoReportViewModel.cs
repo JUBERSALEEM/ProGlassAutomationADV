@@ -31,6 +31,7 @@ namespace ProGlassAutomation.ViewModels.Reports.JoReport
         {
             _dialogs = dialogs!;
             InitCommands();
+            SetSortOptions(new[] { "Created", "Amount", "Customer", "Status", "JobOrder", "Delivery" }, "Created");
             SelectedStatus = AllStatusesOption;
             SourcePiFilter = AllFilter;
             _ = LoadFilterOptionsAsync();

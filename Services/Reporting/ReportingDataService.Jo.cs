@@ -139,8 +139,19 @@ namespace ProGlassAutomation.Services.Reporting
             if (totalCount == 0)
                 return new PagedResult<JoReportRow> { Items = new List<JoReportRow>(), TotalCount = 0, Page = filter.Page, PageSize = filter.PageSize };
 
-            // DB-side pagination
-            var page = await query.OrderByDescending(j => j.CreatedAt)
+            // DB-side pagination with user-selectable sort (before Skip/Take).
+            bool joDesc = filter.SortDescending;
+            IOrderedQueryable<SavedJobOrder> joOrdered = (filter.SortField) switch
+            {
+                "Amount"    => joDesc ? query.OrderByDescending(j => j.GrandTotalVatInclusive) : query.OrderBy(j => j.GrandTotalVatInclusive),
+                "Customer"  => joDesc ? query.OrderByDescending(j => j.CustomerName) : query.OrderBy(j => j.CustomerName),
+                "Status"    => joDesc ? query.OrderByDescending(j => j.Status) : query.OrderBy(j => j.Status),
+                "JobOrder"  => joDesc ? query.OrderByDescending(j => j.JobOrderId) : query.OrderBy(j => j.JobOrderId),
+                "Delivery"  => joDesc ? query.OrderByDescending(j => j.DeliveryDate) : query.OrderBy(j => j.DeliveryDate),
+                _           => joDesc ? query.OrderByDescending(j => j.CreatedAt) : query.OrderBy(j => j.CreatedAt),
+            };
+
+            var page = await joOrdered
                 .Skip(filter.Skip)
                 .Take(filter.Take)
                 .Select(j => new

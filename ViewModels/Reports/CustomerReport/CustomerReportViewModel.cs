@@ -128,6 +128,7 @@ namespace ProGlassAutomation.ViewModels.Reports.CustomerReport
             _dialogs = dialogs!;
             _masterData = masterData ?? App.ServiceProvider?.GetService<IMasterDataRepository>();
             InitCommands();
+            SetSortOptions(new[] { "Value", "Name", "Salesman", "Invoiced", "Outstanding", "PiCount" }, "Value");
             _ = LoadFilterOptionsAsync();
             _ = LoadAsync();
         }

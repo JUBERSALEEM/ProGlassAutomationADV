@@ -46,6 +46,7 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
         {
             _dialogs = dialogs!;
             InitCommands();
+            SetSortOptions(new[] { "Proforma", "Customer", "Project", "Ordered", "Status", "Balance" }, "Proforma", defaultDescending: false);
 
             SelectedStatus = AllStatusesOption;
             SetStatusOptions(new[] { "Not delivered", "Partially delivered", "Fully delivered" });

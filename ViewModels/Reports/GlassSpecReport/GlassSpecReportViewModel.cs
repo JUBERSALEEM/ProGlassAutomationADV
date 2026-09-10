@@ -58,6 +58,7 @@ namespace ProGlassAutomation.ViewModels.Reports.GlassSpecReport
         {
             _dialogs = dialogs!;
             InitCommands();
+            SetSortOptions(new[] { "Date", "Amount", "Customer", "Company", "Qty", "Area", "Proforma" }, "Date");
             _ = LoadFilterOptionsAsync();
             _ = LoadAsync();
         }

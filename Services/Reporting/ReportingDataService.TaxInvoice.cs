@@ -132,7 +132,19 @@ namespace ProGlassAutomation.Services.Reporting
             if (totalCount == 0)
                 return new PagedResult<TaxInvoiceReportRow> { Items = new List<TaxInvoiceReportRow>(), TotalCount = 0, Page = filter.Page, PageSize = filter.PageSize };
 
-            var page = await query.OrderByDescending(t => t.IssueDate)
+            bool tiDesc = filter.SortDescending;
+            IOrderedQueryable<SavedTaxInvoice> tiOrdered = (filter.SortField) switch
+            {
+                "Amount"   => tiDesc ? query.OrderByDescending(t => t.GrandTotal) : query.OrderBy(t => t.GrandTotal),
+                "Customer" => tiDesc ? query.OrderByDescending(t => t.CustomerName) : query.OrderBy(t => t.CustomerName),
+                "Company"  => tiDesc ? query.OrderByDescending(t => t.CompanyName) : query.OrderBy(t => t.CompanyName),
+                "Status"   => tiDesc ? query.OrderByDescending(t => t.Status) : query.OrderBy(t => t.Status),
+                "Invoice"  => tiDesc ? query.OrderByDescending(t => t.InvoiceNumber) : query.OrderBy(t => t.InvoiceNumber),
+                "DueDate"  => tiDesc ? query.OrderByDescending(t => t.DueDate) : query.OrderBy(t => t.DueDate),
+                _          => tiDesc ? query.OrderByDescending(t => t.IssueDate) : query.OrderBy(t => t.IssueDate),
+            };
+
+            var page = await tiOrdered
                 .Skip(filter.Skip)
                 .Take(filter.Take)
                 .Select(t => new TaxInvoiceReportRow

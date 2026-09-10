@@ -31,6 +31,7 @@ namespace ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport
         {
             _dialogs = dialogs!;
             InitCommands();
+            SetSortOptions(new[] { "Date", "Amount", "Customer", "Company", "Status", "Invoice", "DueDate" }, "Date");
             SelectedStatus = AllStatusesOption;
             PiFilter = AllFilter;
             _ = LoadFilterOptionsAsync();

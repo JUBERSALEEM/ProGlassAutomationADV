@@ -95,6 +95,7 @@ namespace ProGlassAutomation.ViewModels.Reports.SalesmanReport
             _dialogs = dialogs!;
             _masterData = masterData ?? App.ServiceProvider?.GetService<IMasterDataRepository>();
             InitCommands();
+            SetSortOptions(new[] { "Revenue", "Name", "Profit", "Margin", "Customers", "PiCount" }, "Revenue");
             _ = LoadFilterOptionsAsync();
             _ = LoadAsync();
         }

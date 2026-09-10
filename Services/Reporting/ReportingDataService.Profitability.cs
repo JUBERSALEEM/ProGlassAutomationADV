@@ -90,7 +90,22 @@ namespace ProGlassAutomation.Services.Reporting
             if (totalCount == 0)
                 return new PagedResult<ProfitabilityRow> { Items = rows, TotalCount = 0, Page = filter.Page, PageSize = filter.PageSize };
 
-            var pis = await query.OrderByDescending(p => p.CreatedAt)
+            // Sort DB-side (before paging). Profit metrics live inside the JSON
+            // snapshot and are not queryable columns, so sort keys are limited
+            // to the mapped PI columns; the default remains newest-first.
+            bool pfDesc = filter.SortDescending;
+            IOrderedQueryable<SavedProformaInvoice> pfOrdered = (filter.SortField) switch
+            {
+                "Amount"   => pfDesc ? query.OrderByDescending(p => p.GrandTotalVatInclusive) : query.OrderBy(p => p.GrandTotalVatInclusive),
+                "Customer" => pfDesc ? query.OrderByDescending(p => p.CustomerName) : query.OrderBy(p => p.CustomerName),
+                "Company"  => pfDesc ? query.OrderByDescending(p => p.CompanyName) : query.OrderBy(p => p.CompanyName),
+                "Project"  => pfDesc ? query.OrderByDescending(p => p.ProjectName) : query.OrderBy(p => p.ProjectName),
+                "Status"   => pfDesc ? query.OrderByDescending(p => p.Status) : query.OrderBy(p => p.Status),
+                "Date"     => pfDesc ? query.OrderByDescending(p => p.IssueDate) : query.OrderBy(p => p.IssueDate),
+                _          => pfDesc ? query.OrderByDescending(p => p.CreatedAt) : query.OrderBy(p => p.CreatedAt),
+            };
+
+            var pis = await pfOrdered
                 .Skip(filter.Skip)
                 .Take(filter.Take)
                 .Select(p => new { p.ProformaId, p.CompanyName, p.CustomerName, p.ProjectName, p.GrandTotalVatInclusive, p.Status, p.IssueDate, p.FullSnapshotJson })

@@ -118,8 +118,18 @@ namespace ProGlassAutomation.Services.Reporting
             if (!string.IsNullOrWhiteSpace(filter.Status))
                 projected = projected.Where(x => x.DeliveryStatus == filter.Status.Trim());
 
-            var page = await projected
-                .OrderBy(x => x.ProformaId)
+            bool dnDesc = filter.SortDescending;
+            var sorted = (filter.SortField) switch
+            {
+                "Customer" => dnDesc ? projected.OrderByDescending(x => x.CustomerName) : projected.OrderBy(x => x.CustomerName),
+                "Project"  => dnDesc ? projected.OrderByDescending(x => x.ProjectName) : projected.OrderBy(x => x.ProjectName),
+                "Ordered"  => dnDesc ? projected.OrderByDescending(x => x.OrderedAt) : projected.OrderBy(x => x.OrderedAt),
+                "Status"   => dnDesc ? projected.OrderByDescending(x => x.DeliveryStatus) : projected.OrderBy(x => x.DeliveryStatus),
+                "Balance"  => dnDesc ? projected.OrderByDescending(x => x.TotalQty - x.DeliveredQty) : projected.OrderBy(x => x.TotalQty - x.DeliveredQty),
+                _          => dnDesc ? projected.OrderByDescending(x => x.ProformaId) : projected.OrderBy(x => x.ProformaId),
+            };
+
+            var page = await sorted
                 .ThenBy(x => x.SpecGroupNumber)
                 .ThenBy(x => x.SerialNumber)
                 .Skip(filter.Skip)

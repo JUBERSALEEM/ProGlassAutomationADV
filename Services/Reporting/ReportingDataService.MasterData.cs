@@ -101,7 +101,16 @@ namespace ProGlassAutomation.Services.Reporting
             catch (Exception ex) { AppLogService.Warning($"Company TI count warning: {ex.Message}"); }
 
             var total = groups.Count;
-            var page = groups.OrderByDescending(g => g.PiValue).Skip(filter.Skip).Take(filter.Take).ToList();
+            bool coDesc = filter.SortDescending;
+            IOrderedEnumerable<CompanyReportRow> coOrdered = (filter.SortField) switch
+            {
+                "Name"        => coDesc ? groups.OrderByDescending(g => g.CompanyName) : groups.OrderBy(g => g.CompanyName),
+                "Invoiced"    => coDesc ? groups.OrderByDescending(g => g.InvoicedValue) : groups.OrderBy(g => g.InvoicedValue),
+                "Outstanding" => coDesc ? groups.OrderByDescending(g => g.Outstanding) : groups.OrderBy(g => g.Outstanding),
+                "PiCount"     => coDesc ? groups.OrderByDescending(g => g.PiCount) : groups.OrderBy(g => g.PiCount),
+                _             => coDesc ? groups.OrderByDescending(g => g.PiValue) : groups.OrderBy(g => g.PiValue),
+            };
+            var page = coOrdered.Skip(filter.Skip).Take(filter.Take).ToList();
             return new PagedResult<CompanyReportRow> { Items = page, TotalCount = total, Page = filter.Page, PageSize = filter.PageSize };
         }
 
@@ -188,7 +197,17 @@ namespace ProGlassAutomation.Services.Reporting
             catch (Exception ex) { AppLogService.Warning($"Customer TI count warning: {ex.Message}"); }
 
             var total = groups.Count;
-            var page = groups.OrderByDescending(g => g.PiValue).Skip(filter.Skip).Take(filter.Take).ToList();
+            bool cuDesc = filter.SortDescending;
+            IOrderedEnumerable<CustomerReportRow> cuOrdered = (filter.SortField) switch
+            {
+                "Name"        => cuDesc ? groups.OrderByDescending(g => g.CustomerName) : groups.OrderBy(g => g.CustomerName),
+                "Salesman"    => cuDesc ? groups.OrderByDescending(g => g.Salesman) : groups.OrderBy(g => g.Salesman),
+                "Invoiced"    => cuDesc ? groups.OrderByDescending(g => g.InvoicedValue) : groups.OrderBy(g => g.InvoicedValue),
+                "Outstanding" => cuDesc ? groups.OrderByDescending(g => g.Outstanding) : groups.OrderBy(g => g.Outstanding),
+                "PiCount"     => cuDesc ? groups.OrderByDescending(g => g.PiCount) : groups.OrderBy(g => g.PiCount),
+                _             => cuDesc ? groups.OrderByDescending(g => g.PiValue) : groups.OrderBy(g => g.PiValue),
+            };
+            var page = cuOrdered.Skip(filter.Skip).Take(filter.Take).ToList();
             return new PagedResult<CustomerReportRow> { Items = page, TotalCount = total, Page = filter.Page, PageSize = filter.PageSize };
         }
 
@@ -231,7 +250,17 @@ namespace ProGlassAutomation.Services.Reporting
                 groups = groups.Where(g => ContainsCI(g.SalesmanName, filter.Salesman)).ToList();
 
             var total = groups.Count;
-            var page = groups.OrderByDescending(g => g.Revenue).Skip(filter.Skip).Take(filter.Take).ToList();
+            bool saDesc = filter.SortDescending;
+            IOrderedEnumerable<SalesmanReportRow> saOrdered = (filter.SortField) switch
+            {
+                "Name"      => saDesc ? groups.OrderByDescending(g => g.SalesmanName) : groups.OrderBy(g => g.SalesmanName),
+                "Profit"    => saDesc ? groups.OrderByDescending(g => g.Profit) : groups.OrderBy(g => g.Profit),
+                "Margin"    => saDesc ? groups.OrderByDescending(g => g.Margin) : groups.OrderBy(g => g.Margin),
+                "Customers" => saDesc ? groups.OrderByDescending(g => g.CustomerCount) : groups.OrderBy(g => g.CustomerCount),
+                "PiCount"   => saDesc ? groups.OrderByDescending(g => g.PiCount) : groups.OrderBy(g => g.PiCount),
+                _           => saDesc ? groups.OrderByDescending(g => g.Revenue) : groups.OrderBy(g => g.Revenue),
+            };
+            var page = saOrdered.Skip(filter.Skip).Take(filter.Take).ToList();
             return new PagedResult<SalesmanReportRow> { Items = page, TotalCount = total, Page = filter.Page, PageSize = filter.PageSize };
         }
 
@@ -319,7 +348,17 @@ namespace ProGlassAutomation.Services.Reporting
             catch (Exception ex) { AppLogService.Warning($"Project TI calculation warning: {ex.Message}"); }
 
             var total = list.Count;
-            var page = list.OrderByDescending(r => r.PiValue).Skip(filter.Skip).Take(filter.Take).ToList();
+            bool prDesc = filter.SortDescending;
+            IOrderedEnumerable<ProjectReportRow> prOrdered = (filter.SortField) switch
+            {
+                "Name"        => prDesc ? list.OrderByDescending(r => r.ProjectName) : list.OrderBy(r => r.ProjectName),
+                "Customer"    => prDesc ? list.OrderByDescending(r => r.CustomerName) : list.OrderBy(r => r.CustomerName),
+                "Invoiced"    => prDesc ? list.OrderByDescending(r => r.InvoicedValue) : list.OrderBy(r => r.InvoicedValue),
+                "Outstanding" => prDesc ? list.OrderByDescending(r => r.Outstanding) : list.OrderBy(r => r.Outstanding),
+                "Profit"      => prDesc ? list.OrderByDescending(r => r.Profit) : list.OrderBy(r => r.Profit),
+                _             => prDesc ? list.OrderByDescending(r => r.PiValue) : list.OrderBy(r => r.PiValue),
+            };
+            var page = prOrdered.Skip(filter.Skip).Take(filter.Take).ToList();
             return new PagedResult<ProjectReportRow> { Items = page, TotalCount = total, Page = filter.Page, PageSize = filter.PageSize };
         }
     }

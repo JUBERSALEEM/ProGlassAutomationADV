@@ -98,7 +98,19 @@ namespace ProGlassAutomation.Services.Reporting
             if (totalCount == 0)
                 return new PagedResult<StatementReportRow> { Items = new List<StatementReportRow>(), TotalCount = 0, Page = filter.Page, PageSize = filter.PageSize };
 
-            var page = await query.OrderByDescending(s => s.CreatedAt)
+            bool stDesc = filter.SortDescending;
+            IOrderedQueryable<SavedStatement> stOrdered = (filter.SortField) switch
+            {
+                "Customer"    => stDesc ? query.OrderByDescending(s => s.FilterCustomer) : query.OrderBy(s => s.FilterCustomer),
+                "Company"     => stDesc ? query.OrderByDescending(s => s.FilterCompany) : query.OrderBy(s => s.FilterCompany),
+                "Statement"   => stDesc ? query.OrderByDescending(s => s.StatementNumber) : query.OrderBy(s => s.StatementNumber),
+                "Invoiced"    => stDesc ? query.OrderByDescending(s => s.TotalInvoiced) : query.OrderBy(s => s.TotalInvoiced),
+                "Outstanding" => stDesc ? query.OrderByDescending(s => s.TotalOutstanding) : query.OrderBy(s => s.TotalOutstanding),
+                "Overdue"     => stDesc ? query.OrderByDescending(s => s.OverdueAmount) : query.OrderBy(s => s.OverdueAmount),
+                _             => stDesc ? query.OrderByDescending(s => s.CreatedAt) : query.OrderBy(s => s.CreatedAt),
+            };
+
+            var page = await stOrdered
                 .Skip(filter.Skip)
                 .Take(filter.Take)
                 .Select(s => new StatementReportRow

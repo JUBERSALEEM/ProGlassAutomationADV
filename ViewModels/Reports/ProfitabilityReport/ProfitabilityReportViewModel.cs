@@ -58,6 +58,7 @@ namespace ProGlassAutomation.ViewModels.Reports.ProfitabilityReport
         {
             _dialogs = dialogs!;
             InitCommands();
+            SetSortOptions(new[] { "Created", "Date", "Amount", "Customer", "Company", "Project", "Status" }, "Created");
             _ = LoadFilterOptionsAsync();
             _ = LoadAsync();
         }

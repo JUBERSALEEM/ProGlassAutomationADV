@@ -40,6 +40,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementReport
         {
             _dialogs = dialogs!;
             InitCommands();
+            SetSortOptions(new[] { "Created", "Customer", "Company", "Statement", "Invoiced", "Outstanding", "Overdue" }, "Created");
 
             // Open the Tax Invoice behind a ledger line — same "open the
             // original document" affordance the other reports provide. The row
