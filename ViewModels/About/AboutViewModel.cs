@@ -249,6 +249,14 @@ public sealed class AboutViewModel : ViewModelBase
     /// <summary>Developer's display name.</summary>
     public string DeveloperName { get; } = "Juber Saleem";
 
+    /// <summary>Mockup-exact avatar initials ("JS") — first letter of the
+    /// first and last name. Computed from DeveloperName (set-once).</summary>
+    public string DeveloperInitials =>
+        string.Concat(DeveloperName
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Select(p => char.ToUpper(p[0]))
+            .Take(2));
+
     /// <summary>
     /// Developer contact email.
     /// Bound to a clickable pill in the Developer section — click launches

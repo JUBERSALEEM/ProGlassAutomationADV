@@ -352,15 +352,20 @@
                     </Grid>
                 </Border>
 
-                <!-- ═══ TAB STRIP — floating glass capsule (iOS-26) ═══ -->
-                <Border HorizontalAlignment="Left"
+                <!-- ═══ TAB STRIP — floating glass capsule. FUNCTIONAL
+                     NAVIGATION: never visibility-gated (2026-09-11 — the
+                     chrome gate hid the ONLY path to Modules/Developer in
+                     non-iOS26 families and under a dead engine; the owner
+                     literally could not find the screens). Centered per the
+                     approved mockup. iOS 26 paints it frosted; other
+                     families paint it with the seeded Surface brushes. ═══ -->
+                <Border HorizontalAlignment="Center"
                         Background="{DynamicResource AboutGlassCapsuleBrush}"
                         BorderBrush="{DynamicResource AboutGlassSlabStroke}"
                         BorderThickness="1"
                         CornerRadius="22"
                         Padding="6,5"
                         Margin="0,2,0,20"
-                        Visibility="{DynamicResource AboutGlassChromeVisibility}"
                         SnapsToDevicePixels="True">
                     <ListBox ItemsSource="{Binding Tabs}"
                              SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
