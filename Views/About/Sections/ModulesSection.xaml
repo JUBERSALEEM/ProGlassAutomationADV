@@ -103,6 +103,7 @@
                     SnapsToDevicePixels="True">
                 <ListBox ItemsSource="{Binding ModuleScopes}"
                          SelectedItem="{Binding SelectedScopeItem, Mode=TwoWay}"
+                         DisplayMemberPath="Label"
                          Style="{StaticResource ScopeCapsuleStyle}"
                          ItemContainerStyle="{StaticResource ScopePillItemStyle}"/>
             </Border>

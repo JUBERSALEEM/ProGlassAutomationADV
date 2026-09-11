@@ -578,7 +578,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             {
                 SetRowInventoryStatus(row,
                     $"Sheet QTY unchanged — {netAlready} sheet(s) already " +
-                    "consumed from inventory for this row.");
+                    "consumed from inventory for this row.",
+                    isWarning: false);
                 return;
             }
 
@@ -603,7 +604,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             if (sheet == null)
             {
                 SetRowInventoryStatus(row,
-                    $""{color}" {w} × {h} is not in Sheet Store inventory — " +
+                    $"\"{color}\" {w} × {h} is not in Sheet Store inventory — " +
                     "add it there or enter quantity manually later.",
                     isWarning: true);
                 return;
