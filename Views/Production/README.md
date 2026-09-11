@@ -1,5 +1,9 @@
 # Production Modules — Stage Queues
 
+<!-- pg-nav -->
+> **[Repository root](../../README.md)** · [All documents](../../docs/README.md) · [Application workflow](../../docs/WORKFLOW.md) · [Design system](../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
+
 The eight production modules (Cutting · Holes & Cutouts · Polish ·
 Edge Deletion · Mitring · Tempering · Pairing · Doubling/Lamination)
 are **stage queues** fed by the production distribution engine.
@@ -95,3 +99,9 @@ page, full design + worked samples in
 | `Services/Production/ProductionDistributionEngine.cs` | Snapshot → work items (pure, deterministic) |
 | `Services/Production/ProductionReleaseService.cs` | Release picker + orchestration |
 | `Services/Production/ProductionRepository.cs` | production.db persistence + stage list/detail projections |
+
+<!-- pg-nav -->
+---
+
+*This README documents `Views/Production/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../docs/README.md).*
+<!-- pg-nav -->

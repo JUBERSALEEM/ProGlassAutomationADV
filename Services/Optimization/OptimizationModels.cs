@@ -15,13 +15,29 @@ using System.Linq;
 
 namespace ProGlassAutomation.Services.Optimization
 {
-    /// <summary>How pieces may be turned on the sheet.</summary>
+    /// <summary>
+    /// How pieces may be turned on the sheet. Free90 is ADAPTIVE: the
+    /// piece keeps its original orientation whenever that fits — rotation
+    /// is used only when the piece needs it (the floor's preferred 0/90
+    /// mix). This is the default for every run.
+    /// </summary>
     public enum RotationPolicy
     {
         /// <summary>Pieces stay exactly as entered (W×H).</summary>
         Locked,
-        /// <summary>The packer may use W×H or H×W, whichever packs better.</summary>
+        /// <summary>Original orientation first; rotate 90° only if it doesn't fit.</summary>
         Free90
+    }
+
+    /// <summary>Guillotine split direction after a placement.</summary>
+    public enum SplitMode
+    {
+        /// <summary>Bottom remainder keeps the full width (calibrated default).</summary>
+        HorizontalFirst,
+        /// <summary>Right remainder keeps the full height.</summary>
+        VerticalFirst,
+        /// <summary>Split along the side with the longer leftover.</summary>
+        LongerLeftover
     }
 
     /// <summary>
@@ -40,16 +56,20 @@ namespace ProGlassAutomation.Services.Optimization
         public int KerfMm { get; init; }
         public int MinBreakoutMm { get; init; }
 
-        /// <summary>House defaults — editable in the MARGINS tab.</summary>
+        /// <summary>
+        /// House defaults (floor-confirmed for 6mm: LM/RM/TM/BM = 15mm,
+        /// minimum breakout 15mm, kerf 3–4mm) — editable in the MARGINS
+        /// tab, per thickness.
+        /// </summary>
         public static MarginProfile DefaultFor(int thicknessMm) => new()
         {
             ThicknessMm = thicknessMm,
-            LeftMm = 25,
-            RightMm = 25,
-            TopMm = 25,
-            BottomMm = 25,
+            LeftMm = thicknessMm <= 6 ? 15 : thicknessMm <= 8 ? 20 : 25,
+            RightMm = thicknessMm <= 6 ? 15 : thicknessMm <= 8 ? 20 : 25,
+            TopMm = thicknessMm <= 6 ? 15 : thicknessMm <= 8 ? 20 : 25,
+            BottomMm = thicknessMm <= 6 ? 15 : thicknessMm <= 8 ? 20 : 25,
             KerfMm = thicknessMm >= 10 ? 4 : 3,
-            MinBreakoutMm = 80
+            MinBreakoutMm = 15
         };
     }
 

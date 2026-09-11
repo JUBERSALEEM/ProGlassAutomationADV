@@ -78,6 +78,8 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`PROFORMA_INVOICE_AUDIT_2026-08.md`](PROFORMA_INVOICE_AUDIT_2026-08.md) | Proforma Invoice module — senior-dev audit (August 2026) |
 | [`PROFORMA_INVOICE_RATING_2026-08.md`](PROFORMA_INVOICE_RATING_2026-08.md) | Proforma Invoice module — 10 / 10 delivery |
 | [`REPORTS_DATAGRID_MOCKUP.md`](REPORTS_DATAGRID_MOCKUP.md) | Central Reporting Module — DataGrid & UI/UX Industrial Specification & Mockup |
+| [`REPORTS_FILTER_UPGRADE_2026-09-10.md`](REPORTS_FILTER_UPGRADE_2026-09-10.md) | Reports Hub — Inventory-Grade Filter Panels (2026-09-10) |
+| [`REPORTS_HUB_AUDIT_2026-09-10.md`](REPORTS_HUB_AUDIT_2026-09-10.md) | Reports Hub — Full Module Audit (2026-09-10) |
 | [`SENIOR_ANALYSIS_ADVANCED_REPORTING.md`](SENIOR_ANALYSIS_ADVANCED_REPORTING.md) | Senior Analysis — Advanced Reporting |
 | [`SHEET_DETAIL_FINAL_REPORT_2026-09-06.md`](SHEET_DETAIL_FINAL_REPORT_2026-09-06.md) | Sheet Detail — Step 9 Corrective Rework: Final Report (2026-09-06) |
 | [`SHEET_DETAIL_STEP6_INTEGRATION_2026-09-06.md`](SHEET_DETAIL_STEP6_INTEGRATION_2026-09-06.md) | Sheet Detail — Step 6 Wastage Integration (2026-09-06) |
@@ -116,6 +118,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`LIQUID_GLASS_DESIGN_SYSTEM_REWRITE_2026-08-29.md`](LIQUID_GLASS_DESIGN_SYSTEM_REWRITE_2026-08-29.md) | Liquid Glass Design System — Global Theme Rewrite (2026-08-29) |
 | [`LOCALIZATION_2026-09-01.md`](LOCALIZATION_2026-09-01.md) | System-Wide Language & Currency — Implementation & Audit (2026-09-01) |
 | [`MODULE_FEATURE_TOGGLES_2026-08.md`](MODULE_FEATURE_TOGGLES_2026-08.md) | Module Feature Toggles — Job Order / Delivery Note / Tax Invoice (Aug 2026) |
+| [`SCREEN_RECORDING_DURATION_FIX_2026-09-10.md`](SCREEN_RECORDING_DURATION_FIX_2026-09-10.md) | Screen Recording — deep analysis, duration fix & 4K UHD support |
 | [`SCREEN_RECORDING_REDESIGN.md`](SCREEN_RECORDING_REDESIGN.md) | Screen Recording — Redesign, Lag & Quality Fixes |
 | [`SENIOR_ANALYSIS_BUILD_ERRORS_AND_MOTION_SYSTEM.md`](SENIOR_ANALYSIS_BUILD_ERRORS_AND_MOTION_SYSTEM.md) | Senior Analysis — Build Errors (MC3000 / CS0200 / CS0191 / CS0103) and the Global Motio… |
 | [`SENIOR_ANALYSIS_HARDCODED_CARDS_AUDIT.md`](SENIOR_ANALYSIS_HARDCODED_CARDS_AUDIT.md) | Senior Analysis — App-Wide Hardcoded Card Audit |
@@ -168,18 +171,6 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 |---|---|
 | [`PDF_LOGO_LETTERHEAD_AUDIT_2026-09-07.md`](PDF_LOGO_LETTERHEAD_AUDIT_2026-09-07.md) | PDF Logo / Letterhead Senior Audit — 2026-09-07 |
 | [`PRINT_LAYOUT_UNIFICATION_2026-09-08.md`](PRINT_LAYOUT_UNIFICATION_2026-09-08.md) | Print Layout Unification — Senior Analysis & Upgrade |
-| [`PI_PDF_WYSIWYG_REDESIGN_2026-09-11.md`](PI_PDF_WYSIWYG_REDESIGN_2026-09-11.md) | PI Step 7 / PDF Export WYSIWYG Redesign — Senior Analysis |
-
-## Production & factory floor
-
-| Document | What it covers |
-|---|---|
-| [`PRODUCTION_DISTRIBUTION_PLAN_2026-09-11.md`](PRODUCTION_DISTRIBUTION_PLAN_2026-09-11.md) | Production Distribution — analysis + phased plan wiring SGU/DGU/LAM/DGU+LAM specs into the 8 production stages |
-| [`PRODUCTION_SCREENS_DESIGN_2026-09-11.md`](PRODUCTION_SCREENS_DESIGN_2026-09-11.md) | Production module screens — list + detail design, field contract, worked samples |
-| [`PRODUCTION_MODULE_EXAMPLES_2026-09-11.md`](PRODUCTION_MODULE_EXAMPLES_2026-09-11.md) | One job through all eight production screens — per-module list rows, sidebar totals, dispatch panel, delivery-note caps |
-| [`PRODUCTION_STEP4_MAPPING_ANALYSIS_2026-09-11.md`](PRODUCTION_STEP4_MAPPING_ANALYSIS_2026-09-11.md) | Complete Step 4 / Step 5 → production mapping: pane builds, overlap vs equal-size W2/H2 semantics, per-module industry detail |
-| [`PRODUCTION_DGU_OVERLAP_PIPELINE_EXAMPLE_2026-09-11.md`](PRODUCTION_DGU_OVERLAP_PIPELINE_EXAMPLE_2026-09-11.md) | DGU overlap job order end-to-end: all eight modules, dispatch panels, and two dispatched delivery notes (balance-only rule) |
-| [`OPTIMIZATION_MODULE_DESIGN_2026-09-12.md`](OPTIMIZATION_MODULE_DESIGN_2026-09-12.md) | Glass cutting optimization module — deep analysis, engine design (Quick + Optimize stages), smart color-merge picker, multi-stock, margins/kerf profiles, 2D preview, phased plan |
 
 ## Release, CI & readiness
 
@@ -244,17 +235,32 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`CORRECTED_MARGIN_CALCULATION.md`](CORRECTED_MARGIN_CALCULATION.md) | ✅ Corrected Margin Calculation - Example |
 | [`DEEP_ANALYSIS_2026-09-09.md`](DEEP_ANALYSIS_2026-09-09.md) | ProGlass Automation — Deep Code Analysis, 2026-09-09 |
 | [`DELIVERY-REPORT.md`](DELIVERY-REPORT.md) | ProGlass Automation — Localization & Globalization Delivery Report |
+| [`DIALOG_SYSTEM_AUDIT.md`](DIALOG_SYSTEM_AUDIT.md) | Dialog & Popup System — Senior Audit and Unified Architecture |
+| [`ERP_LIFECYCLE_HARDENING_ANALYSIS_2026-09-09.md`](ERP_LIFECYCLE_HARDENING_ANALYSIS_2026-09-09.md) | ProGlass Automation — Document-Lifecycle Hardening Analysis |
+| [`EXECUTIVE_FUNNEL_FIX.md`](EXECUTIVE_FUNNEL_FIX.md) | Executive Report Hub — Order-to-Cash Funnel Fix (2026-09-10) |
 | [`FULL_WORKFLOW_AUDIT.md`](FULL_WORKFLOW_AUDIT.md) | PROGLASS AUTOMATION — DEEP WORKFLOW AUDIT & UPGRADE |
 | [`IMPLEMENTATION_COMPLETE.md`](IMPLEMENTATION_COMPLETE.md) | ✅ Implementation Complete: Three Analysis Views with Tab Control |
 | [`IMPLEMENTATION_SUMMARY.md`](IMPLEMENTATION_SUMMARY.md) | ProGlassAutomationADV — Implementation Summary |
+| [`KPI_LIVE_AND_DISPLAY_FIXES_2026-09-10.md`](KPI_LIVE_AND_DISPLAY_FIXES_2026-09-10.md) | KPI Live Updates + Overview Delivery Count + Per-SQM + Profitability Layout |
 | [`MONEY_ROUNDING_POLICY.md`](MONEY_ROUNDING_POLICY.md) | Money Rounding Policy |
+| [`OPTIMIZATION_CALIBRATION_BENCHMARK_2026-09-12.md`](OPTIMIZATION_CALIBRATION_BENCHMARK_2026-09-12.md) | Optimization — Calibration Benchmark Report (2026-09-12) |
+| [`OPTIMIZATION_MODULE_DESIGN_2026-09-12.md`](OPTIMIZATION_MODULE_DESIGN_2026-09-12.md) | Glass Cutting Optimization Module — Deep Analysis & Implementation Plan |
 | [`PHASE_BALANCE.md`](PHASE_BALANCE.md) | Phase Balance — ProGlass Automation ADV |
+| [`PI_PDF_WYSIWYG_REDESIGN_2026-09-11.md`](PI_PDF_WYSIWYG_REDESIGN_2026-09-11.md) | PI Step 7 / PDF Export — WYSIWYG Redesign (Senior Analysis) |
 | [`PI_SYSTEM_STATUS_REPORT.md`](PI_SYSTEM_STATUS_REPORT.md) | Proforma Invoice System - Complete Status Report |
 | [`PL_COST_BASED_MARKUP_EXAMPLE.md`](PL_COST_BASED_MARKUP_EXAMPLE.md) | P&L Cost-Based Markup Implementation - Example |
+| [`PRODUCTION_DGU_OVERLAP_PIPELINE_EXAMPLE_2026-09-11.md`](PRODUCTION_DGU_OVERLAP_PIPELINE_EXAMPLE_2026-09-11.md) | DGU Overlap Job — Full Production Pipeline Example to Delivery-Note Dispatch |
+| [`PRODUCTION_DISTRIBUTION_PLAN_2026-09-11.md`](PRODUCTION_DISTRIBUTION_PLAN_2026-09-11.md) | Production Distribution — Analysis & Implementation Plan |
+| [`PRODUCTION_MODULE_EXAMPLES_2026-09-11.md`](PRODUCTION_MODULE_EXAMPLES_2026-09-11.md) | Production Module Examples — one job through all eight screens |
+| [`PRODUCTION_SCREENS_DESIGN_2026-09-11.md`](PRODUCTION_SCREENS_DESIGN_2026-09-11.md) | Production Module Screens — List & Detail Design (with worked samples) |
+| [`PRODUCTION_STEP4_MAPPING_ANALYSIS_2026-09-11.md`](PRODUCTION_STEP4_MAPPING_ANALYSIS_2026-09-11.md) | Production — Complete Step 4 / Step 5 Mapping Analysis & Module Upgrade |
 | [`REMEDIATION_PLAN.md`](REMEDIATION_PLAN.md) | Remediation Plan |
 | [`REPORT_GENERATOR_SENIOR_ANALYSIS.md`](REPORT_GENERATOR_SENIOR_ANALYSIS.md) | Report Generator — Senior Analysis & Implementation Plan |
 | [`SERVICE_CATEGORIZATION_FIX.md`](SERVICE_CATEGORIZATION_FIX.md) | Service Profitability - Business Logic Clarification |
 | [`SPEC_CHARGE_EXAMPLES.md`](SPEC_CHARGE_EXAMPLES.md) | Complete Spec-to-Charge Examples (4 Build Types) |
+| [`STEP4_STEP6_SHEET_STORE_LINK_2026-09-10.md`](STEP4_STEP6_SHEET_STORE_LINK_2026-09-10.md) | Step 4/5/6 ↔ Sheet Store linkage (2026-09-10) |
+| [`STEP8_APPROVE_UNIFICATION.md`](STEP8_APPROVE_UNIFICATION.md) | Step 8 Approve — Unifying the Split JPG/PDF Flow (Senior Analysis) |
+| [`USER_REPORT_FIXES_2026-09-10_B.md`](USER_REPORT_FIXES_2026-09-10_B.md) | User-Reported Fixes — Round 2 (2026-09-10) |
 | [`WASTAGE_COLOUR_SYNC_FIX.md`](WASTAGE_COLOUR_SYNC_FIX.md) | Step 6 Wastage Charges — Colour Import & Spec-Side Sync Fix |
 | [`WORKFLOW.md`](WORKFLOW.md) | Application Workflow |
 
@@ -266,14 +272,14 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | `Chat5/` | Working notes and data from an earlier session. (6 files) |
 | `Chat5-9/` | Working notes, prompts and data from an earlier session. (7 files) |
 | `ci/` | Pipeline definitions — duplicate casing of `CI/`; see `CI.md`. (2 files) |
-| `phases/` | Supporting artefacts. (16 files) |
+| `phases/` | Supporting artefacts. (18 files) |
 | `ui-redesign/` | UI redesign working artefacts. (1 files) |
 
 
 ## Folder READMEs
 
 Every significant folder in the repository carries its own `README.md`
-describing what lives there. `30` of them:
+describing what lives there. `31` of them:
 
 | Folder | What lives there |
 |---|---|
@@ -297,6 +303,7 @@ describing what lives there. `30` of them:
 | [`Themes/Styles/`](../Themes/Styles/README.md) | Themes/Styles/ — Shared Style Library |
 | [`Tools/LicenseGenerator/`](../Tools/LicenseGenerator/README.md) | ProGlassAutomation.LicenseGenerator |
 | [`Views/Dashboard/`](../Views/Dashboard/README.md) | Dashboard Module |
+| [`Views/Production/`](../Views/Production/README.md) | Production Modules — Stage Queues |
 | [`Views/ProformaInvoice/`](../Views/ProformaInvoice/README.md) | Proforma Invoice Module |
 | [`Views/ProformaInvoice/SavedInvoicesList/`](../Views/ProformaInvoice/SavedInvoicesList/README.md) | Saved Invoices List — Phase 7.16 |
 | [`Views/ProformaInvoice/Step5DataGrid/GrandTotalSummary/`](../Views/ProformaInvoice/Step5DataGrid/GrandTotalSummary/README.md) | Grand Total Summary |

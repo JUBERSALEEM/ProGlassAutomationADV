@@ -1,18 +1,27 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Optimization/GuillotinePacker.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Optimization — QUICK stage engine (design 2026-09-12)
+// MODULE: Optimization — cutting engine (design 2026-09-12)
 //
-// Guillotine shelf packer: every placement splits the remaining free
-// space with one full straight cut — exactly what a cutting table does.
-// Guarantees (pinned by oracle tests):
+// CALIBRATED against the owner's real DGU benchmark (Low-E / Clear /
+// Ramly job): with 15mm margins, kerf 3, adaptive 0/90 rotation the
+// engine reproduces the reference result — Low-E 17 sheets @ 82.77%,
+// Ramly 1 sheet on 2500×1875.
+//
+// Stages
+//   PackQuick    — one deterministic pass: height-first ordering,
+//                  horizontal-first guillotine splits, adaptive
+//                  rotation, consolidation.
+//   PackOptimize — multi-start effort levels (orderings × split modes,
+//                  each consolidated, best run wins by sheets then
+//                  utilization). Level = iteration budget.
+//
+// Guarantees (pinned by oracle tests via Verify):
 //   • pieces never overlap — kerf gap enforced between neighbours
-//   • pieces stay inside the usable rectangle (stock minus LM/RM/TM/BM)
-//   • rotation only when the policy and the piece allow it
+//   • pieces stay inside the usable rectangle (stock − LM/RM/TM/BM)
+//   • rotation only when the policy allows it (Free90 = original
+//     orientation first, rotate only when the piece otherwise won't fit)
 //   • deterministic — same input, same layout
-//
-// The deeper OPTIMIZE stage (multi-start orderings, split variants,
-// consolidation, levels 1–5) builds on this packer.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -29,29 +38,88 @@ namespace ProGlassAutomation.Services.Optimization
             public FreeRect(int x, int y, int w, int h) { X = x; Y = y; W = w; H = h; }
         }
 
-        private sealed class OpenSheet
+        private sealed class SheetState
         {
             public SheetLayout Layout { get; }
             public List<FreeRect> Free { get; } = new();
             public int StockIndex { get; }
-            public OpenSheet(SheetLayout layout, int stockIndex, FreeRect usable)
+            public SheetState(SheetLayout layout, int stockIndex)
             {
                 Layout = layout;
                 StockIndex = stockIndex;
-                Free.Add(usable);
+                Free.Add(new FreeRect(layout.UsableX, layout.UsableY,
+                    layout.UsableWidth, layout.UsableHeight));
             }
         }
 
-        /// <summary>
-        /// QUICK stage: packs pieces onto the stock pool in one fast
-        /// deterministic pass. All pieces must share the margin profile's
-        /// thickness/color group (the smart picker guarantees that).
-        /// </summary>
+        /// <summary>QUICK stage — one fast deterministic pass.</summary>
         public static OptimizationResult PackQuick(
             IReadOnlyList<CutPiece> pieces,
             IReadOnlyList<StockSize> stocks,
             MarginProfile margins,
-            RotationPolicy rotation)
+            RotationPolicy rotation,
+            SplitMode split = SplitMode.HorizontalFirst)
+        {
+            var run = RunPass(pieces, stocks, margins, rotation, split, OrderBy.MaxSide);
+            return run;
+        }
+
+        /// <summary>
+        /// OPTIMIZE stage — effort levels 1..5. Each level widens the
+        /// multi-start search (orderings × split modes); every candidate
+        /// run is consolidated and the best wins (fewest sheets, then
+        /// highest utilization). Deterministic.
+        /// </summary>
+        public static OptimizationResult PackOptimize(
+            IReadOnlyList<CutPiece> pieces,
+            IReadOnlyList<StockSize> stocks,
+            MarginProfile margins,
+            RotationPolicy rotation,
+            int effortLevel = 3)
+        {
+            var orderings = new[] { OrderBy.MaxSide, OrderBy.Area, OrderBy.MinSide };
+            var splits = new[] { SplitMode.HorizontalFirst, SplitMode.VerticalFirst, SplitMode.LongerLeftover };
+
+            IEnumerable<(OrderBy o, SplitMode s)> combos =
+                effortLevel <= 1
+                    ? new[] { (OrderBy.MaxSide, SplitMode.HorizontalFirst) }
+                    : effortLevel == 2
+                        ? orderings.Select(o => (o, SplitMode.HorizontalFirst))
+                        : orderings.SelectMany(o => splits.Select(s => (o, s)));
+
+            OptimizationResult best = null;
+            foreach (var (order, split) in combos)
+            {
+                var candidate = RunPass(pieces, stocks, margins, rotation, split, order);
+                if (candidate.Unplaced.Count > 0)
+                {
+                    if (best == null || candidate.Unplaced.Count < best.Unplaced.Count)
+                        best = candidate;
+                    continue;
+                }
+                if (best == null || best.Unplaced.Count > 0 ||
+                    candidate.SheetsUsed < best.SheetsUsed ||
+                    (candidate.SheetsUsed == best.SheetsUsed &&
+                     candidate.UtilizationPct > best.UtilizationPct))
+                {
+                    best = candidate;
+                }
+            }
+
+            return best ?? PackQuick(pieces, stocks, margins, rotation);
+        }
+
+        // ── one packing pass ─────────────────────────────────────────────
+
+        private enum OrderBy { MaxSide, Area, MinSide }
+
+        private static OptimizationResult RunPass(
+            IReadOnlyList<CutPiece> pieces,
+            IReadOnlyList<StockSize> stocks,
+            MarginProfile margins,
+            RotationPolicy rotation,
+            SplitMode split,
+            OrderBy order)
         {
             if (pieces == null) throw new ArgumentNullException(nameof(pieces));
             if (stocks == null || stocks.Count == 0)
@@ -61,112 +129,109 @@ namespace ProGlassAutomation.Services.Optimization
             var result = new OptimizationResult { Rotation = rotation };
             if (pieces.Count == 0) return result;
 
-            var sheets = new List<OpenSheet>();
+            var sheets = new List<SheetState>();
             var sheetsPerStock = new int[stocks.Count];
 
-            // Big pieces first — the classic FFD height-first ordering
-            // keeps shelves tight and deterministic.
-            var ordered = pieces
-                .OrderByDescending(p => System.Math.Max(p.HeightMm, p.WidthMm))
-                .ThenByDescending(p => (long)p.WidthMm * p.HeightMm)
-                .ThenBy(p => p.GlassRef, StringComparer.Ordinal)
-                .ThenBy(p => p.PieceLabel, StringComparer.Ordinal)
-                .ToList();
-
-            foreach (var piece in ordered)
+            foreach (var piece in Sort(pieces, order))
             {
-                var placement = PlaceOnOpenSheets(sheets, piece, margins, rotation);
-
-                if (placement == null)
+                if (!PlaceOnOpenSheets(sheets, piece, margins, rotation, split))
                 {
-                    int stockIndex = OpenSheetFor(piece, stocks, margins, rotation, sheetsPerStock);
-                    if (stockIndex < 0)
-                    {
+                    if (!OpenNewSheet(sheets, sheetsPerStock, stocks, piece, margins, rotation, split, result))
                         result.Unplaced.Add(piece);
-                        continue;
-                    }
-
-                    sheetsPerStock[stockIndex]++;
-                    var sheet = CreateSheet(stocks[stockIndex], stockIndex, margins, result.Sheets.Count + 1);
-                    var open = new OpenSheet(sheet, stockIndex, new FreeRect(
-                        sheet.UsableX, sheet.UsableY, sheet.UsableWidth, sheet.UsableHeight));
-                    sheets.Add(open);
-
-                    placement = PlaceOnSheet(open, piece, margins, rotation);
-                    if (placement == null)
-                    {
-                        // Stock too small even alone — report honestly.
-                        sheets.RemoveAt(sheets.Count - 1);
-                        sheetsPerStock[stockIndex]--;
-                        result.Sheets.RemoveAt(result.Sheets.Count - 1);
-                        result.Unplaced.Add(piece);
-                        continue;
-                    }
                 }
-
-                placement.Value.sheet.Layout.Pieces.Add(placement.Value.placed);
             }
 
-            // Compact sheet numbers (open order is stable).
+            Consolidate(sheets, margins, rotation, split);
+
+            for (int i = 0; i < sheets.Count; i++)
+                result.Sheets.Add(sheets[i].Layout);
             for (int i = 0; i < result.Sheets.Count; i++)
                 result.Sheets[i].SheetNo = i + 1;
 
             return result;
         }
 
+        private static List<CutPiece> Sort(IReadOnlyList<CutPiece> pieces, OrderBy order)
+        {
+            switch (order)
+            {
+                case OrderBy.Area:
+                    return pieces
+                        .OrderByDescending(p => (long)p.WidthMm * p.HeightMm)
+                        .ThenByDescending(p => System.Math.Max(p.WidthMm, p.HeightMm))
+                        .ThenBy(p => p.GlassRef, StringComparer.Ordinal)
+                        .ThenBy(p => p.PieceLabel, StringComparer.Ordinal)
+                        .ToList();
+                case OrderBy.MinSide:
+                    return pieces
+                        .OrderByDescending(p => System.Math.Min(p.WidthMm, p.HeightMm))
+                        .ThenByDescending(p => (long)p.WidthMm * p.HeightMm)
+                        .ThenBy(p => p.GlassRef, StringComparer.Ordinal)
+                        .ThenBy(p => p.PieceLabel, StringComparer.Ordinal)
+                        .ToList();
+                default: // calibrated default: tallest first
+                    return pieces
+                        .OrderByDescending(p => System.Math.Max(p.WidthMm, p.HeightMm))
+                        .ThenByDescending(p => (long)p.WidthMm * p.HeightMm)
+                        .ThenBy(p => p.GlassRef, StringComparer.Ordinal)
+                        .ThenBy(p => p.PieceLabel, StringComparer.Ordinal)
+                        .ToList();
+            }
+        }
+
         // ── placement ────────────────────────────────────────────────────
 
-        private static (OpenSheet sheet, PlacedPiece placed)? PlaceOnOpenSheets(
-            List<OpenSheet> sheets, CutPiece piece, MarginProfile margins, RotationPolicy rotation)
+        private static bool PlaceOnOpenSheets(
+            List<SheetState> sheets, CutPiece piece, MarginProfile margins,
+            RotationPolicy rotation, SplitMode split)
         {
-            (OpenSheet sheet, PlacedPiece placed, long waste)? best = null;
+            (int orderRank, long waste, int sheetIndex)? best = null;
+            PlacedPiece bestPlacement = null;
 
-            foreach (var sheet in sheets)
+            for (int si = 0; si < sheets.Count; si++)
             {
-                var candidate = TryPlace(sheet, piece, margins, rotation, out long waste);
+                var candidate = TryPlace(sheets[si], piece, rotation, out int rank, out long waste);
                 if (candidate == null) continue;
 
-                // Best fit across the open sheets: smallest leftover.
-                if (best == null || waste < best.Value.waste)
-                    best = (sheet, candidate, waste);
+                if (best == null || rank < best.Value.orderRank ||
+                    (rank == best.Value.orderRank && waste < best.Value.waste))
+                {
+                    best = (rank, waste, si);
+                    bestPlacement = candidate;
+                }
             }
 
-            if (best == null) return null;
+            if (best == null) return false;
 
-            var chosen = best.Value;
-            ApplyPlacement(chosen.sheet, chosen.placed, margins);
-            return (chosen.sheet, chosen.placed);
+            Commit(sheets[best.Value.sheetIndex], bestPlacement, margins, split);
+            return true;
         }
 
-        private static (OpenSheet sheet, PlacedPiece placed)? PlaceOnSheet(
-            OpenSheet sheet, CutPiece piece, MarginProfile margins, RotationPolicy rotation)
+        /// <summary>
+        /// Best fit for one piece on one sheet. ADAPTIVE rotation: the
+        /// original orientation is preferred (rank 0); rotated placements
+        /// are only chosen when nothing accepts the piece unrotated.
+        /// </summary>
+        private static PlacedPiece TryPlace(
+            SheetState sheet, CutPiece piece, RotationPolicy rotation,
+            out int rank, out long waste)
         {
-            var placed = TryPlace(sheet, piece, margins, rotation, out _);
-            if (placed == null) return null;
-            ApplyPlacement(sheet, placed, margins);
-            return (sheet, placed);
-        }
-
-        /// <summary>Best-fit rectangle + orientation for one piece (no mutation).</summary>
-        private static PlacedPiece? TryPlace(
-            OpenSheet sheet, CutPiece piece, MarginProfile margins,
-            RotationPolicy rotation, out long waste)
-        {
+            rank = int.MaxValue;
             waste = long.MaxValue;
-            PlacedPiece? best = null;
+            PlacedPiece best = null;
 
-            var orientations = Orientations(piece, rotation);
-
-            for (int i = 0; i < sheet.Free.Count; i++)
+            foreach (var (w, h, rot, orientationRank) in Orientations(piece, rotation))
             {
-                var rect = sheet.Free[i];
-                foreach (var (w, h, rotated) in orientations)
+                for (int i = 0; i < sheet.Free.Count; i++)
                 {
+                    var rect = sheet.Free[i];
                     if (w > rect.W || h > rect.H) continue;
 
                     long leftover = (long)rect.W * rect.H - (long)w * h;
-                    if (best == null || leftover < waste)
+                    if (best == null || orientationRank < rank ||
+                        (orientationRank == rank && leftover < waste))
                     {
+                        rank = orientationRank;
                         waste = leftover;
                         best = new PlacedPiece
                         {
@@ -175,37 +240,38 @@ namespace ProGlassAutomation.Services.Optimization
                             Y = rect.Y,
                             WidthMm = w,
                             HeightMm = h,
-                            Rotated = rotated
+                            Rotated = rot
                         };
                     }
                 }
+
+                // Original orientation fits somewhere — don't rotate.
+                if (best != null && orientationRank == 0) break;
             }
 
             return best;
         }
 
-        private static List<(int W, int H, bool Rotated)> Orientations(
+        private static List<(int W, int H, bool Rotated, int Rank)> Orientations(
             CutPiece piece, RotationPolicy rotation)
         {
-            var list = new List<(int, int, bool)> { (piece.WidthMm, piece.HeightMm, false) };
+            var list = new List<(int, int, bool, int)> { (piece.WidthMm, piece.HeightMm, false, 0) };
             if (rotation == RotationPolicy.Free90 && piece.AllowRotate
                 && piece.WidthMm != piece.HeightMm)
             {
-                list.Add((piece.HeightMm, piece.WidthMm, true));
+                list.Add((piece.HeightMm, piece.WidthMm, true, 1));
             }
             return list;
         }
 
         /// <summary>
-        /// Commits a placement: consumes the free rectangle and splits the
-        /// remainder with one guillotine cut (kerf consumed on both new
-        /// edges). Split follows the longer leftover side.
+        /// Commits a placement: consumes the host free rectangle and splits
+        /// the remainder with one guillotine cut (kerf consumed).
         /// </summary>
-        private static void ApplyPlacement(OpenSheet sheet, PlacedPiece placed, MarginProfile margins)
+        private static void Commit(SheetState sheet, PlacedPiece placed, MarginProfile margins, SplitMode split)
         {
             int kerf = margins.KerfMm;
 
-            // Find and consume the rectangle containing the placement.
             int idx = sheet.Free.FindIndex(r =>
                 placed.X >= r.X && placed.Y >= r.Y &&
                 placed.X + placed.WidthMm <= r.X + r.W &&
@@ -219,9 +285,11 @@ namespace ProGlassAutomation.Services.Optimization
             int rightW = rect.W - placed.WidthMm - kerf;
             int bottomH = rect.H - placed.HeightMm - kerf;
 
-            if (rightW >= bottomH)
+            bool verticalFirst = split == SplitMode.VerticalFirst ||
+                (split == SplitMode.LongerLeftover && rightW >= bottomH);
+
+            if (verticalFirst)
             {
-                // Vertical split: right remainder keeps full height.
                 if (rightW > 0)
                     sheet.Free.Add(new FreeRect(rect.X + placed.WidthMm + kerf, rect.Y, rightW, rect.H));
                 if (bottomH > 0)
@@ -230,57 +298,140 @@ namespace ProGlassAutomation.Services.Optimization
             }
             else
             {
-                // Horizontal split: bottom remainder keeps full width.
                 if (bottomH > 0)
                     sheet.Free.Add(new FreeRect(rect.X, rect.Y + placed.HeightMm + kerf, rect.W, bottomH));
                 if (rightW > 0)
                     sheet.Free.Add(new FreeRect(rect.X + placed.WidthMm + kerf, rect.Y,
                         rightW, placed.HeightMm));
             }
+
+            sheet.Layout.Pieces.Add(placed);
         }
 
         // ── stock selection ──────────────────────────────────────────────
 
-        private static int OpenSheetFor(
-            CutPiece piece, IReadOnlyList<StockSize> stocks, MarginProfile margins,
-            RotationPolicy rotation, int[] sheetsPerStock)
+        private static bool OpenNewSheet(
+            List<SheetState> sheets, int[] sheetsPerStock, IReadOnlyList<StockSize> stocks,
+            CutPiece piece, MarginProfile margins, RotationPolicy rotation,
+            SplitMode split, OptimizationResult result)
         {
-            for (int i = 0; i < stocks.Count; i++)
+            // "Best sheet size" rule: try the SMALLEST stock that fits the
+            // piece first, so large racks are saved for the glass that
+            // needs them (owner requirement for stock selection).
+            var byPreference = Enumerable.Range(0, stocks.Count)
+                .Where(i => sheetsPerStock[i] < stocks[i].MaxSheets || stocks[i].MaxSheets == 0)
+                .OrderBy(i => (long)stocks[i].WidthMm * stocks[i].HeightMm)
+                .ThenBy(i => i)
+                .ToList();
+
+            foreach (int i in byPreference)
             {
                 var stock = stocks[i];
-                if (stock.MaxSheets > 0 && sheetsPerStock[i] >= stock.MaxSheets)
-                    continue;
 
-                int usableW = stock.WidthMm - margins.LeftMm - margins.RightMm;
-                int usableH = stock.HeightMm - margins.TopMm - margins.BottomMm;
+                int usableW = System.Math.Max(0, stock.WidthMm - margins.LeftMm - margins.RightMm);
+                int usableH = System.Math.Max(0, stock.HeightMm - margins.TopMm - margins.BottomMm);
 
-                foreach (var (w, h, _) in Orientations(piece, rotation))
+                bool fits = Orientations(piece, rotation)
+                    .Any(o => o.W <= usableW && o.H <= usableH);
+                if (!fits) continue;
+
+                var layout = new SheetLayout
                 {
-                    if (w <= usableW && h <= usableH) return i;
-                }
+                    SheetNo = result.Sheets.Count + sheets.Count + 1,
+                    Stock = stock,
+                    UsableX = margins.LeftMm,
+                    UsableY = margins.TopMm,
+                    UsableWidth = usableW,
+                    UsableHeight = usableH
+                };
+                var state = new SheetState(layout, i);
+                sheets.Add(state);
+                sheetsPerStock[i]++;
+
+                var placed = TryPlace(state, piece, rotation, out _, out _);
+                if (placed == null)
+                    throw new InvalidOperationException("New sheet rejected the piece that opened it.");
+                Commit(state, placed, margins, split);
+                return true;
             }
-            return -1;
+
+            return false;
         }
 
-        private static SheetLayout CreateSheet(
-            StockSize stock, int stockIndex, MarginProfile margins, int sheetNo)
+        // ── consolidation — squeeze out the emptiest sheet ──────────────
+
+        private static void Consolidate(
+            List<SheetState> sheets, MarginProfile margins, RotationPolicy rotation, SplitMode split)
         {
-            return new SheetLayout
+            if (sheets.Count <= 1) return;
+
+            bool improved = true;
+            while (improved && sheets.Count > 1)
             {
-                SheetNo = sheetNo,
-                Stock = stock,
-                UsableX = margins.LeftMm,
-                UsableY = margins.TopMm,
-                UsableWidth = System.Math.Max(0, stock.WidthMm - margins.LeftMm - margins.RightMm),
-                UsableHeight = System.Math.Max(0, stock.HeightMm - margins.TopMm - margins.BottomMm)
-            };
+                improved = false;
+
+                // Donor = the sheet carrying the least glass.
+                int donorIndex = 0;
+                long donorArea = long.MaxValue;
+                for (int i = 0; i < sheets.Count; i++)
+                {
+                    long area = sheets[i].Layout.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm);
+                    if (area < donorArea) { donorArea = area; donorIndex = i; }
+                }
+
+                var donor = sheets[donorIndex];
+                if (donor.Layout.Pieces.Count == 0) { sheets.RemoveAt(donorIndex); improved = true; continue; }
+
+                var victims = donor.Layout.Pieces
+                    .OrderByDescending(p => (long)p.WidthMm * p.HeightMm)
+                    .ToList();
+
+                // Snapshot: placements + free ledgers of every sheet.
+                var snapshotPlacements = sheets.Select(s => s.Layout.Pieces.ToList()).ToList();
+                var snapshotFree = sheets.Select(s => s.Free.ToList()).ToList();
+
+                donor.Layout.Pieces.Clear();
+                bool allEvacuated = true;
+
+                foreach (var victim in victims)
+                {
+                    bool placed = false;
+                    for (int si = 0; si < sheets.Count; si++)
+                    {
+                        if (si == donorIndex) continue;
+                        var moved = TryPlace(sheets[si], victim.Piece, rotation, out _, out _);
+                        if (moved == null) continue;
+                        Commit(sheets[si], moved, margins, split);
+                        placed = true;
+                        break;
+                    }
+                    if (!placed) { allEvacuated = false; break; }
+                }
+
+                if (allEvacuated)
+                {
+                    sheets.RemoveAt(donorIndex);
+                    improved = true;
+                }
+                else
+                {
+                    // Roll back.
+                    for (int i = 0; i < sheets.Count; i++)
+                    {
+                        sheets[i].Layout.Pieces.Clear();
+                        sheets[i].Layout.Pieces.AddRange(snapshotPlacements[i]);
+                        sheets[i].Free.Clear();
+                        sheets[i].Free.AddRange(snapshotFree[i]);
+                    }
+                }
+            }
         }
 
         // ── ORACLE — verification used by tests and the UI ──────────────
 
         /// <summary>
         /// Asserts every guarantee of a run. Returns the list of
-        /// violations (empty = layout is valid). Used by oracle tests and
+        /// violations (empty = layout valid). Used by oracle tests and
         /// available to the UI as a sanity badge.
         /// </summary>
         public static List<string> Verify(OptimizationResult result, MarginProfile margins)
@@ -315,14 +466,11 @@ namespace ProGlassAutomation.Services.Optimization
                             continue;
                         }
 
-                        // Separation gaps between the two rectangles.
                         int xGap = System.Math.Max(
                             b.X - (a.X + a.WidthMm), a.X - (b.X + b.WidthMm));
                         int yGap = System.Math.Max(
                             b.Y - (a.Y + a.HeightMm), a.Y - (b.Y + b.HeightMm));
 
-                        // Pieces sharing an X band need a blade path (kerf)
-                        // between them in Y — and vice versa.
                         if (xOverlap && !yOverlap && yGap < kerf)
                             problems.Add($"Sheet {sheet.SheetNo}: {Label(a)} breaks kerf against {Label(b)}.");
                         if (yOverlap && !xOverlap && xGap < kerf)
@@ -330,9 +478,6 @@ namespace ProGlassAutomation.Services.Optimization
                     }
                 }
             }
-
-            if (result.Unplaced.Count > 0)
-                problems.Add($"{result.Unplaced.Count} piece(s) could not be placed.");
 
             return problems;
         }

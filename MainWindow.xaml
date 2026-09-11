@@ -808,8 +808,7 @@
                                         <Button Style="{StaticResource SidebarSubItem}"
                                                 Content="{DynamicResource Nav.Optimization}"
                                                 Command="{Binding NavigateCommand}"
-                                                CommandParameter="Optimization"
-                                                ToolTip="{DynamicResource ToolTip.ComingSoon}"/>
+                                                CommandParameter="Optimization"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
                                                 Content="{DynamicResource Nav.Cutting}"
                                                 Command="{Binding NavigateCommand}"

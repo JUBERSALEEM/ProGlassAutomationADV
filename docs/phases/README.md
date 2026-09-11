@@ -3,7 +3,6 @@
 <!-- pg-nav -->
 > **[Repository root](../../README.md)** · [All documents](../../docs/README.md) · [Application workflow](../../docs/WORKFLOW.md) · [Design system](../../docs/DESIGN_SYSTEM.md)
 <!-- pg-nav -->
-
 Fifteen phases taking ProGlass Automation from a strong WPF application to
 industrial ERP grade. Produced by the deep analysis in
 [`../DEEP_ANALYSIS_2026-09-09.md`](../DEEP_ANALYSIS_2026-09-09.md), which carries
