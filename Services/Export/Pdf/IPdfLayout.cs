@@ -1,4 +1,5 @@
 using QuestPDF.Fluent;
+using QuestPDF.Infrastructure;
 using ProGlassAutomation.Services.Export.Core;
 
 namespace ProGlassAutomation.Services.Export.Pdf
