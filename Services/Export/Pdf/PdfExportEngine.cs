@@ -265,6 +265,14 @@ namespace ProGlassAutomation.Services.Export.Pdf
             PdfThemeCatalog.ApplySaved();
             var pageLayout = layout.PageLayout ?? PageLayout.A4Portrait;
             string documentId = layout.DocumentId ?? string.Empty;
+            // 2026-09-11 PROVENANCE (owner ask: the layout name must show in
+            // the PDF — professionally): the footer carries the theme's
+            // DISPLAY name ("Classic Navy", "Editorial Ink", …) beside the
+            // document id, so every artifact self-identifies which of the
+            // five layouts rendered it. Never a type name.
+            string footerId = string.IsNullOrWhiteSpace(documentId)
+                ? DocumentStyle.Current.DisplayName
+                : $"{documentId}   ·   {DocumentStyle.Current.DisplayName}";
 
             return Document.Create(container =>
             {
@@ -306,7 +314,7 @@ namespace ProGlassAutomation.Services.Export.Pdf
                     });
 
                     page.Footer().Element(f =>
-                        FooterRenderer.Render(f, documentId));
+                        FooterRenderer.Render(f, footerId));
                 });
             });
         }

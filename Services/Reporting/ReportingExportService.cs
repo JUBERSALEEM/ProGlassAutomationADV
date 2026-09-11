@@ -80,6 +80,19 @@ namespace ProGlassAutomation.Services.Reporting
             return await engine.ExportAsync(layout, request ?? new ExportRequest());
         }
 
+        /// <summary>True when a cell reads as money / number / percent —
+        /// those columns right-align (professional table layout).</summary>
+        private static bool IsNumericCell(object? v)
+        {
+            string s = (v?.ToString() ?? "").Trim();
+            if (s.Length == 0 || s == "—" || s.StartsWith("⚑")) return false;
+            if (s.StartsWith("AED", StringComparison.OrdinalIgnoreCase)) return true;
+            if (s.StartsWith("+") || s.EndsWith("%")) return true;
+            int i = 0;
+            while (i < s.Length && (char.IsDigit(s[i]) || s[i] == ',' || s[i] == '.')) i++;
+            return i > 0 && i == s.Length;
+        }
+
         // ── Generic layouts ────────────────────────────────────────────
 
         private sealed class GenericCsvLayout<T> : ICsvLayout
@@ -484,18 +497,35 @@ namespace ProGlassAutomation.Services.Reporting
                         foreach (var _ in _headers) c.RelativeColumn();
                     });
 
+                    // 2026-09-11 PROFESSIONAL ALIGNMENT: amount/rate columns
+                    // right-align — header AND body — decided per column by
+                    // scanning the mapped rows (a column is numeric when any
+                    // cell reads as money/number/percent).
+                    var mappedRows = _rows.Select(r => _mapper(r)).ToList();
+                    bool[] numericCol = new bool[_headers.Length];
+                    foreach (var vals in mappedRows)
+                        for (int c = 1; c < vals.Length && c < _headers.Length; c++)
+                            if (IsNumericCell(vals[c]))
+                                numericCol[c] = true;
+
                     table.Header(h =>
                     {
-                        foreach (var hd in _headers)
-                            h.Cell().Background("#1D4ED8").Padding(4).Text(hd).FontSize(8).Bold().FontColor(Colors.White).AlignCenter();
+                        for (int c = 0; c < _headers.Length; c++)
+                        {
+                            var headerCell = h.Cell().Background("#1D4ED8").Padding(4);
+                            if (c > 0 && numericCol[c])
+                                headerCell.AlignRight().Text(_headers[c]).FontSize(8).Bold().FontColor(Colors.White);
+                            else
+                                headerCell.AlignCenter().Text(_headers[c]).FontSize(8).Bold().FontColor(Colors.White);
+                        }
                     });
 
                     bool alt = false;
                     int maxCellChars = _headers.Length <= 4 ? 170 : _headers.Length <= 8 ? 105 : _headers.Length <= 10 ? 80 : 52;
-                    int take = _rows.Count;
-                    for (int i = 0; i < take; i++)
+                    for (int i = 0; i < mappedRows.Count; i++)
                     {
-                        var fields = _mapper(_rows[i]);
+                        var fields = mappedRows[i];
+                        int colIndex = 0;
                         // ⚑ FOCUS rows shade amber across the full row width.
                         bool focusRow = string.Equals(
                             fields.Length > 0 ? fields[0] : null,
@@ -507,8 +537,11 @@ namespace ProGlassAutomation.Services.Reporting
                             var cell = table.Cell()
                                 .Background(focusRow ? "#FEF3C7" : alt ? "#F8FAFC" : Colors.White)
                                 .BorderBottom(0.5f).BorderColor("#E5E7EB").Padding(4);
+                            if (colIndex > 0 && colIndex < numericCol.Length && numericCol[colIndex])
+                                cell = cell.AlignRight();
                             var text = cell.Text(txt).FontSize(_headers.Length <= 8 ? 7.5f : 7f).FontColor("#1F2937");
                             if (focusRow) text.Bold();
+                            colIndex++;
 
                         }
                         alt = !alt;
