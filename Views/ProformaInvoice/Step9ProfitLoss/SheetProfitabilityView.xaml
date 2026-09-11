@@ -314,6 +314,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel>
                             <TextBlock Text="BUY SHEET PRICE" Style="{StaticResource SheetCaptionStyle}"/>
@@ -334,6 +335,11 @@
                             <TextBlock Text="{Binding TotalStep6ChargeDisplay}" Style="{StaticResource SheetKpiValueStyle}"
                                        Foreground="{DynamicResource DangerBrush}"/>
                         </StackPanel>
+                        <StackPanel Grid.Column="4" Margin="16,0,0,0">
+                            <TextBlock Text="NET WASTAGE (AFTER STEP 6)" Style="{StaticResource SheetCaptionStyle}"/>
+                            <TextBlock Text="{Binding TotalNetWastageLossDisplay}" Style="{StaticResource SheetKpiValueStyle}"
+                                       Foreground="{DynamicResource WarningBrush}"/>
+                        </StackPanel>
                     </Grid>
                     <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,12,0,10"/>
                     <TextBlock FontSize="{StaticResource TextCaption}"
@@ -343,6 +349,14 @@
                         <Run Text="{Binding ReconciliationBalanceDisplay, Mode=OneWay}" FontWeight="SemiBold"
                              Foreground="{DynamicResource SuccessBrush}"/>
                         <Run Text=" (should be 0.00 — a negative balance means bought sheets are short)"/>
+                    </TextBlock>
+                    <TextBlock FontSize="{StaticResource TextCaption}"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               TextWrapping="Wrap" Margin="0,4,0,0">
+                        <Run Text="WASTAGE − STEP 6 RECOVERY = "/>
+                        <Run Text="{Binding TotalNetWastageLossDisplay, Mode=OneWay}" FontWeight="SemiBold"
+                             Foreground="{DynamicResource WarningBrush}"/>
+                        <Run Text=" (net wastage absorbed after billing recovery)"/>
                     </TextBlock>
                     <TextBlock FontSize="{StaticResource TextCaption}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -363,14 +377,14 @@
                                 BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}">
                             <StackPanel>
-                                <TextBlock Text="SHEET PRICE RECONCILIATION — BUY = USED + WASTAGE (CHARGED) + WASTAGE (NOT CHARGED)"
+                                <TextBlock Text="SHEET PRICE RECONCILIATION — BUY = USED + WASTAGE · STEP 6 RECOVERY · NET WASTAGE"
                                            Style="{StaticResource SheetCaptionStyle}"/>
                                 <TextBlock Text="{Binding ReconciliationSummaryDisplay}"
                                            FontSize="{StaticResource TextCaption}"
                                            FontWeight="SemiBold"
                                            Foreground="{DynamicResource PrimaryForegroundBrush}"
                                            TextWrapping="Wrap" Margin="0,6,0,0"/>
-                                <TextBlock Text="{Binding UnchargedWastageNotice}"
+                                <TextBlock Text="{Binding NetWastageNotice}"
                                            FontSize="{StaticResource TextCaption}"
                                            Foreground="{DynamicResource WarningBrush}"
                                            TextWrapping="Wrap" Margin="0,6,0,0">
@@ -378,7 +392,7 @@
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Visibility" Value="Visible"/>
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding UnchargedWastageNotice}" Value="">
+                                                <DataTrigger Binding="{Binding NetWastageNotice}" Value="">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -724,8 +738,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Wastage — charged (Step 6)" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding WastageValueChargedDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Wastage — recovered via Step 6" Style="{StaticResource SheetKvLabelStyle}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding WastageValueRecoveredDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -733,8 +747,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Wastage — not charged (loss)" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding WastageValueUnchargedDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Wastage — net loss after recovery" Style="{StaticResource SheetKvLabelStyle}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding WastageValueNetLossDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>

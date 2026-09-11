@@ -187,44 +187,44 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         public string TotalStep6ChargeDisplay => $"AED {TotalStep6Charge:N2}";
 
-        // ── 5-SECTION RECONCILIATION TOTALS (2026-09-11) ───────────────
-        // BUY = USED + WASTAGE CHARGED + WASTAGE NOT CHARGED (+ balance).
-        private decimal _totalChargedWastageValue;
+        // ── RECONCILIATION TOTALS (2026-09-11, owner formula) ──────────
+        // BUY = USED + WASTAGE; the Step 6 charge RECOVERS part of the
+        // wastage; the remainder is the NET wastage the factory absorbs:
+        //     NET = TotalWastageValue − TotalStep6Charge (1,586.66 −
+        //           162.22 = 1,424.44 in the owner's example).
+        private decimal _totalRecoveredWastageValue;
 
-        public decimal TotalChargedWastageValue
+        public decimal TotalRecoveredWastageValue
         {
-            get => _totalChargedWastageValue;
-            private set => SetTotals(ref _totalChargedWastageValue, value, nameof(TotalChargedWastageValueDisplay));
+            get => _totalRecoveredWastageValue;
+            private set => SetTotals(ref _totalRecoveredWastageValue, value, nameof(TotalRecoveredWastageValueDisplay));
         }
 
-        public string TotalChargedWastageValueDisplay => $"AED {TotalChargedWastageValue:N2}";
+        public string TotalRecoveredWastageValueDisplay => $"AED {TotalRecoveredWastageValue:N2}";
 
-        private decimal _totalUnchargedWastageValue;
+        /// <summary>Owner formula, exact at total level: wastage value minus
+        /// the Step 6 charge. Negative only in the pathological over-billed
+        /// case (charge above the wastage's material value).</summary>
+        public decimal TotalNetWastageLoss => TotalWastageValue - TotalStep6Charge;
 
-        public decimal TotalUnchargedWastageValue
-        {
-            get => _totalUnchargedWastageValue;
-            private set => SetTotals(ref _totalUnchargedWastageValue, value, nameof(TotalUnchargedWastageValueDisplay));
-        }
+        public string TotalNetWastageLossDisplay => $"AED {TotalNetWastageLoss:N2}";
 
-        public string TotalUnchargedWastageValueDisplay => $"AED {TotalUnchargedWastageValue:N2}";
-
-        /// <summary>One-line 5-section identity: buy = used + charged waste
-        /// + uncharged waste, with the Step 6 billed amount and balance.</summary>
+        /// <summary>One-line identity with the recovery chain.</summary>
         public string ReconciliationSummaryDisplay =>
             $"BUY {TotalBuyPriceDisplay}  =  USED {TotalUsedPriceDisplay}" +
-            $"  +  WASTAGE CHARGED {TotalChargedWastageValueDisplay}" +
-            $"  +  WASTAGE NOT CHARGED {TotalUnchargedWastageValueDisplay}" +
-            $"   ·   STEP 6 BILLED {TotalStep6ChargeDisplay}" +
+            $"  +  WASTAGE {TotalWastageValueDisplay}" +
+            $"   ·   STEP 6 RECOVERY {TotalStep6ChargeDisplay}" +
+            $"   ·   NET WASTAGE LOSS {TotalNetWastageLossDisplay}" +
             $"   ·   BALANCE {ReconciliationBalanceDisplay}{(IsInBalance ? " ✓" : " ✗")}";
 
-        /// <summary>Policy notice: uncharged wastage (e.g. clear) explained —
-        /// shown only when uncharged wastage exists (collapses on empty).</summary>
-        public string UnchargedWastageNotice => TotalUnchargedWastageValue <= 0m
+        /// <summary>Policy notice — shown only while wastage remains
+        /// unrecovered (collapses to nothing otherwise).</summary>
+        public string NetWastageNotice => TotalNetWastageLoss <= 0m
             ? ""
-            : $"AED {TotalUnchargedWastageValue:N2} of wastage value is NOT billed in Step 6 " +
-              "(uncharged panes — e.g. clear, typically not charged to the customer). " +
-              "Treated as absorbed loss and EXCLUDED from the charged-efficiency KPI.";
+            : $"After Step 6 billing recovery of {TotalStep6ChargeDisplay}, " +
+              $"{TotalNetWastageLossDisplay} of wastage value remains ABSORBED " +
+              "(uncharged panes — e.g. clear, typically not billed to the customer — " +
+              "recover AED 0.00). Excluded from the charged-efficiency KPI.";
 
         private decimal _usageEfficiencyPercent;
         public decimal UsageEfficiencyPercent
@@ -576,8 +576,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 decimal usedPriceSum = 0m;
                 decimal wastageValueSum = 0m;
                 decimal step6ChargeSum = 0m;
-                decimal chargedWastageValueSum = 0m;
-                decimal unchargedWastageValueSum = 0m;
+                decimal recoveredWastageValueSum = 0m;
+                decimal netWastageLossSum = 0m;
                 decimal chargedBuyAreaSum = 0m;
                 decimal chargedUsedAreaSum = 0m;
 
@@ -638,8 +638,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     usedPriceSum += row.UsedSheetPrice;
                     wastageValueSum += row.WastageValue;
                     step6ChargeSum += row.Step6Charge;
-                    chargedWastageValueSum += row.WastageValueCharged;
-                    unchargedWastageValueSum += row.WastageValueUncharged;
+                    recoveredWastageValueSum += row.WastageValueRecovered;
+                    netWastageLossSum += row.WastageValueNetLoss;
                     if (row.Step6Charge > 0m && !row.IsSetupNotice)
                     {
                         chargedBuyAreaSum += row.BuySheetArea;
@@ -907,8 +907,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 TotalUsedPrice = usedPriceSum;
                 TotalWastageValue = wastageValueSum;
                 TotalStep6Charge = step6ChargeSum;
-                TotalChargedWastageValue = chargedWastageValueSum;
-                TotalUnchargedWastageValue = unchargedWastageValueSum;
+                TotalRecoveredWastageValue = recoveredWastageValueSum;
+                OnPropertyChanged(nameof(TotalNetWastageLoss));
+                OnPropertyChanged(nameof(TotalNetWastageLossDisplay));
+                OnPropertyChanged(nameof(ReconciliationSummaryDisplay));
+                OnPropertyChanged(nameof(NetWastageNotice));
 
                 // 2026-09-11 OWNER DIRECTIVE: the efficiency KPI is computed
                 // on STEP 6-CHARGED rows only — panes deliberately not
@@ -947,7 +950,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 OnPropertyChanged(nameof(WastageValueShareDisplay));
                 OnPropertyChanged(nameof(LandedRateSummaryDisplay));
                 OnPropertyChanged(nameof(ReconciliationSummaryDisplay));
-                OnPropertyChanged(nameof(UnchargedWastageNotice));
+                OnPropertyChanged(nameof(NetWastageNotice));
                 OnPropertyChanged(nameof(EfficiencyBasisNote));
                 OnPropertyChanged(nameof(Step6ChargeSharePercent));
                 OnPropertyChanged(nameof(Step6ChargeShareDisplay));
@@ -994,8 +997,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             TotalUsedPrice = 0m;
             TotalWastageValue = 0m;
             TotalStep6Charge = 0m;
-            TotalChargedWastageValue = 0m;
-            TotalUnchargedWastageValue = 0m;
+            TotalRecoveredWastageValue = 0m;
+            OnPropertyChanged(nameof(TotalNetWastageLoss));
+            OnPropertyChanged(nameof(TotalNetWastageLossDisplay));
+            OnPropertyChanged(nameof(NetWastageNotice));
             EfficiencyBasisNote = "";
             OnPropertyChanged(nameof(EfficiencyBasisNote));
             UsageEfficiencyPercent = 0m;
@@ -1379,18 +1384,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             ? $"+{YieldPremiumPercent:0.#}% yield"
             : "—";
 
-        // ── WASTAGE SPLIT (2026-09-11, owner directive) ────────────────
-        // Material wastage value splits by whether the pane is billed in
-        // Step 6: charged wastage is recovered through the Step 6 charge;
-        // uncharged wastage (clear — typically not charged to customers)
-        // is the absorbed-loss share. charged + uncharged = WastageValue.
-        public decimal WastageValueCharged => Step6Charge > 0m ? WastageValue : 0m;
+        // ── WASTAGE RECOVERY SPLIT (2026-09-11, owner formula) ─────────
+        // The Step 6 CHARGE is the money recovered against wastage:
+        //     RECOVERED = min(Step6Charge, WastageValue)
+        //     NET LOSS  = WastageValue − RECOVERED      (e.g. 1,586.66 −
+        //                162.22 = 1,424.44 absorbed after billing)
+        // recovered + net = WastageValue, exact at row AND total level.
+        public decimal WastageValueRecovered
+            => Math.Min(Step6Charge, WastageValue);
 
-        public string WastageValueChargedDisplay => $"AED {WastageValueCharged:N2}";
+        public string WastageValueRecoveredDisplay => $"AED {WastageValueRecovered:N2}";
 
-        public decimal WastageValueUncharged => WastageValue - WastageValueCharged;
+        public decimal WastageValueNetLoss => WastageValue - WastageValueRecovered;
 
-        public string WastageValueUnchargedDisplay => $"AED {WastageValueUncharged:N2}";
+        public string WastageValueNetLossDisplay => $"AED {WastageValueNetLoss:N2}";
 
         private decimal _buySheetPrice;
         /// <summary>Total sheet price = the Step 9 glass row amount.</summary>
