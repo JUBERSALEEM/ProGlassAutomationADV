@@ -327,8 +327,24 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             "RATE / SQM", "EFFECTIVE RATE / SQM", "SHEET PRICE CALC", "STEP 6 / WASTAGE", "EFFICIENCY", "STATUS / NOTE"
         };
 
-        public static string[] SheetMap(SheetProfitRow r) => new[]
+        /// <summary>True on ⚑ FOCUS highlight rows (2026-09-11): they carry
+        /// a message, not money — every numeric column prints blank so the
+        /// reader's eye lands on the note.</summary>
+        private static bool IsSheetHighlight(SheetProfitRow r) =>
+            r.GlassTypeLabel == "HIGHLIGHT";
+
+        public static string[] SheetMap(SheetProfitRow r)
         {
+            if (IsSheetHighlight(r))
+            {
+                return new[]
+                {
+                    "⚑ FOCUS", r.SpecName, r.PaneSide, "", "", "", "", "", "", "",
+                    r.DiagnosticMessage
+                };
+            }
+            return new[]
+            {
             r.GlassTypeLabel == "TOTAL" ? "TOTAL" : "MATERIAL SHEET PRICE",
             r.SpecName,
             $"{r.GlassTypeLabel} · {r.PaneGlassDisplay}",
@@ -344,10 +360,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 : "No active Step 6 charge on this sheet line",
             $"{r.UsageEfficiencyPercent:N2}% used · {r.UsedPriceSharePercent:0.#}% used value · {r.WastageValueSharePercent:0.#}% waste value",
             $"{SheetStatus(r)} · {r.DiagnosticMessage}"
-        };
+            };
+        }
 
-        public static object[] SheetMapExcel(SheetProfitRow r) => new object[]
+        public static object[] SheetMapExcel(SheetProfitRow r)
         {
+            if (IsSheetHighlight(r))
+            {
+                return new object[]
+                {
+                    "⚑ FOCUS", r.SpecName, r.PaneSide, "", "", "", "", "", "", "",
+                    r.DiagnosticMessage
+                };
+            }
+            return new object[]
+            {
             r.GlassTypeLabel == "TOTAL" ? "TOTAL" : "MATERIAL SHEET PRICE",
             r.SpecName,
             $"{r.GlassTypeLabel} · {r.PaneGlassDisplay}",
@@ -361,12 +388,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 : "No active Step 6 charge",
             $"{r.UsageEfficiencyPercent:N2}% used / {r.UsedPriceSharePercent:0.#}% used value / {r.WastageValueSharePercent:0.#}% waste value",
             $"{SheetStatus(r)} · {r.DiagnosticMessage}"
-        };
+            };
+        }
 
         // The total row is marked by GlassTypeLabel == "TOTAL"; its computed
         // StatusLabel ("NO CHARGE"/"OK") is meaningless, so it prints "—".
         private static string SheetStatus(SheetProfitRow r) =>
-            r.GlassTypeLabel == "TOTAL" ? "—" : r.StatusLabel;
+            r.GlassTypeLabel == "TOTAL" || r.GlassTypeLabel == "HIGHLIGHT"
+                ? "—"
+                : r.StatusLabel;
 
         // ── GLASS TYPE COMPARISON ───────────────────────────────────────
         public static readonly string[] GlassTypeHeaders =

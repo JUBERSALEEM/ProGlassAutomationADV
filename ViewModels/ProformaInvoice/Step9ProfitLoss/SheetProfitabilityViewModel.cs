@@ -416,7 +416,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         private async Task<ExportResult?> ExportCoreAsync(
             ExportFormat format, ExportRequest? request)
         {
-            var rows = SheetBreakdown.ToList();
+            // 2026-09-11 OWNER DIRECTIVE — ⚑ FOCUS HIGHLIGHTS: the exported
+            // report now opens with the few lines that need attention
+            // (reconciliation, shortfalls, net wastage, efficiency, review
+            // items) so a reader sees what matters WITHOUT scanning the
+            // table. Zero effect on the UI grid — highlights exist only in
+            // the export row stream.
+            var rows = new List<SheetProfitRow>();
+            rows.AddRange(BuildHighlightRows());
+            rows.AddRange(SheetBreakdown.ToList());
             rows.Add(BuildTotalRow());
 
             return await Step9ReportExport.RunAsync(
@@ -475,6 +483,97 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         }
 
         /// <summary>Synthetic TOTAL row appended to the export.</summary>
+        /// <summary>
+        /// 2026-09-11 ⚑ FOCUS HIGHLIGHTS — the exported report opens with
+        /// these rows. Priority order = money risk first (senior selection):
+        ///   1. RECONCILIATION — out of balance is a hard stop for the reader
+        ///   2. SHORTFALLS   — bought fewer sheets than needed (money risk)
+        ///   3. NET WASTAGE  — the owner formula: wastage − Step 6 recovery
+        ///   4. EFFICIENCY   — charged basis, flagged under 70% (UI rule)
+        ///   5. REVIEW items — charged-without-waste / setup notices
+        /// When nothing needs attention: one green ALL-CHECKS-PASSED line.
+        /// Highlight rows carry GlassTypeLabel "HIGHLIGHT" (never "TOTAL"),
+        /// so the total-row detection and status logic stay intact.
+        /// </summary>
+        private List<SheetProfitRow> BuildHighlightRows()
+        {
+            var highlights = new List<SheetProfitRow>();
+            if (SheetBreakdown.Count == 0) return highlights;
+
+            SheetProfitRow Focus(string area, string shortLabel, string message)
+                => new()
+                {
+                    SpecName = area,
+                    PaneSide = shortLabel,
+                    GlassTypeLabel = "HIGHLIGHT",
+                    DiagnosticMessage = message
+                };
+
+            // 1 · Reconciliation
+            highlights.Add(Focus("RECONCILIATION",
+                IsInBalance ? "balanced ✓" : "OUT OF BALANCE ✗",
+                IsInBalance
+                    ? $"BUY {TotalBuyPriceDisplay} = USED {TotalUsedPriceDisplay} + WASTAGE {TotalWastageValueDisplay} — balances to {ReconciliationBalanceDisplay}."
+                    : $"BUY {TotalBuyPriceDisplay} vs USED {TotalUsedPriceDisplay} + WASTAGE {TotalWastageValueDisplay} — OUT by {ReconciliationBalanceDisplay}. Review the sheet rows marked SHORTFALL."));
+
+            // 2 · Shortfalls (money risk — always listed)
+            if (HasShortfalls)
+            {
+                string detail = string.Join(" | ",
+                    ShortfallMessages.Take(3));
+                if (ShortfallMessages.Count > 3)
+                    detail += $" | +{ShortfallMessages.Count - 3} more";
+                highlights.Add(Focus("SHORTFALLS",
+                    $"{ShortfallMessages.Count} to fix",
+                    $"{ShortfallMessages.Count} sheet line(s) bought fewer sheets than needed: {detail}"));
+            }
+
+            // 3 · Net wastage (owner formula) — shown whenever wastage exists
+            if (TotalWastageValue > 0m)
+            {
+                highlights.Add(Focus("NET WASTAGE",
+                    TotalStep6Charge > 0m ? "after Step 6 recovery" : "no recovery",
+                    $"Wastage {TotalWastageValueDisplay} — Step 6 recovered {TotalStep6ChargeDisplay}" +
+                    $" → NET ABSORBED {TotalNetWastageLossDisplay}." +
+                    (TotalNetWastageLoss > 0m
+                        ? " Uncharged panes (e.g. clear) are part of the absorbed loss."
+                        : "")));
+            }
+
+            // 4 · Efficiency — flagged under the UI's own 70% rule
+            if (TotalBuyPrice > 0m || TotalUsedArea > 0m)
+            {
+                bool low = UsageEfficiencyPercent < 70m;
+                highlights.Add(Focus("EFFICIENCY",
+                    low ? "below target ⚠" : "ok",
+                    $"{UsageEfficiencyDisplay} on the charged basis" +
+                    (string.IsNullOrWhiteSpace(EfficiencyBasisNote) ? "" : $" ({EfficiencyBasisNote})") +
+                    (low ? " — below the 70% target; review sheet sizes and Step 6 SHEET QTY." : ".")));
+            }
+
+            // 5 · Review items
+            if (HasReviewItems)
+            {
+                string detail = string.Join(" | ",
+                    ReviewMessages.Take(2));
+                if (ReviewMessages.Count > 2)
+                    detail += $" | +{ReviewMessages.Count - 2} more";
+                highlights.Add(Focus("REVIEW",
+                    $"{ReviewMessages.Count} item(s)",
+                    $"{ReviewMessages.Count} line(s) need a look against the Step 6 setup: {detail}"));
+            }
+
+            // Nothing needs attention → one calm green line
+            if (!HasShortfalls && !HasReviewItems && IsInBalance)
+            {
+                highlights.Add(Focus("STATUS",
+                    "all clear ✓",
+                    "ALL CHECKS PASSED — reconciliation balances, no shortfalls, no review items. No action required."));
+            }
+
+            return highlights;
+        }
+
         private SheetProfitRow BuildTotalRow()
         {
             return new SheetProfitRow
