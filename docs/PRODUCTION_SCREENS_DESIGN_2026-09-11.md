@@ -59,6 +59,13 @@ and LM split per pane, **no pricing**. Each row also carries this stage's
 **piece flow**: `IN` (pieces arrived from upstream) · `DONE` (pieces the
 floor completed here) · `BALANCE` (IN − DONE).
 
+**Scale:** the grid is fully virtualized (rows recycled, columns
+virtualized) and the list loads **incrementally — 100 rows at a time**.
+Scrolling near the bottom renders the next 100 (footer shows
+`Showing X of Y units — scroll for the next 100`), so jobs with very long
+unit lists never lag. The selection survives reloads and is paged into
+view automatically.
+
 | Column | Source |
 |---|---|
 | St | unit stage status: ✅ DONE / ◐ IN PROGRESS / ● PENDING / ⏳ WAITING |

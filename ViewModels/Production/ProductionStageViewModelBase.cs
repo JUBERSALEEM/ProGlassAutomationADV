@@ -383,6 +383,17 @@ namespace ProGlassAutomation.ViewModels.Production
 
         // ── Master list ──────────────────────────────────────────────────
 
+        /// <summary>
+        /// Rows render in pages of 100 (virtualized grid + on-scroll
+        /// loading) so jobs with very long unit lists never lag.
+        /// </summary>
+        private const int ListPageSize = 100;
+
+        /// <summary>Full filtered projection behind the current list.</summary>
+        private List<ProductionRepository.ProductionUnitProjection> _listCache = new();
+        private int _loadedRowCount;
+        private bool _isLoadingMore;
+
         public ObservableCollection<ProductionListRow> ListRows { get; } = new();
 
         private ProductionListRow? _selectedRow;
@@ -411,6 +422,16 @@ namespace ProGlassAutomation.ViewModels.Production
             get => _isListEmpty;
             private set { if (_isListEmpty == value) return; _isListEmpty = value; OnPropertyChanged(); }
         }
+
+        private string _listFooterLabel = "";
+        /// <summary>"Showing X of Y units — scroll for more".</summary>
+        public string ListFooterLabel
+        {
+            get => _listFooterLabel;
+            private set { if (_listFooterLabel == value) return; _listFooterLabel = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasListFooter)); }
+        }
+
+        public bool HasListFooter => !string.IsNullOrWhiteSpace(_listFooterLabel);
 
         // ── KPIs ─────────────────────────────────────────────────────────
 
@@ -647,11 +668,24 @@ namespace ProGlassAutomation.ViewModels.Production
                         string.IsNullOrWhiteSpace(_searchText) ? null : _searchText))
                     .ConfigureAwait(true);
 
+                // Full filtered projection is cached; the grid renders it
+                // in pages of 100 (virtualized) so huge jobs stay fluid.
+                _listCache = data.Units;
+                _loadedRowCount = 0;
                 ListRows.Clear();
-                foreach (var unit in data.Units)
-                    ListRows.Add(BuildUnitRow(unit));
 
-                IsListEmpty = ListRows.Count == 0;
+                // Keep the selection visible across reloads: extend the
+                // first page far enough to include the selected row.
+                int firstPageSize = Math.Min(ListPageSize, _listCache.Count);
+                if (previousKey != null)
+                {
+                    int idx = _listCache.FindIndex(u =>
+                        $"U|{u.JobRef}|{u.SpecGroupNumber}|{u.SerialNumber}" == previousKey);
+                    if (idx >= firstPageSize) firstPageSize = idx + 1;
+                }
+                AppendRows(firstPageSize);
+
+                IsListEmpty = _listCache.Count == 0;
 
                 int waiting = data.WaitingUnits;
                 WaitingUpstreamLabel = waiting > 0
@@ -674,6 +708,45 @@ namespace ProGlassAutomation.ViewModels.Production
             finally
             {
                 IsLoading = false;
+            }
+        }
+
+        /// <summary>Appends rows until the list holds <paramref name="targetCount"/> rows.</summary>
+        private void AppendRows(int targetCount)
+        {
+            targetCount = Math.Min(targetCount, _listCache.Count);
+            while (_loadedRowCount < targetCount)
+            {
+                ListRows.Add(BuildUnitRow(_listCache[_loadedRowCount]));
+                _loadedRowCount++;
+            }
+
+            ListFooterLabel = _listCache.Count == 0 ? "" :
+                _loadedRowCount < _listCache.Count
+                    ? $"Showing {_loadedRowCount.ToString(CultureInfo.InvariantCulture)} of " +
+                      $"{_listCache.Count.ToString(CultureInfo.InvariantCulture)} units — scroll for the next " +
+                      $"{ListPageSize.ToString(CultureInfo.InvariantCulture)}"
+                    : $"Showing all {_listCache.Count.ToString(CultureInfo.InvariantCulture)} unit(s)";
+        }
+
+        /// <summary>
+        /// Incremental loading: the (virtualized) grid calls in from its
+        /// ScrollChanged event; near the bottom, the next 100 rows render.
+        /// </summary>
+        public void OnMasterListScrolled(double verticalOffset, double viewportHeight, double extentHeight)
+        {
+            if (_isLoadingMore || _loadedRowCount >= _listCache.Count) return;
+            if (extentHeight <= 0) return;
+            if (verticalOffset + viewportHeight < extentHeight - 80) return;
+
+            _isLoadingMore = true;
+            try
+            {
+                AppendRows(_loadedRowCount + ListPageSize);
+            }
+            finally
+            {
+                _isLoadingMore = false;
             }
         }
 

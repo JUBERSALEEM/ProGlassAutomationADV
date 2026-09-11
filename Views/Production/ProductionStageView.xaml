@@ -390,13 +390,26 @@
 
                     <!-- ── Tier 1 · unit list (Step-5 shaped rows) ── -->
                     <Grid Grid.Column="0">
-                        <DataGrid ItemsSource="{Binding ListRows}"
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <DataGrid Grid.Row="0"
+                                  x:Name="MasterGrid"
+                                  ItemsSource="{Binding ListRows}"
                                   SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
                                   Style="{StaticResource GodViewGridStyle}"
                                   ColumnHeaderStyle="{StaticResource GodViewHeaderStyle}"
                                   SelectionMode="Single"
                                   CanUserAddRows="False"
-                                  IsReadOnly="True">
+                                  IsReadOnly="True"
+                                  EnableRowVirtualization="True"
+                                  EnableColumnVirtualization="True"
+                                  VirtualizingPanel.IsVirtualizing="True"
+                                  VirtualizingPanel.VirtualizationMode="Recycling"
+                                  VirtualizingPanel.ScrollUnit="Pixel"
+                                  ScrollViewer.CanContentScroll="True"
+                                  ScrollChanged="MasterGrid_ScrollChanged">
                             <DataGrid.Columns>
                                 <DataGridTemplateColumn Header="ST" Width="42">
                                     <DataGridTemplateColumn.CellTemplate>
@@ -444,8 +457,19 @@
                             </DataGrid.Columns>
                         </DataGrid>
 
+                        <!-- Incremental-loading footer -->
+                        <Border Grid.Row="1"
+                                Padding="10,5"
+                                Background="{DynamicResource ModuleBackgroundBrush}"
+                                Visibility="{Binding HasListFooter,
+                                             Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="{Binding ListFooterLabel}"
+                                       FontSize="{StaticResource TextCaption}"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                        </Border>
+
                         <!-- Empty state -->
-                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                        <StackPanel Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"
                                     Visibility="{Binding IsListEmpty,
                                                  Converter={StaticResource BoolToVisibilityConverter}}">
                             <TextBlock Text="{Binding Icon}"
@@ -460,7 +484,7 @@
                                        HorizontalAlignment="Center"
                                        Margin="0,12,0,4"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                            <TextBlock Text="Production runs like a tool chain: every unit enters at Cutting and its row moves to the next module only when the previous stage is complete. Release a Job Order above to feed the chain — work arrives exclusively from confirmed (Approved) PIs converted to Job Orders."
+                            <TextBlock Text="Production flows piece by piece: every unit enters at Cutting, and each stage shows the pieces that arrived (IN), the pieces completed (DONE) and the balance — only finished pieces move on. Release a Job Order above to feed the chain — work arrives exclusively from confirmed (Approved) PIs converted to Job Orders."
                                        FontSize="{StaticResource TextBody}"
                                        TextWrapping="Wrap"
                                        TextAlignment="Center"

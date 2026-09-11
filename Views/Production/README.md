@@ -59,7 +59,9 @@ page, full design + worked samples in
   Charge stages (fan holes, polish, mitring) fan out per pane so cut
   pieces walk through them. Filters: free-text search, job, status.
   KPI chips: arrived / pending / in progress / completed / load /
-  ready-for-dispatch.
+  ready-for-dispatch. The grid is **virtualized and paginated** —
+  100 rows at a time, next 100 on scroll (footer shows progress), so
+  very long jobs stay responsive.
 - **Piece flow (toolchain)** — every piece enters at Cutting; only the
   pieces a stage completes (QtyDone) arrive in the next stage. Floor
   writes are clamped to the arrived quantity
