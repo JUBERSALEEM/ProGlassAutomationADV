@@ -377,6 +377,13 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
         public static IReadOnlyList<SchemaMigration> AiMemory { get; }
             = new List<SchemaMigration>();
 
+        // production.db (Production distribution — Phase 2, 2026-09-11).
+        // Brand-new database: EnsureCreated() builds both tables from the EF
+        // model on first run, so the first release needs no migrations.
+        // Additive schema changes for installs already in the field land here.
+        public static IReadOnlyList<SchemaMigration> Production { get; }
+            = new List<SchemaMigration>();
+
         // ── shared: ERP lifecycle void / soft-close columns ─────────────
 
         /// <summary>

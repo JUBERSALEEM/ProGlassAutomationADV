@@ -26,6 +26,24 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public string Color { get; init; } = "";
         public int Index { get; init; }
         public int Length { get; init; }
+
+        /// <summary>
+        /// PRODUCTION DISTRIBUTION (2026-09-11): the heat-treatment token
+        /// captured from the spec name — "FT", "Annealed", "Heat Strengthened"
+        /// or "Heat Soaked". Empty when the name carried none (a manual
+        /// free-text spec). ADDITIVE — panes built before this property
+        /// existed keep their init default.
+        /// </summary>
+        public string Treatment { get; init; } = "";
+
+        /// <summary>
+        /// True when the pane needs a furnace pass (FT / Heat Strengthened /
+        /// Heat Soaked). Annealed and unknown panes skip tempering — the
+        /// routing rule the factory confirmed on 2026-09-11.
+        /// </summary>
+        public bool RequiresTempering =>
+            string.Equals(Treatment, "FT", StringComparison.OrdinalIgnoreCase)
+            || Treatment.StartsWith("Heat", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -35,7 +53,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
     public static class PnLSpecParser
     {
         private const string TreatmentAlternation =
-            @"(?:FT|Annealed|Heat\s+Strengthened|Heat\s+Soaked)";
+            @"(?<treat>FT|Annealed|Heat\s+Strengthened|Heat\s+Soaked)";
 
         /// <summary>
         /// One glass pane, e.g. "6mm HD Grey FT Glass".
@@ -106,8 +124,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 ThicknessMm = TextParsing.ParseInt(match.Groups["thk"].Value),
                 Color = (match.Groups["color"].Value ?? "").Trim(),
                 Index = match.Index,
-                Length = match.Length
+                Length = match.Length,
+                // Named group added 2026-09-11 — normalise the internal
+                // whitespace so "Heat  Strengthened" still reads as one token.
+                Treatment = NormalizeTreatment(match.Groups["treat"].Value)
             };
+        }
+
+        /// <summary>Collapses inner whitespace, keeps original casing.</summary>
+        public static string NormalizeTreatment(string? raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw)) return "";
+            var parts = raw.Trim().Split(
+                (char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+            return string.Join(" ", parts);
         }
 
         public static PnLPane FromParts(string side, int thicknessMm, string? color) =>

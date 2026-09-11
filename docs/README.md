@@ -170,6 +170,12 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`PRINT_LAYOUT_UNIFICATION_2026-09-08.md`](PRINT_LAYOUT_UNIFICATION_2026-09-08.md) | Print Layout Unification — Senior Analysis & Upgrade |
 | [`PI_PDF_WYSIWYG_REDESIGN_2026-09-11.md`](PI_PDF_WYSIWYG_REDESIGN_2026-09-11.md) | PI Step 7 / PDF Export WYSIWYG Redesign — Senior Analysis |
 
+## Production & factory floor
+
+| Document | What it covers |
+|---|---|
+| [`PRODUCTION_DISTRIBUTION_PLAN_2026-09-11.md`](PRODUCTION_DISTRIBUTION_PLAN_2026-09-11.md) | Production Distribution — analysis + phased plan wiring SGU/DGU/LAM/DGU+LAM specs into the 8 production stages |
+
 ## Release, CI & readiness
 
 | Document | What it covers |

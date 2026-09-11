@@ -59,6 +59,7 @@ using ProGlassAutomation.Services.Inquiry;
 using ProGlassAutomation.Services.JobOrder.Database;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.MasterData.Database;
+using ProGlassAutomation.Services.Production;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
 using ProGlassAutomation.Services.Statement.Database;
@@ -237,6 +238,19 @@ namespace ProGlassAutomation.Services.Database
                 Recreate = () =>
                 {
                     using var db = new JobOrdersDbContext();
+                    db.Database.EnsureCreated();
+                }
+            },
+            new DbDescriptor
+            {
+                Key = "Production",
+                DisplayName = "Production (production.db)",
+                PathProvider = () => ProductionDbContext.DatabaseFilePath,
+                CountTables = new[] { "ProductionReleases", "ProductionWorkItems" },
+                Expect = Array.Empty<DatabaseSchemaExpectation>(),
+                Recreate = () =>
+                {
+                    using var db = new ProductionDbContext();
                     db.Database.EnsureCreated();
                 }
             },

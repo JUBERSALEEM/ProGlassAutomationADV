@@ -1,8 +1,11 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.Production.PolishView"
+<UserControl x:Class="ProGlassAutomation.Views.Production.PolishView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:shared="clr-namespace:ProGlassAutomation.Views.Shared"
+             xmlns:production="clr-namespace:ProGlassAutomation.Views.Production"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
-    <shared:ComingSoonView/>
+    <!-- Stage-queue screen shared by all eight production modules.
+         Work is distributed from released Job Orders / Approved PIs by
+         ProductionDistributionEngine (Step 4/5 specs + Step 6 charges). -->
+    <production:ProductionStageView/>
 </UserControl>
