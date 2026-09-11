@@ -6,7 +6,7 @@
 // Base for the eight production stage modules (Cutting, Holes & Cutouts,
 // Polish, Edge Deletion, Mitring, Tempering, Pairing, Doubling/Lamination).
 // Each subclass only supplies its stage + identity; this base owns:
-//   • the release picker (Job Orders + Approved PIs → distribute),
+//   • the release picker (confirmed Job Orders only → distribute),
 //   • the stage queue loaded from production.db,
 //   • job / status filters, KPI chips and the floor actions
 //     (Start / Complete / Reopen).
@@ -257,6 +257,39 @@ namespace ProGlassAutomation.ViewModels.Production
         private string _metricTotalLabel = "—";
         public string MetricTotalLabel { get => _metricTotalLabel; private set { if (_metricTotalLabel == value) return; _metricTotalLabel = value; OnPropertyChanged(); } }
 
+        private string _unitsReadyLabel = "0 / 0";
+        /// <summary>Units whose every stage item is completed → ready for dispatch.</summary>
+        public string UnitsReadyLabel { get => _unitsReadyLabel; private set { if (_unitsReadyLabel == value) return; _unitsReadyLabel = value; OnPropertyChanged(); } }
+
+        private string _actionWarning = "";
+        /// <summary>Floor connectivity feedback (e.g. completing before the predecessor stage).</summary>
+        public string ActionWarning
+        {
+            get => _actionWarning;
+            private set { if (_actionWarning == value) return; _actionWarning = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasActionWarning)); }
+        }
+
+        public bool HasActionWarning => !string.IsNullOrWhiteSpace(_actionWarning);
+
+        // ── Stage identity (drives the designed header) ──────────────────
+
+        /// <summary>"Stage 3 of 8" — position in the factory pipeline.</summary>
+        public string StageOrdinalLabel => $"Stage {((int)Stage).ToString(CultureInfo.InvariantCulture)} of 8";
+
+        /// <summary>Stage-specific tint for the icon tile + KPI accents.</summary>
+        public string StageTintBrushKey => Stage switch
+        {
+            ProductionStage.Cutting => "TintBlueBrush",
+            ProductionStage.HolesCutouts => "TintRedBrush",
+            ProductionStage.Polish => "TintPurpleBrush",
+            ProductionStage.EdgeDeletion => "TintGrayBrush",
+            ProductionStage.Mitring => "TintIndigoBrush",
+            ProductionStage.Tempering => "TintAmberBrush",
+            ProductionStage.Pairing => "TintGreenBrush",
+            ProductionStage.DoublingLamination => "TintBlueBrush",
+            _ => "TintGrayBrush"
+        };
+
         // ── Loading ──────────────────────────────────────────────────────
 
         private bool _initialLoadDone;
@@ -325,6 +358,13 @@ namespace ProGlassAutomation.ViewModels.Production
                     _ => stageMetric.ToString("0", CultureInfo.InvariantCulture) + " pcs"
                 };
 
+                // Dispatch readiness — a unit is ready when EVERY stage item
+                // across the floor is completed (batch charge items excluded).
+                var (totalUnits, readyUnits) = await Task.Run(() =>
+                    ProductionRepository.GetUnitReadinessAsync(jobRef))
+                    .ConfigureAwait(true);
+                UnitsReadyLabel = $"{readyUnits.ToString(CultureInfo.InvariantCulture)} / {totalUnits.ToString(CultureInfo.InvariantCulture)}";
+
                 // Job filter picker (preserve current choice when it survives).
                 var jobRefs = await Task.Run(async () =>
                     (await ProductionRepository.GetReleasesAsync().ConfigureAwait(false))
@@ -362,7 +402,7 @@ namespace ProGlassAutomation.ViewModels.Production
             var source = SelectedSource;
             if (source == null)
             {
-                ReleaseMessage = "Pick a Job Order or Proforma Invoice to release.";
+                ReleaseMessage = "Pick a Job Order to release.";
                 ReleaseSucceeded = false;
                 return;
             }
@@ -389,6 +429,26 @@ namespace ProGlassAutomation.ViewModels.Production
         private async Task SetStatusAsync(object? parameter, WorkItemStatus status)
         {
             if (parameter is not ProductionWorkItemRow row) return;
+
+            // FLOOR CONNECTIVITY: completing a stage whose predecessor work
+            // for this unit is still open is allowed (the floor sometimes
+            // has a reason) but surfaced loudly — never silently.
+            if (status == WorkItemStatus.Completed)
+            {
+                int pendingPredecessors = await Task.Run(() =>
+                    ProductionRepository.GetPendingPredecessorCountAsync(row.Item))
+                    .ConfigureAwait(true);
+
+                ActionWarning = pendingPredecessors > 0
+                    ? $"Heads-up: {pendingPredecessors.ToString(CultureInfo.InvariantCulture)} " +
+                      $"{row.Item.PredecessorStage} item(s) for this unit are not completed yet — " +
+                      "the upstream stage normally finishes first."
+                    : "";
+            }
+            else
+            {
+                ActionWarning = "";
+            }
 
             bool ok = await Task.Run(() =>
                 ProductionRepository.SetStatusAsync(row.Id, status)).ConfigureAwait(true);

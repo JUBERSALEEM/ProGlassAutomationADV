@@ -2,6 +2,17 @@
 
 **Date:** 2026-09-11 · **Author:** Senior analysis (Arena session) · **Status:** Approved for implementation
 
+> **SCOPE LOCK (owner directive, 2026-09-11):** only the four Step 4 build
+> families exist — **SGU / DGU / LAM / DGU+LAM**. Triple glazing and any
+> other build are deliberately NOT special-cased; unknown names degrade to
+> the closest supported family with a warning.
+>
+> **SOURCE LOCK (owner directive, 2026-09-11):** production runs
+> **exclusively from confirmed PIs — i.e. Job Orders**. Draft, Sent,
+> Rejected, Expired or Cancelled PIs can never reach the floor, and there
+> is no direct-PI release path. Only non-void Job Orders in **Released**
+> or **In Production** status are releasable.
+
 Connects the 8 "coming soon" Production modules (Cutting, Holes & Cutouts,
 Polish, Edge Deletion, Mitring, Tempering, Pairing, Doubling/Lamination) to the
 specification data that already exists in the Proforma Invoice wizard
@@ -53,7 +64,10 @@ requires it.
 | DGU | ✔ both panes | S6 | S6 | manual queue | S6 | per pane | ✔ | ✔ DGU assembly (spacer; argon/silicone/U-insert flags from S6) |
 | LAM | ✔ both panes | S6 | S6 (2× when matched) | manual queue | S6 | per pane | ✔ | ✔ Lamination (PVB/SGP/EVA from name) |
 | DGU + LAM | ✔ pane 1 (W1/H1) + lam pair at W2/H2 ×2 | S6 | S6 | manual queue | S6 | per pane | ✔ | ✔ hybrid |
-| Triple DGU (3 panes, 2 spacers) | ✔ pane 1 (W1/H1) + panes 2–3 (W2/H2) | S6 | S6 | manual queue | S6 | per pane | ✔ | ✔ (2 cavities) |
+
+Any spec name outside these four families degrades honestly: a three-glass
+name with no interlayer distributes as the supported two-pane DGU split
+(first + last pane) with the extra token noted, never as an invented build.
 
 **Every work item carries:** JobOrderId, SourceProformaId, Customer, Project,
 SpecGroupNumber, SpecName, BuildType, GlassRef, SerialNumber, Position
@@ -63,8 +77,15 @@ Stage, Status, and — for charge-driven items — the Step 6 metric qty and uni
 
 **Precedence rule encoded on items:** Holes · Polish · Mitring · Edge-Deletion
 must complete **before** Tempering; Cutting before everything; Pairing before
-Doubling/Lamination. v1 shows the precedence and warns on out-of-order
-completion; hard locks are a later phase.
+Doubling/Lamination. The stage modules enforce this as CONNECTIVITY: when an
+operator completes an item, the engine counts that unit's still-open
+predecessor-stage items and surfaces a loud warning banner if any remain
+(soft lock — the floor can proceed deliberately, never silently).
+
+**Dispatch readiness:** a unit (JobRef + spec group + serial) is *ready for
+dispatch* when every stage item in it is completed. Batch charge items are
+spec-level work and never hold a unit hostage. Every stage screen shows the
+live "ready / total units" counter for the selected job filter.
 
 **Step 6 attribution:** charges persist `CheckedSpecGroupNumbers`
 (empty = all specs). The engine emits one work item per
@@ -101,27 +122,30 @@ gains `Treatment`. New pins in `SpecParsingTests`.
   `AppSchemaMigrations` style.
 
 ### Phase 3 — Module UIs (replace the 8 coming-soon shells)
-* Shared `ProductionStageViewModelBase`: job picker → stage queue grid
-  (grouped by job), filters (status/spec/ref), Start/Complete actions,
-  summary chips (pieces · SQM · LM · hole qty).
-* Each of the 8 VMs = base + its stage + stage-specific columns.
-* Job Order detail: **Release to Production** button (runs the engine,
-  idempotent); Production modules also offer "import directly from a PI".
+* Shared `ProductionStageViewModelBase` + `ProductionStageView`: designed
+  stage header (tinted icon tile + pipeline position "Stage N of 8"),
+  release bar (Job Orders only), icon KPI tiles (queue / pending /
+  in-progress / completed / load / units ready for dispatch), job + status
+  filters, queue grid with Start / Complete / Reopen, floor-connectivity
+  warning banner.
+* Each of the 8 VMs = base + its stage identity.
 
 ### Phase 4 — Floor polish (next iteration)
-* Per-stage barcode/label printing, out-of-order hard locks, proportional
-  charge splitting, Edge Deletion auto-suggestion for coated glasses,
-  Sandblasting queue, dispatch-ready dashboard per job.
+* Per-stage barcode/label printing, proportional charge splitting across
+  multi-spec charges, Edge Deletion auto-suggestion for coated glasses,
+  Sandblasting queue, dispatch-ready dashboard per job, Job Order detail
+  shortcut button.
 
 ---
 
 ## 4. Explicit assumptions (flagged for owner confirmation)
 
-1. Triple-glazed DGU rows: pane 1 = W1/H1, panes 2–3 cut at W2/H2 (the grid
-   has two dimension pairs; the wastage model already maps Lam Outer/Lam Inner
-   to the same W2/H2 pair).
+1. ~~Triple-glazed DGU~~ — **removed by owner directive:** only SGU / DGU /
+   LAM / DGU+LAM exist; out-of-family names degrade to the closest supported
+   family with a warning.
 2. Heat Strengthened / Heat Soaked route through the Tempering furnace like FT.
-3. Production distributes from the **Job Order** (released order). Direct PI
-   release is a convenience path, not the primary flow.
+3. Production distributes from the **Job Order only** (confirmed PI). Released
+   / In-Production status gate; Draft / Completed / Delivered / voided JOs
+   are excluded.
 4. DELIVERY / per-trip charges and Wastages are commercial lines — they do not
    create floor work items.

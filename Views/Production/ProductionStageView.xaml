@@ -5,14 +5,19 @@
 
      Hosted by all eight production module views. Binds to
      ProductionStageViewModelBase and renders:
-       • the release bar — pick a Job Order / Approved PI and distribute
-         it into this stage's queue (idempotent),
-       • KPI chips — total / pending / in progress / completed / area,
-       • job + status filters,
-       • the work-item grid with Start / Complete / Reopen floor actions.
+       • stage identity header (tinted icon tile + pipeline position),
+       • the release bar — work comes EXCLUSIVELY from confirmed Job
+         Orders (Approved PIs that were converted); drafts never reach
+         the floor,
+       • KPI tiles — queue / pending / in progress / completed / load /
+         units ready for dispatch,
+       • floor connectivity warning (completing before the predecessor
+         stage),
+       • job + status filters and the work-item grid with
+         Start / Complete / Reopen actions.
 
-     Work arrives here from ProductionDistributionEngine — specs read from
-     Step 4/5 and work-type quantities from Step 6. See
+     Work arrives from ProductionDistributionEngine — specs read from
+     Step 4/5, work-type quantities from Step 6. See
      docs/PRODUCTION_DISTRIBUTION_PLAN_2026-09-11.md.
 ═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Production.ProductionStageView"
@@ -27,24 +32,56 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ══ Header + release bar ══════════════════════════════════ -->
+        <!-- ══ Stage identity header + release bar ═══════════════════ -->
         <StackPanel Grid.Row="0" Margin="4,4,4,12">
             <Grid Margin="4,0,4,12">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="{Binding ModuleName}"
-                               Style="{StaticResource ModulePageTitleStyle}"/>
+
+                <!-- Stage icon tile (tinted per stage — resolved from
+                     StageTintBrushKey in code-behind, WPF cannot bind a
+                     DynamicResource key) -->
+                <Border x:Name="StageIconTile"
+                        Grid.Column="0"
+                        Width="52" Height="52"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
+                        Background="{DynamicResource TintBlueBrush}"
+                        VerticalAlignment="Center"
+                        Margin="0,0,14,0">
+                    <TextBlock Text="{Binding Icon}"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="24"
+                               Foreground="{DynamicResource AccentBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding ModuleName}"
+                                   Style="{StaticResource ModulePageTitleStyle}"/>
+                        <Border CornerRadius="9"
+                                Background="{DynamicResource DashAmbientBrush}"
+                                Padding="10,3"
+                                Margin="12,0,0,0"
+                                VerticalAlignment="Center">
+                            <TextBlock Text="{Binding StageOrdinalLabel}"
+                                       FontSize="{StaticResource TextCaption}"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                        </Border>
+                    </StackPanel>
                     <TextBlock Text="{Binding Description}"
                                Style="{StaticResource ModulePageSubtitleStyle}"/>
                 </StackPanel>
-                <Button Grid.Column="1"
+
+                <Button Grid.Column="2"
                         Style="{StaticResource OutlinedPillButton}"
                         Command="{Binding RefreshCommand}"
                         Tag="&#xE72C;"
@@ -53,22 +90,30 @@
                         VerticalAlignment="Center"/>
             </Grid>
 
-            <!-- Release bar -->
+            <!-- Release bar — Job Orders only (confirmed PIs) -->
             <Border Style="{StaticResource ModuleListShellStyle}" Padding="12">
                 <Grid>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <ComboBox Grid.Column="0"
+                    <TextBlock Grid.Column="0"
+                               Text="Release from Job Order"
+                               FontSize="{StaticResource TextBody}"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,0"/>
+                    <ComboBox Grid.Column="1"
                               ItemsSource="{Binding Sources}"
                               SelectedItem="{Binding SelectedSource}"
                               DisplayMemberPath="DisplayLabel"
                               Style="{StaticResource ModuleListFilterComboStyle}"
                               Margin="0,0,8,0"
                               VerticalAlignment="Center"
-                              ToolTip="Released Job Orders and Approved Proforma Invoices"/>
-                    <Button Grid.Column="1"
+                              ToolTip="Released / In-Production Job Orders (confirmed PIs only — drafts never reach the floor)"/>
+                    <Button Grid.Column="2"
                             Style="{StaticResource PrimaryPillButton}"
                             Command="{Binding ReleaseCommand}"
                             Tag="&#xE768;"
@@ -92,10 +137,31 @@
                     </Style>
                 </TextBlock.Style>
             </TextBlock>
+
+            <!-- Floor connectivity warning -->
+            <Border Margin="0,8,0,0"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    Background="{DynamicResource TintAmberBrush}"
+                    Padding="12,8"
+                    Visibility="{Binding HasActionWarning,
+                                 Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE7BA;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="{StaticResource TextBody}"
+                               Foreground="{DynamicResource WarningBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0"/>
+                    <TextBlock Text="{Binding ActionWarning}"
+                               TextWrapping="Wrap"
+                               FontSize="{StaticResource TextBody}"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                </StackPanel>
+            </Border>
         </StackPanel>
 
         <!-- ══ Shell: KPIs + filters + grid ══════════════════════════ -->
-        <Border Grid.Row="1" Grid.RowSpan="3"
+        <Border Grid.Row="1" Grid.RowSpan="2"
                 Style="{StaticResource ModuleListShellStyle}" Margin="4,0,4,4">
             <Grid>
                 <Grid.RowDefinitions>
@@ -117,32 +183,97 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                            <TextBlock Text="In queue" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                            <TextBlock Text="{Binding TotalCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}"
+                                    Background="{DynamicResource TintBlueBrush}">
+                                <TextBlock Text="&#xE8C6;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="In queue" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding TotalCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                            </StackPanel>
                         </StackPanel>
+
                         <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock Text="Pending" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                            <TextBlock Text="{Binding PendingCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}"
+                                    Background="{DynamicResource TintAmberBrush}">
+                                <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
+                                           Foreground="{DynamicResource WarningBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Pending" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding PendingCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                            </StackPanel>
                         </StackPanel>
+
                         <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
-                        <StackPanel Grid.Column="4" VerticalAlignment="Center">
-                            <TextBlock Text="In progress" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                            <TextBlock Text="{Binding InProgressCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}"
+                                    Background="{DynamicResource TintIndigoBrush}">
+                                <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="In progress" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding InProgressCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                            </StackPanel>
                         </StackPanel>
+
                         <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
-                        <StackPanel Grid.Column="6" VerticalAlignment="Center">
-                            <TextBlock Text="Completed" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                            <TextBlock Text="{Binding CompletedCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+
+                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}"
+                                    Background="{DynamicResource TintGreenBrush}">
+                                <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
+                                           Foreground="{DynamicResource SuccessBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Completed" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding CompletedCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                            </StackPanel>
                         </StackPanel>
+
                         <Border Grid.Column="7" Style="{StaticResource ModuleListKpiDividerStyle}"/>
-                        <StackPanel Grid.Column="8" VerticalAlignment="Center">
-                            <TextBlock Text="Load" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                            <TextBlock Text="{Binding AreaTotalLabel}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                            <TextBlock Text="{Binding MetricTotalLabel}" Style="{StaticResource ModuleListKpiHintStyle}"/>
+
+                        <StackPanel Grid.Column="8" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}"
+                                    Background="{DynamicResource TintPurpleBrush}">
+                                <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Load" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding AreaTotalLabel}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="{Binding MetricTotalLabel}" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Grid.Column="9" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+
+                        <StackPanel Grid.Column="10" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}"
+                                    Background="{DynamicResource TintGreenBrush}">
+                                <TextBlock Text="&#xE7BF;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
+                                           Foreground="{DynamicResource SuccessBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Ready for dispatch" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding UnitsReadyLabel}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                            </StackPanel>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -234,11 +365,11 @@
                                    HorizontalAlignment="Center"
                                    Margin="0,12,0,4"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Text="Release a Job Order or an Approved Proforma Invoice above — specs are read from Step 4/5 and work-type quantities from Step 6."
+                        <TextBlock Text="Release a Job Order above — production runs exclusively from confirmed (Approved) PIs converted to Job Orders. Drafts never reach the floor. Specs are read from Step 4/5 and work-type quantities from Step 6."
                                    FontSize="{StaticResource TextBody}"
                                    TextWrapping="Wrap"
                                    TextAlignment="Center"
-                                   MaxWidth="460"
+                                   MaxWidth="480"
                                    Foreground="{DynamicResource MutedForegroundBrush}"/>
                     </StackPanel>
                 </Grid>

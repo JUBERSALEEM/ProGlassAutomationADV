@@ -4,19 +4,27 @@ The eight production modules (Cutting · Holes & Cutouts · Polish ·
 Edge Deletion · Mitring · Tempering · Pairing · Doubling/Lamination)
 are **stage queues** fed by the production distribution engine.
 
+**SOURCE LOCK:** production runs EXCLUSIVELY from **Job Orders** — a Job
+Order only ever exists for a confirmed (Approved) PI. Drafts and other PI
+statuses never reach the floor; only non-void **Released / In Production**
+JOs are releasable.
+
+**SCOPE LOCK:** only the four Step 4 build families — SGU / DGU / LAM /
+DGU+LAM. No triple glazing; out-of-family names degrade with a warning.
+
 ```
-Job Order (released)  ─┐
-                       ├─ ProductionReleaseService ─▶ ProductionDistributionEngine
-Approved Proforma     ─┘         (loads the embedded invoice snapshot)
-                                           │
+Job Order (Released / In Production, non-void)
+        │  ProductionReleaseService (loads the embedded invoice snapshot)
+        ▼
+ProductionDistributionEngine
         specs from Step 4/5 (build type, panes, treatments, W1/H1/W2/H2, Qty)
         work-type quantities from Step 6 (fan holes, polish LM, mitring LM, …)
-                                           │
-                                           ▼
-                              production.db (work items per stage)
-                                           │
-                ┌──────┬──────┬──────┬──────┬──────┬──────┬──────┐
-             Cutting Holes  Polish EdgeDel Mitre Temper Pair  Double/Lam
+        ▼
+production.db (work items per stage, idempotent re-release)
+        ▼
+  Cutting → Holes → Polish → EdgeDel → Mitring → Tempering → Pairing → Double/Lam
+        (predecessor connectivity: completing out of order raises a warning;
+         a unit is READY FOR DISPATCH when every stage item is completed)
 ```
 
 **Routing rules** — see `docs/PRODUCTION_DISTRIBUTION_PLAN_2026-09-11.md`:

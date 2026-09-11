@@ -263,6 +263,90 @@ namespace ProGlassAutomation.Services.Production
             return rows.ToDictionary(r => r.Stage, r => r.Count);
         }
 
+        // ── Connectivity: predecessor checks + dispatch readiness ────────
+
+        /// <summary>
+        /// How many of the same unit's predecessor-stage items are NOT yet
+        /// completed. The floor rule: a pane must be cut before it is
+        /// drilled/polished/mitred, and cut before it is tempered; a unit
+        /// must be paired before assembly. Returns 0 when the item has no
+        /// predecessor stage (Cutting, charge batches).
+        ///
+        /// Unit identity = JobRef + SpecGroupNumber + SerialNumber. Batch
+        /// (charge-driven) items are spec-level, never part of a unit.
+        /// </summary>
+        public static async Task<int> GetPendingPredecessorCountAsync(SavedProductionWorkItem item)
+        {
+            if (item == null || string.IsNullOrWhiteSpace(item.PredecessorStage)) return 0;
+
+            EnsureInitialized();
+            using var db = new ProductionDbContext();
+
+            int predecessorStage = StageFromLabel(item.PredecessorStage);
+            if (predecessorStage == 0) return 0;
+
+            return await db.WorkItems
+                .AsNoTracking()
+                .CountAsync(i =>
+                    i.JobRef == item.JobRef
+                    && i.SpecGroupNumber == item.SpecGroupNumber
+                    && i.SerialNumber == item.SerialNumber
+                    && i.Position != "Batch"
+                    && i.Stage == predecessorStage
+                    && i.Status != (int)WorkItemStatus.Completed)
+                .ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Dispatch readiness across all released jobs (or one job):
+        /// a unit is READY when every stage item in it is completed.
+        /// Batch charge items are spec-level work, not unit stages, so they
+        /// never hold a unit hostage.
+        /// </summary>
+        public static async Task<(int TotalUnits, int ReadyUnits)> GetUnitReadinessAsync(
+            string? jobRef = null)
+        {
+            EnsureInitialized();
+            using var db = new ProductionDbContext();
+
+            var query = db.WorkItems
+                .AsNoTracking()
+                .Where(i => i.Position != "Batch");
+
+            if (!string.IsNullOrWhiteSpace(jobRef))
+                query = query.Where(i => i.JobRef == jobRef);
+
+            var items = await query
+                .Select(i => new { i.JobRef, i.SpecGroupNumber, i.SerialNumber, i.Status })
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+            int total = 0, ready = 0;
+            foreach (var unit in items
+                .GroupBy(i => new { i.JobRef, i.SpecGroupNumber, i.SerialNumber }))
+            {
+                total++;
+                if (unit.All(i => i.Status == (int)WorkItemStatus.Completed))
+                    ready++;
+            }
+
+            return (total, ready);
+        }
+
+        /// <summary>Label → stage value (0 when unknown).</summary>
+        private static int StageFromLabel(string label) => label switch
+        {
+            "Cutting" => (int)ProductionStage.Cutting,
+            "Holes & Cutouts" => (int)ProductionStage.HolesCutouts,
+            "Polish" => (int)ProductionStage.Polish,
+            "Edge Deletion" => (int)ProductionStage.EdgeDeletion,
+            "Mitring" => (int)ProductionStage.Mitring,
+            "Tempering" => (int)ProductionStage.Tempering,
+            "Pairing" => (int)ProductionStage.Pairing,
+            "Doubling / Lamination" => (int)ProductionStage.DoublingLamination,
+            _ => 0
+        };
+
         // ── Status updates ───────────────────────────────────────────────
 
         public static async Task<bool> SetStatusAsync(int itemId, WorkItemStatus status)

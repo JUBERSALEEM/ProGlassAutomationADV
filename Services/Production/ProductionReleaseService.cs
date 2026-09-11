@@ -3,20 +3,27 @@
 // PROJECT: ProGlassAutomation
 // MODULE: Production — release orchestration (Phase 3, 2026-09-11)
 //
-// "Release to Production": lists what can be released (Released /
-// In-Production Job Orders and Approved Proforma Invoices), feeds the
-// embedded invoice snapshot through ProductionDistributionEngine, and
-// persists the plan via ProductionRepository. Idempotent — re-releasing
-// the same job refreshes geometry without disturbing floor statuses.
+// "Release to Production": the factory pulls work EXCLUSIVELY from Job
+// Orders — a Job Order only ever exists for a CONFIRMED (Approved) PI.
+// Draft, Sent, Rejected, Expired or Cancelled PIs can never reach the
+// floor, and neither can a PI that was never converted. Only non-void
+// Job Orders whose status is Released or In Production are releasable;
+// Draft JOs (not yet handed to the factory) and Completed/Delivered JOs
+// (floor work over) are excluded.
+//
+// Feeds the embedded (immutable) invoice snapshot through
+// ProductionDistributionEngine and persists the plan via
+// ProductionRepository. Idempotent — re-releasing the same job refreshes
+// geometry without disturbing floor statuses.
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.EntityFrameworkCore;
+using ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Models.Production;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.JobOrder.Database;
 using ProGlassAutomation.Services.Logging;
-using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,11 +32,11 @@ using System.Threading.Tasks;
 
 namespace ProGlassAutomation.Services.Production
 {
-    /// <summary>One releasable source shown in the release picker.</summary>
+    /// <summary>One releasable Job Order shown in the release picker.</summary>
     public sealed class ProductionReleaseSource
     {
-        /// <summary>"JO" or "PI".</summary>
-        public string Kind { get; init; } = "";
+        /// <summary>Always "JO" — production runs from confirmed Job Orders only.</summary>
+        public string Kind => "JO";
         public string Reference { get; init; } = "";
         public string CustomerName { get; init; } = "";
         public string ProjectName { get; init; } = "";
@@ -46,9 +53,9 @@ namespace ProGlassAutomation.Services.Production
         private static readonly JsonSerializerOptions JsonOptions = new();
 
         /// <summary>
-        /// Everything the factory can pull work from: live Job Orders first
-        /// (the primary flow), then Approved PIs that have no Job Order yet
-        /// (convenience path).
+        /// Job Orders the factory can pull work from: non-void, status
+        /// Released or In Production (the only states where floor work is
+        /// legitimate). Never returns Draft/Completed/Delivered jobs.
         /// </summary>
         public static async Task<List<ProductionReleaseSource>> GetSourcesAsync()
         {
@@ -56,53 +63,33 @@ namespace ProGlassAutomation.Services.Production
 
             try
             {
-                using (var db = new JobOrdersDbContext())
-                {
-                    var jobs = await db.JobOrders
-                        .AsNoTracking()
-                        .Where(j => !j.IsVoid)
-                        .OrderByDescending(j => j.UpdatedAt)
-                        .Select(j => new
-                        {
-                            j.JobOrderId, j.CustomerName, j.ProjectName, j.Status, j.UpdatedAt
-                        })
-                        .ToListAsync()
-                        .ConfigureAwait(false);
-
-                    sources.AddRange(jobs.Select(j => new ProductionReleaseSource
+                using var db = new JobOrdersDbContext();
+                var jobs = await db.JobOrders
+                    .AsNoTracking()
+                    .Where(j => !j.IsVoid)
+                    .OrderByDescending(j => j.UpdatedAt)
+                    .Select(j => new
                     {
-                        Kind = "JO",
+                        j.JobOrderId, j.CustomerName, j.ProjectName, j.Status, j.UpdatedAt
+                    })
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+
+                // Status comparison via JobOrderStatusValues — the house rule
+                // (the InProduction/legacy "In Production" spelling split).
+                sources.AddRange(jobs
+                    .Where(j => JobOrderStatusValues.Is(j.Status, JobOrderStatusValues.Released)
+                             || JobOrderStatusValues.IsInProduction(j.Status))
+                    .Select(j => new ProductionReleaseSource
+                    {
                         Reference = j.JobOrderId ?? "",
                         CustomerName = j.CustomerName ?? "",
                         ProjectName = j.ProjectName ?? "",
-                        Status = j.Status ?? "",
+                        Status = JobOrderStatusValues.IsInProduction(j.Status)
+                            ? JobOrderStatusValues.InProductionDisplay
+                            : j.Status ?? "",
                         SortDate = j.UpdatedAt
                     }));
-                }
-
-                using (var db = new ProformaInvoicesDbContext())
-                {
-                    var pis = await db.ProformaInvoices
-                        .AsNoTracking()
-                        .Where(p => !p.IsVoid && p.Status == "Approved")
-                        .OrderByDescending(p => p.UpdatedAt)
-                        .Select(p => new
-                        {
-                            p.ProformaId, p.CustomerName, p.ProjectName, p.Status, p.UpdatedAt
-                        })
-                        .ToListAsync()
-                        .ConfigureAwait(false);
-
-                    sources.AddRange(pis.Select(p => new ProductionReleaseSource
-                    {
-                        Kind = "PI",
-                        Reference = p.ProformaId ?? "",
-                        CustomerName = p.CustomerName ?? "",
-                        ProjectName = p.ProjectName ?? "",
-                        Status = p.Status ?? "",
-                        SortDate = p.UpdatedAt
-                    }));
-                }
             }
             catch (Exception ex)
             {
@@ -124,14 +111,14 @@ namespace ProGlassAutomation.Services.Production
         }
 
         /// <summary>
-        /// Distributes one source into production.db and returns the outcome.
-        /// Never throws — failures come back as a result with Success=false.
+        /// Distributes one Job Order into production.db and returns the
+        /// outcome. Never throws — failures come back as Success=false.
         /// </summary>
         public static async Task<(bool Success, string Message, ProductionReleaseResult? Result)>
             ReleaseAsync(ProductionReleaseSource source)
         {
             if (source == null || string.IsNullOrWhiteSpace(source.Reference))
-                return (false, "Pick a Job Order or Proforma Invoice to release.", null);
+                return (false, "Pick a Job Order to release.", null);
 
             try
             {
@@ -185,33 +172,17 @@ namespace ProGlassAutomation.Services.Production
         private static async Task<ProformaInvoiceSnapshot?> LoadSnapshotAsync(
             ProductionReleaseSource source)
         {
-            if (source.Kind == "JO")
-            {
-                using var db = new JobOrdersDbContext();
-                var job = await db.JobOrders
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(j => j.JobOrderId == source.Reference)
-                    .ConfigureAwait(false);
+            using var db = new JobOrdersDbContext();
+            var job = await db.JobOrders
+                .AsNoTracking()
+                .FirstOrDefaultAsync(j => j.JobOrderId == source.Reference)
+                .ConfigureAwait(false);
 
-                if (job == null || string.IsNullOrWhiteSpace(job.FullSnapshotJson)) return null;
+            if (job == null || string.IsNullOrWhiteSpace(job.FullSnapshotJson)) return null;
 
-                var joSnapshot = JsonSerializer.Deserialize<JobOrderSnapshot>(
-                    job.FullSnapshotJson, JsonOptions);
-                return joSnapshot?.EmbeddedInvoice;
-            }
-
-            using (var db = new ProformaInvoicesDbContext())
-            {
-                var pi = await db.ProformaInvoices
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(p => p.ProformaId == source.Reference)
-                    .ConfigureAwait(false);
-
-                if (pi == null || string.IsNullOrWhiteSpace(pi.FullSnapshotJson)) return null;
-
-                return JsonSerializer.Deserialize<ProformaInvoiceSnapshot>(
-                    pi.FullSnapshotJson, JsonOptions);
-            }
+            var joSnapshot = JsonSerializer.Deserialize<JobOrderSnapshot>(
+                job.FullSnapshotJson, JsonOptions);
+            return joSnapshot?.EmbeddedInvoice;
         }
     }
 }

@@ -17,12 +17,16 @@
 //   • LAM      → same pane split; Doubling runs in LAMINATION mode (PVB).
 //   • DGU+LAM  → W1/H1 mono outer + W2/H2 laminated pair (two panes cut
 //                at the same size); Pairing + hybrid assembly.
-//   • TRIPLE   → three panes: W1/H1 + W2/H2 ×2 (two ASP cavities).
 //   • Step 6   → active FAN_HOLES/HOLES/CUTOUT/COUNTERSUNK_HOLES feed the
 //                Holes & Cutouts queue; POLISH/POLISH_MATCHED_LAM and
 //                EDGE_GRINDING feed Polish with the charged LM;
 //                MITRING feeds Mitring; ARGON/SILICON/U-INSERT/OVERLAP/
 //                SHUTTER_BONDING attach as notes on the assembly item.
+//
+//   SCOPE LOCK (2026-09-11): only the four Step 4 build families exist —
+//   SGU / DGU / LAM / DGU+LAM. Triple glazing is NOT part of the product
+//   today and is deliberately not special-cased; any spec name degrades
+//   to the closest supported family with a warning, never to invention.
 //
 // PURE AND DETERMINISTIC — no WPF, no DB, no clock. Same snapshot in,
 // byte-identical plan out. Never throws on an odd spec name: it degrades
@@ -161,9 +165,9 @@ namespace ProGlassAutomation.Services.Production
         private enum GlassBuildTypeName { Sgu, Dgu, Lam, DguLam }
 
         /// <summary>
-        /// Grammar-based inference. Two panes + interlayer = LAM; three or
-        /// more panes = DGU+LAM hybrid (or triple DGU, which keeps the Dgu
-        /// family label with three pane occurrences); anything else with a
+        /// Grammar-based inference over the four supported build families
+        /// (SGU / DGU / LAM / DGU+LAM). Two panes + interlayer = LAM;
+        /// three or more panes = DGU+LAM hybrid; anything else with a
         /// second pane = DGU; single pane = SGU.
         /// </summary>
         public static string InferBuildTypeFromName(string? specName)
@@ -175,7 +179,7 @@ namespace ProGlassAutomation.Services.Production
 
                 if (panes <= 1) return "Sgu";
                 if (panes == 2) return hasInterlayer ? "Lam" : "Dgu";
-                return hasInterlayer ? "DguLam" : "Dgu"; // 3+ panes, 2-spacer triple stays "Dgu"
+                return hasInterlayer ? "DguLam" : "Dgu";
             }
             catch (Exception ex)
             {
@@ -325,16 +329,9 @@ namespace ProGlassAutomation.Services.Production
             switch (buildType)
             {
                 case "Dgu":
-                    if (panes.Count >= 3)
-                    {
-                        // Triple-glazed DGU: outer = W1/H1, middle + inner = W2/H2.
-                        return new List<PaneOccurrence>
-                        {
-                            new() { Position = "Outer",  Slot = PaneSlot.Pane1, Pane = At(0) },
-                            new() { Position = "Middle", Slot = PaneSlot.Pane2, Pane = At(1) },
-                            new() { Position = "Inner",  Slot = PaneSlot.Pane2, Pane = At(panes.Count - 1) }
-                        };
-                    }
+                    // Outer = first pane, Inner = LAST pane (the grammar's
+                    // own rule) — so even an unusual multi-token name keeps
+                    // the correct two physical cuts on the supported grid.
                     return new List<PaneOccurrence>
                     {
                         new() { Position = "Outer", Slot = PaneSlot.Pane1, Pane = At(0) },

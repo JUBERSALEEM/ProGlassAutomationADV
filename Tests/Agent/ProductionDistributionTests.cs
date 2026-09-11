@@ -280,22 +280,26 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("3-PANE UNIT", pairing.Notes);
         }
 
+        // ══════════════════════════════════════════════════════════════
+        //  SCOPE LOCK (2026-09-11) — only the four Step 4 build families
+        //  exist. Triple glazing is NOT in the product today: a name with
+        //  three glass tokens and no interlayer degrades to the supported
+        //  two-pane DGU split (first + last pane), never to invention.
+        // ══════════════════════════════════════════════════════════════
+
         [Fact]
-        public void Triple_glazed_dgu_cuts_three_panes_middle_at_w2h2()
+        public void Out_of_scope_three_token_name_stays_on_the_supported_dgu_split()
         {
             var items = Distribute(Snapshot(
                 Group(1,
                     "6mm Clear FT Glass + 12mm ASP + 6mm Clear Annealed Glass + 12mm ASP + 6mm Clear FT Glass",
-                    Row(1, "T-01", 900, 900, 4, w2: 890, h2: 890))));
+                    Row(1, "T-01", 900, 900, 4, w2: 890, h2: 890)));
 
             var cutting = Stage(items, ProductionStage.Cutting).ToList();
-            Assert.Equal(3, cutting.Count);
-            Assert.Contains(cutting, c => c.Position == "Outer");
-            Assert.Contains(cutting, c => c.Position == "Middle" && c.WidthMm == 890);
+            Assert.Equal(2, cutting.Count);
+            Assert.Contains(cutting, c => c.Position == "Outer" && c.WidthMm == 900);
             Assert.Contains(cutting, c => c.Position == "Inner" && c.WidthMm == 890);
-
-            // Outer + Inner FT, middle annealed → two furnace items.
-            Assert.Equal(2, Stage(items, ProductionStage.Tempering).Count());
+            Assert.DoesNotContain(cutting, c => c.Position == "Middle");
         }
 
         // ══════════════════════════════════════════════════════════════
