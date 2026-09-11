@@ -267,40 +267,127 @@ namespace ProGlassAutomation.Services.Production
 
         /// <summary>
         /// Factory-wide counts per stage (all jobs) — drives the pipeline
-        /// chain bar: every stage module shows the whole production chain
-        /// so operators can follow work stage by stage.
+        /// chain bar. Counts honour the production-chain gate: "open" only
+        /// counts work that is actually RELEASED into the stage (its
+        /// upstream stages are complete), so the chain bar shows where the
+        /// live work really sits.
         /// </summary>
         public sealed class ProductionChainSummaryRow
         {
             public int Stage { get; set; }
-            public int Pending { get; set; }
-            public int InProgress { get; set; }
+            /// <summary>Released AND not yet completed (actionable now).</summary>
+            public int Open { get; set; }
             public int Completed { get; set; }
+            public int Total { get; set; }
         }
 
         public static async Task<List<ProductionChainSummaryRow>> GetChainSummaryAsync()
         {
             EnsureInitialized();
             using var db = new ProductionDbContext();
-            return await db.WorkItems
-                .AsNoTracking()
+            var all = await db.WorkItems.AsNoTracking().ToListAsync().ConfigureAwait(false);
+
+            var releasedKeys = ComputeReleasedKeys(all);
+            int completed = (int)WorkItemStatus.Completed;
+
+            return all
                 .GroupBy(i => i.Stage)
                 .Select(g => new ProductionChainSummaryRow
                 {
                     Stage = g.Key,
-                    Pending = g.Count(i => i.Status == (int)WorkItemStatus.Pending),
-                    InProgress = g.Count(i => i.Status == (int)WorkItemStatus.InProgress),
-                    Completed = g.Count(i => i.Status == (int)WorkItemStatus.Completed)
+                    Open = g.Count(i => releasedKeys.Contains(i.UniqueKey) && i.Status != completed),
+                    Completed = g.Count(i => i.Status == completed),
+                    Total = g.Count()
                 })
-                .ToListAsync()
-                .ConfigureAwait(false);
+                .ToList();
         }
 
-        // ── Stage list + detail projections (screens redesign 2026-09-11) ─
+        // ── Production-chain flow gate (screens redesign 2026-09-11) ────
+        //
+        // Work moves through the factory like a tool chain: every pane
+        // enters at Cutting, and a unit's data only appears in the NEXT
+        // module once its upstream stages are fully complete. A pane is
+        // RELEASED into stage N when every non-charge item of its unit in
+        // stages below N is Completed. Charge batches (Holes / Polish /
+        // Mitring / Edge Deletion) are spec-level and release once the
+        // spec's cutting is done.
+        //
+        // This gate is the single source of truth for "what is actionable
+        // right now" — the stage lists, the chain bar and the waiting
+        // counts all derive from it.
 
         /// <summary>
-        /// One unit row for the module list: the Step-5-shaped envelope
-        /// (Ref, W1/H1, W2/H2, Qty, SQM, LM) plus this stage's progress.
+        /// Returns the UniqueKeys of every item that is RELEASED into its
+        /// stage right now (upstream work complete). Pure over the item
+        /// list — no DB round-trips.
+        /// </summary>
+        private static HashSet<string> ComputeReleasedKeys(List<SavedProductionWorkItem> all)
+        {
+            var released = new HashSet<string>(StringComparer.Ordinal);
+            int cutting = (int)ProductionStage.Cutting;
+            int completed = (int)WorkItemStatus.Completed;
+
+            // Pane / unit items: released when the unit's own items in all
+            // earlier stages are complete. Cutting (stage 1) is the entry
+            // point — everything is released into it.
+            foreach (var unit in all.Where(i => i.Position != "Batch")
+                .GroupBy(i => (i.JobRef, i.SpecGroupNumber, i.SerialNumber)))
+            {
+                var items = unit.ToList();
+                foreach (var item in items)
+                {
+                    bool ok = item.Stage == cutting
+                        || items.Where(x => x.Stage < item.Stage)
+                                .All(x => x.Status == completed);
+                    if (ok) released.Add(item.UniqueKey);
+                }
+            }
+
+            // Charge batches: spec-level work released once the spec's
+            // cutting is fully done (a spec with no cutting items has
+            // nothing to wait for and is released immediately).
+            var cutDone = all
+                .Where(i => i.Stage == cutting && i.Position != "Batch")
+                .GroupBy(i => (i.JobRef, i.SpecGroupNumber))
+                .ToDictionary(g => g.Key, g => g.All(x => x.Status == completed));
+
+            foreach (var batch in all.Where(i => i.Position == "Batch"))
+            {
+                if (!cutDone.TryGetValue((batch.JobRef, batch.SpecGroupNumber), out bool pendingCuts)
+                    || pendingCuts)
+                {
+                    released.Add(batch.UniqueKey);
+                }
+            }
+
+            return released;
+        }
+
+        /// <summary>
+        /// Earliest incomplete upstream stage for a not-yet-released unit —
+        /// drives the "waiting on Cutting / Tempering…" label.
+        /// </summary>
+        private static string WaitingOnLabel(
+            List<SavedProductionWorkItem> unitItems, int currentStage)
+        {
+            int completed = (int)WorkItemStatus.Completed;
+            var blocker = unitItems
+                .Where(i => i.Position != "Batch" && i.Stage < currentStage
+                            && i.Status != completed)
+                .OrderBy(i => i.Stage)
+                .FirstOrDefault();
+
+            return blocker == null
+                ? "Waiting upstream"
+                : $"Waiting on {ProductionDistributionEngine.StageLabel((ProductionStage)blocker.Stage)}";
+        }
+
+        // ── Stage list + detail projections ──────────────────────────────
+
+        /// <summary>
+        /// One unit row for the module list: the FULL Step-5 shape (Sr,
+        /// Ref, W1/H1, W2/H2, Qty, SQM + LM split per pane — pricing
+        /// deliberately excluded) plus this stage's progress and flow state.
         /// </summary>
         public sealed class ProductionUnitProjection
         {
@@ -312,6 +399,7 @@ namespace ProGlassAutomation.Services.Production
             public int SpecGroupNumber { get; set; }
             public string SpecName { get; set; } = "";
             public string BuildType { get; set; } = "";
+            public int SerialNumber { get; set; }
             public string GlassRef { get; set; } = "";
 
             public int W1 { get; set; }
@@ -320,9 +408,14 @@ namespace ProGlassAutomation.Services.Production
             public int H2 { get; set; }
             public int Qty { get; set; }
 
-            public decimal UnitSqm { get; set; }
-            public decimal TotalSqm { get; set; }
-            public decimal TotalLm { get; set; }
+            // Step-5 maths, split by pane (no Rate / Value — production
+            // reads geometry, never pricing).
+            public decimal UnitSqm1 { get; set; }
+            public decimal TotalSqm1 { get; set; }
+            public decimal Lm1 { get; set; }
+            public decimal UnitSqm2 { get; set; }
+            public decimal TotalSqm2 { get; set; }
+            public decimal Lm2 { get; set; }
 
             public int DoneCount { get; set; }
             public int TotalCount { get; set; }
@@ -330,50 +423,64 @@ namespace ProGlassAutomation.Services.Production
             /// <summary>0 Pending · 1 InProgress · 2 Completed.</summary>
             public int AggregateStatus { get; set; }
 
+            /// <summary>
+            /// Flow state: true = released into this stage (actionable);
+            /// false = still waiting on an earlier stage. When the caller
+            /// asks for waiting rows too, WaitingOn explains why.
+            /// </summary>
+            public bool FlowReleased { get; set; } = true;
+            public string WaitingOn { get; set; } = "";
+
             /// <summary>This stage's items for the unit (drives the detail panel).</summary>
             public List<SavedProductionWorkItem> Items { get; set; } = new();
+        }
+
+        /// <summary>A charge batch row with its flow state.</summary>
+        public sealed class ProductionBatchProjection
+        {
+            public SavedProductionWorkItem Item { get; set; } = null!;
+            public bool FlowReleased { get; set; } = true;
+            public string WaitingOn { get; set; } = "";
         }
 
         /// <summary>Stage list = unit rows + charge batch rows.</summary>
         public sealed class ProductionStageListData
         {
             public List<ProductionUnitProjection> Units { get; set; } = new();
-            public List<SavedProductionWorkItem> BatchItems { get; set; } = new();
+            public List<ProductionBatchProjection> BatchItems { get; set; } = new();
+
+            /// <summary>
+            /// Work allocated to this stage but held back by an incomplete
+            /// upstream stage — the pipeline backlog (tool-chain gating).
+            /// </summary>
+            public int WaitingUnits { get; set; }
+            public int WaitingBatch { get; set; }
         }
 
         /// <summary>
-        /// Builds the module list view: unit projections (grouped by
-        /// job+spec+serial) plus charge batch rows, filtered by job /
-        /// aggregate status / free-text search.
+        /// Builds the module list view. PRODUCTION-CHAIN RULE: by default a
+        /// unit only appears once its upstream stages are complete
+        /// (<paramref name="includeWaiting"/>=false) — completed data moves
+        /// to the next module exactly like a tool chain. Pass
+        /// includeWaiting=true to also see the rows still held upstream.
         /// </summary>
         public static async Task<ProductionStageListData> GetStageListAsync(
             ProductionStage stage,
             string? jobRefFilter = null,
             WorkItemStatus? statusFilter = null,
-            string? search = null)
+            string? search = null,
+            bool includeWaiting = false)
         {
             EnsureInitialized();
             using var db = new ProductionDbContext();
 
-            IQueryable<SavedProductionWorkItem> query = db.WorkItems
-                .AsNoTracking()
-                .Where(i => i.Stage == (int)stage);
-
+            // Load EVERY stage for the job scope — the flow gate needs the
+            // upstream statuses, not just this stage's own items.
+            IQueryable<SavedProductionWorkItem> scope = db.WorkItems.AsNoTracking();
             if (!string.IsNullOrWhiteSpace(jobRefFilter))
-                query = query.Where(i => i.JobRef == jobRefFilter);
+                scope = scope.Where(i => i.JobRef == jobRefFilter);
 
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                string term = search.Trim();
-                query = query.Where(i =>
-                    (i.GlassRef != null && EF.Functions.Like(i.GlassRef, $"%{term}%"))
-                    || (i.CustomerName != null && EF.Functions.Like(i.CustomerName, $"%{term}%"))
-                    || (i.JobRef != null && EF.Functions.Like(i.JobRef, $"%{term}%"))
-                    || (i.SpecName != null && EF.Functions.Like(i.SpecName, $"%{term}%"))
-                    || (i.Salesman != null && EF.Functions.Like(i.Salesman, $"%{term}%")));
-            }
-
-            var items = await query
+            var all = await scope
                 .OrderBy(i => i.JobRef)
                 .ThenBy(i => i.SpecGroupNumber)
                 .ThenBy(i => i.SerialNumber)
@@ -381,16 +488,49 @@ namespace ProGlassAutomation.Services.Production
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-            var data = new ProductionStageListData();
+            var releasedKeys = ComputeReleasedKeys(all);
 
-            var unitItems = items.Where(i => i.Position != "Batch").ToList();
-            data.BatchItems = items.Where(i => i.Position == "Batch").ToList();
+            int stageInt = (int)stage;
+            IEnumerable<SavedProductionWorkItem> stageItems =
+                all.Where(i => i.Stage == stageInt);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string term = search.Trim();
+                stageItems = stageItems.Where(i =>
+                    Contains(i.GlassRef, term) || Contains(i.CustomerName, term)
+                    || Contains(i.JobRef, term) || Contains(i.SpecName, term)
+                    || Contains(i.Salesman, term));
+            }
+
+            var data = new ProductionStageListData();
+            int completed = (int)WorkItemStatus.Completed;
+
+            // Full item set per unit (all stages) — the Step-5 envelope and
+            // the "waiting on" trace both need the whole unit, not just the
+            // current stage's slice.
+            var unitLookup = all
+                .Where(i => i.Position != "Batch")
+                .GroupBy(i => (i.JobRef, i.SpecGroupNumber, i.SerialNumber))
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            // ── Unit rows (pane / assembly items) ────────────────────────
+            var unitItems = stageItems.Where(i => i.Position != "Batch").ToList();
 
             foreach (var group in unitItems
-                .GroupBy(i => new { i.JobRef, i.SpecGroupNumber, i.SerialNumber }))
+                .GroupBy(i => (i.JobRef, i.SpecGroupNumber, i.SerialNumber)))
             {
-                var list = group.ToList();
+                var list = group.OrderBy(i => i.Position).ToList();
                 var first = list[0];
+                unitLookup.TryGetValue(group.Key, out var fullUnit);
+                fullUnit ??= list;
+
+                bool released = list.All(i => releasedKeys.Contains(i.UniqueKey));
+                if (!released)
+                {
+                    data.WaitingUnits++;
+                    if (!includeWaiting) continue;
+                }
 
                 var unit = new ProductionUnitProjection
                 {
@@ -402,55 +542,56 @@ namespace ProGlassAutomation.Services.Production
                     SpecGroupNumber = first.SpecGroupNumber,
                     SpecName = first.SpecName,
                     BuildType = first.BuildType,
+                    SerialNumber = first.SerialNumber,
                     GlassRef = first.GlassRef,
-                    Qty = list.Max(i => i.Qty),
-                    Items = list
+                    Qty = fullUnit.Max(i => i.Qty),
+                    Items = list,
+                    FlowReleased = released,
+                    WaitingOn = released ? "" : WaitingOnLabel(fullUnit, stageInt)
                 };
 
-                // Pane-1 envelope — Glass / Unit / Outer. In a pure LAM
-                // build there is no "Outer"; the laminate's outer layer
-                // ("Lam Outer") is the envelope instead. DGU+LAM always
-                // has a real "Outer", so the fallback never fires there.
-                var pane1 = list.FirstOrDefault(i =>
+                // Step-5 envelope from the unit's CUTTING panes — geometry
+                // is identical in every stage, so cutting is the single
+                // source of truth for W1/H1, W2/H2 and the pane LM.
+                // Pane-1 = Glass / Outer / Unit; a pure LAM has no "Outer",
+                // so its "Lam Outer" is the envelope instead (DGU+LAM always
+                // has a real "Outer", so the fallback never fires there).
+                var cut = fullUnit.Where(i => i.Stage == (int)ProductionStage.Cutting).ToList();
+                var source = cut.Count > 0 ? cut : fullUnit;
+
+                var pane1 = source.FirstOrDefault(i =>
                     i.Position is "Glass" or "Unit" or "Outer"
                     && i.WidthMm > 0 && i.HeightMm > 0)
-                    ?? list.FirstOrDefault(i =>
+                    ?? source.FirstOrDefault(i =>
                     i.Position == "Lam Outer"
                     && i.WidthMm > 0 && i.HeightMm > 0);
+
+                // Pane-2 = Inner / Middle / the laminate's inner layer.
+                // (In DGU+LAM, "Lam Outer" belongs to pane 2's laminate
+                // pair — never to the pane-1 slot.)
+                var pane2 = source.FirstOrDefault(i =>
+                    i.Position is "Inner" or "Lam Inner" or "Middle"
+                    && i.WidthMm > 0 && i.HeightMm > 0);
+
                 if (pane1 != null)
                 {
                     unit.W1 = pane1.WidthMm;
                     unit.H1 = pane1.HeightMm;
+                    unit.UnitSqm1 = SqmCalculator.CalculatePanel(unit.W1, unit.H1);
+                    unit.TotalSqm1 = Math.Round(unit.UnitSqm1 * unit.Qty, 3, MidpointRounding.AwayFromZero);
+                    unit.Lm1 = pane1.TotalLm;
                 }
 
-                // Pane-2 envelope — Inner / Middle / the laminate's inner
-                // layer. (In DGU+LAM, "Lam Outer" belongs to pane 2's
-                // laminate pair — never to the pane-1 slot.)
-                var pane2 = list.FirstOrDefault(i =>
-                    i.Position is "Inner" or "Lam Inner" or "Middle"
-                    && i.WidthMm > 0 && i.HeightMm > 0);
                 if (pane2 != null)
                 {
                     unit.W2 = pane2.WidthMm;
                     unit.H2 = pane2.HeightMm;
+                    unit.UnitSqm2 = SqmCalculator.CalculatePanel(unit.W2, unit.H2);
+                    unit.TotalSqm2 = Math.Round(unit.UnitSqm2 * unit.Qty, 3, MidpointRounding.AwayFromZero);
+                    unit.Lm2 = pane2.TotalLm;
                 }
 
-                // Areas recomputed from the envelope — exactly Step 5 maths.
-                decimal a1 = unit.W1 > 0 && unit.H1 > 0
-                    ? SqmCalculator.CalculatePanel(unit.W1, unit.H1) : 0m;
-                decimal a2 = unit.W2 > 0 && unit.H2 > 0
-                    ? SqmCalculator.CalculatePanel(unit.W2, unit.H2) : 0m;
-                unit.UnitSqm = a1 + a2;
-                unit.TotalSqm = Math.Round(unit.UnitSqm * unit.Qty, 3, MidpointRounding.AwayFromZero);
-
-                // LM from the distinct pane items actually present in this
-                // stage (each Position appears once per unit per stage).
-                unit.TotalLm = list
-                    .Where(i => i.TotalLm > 0)
-                    .GroupBy(i => i.Position)
-                    .Sum(g => g.Max(i => i.TotalLm));
-
-                unit.DoneCount = list.Count(i => i.Status == (int)WorkItemStatus.Completed);
+                unit.DoneCount = list.Count(i => i.Status == completed);
                 unit.TotalCount = list.Count;
                 unit.AggregateStatus =
                     unit.DoneCount == unit.TotalCount ? 2
@@ -460,17 +601,40 @@ namespace ProGlassAutomation.Services.Production
                 data.Units.Add(unit);
             }
 
+            // ── Charge batch rows ────────────────────────────────────────
+            foreach (var batch in stageItems.Where(i => i.Position == "Batch"))
+            {
+                bool released = releasedKeys.Contains(batch.UniqueKey);
+                if (!released)
+                {
+                    data.WaitingBatch++;
+                    if (!includeWaiting) continue;
+                }
+                data.BatchItems.Add(new ProductionBatchProjection
+                {
+                    Item = batch,
+                    FlowReleased = released,
+                    WaitingOn = released
+                        ? ""
+                        : $"Waiting on {ProductionDistributionEngine.StageLabel(ProductionStage.Cutting)}"
+                });
+            }
+
             if (statusFilter.HasValue)
             {
                 int wanted = (int)statusFilter.Value;
                 data.Units = data.Units
                     .Where(u => u.AggregateStatus == wanted).ToList();
                 data.BatchItems = data.BatchItems
-                    .Where(b => b.Status == wanted).ToList();
+                    .Where(b => b.Item.Status == wanted).ToList();
             }
 
             return data;
         }
+
+        private static bool Contains(string? value, string term) =>
+            !string.IsNullOrEmpty(value)
+            && value.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0;
 
         // ── Connectivity: predecessor checks + dispatch readiness ────────
 

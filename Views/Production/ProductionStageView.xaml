@@ -216,6 +216,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
@@ -354,8 +355,30 @@
                     </Grid>
                 </Border>
 
+                <!-- Waiting-upstream strip (tool-chain backlog) -->
+                <Border Grid.Row="2"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
+                        Background="{DynamicResource TintIndigoBrush}"
+                        Padding="10,6"
+                        Margin="12,4,12,0"
+                        Visibility="{Binding HasWaitingUpstream,
+                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE823;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="{StaticResource TextBody}"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding WaitingUpstreamLabel}"
+                                   TextWrapping="Wrap"
+                                   FontSize="{StaticResource TextBody}"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    </StackPanel>
+                </Border>
+
                 <!-- ══ Master–detail body ════════════════════════════ -->
-                <Grid Grid.Row="2">
+                <Grid Grid.Row="3">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
@@ -398,6 +421,7 @@
                                 <DataGridTextColumn Header="CUSTOMER" Binding="{Binding Customer}" Width="1.3*"/>
                                 <DataGridTextColumn Header="SALESMAN" Binding="{Binding Salesman}" Width="120"/>
                                 <DataGridTextColumn Header="SPEC" Binding="{Binding SpecLabel}" Width="1.5*"/>
+                                <DataGridTextColumn Header="SR" Binding="{Binding SerialLabel}" Width="50"/>
                                 <DataGridTextColumn Header="REF" Binding="{Binding GlassRef}" Width="90"/>
                                 <DataGridTextColumn Header="BUILD" Binding="{Binding BuildType}" Width="90"/>
                                 <DataGridTextColumn Header="W1" Binding="{Binding W1Label}" Width="60"/>
@@ -405,9 +429,12 @@
                                 <DataGridTextColumn Header="W2" Binding="{Binding W2Label}" Width="60"/>
                                 <DataGridTextColumn Header="H2" Binding="{Binding H2Label}" Width="60"/>
                                 <DataGridTextColumn Header="QTY" Binding="{Binding QtyLabel}" Width="55"/>
-                                <DataGridTextColumn Header="SQM" Binding="{Binding UnitSqmLabel}" Width="70"/>
-                                <DataGridTextColumn Header="TOT SQM" Binding="{Binding TotalSqmLabel}" Width="85"/>
-                                <DataGridTextColumn Header="LM" Binding="{Binding LmLabel}" Width="70"/>
+                                <DataGridTextColumn Header="SQM1" Binding="{Binding Sqm1Label}" Width="70"/>
+                                <DataGridTextColumn Header="TOT SQM1" Binding="{Binding TotalSqm1Label}" Width="85"/>
+                                <DataGridTextColumn Header="LM1" Binding="{Binding Lm1Label}" Width="70"/>
+                                <DataGridTextColumn Header="SQM2" Binding="{Binding Sqm2Label}" Width="70"/>
+                                <DataGridTextColumn Header="TOT SQM2" Binding="{Binding TotalSqm2Label}" Width="85"/>
+                                <DataGridTextColumn Header="LM2" Binding="{Binding Lm2Label}" Width="70"/>
                                 <DataGridTextColumn Header="STAGE" Binding="{Binding ProgressLabel}" Width="90"/>
                                 <DataGridTextColumn Header="CHARGE" Binding="{Binding MetricLabel}" Width="170"/>
                             </DataGrid.Columns>
@@ -423,13 +450,13 @@
                                        HorizontalAlignment="Center"
                                        Foreground="{DynamicResource MutedForegroundBrush}"
                                        Opacity="0.6"/>
-                            <TextBlock Text="No work distributed to this stage yet"
+                            <TextBlock Text="No work in this stage yet"
                                        FontSize="{StaticResource TextSubhead}"
                                        FontWeight="SemiBold"
                                        HorizontalAlignment="Center"
                                        Margin="0,12,0,4"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                            <TextBlock Text="Release a Job Order above — production runs exclusively from confirmed (Approved) PIs converted to Job Orders. Drafts never reach the floor. Specs are read from Step 4/5 and work-type quantities from Step 6."
+                            <TextBlock Text="Production runs like a tool chain: every unit enters at Cutting and its row moves to the next module only when the previous stage is complete. Release a Job Order above to feed the chain — work arrives exclusively from confirmed (Approved) PIs converted to Job Orders."
                                        FontSize="{StaticResource TextBody}"
                                        TextWrapping="Wrap"
                                        TextAlignment="Center"

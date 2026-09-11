@@ -51,12 +51,18 @@ page, full design + worked samples in
   highlighted and any chip opens that stage's module, so work can be
   followed stage by stage like a production chain.
 
-- **Tier 1 · Unit list** — one row per unit, shaped like the Step 5 grid:
-  Job / PI No · Customer · Salesman · Spec · Ref · Build · W1/H1 + W2/H2 ·
-  Qty · Unit SQM · Total SQM · LM · stage progress (n/m). Charge work
-  (fan holes, polish LM, mitring LM) shows as `(whole spec)` batch rows.
-  Filters: free-text search, job, status. KPI chips: queue / pending /
-  in progress / completed / load / ready-for-dispatch.
+- **Tier 1 · Unit list** — long production rows with the FULL Step 5
+  shape (pricing excluded): Job / PI No · Customer · Salesman · Spec ·
+  Sr · Ref · Build · W1/H1 + W2/H2 · Qty · SQM1/TOT SQM1/LM1 ·
+  SQM2/TOT SQM2/LM2 · stage progress (n/m). Charge work (fan holes,
+  polish LM, mitring LM) shows as `(whole spec)` batch rows. Filters:
+  free-text search, job, status. KPI chips: queue / pending / in
+  progress / completed / load / ready-for-dispatch.
+- **Tool-chain flow** — every unit enters at Cutting and its row moves
+  to the next module only when the previous stage is complete
+  (`ComputeReleasedKeys` gate). Held rows are counted in a
+  "waiting upstream" strip so the backlog stays visible; the chain
+  bar's open count reflects released (actionable) work only.
 - **Tier 2 · Unit detail** — selecting a row opens the job header
   (Job No, PI No, Customer, Project, Salesman) with **Open Job Order**
   and **Open Proforma Invoice** cross-navigation (checks Step 5 sizes /

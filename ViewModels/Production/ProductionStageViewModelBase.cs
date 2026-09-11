@@ -111,17 +111,25 @@ namespace ProGlassAutomation.ViewModels.Production
         public string SpecLabel { get; init; } = "";
         public string GlassRef { get; init; } = "";
         public string BuildType { get; init; } = "";
+        public string SerialLabel { get; init; } = "—";
 
-        // ── Unit envelope (Step 5 shape) ─────────────────────────────────
+        // ── Unit envelope — full Step 5 shape, per pane, no pricing ─────
         public string W1Label { get; init; } = "—";
         public string H1Label { get; init; } = "—";
         public string W2Label { get; init; } = "—";
         public string H2Label { get; init; } = "—";
         public string QtyLabel { get; init; } = "—";
-        public string UnitSqmLabel { get; init; } = "—";
-        public string TotalSqmLabel { get; init; } = "—";
-        public string LmLabel { get; init; } = "—";
+        public string Sqm1Label { get; init; } = "—";
+        public string TotalSqm1Label { get; init; } = "—";
+        public string Lm1Label { get; init; } = "—";
+        public string Sqm2Label { get; init; } = "—";
+        public string TotalSqm2Label { get; init; } = "—";
+        public string Lm2Label { get; init; } = "—";
         public string ProgressLabel { get; init; } = "";
+
+        /// <summary>Production-chain flow: released = actionable here.</summary>
+        public bool FlowReleased { get; init; } = true;
+        public string WaitingOn { get; init; } = "";
 
         // ── Batch rows (Step 6 charge work) ──────────────────────────────
         public string MetricLabel { get; init; } = "";
@@ -146,17 +154,18 @@ namespace ProGlassAutomation.ViewModels.Production
         public string Name { get; init; } = "";
         public string Icon { get; init; } = "";
 
-        public int Pending { get; init; }
-        public int InProgress { get; init; }
+        /// <summary>Released into the stage AND not yet completed.</summary>
+        public int Open { get; init; }
         public int Completed { get; init; }
+        public int Total { get; init; }
 
-        public int Total => Pending + InProgress + Completed;
         public bool HasWork => Total > 0;
         public bool IsCleared => Total > 0 && Completed == Total;
         public bool IsCurrent { get; init; }
 
-        public string CountLabel =>
-            $"{Completed.ToString(CultureInfo.InvariantCulture)}/{Total.ToString(CultureInfo.InvariantCulture)} done";
+        public string CountLabel => Open > 0
+            ? $"{Open.ToString(CultureInfo.InvariantCulture)} open · {Completed.ToString(CultureInfo.InvariantCulture)}/{Total.ToString(CultureInfo.InvariantCulture)}"
+            : $"{Completed.ToString(CultureInfo.InvariantCulture)}/{Total.ToString(CultureInfo.InvariantCulture)} done";
     }
 
     /// <summary>Shared behaviour for all eight production stage modules.</summary>
@@ -367,6 +376,19 @@ namespace ProGlassAutomation.ViewModels.Production
         private string _unitsReadyLabel = "0 / 0";
         public string UnitsReadyLabel { get => _unitsReadyLabel; private set { if (_unitsReadyLabel == value) return; _unitsReadyLabel = value; OnPropertyChanged(); } }
 
+        private string _waitingUpstreamLabel = "";
+        /// <summary>
+        /// Production-chain backlog: work allocated to this stage but held
+        /// back until the upstream stage completes (tool-chain gating).
+        /// </summary>
+        public string WaitingUpstreamLabel
+        {
+            get => _waitingUpstreamLabel;
+            private set { if (_waitingUpstreamLabel == value) return; _waitingUpstreamLabel = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasWaitingUpstream)); }
+        }
+
+        public bool HasWaitingUpstream => !string.IsNullOrWhiteSpace(_waitingUpstreamLabel);
+
         private string _actionWarning = "";
         /// <summary>Floor connectivity feedback (completing before the predecessor stage).</summary>
         public string ActionWarning
@@ -463,9 +485,9 @@ namespace ProGlassAutomation.ViewModels.Production
                     NavKey = navKey,
                     Name = name,
                     Icon = icon,
-                    Pending = counts?.Pending ?? 0,
-                    InProgress = counts?.InProgress ?? 0,
+                    Open = counts?.Open ?? 0,
                     Completed = counts?.Completed ?? 0,
+                    Total = counts?.Total ?? 0,
                     IsCurrent = stage == Stage
                 });
             }
@@ -527,6 +549,12 @@ namespace ProGlassAutomation.ViewModels.Production
 
                 IsListEmpty = ListRows.Count == 0;
 
+                int waiting = data.WaitingUnits + data.WaitingBatch;
+                WaitingUpstreamLabel = waiting > 0
+                    ? $"{waiting.ToString(CultureInfo.InvariantCulture)} row(s) allocated to this stage are " +
+                      "held upstream — they appear here the moment their previous stage completes."
+                    : "";
+
                 // Restore the selection across reloads (status actions reload).
                 if (previousKey != null)
                 {
@@ -547,25 +575,34 @@ namespace ProGlassAutomation.ViewModels.Production
 
         private async Task LoadKpisAsync()
         {
-            // KPIs reflect the UNFILTERED stage queue so the chips stay
-            // honest while the list is filtered.
-            var all = await Task.Run(() =>
-                ProductionRepository.GetStageQueueAsync(Stage, null, null))
+            // KPIs describe what is ACTIONABLE in this stage right now —
+            // the same flow-gated population the list shows (job filter
+            // applies; search/status filters don't). Waiting rows are
+            // loaded too so the backlog stays honest.
+            string? jobRef = _selectedJobFilter == AllJobsFilter ? null : _selectedJobFilter;
+            var data = await Task.Run(() =>
+                ProductionRepository.GetStageListAsync(Stage, jobRef, null, null, includeWaiting: true))
                 .ConfigureAwait(true);
 
-            TotalCount = all.Count;
-            PendingCount = all.Count(i => i.Status == (int)WorkItemStatus.Pending);
-            InProgressCount = all.Count(i => i.Status == (int)WorkItemStatus.InProgress);
-            CompletedCount = all.Count(i => i.Status == (int)WorkItemStatus.Completed);
+            var units = data.Units.Where(u => u.FlowReleased).ToList();
+            var batches = data.BatchItems.Where(b => b.FlowReleased).Select(b => b.Item).ToList();
 
-            decimal area = all.Sum(i => i.TotalSqm);
+            TotalCount = units.Count + batches.Count;
+            PendingCount = units.Count(u => u.AggregateStatus == 0)
+                + batches.Count(b => b.Status == (int)WorkItemStatus.Pending);
+            InProgressCount = units.Count(u => u.AggregateStatus == 1)
+                + batches.Count(b => b.Status == (int)WorkItemStatus.InProgress);
+            CompletedCount = units.Count(u => u.AggregateStatus == 2)
+                + batches.Count(b => b.Status == (int)WorkItemStatus.Completed);
+
+            decimal area = units.Sum(u => u.TotalSqm1 + u.TotalSqm2);
             AreaTotalLabel = area.ToString("0.##", CultureInfo.InvariantCulture) + " m²";
 
             decimal stageMetric = Stage is ProductionStage.Polish or ProductionStage.Mitring
-                ? all.Sum(i => i.TotalLm)
+                ? units.Sum(u => u.Lm1 + u.Lm2) + batches.Sum(b => b.TotalLm)
                 : Stage == ProductionStage.HolesCutouts
-                    ? all.Sum(i => i.ChargeMetricQty)
-                    : all.Sum(i => i.Qty);
+                    ? batches.Sum(b => b.ChargeMetricQty)
+                    : units.Sum(u => u.Qty);
 
             MetricTotalLabel = Stage switch
             {
@@ -576,7 +613,6 @@ namespace ProGlassAutomation.ViewModels.Production
                 _ => stageMetric.ToString("0", CultureInfo.InvariantCulture) + " pcs"
             };
 
-            string? jobRef = _selectedJobFilter == AllJobsFilter ? null : _selectedJobFilter;
             var (totalUnits, readyUnits) = await Task.Run(() =>
                 ProductionRepository.GetUnitReadinessAsync(jobRef))
                 .ConfigureAwait(true);
@@ -623,7 +659,7 @@ namespace ProGlassAutomation.ViewModels.Production
             return new ProductionListRow
             {
                 IsBatch = false,
-                RowKey = $"U|{unit.JobRef}|{unit.SpecGroupNumber}|{unit.GlassRef}",
+                RowKey = $"U|{unit.JobRef}|{unit.SpecGroupNumber}|{unit.SerialNumber}",
                 StatusGlyph = glyph,
                 StatusLabel = statusLabel,
                 JobRef = unit.JobRef,
@@ -634,21 +670,29 @@ namespace ProGlassAutomation.ViewModels.Production
                     (string.IsNullOrWhiteSpace(unit.SpecName) ? "" : $" · {unit.SpecName}"),
                 GlassRef = string.IsNullOrWhiteSpace(unit.GlassRef) ? "—" : unit.GlassRef,
                 BuildType = unit.BuildType,
+                SerialLabel = unit.SerialNumber > 0
+                    ? unit.SerialNumber.ToString(CultureInfo.InvariantCulture) : "—",
                 W1Label = FmtInt(unit.W1),
                 H1Label = FmtInt(unit.H1),
                 W2Label = FmtInt(unit.W2),
                 H2Label = FmtInt(unit.H2),
                 QtyLabel = FmtInt(unit.Qty),
-                UnitSqmLabel = FmtDec(unit.UnitSqm, ""),
-                TotalSqmLabel = FmtDec(unit.TotalSqm, ""),
-                LmLabel = FmtDec(unit.TotalLm, ""),
+                Sqm1Label = FmtDec(unit.UnitSqm1, ""),
+                TotalSqm1Label = FmtDec(unit.TotalSqm1, ""),
+                Lm1Label = FmtDec(unit.Lm1, ""),
+                Sqm2Label = FmtDec(unit.UnitSqm2, ""),
+                TotalSqm2Label = FmtDec(unit.TotalSqm2, ""),
+                Lm2Label = FmtDec(unit.Lm2, ""),
                 ProgressLabel = $"{unit.DoneCount.ToString(CultureInfo.InvariantCulture)}/{unit.TotalCount.ToString(CultureInfo.InvariantCulture)}",
+                FlowReleased = unit.FlowReleased,
+                WaitingOn = unit.WaitingOn,
                 StageItems = unit.Items
             };
         }
 
-        private ProductionListRow BuildBatchRow(SavedProductionWorkItem batch)
+        private ProductionListRow BuildBatchRow(ProductionRepository.ProductionBatchProjection projection)
         {
+            var batch = projection.Item;
             string statusLabel = batch.Status switch
             {
                 (int)WorkItemStatus.Completed => "COMPLETED",
@@ -674,6 +718,8 @@ namespace ProGlassAutomation.ViewModels.Production
                 MetricLabel = $"{batch.ChargeMetricQty.ToString("0.###", CultureInfo.InvariantCulture)} " +
                     $"{batch.ChargeMetricUnit} · {(batch.ChargeTemplateKey ?? "").Replace('_', ' ')}",
                 ProgressLabel = statusLabel,
+                FlowReleased = projection.FlowReleased,
+                WaitingOn = projection.WaitingOn,
                 BatchItem = batch
             };
         }

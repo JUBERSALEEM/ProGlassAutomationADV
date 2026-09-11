@@ -66,13 +66,40 @@ batch items (fan holes, polish LM, mitring LM) appear as their own rows tagged
 | Spec | `Spec 1 · 6mm Clear FT Glass` |
 | Ref | GlassRef from Step 5 |
 | Build | SGU / DGU / LAM / DGU+LAM |
-| W1 · H1 · W2 · H2 | unit envelope — W2/H2 blank for SGU |
-| Qty · Unit SQM · Total SQM · LM | Step 5 maths (perimeter LM Σ) |
+| Sr · Ref | Step 5 serial + GlassRef — identical to the estimator's grid |
+| W1 · H1 · W2 · H2 | unit envelope — W2/H2 blank for SGU; identical in every stage |
+| Qty · SQM1 · TOT SQM1 · LM1 · SQM2 · TOT SQM2 · LM2 | full Step 5 maths split per pane (pricing — Rate/Value — deliberately excluded) |
 | Progress | this module's items done: `2/3` + charge metric for batch rows |
 
-Implemented column order (all 8 modules):
-`ST · JOB · PI NO · CUSTOMER · SALESMAN · SPEC · REF · BUILD · W1 · H1 ·
-W2 · H2 · QTY · SQM · TOT SQM · LM · STAGE · CHARGE`
+Implemented column order (all 8 modules — long production rows, exactly
+Step 5 minus pricing):
+`ST · JOB · PI NO · CUSTOMER · SALESMAN · SPEC · SR · REF · BUILD · W1 ·
+H1 · W2 · H2 · QTY · SQM1 · TOT SQM1 · LM1 · SQM2 · TOT SQM2 · LM2 ·
+STAGE · CHARGE`
+
+### Production-chain flow (tool-chain gating)
+
+Production moves like a tool chain — a unit's data physically advances
+from one module to the next:
+
+1. **Every unit enters at Cutting.** The Cutting module shows every
+   released pane (SGU glass, DGU outer+inner, laminate layers).
+2. **Data moves only when it completes.** A unit appears in stage N only
+   when every non-charge item of that unit in stages below N is
+   **Completed**. Finishing the last upstream item makes the row appear
+   in the next module on the next refresh — no manual pushing.
+   - Tempering row visible once the pane's Cutting is done.
+   - Pairing once every pane's Cutting + Tempering is done.
+   - Doubling/Lamination once Pairing is done.
+   - Charge batches (Holes / Polish / Mitring / Edge Deletion) release
+     once the spec's cutting is complete.
+3. **Backlog stays visible.** Held rows are counted and surfaced by a
+   "waiting upstream" strip + KPIs; the pipeline chain bar's `open`
+   count reflects released (actionable) work only, so the chain shows
+   where the live work really sits.
+
+Gating is computed in one place — `ProductionRepository.ComputeReleasedKeys`
+— and drives the lists, the chain bar and the KPIs.
 
 ### Tier 2 — Unit detail (select a row)
 
@@ -105,34 +132,44 @@ Salesman **Ravi Kumar** → converted to **JOB-2026-0031** (Released).
 **Step 6:** FAN_HOLES ×8 on Spec 1 · POLISH All-Side on all specs ·
 ARGON_GAS on Spec 2.
 
-### Cutting (Stage 1 of 8)
-| St | Job | PI | Spec | Ref | W1 | H1 | W2 | H2 | Qty | Tot SQM | LM | Prog |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| ● | JOB-2026-0031 | PI-2026-0148 | Spec 1 · 6mm Clear FT | G-101 | 1200 | 900 | — | — | 24 | 25.92 | 100.8 | 0/1 |
-| ● | … | … | Spec 1 · 6mm Clear FT | G-102 | 800 | 600 | — | — | 12 | 5.76 | 33.6 | 0/1 |
-| ● | … | … | Spec 2 · DGU | G-201 | 1500 | 1100 | 1500 | 1100 | 10 | 33.00 | 104.0 | 0/2 |
-| ● | … | … | Spec 3 · LAM | G-301 | 2000 | 1000 | 2000 | 1000 | 4 | 16.00 | 48.0 | 0/2 |
+### Cutting (Stage 1 of 8) — the entry point, full Step-5 rows
+| St | Sr | Ref | Build | W1 | H1 | W2 | H2 | Qty | SQM1 | TOT SQM1 | LM1 | SQM2 | TOT SQM2 | LM2 | Prog |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| ● | 1 | G-101 | SGU | 1200 | 900 | — | — | 24 | 1.08 | 25.92 | 100.8 | — | — | — | 0/1 |
+| ● | 2 | G-102 | SGU | 800 | 600 | — | — | 12 | 0.48 | 5.76 | 33.6 | — | — | — | 0/1 |
+| ● | 1 | G-201 | DGU | 1500 | 1100 | 1500 | 1100 | 10 | 1.65 | 16.50 | 52.0 | 1.65 | 16.50 | 52.0 | 0/2 |
+| ● | 1 | G-301 | LAM | 2000 | 1000 | 2000 | 1000 | 4 | 2.00 | 8.00 | 24.0 | 2.00 | 8.00 | 24.0 | 0/2 |
+
+(all rows JOB-2026-0031 · PI-2026-0148 · AL NOOR TOWER · salesman Ravi Kumar)
 
 Detail for G-201 → pane items **Outer 1500×1100** and **Inner 1500×1100**
 with Start/Complete; header buttons open JOB-2026-0031 / PI-2026-0148.
 
-### Tempering (Stage 6) — only furnace panes
+### The flow — how this job walks the chain
+1. **Day 1**: only **Cutting** lists the four rows above. Tempering /
+   Pairing / Doubling are empty ("2 rows waiting upstream" strip).
+2. Operator completes G-101's cutting → next refresh, G-101 appears in
+   **Tempering** (FT pane). G-201's outer+inner get cut → G-201 appears
+   in **Pairing** only after BOTH panes are cut (and the FT outer is
+   tempered), then in **Doubling** after pairing.
+3. Spec 1's cutting completion releases the **Holes & Cutouts** batch
+   row (`FAN HOLES · 8 QTY · (whole spec)`); the **Polish** LM batches
+   release the same way.
+4. When a unit's last stage completes it counts toward **Ready for
+   dispatch**.
+
+### Tempering (Stage 6) — furnace panes, after cutting
 G-101 Glass ×24 (FT) · G-102 Glass ×12 (FT) · G-201 **Outer only** ×10 (inner
-is Annealed → no furnace) · G-301 Lam Outer ×4 + Lam Inner ×4.
-
-### Holes & Cutouts (Stage 2) — the Step 6 charge row
-`FAN HOLES · 8 QTY · Spec 1 · (whole spec)` — predecessor: Cutting.
-
-### Polish (Stage 3) — Step 6 LM rows
-One batch row per spec: `POLISH · ALL SIDED POLISH · 130.2 LM` etc.
+is Annealed → no furnace) · G-301 Lam Outer ×4 + Lam Inner ×4 — each row
+carries the same Step-5 envelope as cutting.
 
 ### Pairing (Stage 7) + Doubling/Lamination (Stage 8)
-G-201 and G-301 units; assembly notes read
+G-201 and G-301 units, full envelope preserved; assembly notes read
 `DGU ASSEMBLY · SPACER 12MM · ARGON GAS FILL` and `LAMINATION · PVB 1.52MM CLEAR`.
 
 ### Mitring / Edge Deletion
-Empty until charged (Mitring) — Edge Deletion is the manual queue for coated
-glass (future automation).
+Mitring: batch rows once the MITRING charge exists and cutting is done.
+Edge Deletion: queue for coated-glass edge deletion (future automation).
 
 ## 4. Implementation notes
 
