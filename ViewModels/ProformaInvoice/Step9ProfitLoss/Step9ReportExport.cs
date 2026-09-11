@@ -324,7 +324,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public static readonly string[] SheetHeaders =
         {
             "CATEGORY", "SPEC", "PANE / GLASS", "SHEET SIZE", "SHEET QTY / AREA",
-            "RATE / SQM", "SHEET PRICE CALC", "STEP 6 / WASTAGE", "EFFICIENCY", "STATUS / NOTE"
+            "RATE / SQM", "EFFECTIVE RATE / SQM", "SHEET PRICE CALC", "STEP 6 / WASTAGE", "EFFICIENCY", "STATUS / NOTE"
         };
 
         public static string[] SheetMap(SheetProfitRow r) => new[]
@@ -335,6 +335,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             r.SheetSize,
             $"Sheet {r.SheetSqm:0.####} SQM · buy {r.BuySheets:0.##} · used {r.UsedSheets:0.##} · waste {r.WastageSheets:0.##}",
             $"AED {r.PricePerSqm:N2}/SQM",
+            r.EffectivePricePerSqm > 0m
+                ? $"AED {r.EffectivePricePerSqm:N2}/SQM{(r.YieldPremiumPercent > 0m ? $" (+{r.YieldPremiumPercent:0.#}% yield)" : "")}"
+                : "—",
             $"Buy AED {r.BuySheetPrice:N2} · Used AED {r.UsedSheetPrice:N2} · Waste AED {r.WastageValue:N2}",
             r.Step6Charge > 0m
                 ? $"Step 6 AED {r.Step6Charge:N2} · {r.Step6SourceLabel} · {r.Step6SourceSqm:0.###} SQM · sheets {r.Step6SheetQuantityDisplay} · rate {r.Step6RateDisplay}"
@@ -351,6 +354,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             r.SheetSize,
             $"Sheet {r.SheetSqm:0.####} SQM / buy {r.BuySheets:0.##} / used {r.UsedSheets:0.##} / waste {r.WastageSheets:0.##}",
             r.PricePerSqm,
+            r.EffectivePricePerSqm,
             $"Buy {r.BuySheetPrice:N2} / Used {r.UsedSheetPrice:N2} / Waste {r.WastageValue:N2}",
             r.Step6Charge > 0m
                 ? $"Step 6 {r.Step6Charge:N2} / {r.Step6SourceLabel} / {r.Step6SourceSqm:0.###} SQM / sheets {r.Step6SheetQuantityDisplay} / rate {r.Step6RateDisplay}"

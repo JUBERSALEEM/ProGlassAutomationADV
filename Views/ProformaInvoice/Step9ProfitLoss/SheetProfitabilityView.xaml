@@ -352,6 +352,8 @@
                         <Run Text=" · Step 6 charge "/><Run Text="{Binding Step6ChargeShareDisplay, Mode=OneWay}" FontWeight="SemiBold" Foreground="{DynamicResource DangerBrush}"/>
                         <Run Text=" of the total sheet price."/>
                     </TextBlock>
+                        <TextBlock Text="{Binding LandedRateSummaryDisplay}" FontSize="{StaticResource TextCaption}"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,4,0,0" TextWrapping="Wrap" IsHitTestVisible="False"/>
                 </StackPanel>
             </Border>
 
@@ -369,15 +371,17 @@
                     <Border Grid.Row="0" Style="{StaticResource PiTableHeaderStyle}">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.8*"/>
-                                <ColumnDefinition Width="2.4*"/>
-                                <ColumnDefinition Width="0.6*"/>
-                                <ColumnDefinition Width="0.6*"/>
-                                <ColumnDefinition Width="0.6*"/>
-                                <ColumnDefinition Width="1.0*"/>
-                                <ColumnDefinition Width="1.0*"/>
-                                <ColumnDefinition Width="1.0*"/>
+                                <ColumnDefinition Width="0.7*"/>
+                                <ColumnDefinition Width="1.9*"/>
+                                <ColumnDefinition Width="0.5*"/>
+                                <ColumnDefinition Width="0.5*"/>
+                                <ColumnDefinition Width="0.5*"/>
                                 <ColumnDefinition Width="0.9*"/>
+                                <ColumnDefinition Width="0.9*"/>
+                                <ColumnDefinition Width="0.85*"/>
+                                <ColumnDefinition Width="0.95*"/>
+                                <ColumnDefinition Width="0.9*"/>
+                                <ColumnDefinition Width="0.8*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="GLASS TYPE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
                             <TextBlock Grid.Column="1" Text="SPECIFICATION" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
@@ -386,8 +390,10 @@
                             <TextBlock Grid.Column="4" Text="WASTAGE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
                             <TextBlock Grid.Column="5" Text="BUY PRICE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
                             <TextBlock Grid.Column="6" Text="USED PRICE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
-                            <TextBlock Grid.Column="7" Text="STEP 6 CHARGE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
-                            <TextBlock Grid.Column="8" Text="STATUS" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="7" Text="GIVEN RATE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="8" Text="EFFECTIVE RATE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="9" Text="STEP 6 CHARGE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="10" Text="STATUS" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
                         </Grid>
                     </Border>
 
@@ -417,15 +423,17 @@
                                     </Border.Style>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="0.8*"/>
-                                            <ColumnDefinition Width="2.4*"/>
-                                            <ColumnDefinition Width="0.6*"/>
-                                            <ColumnDefinition Width="0.6*"/>
-                                            <ColumnDefinition Width="0.6*"/>
-                                            <ColumnDefinition Width="1.0*"/>
-                                            <ColumnDefinition Width="1.0*"/>
-                                            <ColumnDefinition Width="1.0*"/>
+                                            <ColumnDefinition Width="0.7*"/>
+                                            <ColumnDefinition Width="1.9*"/>
+                                            <ColumnDefinition Width="0.5*"/>
+                                            <ColumnDefinition Width="0.5*"/>
+                                            <ColumnDefinition Width="0.5*"/>
                                             <ColumnDefinition Width="0.9*"/>
+                                            <ColumnDefinition Width="0.9*"/>
+                                            <ColumnDefinition Width="0.85*"/>
+                                            <ColumnDefinition Width="0.95*"/>
+                                            <ColumnDefinition Width="0.9*"/>
+                                            <ColumnDefinition Width="0.8*"/>
                                         </Grid.ColumnDefinitions>
 
                                         <!-- Glass type: build family only -->
@@ -469,12 +477,26 @@
                                         <TextBlock Grid.Column="6" Text="{Binding UsedSheetPriceDisplay}"
                                                    Style="{StaticResource SheetTableCellStyle}" HorizontalAlignment="Right"
                                                    Foreground="{DynamicResource SuccessBrush}"/>
-                                        <TextBlock Grid.Column="7" Text="{Binding Step6ChargeDisplay}"
+                                        <!-- GIVEN rate: per-SQM sheet price as given -->
+                                        <TextBlock Grid.Column="7" Text="{Binding PricePerSqmDisplay}"
+                                                   Style="{StaticResource SheetTableCellStyle}" HorizontalAlignment="Right"/>
+                                        <!-- EFFECTIVE rate: buy ÷ used = given ÷ yield —
+                                             the wastage premium already inside the price -->
+                                        <StackPanel Grid.Column="8" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding EffectivePricePerSqmDisplay}"
+                                                       Style="{StaticResource SheetTableCellStyle}" HorizontalAlignment="Right"
+                                                       FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding YieldPremiumDisplay}"
+                                                       FontSize="{StaticResource TextXSmall}"
+                                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                                       HorizontalAlignment="Right" Margin="0,-2,0,0"/>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="9" Text="{Binding Step6ChargeDisplay}"
                                                    Style="{StaticResource SheetTableCellStyle}" HorizontalAlignment="Right"
                                                    Foreground="{DynamicResource DangerBrush}"/>
 
                                         <!-- Status badge -->
-                                        <Border Grid.Column="8" HorizontalAlignment="Right"
+                                        <Border Grid.Column="10" HorizontalAlignment="Right"
                                                 VerticalAlignment="Center"
                                                 CornerRadius="{DynamicResource Radius.Small}" Padding="7,2" Margin="6,0,0,0">
                                             <Border.Style>
@@ -629,6 +651,24 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="Price per SQM" Style="{StaticResource SheetKvLabelStyle}"/>
                                 <TextBlock Grid.Column="1" Text="{Binding PricePerSqmDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Effective rate (incl. yield)" Style="{StaticResource SheetKvLabelStyle}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding EffectivePricePerSqmDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Yield premium" Style="{StaticResource SheetKvLabelStyle}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding YieldPremiumDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>

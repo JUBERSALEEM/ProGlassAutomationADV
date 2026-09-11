@@ -218,6 +218,30 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         public string WastageValueShareDisplay => $"{WastageValueSharePercent:0.#}%";
 
+        // Landed rate on used area (2026-09-11): TotalBuyPrice ÷
+        // TotalUsedArea vs the average given rate — the whole-report
+        // yield premium in one line.
+        public decimal TotalLandedRatePerSqm => TotalUsedArea > 0m
+            ? Math.Round(TotalBuyPrice / TotalUsedArea, 2)
+            : 0m;
+
+        public decimal TotalAvgGivenRatePerSqm => TotalUsedArea > 0m
+            ? Math.Round(TotalUsedPrice / TotalUsedArea, 2)
+            : 0m;
+
+        public decimal TotalYieldPremiumPercent =>
+            TotalAvgGivenRatePerSqm > 0m && TotalLandedRatePerSqm > TotalAvgGivenRatePerSqm
+                ? Math.Round((TotalLandedRatePerSqm / TotalAvgGivenRatePerSqm - 1m) * 100m, 1)
+                : 0m;
+
+        public string LandedRateSummaryDisplay => TotalLandedRatePerSqm <= 0m
+            ? ""
+            : $"Landed rate on used area: AED {TotalLandedRatePerSqm:N2}/SQM effective " +
+              $"(avg given AED {TotalAvgGivenRatePerSqm:N2}/SQM" +
+              (TotalYieldPremiumPercent > 0m
+                  ? $", +{TotalYieldPremiumPercent:0.#}% yield premium)"
+                  : ")");
+
         /// <summary>Step 6 wastage charge as a share of the buy price.</summary>
         public decimal Step6ChargeSharePercent => TotalBuyPrice > 0m
             ? Math.Round(TotalStep6Charge / TotalBuyPrice * 100m, 1)
@@ -832,6 +856,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 OnPropertyChanged(nameof(UsedPriceShareDisplay));
                 OnPropertyChanged(nameof(WastageValueSharePercent));
                 OnPropertyChanged(nameof(WastageValueShareDisplay));
+                OnPropertyChanged(nameof(LandedRateSummaryDisplay));
                 OnPropertyChanged(nameof(Step6ChargeSharePercent));
                 OnPropertyChanged(nameof(Step6ChargeShareDisplay));
 
@@ -1233,6 +1258,30 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         }
 
         public string PricePerSqmDisplay => $"AED {PricePerSqm:N2}/SQM";
+
+        // ── YIELD-INCLUSIVE PRICING (2026-09-11, owner directive) ──────
+        // The GIVEN rate R prices one SQM of SHEET. When the yield
+        // (utilization) is y, the used material effectively costs
+        //     BuySheetPrice ÷ UsedArea  =  R ÷ y
+        // e.g. yield 0.85 → +17.6% on the given rate: the wastage premium
+        // is ALREADY embedded in the per-SQM sheet price. Surfacing it
+        // changes NO totals — buy/used/wastage reconcile by construction;
+        // these columns EXPLAIN the embedded premium.
+        public decimal EffectivePricePerSqm => UsedArea > 0m
+            ? Math.Round(BuySheetPrice / UsedArea, 2)
+            : 0m;
+
+        public string EffectivePricePerSqmDisplay => EffectivePricePerSqm > 0m
+            ? $"AED {EffectivePricePerSqm:N2}/SQM"
+            : "—";
+
+        public decimal YieldPremiumPercent => PricePerSqm > 0m && EffectivePricePerSqm > PricePerSqm
+            ? Math.Round((EffectivePricePerSqm / PricePerSqm - 1m) * 100m, 1)
+            : 0m;
+
+        public string YieldPremiumDisplay => YieldPremiumPercent > 0m
+            ? $"+{YieldPremiumPercent:0.#}% yield"
+            : "—";
 
         private decimal _buySheetPrice;
         /// <summary>Total sheet price = the Step 9 glass row amount.</summary>
