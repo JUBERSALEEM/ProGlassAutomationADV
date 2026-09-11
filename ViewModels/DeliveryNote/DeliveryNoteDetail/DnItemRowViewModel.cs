@@ -38,6 +38,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             {
                 if (_deliveredQty == value) return;
                 int max = Math.Max(0, OrderedQty - PreviouslyDeliveredQty);
+                // PRODUCTION GATE: a production-managed job can only
+                // deliver pieces the floor actually finished — completed
+                // pieces flow into delivery notes automatically.
+                if (_productionCap.HasValue)
+                    max = Math.Min(max, Math.Max(0, _productionCap.Value));
                 _deliveredQty = Math.Max(0, Math.Min(value, max));
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(BalanceQty));
@@ -46,6 +51,25 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 DeliveredQtyChanged?.Invoke();
             }
         }
+
+        private readonly int? _productionCap;
+
+        /// <summary>
+        /// Production-finished pieces still deliverable for this row
+        /// (null when the job is not production-managed).
+        /// </summary>
+        public int? ProductionCap => _productionCap;
+
+        /// <summary>True when production is the binding constraint.</summary>
+        public bool IsProductionLimited =>
+            _productionCap.HasValue &&
+            _productionCap.Value < Math.Max(0, OrderedQty - PreviouslyDeliveredQty);
+
+        /// <summary>Floor hint when production limits this row.</summary>
+        public string ProductionHint =>
+            IsProductionLimited
+                ? $"Production ready: {_productionCap!.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)} pc(s) — the rest follows as production completes."
+                : "";
 
         public int BalanceQty =>
             Math.Max(0, OrderedQty - PreviouslyDeliveredQty - DeliveredQty);
@@ -99,7 +123,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         /// <summary>Total weight for ALL ordered pieces (reference).</summary>
         public decimal TotalOrderedWeight => WeightPerPiece * OrderedQty;
 
-        public DnItemRowViewModel(DeliveryNoteItem item)
+        public DnItemRowViewModel(DeliveryNoteItem item, int? productionCap = null)
         {
             SpecGroupNumber = item.SpecGroupNumber;
             SpecGroupName = item.SpecGroupName;
@@ -111,6 +135,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             H2 = item.H2;
             OrderedQty = item.OrderedQty;
             PreviouslyDeliveredQty = item.PreviouslyDeliveredQty;
+            _productionCap = productionCap;
             _deliveredQty = item.DeliveredQty;
             _notes = item.Notes;
             WeightPerPiece = item.WeightPerPiece;

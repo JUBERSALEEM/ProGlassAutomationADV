@@ -428,8 +428,26 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 // banner counts exactly the lines that pre-filtering used to
                 // silently drop. Visibility is decided once, in
                 // RebuildGroupedView → ShouldDisplayRow.
+                // PRODUCTION GATE: when this Job Order runs through the
+                // production modules, a row may only deliver pieces the
+                // floor has finished (minus confirmed deliveries). Jobs
+                // without a production release stay uncapped.
+                Dictionary<(int Spec, int Serial), int>? productionCaps = null;
+                try
+                {
+                    productionCaps = await ProGlassAutomation.Services.Production
+                        .ProductionDeliveryGateway
+                        .GetDeliveryCapsAsync(_entity.JobOrderId)
+                        .ConfigureAwait(true);
+                }
+                catch { /* non-production jobs simply stay uncapped */ }
+
                 var rows = dedupedItems
-                    .Select(i => new DnItemRowViewModel(i))
+                    .Select(i => new DnItemRowViewModel(i,
+                        productionCaps != null
+                            && productionCaps.TryGetValue(
+                                (i.SpecGroupNumber, i.SerialNumber), out var cap)
+                            ? cap : (int?)null))
                     .ToList();
 
                 ItemRows = new ObservableCollection<DnItemRowViewModel>(rows);

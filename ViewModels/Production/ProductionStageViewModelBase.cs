@@ -140,6 +140,9 @@ namespace ProGlassAutomation.ViewModels.Production
         /// <summary>Unit identity — JobRef|Spec|Serial.</summary>
         public string RowKey { get; init; } = "";
 
+        public int SpecGroupNumber { get; init; }
+        public int SerialNumber { get; init; }
+
         // ── Shared columns ───────────────────────────────────────────────
         public string StatusGlyph { get; init; } = "";
         public string StatusLabel { get; init; } = "";
@@ -221,6 +224,13 @@ namespace ProGlassAutomation.ViewModels.Production
         /// <summary>Chain-bar navigation: open any stage module by nav key.</summary>
         public Action<string>? OnOpenStage { get; set; }
 
+        /// <summary>
+        /// Creates (or reopens) the Dispatching delivery note for a Job
+        /// Order and navigates to it. Returns a message to surface —
+        /// empty string on success.
+        /// </summary>
+        public Func<string, Task<string>>? OnCreateDeliveryNote { get; set; }
+
         protected ProductionStageViewModelBase()
         {
             RefreshCommand = new RelayCommand(_ =>
@@ -262,6 +272,10 @@ namespace ProGlassAutomation.ViewModels.Production
             ResetQtyCommand = new RelayCommand(p =>
                 AsyncUtility.SafeFireAndForget(() => ApplyDoneQtyAsync(p, 0), "Work item qty reset"),
                 p => p is ProductionWorkItemRow r && r.Done > 0);
+
+            CreateDeliveryNoteCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(CreateDeliveryNoteAsync, "Production delivery note"),
+                _ => HasSelection && !string.IsNullOrWhiteSpace(SelectedJobNo) && _dispatchBalance > 0);
         }
 
         /// <summary>Marker: "complete every piece that arrived" (inflow).</summary>
@@ -278,6 +292,7 @@ namespace ProGlassAutomation.ViewModels.Production
         public ICommand SaveQtyCommand { get; }
         public ICommand CompleteAllCommand { get; }
         public ICommand ResetQtyCommand { get; }
+        public ICommand CreateDeliveryNoteCommand { get; }
 
         // ── Release picker ───────────────────────────────────────────────
 
@@ -472,6 +487,36 @@ namespace ProGlassAutomation.ViewModels.Production
         /// <summary>Pane-level stage items for the selected unit.</summary>
         public ObservableCollection<ProductionWorkItemRow> SelectedStageItems { get; } = new();
 
+        // ── Sidebar: stage totals (total / done / balance in the stage's
+        //    metrics — pieces, SQM and LM, every module) ─────────────────
+
+        private string _selectedPcsSummary = "—";
+        public string SelectedPcsSummary { get => _selectedPcsSummary; private set { if (_selectedPcsSummary == value) return; _selectedPcsSummary = value; OnPropertyChanged(); } }
+
+        private string _selectedSqmSummary = "—";
+        public string SelectedSqmSummary { get => _selectedSqmSummary; private set { if (_selectedSqmSummary == value) return; _selectedSqmSummary = value; OnPropertyChanged(); } }
+
+        private string _selectedLmSummary = "—";
+        public string SelectedLmSummary { get => _selectedLmSummary; private set { if (_selectedLmSummary == value) return; _selectedLmSummary = value; OnPropertyChanged(); } }
+
+        // ── Sidebar: dispatch panel (finished pieces → delivery notes) ──
+
+        private string _selectedDispatchReadyLabel = "0";
+        public string SelectedDispatchReadyLabel { get => _selectedDispatchReadyLabel; private set { if (_selectedDispatchReadyLabel == value) return; _selectedDispatchReadyLabel = value; OnPropertyChanged(); } }
+
+        private string _selectedDispatchDeliveredLabel = "0";
+        public string SelectedDispatchDeliveredLabel { get => _selectedDispatchDeliveredLabel; private set { if (_selectedDispatchDeliveredLabel == value) return; _selectedDispatchDeliveredLabel = value; OnPropertyChanged(); } }
+
+        private string _selectedDispatchBalanceLabel = "0";
+        public string SelectedDispatchBalanceLabel { get => _selectedDispatchBalanceLabel; private set { if (_selectedDispatchBalanceLabel == value) return; _selectedDispatchBalanceLabel = value; OnPropertyChanged(); } }
+
+        private bool _hasDispatchPanel;
+        public bool HasDispatchPanel { get => _hasDispatchPanel; private set { if (_hasDispatchPanel == value) return; _hasDispatchPanel = value; OnPropertyChanged(); } }
+
+        private int _dispatchBalance;
+        /// <summary>Ready-but-undelivered pieces (drives Create DN).</summary>
+        public int DispatchBalance { get => _dispatchBalance; private set { if (_dispatchBalance == value) return; _dispatchBalance = value; OnPropertyChanged(); } }
+
         // ── Pipeline chain bar ───────────────────────────────────────────
 
         /// <summary>
@@ -631,10 +676,15 @@ namespace ProGlassAutomation.ViewModels.Production
                 _ => stageMetric.ToString("0", CultureInfo.InvariantCulture) + " pcs"
             };
 
-            var (totalUnits, readyUnits) = await Task.Run(() =>
+            // Dispatch readiness is a QUANTITY: pieces that finished the
+            // chain (SGU off the pane chain, multi-pane units off
+            // doubling) — partial quantities count.
+            var (totalUnits, readyUnits, totalPieces, readyPieces) = await Task.Run(() =>
                 ProductionRepository.GetUnitReadinessAsync(jobRef))
                 .ConfigureAwait(true);
-            UnitsReadyLabel = $"{readyUnits.ToString(CultureInfo.InvariantCulture)} / {totalUnits.ToString(CultureInfo.InvariantCulture)}";
+            UnitsReadyLabel =
+                $"{readyPieces.ToString(CultureInfo.InvariantCulture)} / {totalPieces.ToString(CultureInfo.InvariantCulture)} pcs" +
+                (readyUnits > 0 ? $" · {readyUnits.ToString(CultureInfo.InvariantCulture)} unit(s) complete" : "");
 
             // Job filter picker (preserve current choice when it survives).
             var jobRefs = await Task.Run(async () =>
@@ -677,6 +727,8 @@ namespace ProGlassAutomation.ViewModels.Production
             return new ProductionListRow
             {
                 RowKey = $"U|{unit.JobRef}|{unit.SpecGroupNumber}|{unit.SerialNumber}",
+                SpecGroupNumber = unit.SpecGroupNumber,
+                SerialNumber = unit.SerialNumber,
                 StatusGlyph = glyph,
                 StatusLabel = statusLabel,
                 JobRef = unit.JobRef,
@@ -739,6 +791,80 @@ namespace ProGlassAutomation.ViewModels.Production
             SelectedStageItems.Clear();
             foreach (var flowItem in row.FlowItems)
                 SelectedStageItems.Add(new ProductionWorkItemRow(flowItem));
+
+            // Stage totals — total / done / balance in pieces, SQM and LM.
+            int pcsTotal = 0, pcsDone = 0;
+            decimal sqmTotal = 0m, sqmDone = 0m, lmTotal = 0m, lmDone = 0m;
+            foreach (var fi in row.FlowItems)
+            {
+                int inflow = fi.Inflow;
+                int done = fi.Done;
+                decimal sqmPerPiece = fi.Item.UnitSqm;
+                decimal lmPerPiece = fi.Item.Qty > 0 ? fi.Item.TotalLm / fi.Item.Qty : 0m;
+
+                pcsTotal += inflow;
+                pcsDone += done;
+                sqmTotal += sqmPerPiece * inflow;
+                sqmDone += sqmPerPiece * done;
+                lmTotal += lmPerPiece * inflow;
+                lmDone += lmPerPiece * done;
+            }
+
+            SelectedPcsSummary = Summary(pcsTotal, pcsDone, "");
+            SelectedSqmSummary = Summary(Math.Round(sqmTotal, 2, MidpointRounding.AwayFromZero),
+                Math.Round(sqmDone, 2, MidpointRounding.AwayFromZero), " m²");
+            SelectedLmSummary = Summary(Math.Round(lmTotal, 2, MidpointRounding.AwayFromZero),
+                Math.Round(lmDone, 2, MidpointRounding.AwayFromZero), " LM");
+
+            // Dispatch figures — finished pieces flow into delivery notes.
+            AsyncUtility.SafeFireAndForget(
+                () => RefreshDispatchAsync(row.JobRef, row.SpecGroupNumber, row.SerialNumber),
+                "Production dispatch panel");
+        }
+
+        private static string Summary(int total, int done, string suffix) =>
+            $"{total.ToString(CultureInfo.InvariantCulture)}{suffix} · " +
+            $"{done.ToString(CultureInfo.InvariantCulture)}{suffix} done · " +
+            $"{(total - done).ToString(CultureInfo.InvariantCulture)}{suffix} left";
+
+        private static string Summary(decimal total, decimal done, string suffix) =>
+            $"{total.ToString("0.##", CultureInfo.InvariantCulture)}{suffix} · " +
+            $"{done.ToString("0.##", CultureInfo.InvariantCulture)}{suffix} done · " +
+            $"{(total - done).ToString("0.##", CultureInfo.InvariantCulture)}{suffix} left";
+
+        private async Task RefreshDispatchAsync(string jobRef, int specGroupNumber, int serialNumber)
+        {
+            var (ready, delivered, balance, managed) = await Task.Run(() =>
+                ProductionDeliveryGateway.GetRowDispatchStateAsync(
+                    jobRef, specGroupNumber, serialNumber))
+                .ConfigureAwait(true);
+
+            // Selection may have moved on while loading.
+            if (_selectedRow == null || _selectedRow.JobRef != jobRef ||
+                _selectedRow.SpecGroupNumber != specGroupNumber ||
+                _selectedRow.SerialNumber != serialNumber) return;
+
+            HasDispatchPanel = managed;
+            SelectedDispatchReadyLabel = ready.ToString(CultureInfo.InvariantCulture);
+            SelectedDispatchDeliveredLabel = delivered.ToString(CultureInfo.InvariantCulture);
+            SelectedDispatchBalanceLabel = balance.ToString(CultureInfo.InvariantCulture);
+            DispatchBalance = balance;
+            AsyncUtility.InvalidateCommandsThrottled();
+        }
+
+        /// <summary>
+        /// Creates (or reopens) the Dispatching delivery note for the
+        /// selected unit's Job Order — it opens with remaining balance
+        /// only, capped to the pieces production has finished.
+        /// </summary>
+        private async Task CreateDeliveryNoteAsync()
+        {
+            string jobRef = SelectedJobNo;
+            if (string.IsNullOrWhiteSpace(jobRef) || OnCreateDeliveryNote == null) return;
+
+            string message = await OnCreateDeliveryNote(jobRef).ConfigureAwait(true);
+            if (!string.IsNullOrWhiteSpace(message))
+                ActionWarning = message;
         }
 
         private void ClearDetailPanel()
@@ -753,6 +879,14 @@ namespace ProGlassAutomation.ViewModels.Production
             SelectedRef = "";
             SelectedSizeSummary = "";
             SelectedStageItems.Clear();
+            SelectedPcsSummary = "—";
+            SelectedSqmSummary = "—";
+            SelectedLmSummary = "—";
+            HasDispatchPanel = false;
+            SelectedDispatchReadyLabel = "0";
+            SelectedDispatchDeliveredLabel = "0";
+            SelectedDispatchBalanceLabel = "0";
+            DispatchBalance = 0;
         }
 
         // ── Release sources ──────────────────────────────────────────────

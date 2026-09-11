@@ -305,7 +305,49 @@ namespace ProGlassAutomation.Tests.Agent
 
             var flow = ProductionRepository.ComputeUnitFlows(items).Single();
             Assert.Equal(12, flow.PaneReadyQty);
+            Assert.Equal(12, flow.DispatchReadyQty);
             Assert.True(flow.IsDispatchReady);
+        }
+
+        [Fact]
+        public void Sgu_dispatches_pieces_as_they_temper_no_pairing_no_doubling()
+        {
+            // G-101 owner trace: cut 10 of 24 → 10 holed + polished →
+            // tempering completes 5 → exactly 5 pieces are READY FOR
+            // DISPATCH now (SGU needs no pairing / doubling).
+            var items = new List<ProGlassAutomation.Models.Production.SavedProduction.SavedProductionWorkItem>
+            {
+                FlowItem("cut", ProductionStage.Cutting, "Glass", 24, 10),
+                FlowItem("holes", ProductionStage.HolesCutouts, "Glass", 24, 10),
+                FlowItem("polish", ProductionStage.Polish, "Glass", 24, 10),
+                FlowItem("temper", ProductionStage.Tempering, "Glass", 24, 5)
+            };
+
+            var flow = ProductionRepository.ComputeUnitFlows(items).Single();
+            Assert.Equal(5, flow.PaneReadyQty);
+            Assert.Equal(5, flow.DispatchReadyQty);
+            Assert.False(flow.IsDispatchReady); // 19 pieces still in flight
+        }
+
+        [Fact]
+        public void Dgu_dispatches_only_what_finished_doubling()
+        {
+            var items = new List<ProGlassAutomation.Models.Production.SavedProduction.SavedProductionWorkItem>
+            {
+                FlowItem("cut-o", ProductionStage.Cutting, "Outer", 10, 10),
+                FlowItem("cut-i", ProductionStage.Cutting, "Inner", 10, 10, w: 990, h: 790),
+                FlowItem("temp-o", ProductionStage.Tempering, "Outer", 10, 10),
+                FlowItem("pair", ProductionStage.Pairing, "Unit", 10, 8),
+                FlowItem("double", ProductionStage.DoublingLamination, "Unit", 10, 3)
+            };
+
+            var flow = ProductionRepository.ComputeUnitFlows(items).Single();
+            // All panes ready (10) → pairing received 10, paired 8,
+            // doubled 3 → exactly 3 pieces dispatch-ready.
+            Assert.Equal((10, 8), flow.Stages[(int)ProductionStage.Pairing]);
+            Assert.Equal((8, 3), flow.Stages[(int)ProductionStage.DoublingLamination]);
+            Assert.Equal(3, flow.DispatchReadyQty);
+            Assert.False(flow.IsDispatchReady);
         }
 
         [Fact]

@@ -325,6 +325,14 @@ namespace ProGlassAutomation.Services.Production
             /// <summary>Pieces that finished every required pane stage.</summary>
             public int PaneReadyQty { get; set; }
 
+            /// <summary>
+            /// Pieces ready for dispatch RIGHT NOW — a quantity, not a
+            /// flag. SGU: pane-chain-complete pieces dispatch directly
+            /// (no pairing/doubling). DGU/LAM/DGU+LAM: pieces that
+            /// finished doubling.
+            /// </summary>
+            public int DispatchReadyQty { get; set; }
+
             /// <summary>True when the whole quantity finished the last stage.</summary>
             public bool IsDispatchReady { get; set; }
         }
@@ -493,12 +501,17 @@ namespace ProGlassAutomation.Services.Production
                             flow.StageItems[doubling] = dl = new List<ProductionFlowItem>();
                         dl.Add(new ProductionFlowItem { Item = doubleItem, Inflow = pairDone });
 
+                        // Multi-pane units dispatch what finished doubling.
+                        flow.DispatchReadyQty = doubleDone;
                         flow.IsDispatchReady = flow.Qty > 0 && doubleDone >= flow.Qty;
                     }
                 }
                 else
                 {
-                    // SGU: the pane chain end IS dispatch readiness.
+                    // SGU: the pane chain end IS dispatch — single glass
+                    // needs no pairing and no doubling/lamination, so each
+                    // finished piece is ready to deliver as it tempers.
+                    flow.DispatchReadyQty = flow.PaneReadyQty;
                     flow.IsDispatchReady = flow.Qty > 0 && flow.PaneReadyQty >= flow.Qty;
                 }
 
@@ -712,12 +725,12 @@ namespace ProGlassAutomation.Services.Production
         // ── Connectivity: chain counts + dispatch readiness ──────────────
 
         /// <summary>
-        /// Dispatch readiness across all released jobs (or one job): a unit
-        /// is READY when its whole quantity finished the last stage of its
-        /// chain (Doubling for multi-pane builds, the pane chain for SGU).
+        /// Dispatch readiness across all released jobs (or one job).
+        /// Readiness is a QUANTITY: SGU pieces dispatch straight off the
+        /// pane chain; multi-pane units dispatch what finished doubling.
         /// </summary>
-        public static async Task<(int TotalUnits, int ReadyUnits)> GetUnitReadinessAsync(
-            string? jobRef = null)
+        public static async Task<(int TotalUnits, int ReadyUnits, int TotalPieces, int ReadyPieces)>
+            GetUnitReadinessAsync(string? jobRef = null)
         {
             EnsureInitialized();
             using var db = new ProductionDbContext();
@@ -729,7 +742,35 @@ namespace ProGlassAutomation.Services.Production
             var all = await scope.ToListAsync().ConfigureAwait(false);
             var flows = ComputeUnitFlows(all);
 
-            return (flows.Count, flows.Count(f => f.IsDispatchReady));
+            return (
+                flows.Count,
+                flows.Count(f => f.IsDispatchReady),
+                flows.Sum(f => f.Qty),
+                flows.Sum(f => f.DispatchReadyQty));
+        }
+
+        /// <summary>
+        /// Per-unit dispatch-ready pieces for one job — used by the
+        /// delivery-note gateway so a DN can only deliver what production
+        /// actually finished. Key = SpecGroupNumber|SerialNumber.
+        /// Returns null when the job has no production release.
+        /// </summary>
+        public static async Task<Dictionary<(int Spec, int Serial), (int Ready, int Qty, string GlassRef)>?>
+            GetDispatchReadyByRowAsync(string jobRef)
+        {
+            EnsureInitialized();
+            using var db = new ProductionDbContext();
+
+            var all = await db.WorkItems.AsNoTracking()
+                .Where(i => i.JobRef == jobRef)
+                .ToListAsync().ConfigureAwait(false);
+
+            if (all.Count == 0) return null;
+
+            var flows = ComputeUnitFlows(all);
+            return flows.ToDictionary(
+                f => (f.SpecGroupNumber, f.SerialNumber),
+                f => (f.DispatchReadyQty, f.Qty, f.GlassRef));
         }
 
         // ── Floor writes (piece flow) ────────────────────────────────────

@@ -67,12 +67,22 @@ page, full design + worked samples in
   yet are counted in a "waiting upstream" strip so the backlog stays
   visible; the chain bar's open count reflects arrived (actionable)
   pieces only.
-- **Tier 2 · Unit detail** — selecting a row opens the job header
+- **Tier 2 · Unit detail sidebar** — selecting a row opens the job header
   (Job No, PI No, Customer, Project, Salesman) with **Open Job Order**
   and **Open Proforma Invoice** cross-navigation (checks Step 5 sizes /
   Step 6 charges in the source documents), plus the pane-level stage
   items each showing IN / DONE / BALANCE and a done-piece editor
-  (Save clamped to IN, All, Reset).
+  (Save clamped to IN, All, Reset). The sidebar also shows the unit's
+  **stage totals** (total · done · balance in pieces, SQM and LM —
+  every module) and a **dispatch panel**: READY / DELIVERED / TO
+  DELIVER pieces with **Create Delivery Note**.
+- **Production → Delivery Notes** — finished pieces flow into delivery
+  notes automatically (`ProductionDeliveryGateway`): a DN row may only
+  deliver production-finished pieces minus confirmed deliveries, and
+  each next DN is created from remaining balance only, so dispatched
+  pieces are never delivered twice. SGU pieces dispatch straight off
+  the pane chain (no pairing/doubling); multi-pane units dispatch what
+  finished doubling.
 
 **Key files**
 

@@ -102,7 +102,7 @@ Every stage item records how many pieces the floor has **completed**
 Flow is computed in one place — `ProductionRepository.ComputeUnitFlows` —
 and drives the lists, the chain bar, the KPIs and the clamped writes.
 
-### Tier 2 — Unit detail (select a row)
+### Tier 2 — Unit detail sidebar (select a row)
 
 Job header (Job No, PI No, Customer, Project, Salesman), **Open Job Order**
 and **Open Proforma Invoice** buttons (navigate to the real JO detail / PI
@@ -112,6 +112,18 @@ pattern), and the pane-level stage items. Each item shows its own
 pieces completed, `Save` (clamped to IN), `All` (complete everything that
 arrived), `Reset` (back to zero).
 
+Below the items the sidebar shows, for the selected unit in the current
+stage:
+
+- **STAGE TOTALS** — total · done · balance in **pieces**, **area (m²)**
+  and **LM** (every module; polish/mitring naturally read in LM, holes in
+  pieces — all three are always available).
+- **DISPATCH** — `READY` (pieces finished in production) ·
+  `DELIVERED` (confirmed delivery notes) · `TO DELIVER` (the balance),
+  with a **Create Delivery Note** button: it creates/reopens the
+  Dispatching DN for the Job Order — remaining balance only, capped to
+  production-finished pieces — and navigates to it.
+
 ## 2. Field contract & connectivity
 
 - **Salesman** is carried from the invoice snapshot through the engine into
@@ -120,8 +132,17 @@ arrived), `Reset` (back to zero).
   migration 1002). Status is derived from it against the arrived quantity.
 - A stage can only complete up to the pieces it received — writes are
   clamped and the clamp is surfaced in the warning banner.
-- **Ready for dispatch** KPI = units whose whole quantity finished the last
-  stage of their chain (Doubling for multi-pane, the pane chain for SGU).
+- **Ready for dispatch** is a QUANTITY, not a flag: SGU pieces dispatch
+  straight off the pane chain (single glass needs no pairing/doubling);
+  DGU/LAM/DGU+LAM dispatch what finished doubling. The KPI reads
+  `X / Y pcs`.
+- **Delivery notes are fed by production**: `ProductionDeliveryGateway`
+  caps each DN row's deliverable qty to production-finished pieces minus
+  confirmed-delivered pieces (`DnItemRowViewModel` clamp). Jobs without a
+  production release keep the classic Job-Order balance behaviour. Each
+  next DN is created from remaining balance only (existing
+  `DeliveryNoteCreateService` rule), so a second note covers exactly the
+  pieces not yet dispatched.
 - Release source remains **confirmed Job Orders only** (Released /
   In Production, non-void).
 
@@ -267,6 +288,14 @@ Only furnace-eligible panes — G-201's annealed inner never appears here.
 *(G-101's tempering IN is 5 — only the pieces that are cut **and** holed **and**
 polished. When the other 5 holed pieces finish polish, IN grows to 10.)*
 
+**Dispatch (SGU):** G-101 needs no pairing and no doubling — each piece the
+furnace finishes is READY FOR DISPATCH immediately. At this snapshot 5 G-101
+pieces are tempered → the sidebar dispatch panel reads
+`READY 5 · DELIVERED 0 · TO DELIVER 5`, and **Create Delivery Note** opens a
+DN that can deliver exactly those 5. The remaining 19 pieces flow through the
+same chain and feed the NEXT delivery note — never the pieces already out
+the door.
+
 ### ⑦ Pairing — Stage 7 (IN = pieces whose panes are all ready)
 | St | Sr | Ref | Build | Envelope | IN | DONE | BAL |
 |---|---|---|---|---|---|---|---|
@@ -289,3 +318,29 @@ them, those units move toward **Ready for dispatch**.)*
 (G-101 14 to cut), Holes (G-101 5 to drill), Tempering (G-101 done, G-201
 5 to temper) and Pairing (G-201 5 to pair). The chain bar's `open` counts
 show exactly that — pieces, not rows.
+
+## 6. Appendix — production → delivery notes (automatic dispatch flow)
+
+Finished pieces flow into delivery notes automatically; production is the
+gate for what a DN may deliver:
+
+1. **Production completes pieces.** G-101 tempers 5 → `DispatchReadyQty = 5`
+   (SGU); a DGU's `DispatchReadyQty` grows as doubling completes pieces.
+2. **Create Delivery Note** (production sidebar) calls the house
+   `DeliveryNoteCreateService.CreateOrOpenDispatchingAsync` — it reuses an
+   open Dispatching DN when one exists, else creates the next DN **from
+   remaining balance only** (classic rule: never re-delivers dispatched
+   pieces).
+3. **The DN editor is production-capped.** Each row's deliverable qty is
+   clamped to `productionReady − confirmedDelivered`
+   (`ProductionDeliveryGateway.GetDeliveryCapsAsync` →
+   `DnItemRowViewModel` clamp). Trying to deliver 24 G-101 saves 5.
+4. **Dispatch the DN.** Confirmed statuses (Dispatched / Delivered / Signed /
+   Received) consume the production balance; the sidebar flips to
+   `READY 5 · DELIVERED 5 · TO DELIVER 0`.
+5. **Next pieces, next note.** When the next 10 G-101 pieces temper, the
+   dispatch panel shows `TO DELIVER 10` and the next DN covers exactly
+   those 10 — never the pieces already dispatched.
+
+Jobs without a production release are untouched: the gateway returns
+`null` and DNs keep the classic Job-Order balance behaviour.

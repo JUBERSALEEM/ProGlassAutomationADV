@@ -247,5 +247,55 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(0, row.DeliveredQty);
             Assert.Equal(11, row.BalanceQty);
         }
+
+        // ── Production gate (2026-09-11) ────────────────────────────────
+        // A production-managed row can only deliver pieces the floor has
+        // finished — completed production flows into delivery notes.
+
+        [Fact]
+        public void Production_cap_limits_delivered_qty()
+        {
+            var row = new DnItemRowViewModel(new DeliveryNoteItem
+            {
+                SpecGroupNumber = 1, SerialNumber = 1,
+                GlassRef = "G-101", W1 = 1200, H1 = 900,
+                OrderedQty = 24, PreviouslyDeliveredQty = 0, DeliveredQty = 0
+            }, productionCap: 5);
+
+            row.DeliveredQty = 99; // floor tries to deliver everything
+            Assert.Equal(5, row.DeliveredQty); // only 5 pieces tempered
+            Assert.True(row.IsProductionLimited);
+        }
+
+        [Fact]
+        public void Without_production_cap_full_job_balance_remains_deliverable()
+        {
+            var row = new DnItemRowViewModel(new DeliveryNoteItem
+            {
+                SpecGroupNumber = 1, SerialNumber = 1,
+                GlassRef = "G-101", W1 = 1200, H1 = 900,
+                OrderedQty = 24, PreviouslyDeliveredQty = 0, DeliveredQty = 0
+            });
+
+            row.DeliveredQty = 99;
+            Assert.Equal(24, row.DeliveredQty);
+            Assert.False(row.IsProductionLimited);
+        }
+
+        [Fact]
+        public void Production_cap_never_exceeds_job_balance()
+        {
+            // 20 ordered, 18 already delivered, production says 10 ready —
+            // only the 2 remaining ordered pieces can ever go out.
+            var row = new DnItemRowViewModel(new DeliveryNoteItem
+            {
+                SpecGroupNumber = 1, SerialNumber = 1,
+                GlassRef = "G-101", W1 = 1200, H1 = 900,
+                OrderedQty = 20, PreviouslyDeliveredQty = 18, DeliveredQty = 0
+            }, productionCap: 10);
+
+            row.DeliveredQty = 99;
+            Assert.Equal(2, row.DeliveredQty);
+        }
     }
 }

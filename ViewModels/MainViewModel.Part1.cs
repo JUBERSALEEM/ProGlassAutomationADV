@@ -146,6 +146,40 @@ namespace ProGlassAutomation.ViewModels
                 Navigate("ProformaInvoice");
                 await ProformaInvoiceVM.OpenSavedInvoiceAsync(pi.Id);
             };
+
+            // Dispatch from production: create (or reopen) the Dispatching
+            // delivery note for the Job Order — remaining balance only,
+            // capped to the pieces production has finished — then open it.
+            vm.OnCreateDeliveryNote = async jobNo =>
+            {
+                if (string.IsNullOrWhiteSpace(jobNo) || _jobs == null)
+                    return "Pick a unit first.";
+
+                var jo = await _jobs.GetByJobOrderIdAsync(jobNo);
+                if (jo == null)
+                    return $"Job Order '{jobNo}' was not found.";
+
+                var result = await ProGlassAutomation.Services.DeliveryNote
+                    .DeliveryNoteCreateService
+                    .CreateOrOpenDispatchingAsync(jo);
+
+                switch (result.Outcome)
+                {
+                    case ProGlassAutomation.Services.DeliveryNote.DnCreateResult.Kind.OpenExisting:
+                    case ProGlassAutomation.Services.DeliveryNote.DnCreateResult.Kind.Created:
+                        Navigate("DeliveryNote");
+                        await DeliveryNoteVM.OpenDeliveryNoteAsync(result.DeliveryNoteDbId);
+                        return "";
+
+                    case ProGlassAutomation.Services.DeliveryNote.DnCreateResult.Kind.FullyDelivered:
+                        return result.Message;
+
+                    default:
+                        return string.IsNullOrWhiteSpace(result.Message)
+                            ? "Failed to create delivery note."
+                            : result.Message;
+                }
+            };
             return vm;
         }
 
