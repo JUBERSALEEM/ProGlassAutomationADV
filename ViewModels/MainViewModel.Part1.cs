@@ -101,21 +101,50 @@ namespace ProGlassAutomation.ViewModels
         private OptimizationViewModel? _lazyOptimizationVM;
         public OptimizationViewModel OptimizationVM => _lazyOptimizationVM ??= ResolveOrNew<OptimizationViewModel>();
         private CuttingViewModel? _lazyCuttingVM;
-        public CuttingViewModel CuttingVM => _lazyCuttingVM ??= ResolveOrNew<CuttingViewModel>();
+        public CuttingViewModel CuttingVM => _lazyCuttingVM ??= WireProductionCrossNav(ResolveOrNew<CuttingViewModel>());
         private HolesCutoutsViewModel? _lazyHolesCutoutsVM;
-        public HolesCutoutsViewModel HolesCutoutsVM => _lazyHolesCutoutsVM ??= ResolveOrNew<HolesCutoutsViewModel>();
+        public HolesCutoutsViewModel HolesCutoutsVM => _lazyHolesCutoutsVM ??= WireProductionCrossNav(ResolveOrNew<HolesCutoutsViewModel>());
         private PolishViewModel? _lazyPolishVM;
-        public PolishViewModel PolishVM => _lazyPolishVM ??= ResolveOrNew<PolishViewModel>();
+        public PolishViewModel PolishVM => _lazyPolishVM ??= WireProductionCrossNav(ResolveOrNew<PolishViewModel>());
         private EdgeDeletionViewModel? _lazyEdgeDeletionVM;
-        public EdgeDeletionViewModel EdgeDeletionVM => _lazyEdgeDeletionVM ??= ResolveOrNew<EdgeDeletionViewModel>();
+        public EdgeDeletionViewModel EdgeDeletionVM => _lazyEdgeDeletionVM ??= WireProductionCrossNav(ResolveOrNew<EdgeDeletionViewModel>());
         private MitringViewModel? _lazyMitringVM;
-        public MitringViewModel MitringVM => _lazyMitringVM ??= ResolveOrNew<MitringViewModel>();
+        public MitringViewModel MitringVM => _lazyMitringVM ??= WireProductionCrossNav(ResolveOrNew<MitringViewModel>());
         private TemperingViewModel? _lazyTemperingVM;
-        public TemperingViewModel TemperingVM => _lazyTemperingVM ??= ResolveOrNew<TemperingViewModel>();
+        public TemperingViewModel TemperingVM => _lazyTemperingVM ??= WireProductionCrossNav(ResolveOrNew<TemperingViewModel>());
         private PairingViewModel? _lazyPairingVM;
-        public PairingViewModel PairingVM => _lazyPairingVM ??= ResolveOrNew<PairingViewModel>();
+        public PairingViewModel PairingVM => _lazyPairingVM ??= WireProductionCrossNav(ResolveOrNew<PairingViewModel>());
         private DoublingLaminationViewModel? _lazyDoublingLaminationVM;
-        public DoublingLaminationViewModel DoublingLaminationVM => _lazyDoublingLaminationVM ??= ResolveOrNew<DoublingLaminationViewModel>();
+        public DoublingLaminationViewModel DoublingLaminationVM => _lazyDoublingLaminationVM ??= WireProductionCrossNav(ResolveOrNew<DoublingLaminationViewModel>());
+
+        /// <summary>
+        /// Screens redesign (2026-09-11): every production stage module's
+        /// detail panel gets OPEN JOB ORDER / OPEN PROFORMA INVOICE
+        /// cross-navigation — same house pattern as Sales Report and
+        /// Statement drill-downs. Wired lazily, on first VM creation, so
+        /// the lazy-init design is preserved.
+        /// </summary>
+        private T WireProductionCrossNav<T>(T vm) where T : ProductionStageViewModelBase
+        {
+            vm.OnOpenJobOrderByNumber = async jobNo =>
+            {
+                if (string.IsNullOrWhiteSpace(jobNo) || _jobs == null) return;
+                var jo = await _jobs.GetByJobOrderIdAsync(jobNo);
+                if (jo == null) return;
+                Navigate("JobOrder");
+                await JobOrderVM.OpenJobOrderAsync(jo.Id);
+            };
+            vm.OnOpenProformaByNumber = async piNo =>
+            {
+                if (string.IsNullOrWhiteSpace(piNo) || _invoices == null) return;
+                var pi = await _invoices.GetByProformaIdAsync(piNo);
+                if (pi == null) return;
+                Navigate("ProformaInvoice");
+                await ProformaInvoiceVM.OpenSavedInvoiceAsync(pi.Id);
+            };
+            return vm;
+        }
+
         public DeliveryNoteViewModel DeliveryNoteVM { get; }
         public TaxInvoiceViewModel TaxInvoiceVM { get; }
         public SalesReportViewModel SalesReportVM { get; }

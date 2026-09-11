@@ -17,6 +17,7 @@ using ProGlassAutomation.Models.Production;
 using ProGlassAutomation.Models.Production.SavedProduction;
 using ProGlassAutomation.Services.Database.SchemaMigrations;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -183,6 +184,7 @@ namespace ProGlassAutomation.Services.Production
             row.SourceProformaId = item.SourceProformaId;
             row.CustomerName = item.CustomerName;
             row.ProjectName = item.ProjectName;
+            row.Salesman = item.Salesman;
             row.SpecGroupNumber = item.SpecGroupNumber;
             row.SpecName = item.SpecName;
             row.BuildType = item.BuildType;
@@ -261,6 +263,182 @@ namespace ProGlassAutomation.Services.Production
                 .ConfigureAwait(false);
 
             return rows.ToDictionary(r => r.Stage, r => r.Count);
+        }
+
+        // ── Stage list + detail projections (screens redesign 2026-09-11) ─
+
+        /// <summary>
+        /// One unit row for the module list: the Step-5-shaped envelope
+        /// (Ref, W1/H1, W2/H2, Qty, SQM, LM) plus this stage's progress.
+        /// </summary>
+        public sealed class ProductionUnitProjection
+        {
+            public string JobRef { get; set; } = "";
+            public string SourceProformaId { get; set; } = "";
+            public string CustomerName { get; set; } = "";
+            public string ProjectName { get; set; } = "";
+            public string Salesman { get; set; } = "";
+            public int SpecGroupNumber { get; set; }
+            public string SpecName { get; set; } = "";
+            public string BuildType { get; set; } = "";
+            public string GlassRef { get; set; } = "";
+
+            public int W1 { get; set; }
+            public int H1 { get; set; }
+            public int W2 { get; set; }
+            public int H2 { get; set; }
+            public int Qty { get; set; }
+
+            public decimal UnitSqm { get; set; }
+            public decimal TotalSqm { get; set; }
+            public decimal TotalLm { get; set; }
+
+            public int DoneCount { get; set; }
+            public int TotalCount { get; set; }
+
+            /// <summary>0 Pending · 1 InProgress · 2 Completed.</summary>
+            public int AggregateStatus { get; set; }
+
+            /// <summary>This stage's items for the unit (drives the detail panel).</summary>
+            public List<SavedProductionWorkItem> Items { get; set; } = new();
+        }
+
+        /// <summary>Stage list = unit rows + charge batch rows.</summary>
+        public sealed class ProductionStageListData
+        {
+            public List<ProductionUnitProjection> Units { get; set; } = new();
+            public List<SavedProductionWorkItem> BatchItems { get; set; } = new();
+        }
+
+        /// <summary>
+        /// Builds the module list view: unit projections (grouped by
+        /// job+spec+serial) plus charge batch rows, filtered by job /
+        /// aggregate status / free-text search.
+        /// </summary>
+        public static async Task<ProductionStageListData> GetStageListAsync(
+            ProductionStage stage,
+            string? jobRefFilter = null,
+            WorkItemStatus? statusFilter = null,
+            string? search = null)
+        {
+            EnsureInitialized();
+            using var db = new ProductionDbContext();
+
+            IQueryable<SavedProductionWorkItem> query = db.WorkItems
+                .AsNoTracking()
+                .Where(i => i.Stage == (int)stage);
+
+            if (!string.IsNullOrWhiteSpace(jobRefFilter))
+                query = query.Where(i => i.JobRef == jobRefFilter);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string term = search.Trim();
+                query = query.Where(i =>
+                    (i.GlassRef != null && EF.Functions.Like(i.GlassRef, $"%{term}%"))
+                    || (i.CustomerName != null && EF.Functions.Like(i.CustomerName, $"%{term}%"))
+                    || (i.JobRef != null && EF.Functions.Like(i.JobRef, $"%{term}%"))
+                    || (i.SpecName != null && EF.Functions.Like(i.SpecName, $"%{term}%"))
+                    || (i.Salesman != null && EF.Functions.Like(i.Salesman, $"%{term}%")));
+            }
+
+            var items = await query
+                .OrderBy(i => i.JobRef)
+                .ThenBy(i => i.SpecGroupNumber)
+                .ThenBy(i => i.SerialNumber)
+                .ThenBy(i => i.Position)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+            var data = new ProductionStageListData();
+
+            var unitItems = items.Where(i => i.Position != "Batch").ToList();
+            data.BatchItems = items.Where(i => i.Position == "Batch").ToList();
+
+            foreach (var group in unitItems
+                .GroupBy(i => new { i.JobRef, i.SpecGroupNumber, i.SerialNumber }))
+            {
+                var list = group.ToList();
+                var first = list[0];
+
+                var unit = new ProductionUnitProjection
+                {
+                    JobRef = first.JobRef,
+                    SourceProformaId = first.SourceProformaId,
+                    CustomerName = first.CustomerName,
+                    ProjectName = first.ProjectName,
+                    Salesman = first.Salesman,
+                    SpecGroupNumber = first.SpecGroupNumber,
+                    SpecName = first.SpecName,
+                    BuildType = first.BuildType,
+                    GlassRef = first.GlassRef,
+                    Qty = list.Max(i => i.Qty),
+                    Items = list
+                };
+
+                // Pane-1 envelope — Glass / Unit / Outer. In a pure LAM
+                // build there is no "Outer"; the laminate's outer layer
+                // ("Lam Outer") is the envelope instead. DGU+LAM always
+                // has a real "Outer", so the fallback never fires there.
+                var pane1 = list.FirstOrDefault(i =>
+                    i.Position is "Glass" or "Unit" or "Outer"
+                    && i.WidthMm > 0 && i.HeightMm > 0)
+                    ?? list.FirstOrDefault(i =>
+                    i.Position == "Lam Outer"
+                    && i.WidthMm > 0 && i.HeightMm > 0);
+                if (pane1 != null)
+                {
+                    unit.W1 = pane1.WidthMm;
+                    unit.H1 = pane1.HeightMm;
+                }
+
+                // Pane-2 envelope — Inner / Middle / the laminate's inner
+                // layer. (In DGU+LAM, "Lam Outer" belongs to pane 2's
+                // laminate pair — never to the pane-1 slot.)
+                var pane2 = list.FirstOrDefault(i =>
+                    i.Position is "Inner" or "Lam Inner" or "Middle"
+                    && i.WidthMm > 0 && i.HeightMm > 0);
+                if (pane2 != null)
+                {
+                    unit.W2 = pane2.WidthMm;
+                    unit.H2 = pane2.HeightMm;
+                }
+
+                // Areas recomputed from the envelope — exactly Step 5 maths.
+                decimal a1 = unit.W1 > 0 && unit.H1 > 0
+                    ? SqmCalculator.CalculatePanel(unit.W1, unit.H1) : 0m;
+                decimal a2 = unit.W2 > 0 && unit.H2 > 0
+                    ? SqmCalculator.CalculatePanel(unit.W2, unit.H2) : 0m;
+                unit.UnitSqm = a1 + a2;
+                unit.TotalSqm = Math.Round(unit.UnitSqm * unit.Qty, 3, MidpointRounding.AwayFromZero);
+
+                // LM from the distinct pane items actually present in this
+                // stage (each Position appears once per unit per stage).
+                unit.TotalLm = list
+                    .Where(i => i.TotalLm > 0)
+                    .GroupBy(i => i.Position)
+                    .Sum(g => g.Max(i => i.TotalLm));
+
+                unit.DoneCount = list.Count(i => i.Status == (int)WorkItemStatus.Completed);
+                unit.TotalCount = list.Count;
+                unit.AggregateStatus =
+                    unit.DoneCount == unit.TotalCount ? 2
+                    : list.Any(i => i.Status == (int)WorkItemStatus.InProgress) ? 1
+                    : 0;
+
+                data.Units.Add(unit);
+            }
+
+            if (statusFilter.HasValue)
+            {
+                int wanted = (int)statusFilter.Value;
+                data.Units = data.Units
+                    .Where(u => u.AggregateStatus == wanted).ToList();
+                data.BatchItems = data.BatchItems
+                    .Where(b => b.Status == wanted).ToList();
+            }
+
+            return data;
         }
 
         // ── Connectivity: predecessor checks + dispatch readiness ────────

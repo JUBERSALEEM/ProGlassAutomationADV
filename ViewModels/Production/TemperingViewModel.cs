@@ -4,7 +4,7 @@ namespace ProGlassAutomation.ViewModels.Production
 {
     /// <summary>
     /// Tempering stage queue — work items distributed from released Job Orders
-    /// and Approved Proforma Invoices. See
+    /// (confirmed PIs — drafts never reach the floor). See
     /// docs/PRODUCTION_DISTRIBUTION_PLAN_2026-09-11.md.
     /// </summary>
     public class TemperingViewModel : ProductionStageViewModelBase

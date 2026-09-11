@@ -73,6 +73,8 @@ namespace ProGlassAutomation.Models.Production
         public string CustomerName { get; set; } = "";
         public string ProjectName { get; set; } = "";
 
+        /// <summary>Sales representative from the invoice Client snapshot.</summary>
+        public string Salesman { get; set; } = "";
         public int SpecGroupNumber { get; set; }
         public string SpecName { get; set; } = "";
 
@@ -140,6 +142,9 @@ namespace ProGlassAutomation.Models.Production
         public string SourceProformaId { get; set; } = "";
         public string CustomerName { get; set; } = "";
         public string ProjectName { get; set; } = "";
+
+        /// <summary>Sales representative from the invoice Client snapshot.</summary>
+        public string Salesman { get; set; } = "";
 
         public List<ProductionWorkItem> Items { get; set; } = new();
         public List<string> Warnings { get; set; } = new();

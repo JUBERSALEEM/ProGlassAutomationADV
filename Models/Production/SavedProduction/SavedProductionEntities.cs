@@ -73,6 +73,10 @@ namespace ProGlassAutomation.Models.Production.SavedProduction
         [MaxLength(200)]
         public string ProjectName { get; set; } = string.Empty;
 
+        /// <summary>Sales representative carried from the invoice (floor contact).</summary>
+        [MaxLength(200)]
+        public string Salesman { get; set; } = string.Empty;
+
         public int SpecGroupNumber { get; set; }
 
         [MaxLength(400)]

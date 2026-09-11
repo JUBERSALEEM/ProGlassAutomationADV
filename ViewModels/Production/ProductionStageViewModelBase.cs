@@ -1,15 +1,24 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Production/ProductionStageViewModelBase.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Production — shared stage-queue view model (Phase 3, 2026-09-11)
+// MODULE: Production — shared stage view model (screens redesign 2026-09-11)
 //
-// Base for the eight production stage modules (Cutting, Holes & Cutouts,
-// Polish, Edge Deletion, Mitring, Tempering, Pairing, Doubling/Lamination).
-// Each subclass only supplies its stage + identity; this base owns:
-//   • the release picker (confirmed Job Orders only → distribute),
-//   • the stage queue loaded from production.db,
-//   • job / status filters, KPI chips and the floor actions
-//     (Start / Complete / Reopen).
+// Base for the eight production stage modules. Each module screen is a
+// two-tier master–detail:
+//
+//   TIER 1 — UNIT LIST: one row per unit (Job + Spec + Step 5 serial),
+//            shaped like the Step 5 grid the estimator built:
+//            PI/Job No · Salesman · Ref · W1 · H1 · W2 · H2 · Qty ·
+//            Unit SQM · Total SQM · LM · this stage's progress.
+//            Charge-driven work (fan holes, polish LM, mitring LM) shows
+//            as "(whole spec)" batch rows.
+//
+//   TIER 2 — UNIT DETAIL: select a row → job header (customer, project,
+//            salesman, PI No, Job No) with OPEN JOB ORDER / OPEN PI
+//            cross-navigation, plus the pane-level stage items for this
+//            module with Start / Complete / Reopen floor actions.
+//
+// See docs/PRODUCTION_SCREENS_DESIGN_2026-09-11.md for the full design.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
@@ -27,7 +36,7 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.Production
 {
-    /// <summary>Display projection of one persisted work item.</summary>
+    /// <summary>One pane-level stage item in the detail panel.</summary>
     public sealed class ProductionWorkItemRow : ViewModelBase
     {
         public SavedProductionWorkItem Item { get; }
@@ -38,19 +47,11 @@ namespace ProGlassAutomation.ViewModels.Production
         }
 
         public int Id => Item.Id;
-        public string JobRef => Item.JobRef;
-        public string Customer => Item.CustomerName;
-        public string GlassRef => string.IsNullOrWhiteSpace(Item.GlassRef) ? "—" : Item.GlassRef;
         public string Position => string.IsNullOrWhiteSpace(Item.Position) ? "—" : Item.Position;
-        public string BuildType => Item.BuildType;
         public string Treatment => string.IsNullOrWhiteSpace(Item.Treatment) ? "—" : Item.Treatment;
 
-        public string SpecLabel =>
-            $"Spec {Item.SpecGroupNumber.ToString(CultureInfo.InvariantCulture)}" +
-            (string.IsNullOrWhiteSpace(Item.SpecName) ? "" : $" · {Item.SpecName}");
-
         public string SizeLabel => Item.WidthMm > 0 && Item.HeightMm > 0
-            ? $"{Item.WidthMm.ToString(CultureInfo.InvariantCulture)} × {Item.HeightMm.ToString(CultureInfo.InvariantCulture)}"
+            ? $"{Item.WidthMm.ToString(CultureInfo.InvariantCulture)} × {Item.HeightMm.ToString(CultureInfo.InvariantCulture)} mm"
             : "—";
 
         public string QtyLabel => Item.Qty > 0
@@ -59,19 +60,8 @@ namespace ProGlassAutomation.ViewModels.Production
         public string SqmLabel => Item.TotalSqm > 0
             ? Item.TotalSqm.ToString("0.###", CultureInfo.InvariantCulture) + " m²" : "—";
 
-        /// <summary>Stage-relevant metric: charge qty for charge items, LM for polish/mitring, else SQM.</summary>
-        public string MetricLabel
-        {
-            get
-            {
-                if (!string.IsNullOrEmpty(Item.ChargeTemplateKey))
-                {
-                    return $"{Item.ChargeMetricQty.ToString("0.###", CultureInfo.InvariantCulture)} " +
-                           $"{Item.ChargeMetricUnit} ({Item.ChargeTemplateKey.Replace('_', ' ')})";
-                }
-                return SqmLabel;
-            }
-        }
+        public string LmLabel => Item.TotalLm > 0
+            ? Item.TotalLm.ToString("0.###", CultureInfo.InvariantCulture) + " LM" : "—";
 
         public string DetailLabel
         {
@@ -95,18 +85,52 @@ namespace ProGlassAutomation.ViewModels.Production
             _ => ""
         };
 
-        /// <summary>Theme brush key for the status pill.</summary>
-        public string StatusBrushKey => Status switch
-        {
-            WorkItemStatus.Pending => "WarningBrush",
-            WorkItemStatus.InProgress => "AccentBrush",
-            WorkItemStatus.Completed => "SuccessBrush",
-            _ => "MutedBrush"
-        };
-
         public bool CanStart => Status == WorkItemStatus.Pending;
         public bool CanComplete => Status == WorkItemStatus.InProgress;
         public bool CanReopen => Status != WorkItemStatus.Pending;
+    }
+
+    /// <summary>
+    /// One master-list row: a unit envelope (Step-5 shaped) or a charge
+    /// batch row ("whole spec").
+    /// </summary>
+    public sealed class ProductionListRow
+    {
+        public bool IsBatch { get; init; }
+
+        /// <summary>Unit identity — JobRef|Spec|Serial. Batch rows use the item id.</summary>
+        public string RowKey { get; init; } = "";
+
+        // ── Shared columns ───────────────────────────────────────────────
+        public string StatusGlyph { get; init; } = "";
+        public string StatusLabel { get; init; } = "";
+        public string JobRef { get; init; } = "";
+        public string PiNo { get; init; } = "";
+        public string Customer { get; init; } = "";
+        public string Salesman { get; init; } = "";
+        public string SpecLabel { get; init; } = "";
+        public string GlassRef { get; init; } = "";
+        public string BuildType { get; init; } = "";
+
+        // ── Unit envelope (Step 5 shape) ─────────────────────────────────
+        public string W1Label { get; init; } = "—";
+        public string H1Label { get; init; } = "—";
+        public string W2Label { get; init; } = "—";
+        public string H2Label { get; init; } = "—";
+        public string QtyLabel { get; init; } = "—";
+        public string UnitSqmLabel { get; init; } = "—";
+        public string TotalSqmLabel { get; init; } = "—";
+        public string LmLabel { get; init; } = "—";
+        public string ProgressLabel { get; init; } = "";
+
+        // ── Batch rows (Step 6 charge work) ──────────────────────────────
+        public string MetricLabel { get; init; } = "";
+
+        /// <summary>Unit rows: this stage's items (detail panel source).</summary>
+        public List<SavedProductionWorkItem> StageItems { get; init; } = new();
+
+        /// <summary>Batch rows: the charge item itself.</summary>
+        public SavedProductionWorkItem? BatchItem { get; init; }
     }
 
     /// <summary>Shared behaviour for all eight production stage modules.</summary>
@@ -120,10 +144,15 @@ namespace ProGlassAutomation.ViewModels.Production
         public abstract string Description { get; }
         public abstract string Icon { get; }
 
+        // Cross-navigation hooks — wired by MainViewModel exactly like
+        // Sales Report / Statement drill-downs.
+        public Action<string>? OnOpenJobOrderByNumber { get; set; }
+        public Action<string>? OnOpenProformaByNumber { get; set; }
+
         protected ProductionStageViewModelBase()
         {
             RefreshCommand = new RelayCommand(_ =>
-                AsyncUtility.SafeFireAndForget(LoadQueueAsync, "Production stage refresh"));
+                AsyncUtility.SafeFireAndForget(LoadAllAsync, "Production stage refresh"));
 
             LoadSourcesCommand = new RelayCommand(_ =>
                 AsyncUtility.SafeFireAndForget(LoadSourcesAsync, "Production sources load"));
@@ -131,6 +160,18 @@ namespace ProGlassAutomation.ViewModels.Production
             ReleaseCommand = new RelayCommand(
                 _ => AsyncUtility.SafeFireAndForget(ReleaseSelectedAsync, "Production release"),
                 _ => SelectedSource != null && !IsReleasing);
+
+            OpenJobOrderCommand = new RelayCommand(_ =>
+            {
+                if (!string.IsNullOrWhiteSpace(SelectedJobNo))
+                    OnOpenJobOrderByNumber?.Invoke(SelectedJobNo);
+            }, _ => HasSelection && !string.IsNullOrWhiteSpace(SelectedJobNo));
+
+            OpenProformaCommand = new RelayCommand(_ =>
+            {
+                if (!string.IsNullOrWhiteSpace(SelectedPiNo))
+                    OnOpenProformaByNumber?.Invoke(SelectedPiNo);
+            }, _ => HasSelection && !string.IsNullOrWhiteSpace(SelectedPiNo));
 
             StartCommand = new RelayCommand(p =>
                 AsyncUtility.SafeFireAndForget(() => SetStatusAsync(p, WorkItemStatus.InProgress), "Work item start"),
@@ -150,6 +191,8 @@ namespace ProGlassAutomation.ViewModels.Production
         public ICommand RefreshCommand { get; }
         public ICommand LoadSourcesCommand { get; }
         public ICommand ReleaseCommand { get; }
+        public ICommand OpenJobOrderCommand { get; }
+        public ICommand OpenProformaCommand { get; }
         public ICommand StartCommand { get; }
         public ICommand CompleteCommand { get; }
         public ICommand ReopenCommand { get; }
@@ -201,7 +244,7 @@ namespace ProGlassAutomation.ViewModels.Production
                 if (_selectedJobFilter == value) return;
                 _selectedJobFilter = value;
                 OnPropertyChanged();
-                AsyncUtility.SafeFireAndForget(LoadQueueAsync, "Production job filter");
+                AsyncUtility.SafeFireAndForget(LoadListAsync, "Production job filter");
             }
         }
 
@@ -217,13 +260,39 @@ namespace ProGlassAutomation.ViewModels.Production
                 if (_selectedStatusFilter == value) return;
                 _selectedStatusFilter = value;
                 OnPropertyChanged();
-                AsyncUtility.SafeFireAndForget(LoadQueueAsync, "Production status filter");
+                AsyncUtility.SafeFireAndForget(LoadListAsync, "Production status filter");
             }
         }
 
-        // ── Queue + KPIs ─────────────────────────────────────────────────
+        private string _searchText = "";
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                if (_searchText == value) return;
+                _searchText = value;
+                OnPropertyChanged();
+                AsyncUtility.SafeFireAndForget(LoadListAsync, "Production search");
+            }
+        }
 
-        public ObservableCollection<ProductionWorkItemRow> Queue { get; } = new();
+        // ── Master list ──────────────────────────────────────────────────
+
+        public ObservableCollection<ProductionListRow> ListRows { get; } = new();
+
+        private ProductionListRow? _selectedRow;
+        public ProductionListRow? SelectedRow
+        {
+            get => _selectedRow;
+            set
+            {
+                if (_selectedRow == value) return;
+                _selectedRow = value;
+                OnPropertyChanged();
+                RefreshDetailPanel();
+            }
+        }
 
         private bool _isLoading;
         public bool IsLoading
@@ -232,12 +301,14 @@ namespace ProGlassAutomation.ViewModels.Production
             private set { if (_isLoading == value) return; _isLoading = value; OnPropertyChanged(); }
         }
 
-        private bool _isQueueEmpty;
-        public bool IsQueueEmpty
+        private bool _isListEmpty;
+        public bool IsListEmpty
         {
-            get => _isQueueEmpty;
-            private set { if (_isQueueEmpty == value) return; _isQueueEmpty = value; OnPropertyChanged(); }
+            get => _isListEmpty;
+            private set { if (_isListEmpty == value) return; _isListEmpty = value; OnPropertyChanged(); }
         }
+
+        // ── KPIs ─────────────────────────────────────────────────────────
 
         private int _totalCount;
         public int TotalCount { get => _totalCount; private set { if (_totalCount == value) return; _totalCount = value; OnPropertyChanged(); } }
@@ -258,11 +329,10 @@ namespace ProGlassAutomation.ViewModels.Production
         public string MetricTotalLabel { get => _metricTotalLabel; private set { if (_metricTotalLabel == value) return; _metricTotalLabel = value; OnPropertyChanged(); } }
 
         private string _unitsReadyLabel = "0 / 0";
-        /// <summary>Units whose every stage item is completed → ready for dispatch.</summary>
         public string UnitsReadyLabel { get => _unitsReadyLabel; private set { if (_unitsReadyLabel == value) return; _unitsReadyLabel = value; OnPropertyChanged(); } }
 
         private string _actionWarning = "";
-        /// <summary>Floor connectivity feedback (e.g. completing before the predecessor stage).</summary>
+        /// <summary>Floor connectivity feedback (completing before the predecessor stage).</summary>
         public string ActionWarning
         {
             get => _actionWarning;
@@ -271,12 +341,58 @@ namespace ProGlassAutomation.ViewModels.Production
 
         public bool HasActionWarning => !string.IsNullOrWhiteSpace(_actionWarning);
 
+        // ── Detail panel (tier 2) ────────────────────────────────────────
+
+        private bool _hasSelection;
+        public bool HasSelection
+        {
+            get => _hasSelection;
+            private set { if (_hasSelection == value) return; _hasSelection = value; OnPropertyChanged(); }
+        }
+
+        private bool _isBatchSelection;
+        public bool IsBatchSelection
+        {
+            get => _isBatchSelection;
+            private set { if (_isBatchSelection == value) return; _isBatchSelection = value; OnPropertyChanged(); }
+        }
+
+        private string _selectedJobNo = "";
+        public string SelectedJobNo { get => _selectedJobNo; private set { if (_selectedJobNo == value) return; _selectedJobNo = value; OnPropertyChanged(); } }
+
+        private string _selectedPiNo = "";
+        public string SelectedPiNo { get => _selectedPiNo; private set { if (_selectedPiNo == value) return; _selectedPiNo = value; OnPropertyChanged(); } }
+
+        private string _selectedCustomer = "";
+        public string SelectedCustomer { get => _selectedCustomer; private set { if (_selectedCustomer == value) return; _selectedCustomer = value; OnPropertyChanged(); } }
+
+        private string _selectedProject = "";
+        public string SelectedProject { get => _selectedProject; private set { if (_selectedProject == value) return; _selectedProject = value; OnPropertyChanged(); } }
+
+        private string _selectedSalesman = "";
+        public string SelectedSalesman { get => _selectedSalesman; private set { if (_selectedSalesman == value) return; _selectedSalesman = value; OnPropertyChanged(); } }
+
+        private string _selectedSpecLabel = "";
+        public string SelectedSpecLabel { get => _selectedSpecLabel; private set { if (_selectedSpecLabel == value) return; _selectedSpecLabel = value; OnPropertyChanged(); } }
+
+        private string _selectedRef = "";
+        public string SelectedRef { get => _selectedRef; private set { if (_selectedRef == value) return; _selectedRef = value; OnPropertyChanged(); } }
+
+        private string _selectedSizeSummary = "";
+        public string SelectedSizeSummary { get => _selectedSizeSummary; private set { if (_selectedSizeSummary == value) return; _selectedSizeSummary = value; OnPropertyChanged(); } }
+
+        private string _selectedBatchMetric = "";
+        public string SelectedBatchMetric { get => _selectedBatchMetric; private set { if (_selectedBatchMetric == value) return; _selectedBatchMetric = value; OnPropertyChanged(); } }
+
+        /// <summary>Pane-level items for the selected unit (detail grid).</summary>
+        public ObservableCollection<ProductionWorkItemRow> SelectedStageItems { get; } = new();
+
         // ── Stage identity (drives the designed header) ──────────────────
 
         /// <summary>"Stage 3 of 8" — position in the factory pipeline.</summary>
         public string StageOrdinalLabel => $"Stage {((int)Stage).ToString(CultureInfo.InvariantCulture)} of 8";
 
-        /// <summary>Stage-specific tint for the icon tile + KPI accents.</summary>
+        /// <summary>Stage-specific tint for the icon tile.</summary>
         public string StageTintBrushKey => Stage switch
         {
             ProductionStage.Cutting => "TintBlueBrush",
@@ -297,7 +413,7 @@ namespace ProGlassAutomation.ViewModels.Production
         /// <summary>Called by the view on first load and via Refresh.</summary>
         public async Task LoadAsync()
         {
-            await LoadQueueAsync().ConfigureAwait(true);
+            await LoadAllAsync().ConfigureAwait(true);
             if (!_initialLoadDone)
             {
                 _initialLoadDone = true;
@@ -305,9 +421,16 @@ namespace ProGlassAutomation.ViewModels.Production
             }
         }
 
-        private async Task LoadQueueAsync()
+        private async Task LoadAllAsync()
+        {
+            await LoadListAsync().ConfigureAwait(true);
+            await LoadKpisAsync().ConfigureAwait(true);
+        }
+
+        private async Task LoadListAsync()
         {
             IsLoading = true;
+            string? previousKey = _selectedRow?.RowKey;
             try
             {
                 string? jobRef = _selectedJobFilter == AllJobsFilter ? null : _selectedJobFilter;
@@ -319,71 +442,238 @@ namespace ProGlassAutomation.ViewModels.Production
                     _ => null
                 };
 
-                var items = await Task.Run(() =>
-                    ProductionRepository.GetStageQueueAsync(Stage, jobRef, status))
+                var data = await Task.Run(() =>
+                    ProductionRepository.GetStageListAsync(
+                        Stage, jobRef, status,
+                        string.IsNullOrWhiteSpace(_searchText) ? null : _searchText))
                     .ConfigureAwait(true);
 
-                Queue.Clear();
-                foreach (var item in items)
-                    Queue.Add(new ProductionWorkItemRow(item));
+                ListRows.Clear();
+                foreach (var unit in data.Units)
+                    ListRows.Add(BuildUnitRow(unit));
+                foreach (var batch in data.BatchItems)
+                    ListRows.Add(BuildBatchRow(batch));
 
-                IsQueueEmpty = Queue.Count == 0;
+                IsListEmpty = ListRows.Count == 0;
 
-                // KPIs reflect the UNFILTERED stage queue so the chips stay
-                // honest while the grid is filtered.
-                var all = await Task.Run(() =>
-                    ProductionRepository.GetStageQueueAsync(Stage, null, null))
-                    .ConfigureAwait(true);
-
-                TotalCount = all.Count;
-                PendingCount = all.Count(i => i.Status == (int)WorkItemStatus.Pending);
-                InProgressCount = all.Count(i => i.Status == (int)WorkItemStatus.InProgress);
-                CompletedCount = all.Count(i => i.Status == (int)WorkItemStatus.Completed);
-
-                decimal area = all.Sum(i => i.TotalSqm);
-                AreaTotalLabel = area.ToString("0.##", CultureInfo.InvariantCulture) + " m²";
-
-                decimal stageMetric = Stage is ProductionStage.Polish or ProductionStage.Mitring
-                    ? all.Sum(i => i.TotalLm)
-                    : Stage == ProductionStage.HolesCutouts
-                        ? all.Sum(i => i.ChargeMetricQty)
-                        : all.Sum(i => i.Qty);
-
-                MetricTotalLabel = Stage switch
+                // Restore the selection across reloads (status actions reload).
+                if (previousKey != null)
                 {
-                    ProductionStage.Polish or ProductionStage.Mitring =>
-                        stageMetric.ToString("0.##", CultureInfo.InvariantCulture) + " LM",
-                    ProductionStage.HolesCutouts =>
-                        stageMetric.ToString("0", CultureInfo.InvariantCulture) + " holes/cutouts",
-                    _ => stageMetric.ToString("0", CultureInfo.InvariantCulture) + " pcs"
-                };
-
-                // Dispatch readiness — a unit is ready when EVERY stage item
-                // across the floor is completed (batch charge items excluded).
-                var (totalUnits, readyUnits) = await Task.Run(() =>
-                    ProductionRepository.GetUnitReadinessAsync(jobRef))
-                    .ConfigureAwait(true);
-                UnitsReadyLabel = $"{readyUnits.ToString(CultureInfo.InvariantCulture)} / {totalUnits.ToString(CultureInfo.InvariantCulture)}";
-
-                // Job filter picker (preserve current choice when it survives).
-                var jobRefs = await Task.Run(async () =>
-                    (await ProductionRepository.GetReleasesAsync().ConfigureAwait(false))
-                        .Select(r => r.JobRef).Distinct().OrderBy(r => r).ToList())
-                    .ConfigureAwait(true);
-
-                string previous = _selectedJobFilter;
-                JobFilters.Clear();
-                JobFilters.Add(AllJobsFilter);
-                foreach (var jobRefEntry in jobRefs) JobFilters.Add(jobRefEntry);
-
-                _selectedJobFilter = jobRefs.Contains(previous) ? previous : AllJobsFilter;
-                OnPropertyChanged(nameof(SelectedJobFilter));
+                    var match = ListRows.FirstOrDefault(r => r.RowKey == previousKey);
+                    if (match != null) { _selectedRow = match; OnPropertyChanged(nameof(SelectedRow)); RefreshDetailPanel(); }
+                    else ClearDetailPanel();
+                }
+                else if (_selectedRow == null)
+                {
+                    ClearDetailPanel();
+                }
             }
             finally
             {
                 IsLoading = false;
             }
         }
+
+        private async Task LoadKpisAsync()
+        {
+            // KPIs reflect the UNFILTERED stage queue so the chips stay
+            // honest while the list is filtered.
+            var all = await Task.Run(() =>
+                ProductionRepository.GetStageQueueAsync(Stage, null, null))
+                .ConfigureAwait(true);
+
+            TotalCount = all.Count;
+            PendingCount = all.Count(i => i.Status == (int)WorkItemStatus.Pending);
+            InProgressCount = all.Count(i => i.Status == (int)WorkItemStatus.InProgress);
+            CompletedCount = all.Count(i => i.Status == (int)WorkItemStatus.Completed);
+
+            decimal area = all.Sum(i => i.TotalSqm);
+            AreaTotalLabel = area.ToString("0.##", CultureInfo.InvariantCulture) + " m²";
+
+            decimal stageMetric = Stage is ProductionStage.Polish or ProductionStage.Mitring
+                ? all.Sum(i => i.TotalLm)
+                : Stage == ProductionStage.HolesCutouts
+                    ? all.Sum(i => i.ChargeMetricQty)
+                    : all.Sum(i => i.Qty);
+
+            MetricTotalLabel = Stage switch
+            {
+                ProductionStage.Polish or ProductionStage.Mitring =>
+                    stageMetric.ToString("0.##", CultureInfo.InvariantCulture) + " LM",
+                ProductionStage.HolesCutouts =>
+                    stageMetric.ToString("0", CultureInfo.InvariantCulture) + " holes/cutouts",
+                _ => stageMetric.ToString("0", CultureInfo.InvariantCulture) + " pcs"
+            };
+
+            string? jobRef = _selectedJobFilter == AllJobsFilter ? null : _selectedJobFilter;
+            var (totalUnits, readyUnits) = await Task.Run(() =>
+                ProductionRepository.GetUnitReadinessAsync(jobRef))
+                .ConfigureAwait(true);
+            UnitsReadyLabel = $"{readyUnits.ToString(CultureInfo.InvariantCulture)} / {totalUnits.ToString(CultureInfo.InvariantCulture)}";
+
+            // Job filter picker (preserve current choice when it survives).
+            var jobRefs = await Task.Run(async () =>
+                (await ProductionRepository.GetReleasesAsync().ConfigureAwait(false))
+                    .Select(r => r.JobRef).Distinct().OrderBy(r => r).ToList())
+                .ConfigureAwait(true);
+
+            string previous = _selectedJobFilter;
+            JobFilters.Clear();
+            JobFilters.Add(AllJobsFilter);
+            foreach (var jobRefEntry in jobRefs) JobFilters.Add(jobRefEntry);
+
+            _selectedJobFilter = jobRefs.Contains(previous) ? previous : AllJobsFilter;
+            OnPropertyChanged(nameof(SelectedJobFilter));
+        }
+
+        // ── Row builders ─────────────────────────────────────────────────
+
+        private static string FmtInt(int v) =>
+            v > 0 ? v.ToString(CultureInfo.InvariantCulture) : "—";
+
+        private static string FmtDec(decimal v, string suffix) =>
+            v > 0 ? v.ToString("0.###", CultureInfo.InvariantCulture) + suffix : "—";
+
+        private ProductionListRow BuildUnitRow(ProductionRepository.ProductionUnitProjection unit)
+        {
+            string glyph = unit.AggregateStatus switch
+            {
+                2 => "✓",
+                1 => "◐",
+                _ => "●"
+            };
+            string statusLabel = unit.AggregateStatus switch
+            {
+                2 => "COMPLETED",
+                1 => "IN PROGRESS",
+                _ => "PENDING"
+            };
+
+            return new ProductionListRow
+            {
+                IsBatch = false,
+                RowKey = $"U|{unit.JobRef}|{unit.SpecGroupNumber}|{unit.GlassRef}",
+                StatusGlyph = glyph,
+                StatusLabel = statusLabel,
+                JobRef = unit.JobRef,
+                PiNo = unit.SourceProformaId,
+                Customer = unit.CustomerName,
+                Salesman = unit.Salesman,
+                SpecLabel = $"Spec {unit.SpecGroupNumber.ToString(CultureInfo.InvariantCulture)}" +
+                    (string.IsNullOrWhiteSpace(unit.SpecName) ? "" : $" · {unit.SpecName}"),
+                GlassRef = string.IsNullOrWhiteSpace(unit.GlassRef) ? "—" : unit.GlassRef,
+                BuildType = unit.BuildType,
+                W1Label = FmtInt(unit.W1),
+                H1Label = FmtInt(unit.H1),
+                W2Label = FmtInt(unit.W2),
+                H2Label = FmtInt(unit.H2),
+                QtyLabel = FmtInt(unit.Qty),
+                UnitSqmLabel = FmtDec(unit.UnitSqm, ""),
+                TotalSqmLabel = FmtDec(unit.TotalSqm, ""),
+                LmLabel = FmtDec(unit.TotalLm, ""),
+                ProgressLabel = $"{unit.DoneCount.ToString(CultureInfo.InvariantCulture)}/{unit.TotalCount.ToString(CultureInfo.InvariantCulture)}",
+                StageItems = unit.Items
+            };
+        }
+
+        private ProductionListRow BuildBatchRow(SavedProductionWorkItem batch)
+        {
+            string statusLabel = batch.Status switch
+            {
+                (int)WorkItemStatus.Completed => "COMPLETED",
+                (int)WorkItemStatus.InProgress => "IN PROGRESS",
+                _ => "PENDING"
+            };
+
+            return new ProductionListRow
+            {
+                IsBatch = true,
+                RowKey = $"B|{batch.Id}",
+                StatusGlyph = batch.Status == (int)WorkItemStatus.Completed ? "✓"
+                    : batch.Status == (int)WorkItemStatus.InProgress ? "◐" : "●",
+                StatusLabel = statusLabel,
+                JobRef = batch.JobRef,
+                PiNo = batch.SourceProformaId,
+                Customer = batch.CustomerName,
+                Salesman = batch.Salesman,
+                SpecLabel = $"Spec {batch.SpecGroupNumber.ToString(CultureInfo.InvariantCulture)}" +
+                    (string.IsNullOrWhiteSpace(batch.SpecName) ? "" : $" · {batch.SpecName}"),
+                GlassRef = "(whole spec)",
+                BuildType = batch.BuildType,
+                MetricLabel = $"{batch.ChargeMetricQty.ToString("0.###", CultureInfo.InvariantCulture)} " +
+                    $"{batch.ChargeMetricUnit} · {(batch.ChargeTemplateKey ?? "").Replace('_', ' ')}",
+                ProgressLabel = statusLabel,
+                BatchItem = batch
+            };
+        }
+
+        // ── Detail panel ─────────────────────────────────────────────────
+
+        private void RefreshDetailPanel()
+        {
+            var row = _selectedRow;
+            if (row == null)
+            {
+                ClearDetailPanel();
+                return;
+            }
+
+            HasSelection = true;
+            IsBatchSelection = row.IsBatch;
+            SelectedJobNo = row.JobRef;
+            SelectedPiNo = row.PiNo;
+            SelectedCustomer = row.Customer;
+            SelectedSalesman = row.Salesman;
+            SelectedSpecLabel = row.SpecLabel;
+            SelectedRef = row.GlassRef;
+
+            SelectedStageItems.Clear();
+
+            if (row.IsBatch && row.BatchItem != null)
+            {
+                var b = row.BatchItem;
+                SelectedProject = b.ProjectName;
+                SelectedSizeSummary = string.IsNullOrWhiteSpace(b.Notes) ? "—" : b.Notes;
+                SelectedBatchMetric =
+                    $"{b.ChargeMetricQty.ToString("0.###", CultureInfo.InvariantCulture)} {b.ChargeMetricUnit} · " +
+                    $"{(b.ChargeTemplateKey ?? "").Replace('_', ' ')}" +
+                    (string.IsNullOrWhiteSpace(b.PolishSubTypeLabel) ? "" : $" · {b.PolishSubTypeLabel}");
+                SelectedStageItems.Add(new ProductionWorkItemRow(b));
+            }
+            else
+            {
+                var first = row.StageItems.FirstOrDefault();
+                SelectedProject = first?.ProjectName ?? "";
+
+                var sizes = new List<string>();
+                if (row.W1Label != "—") sizes.Add($"W1 {row.W1Label} × H1 {row.H1Label}");
+                if (row.W2Label != "—") sizes.Add($"W2 {row.W2Label} × H2 {row.H2Label}");
+                SelectedSizeSummary = sizes.Count == 0 ? "—"
+                    : string.Join("  ·  ", sizes) + $"  ·  Qty {row.QtyLabel}";
+                SelectedBatchMetric = "";
+
+                foreach (var item in row.StageItems)
+                    SelectedStageItems.Add(new ProductionWorkItemRow(item));
+            }
+        }
+
+        private void ClearDetailPanel()
+        {
+            HasSelection = false;
+            IsBatchSelection = false;
+            SelectedJobNo = "";
+            SelectedPiNo = "";
+            SelectedCustomer = "";
+            SelectedProject = "";
+            SelectedSalesman = "";
+            SelectedSpecLabel = "";
+            SelectedRef = "";
+            SelectedSizeSummary = "";
+            SelectedBatchMetric = "";
+            SelectedStageItems.Clear();
+        }
+
+        // ── Release sources ──────────────────────────────────────────────
 
         private async Task LoadSourcesAsync()
         {
@@ -418,13 +708,15 @@ namespace ProGlassAutomation.ViewModels.Production
                 ReleaseMessage = message;
                 ReleaseSucceeded = success;
 
-                if (success) await LoadQueueAsync().ConfigureAwait(true);
+                if (success) await LoadAllAsync().ConfigureAwait(true);
             }
             finally
             {
                 IsReleasing = false;
             }
         }
+
+        // ── Floor actions ────────────────────────────────────────────────
 
         private async Task SetStatusAsync(object? parameter, WorkItemStatus status)
         {
@@ -453,7 +745,7 @@ namespace ProGlassAutomation.ViewModels.Production
             bool ok = await Task.Run(() =>
                 ProductionRepository.SetStatusAsync(row.Id, status)).ConfigureAwait(true);
 
-            if (ok) await LoadQueueAsync().ConfigureAwait(true);
+            if (ok) await LoadAllAsync().ConfigureAwait(true);
         }
     }
 }

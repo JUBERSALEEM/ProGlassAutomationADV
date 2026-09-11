@@ -92,7 +92,8 @@ namespace ProGlassAutomation.Services.Production
                 JobRef = jobRef ?? "",
                 SourceProformaId = snapshot?.Company?.ProformaId ?? "",
                 CustomerName = snapshot?.Client?.CustomerName ?? "",
-                ProjectName = snapshot?.Project?.ProjectIdentifierName ?? ""
+                ProjectName = snapshot?.Project?.ProjectIdentifierName ?? "",
+                Salesman = snapshot?.Client?.SalesRepresentative ?? ""
             };
 
             if (snapshot == null)
@@ -441,6 +442,7 @@ namespace ProGlassAutomation.Services.Production
                         SourceProformaId = plan.SourceProformaId,
                         CustomerName = plan.CustomerName,
                         ProjectName = plan.ProjectName,
+                        Salesman = plan.Salesman,
                         SpecGroupNumber = specNo,
                         SpecName = group.SelectedSpecName ?? "",
                         BuildType = ResolveBuildType(group, snapshot),
@@ -575,6 +577,7 @@ namespace ProGlassAutomation.Services.Production
                 SourceProformaId = plan.SourceProformaId,
                 CustomerName = plan.CustomerName,
                 ProjectName = plan.ProjectName,
+                Salesman = plan.Salesman,
                 SpecGroupNumber = group.GroupNumber,
                 SpecName = group.SelectedSpecName ?? "",
                 BuildType = buildType,

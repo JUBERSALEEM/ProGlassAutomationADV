@@ -378,11 +378,20 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
             = new List<SchemaMigration>();
 
         // production.db (Production distribution — Phase 2, 2026-09-11).
-        // Brand-new database: EnsureCreated() builds both tables from the EF
-        // model on first run, so the first release needs no migrations.
-        // Additive schema changes for installs already in the field land here.
+        // EnsureCreated() builds both tables from the EF model on first run;
+        // additive schema changes for installs already in the field land here.
         public static IReadOnlyList<SchemaMigration> Production { get; }
-            = new List<SchemaMigration>();
+            = new List<SchemaMigration>
+            {
+                // Screens redesign (2026-09-11): the salesman column feeds
+                // the module list/detail views. Builds that already created
+                // production.db before this column existed need it added,
+                // or EF would query a column that does not exist.
+                new(1001, "Production: salesman column", connection =>
+                {
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionWorkItems", "Salesman", "TEXT NOT NULL DEFAULT ''");
+                })
+            };
 
         // ── shared: ERP lifecycle void / soft-close columns ─────────────
 

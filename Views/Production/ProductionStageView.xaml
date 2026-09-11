@@ -1,24 +1,24 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Production/ProductionStageView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Production — shared stage-queue screen (Phase 3, 2026-09-11)
+     MODULE: Production — shared stage screen, screens redesign 2026-09-11
 
      Hosted by all eight production module views. Binds to
-     ProductionStageViewModelBase and renders:
-       • stage identity header (tinted icon tile + pipeline position),
-       • the release bar — work comes EXCLUSIVELY from confirmed Job
-         Orders (Approved PIs that were converted); drafts never reach
-         the floor,
-       • KPI tiles — queue / pending / in progress / completed / load /
-         units ready for dispatch,
-       • floor connectivity warning (completing before the predecessor
-         stage),
-       • job + status filters and the work-item grid with
-         Start / Complete / Reopen actions.
+     ProductionStageViewModelBase and renders a two-tier master–detail:
 
-     Work arrives from ProductionDistributionEngine — specs read from
-     Step 4/5, work-type quantities from Step 6. See
-     docs/PRODUCTION_DISTRIBUTION_PLAN_2026-09-11.md.
+       TIER 1 — UNIT LIST (left): one row per unit shaped like the
+                Step 5 grid the estimator built — Job / PI No, Salesman,
+                Ref, W1·H1 + W2·H2, Qty, Unit SQM, Total SQM, LM and
+                this stage's progress. Charge work (fan holes, polish LM,
+                mitring LM) appears as "(whole spec)" batch rows.
+
+       TIER 2 — UNIT DETAIL (right): job header with customer / project /
+                salesman plus OPEN JOB ORDER and OPEN PROFORMA INVOICE
+                cross-navigation (Step 5/6 checking), and the pane-level
+                stage items with Start / Complete / Reopen floor actions.
+
+     Source lock: work arrives ONLY from confirmed Job Orders. See
+     docs/PRODUCTION_SCREENS_DESIGN_2026-09-11.md.
 ═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Production.ProductionStageView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -30,7 +30,6 @@
 
     <Grid Background="{DynamicResource WindowBackgroundBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
@@ -138,7 +137,7 @@
                 </TextBlock.Style>
             </TextBlock>
 
-            <!-- Floor connectivity warning -->
+            <!-- Floor connectivity warning (complete before predecessor) -->
             <Border Margin="0,8,0,0"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Background="{DynamicResource TintAmberBrush}"
@@ -160,8 +159,8 @@
             </Border>
         </StackPanel>
 
-        <!-- ══ Shell: KPIs + filters + grid ══════════════════════════ -->
-        <Border Grid.Row="1" Grid.RowSpan="2"
+        <!-- ══ Shell: KPIs + filters + master–detail body ════════════ -->
+        <Border Grid.Row="1"
                 Style="{StaticResource ModuleListShellStyle}" Margin="4,0,4,4">
             <Grid>
                 <Grid.RowDefinitions>
@@ -278,100 +277,330 @@
                     </Grid>
                 </Border>
 
-                <!-- Filter bar -->
+                <!-- Filter bar: search + job + status -->
                 <Border Grid.Row="1" Style="{StaticResource ModuleListFilterBarStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="220"/>
+                            <ColumnDefinition Width="200"/>
+                            <ColumnDefinition Width="170"/>
                         </Grid.ColumnDefinitions>
-                        <ComboBox Grid.Column="0"
+                        <TextBox Grid.Column="0"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 Margin="0,0,8,0"
+                                 VerticalContentAlignment="Center"
+                                 ToolTip="Search Ref / customer / job / spec / salesman"/>
+                        <ComboBox Grid.Column="1"
                                   ItemsSource="{Binding JobFilters}"
                                   SelectedItem="{Binding SelectedJobFilter}"
                                   Style="{StaticResource ModuleListFilterComboStyle}"
                                   Margin="0,0,8,0"
                                   ToolTip="Filter by released job"/>
-                        <ComboBox Grid.Column="1"
+                        <ComboBox Grid.Column="2"
                                   ItemsSource="{Binding StatusFilters}"
                                   SelectedItem="{Binding SelectedStatusFilter}"
-                                  Style="{StaticResource ModuleListFilterComboStyle}"/>
+                                  Style="{StaticResource ModuleListFilterComboStyle}"
+                                  ToolTip="Filter by stage status"/>
                     </Grid>
                 </Border>
 
-                <!-- Queue grid -->
+                <!-- ══ Master–detail body ════════════════════════════ -->
                 <Grid Grid.Row="2">
-                    <DataGrid ItemsSource="{Binding Queue}"
-                              Style="{StaticResource GodViewGridStyle}"
-                              ColumnHeaderStyle="{StaticResource GodViewHeaderStyle}"
-                              SelectionMode="Single"
-                              CanUserAddRows="False"
-                              IsReadOnly="True">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="JOB" Binding="{Binding JobRef}" Width="120"/>
-                            <DataGridTextColumn Header="SPECIFICATION" Binding="{Binding SpecLabel}" Width="1.7*"/>
-                            <DataGridTextColumn Header="REF" Binding="{Binding GlassRef}" Width="90"/>
-                            <DataGridTextColumn Header="POSITION" Binding="{Binding Position}" Width="100"/>
-                            <DataGridTextColumn Header="SIZE (MM)" Binding="{Binding SizeLabel}" Width="110"/>
-                            <DataGridTextColumn Header="QTY" Binding="{Binding QtyLabel}" Width="60"/>
-                            <DataGridTextColumn Header="TREAT" Binding="{Binding Treatment}" Width="110"/>
-                            <DataGridTextColumn Header="METRIC" Binding="{Binding MetricLabel}" Width="150"/>
-                            <DataGridTextColumn Header="DETAILS" Binding="{Binding DetailLabel}" Width="1.4*"/>
-                            <DataGridTextColumn Header="STATUS" Binding="{Binding StatusLabel}" Width="110"/>
-                            <DataGridTemplateColumn Header="ACTIONS" Width="230">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Button Content="Start"
-                                                    Style="{StaticResource OutlinedPillButton}"
-                                                    Command="{Binding DataContext.StartCommand,
-                                                              RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                    CommandParameter="{Binding}"
-                                                    Margin="4,2"
-                                                    Padding="10,2"/>
-                                            <Button Content="Complete"
-                                                    Style="{StaticResource PrimaryPillButton}"
-                                                    Command="{Binding DataContext.CompleteCommand,
-                                                              RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                    CommandParameter="{Binding}"
-                                                    Margin="4,2"
-                                                    Padding="10,2"/>
-                                            <Button Content="Reopen"
-                                                    Style="{StaticResource OutlinedPillButton}"
-                                                    Command="{Binding DataContext.ReopenCommand,
-                                                              RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                    CommandParameter="{Binding}"
-                                                    Margin="4,2"
-                                                    Padding="10,2"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="470" MinWidth="420"/>
+                    </Grid.ColumnDefinitions>
 
-                    <!-- Empty state -->
-                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                                Visibility="{Binding IsQueueEmpty,
-                                             Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="{Binding Icon}"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="44"
-                                   HorizontalAlignment="Center"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                   Opacity="0.6"/>
-                        <TextBlock Text="No work distributed to this stage yet"
-                                   FontSize="{StaticResource TextSubhead}"
-                                   FontWeight="SemiBold"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,12,0,4"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Text="Release a Job Order above — production runs exclusively from confirmed (Approved) PIs converted to Job Orders. Drafts never reach the floor. Specs are read from Step 4/5 and work-type quantities from Step 6."
-                                   FontSize="{StaticResource TextBody}"
-                                   TextWrapping="Wrap"
-                                   TextAlignment="Center"
-                                   MaxWidth="480"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
-                    </StackPanel>
+                    <!-- ── Tier 1 · unit list (Step-5 shaped rows) ── -->
+                    <Grid Grid.Column="0">
+                        <DataGrid ItemsSource="{Binding ListRows}"
+                                  SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
+                                  Style="{StaticResource GodViewGridStyle}"
+                                  ColumnHeaderStyle="{StaticResource GodViewHeaderStyle}"
+                                  SelectionMode="Single"
+                                  CanUserAddRows="False"
+                                  IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="ST" Width="42">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding StatusGlyph}" FontWeight="Bold">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding StatusLabel}" Value="IN PROGRESS">
+                                                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding StatusLabel}" Value="COMPLETED">
+                                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="JOB" Binding="{Binding JobRef}" Width="120"/>
+                                <DataGridTextColumn Header="PI NO" Binding="{Binding PiNo}" Width="110"/>
+                                <DataGridTextColumn Header="CUSTOMER" Binding="{Binding Customer}" Width="1.3*"/>
+                                <DataGridTextColumn Header="SALESMAN" Binding="{Binding Salesman}" Width="120"/>
+                                <DataGridTextColumn Header="SPEC" Binding="{Binding SpecLabel}" Width="1.5*"/>
+                                <DataGridTextColumn Header="REF" Binding="{Binding GlassRef}" Width="90"/>
+                                <DataGridTextColumn Header="BUILD" Binding="{Binding BuildType}" Width="90"/>
+                                <DataGridTextColumn Header="W1" Binding="{Binding W1Label}" Width="60"/>
+                                <DataGridTextColumn Header="H1" Binding="{Binding H1Label}" Width="60"/>
+                                <DataGridTextColumn Header="W2" Binding="{Binding W2Label}" Width="60"/>
+                                <DataGridTextColumn Header="H2" Binding="{Binding H2Label}" Width="60"/>
+                                <DataGridTextColumn Header="QTY" Binding="{Binding QtyLabel}" Width="55"/>
+                                <DataGridTextColumn Header="SQM" Binding="{Binding UnitSqmLabel}" Width="70"/>
+                                <DataGridTextColumn Header="TOT SQM" Binding="{Binding TotalSqmLabel}" Width="85"/>
+                                <DataGridTextColumn Header="LM" Binding="{Binding LmLabel}" Width="70"/>
+                                <DataGridTextColumn Header="STAGE" Binding="{Binding ProgressLabel}" Width="90"/>
+                                <DataGridTextColumn Header="CHARGE" Binding="{Binding MetricLabel}" Width="170"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <!-- Empty state -->
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    Visibility="{Binding IsListEmpty,
+                                                 Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="{Binding Icon}"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="44"
+                                       HorizontalAlignment="Center"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Opacity="0.6"/>
+                            <TextBlock Text="No work distributed to this stage yet"
+                                       FontSize="{StaticResource TextSubhead}"
+                                       FontWeight="SemiBold"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,12,0,4"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            <TextBlock Text="Release a Job Order above — production runs exclusively from confirmed (Approved) PIs converted to Job Orders. Drafts never reach the floor. Specs are read from Step 4/5 and work-type quantities from Step 6."
+                                       FontSize="{StaticResource TextBody}"
+                                       TextWrapping="Wrap"
+                                       TextAlignment="Center"
+                                       MaxWidth="480"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <GridSplitter Grid.Column="1" Width="4"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Stretch"
+                                  Background="Transparent"/>
+
+                    <!-- ── Tier 2 · unit detail ────────────────────── -->
+                    <Border Grid.Column="2"
+                            Style="{StaticResource SurfaceSecondaryStyle}"
+                            Margin="6,6,6,6"
+                            Padding="14">
+
+                        <!-- No-selection hint -->
+                        <StackPanel VerticalAlignment="Center"
+                                    Visibility="{Binding HasSelection,
+                                                 Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                            <TextBlock Text="&#xE8F1;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="40"
+                                       HorizontalAlignment="Center"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Opacity="0.6"/>
+                            <TextBlock Text="Select a unit to open its detail"
+                                       FontSize="{StaticResource TextSubhead}"
+                                       FontWeight="SemiBold"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,12,0,4"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            <TextBlock Text="The detail panel shows the job, salesman, pane sizes and this stage's work items with floor actions — plus buttons to open the source Job Order or Proforma Invoice."
+                                       FontSize="{StaticResource TextBody}"
+                                       TextWrapping="Wrap"
+                                       TextAlignment="Center"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                        </StackPanel>
+
+                        <!-- Selected unit / batch -->
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      Visibility="{Binding HasSelection,
+                                                   Converter={StaticResource BoolToVisibilityConverter}}">
+                            <StackPanel>
+
+                                <!-- Job header + cross-navigation -->
+                                <TextBlock Text="JOB" Style="{StaticResource ModuleListKpiLabelStyle}" Margin="0,0,0,6"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <Button Style="{StaticResource PrimaryPillButton}"
+                                            Command="{Binding OpenJobOrderCommand}"
+                                            Tag="&#xE8A5;"
+                                            Content="Open Job Order"
+                                            Margin="0,0,8,0"
+                                            ToolTip="Open the source Job Order this work was released from"/>
+                                    <Button Style="{StaticResource OutlinedPillButton}"
+                                            Command="{Binding OpenProformaCommand}"
+                                            Tag="&#xE8A7;"
+                                            Content="Open Proforma Invoice"
+                                            ToolTip="Open the confirmed PI (check Step 5 sizes / Step 6 charges)"/>
+                                </StackPanel>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Job No" Style="{StaticResource ModuleListKpiLabelStyle}" Margin="0,2"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedJobNo}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="12,2,0,2"/>
+
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="PI No" Style="{StaticResource ModuleListKpiLabelStyle}" Margin="0,2"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedPiNo}" FontSize="{StaticResource TextBody}"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="12,2,0,2"/>
+
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Customer" Style="{StaticResource ModuleListKpiLabelStyle}" Margin="0,2"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedCustomer}" FontSize="{StaticResource TextBody}"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap" Margin="12,2,0,2"/>
+
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Project" Style="{StaticResource ModuleListKpiLabelStyle}" Margin="0,2"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedProject}" FontSize="{StaticResource TextBody}"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap" Margin="12,2,0,2"/>
+
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Salesman" Style="{StaticResource ModuleListKpiLabelStyle}" Margin="0,2"/>
+                                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedSalesman}" FontSize="{StaticResource TextBody}"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="12,2,0,2"/>
+
+                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Spec / Ref" Style="{StaticResource ModuleListKpiLabelStyle}" Margin="0,2"/>
+                                    <StackPanel Grid.Row="5" Grid.Column="1" Margin="12,2,0,2">
+                                        <TextBlock Text="{Binding SelectedSpecLabel}" FontSize="{StaticResource TextBody}"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding SelectedRef}" FontSize="{StaticResource TextBody}"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                    </StackPanel>
+
+                                    <TextBlock Grid.Row="6" Grid.Column="0" Text="Sizes" Style="{StaticResource ModuleListKpiLabelStyle}" Margin="0,2"/>
+                                    <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding SelectedSizeSummary}" FontSize="{StaticResource TextBody}"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap" Margin="12,2,0,2"/>
+
+                                    <TextBlock Grid.Row="7" Grid.Column="0" Text="Charge" Style="{StaticResource ModuleListKpiLabelStyle}" Margin="0,2"
+                                               Visibility="{Binding IsBatchSelection,
+                                                            Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding SelectedBatchMetric}" FontSize="{StaticResource TextBody}"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap" Margin="12,2,0,2"
+                                               Visibility="{Binding IsBatchSelection,
+                                                            Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                </Grid>
+
+                                <!-- Pane-level stage items -->
+                                <TextBlock Text="STAGE ITEMS" Style="{StaticResource ModuleListKpiLabelStyle}" Margin="0,14,0,6"/>
+                                <DataGrid ItemsSource="{Binding SelectedStageItems}"
+                                          Style="{StaticResource GodViewGridStyle}"
+                                          ColumnHeaderStyle="{StaticResource GodViewHeaderStyle}"
+                                          SelectionMode="Single"
+                                          CanUserAddRows="False"
+                                          IsReadOnly="True"
+                                          MaxHeight="340">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="POS" Binding="{Binding Position}" Width="70"/>
+                                        <DataGridTextColumn Header="TREATMENT" Binding="{Binding Treatment}" Width="*"/>
+                                        <DataGridTextColumn Header="SIZE (MM)" Binding="{Binding SizeLabel}" Width="110"/>
+                                        <DataGridTextColumn Header="QTY" Binding="{Binding QtyLabel}" Width="50"/>
+                                        <DataGridTextColumn Header="SQM" Binding="{Binding SqmLabel}" Width="70"/>
+                                        <DataGridTextColumn Header="LM" Binding="{Binding LmLabel}" Width="70"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <!-- Detail (sub-type / notes / predecessor) + status -->
+                                <ItemsControl ItemsSource="{Binding SelectedStageItems}" Margin="0,10,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="{DynamicResource CardCornerRadius}"
+                                                    Background="{DynamicResource DashAmbientBrush}"
+                                                    Padding="10,8"
+                                                    Margin="0,0,0,6">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{Binding Position}"
+                                                                       FontSize="{StaticResource TextBody}"
+                                                                       FontWeight="SemiBold"
+                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                            <TextBlock Text=" · "
+                                                                       FontSize="{StaticResource TextBody}"
+                                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                            <TextBlock Text="{Binding DetailLabel}"
+                                                                       FontSize="{StaticResource TextBody}"
+                                                                       TextWrapping="Wrap"
+                                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                        </StackPanel>
+                                                        <TextBlock Text="{Binding StatusLabel}"
+                                                                   FontSize="{StaticResource TextCaption}"
+                                                                   FontWeight="SemiBold"
+                                                                   Margin="0,2,0,0">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding StatusLabel}" Value="IN PROGRESS">
+                                                                            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding StatusLabel}" Value="COMPLETED">
+                                                                            <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <Button Content="Start"
+                                                                Style="{StaticResource OutlinedPillButton}"
+                                                                Command="{Binding DataContext.StartCommand,
+                                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                CommandParameter="{Binding}"
+                                                                Visibility="{Binding CanStart,
+                                                                             Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                Margin="4,0" Padding="10,2"/>
+                                                        <Button Content="Complete"
+                                                                Style="{StaticResource PrimaryPillButton}"
+                                                                Command="{Binding DataContext.CompleteCommand,
+                                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                CommandParameter="{Binding}"
+                                                                Visibility="{Binding CanComplete,
+                                                                             Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                Margin="4,0" Padding="10,2"/>
+                                                        <Button Content="Reopen"
+                                                                Style="{StaticResource OutlinedPillButton}"
+                                                                Command="{Binding DataContext.ReopenCommand,
+                                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                CommandParameter="{Binding}"
+                                                                Visibility="{Binding CanReopen,
+                                                                             Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                Margin="4,0" Padding="10,2"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
                 </Grid>
             </Grid>
         </Border>

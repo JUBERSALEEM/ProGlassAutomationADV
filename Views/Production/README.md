@@ -38,12 +38,28 @@ production.db (work items per stage, idempotent re-release)
   EDGE_GRINDING → Polish LM; MITRING → Mitring LM; ARGON / SILICON /
   U-INSERT / OVERLAP / SHUTTER_BONDING → notes on the assembly item.
 
+**Screens (redesign 2026-09-11)** — every module is a two-tier
+master–detail, full design + worked samples in
+`docs/PRODUCTION_SCREENS_DESIGN_2026-09-11.md`:
+
+- **Tier 1 · Unit list** — one row per unit, shaped like the Step 5 grid:
+  Job / PI No · Customer · Salesman · Spec · Ref · Build · W1/H1 + W2/H2 ·
+  Qty · Unit SQM · Total SQM · LM · stage progress (n/m). Charge work
+  (fan holes, polish LM, mitring LM) shows as `(whole spec)` batch rows.
+  Filters: free-text search, job, status. KPI chips: queue / pending /
+  in progress / completed / load / ready-for-dispatch.
+- **Tier 2 · Unit detail** — selecting a row opens the job header
+  (Job No, PI No, Customer, Project, Salesman) with **Open Job Order**
+  and **Open Proforma Invoice** cross-navigation (checks Step 5 sizes /
+  Step 6 charges in the source documents), plus the pane-level stage
+  items with Start / Complete / Reopen floor actions.
+
 **Key files**
 
 | File | Role |
 |---|---|
-| `ProductionStageView.xaml` | Shared queue screen hosted by all 8 module views |
-| `ViewModels/Production/ProductionStageViewModelBase.cs` | Queue, filters, KPIs, floor actions |
+| `ProductionStageView.xaml` | Shared master–detail screen hosted by all 8 module views |
+| `ViewModels/Production/ProductionStageViewModelBase.cs` | List + detail, filters, KPIs, floor actions, cross-nav hooks |
 | `Services/Production/ProductionDistributionEngine.cs` | Snapshot → work items (pure, deterministic) |
 | `Services/Production/ProductionReleaseService.cs` | Release picker + orchestration |
-| `Services/Production/ProductionRepository.cs` | production.db persistence (idempotent upsert) |
+| `Services/Production/ProductionRepository.cs` | production.db persistence + stage list/detail projections |
