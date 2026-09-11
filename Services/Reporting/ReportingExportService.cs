@@ -262,6 +262,12 @@ namespace ProGlassAutomation.Services.Reporting
                         bool alt = false;
                         foreach (var vals in group)
                         {
+                            // 2026-09-11: ⚑ FOCUS rows are shaded amber + bold so
+                            // the attention block reads as a visual banner, not
+                            // another data row.
+                            bool focusRow = string.Equals(
+                                vals.Length > 0 ? vals[0]?.ToString() : null,
+                                "⚑ FOCUS", StringComparison.Ordinal);
                             for (int c = 1; c < vals.Length && c < _headers.Length; c++)
                             {
                                 var v = vals[c];
@@ -271,6 +277,11 @@ namespace ProGlassAutomation.Services.Reporting
                                 else if (v is double db) { cell.Value = db; }
                                 else cell.Value = v?.ToString() ?? "";
                                 cell.Style.Font.SetFontSize(10);
+                                if (focusRow)
+                                {
+                                    cell.Style.Font.SetBold();
+                                    cell.Style.Fill.SetBackgroundColor(XLColor.FromHtml("#FEF3C7"));
+                                }
                                 cell.Style.Alignment.SetVertical(XLAlignmentVerticalValues.Top);
                                 cell.Style.Alignment.SetWrapText(true);
                                 cell.Style.Border.SetBottomBorder(XLBorderStyleValues.Hair);
@@ -485,11 +496,20 @@ namespace ProGlassAutomation.Services.Reporting
                     for (int i = 0; i < take; i++)
                     {
                         var fields = _mapper(_rows[i]);
+                        // ⚑ FOCUS rows shade amber across the full row width.
+                        bool focusRow = string.Equals(
+                            fields.Length > 0 ? fields[0] : null,
+                            "⚑ FOCUS", StringComparison.Ordinal);
                         foreach (var f in fields)
                         {
                             var txt = f ?? "";
                             if (txt.Length > maxCellChars) txt = txt.Substring(0, Math.Max(1, maxCellChars - 1)) + "…";
-                            table.Cell().Background(alt ? "#F8FAFC" : Colors.White).BorderBottom(0.5f).BorderColor("#E5E7EB").Padding(4).Text(txt).FontSize(_headers.Length <= 8 ? 7.5f : 7f).FontColor("#1F2937");
+                            var cell = table.Cell()
+                                .Background(focusRow ? "#FEF3C7" : alt ? "#F8FAFC" : Colors.White)
+                                .BorderBottom(0.5f).BorderColor("#E5E7EB").Padding(4);
+                            var text = cell.Text(txt).FontSize(_headers.Length <= 8 ? 7.5f : 7f).FontColor("#1F2937");
+                            if (focusRow) text.Bold();
+
                         }
                         alt = !alt;
                     }
