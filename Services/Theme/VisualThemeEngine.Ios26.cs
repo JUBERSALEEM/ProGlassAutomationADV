@@ -123,16 +123,19 @@ namespace ProGlassAutomation.Services.Theme
             resources["AboutGlassChromeVisibility"] = Visibility.Visible;
 
             // ── ABOUT layer ───────────────────────────────────────────
+            // Light stage: PLAIN WHITE (owner directive 2026-09-11) with a
+            // barely-there neutral sweep; dark keeps the charcoal aurora.
             resources["AboutWallpaperBrush"] = Ios26Lin(dark,
-                "#C7DBFF", "#E4D6FF", "#FFD9E8", "#0B0D13", "#141322", "#1D1032");
+                "#FFFFFF", "#FAFBFD", "#F4F6FA", "#0B0D13", "#141322", "#1D1032");
             resources["AboutGlassSlabBrush"] = Ios26Lin(dark,
                 "#F8FFFFFF", "#D2FFFFFF", null, "#33FFFFFF", "#17FFFFFF", null);
             resources["AboutGlassPanelBrush"] = Ios26Lin(dark,
                 "#EAFFFFFF", "#C8FFFFFF", null, "#2BFFFFFF", "#12FFFFFF", null);
             resources["AboutGlassCapsuleBrush"] = Ios26Lin(dark,
                 "#FBFFFFFF", "#E0FFFFFF", null, "#38FFFFFF", "#1FFFFFFF", null);
-            resources["AboutGlassSlabStroke"] = Ios26Sol(dark, "#EAFFFFFF", "#3DF2F6FF");
-            resources["AboutGlassHairlineStroke"] = Ios26Sol(dark, "#B3F0F4FF", "#24F2F6FF");
+            // On white, rims must be quiet ink hairlines (white rims vanish).
+            resources["AboutGlassSlabStroke"] = Ios26Sol(dark, "#17000000", "#3DF2F6FF");
+            resources["AboutGlassHairlineStroke"] = Ios26Sol(dark, "#0F000000", "#24F2F6FF");
             resources["AboutGlassCaptionBrush"] = Ios26Sol(dark, "#6E6E73", "#AEB7C4");
             resources["AboutGlassGlowBrush"] = Ios26Sol(dark, "#66FFFFFF", "#1AFFFFFF");
             resources["AboutCardCornerRadius"] = new CornerRadius(20);
@@ -393,6 +396,7 @@ namespace ProGlassAutomation.Services.Theme
                 BlurRadius = blur,
                 ShadowDepth = depth,
                 Direction = 270,
+                RenderingBias = System.Windows.Media.Effects.RenderingBias.Performance,
                 Opacity = opacity,
                 Color = dark ? Colors.Black
                     : (Color)ColorConverter.ConvertFromString("#1E293B")

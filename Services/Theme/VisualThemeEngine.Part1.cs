@@ -15,6 +15,16 @@ namespace ProGlassAutomation.Services.Theme
         public static partial class VisualThemeEngine
     {
             public const string Normal = "Normal";
+
+        // ── Wallpaper-layer predicates (2026-09-11) ──────────────────
+        // ONE shared decision point per layer instead of scattered family
+        // checks at every paint site. iOS 26 stages its own plain-white
+        // scene: the user's FILE wallpaper (window layer + module layer)
+        // must never paint over it — that was the "wallpaper still copies
+        // my Normal theme" bug AND a per-navigation re-layer cost.
+        private static bool SystemWallpaperApplies =>
+            Current != Monet && Current != Ios26;
+        private static bool ModuleWallpaperApplies => Current != Ios26;
         /// <summary>NORMAL (INDUSTRIAL) (2026-09-07) — the pre-cream
         /// "Normal" restored as its own family beside the cream SaaS
         /// Normal. Full white + blue tone, professional industrial
@@ -431,7 +441,7 @@ namespace ProGlassAutomation.Services.Theme
                 // above). The module-area layer is owned by
                 // ApplyModule, which callers invoke right after this —
                 // that keeps module-specific wallpapers authoritative.
-                if (Current != Monet &&
+                if (SystemWallpaperApplies &&
                     !string.IsNullOrWhiteSpace(_lastWallpaperPath) &&
                     File.Exists(_lastWallpaperPath))
                 {
@@ -592,7 +602,7 @@ namespace ProGlassAutomation.Services.Theme
                     resources.Remove("ModuleWallpaperBrush");
                 }
 
-                if (Current != Monet &&
+                if (SystemWallpaperApplies &&
                     !string.IsNullOrWhiteSpace(_lastWallpaperPath) &&
                     File.Exists(_lastWallpaperPath))
                 {
@@ -605,7 +615,9 @@ namespace ProGlassAutomation.Services.Theme
                 CurrentModule = "";
 
                 // 1) Module-specific wallpaper wins when enabled.
-                if (!string.IsNullOrEmpty(moduleKey) && appearance != null &&
+                //    (iOS 26: never — the family stages plain white.)
+                if (ModuleWallpaperApplies &&
+                    !string.IsNullOrEmpty(moduleKey) && appearance != null &&
                     appearance.ModuleWallpapers.TryGetValue(
                         moduleKey, out var moduleWallpaper) &&
                     moduleWallpaper != null &&
@@ -637,7 +649,8 @@ namespace ProGlassAutomation.Services.Theme
                 // 2) Otherwise the system-wide wallpaper shows in
                 //    every view.
                 bool systemWallpaperLayered = false;
-                if (!string.IsNullOrWhiteSpace(_lastWallpaperPath) &&
+                if (SystemWallpaperApplies &&
+                    !string.IsNullOrWhiteSpace(_lastWallpaperPath) &&
                     File.Exists(_lastWallpaperPath))
                 {
                     LayerWallpaperBehindContent(

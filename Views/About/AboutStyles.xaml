@@ -306,6 +306,7 @@
                 BorderBrush="{DynamicResource AboutGlassSlabStroke}"
                 Background="{DynamicResource AboutGlassSlabBrush}"
                 SnapsToDevicePixels="True"
+                CacheMode="BitmapCache"
                 RenderTransformOrigin="0.5,0.5">
             <Border.RenderTransform>
                 <TransformGroup>

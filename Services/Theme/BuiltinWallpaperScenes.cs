@@ -97,7 +97,7 @@ namespace ProGlassAutomation.Services.Theme
             };
             string[] stops = dark
                 ? new[] { "#0B0D13", "#141322", "#1D1032", "#0E1220" }
-                : new[] { "#C7DBFF", "#E4D6FF", "#FFD9E8", "#FFF3EC" };
+                : new[] { "#FFFFFF", "#FAFBFD", "#F5F7FA", "#EFF2F7" };
             double[] offsets = { 0.0, 0.42, 0.78, 1.0 };
             for (int i = 0; i < stops.Length; i++)
                 b.GradientStops.Add(new GradientStop(Parse(stops[i]), offsets[i]));

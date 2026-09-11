@@ -89,6 +89,21 @@ namespace ProGlassAutomation.Views.About
         {
             try
             {
+                // SENIOR PERF GATE (2026-09-11): the app already publishes
+                // its own effects budget (RichEffectsEnabled; the perf tier
+                // logs "rich effects False" on constrained machines). Ten
+                // forever-running transforms over a shadowed page re-render
+                // every frame — the "About feels laggy" report. Decorative
+                // motion is OFF unless the app says effects are affordable.
+                if (Application.Current?.TryFindResource("RichEffectsEnabled")
+                        is not true)
+                {
+                    SafeLog("StartAmbientMotion",
+                        new System.InvalidOperationException(
+                            "Rich effects disabled — ambient motion skipped."));
+                    return;
+                }
+
                 // Orb A — drift + gentle swell.
                 Loop(OrbATranslate, TranslateTransform.XProperty, 0, -30, 21);
                 Loop(OrbATranslate, TranslateTransform.YProperty, 0, 24, 24);
@@ -136,6 +151,9 @@ namespace ProGlassAutomation.Views.About
                 RepeatBehavior = RepeatBehavior.Forever,
                 EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut },
             };
+            // Decorative, not gameplay: 30 fps halves the invalidation
+            // cost with zero perceived difference for drift/swell.
+            Timeline.SetDesiredFrameRate(anim, 30);
             animatable.BeginAnimation(prop, anim);
         }
 
