@@ -17,52 +17,107 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../AboutStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- LG4 scope capsule (2026-09-10): All / Operations / Finance /
+                 Platform, iOS segmented style — selected segment = accent pill. -->
+            <Style x:Key="ScopeCapsuleStyle" TargetType="ListBox">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+                <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Disabled"/>
+                <Setter Property="ItemsPanel">
+                    <Setter.Value>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="ScopePillItemStyle" TargetType="ListBoxItem">
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                <Setter Property="Foreground" Value="{DynamicResource LiquidFrost}"/>
+                <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Margin" Value="0,0,3,0"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <Border x:Name="PillBg"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent"
+                                    BorderThickness="1"
+                                    CornerRadius="14"
+                                    Padding="13,5"
+                                    SnapsToDevicePixels="True">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="PillBg" Property="Background" Value="{DynamicResource AboutGlassPanelBrush}"/>
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter TargetName="PillBg" Property="Background" Value="{DynamicResource LiquidAccentDeep}"/>
+                                    <Setter TargetName="PillBg" Property="BorderBrush" Value="{DynamicResource LiquidAccent}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
 
     <StackPanel>
 
-        <Border Style="{StaticResource AboutCardStyle}">
-            <StackPanel>
-                <Grid Margin="0,0,0,18">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+        <!-- 2026-09-10 LG4 EXACT: large title over the wallpaper + floating
+             scope capsule + 4×3 crystal mosaic directly on the wallpaper
+             (cards float — no container slab). Workflow card stays below,
+             restyled by the shared glass language. -->
+        <Grid Margin="0,0,0,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="{DynamicResource About.ActiveModules}"
-                                   Style="{StaticResource SectionTitleStyle}"/>
-                        <TextBlock Text="{DynamicResource About.OperationalSurfacesAlreadyDeployedBuild}"
-                                   Style="{StaticResource SectionSubtitleStyle}"
-                                   Margin="0,0,0,0"/>
-                    </StackPanel>
-
-                    <Border Grid.Column="1"
-                            Style="{StaticResource AboutHeaderBadgeStyle}">
-                        <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}">
-                            <Run Text="{DynamicResource About.ModuleCount}"/>
-                            <Run Text="{Binding Modules.Count, Mode=OneWay}"/>
-                        </TextBlock>
-                    </Border>
-                </Grid>
-
-                <!-- 2026-09-10 iOS-26: 2-column × 6-row full-width glass
-                     slabs (mockup-exact) instead of the 4-column chip grid. -->
-                <Border Style="{StaticResource AboutSectionPanelStyle}"
-                        Margin="0,0,0,0"
-                        Padding="8,8">
-                    <ItemsControl ItemsSource="{Binding Modules}"
-                                  ItemTemplate="{StaticResource ModuleChipTemplate}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <UniformGrid Columns="2"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                    </ItemsControl>
-                </Border>
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="{DynamicResource About.ActiveModules}"
+                           FontSize="{StaticResource TextDisplay}"
+                           FontWeight="Bold"
+                           Foreground="{DynamicResource LiquidIce}"/>
+                <TextBlock Text="{DynamicResource About.OperationalSurfacesAlreadyDeployedBuild}"
+                           FontSize="{StaticResource TextBody}"
+                           Foreground="{DynamicResource LiquidFrost}"
+                           Margin="0,2,0,0"/>
             </StackPanel>
-        </Border>
+
+            <Border Grid.Column="1"
+                    Background="{DynamicResource AboutGlassCapsuleBrush}"
+                    BorderBrush="{DynamicResource AboutGlassSlabStroke}"
+                    BorderThickness="1"
+                    CornerRadius="20"
+                    Padding="6,4"
+                    VerticalAlignment="Top"
+                    SnapsToDevicePixels="True">
+                <ListBox ItemsSource="{Binding ModuleScopes}"
+                         SelectedItem="{Binding SelectedScopeItem, Mode=TwoWay}"
+                         Style="{StaticResource ScopeCapsuleStyle}"
+                         ItemContainerStyle="{StaticResource ScopePillItemStyle}"/>
+            </Border>
+        </Grid>
+
+        <ItemsControl ItemsSource="{Binding FilteredModules}"
+                      ItemTemplate="{StaticResource ModuleChipTemplate}"
+                      Margin="0,0,0,14">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <!-- LG4 mosaic: 4 columns × 3 rows full-width -->
+                    <UniformGrid Columns="4"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
 
         <Border Style="{StaticResource AboutCardStyle}">
             <StackPanel>

@@ -683,9 +683,9 @@
              Same keys as LightTheme — only the token values swap, which is
              exactly why the About module re-skins instantly. -->
         <LinearGradientBrush x:Key="AboutWallpaperBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
-            <GradientStop Color="#0A1120" Offset="0"/>
-            <GradientStop Color="#101A33" Offset="0.55"/>
-            <GradientStop Color="#1B1035" Offset="1"/>
+            <GradientStop Color="#0B0D13" Offset="0"/>
+            <GradientStop Color="#141322" Offset="0.55"/>
+            <GradientStop Color="#1D1032" Offset="1"/>
         </LinearGradientBrush>
         <LinearGradientBrush x:Key="AboutGlassSlabBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
             <GradientStop Color="#33FFFFFF" Offset="0"/>

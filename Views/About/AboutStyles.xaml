@@ -365,8 +365,10 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="12"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="8"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
@@ -407,8 +409,35 @@
                                IsHitTestVisible="False"/>
                 </StackPanel>
 
+                <!-- LG4 stat chip: small glass capsule right of the text
+                     (LIVE SHEET COUNT for Sheet Store — INPC-backed). -->
+                <Border Grid.Column="3"
+                        Background="{DynamicResource AboutGlassPanelBrush}"
+                        BorderBrush="{DynamicResource AboutGlassSlabStroke}"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="8,3"
+                        VerticalAlignment="Center"
+                        SnapsToDevicePixels="True">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding StatChip}" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <TextBlock Text="{Binding StatChip}"
+                               FontSize="9"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource LiquidAccent}"
+                               IsHitTestVisible="False"/>
+                </Border>
+
                 <!-- rim-light chevron: quiet affordance like the iOS list row -->
-                <TextBlock Grid.Column="3" Text="&#xE76C;"
+                <TextBlock Grid.Column="4" Text="&#xE76C;"
                            FontFamily="Segoe MDL2 Assets"
                            FontSize="{StaticResource TextBody}"
                            Foreground="{DynamicResource AboutGlassCaptionBrush}"

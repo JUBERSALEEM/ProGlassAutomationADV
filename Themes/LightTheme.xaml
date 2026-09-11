@@ -738,9 +738,9 @@
              screen reads these via DynamicResource, so Light / Dark and
              every dynamic visual family re-tint the stage live. -->
         <LinearGradientBrush x:Key="AboutWallpaperBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
-            <GradientStop Color="#DCEBFF" Offset="0"/>
-            <GradientStop Color="#F3EBFF" Offset="0.55"/>
-            <GradientStop Color="#FFECF1" Offset="1"/>
+            <GradientStop Color="#C7DBFF" Offset="0"/>
+            <GradientStop Color="#E4D6FF" Offset="0.5"/>
+            <GradientStop Color="#FFD9E8" Offset="1"/>
         </LinearGradientBrush>
         <LinearGradientBrush x:Key="AboutGlassSlabBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
             <GradientStop Color="#F8FFFFFF" Offset="0"/>

@@ -45,6 +45,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.ProformaInvoice;
 using ProGlassAutomation.ViewModels;
 using ProGlassAutomation.ViewModels.Licensing;
 
@@ -75,6 +79,69 @@ public sealed class AboutViewModel : ViewModelBase
     /// system clock is set incorrectly (common on offline factory PCs).
     /// </summary>
     private const int CopyrightYearFloor = 2026;
+
+    // ══════════════════════════════════════════════════════════════════
+    //  LG4 MOSAIC (2026-09-10): scope chips + live module stat chips
+    //  Modules page = floating title + All/Operations/Finance/Platform
+    //  capsule + 4×3 crystal mosaic with per-module stat chips, exactly
+    //  like the approved LG4 board. Sheet Store chip is LIVE (real
+    //  balance count from Sheet Store); the rest are static-truthful.
+    // ══════════════════════════════════════════════════════════════════
+
+    public AboutViewModel()
+    {
+        SelectedScopeItem = ModuleScopes[0];
+
+        // LIVE Sheet Store chip — real balance count. Scalar INPC is
+        // marshalled by WPF, so the background continuation is safe.
+        Utilities.AsyncUtility.SafeFireAndForget(async () =>
+        {
+            var sheets = await SheetStorePricingService.GetAllSheetsAsync()
+                .ConfigureAwait(false);
+            int balance = sheets.Sum(s => Math.Max(0, s.Balance));
+            var m = Modules.FirstOrDefault(x => x.Name == "Sheet Store");
+            if (m != null && balance > 0)
+                m.StatChip = $"{balance:N0} SHEETS";
+        }, "About.LiveSheetCount");
+    }
+
+    /// <summary>One segment of the scope capsule (LG4).</summary>
+    public sealed record AboutScope(string Key, string Label);
+
+    public ObservableCollection<AboutScope> ModuleScopes { get; } = new()
+    {
+        new AboutScope("All", "All"),
+        new AboutScope("Operations", "Operations"),
+        new AboutScope("Finance", "Finance"),
+        new AboutScope("Platform", "Platform"),
+    };
+
+    private AboutScope _selectedScopeItem;
+    public AboutScope SelectedScopeItem
+    {
+        get => _selectedScopeItem;
+        set
+        {
+            if (ReferenceEquals(_selectedScopeItem, value) || value == null)
+                return;
+            _selectedScopeItem = value;
+            OnPropertyChanged();
+            RefilterModules();
+        }
+    }
+
+    /// <summary>Modules currently surfaced by the scope capsule.</summary>
+    public ObservableCollection<ModuleInfo> FilteredModules { get; } = new();
+
+    private void RefilterModules()
+    {
+        var key = _selectedScopeItem?.Key ?? "All";
+        FilteredModules.Clear();
+        foreach (var m in Modules.Where(m =>
+                     key == "All" || m.Category == key))
+            FilteredModules.Add(m);
+        OnPropertyChanged(nameof(FilteredModules));
+    }
 
     // ══════════════════════════════════════════════════════════════════
     //  BRAND IDENTITY
@@ -304,32 +371,46 @@ public sealed class AboutViewModel : ViewModelBase
     private static readonly ModuleInfo[] ActiveModuleCatalog =
     {
         new ModuleInfo("\uE7B8", "Sheet Store",
-            "Raw glass inventory · SQM pricing · Buy/Use tracking"),
+            "Raw glass inventory · SQM pricing · Buy/Use tracking",
+            "Operations", "LIVE STOCK"),
         new ModuleInfo("\uE8A5", "Proforma Invoice",
-            "7-step wizard · SGU/DGU/LAM · Excel-like paste"),
+            "7-step wizard · SGU/DGU/LAM · Excel-like paste",
+            "Operations", "7-STEP"),
         new ModuleInfo("\uE822", "Job Order",
-            "Convert PI · Priority · Status tracking · Factory sheet"),
+            "Convert PI · Priority · Status tracking · Factory sheet",
+            "Operations", "CONVERT PI"),
         new ModuleInfo("\uE7F4", "Delivery Note",
-            "Partial deliveries · Sibling chain · Photo proof"),
+            "Partial deliveries · Sibling chain · Photo proof",
+            "Operations", "PARTIAL OK"),
         new ModuleInfo("\uE8C8", "Tax Invoice",
-            "VAT-compliant · Partial invoices · Family tracking"),
+            "VAT-compliant · Partial invoices · Family tracking",
+            "Finance", "VAT-READY"),
         new ModuleInfo("\uE81C", "Statements & Reports",
-            "Account statements · Sales report · PDF export"),
+            "Account statements · Sales report · PDF export",
+            "Finance", "PDF LEDGERS"),
         new ModuleInfo("\uE713", "Settings",
-            "Appearance · licensing · backups · AI · feature controls"),
+            "Appearance · licensing · backups · AI · feature controls",
+            "Platform", "5 DATABASES"),
         new ModuleInfo("\uE72E", "Users · Audit · Activity",
-            "Roles & permissions · Before/after diffs · Live log"),
+            "Roles & permissions · Before/after diffs · Live log",
+            "Platform", "ROLE-BASED"),
         new ModuleInfo("\uE9F9", "Multi-page Dashboard",
-            "Real-time KPIs · Activity feed · Cross-module stats"),
+            "Real-time KPIs · Activity feed · Cross-module stats",
+            "Platform", "CROSS-MODULE"),
         new ModuleInfo("\uE72D", "Shared Export Engine",
-            "PDF (QuestPDF) · Excel (ClosedXML) · CSV · Print"),
+            "PDF (QuestPDF) · Excel (ClosedXML) · CSV · Print",
+            "Platform", "3 FORMATS"),
         new ModuleInfo("\uE8F2", "AI Assistant",
-            "Gemini-powered · Glass industry expertise · Chat"),
+            "Gemini-powered · Glass industry expertise · Chat",
+            "Platform", "GUARDED"),
         new ModuleInfo("\uE790", "Light + Dark Themes",
-            "Instant swap · 25 brushes · Design system foundation"),
+            "Instant swap · 25 brushes · Design system foundation",
+            "Platform", "LIGHT+DARK"),
     };
 
     public ObservableCollection<ModuleInfo> Modules { get; } = new(ActiveModuleCatalog);
+
+    // LG4: the mosaic binds FilteredModules; seeded by the ctor scope init.
 
     // ══════════════════════════════════════════════════════════════════
     //  TECHNOLOGY STACK (Chat 23 v2.6)
@@ -407,7 +488,45 @@ public sealed class AboutViewModel : ViewModelBase
 /// Single module chip rendered in the "Active Modules" card.
 /// Contains display metadata only — no behavior.
 /// </summary>
-public sealed record ModuleInfo(string Icon, string Name, string Description);
+/// <summary>
+/// One module slab on the About → Modules mosaic (LG4).
+/// StatChip is the small glass chip on the slab's right side; it is
+/// INPC so the LIVE Sheet Store count can update after load.
+/// </summary>
+public sealed class ModuleInfo : INotifyPropertyChanged
+{
+    public ModuleInfo(
+        string icon, string name, string description,
+        string category = "Platform", string statChip = "")
+    {
+        Icon = icon;
+        Name = name;
+        Description = description;
+        Category = category;
+        _statChip = statChip;
+    }
+
+    public string Icon { get; }
+    public string Name { get; }
+    public string Description { get; }
+    /// <summary>Scope capsule grouping: Operations / Finance / Platform.</summary>
+    public string Category { get; }
+
+    private string _statChip;
+    public string StatChip
+    {
+        get => _statChip;
+        set
+        {
+            if (_statChip == value) return;
+            _statChip = value;
+            PropertyChanged?.Invoke(this,
+                new PropertyChangedEventArgs(nameof(StatChip)));
+        }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+}
 
 /// <summary>
 /// Single row in the Technology Stack card.
