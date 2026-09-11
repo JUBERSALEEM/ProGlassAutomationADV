@@ -25,6 +25,27 @@ namespace ProGlassAutomation.Services.Theme
         private static bool SystemWallpaperApplies =>
             Current != Monet && Current != Ios26;
         private static bool ModuleWallpaperApplies => Current != Ios26;
+
+        /// <summary>The FILE wallpaper layer paints ONLY when the user's
+        /// wallpaper mode actually wants a file: "File" mode, or legacy
+        /// "Auto" with an existing saved path (Auto's documented contract).
+        /// ThemeLinked / Scene ("force built-in scenes") must NEVER show
+        /// the image — it used to paint beneath the scene and stay visible
+        /// through translucent module surfaces (2026-09-11 bugfix).</summary>
+        private static bool FileWallpaperApplies
+        {
+            get
+            {
+                if (!SystemWallpaperApplies) return false;
+                string mode = WallpaperOrchestrator.EffectiveMode(
+                    App.Config?.Appearance);
+                if (mode == WallpaperOrchestrator.ModeFile) return true;
+                if (mode == WallpaperOrchestrator.ModeAuto)
+                    return !string.IsNullOrWhiteSpace(_lastWallpaperPath)
+                        && File.Exists(_lastWallpaperPath);
+                return false;
+            }
+        }
         /// <summary>NORMAL (INDUSTRIAL) (2026-09-07) — the pre-cream
         /// "Normal" restored as its own family beside the cream SaaS
         /// Normal. Full white + blue tone, professional industrial
@@ -234,6 +255,14 @@ namespace ProGlassAutomation.Services.Theme
                 moduleWall = $"{mw.Enabled}|{mw.Path}|{ClampOpacity(mw.Opacity):F3}";
             }
 
+            // Wallpaper MODE + pinned scene are render inputs too (2026-09-11
+            // bugfix): flipping "force built-in scenes" ↔ file (or pinning a
+            // different scene) without changing the path left the signature
+            // UNCHANGED and the idempotence guard skipped the render — the
+            // old wallpaper stayed on screen ("mode not accepted" report).
+            string wallMode = appearance?.WallpaperMode ?? "";
+            string pinnedScene = appearance?.BuiltinScene ?? "";
+
             // ThemeManager's Light/Dark mode and the accent are inputs too:
             // the family derives its surfaces from them.
             return string.Join("¦",
@@ -242,7 +271,7 @@ namespace ProGlassAutomation.Services.Theme
                     System.Globalization.CultureInfo.InvariantCulture),
                 family, mod, wall, op.ToString("F3",
                     System.Globalization.CultureInfo.InvariantCulture),
-                moduleWall,
+                moduleWall, wallMode, pinnedScene,
                 FontPreferenceSignature());
         }
 
@@ -441,7 +470,7 @@ namespace ProGlassAutomation.Services.Theme
                 // above). The module-area layer is owned by
                 // ApplyModule, which callers invoke right after this —
                 // that keeps module-specific wallpapers authoritative.
-                if (SystemWallpaperApplies &&
+                if (FileWallpaperApplies &&
                     !string.IsNullOrWhiteSpace(_lastWallpaperPath) &&
                     File.Exists(_lastWallpaperPath))
                 {
@@ -602,7 +631,7 @@ namespace ProGlassAutomation.Services.Theme
                     resources.Remove("ModuleWallpaperBrush");
                 }
 
-                if (SystemWallpaperApplies &&
+                if (FileWallpaperApplies &&
                     !string.IsNullOrWhiteSpace(_lastWallpaperPath) &&
                     File.Exists(_lastWallpaperPath))
                 {
@@ -649,7 +678,7 @@ namespace ProGlassAutomation.Services.Theme
                 // 2) Otherwise the system-wide wallpaper shows in
                 //    every view.
                 bool systemWallpaperLayered = false;
-                if (SystemWallpaperApplies &&
+                if (FileWallpaperApplies &&
                     !string.IsNullOrWhiteSpace(_lastWallpaperPath) &&
                     File.Exists(_lastWallpaperPath))
                 {
