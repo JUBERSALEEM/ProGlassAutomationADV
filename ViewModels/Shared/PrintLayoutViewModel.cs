@@ -25,6 +25,19 @@ namespace ProGlassAutomation.ViewModels.Shared
 
         /// <summary>FormalBand / SplitConsole / Editorial / Workshop / QuietForm.</summary>
         public string Kind { get; }
+
+        /// <summary>
+        /// Defence in depth against the "layout shows as a type name" bug
+        /// (owner-reported: 'ProGlassAutomationViewModelsSharedPrintLayoutOption').
+        /// WPF renders item.ToString() whenever DisplayMemberPath cannot
+        /// resolve in a given context (template edge cases, selection echo,
+        /// logging, agent screen-readers). The default implementation
+        /// returns the fully-qualified type name — a debug string leaking
+        /// onto a customer screen. Overriding it means NO rendering path
+        /// can ever show the type name again: the human-readable layout
+        /// name wins everywhere, always.
+        /// </summary>
+        public override string ToString() => Name;
     }
 
     /// <summary>
@@ -86,22 +99,33 @@ namespace ProGlassAutomation.ViewModels.Shared
                 OnPropertyChanged(nameof(SelectedName));
                 OnPropertyChanged(nameof(SelectedDescription));
                 OnPropertyChanged(nameof(Kind));
+                OnPropertyChanged(nameof(SelectedStyleLabel));
 
                 ApplyAndPersist(theme);
             }
         }
 
         /// <summary>
-        /// The active layout's page architecture. XAML DataTriggers key off
-        /// this to rebuild the letterhead, section headers, totals and
-        /// signature blocks — the parts where the five layouts differ in
-        /// shape rather than colour.
+        /// The active layout's shape family (FormalBand / SplitConsole /
+        /// Editorial / Workshop / QuietForm). Drives derived rule weights in
+        /// PdfMetrics and the shared chrome used by the non-PI modules.
+        /// Kept for compatibility only — the Step 7 UI surfaces
+        /// <see cref="SelectedStyleLabel"/>, never this raw enum name.
         /// </summary>
         public string Kind => DocumentStyle.Kind.ToString();
 
         public string SelectedName => DocumentStyle.Current.DisplayName;
 
         public string SelectedDescription => DocumentStyle.Current.Description;
+
+        /// <summary>
+        /// Curated style family shown on the preview badge — EXECUTIVE,
+        /// MODERN, EDITORIAL, INDUSTRIAL or MINIMAL. Never a type name and
+        /// never the raw PdfLayoutKind enum member ("FormalBand",
+        /// "SplitConsole"…), which operators read as a leaked debug string
+        /// (owner-reported issue 1).
+        /// </summary>
+        public string SelectedStyleLabel => DocumentStyle.Current.StyleLabel;
 
         private void ApplyAndPersist(PdfTheme theme)
         {
@@ -152,6 +176,7 @@ namespace ProGlassAutomation.ViewModels.Shared
             OnPropertyChanged(nameof(SelectedName));
             OnPropertyChanged(nameof(SelectedDescription));
             OnPropertyChanged(nameof(Kind));
+            OnPropertyChanged(nameof(SelectedStyleLabel));
         }
 
         private static string ResolveSavedId()

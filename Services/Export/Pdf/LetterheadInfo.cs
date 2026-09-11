@@ -18,6 +18,13 @@ namespace ProGlassAutomation.Services.Export.Pdf
         public string DocumentId { get; set; } = string.Empty;
         public string? SubtitleLine { get; set; }
 
+        /// <summary>
+        /// Pre-formatted issue date for letterheads that carry a reference
+        /// box (the PI preview-parity design prints it as "Ref No / Date").
+        /// Optional — shared chrome ignores it.
+        /// </summary>
+        public string IssueDateText { get; set; } = string.Empty;
+
         // ── Company contact line ───────────────────────────────────────
         // A printed letterhead is the client's route back to the supplier.
         // Layouts render whichever of these are populated, in the order

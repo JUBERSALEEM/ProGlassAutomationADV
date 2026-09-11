@@ -164,13 +164,17 @@
                                       SelectedValue="{Binding PrintLayout.SelectedId, Mode=TwoWay}"
                                       ToolTip="{Binding PrintLayout.SelectedDescription}"/>
 
+                            <!-- Style family badge. Binds the CURATED label
+                                 (EXECUTIVE / MODERN / EDITORIAL / INDUSTRIAL /
+                                 MINIMAL) — never the raw enum member, which
+                                 operators read as a leaked code string. -->
                             <Border Grid.Column="2"
                                     Background="{DynamicResource AccentBrush}"
                                     CornerRadius="3"
                                     Padding="7,3"
                                     Margin="10,0,0,0"
                                     VerticalAlignment="Center">
-                                <TextBlock Text="{Binding PrintLayout.Kind}"
+                                <TextBlock Text="{Binding PrintLayout.SelectedStyleLabel}"
                                            FontSize="{DynamicResource TextXSmall}"
                                            FontWeight="Bold"
                                            Foreground="White"/>

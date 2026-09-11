@@ -4,9 +4,15 @@ using System.Collections.Generic;
 namespace ProGlassAutomation.Services.Export.Pdf
 {
     /// <summary>
-    /// How the page is composed — not a colour swap.
-    /// Each kind changes letterhead, section chrome, tables, totals,
-    /// signatures, margins and density independently of the palette.
+    /// Style family of a print layout — drives derived SHAPE only (rail
+    /// weights, border weights, hairlines) inside <see cref="PdfMetrics"/>.
+    ///
+    /// 2026-09-11 REDESIGN: this no longer switches between five different
+    /// page ARCHITECTURES. Every document renders through one composition —
+    /// the exact layout the Step 7 print preview shows — and the five themes
+    /// are five professional STYLE VARIANTS of it (palette, rhythm, density,
+    /// rules). One design is what makes WYSIWYG possible: what the operator
+    /// approves on screen is byte-for-byte the structure the exporter draws.
     /// </summary>
     public enum PdfLayoutKind
     {
@@ -18,13 +24,21 @@ namespace ProGlassAutomation.Services.Export.Pdf
     }
 
     /// <summary>
-    /// One professional print layout. Printed documents stay light-mode.
+    /// One professional print style. Printed documents stay light-mode.
     /// Colours support the architecture; they do not define it.
     /// </summary>
     public sealed class PdfTheme
     {
         public string Id { get; init; } = "";
         public string DisplayName { get; init; } = "";
+
+        /// <summary>
+        /// Short operator-facing style family shown on the Step 7 layout
+        /// badge (EXECUTIVE / MODERN / EDITORIAL / INDUSTRIAL / MINIMAL).
+        /// A curated label — never a type name or enum member.
+        /// </summary>
+        public string StyleLabel { get; init; } = "";
+
         public string Description { get; init; } = "";
         public PdfLayoutKind Kind { get; init; } = PdfLayoutKind.FormalBand;
 
@@ -65,36 +79,47 @@ namespace ProGlassAutomation.Services.Export.Pdf
         public const string IndustrialSteel = "IndustrialSteel";
         public const string MinimalIvory = "MinimalIvory";
 
+        // ────────────────────────────────────────────────────────────────
+        //  THE FIVE STYLES — 2026-09-11 professional redesign.
+        //
+        //  One shared document architecture (the Step 7 preview layout);
+        //  each theme restyles it with a distinct, professionally balanced
+        //  palette, page margin, vertical rhythm, cell padding, type scale
+        //  and rule weight. No theme is a colour swap of another: margins,
+        //  density, zebra and grid behaviour differ per style.
+        // ────────────────────────────────────────────────────────────────
+
         public static readonly IReadOnlyList<PdfTheme> All = new[]
         {
             new PdfTheme
             {
                 Id = ClassicNavy,
                 DisplayName = "Classic Navy",
-                Description = "Executive industrial letterhead: deep navy command band, brass approval accent, controlled ERP metrics, bordered commercial cards, disciplined totals and stamp-ready signatures.",
+                StyleLabel = "EXECUTIVE",
+                Description = "Executive navy with a brass accent — the formal commercial letterhead for tenders and client invoices.",
                 Kind = PdfLayoutKind.FormalBand,
-                Accent = "#0A2540",
-                AccentDark = "#061728",
-                AccentLight = "#E7EDF5",
-                AccentSoft = "#BFD0E3",
+                Accent = "#0B2E59",
+                AccentDark = "#071E3B",
+                AccentLight = "#E9EEF6",
+                AccentSoft = "#C3D2E4",
                 AccentOn = "#FFFFFF",
-                Text = "#101827",
-                Muted = "#526173",
-                Border = "#C9D3DF",
-                TableHeader = "#0A2540",
-                TableAlt = "#F4F7FA",
-                Surface = "#EEF3F8",
+                Text = "#14202E",
+                Muted = "#5B6B7E",
+                Border = "#D5DDE7",
+                TableHeader = "#0B2E59",
+                TableAlt = "#F4F7FB",
+                Surface = "#EEF2F8",
                 Danger = "#B42318",
-                Success = "#027A48",
+                Success = "#067647",
                 Warning = "#B54708",
-                Highlight = "#D6A827",
-                MarginMm = 15.5f,
+                Highlight = "#C9A227",
+                MarginMm = 16f,
                 ContentSpacing = 9.5f,
-                TitleSize = 15.5f,
-                IdSize = 16.5f,
+                TitleSize = 16f,
+                IdSize = 15.5f,
                 TableFont = 8f,
-                CellPadH = 5.2f,
-                CellPadV = 3.4f,
+                CellPadH = 5.5f,
+                CellPadV = 3.6f,
                 Zebra = true,
                 TableGrid = false,
                 RepeatTitleInBody = false
@@ -103,30 +128,31 @@ namespace ProGlassAutomation.Services.Export.Pdf
             {
                 Id = ModernTeal,
                 DisplayName = "Modern Teal",
-                Description = "Modern factory console: large document command title, teal/cyan status rail, soft technical cards, clean metric strip, airy tables and fast management scanning.",
+                StyleLabel = "MODERN",
+                Description = "Calm teal with open spacing and light cyan surfaces — a clean contemporary style for day-to-day quoting.",
                 Kind = PdfLayoutKind.SplitConsole,
-                Accent = "#0E7490",
-                AccentDark = "#164E63",
-                AccentLight = "#CFFAFE",
-                AccentSoft = "#A5F3FC",
+                Accent = "#0F766E",
+                AccentDark = "#134E4A",
+                AccentLight = "#D8F1EE",
+                AccentSoft = "#A7E5DE",
                 AccentOn = "#FFFFFF",
-                Text = "#12343B",
-                Muted = "#58717A",
-                Border = "#BFE5EC",
-                TableHeader = "#155E75",
-                TableAlt = "#F0FDFF",
-                Surface = "#ECFEFF",
+                Text = "#10333A",
+                Muted = "#537079",
+                Border = "#BFE0DC",
+                TableHeader = "#0F766E",
+                TableAlt = "#F0FAF8",
+                Surface = "#E9F7F4",
                 Danger = "#B42318",
                 Success = "#067647",
                 Warning = "#B54708",
                 Highlight = "#06B6D4",
-                MarginMm = 14.5f,
+                MarginMm = 15f,
                 ContentSpacing = 11f,
-                TitleSize = 22.5f,
-                IdSize = 13.5f,
-                TableFont = 8f,
-                CellPadH = 5.8f,
-                CellPadV = 3.8f,
+                TitleSize = 19f,
+                IdSize = 14f,
+                TableFont = 8.2f,
+                CellPadH = 6f,
+                CellPadV = 4f,
                 Zebra = true,
                 TableGrid = false,
                 RepeatTitleInBody = false
@@ -135,30 +161,31 @@ namespace ProGlassAutomation.Services.Export.Pdf
             {
                 Id = EditorialInk,
                 DisplayName = "Editorial Ink",
-                Description = "Premium board-report style: black-ink masthead, copper audit rail, numbered sections, typographic totals and high-end whitespace for director/client packs.",
+                StyleLabel = "EDITORIAL",
+                Description = "Warm paper, black ink and copper rules — a premium board-room style for director and client packs.",
                 Kind = PdfLayoutKind.Editorial,
-                Accent = "#18181B",
-                AccentDark = "#09090B",
-                AccentLight = "#F5F0EA",
-                AccentSoft = "#E6D3C1",
-                AccentOn = "#FAFAFA",
-                Text = "#18181B",
-                Muted = "#716B65",
-                Border = "#DDD6CE",
-                TableHeader = "#18181B",
-                TableAlt = "#FBFAF8",
-                Surface = "#F6F2EC",
+                Accent = "#1B1B18",
+                AccentDark = "#0C0C0A",
+                AccentLight = "#F4EFE7",
+                AccentSoft = "#E3D5C3",
+                AccentOn = "#FAFAF7",
+                Text = "#1B1B18",
+                Muted = "#6E675E",
+                Border = "#DAD2C6",
+                TableHeader = "#1B1B18",
+                TableAlt = "#FAF8F4",
+                Surface = "#F5F1E9",
                 Danger = "#A61B1B",
                 Success = "#3F6212",
                 Warning = "#B45309",
-                Highlight = "#B85C38",
-                MarginMm = 19f,
-                ContentSpacing = 13f,
-                TitleSize = 24.5f,
-                IdSize = 11.5f,
+                Highlight = "#B4552D",
+                MarginMm = 18f,
+                ContentSpacing = 12.5f,
+                TitleSize = 21f,
+                IdSize = 12.5f,
                 TableFont = 8f,
-                CellPadH = 4.2f,
-                CellPadV = 4.6f,
+                CellPadH = 4.6f,
+                CellPadV = 4.4f,
                 Zebra = false,
                 TableGrid = false,
                 RepeatTitleInBody = false
@@ -167,30 +194,31 @@ namespace ProGlassAutomation.Services.Export.Pdf
             {
                 Id = IndustrialSteel,
                 DisplayName = "Industrial Steel",
-                Description = "Heavy industrial steel docket: graphite header, safety-amber rail, dense QA grid, high-contrast totals and stamp-box sign-off for production and dispatch floors.",
+                StyleLabel = "INDUSTRIAL",
+                Description = "Graphite with a safety-amber accent and a full table grid — a dense shop-floor style for production and dispatch.",
                 Kind = PdfLayoutKind.Workshop,
-                Accent = "#2F3A46",
-                AccentDark = "#111827",
+                Accent = "#2E3A46",
+                AccentDark = "#131C26",
                 AccentLight = "#E8EDF2",
-                AccentSoft = "#CBD5E1",
+                AccentSoft = "#C6D2DD",
                 AccentOn = "#FFFFFF",
-                Text = "#0B1220",
-                Muted = "#56677C",
-                Border = "#8998AA",
-                TableHeader = "#111827",
-                TableAlt = "#F3F6F9",
-                Surface = "#E9EEF4",
+                Text = "#101820",
+                Muted = "#55677A",
+                Border = "#93A3B3",
+                TableHeader = "#1C2833",
+                TableAlt = "#F2F5F8",
+                Surface = "#E9EEF3",
                 Danger = "#B42318",
                 Success = "#027A48",
                 Warning = "#D97706",
                 Highlight = "#F59E0B",
-                MarginMm = 11.5f,
-                ContentSpacing = 7.5f,
-                TitleSize = 11.2f,
-                IdSize = 18.5f,
-                TableFont = 7.4f,
-                CellPadH = 3.8f,
-                CellPadV = 2.4f,
+                MarginMm = 13f,
+                ContentSpacing = 8f,
+                TitleSize = 12.5f,
+                IdSize = 17f,
+                TableFont = 7.6f,
+                CellPadH = 4.2f,
+                CellPadV = 2.8f,
                 Zebra = true,
                 TableGrid = true,
                 RepeatTitleInBody = true
@@ -199,30 +227,31 @@ namespace ProGlassAutomation.Services.Export.Pdf
             {
                 Id = MinimalIvory,
                 DisplayName = "Minimal Ivory",
-                Description = "Minimal ivory executive form: warm paper tone, sharp black rules, silent ERP metrics, refined amount emphasis and clean archive-grade print contrast.",
+                StyleLabel = "MINIMAL",
+                Description = "Ivory paper, charcoal hairlines and generous whitespace — a quiet archive-grade style with maximum clarity.",
                 Kind = PdfLayoutKind.QuietForm,
-                Accent = "#1F2937",
-                AccentDark = "#030712",
-                AccentLight = "#FAF7F0",
-                AccentSoft = "#E7DED1",
+                Accent = "#222933",
+                AccentDark = "#0B0F14",
+                AccentLight = "#F7F3EA",
+                AccentSoft = "#E5DCCB",
                 AccentOn = "#FFFFFF",
-                Text = "#111827",
-                Muted = "#6F665C",
-                Border = "#D9D0C3",
-                TableHeader = "#1F2937",
+                Text = "#171D26",
+                Muted = "#6F675B",
+                Border = "#D9D0BF",
+                TableHeader = "#222933",
                 TableAlt = "#FFFFFF",
-                Surface = "#FBF7EF",
+                Surface = "#FAF6EE",
                 Danger = "#991B1B",
                 Success = "#065F46",
                 Warning = "#92400E",
                 Highlight = "#8B5E34",
-                MarginMm = 21f,
-                ContentSpacing = 15f,
-                TitleSize = 10.5f,
-                IdSize = 20.5f,
+                MarginMm = 20f,
+                ContentSpacing = 14f,
+                TitleSize = 11.5f,
+                IdSize = 19f,
                 TableFont = 8f,
-                CellPadH = 3.2f,
-                CellPadV = 3.9f,
+                CellPadH = 3.6f,
+                CellPadV = 3.8f,
                 Zebra = false,
                 TableGrid = false,
                 RepeatTitleInBody = false

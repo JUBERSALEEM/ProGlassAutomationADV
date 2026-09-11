@@ -168,6 +168,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 |---|---|
 | [`PDF_LOGO_LETTERHEAD_AUDIT_2026-09-07.md`](PDF_LOGO_LETTERHEAD_AUDIT_2026-09-07.md) | PDF Logo / Letterhead Senior Audit — 2026-09-07 |
 | [`PRINT_LAYOUT_UNIFICATION_2026-09-08.md`](PRINT_LAYOUT_UNIFICATION_2026-09-08.md) | Print Layout Unification — Senior Analysis & Upgrade |
+| [`PI_PDF_WYSIWYG_REDESIGN_2026-09-11.md`](PI_PDF_WYSIWYG_REDESIGN_2026-09-11.md) | PI Step 7 / PDF Export WYSIWYG Redesign — Senior Analysis |
 
 ## Release, CI & readiness
 

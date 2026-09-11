@@ -55,14 +55,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
     /// PrintableInvoice ViewModel — hosts the A4 preview, print engine,
     /// save/load coordinator, and PDF/Excel/CSV export coordinators.
     ///
+    /// 2026-09-11 WYSIWYG redesign: printing and PDF export now share ONE
+    /// renderer — ProformaInvoicePdfLayout with the Step 7 preview-parity
+    /// design. The legacy code-behind FixedDocument builder (a third,
+    /// unthemed invoice design) was deleted; see ExecutePrint in Part1.
+    ///
     /// BUG-60 [CRITICAL]: async void handlers replaced with SafeFireAsync.
-    /// BUG-61 [HIGH]: Print errors simplified.
     /// BUG-62 [HIGH]: LoadInvoice uses SafeFireAsync.
-    /// BUG-63 [HIGH]: BuildPrintableDocument measurement pass documented.
-    /// BUG-64 [MEDIUM]: ApplyVectorTextRendering called once on root.
-    /// BUG-65 [MEDIUM]: File split deferred.
-    /// BUG-66 [LOW]: FontFamily instance cached.
-    /// BUG-68 [COSMETIC]: Static brushes Frozen() for perf.
     /// CHAT 15: Namespace fix — Step2=Client, Step3=Project.
     /// </summary>
     public partial class PrintableInvoiceViewModel : ViewModelBase

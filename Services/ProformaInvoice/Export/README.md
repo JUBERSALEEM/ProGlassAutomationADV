@@ -76,13 +76,25 @@ Round 2 (separate commit after Round 1 confirmed working):
 
 ## Key design decisions
 
-- Visual parity: PDF output matches legacy ProformaInvoicePdfService exactly.
-  Same brand colours (8 constants), same 10-column spec table (Phase 7.19d),
-  same section order, same T&C clause rendering with sub-bullets.
+- WYSIWYG (2026-09-11): the PDF is drawn by PiPreviewParityRenderer, a
+  faithful QuestPDF port of the Step 7 on-screen paper
+  (PrintableInvoiceView.xaml). Same section order, same labels, same column
+  geometry, same logo-placement rule — and both sides read the same
+  PdfTheme/PdfMetrics tokens, so preview and export cannot drift.
 
-- Letterhead: Shared engine renders company block on page 1 via LetterheadRenderer.
-  PI badge (Ref/Date/Status) renders below it via RenderPiBadgeRow().
-  No letterhead on page 2+ (engine handles this automatically via .ShowOnce()).
+- One design, five styles: the old five PdfLayoutKind page architectures
+  (divergent letterheads/rainbow spec headers/misaligned charge rows) are
+  no longer applied to this document. The five selectable layouts are now
+  professional STYLE variants of the single design — palette, margin,
+  rhythm, cell padding, zebra/grid behaviour.
+
+- Letterhead: supplied by this layout via LetterheadStyle (engine hook).
+  Top-panel logos render a full-width masthead; inline logos render the
+  company identity + bordered reference box, exactly like the preview.
+  Continuation pages get a slim identity strip.
+
+- Printing: PrintAsync renders this SAME layout — print, export and
+  preview are one document.
 
 - Pricing included: All rates, totals, VAT, discount, grand total shown.
   Unlike Job Order layouts which suppress pricing for factory floor.
@@ -100,24 +112,30 @@ Round 2 (separate commit after Round 1 confirmed working):
 
 ## PDF output structure
 
-Page 1:
-    [Shared engine letterhead]  — company name, location, TRN, document title
-    [PI badge]                  — Ref, Date, Status (right-aligned 200px)
-    [Horizontal rule]
-    [Client block | Project block]
-    [Horizontal rule]
-    [Spec group tables × N]
-    [Other charges]
-    [Financial summary]
-    [Terms & Conditions]
-    [Footer text]
-    [Signature blocks]
-    [Engine footer: PI-YYYY-NNN · Printed timestamp    Page 1 of N]
+Page 1 (the Step 7 paper, printed):
+    [Letterhead]              — TopPanel: full-width accent masthead with
+                                centred logo chip, identity left, document
+                                reference right; otherwise company identity
+                                (+ inline logo chip) left and bordered
+                                Ref/Date reference box right
+    [2 DIP accent rule]
+    [Client card | Project card]
+    [Hairline divider]
+    [Spec group banner + table + column-aligned SPEC SUB-TOTAL × N]
+    [GRAND SPEC TOTAL band]
+    [Other charges panel + OTHER CHARGES SUBTOTAL]
+    [Financial summary waterfall + TOTAL EST VALUE band]
+    [Terms & conditions panel]
+    [Disclaimer + Terms line]
+    [Prepared by | Client approval signature cards]
 
 Page 2+:
-    [No letterhead — more content space]
+    [Slim identity strip — company · document id]
     [Content continues]
+
+Every page:
     [Engine footer: PI-YYYY-NNN · Printed timestamp    Page X of N]
+    (The footer identifies the DOCUMENT only — never the layout style.)
 
 ## Excel output structure
 

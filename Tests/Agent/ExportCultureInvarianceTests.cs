@@ -56,6 +56,7 @@ namespace ProGlassAutomation.Tests.Agent
                 "Services/ProformaInvoice/Export/ProformaInvoiceExcelLayout.cs",
                 "Services/ProformaInvoice/Export/ProformaInvoiceListExcelLayout.cs",
                 "Services/ProformaInvoice/Export/ProformaInvoicePdfLayout.cs",
+                "Services/ProformaInvoice/Export/PiPreviewParityRenderer.cs",
                 "Services/DeliveryNote/Export/DeliveryNoteCsvLayout.cs",
                 "Services/DeliveryNote/Export/DeliveryNoteExcelLayout.cs",
                 "Services/DeliveryNote/Export/DeliveryNotePdfLayout.cs",

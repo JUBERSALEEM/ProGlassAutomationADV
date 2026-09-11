@@ -505,7 +505,7 @@
                         <StackPanel Margin="{DynamicResource Print.Margin.BlockBelow}">
 
                             <!-- Spec Group Header -->
-                            <Border Background="{DynamicResource Print.Accent}" Padding="10,6" CornerRadius="4,4,0,0">
+                            <Border Background="{DynamicResource Print.Accent}" Padding="{DynamicResource Print.Thickness.Group}" CornerRadius="4,4,0,0">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="{DynamicResource Common.Specification}" FontSize="{DynamicResource Print.Font.Group}" FontWeight="Bold" Foreground="{DynamicResource Print.AccentOn}"/>
                                     <TextBlock Text="{Binding GroupNumber}" FontSize="{DynamicResource Print.Font.Group}" FontWeight="Bold" Foreground="{DynamicResource Print.AccentOn}"/>
@@ -624,7 +624,7 @@
                                                Text="{DynamicResource ProformaInvoice.SPECSUBTotal}"
                                                FontSize="{DynamicResource Print.Font.MetaValue}" FontWeight="Bold"
                                                Foreground="{DynamicResource Print.Accent}"
-                                               Padding="10,6"
+                                               Padding="{DynamicResource Print.Thickness.Cell}"
                                                VerticalAlignment="Center"/>
 
                                     <!-- QTY total under QTY column -->
@@ -717,7 +717,7 @@
                  OTHER CHARGES DETAIL LIST
                  TOTALS-02: Subtotal row added at bottom
             ══════════════════════════════════════════════════════ -->
-            <Border Background="{DynamicResource Print.Accent}" Padding="10,6" CornerRadius="4,4,0,0" Margin="{DynamicResource Print.Margin.BlockAbove}">
+            <Border Background="{DynamicResource Print.Accent}" Padding="{DynamicResource Print.Thickness.Group}" CornerRadius="4,4,0,0" Margin="{DynamicResource Print.Margin.BlockAbove}">
                 <TextBlock Text="{DynamicResource ProformaInvoice.SupplementaryFabricationOtherCharges}"
                            FontSize="{DynamicResource Print.Font.Group}" FontWeight="Bold" Foreground="{DynamicResource Print.AccentOn}"/>
             </Border>
@@ -991,7 +991,7 @@
                  NEW-PR2: Empty state now fires when 0 clauses OR
                           all clauses inactive
             ══════════════════════════════════════════════════════ -->
-            <Border Background="{DynamicResource Print.Accent}" Padding="10,6" CornerRadius="4,4,0,0" Margin="{DynamicResource Print.Margin.SectionAbove}">
+            <Border Background="{DynamicResource Print.Accent}" Padding="{DynamicResource Print.Thickness.Group}" CornerRadius="4,4,0,0" Margin="{DynamicResource Print.Margin.SectionAbove}">
                 <TextBlock Text="{DynamicResource ProformaInvoice.TermsConditions}"
                            FontSize="{DynamicResource Print.Font.Group}" FontWeight="Bold" Foreground="{DynamicResource Print.AccentOn}"/>
             </Border>

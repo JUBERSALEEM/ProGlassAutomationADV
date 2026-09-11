@@ -117,7 +117,6 @@ namespace ProGlassAutomation.Tests.Architecture
             ["ViewModels/ProformaInvoice/Step6OtherCharges/OtherChargesViewModel.cs"] = 1,
             ["ViewModels/ProformaInvoice/Step7PrintPreview/InvoiceMainSummary/InvoiceMainSummaryViewModel.cs"] = 10,
             ["ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.Part1.cs"] = 1,
-            ["ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.Part2.cs"] = 1,
             ["ViewModels/ProformaInvoice/Step9ProfitLoss/GlassTypeComparisonViewModel.cs"] = 3,
             ["ViewModels/ProformaInvoice/Step9ProfitLoss/PnLMeasurement.cs"] = 1,
             ["ViewModels/ProformaInvoice/Step9ProfitLoss/ProfitLossStepViewModel.Calculation.cs"] = 31,

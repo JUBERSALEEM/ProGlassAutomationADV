@@ -230,7 +230,12 @@ namespace ProGlassAutomation.Services.Export.PrintPreview
             // ── Identity ───────────────────────────────────────────────
             d["Print.Layout.Id"] = t.Id;
             d["Print.Layout.Name"] = t.DisplayName;
-            d["Print.Layout.Kind"] = t.Kind.ToString();
+            // NOTE: no Print.Layout.Kind token on purpose — the raw enum
+            // member is an implementation detail that must never reach a
+            // screen. Curated label below is the only style identifier.
+            // Curated operator-facing style family (EXECUTIVE / MODERN /
+            // EDITORIAL / INDUSTRIAL / MINIMAL).
+            d["Print.Layout.StyleLabel"] = t.StyleLabel;
             d["Print.Zebra"] = t.Zebra;
 
             return d;
@@ -262,8 +267,12 @@ namespace ProGlassAutomation.Services.Export.PrintPreview
         /// Linear RGB blend. Used only to derive the few tones the preview
         /// needs that no theme defines outright, so the preview never has to
         /// invent a literal of its own.
+        ///
+        /// Internal (not private): the PI preview-parity PDF renderer
+        /// derives the SAME tones from the SAME theme so the exported page
+        /// and the screen cannot disagree on a colour.
         /// </summary>
-        private static string Mix(string a, string b, double t)
+        internal static string Mix(string a, string b, double t)
         {
             var ca = (Color)ColorConverter.ConvertFromString(a);
             var cb = (Color)ColorConverter.ConvertFromString(b);

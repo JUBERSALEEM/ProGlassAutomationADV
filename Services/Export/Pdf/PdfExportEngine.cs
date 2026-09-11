@@ -265,14 +265,12 @@ namespace ProGlassAutomation.Services.Export.Pdf
             PdfThemeCatalog.ApplySaved();
             var pageLayout = layout.PageLayout ?? PageLayout.A4Portrait;
             string documentId = layout.DocumentId ?? string.Empty;
-            // 2026-09-11 PROVENANCE (owner ask: the layout name must show in
-            // the PDF — professionally): the footer carries the theme's
-            // DISPLAY name ("Classic Navy", "Editorial Ink", …) beside the
-            // document id, so every artifact self-identifies which of the
-            // five layouts rendered it. Never a type name.
-            string footerId = string.IsNullOrWhiteSpace(documentId)
-                ? DocumentStyle.Current.DisplayName
-                : $"{documentId}   ·   {DocumentStyle.Current.DisplayName}";
+            // 2026-09-11: the footer identifies the DOCUMENT, never the
+            // skin. Printing the active layout/theme name beside the id
+            // read as a leaked debug string on customer-facing documents
+            // (owner-reported issue 1) — the operator already sees which
+            // style is active on the Step 7 switcher.
+            string footerId = documentId;
 
             return Document.Create(container =>
             {
@@ -298,12 +296,22 @@ namespace ProGlassAutomation.Services.Export.Pdf
                     if (layout.Letterhead != null)
                     {
                         var letterhead = layout.Letterhead;
+                        // Module-owned letterhead (e.g. the PI WYSIWYG
+                        // preview-parity design) wins; everything else keeps
+                        // the shared themed chrome.
+                        var style = layout.LetterheadStyle;
                         page.Header().Column(h =>
                         {
                             h.Item().ShowOnce().Element(c =>
-                                LetterheadRenderer.Render(c, letterhead));
+                            {
+                                if (style != null) style.Render(c, letterhead);
+                                else LetterheadRenderer.Render(c, letterhead);
+                            });
                             h.Item().SkipOnce().Element(c =>
-                                LetterheadRenderer.RenderContinuation(c, letterhead));
+                            {
+                                if (style != null) style.RenderContinuation(c, letterhead);
+                                else LetterheadRenderer.RenderContinuation(c, letterhead);
+                            });
                         });
                     }
 

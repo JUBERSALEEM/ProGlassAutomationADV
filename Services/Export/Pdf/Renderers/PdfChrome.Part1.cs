@@ -37,7 +37,10 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
         //  a money document; the letterhead simply falls back to text.
         // ═════════════════════════════════════════════════════════════
 
-        private static byte[]? LoadLogoBytes(LetterheadInfo info)
+        // internal (not private) so module-owned letterheads — e.g. the PI
+        // WYSIWYG preview-parity renderer — load the company logo through
+        // this ONE defensive path instead of forking their own.
+        internal static byte[]? LoadLogoBytes(LetterheadInfo info)
         {
             try
             {

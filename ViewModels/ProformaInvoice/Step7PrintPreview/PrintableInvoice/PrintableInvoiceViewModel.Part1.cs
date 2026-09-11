@@ -269,7 +269,14 @@ public PrintableInvoiceViewModel(
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  NATIVE PRINT (BUG-61)
+        //  PRINT — 2026-09-11: ONE renderer for every output.
+        //
+        //  The old path rebuilt the invoice a THIRD time in code-behind
+        //  visuals with a hard-coded indigo palette, no logo and no theme —
+        //  so the physical printout disagreed with both the preview and the
+        //  PDF. Printing now goes through the exact same QuestPDF layout
+        //  (ProformaInvoicePdfLayout → Step 7 preview-parity design) that
+        //  Export PDF uses. What you see is what prints, on paper too.
         // ══════════════════════════════════════════════════════════════════
 
         private void ExecutePrint()
@@ -278,48 +285,30 @@ public PrintableInvoiceViewModel(
             {
                 if (!EnsureCustomerDocumentCalculationsValid("print")) return;
 
-                var dialog = new System.Windows.Controls.PrintDialog();
-                if (dialog.ShowDialog() != true) return;
+                var entity = ProformaInvoiceMapper.BuildEntityFromWizard(
+                    Company, Client, Project, DataGrid, OtherCharges,
+                    MainSummary, Terms, this);
+                var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
 
-                FixedDocument fixedDoc;
-                try
-                {
-                    fixedDoc = BuildPrintableDocument(dialog);
-                }
-                catch (Exception buildEx)
-                {
-                    ShowPrintError("Print build error", buildEx);
-                    return;
-                }
+                var layout = new ProformaInvoicePdfLayout(entity, snapshot);
+                var engine = new PdfExportEngine();
 
-                try
-                {
-                    dialog.PrintDocument(
-                        fixedDoc.DocumentPaginator,
-                        $"Proforma Invoice - {Company.ProformaId}");
-                }
-                catch (Exception printEx)
-                {
-                    ShowPrintError("Print send error", printEx);
-                }
+                AsyncUtility.SafeFireAndForget(
+                    () => engine.PrintAsync(
+                        layout, $"Proforma Invoice - {Company.ProformaId}"),
+                    "PI Step7 print");
             }
             catch (Exception ex)
             {
-                ShowPrintError("Print error (outer)", ex);
+                AppLogService.Debug($"[Print] PI print failed: {ExceptionMessages.Deep(ex)}");
+                _dialogs.Show(
+                    string.Format(
+                        LocalizationService.Instance.T("Msg.XExportFailedY"),
+                        "print", ex.Message),
+                    LocalizationService.Instance.T("Msg.CapExportFailed"),
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
-        }
-
-        private void ShowPrintError(string title, Exception ex)
-        {
-            string msg = $"{title.ToUpper()}:\n\n" +
-                         $"Type: {ex.GetType().Name}\n" +
-                         $"Message: {ExceptionMessages.Deep(ex)}";
-
-            if (ex.InnerException != null)
-                msg += $"\n\nInner: {ex.InnerException.Message}";
-
-            AppLogService.Debug($"[Print] {title}: {ex}");
-            _dialogs.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -955,242 +944,12 @@ public PrintableInvoiceViewModel(
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  LAYOUT CONSTANTS & CACHED RESOURCES
+        //  NOTE — 2026-09-11: the legacy code-behind FixedDocument builder
+        //  (BuildPrintableDocument / BuildCompanyHeader / cached brushes)
+        //  was deleted. It was a third, divergent invoice design with a
+        //  hard-coded palette and no logo/theming. Printing now renders the
+        //  same QuestPDF preview-parity layout as Export PDF — see
+        //  ExecutePrint above.
         // ══════════════════════════════════════════════════════════════════
-
-        private const double PAGE_MARGIN = 40;
-        private const double SECTION_GAP = 10;
-        private const string FONT_FAMILY_NAME = "Segoe UI";
-
-        // BUG-66: cached FontFamily
-        private static readonly FontFamily _fontFamily =
-            new FontFamily(FONT_FAMILY_NAME);
-
-        // BUG-68: frozen brushes
-        private static readonly Brush AccentBrush =
-            FreezeBrush(new SolidColorBrush(Color.FromRgb(0x4F, 0x46, 0xE5)));
-        private static readonly Brush DarkBrush =
-            FreezeBrush(new SolidColorBrush(Color.FromRgb(0x0F, 0x17, 0x2A)));
-        private static readonly Brush MutedBrush =
-            FreezeBrush(new SolidColorBrush(Color.FromRgb(0x47, 0x55, 0x69)));
-        private static readonly Brush LineBrush =
-            FreezeBrush(new SolidColorBrush(Color.FromRgb(0xCB, 0xD5, 0xE1)));
-        private static readonly Brush LightGrayBrush =
-            FreezeBrush(new SolidColorBrush(Color.FromRgb(0xF1, 0xF5, 0xF9)));
-        private static readonly Brush TableHeaderBrush =
-            FreezeBrush(new SolidColorBrush(Color.FromRgb(0x1E, 0x29, 0x3B)));
-        private static readonly Brush GreenBrush =
-            FreezeBrush(new SolidColorBrush(Color.FromRgb(0x04, 0x78, 0x57)));
-        private static readonly Brush RedBrush =
-            FreezeBrush(new SolidColorBrush(Color.FromRgb(0xB9, 0x1C, 0x1C)));
-
-        private static Brush FreezeBrush(SolidColorBrush b)
-        {
-            if (b.CanFreeze) b.Freeze();
-            return b;
-        }
-
-        // ══════════════════════════════════════════════════════════════════
-        //  PRINT DOC BUILDER (BUG-63/64)
-        // ══════════════════════════════════════════════════════════════════
-
-        private FixedDocument BuildPrintableDocument(
-            System.Windows.Controls.PrintDialog dialog)
-        {
-            double pageWidth = dialog.PrintableAreaWidth;
-            double pageHeight = dialog.PrintableAreaHeight;
-            double contentWidth = pageWidth - (PAGE_MARGIN * 2);
-
-            var doc = new FixedDocument();
-            doc.DocumentPaginator.PageSize = new Size(pageWidth, pageHeight);
-
-            // MEASUREMENT PASS
-            var measureContent = BuildFullContentStack(contentWidth);
-            ApplyVectorTextRendering(measureContent);
-            measureContent.Measure(new Size(contentWidth, double.PositiveInfinity));
-            measureContent.Arrange(new Rect(
-                0, 0, contentWidth, measureContent.DesiredSize.Height));
-            measureContent.UpdateLayout();
-
-            double totalHeight = measureContent.DesiredSize.Height;
-            double usableHeight = pageHeight - (PAGE_MARGIN * 2);
-            int totalPages = Math.Max(1,
-                (int)Math.Ceiling(totalHeight / usableHeight));
-
-            AppLogService.Debug(
-                $"[PRINT] totalHeight={totalHeight}, " +
-                $"usableHeight={usableHeight}, totalPages={totalPages}");
-
-            for (int i = 0; i < totalPages; i++)
-            {
-                double sliceY = i * usableHeight;
-
-                var pageContent = BuildFullContentStack(contentWidth);
-                ApplyVectorTextRendering(pageContent);
-                pageContent.Measure(new Size(contentWidth, double.PositiveInfinity));
-                pageContent.Arrange(new Rect(
-                    0, 0, contentWidth, pageContent.DesiredSize.Height));
-                pageContent.UpdateLayout();
-
-                var clipCanvas = new Canvas
-                {
-                    Width = contentWidth,
-                    Height = usableHeight,
-                    ClipToBounds = true
-                };
-                Canvas.SetLeft(pageContent, 0);
-                Canvas.SetTop(pageContent, -sliceY);
-                clipCanvas.Children.Add(pageContent);
-
-                var fixedPage = new FixedPage
-                {
-                    Width = pageWidth,
-                    Height = pageHeight,
-                    Background = Brushes.White
-                };
-                FixedPage.SetLeft(clipCanvas, PAGE_MARGIN);
-                FixedPage.SetTop(clipCanvas, PAGE_MARGIN);
-                fixedPage.Children.Add(clipCanvas);
-
-                fixedPage.Measure(new Size(pageWidth, pageHeight));
-                fixedPage.Arrange(new Rect(0, 0, pageWidth, pageHeight));
-                fixedPage.UpdateLayout();
-
-                var pageWrap = new PageContent();
-                ((IAddChild)pageWrap).AddChild(fixedPage);
-                doc.Pages.Add(pageWrap);
-            }
-
-            return doc;
-        }
-
-        private StackPanel BuildFullContentStack(double width)
-        {
-            var root = new StackPanel { Width = width, Background = Brushes.White };
-
-            root.Children.Add(BuildCompanyHeader());
-            root.Children.Add(BuildDivider(top: 8, bottom: 8));
-            root.Children.Add(BuildClientProjectBlock(width));
-            root.Children.Add(BuildDivider(top: 8, bottom: 8));
-
-            foreach (var group in DataGrid.SpecGroups)
-                root.Children.Add(BuildSpecTable(group));
-
-            if (DataGrid.SpecGroups.Count > 0)
-                root.Children.Add(BuildGrandSpecSummary());
-
-            root.Children.Add(BuildOtherChargesSection());
-            root.Children.Add(BuildFinancialSummary(width));
-            root.Children.Add(BuildDivider(top: 10, bottom: 6));
-            root.Children.Add(BuildTermsAndConditionsSection());
-            root.Children.Add(BuildTermsFooter());
-            root.Children.Add(BuildSignatureBlocks(width));
-
-            return root;
-        }
-
-        // ══════════════════════════════════════════════════════════════════
-        //  ALL RENDER HELPERS — preserved exactly from original
-        // ══════════════════════════════════════════════════════════════════
-
-        private Grid BuildCompanyHeader()
-        {
-            var grid = new Grid();
-            grid.ColumnDefinitions.Add(
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            grid.ColumnDefinitions.Add(
-                new ColumnDefinition { Width = new GridLength(220) });
-
-            var left = new StackPanel();
-            left.Children.Add(MakeText(
-                string.IsNullOrWhiteSpace(Company.CompanyName)
-                    ? "PROGLASS AUTOMATION ERP"
-                    : Company.CompanyName,
-                18, FontWeights.Bold, AccentBrush));
-            left.Children.Add(MakeText(
-                "Premium Glass Glazing, High-Yield Manufacturing & Logistics Spec",
-                10, FontWeights.Normal, MutedBrush, marginTop: 2));
-
-            var loc = new StackPanel
-            {
-                Orientation = Orientation.Horizontal,
-                Margin = new Thickness(0, 1, 0, 0)
-            };
-            loc.Children.Add(MakeText(
-                string.IsNullOrWhiteSpace(Company.CompanyLocation)
-                    ? "United Arab Emirates"
-                    : Company.CompanyLocation,
-                10, FontWeights.Normal, MutedBrush));
-            loc.Children.Add(MakeText(
-                " • www.proglass-automation.com",
-                10, FontWeights.Normal, MutedBrush));
-            left.Children.Add(loc);
-
-            if (!string.IsNullOrWhiteSpace(Company.CompanyTrn))
-            {
-                var trn = new StackPanel
-                {
-                    Orientation = Orientation.Horizontal,
-                    Margin = new Thickness(0, 1, 0, 0)
-                };
-                trn.Children.Add(MakeText("TRN: ", 10, FontWeights.SemiBold, MutedBrush));
-                trn.Children.Add(MakeText(
-                    Company.CompanyTrn, 10, FontWeights.SemiBold, DarkBrush));
-                left.Children.Add(trn);
-            }
-
-            Grid.SetColumn(left, 0);
-            grid.Children.Add(left);
-
-            var badge = new Border
-            {
-                Background = LightGrayBrush,
-                BorderBrush = LineBrush,
-                BorderThickness = new Thickness(1),
-                CornerRadius = new CornerRadius(3),
-                Padding = new Thickness(12, 8, 12, 8)
-            };
-            var badgeStack = new StackPanel();
-            badgeStack.Children.Add(MakeText(
-                "PROFORMA INVOICE", 12, FontWeights.Bold, DarkBrush,
-                horizontalAlignment: HorizontalAlignment.Center));
-
-            var refGrid = new Grid { Margin = new Thickness(0, 6, 0, 0) };
-            refGrid.ColumnDefinitions.Add(
-                new ColumnDefinition { Width = GridLength.Auto });
-            refGrid.ColumnDefinitions.Add(
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            refGrid.RowDefinitions.Add(new RowDefinition());
-            refGrid.RowDefinitions.Add(new RowDefinition());
-
-            var refLbl = MakeText("Ref:", 10, FontWeights.Normal, MutedBrush, marginRight: 6);
-            Grid.SetRow(refLbl, 0); Grid.SetColumn(refLbl, 0);
-            refGrid.Children.Add(refLbl);
-
-            var refVal = MakeText(
-                Company.ProformaId ?? "—", 10, FontWeights.SemiBold, DarkBrush);
-            Grid.SetRow(refVal, 0); Grid.SetColumn(refVal, 1);
-            refGrid.Children.Add(refVal);
-
-            var dateLbl = MakeText(
-                "Date:", 10, FontWeights.Normal, MutedBrush,
-                marginRight: 6, marginTop: 2);
-            Grid.SetRow(dateLbl, 1); Grid.SetColumn(dateLbl, 0);
-            refGrid.Children.Add(dateLbl);
-
-            var dateVal = MakeText(
-                Company.IssueDate.ToString("yyyy-MM-dd"),
-                10, FontWeights.SemiBold, DarkBrush, marginTop: 2);
-            Grid.SetRow(dateVal, 1); Grid.SetColumn(dateVal, 1);
-            refGrid.Children.Add(dateVal);
-
-            badgeStack.Children.Add(refGrid);
-            badge.Child = badgeStack;
-
-            Grid.SetColumn(badge, 1);
-            grid.Children.Add(badge);
-
-            return grid;
-        }
     }
 }
