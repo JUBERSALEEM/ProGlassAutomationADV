@@ -226,21 +226,23 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
+                        <!-- OVERLAP FIX (2026-09-11): company name wraps
+                             inside its column; the location·TRN line is one
+                             TextBlock with Runs so it wraps too instead of
+                             running under the document-reference column. -->
                         <StackPanel Grid.Column="0" VerticalAlignment="Center">
                             <TextBlock Text="{Binding Company.CompanyName, TargetNullValue=PROGLASS AUTOMATION ERP}"
                                        FontSize="{DynamicResource Print.Font.Title}" FontWeight="Bold"
-                                       Foreground="{DynamicResource Print.AccentOn}"/>
-                            <StackPanel Orientation="Horizontal" Margin="{DynamicResource Print.Margin.StackBelow}">
-                                <TextBlock Text="{Binding Company.CompanyLocation, TargetNullValue=United Arab Emirates}"
-                                           FontSize="{DynamicResource Print.Font.MetaValue}"
-                                           Foreground="{DynamicResource Print.AccentSoft}"/>
-                                <TextBlock Text="  &#183;  TRN  "
-                                           FontSize="{DynamicResource Print.Font.MetaValue}"
-                                           Foreground="{DynamicResource Print.AccentSoft}"/>
-                                <TextBlock Text="{Binding Company.CompanyTrn, TargetNullValue=—}"
-                                           FontSize="{DynamicResource Print.Font.MetaValue}"
-                                           Foreground="{DynamicResource Print.AccentSoft}"/>
-                            </StackPanel>
+                                       Foreground="{DynamicResource Print.AccentOn}"
+                                       TextWrapping="Wrap"/>
+                            <TextBlock Margin="{DynamicResource Print.Margin.StackBelow}"
+                                       FontSize="{DynamicResource Print.Font.MetaValue}"
+                                       Foreground="{DynamicResource Print.AccentSoft}"
+                                       TextWrapping="Wrap">
+                                <Run Text="{Binding Company.CompanyLocation, TargetNullValue=United Arab Emirates}"/>
+                                <Run Text="  &#183;  TRN  "/>
+                                <Run Text="{Binding Company.CompanyTrn, TargetNullValue=—}"/>
+                            </TextBlock>
                         </StackPanel>
 
                         <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
@@ -265,15 +267,29 @@
             <Grid Margin="{DynamicResource Print.Margin.SectionBelow}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
+                    <!-- Explicit breathing gap between the identity column
+                         and the reference card (same gutter the CLIENT /
+                         PROJECT grids below use). Without it, a wrapped
+                         company name ends up touching the card border. -->
+                    <ColumnDefinition Width="16"/>
                     <!-- Proportional, not a fixed 220 px: keeps the same
                          67/33 split as before but scales with the paper. -->
                     <ColumnDefinition Width="0.48*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Left: Company Info -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <StackPanel.Style>
-                        <Style TargetType="StackPanel">
+                <!-- Left: Company Info
+                     OVERLAP FIX (2026-09-11): this block was a horizontal
+                     StackPanel — WPF measures its children with INFINITE
+                     width, so a long company name never wrapped; on themes
+                     with large titles or wide page margins (Editorial,
+                     Modern, Executive, Minimal) it simply ran UNDER the
+                     reference-box card. A Grid gives the identity column a
+                     real width, and TextWrapping keeps every line inside
+                     it — exactly how the exported PDF lays it out
+                     (QuestPDF wraps text inside RelativeItems). -->
+                <Grid Grid.Column="0" VerticalAlignment="Center">
+                    <Grid.Style>
+                        <Style TargetType="Grid">
                             <Setter Property="Visibility" Value="Visible"/>
                             <Style.Triggers>
                                 <!-- TopPanel moves the identity onto the
@@ -284,10 +300,15 @@
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </StackPanel.Style>
+                    </Grid.Style>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
                     <!-- Inline logo chip (LeftPortrait / legacy records) -->
-                    <Border Background="{DynamicResource Print.Paper}"
+                    <Border Grid.Column="0"
+                            Background="{DynamicResource Print.Paper}"
                             BorderBrush="{DynamicResource Print.Border}"
                             BorderThickness="1"
                             Padding="{DynamicResource Print.Thickness.LogoChip}"
@@ -308,30 +329,39 @@
                         <Image Source="{Binding Company.LogoImage}" Stretch="Uniform"/>
                     </Border>
 
-                    <StackPanel VerticalAlignment="Center">
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
                     <TextBlock Text="{Binding Company.CompanyName, TargetNullValue=PROGLASS AUTOMATION ERP}"
                                FontSize="{DynamicResource Print.Font.Title}" FontWeight="Bold"
-                               Foreground="{DynamicResource Print.Accent}"/>
+                               Foreground="{DynamicResource Print.Accent}"
+                               TextWrapping="Wrap"/>
                     <TextBlock Text="{DynamicResource ProformaInvoice.PremiumGlassGlazingHighYieldManufacturing}"
                                FontSize="{DynamicResource Print.Font.MetaValue}"
                                Foreground="{DynamicResource Print.Muted}"
-                               Margin="0,3,0,0"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                        <TextBlock Text="{Binding Company.CompanyLocation, TargetNullValue=United Arab Emirates}"
-                                   FontSize="{DynamicResource Print.Font.MetaValue}" Foreground="{DynamicResource Print.Muted}"/>
-                        <TextBlock Text="{DynamicResource ProformaInvoice.WwwProglassAutomationCom}"
-                                   FontSize="{DynamicResource Print.Font.MetaValue}" Foreground="{DynamicResource Print.Muted}"/>
+                               Margin="0,3,0,0"
+                               TextWrapping="Wrap"/>
+                    <!-- Single TextBlock with Runs (was two TextBlocks in a
+                         horizontal StackPanel): identical rendering, but now
+                         wraps inside the column instead of overflowing. -->
+                    <TextBlock FontSize="{DynamicResource Print.Font.MetaValue}"
+                               Foreground="{DynamicResource Print.Muted}"
+                               Margin="0,2,0,0"
+                               TextWrapping="Wrap">
+                        <Run Text="{Binding Company.CompanyLocation, TargetNullValue=United Arab Emirates}"/>
+                        <Run Text="{DynamicResource ProformaInvoice.WwwProglassAutomationCom}"/>
+                    </TextBlock>
+                    <TextBlock FontSize="{DynamicResource Print.Font.MetaValue}" FontWeight="SemiBold"
+                               Margin="0,2,0,0"
+                               TextWrapping="Wrap">
+                        <Run Text="{DynamicResource CompanyCenter.TRN}"
+                             Foreground="{DynamicResource Print.Muted}"/>
+                        <Run Text="{Binding Company.CompanyTrn, TargetNullValue=—}"
+                             Foreground="{DynamicResource Print.Text}"/>
+                    </TextBlock>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                        <TextBlock Text="{DynamicResource CompanyCenter.TRN}" FontSize="{DynamicResource Print.Font.MetaValue}" FontWeight="SemiBold" Foreground="{DynamicResource Print.Muted}"/>
-                        <TextBlock Text="{Binding Company.CompanyTrn, TargetNullValue=—}"
-                                   FontSize="{DynamicResource Print.Font.MetaValue}" FontWeight="SemiBold" Foreground="{DynamicResource Print.Text}"/>
-                    </StackPanel>
-                    </StackPanel>
-                </StackPanel>
+                </Grid>
 
                 <!-- Right: Invoice Reference Box -->
-                <Border Grid.Column="1"
+                <Border Grid.Column="2"
                         Background="{DynamicResource Print.Surface}"
                         CornerRadius="6"
                         Padding="{DynamicResource Print.Thickness.Card}"
