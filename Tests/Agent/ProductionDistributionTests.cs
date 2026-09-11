@@ -279,6 +279,26 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
+        public void Multiple_edge_operations_on_one_pane_count_pieces_once()
+        {
+            // A pane holding FAN HOLES + CUTOUT at the same stage: the
+            // stage IN counts the PIECES once (the cut quantity); DONE
+            // advances only as each piece completes ALL its operations.
+            var items = new List<ProGlassAutomation.Models.Production.SavedProduction.SavedProductionWorkItem>
+            {
+                FlowItem("cut", ProductionStage.Cutting, "Glass", 30, 30),
+                FlowItem("fan", ProductionStage.HolesCutouts, "Glass", 30, 30),
+                FlowItem("cutout", ProductionStage.HolesCutouts, "Glass", 30, 20),
+                FlowItem("temper", ProductionStage.Tempering, "Glass", 30, 0)
+            };
+
+            var flow = ProductionRepository.ComputeUnitFlows(items).Single();
+            Assert.Equal((30, 20), flow.Stages[(int)ProductionStage.HolesCutouts]);
+            // Only the 20 pieces done for BOTH ops may temper.
+            Assert.Equal((20, 0), flow.Stages[(int)ProductionStage.Tempering]);
+        }
+
+        [Fact]
         public void Pairing_waits_for_the_slowest_pane()
         {
             // DGU: outer FT tempered 5; inner annealed cut 10 → only 5

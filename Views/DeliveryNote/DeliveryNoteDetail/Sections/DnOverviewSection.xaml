@@ -651,7 +651,8 @@
                                                                              Text="{Binding DeliveredQty,
                                                                                     UpdateSourceTrigger=PropertyChanged}"
                                                                              behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
-                                                                             Style="{StaticResource DeliveredQtyTextBoxStyle}"/>
+                                                                             Style="{StaticResource DeliveredQtyTextBoxStyle}"
+                                                                             ToolTip="{Binding ProductionHint}"/>
                                                                     <TextBlock Grid.Column="12"
                                                                                Text="{Binding DeliveredQty}"
                                                                                Style="{StaticResource DeliveredQtyReadOnlyStyle}"/>

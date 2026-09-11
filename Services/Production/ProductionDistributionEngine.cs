@@ -248,6 +248,12 @@ namespace ProGlassAutomation.Services.Production
                         continue;
                     }
 
+                    if (row.Qty <= 0)
+                    {
+                        plan.Warnings.Add(
+                            $"Spec {group.GroupNumber}: row {row.SerialNumber} ({SafeRef(row)}) has no quantity — " +
+                            "produced as 1 piece. Fix the Step 5 qty and re-release.");
+                    }
                     int qty = row.Qty <= 0 ? 1 : row.Qty;
                     decimal unitSqm = SqmCalculator.CalculatePanel(w, h);
                     decimal totalSqm = Round3(unitSqm * qty);

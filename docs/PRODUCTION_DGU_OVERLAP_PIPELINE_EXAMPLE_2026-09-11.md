@@ -151,8 +151,9 @@ stages track units; glass volume lives on the pane stages) ·
 **KPIs (Doubling):** Arrived 1 row · In progress 1 · Load 20 units to
 assemble · Ready for dispatch **14 / 30** units.
 
-Chain bar: `①Cutting 24 open · 36/60 · ②Holes 24 open · ③Polish 24 open ·
-⑥Temper ✓ 20/20 · ⑦Pair ✓ 20/20 · ⑧Dbl 6 open · 14/20`.
+Chain bar: `①Cutting 24 open · 36/60 · ②Holes 16 open · 40/56 ·
+③Polish 16 open · 40/56 · ⑥Temper ✓ 20/20 · ⑦Pair ✓ 20/20 ·
+⑧Dbl 6 open · 14/20`.
 
 ---
 

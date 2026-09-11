@@ -101,9 +101,11 @@ Tempering (IN = min(cutDone, every edge-stage done))
 | ⑦ Pairing | units | multi-pane only; bounded by the slowest pane; waiting-on labels for held units |
 | ⑧ Doubling / Lamination | units | assembly notes (spacer size, gas fill, interlayer); finished units → dispatch-ready pieces |
 
-Every module shares: pipeline chain bar (factory piece counts), release bar
+Every module shares: pipeline chain bar (factory counts with explicit
+`pcs` / `units` labels), release bar
 (confirmed JOs only), KPI strip (arrived rows · pending · in progress ·
-completed · load in the stage's own metric · ready-for-dispatch pieces),
+completed — each with its piece-sum hint — · load in the stage's own
+metric · ready-for-dispatch pieces),
 master list = full Step-5 shape minus pricing with IN/DONE/BALANCE, and the
 detail sidebar:
 

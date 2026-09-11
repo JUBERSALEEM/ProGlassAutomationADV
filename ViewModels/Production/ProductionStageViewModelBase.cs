@@ -199,13 +199,17 @@ namespace ProGlassAutomation.ViewModels.Production
         public int Completed { get; init; }
         public int Total { get; init; }
 
+        /// <summary>"pcs" for pane stages, "units" for pairing/assembly.</summary>
+        public string UnitLabel { get; init; } = "pcs";
+
         public bool HasWork => Total > 0;
         public bool IsCleared => Total > 0 && Completed == Total;
         public bool IsCurrent { get; init; }
 
         public string CountLabel => Open > 0
-            ? $"{Open.ToString(CultureInfo.InvariantCulture)} open · {Completed.ToString(CultureInfo.InvariantCulture)}/{Total.ToString(CultureInfo.InvariantCulture)}"
-            : $"{Completed.ToString(CultureInfo.InvariantCulture)}/{Total.ToString(CultureInfo.InvariantCulture)} done";
+            ? $"{Open.ToString(CultureInfo.InvariantCulture)} open · " +
+              $"{Completed.ToString(CultureInfo.InvariantCulture)}/{Total.ToString(CultureInfo.InvariantCulture)} {UnitLabel}"
+            : $"{Completed.ToString(CultureInfo.InvariantCulture)}/{Total.ToString(CultureInfo.InvariantCulture)} {UnitLabel} done";
     }
 
     /// <summary>Shared behaviour for all eight production stage modules.</summary>
@@ -422,6 +426,15 @@ namespace ProGlassAutomation.ViewModels.Production
         private int _completedCount;
         public int CompletedCount { get => _completedCount; private set { if (_completedCount == value) return; _completedCount = value; OnPropertyChanged(); } }
 
+        private string _pendingPiecesHint = "";
+        public string PendingPiecesHint { get => _pendingPiecesHint; private set { if (_pendingPiecesHint == value) return; _pendingPiecesHint = value; OnPropertyChanged(); } }
+
+        private string _inProgressPiecesHint = "";
+        public string InProgressPiecesHint { get => _inProgressPiecesHint; private set { if (_inProgressPiecesHint == value) return; _inProgressPiecesHint = value; OnPropertyChanged(); } }
+
+        private string _completedPiecesHint = "";
+        public string CompletedPiecesHint { get => _completedPiecesHint; private set { if (_completedPiecesHint == value) return; _completedPiecesHint = value; OnPropertyChanged(); } }
+
         private string _areaTotalLabel = "0 m²";
         public string AreaTotalLabel { get => _areaTotalLabel; private set { if (_areaTotalLabel == value) return; _areaTotalLabel = value; OnPropertyChanged(); } }
 
@@ -579,6 +592,8 @@ namespace ProGlassAutomation.ViewModels.Production
                     Open = counts?.Open ?? 0,
                     Completed = counts?.Completed ?? 0,
                     Total = counts?.Total ?? 0,
+                    UnitLabel = stage is ProductionStage.Pairing or ProductionStage.DoublingLamination
+                        ? "units" : "pcs",
                     IsCurrent = stage == Stage
                 });
             }
@@ -679,6 +694,20 @@ namespace ProGlassAutomation.ViewModels.Production
             InProgressCount = arrived.Count(u => u.AggregateStatus == 1);
             CompletedCount = arrived.Count(u => u.AggregateStatus == 2);
 
+            // Piece-flow KPI hints: the boards count rows, the floor reads
+            // pieces — both stay visible (units for assembly stages).
+            string unitSuffix = Stage is ProductionStage.Pairing or ProductionStage.DoublingLamination
+                ? " units" : " pcs";
+            PendingPiecesHint = "Σ " +
+                arrived.Where(u => u.AggregateStatus == 0).Sum(u => u.Inflow)
+                    .ToString(CultureInfo.InvariantCulture) + unitSuffix;
+            InProgressPiecesHint = "Σ " +
+                arrived.Where(u => u.AggregateStatus == 1).Sum(u => u.DoneQty)
+                    .ToString(CultureInfo.InvariantCulture) + unitSuffix + " done";
+            CompletedPiecesHint = "Σ " +
+                arrived.Where(u => u.AggregateStatus == 2).Sum(u => u.DoneQty)
+                    .ToString(CultureInfo.InvariantCulture) + unitSuffix + " done";
+
             decimal area = arrived.Sum(u => u.ArrivedArea);
             AreaTotalLabel = area.ToString("0.##", CultureInfo.InvariantCulture) + " m²";
 
@@ -722,6 +751,11 @@ namespace ProGlassAutomation.ViewModels.Production
 
             _selectedJobFilter = jobRefs.Contains(previous) ? previous : AllJobsFilter;
             OnPropertyChanged(nameof(SelectedJobFilter));
+
+            // If the selected job disappeared (release removed), the list
+            // was filtered by it — resync the list to the reset filter.
+            if (_selectedJobFilter != previous)
+                await LoadListAsync().ConfigureAwait(true);
         }
 
         // ── Row builder ──────────────────────────────────────────────────

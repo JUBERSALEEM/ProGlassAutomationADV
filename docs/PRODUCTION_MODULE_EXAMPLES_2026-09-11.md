@@ -34,7 +34,7 @@ G-201 outer 2.16 m²/pc, 6.0 LM / inner 2.13 m²/pc, 5.96 LM ·
 G-301 3.60 m²/pc, 7.8 LM.
 
 **Chain bar at this moment (factory pieces):**
-`①Cutting 96/96 ✓ · ②Holes 100/100 ✓ · ③Polish 96/96 ✓ · ④EdgeDel — ·
+`①Cutting 96/96 ✓ · ②Holes 50/50 ✓ · ③Polish 96/96 ✓ · ④EdgeDel — ·
 ⑤Mitring 3 open · 13/16 · ⑥Temper 28 open · 47/75 · ⑦Pair 15/15 ✓ ·
 ⑧Double/Lam 6 open · 9/15`
 
@@ -62,14 +62,16 @@ LM `179.4 LM · done · 0 left`.
 ## ② Holes & Cutouts — Stage 2 (charge work, per pane)
 
 Spec 1 carries **two** charge types — the module keeps fan holes and
-cutouts together as separate items per pane; each receives the cut
-quantity as its IN. The unit-row total counts every required operation
-(G-101: 2 ops × 30 pieces = 60).
+cutouts together as separate items per pane. The unit row counts
+**pieces once** (IN = the cut pieces); when a pane holds several
+operations, its DONE advances only as each piece completes **all** of
+them — the per-item cards in the sidebar show each operation's own
+progress.
 
 | St | Sr | Ref | Build | Qty | IN | DONE | BAL |
 |---|---|---|---|---|---|---|---|
-| ✓ | 1 | G-101 | SGU | 30 | 60 | 60 | 0 |
-| ✓ | 2 | G-102 | SGU | 20 | 40 | 40 | 0 |
+| ✓ | 1 | G-101 | SGU | 30 | 30 | 30 | 0 |
+| ✓ | 2 | G-102 | SGU | 20 | 20 | 20 | 0 |
 
 **Sidebar · G-101** shows both operations on the pane:
 

@@ -658,9 +658,11 @@ namespace ProGlassAutomation.Services.Production
                 if (!string.IsNullOrWhiteSpace(search))
                 {
                     string term = search.Trim();
+                    string serial = flow.SerialNumber.ToString(System.Globalization.CultureInfo.InvariantCulture);
                     if (!(Contains(flow.GlassRef, term) || Contains(flow.CustomerName, term)
                         || Contains(flow.JobRef, term) || Contains(flow.SpecName, term)
-                        || Contains(flow.Salesman, term)))
+                        || Contains(flow.Salesman, term) || Contains(flow.BuildType, term)
+                        || serial.Contains(term)))
                         continue;
                 }
 
