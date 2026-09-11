@@ -51,30 +51,36 @@
       UI freeze on every tab click. The glass identity survives via
       the gradient fill + 1px light border; the shadow is removed.
     -->
+    <!-- 2026-09-10 iOS-26 upgrade: cards are now FROSTED GLASS SLABS —
+         translucent gradient fill over the pastel wallpaper, 1px rim light,
+         rounded 20 (the mockup radius). One shared mechanism: every section
+         that uses AboutCardStyle / AboutSectionPanelStyle inherits the glass
+         look without per-file edits. No DropShadowEffect (software-render
+         freeze guard from 2026-08-25 still applies). -->
     <Style x:Key="AboutCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
-        <Setter Property="Background"          Value="{DynamicResource Surface.Primary.BackgroundBrush}"/>
-        <Setter Property="BorderBrush"         Value="{DynamicResource Surface.Primary.BorderBrush}"/>
-        <Setter Property="BorderThickness"     Value="{DynamicResource Surface.Primary.BorderThickness}"/>
+        <Setter Property="Background"          Value="{DynamicResource AboutGlassSlabBrush}"/>
+        <Setter Property="BorderBrush"         Value="{DynamicResource AboutGlassSlabStroke}"/>
+        <Setter Property="BorderThickness"     Value="1"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
-        <Setter Property="CornerRadius"        Value="{DynamicResource Surface.Primary.CornerRadius}"/>
-        <Setter Property="Padding"             Value="30,26"/>
-        <Setter Property="Margin"              Value="0,0,0,20"/>
+        <Setter Property="CornerRadius"        Value="20"/>
+        <Setter Property="Padding"             Value="26,22"/>
+        <Setter Property="Margin"              Value="0,0,0,16"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding"   Value="True"/>
     </Style>
 
     <Style x:Key="HeroCardStyle" TargetType="Border"
            BasedOn="{StaticResource AboutCardStyle}">
-        <Setter Property="BorderBrush" Value="{DynamicResource Surface.Primary.BorderBrush}"/>
-        <Setter Property="BorderThickness" Value="{DynamicResource Surface.Primary.BorderThickness}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource AboutGlassSlabStroke}"/>
+        <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
     <Style x:Key="AboutSectionPanelStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="Background" Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource Surface.Secondary.BorderBrush}"/>
-        <Setter Property="BorderThickness" Value="{DynamicResource Surface.Secondary.BorderThickness}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource Surface.Secondary.CornerRadius}"/>
-        <Setter Property="Padding" Value="18,16"/>
+        <Setter Property="Background" Value="{DynamicResource AboutGlassPanelBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource AboutGlassHairlineStroke}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Padding" Value="16,14"/>
         <Setter Property="Margin" Value="0,0,0,14"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
@@ -160,12 +166,65 @@
     </Style>
 
     <Style x:Key="ChipStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
-        <Setter Property="Background"        Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
-        <Setter Property="BorderBrush"       Value="{DynamicResource Surface.Secondary.BorderBrush}"/>
-        <Setter Property="BorderThickness"   Value="{DynamicResource Surface.Secondary.BorderThickness}"/>
-        <Setter Property="CornerRadius"      Value="{DynamicResource Surface.Secondary.CornerRadius}"/>
-        <Setter Property="Padding"           Value="16,8"/>
+        <Setter Property="Background"        Value="{DynamicResource AboutGlassPanelBrush}"/>
+        <Setter Property="BorderBrush"       Value="{DynamicResource AboutGlassSlabStroke}"/>
+        <Setter Property="BorderThickness"   Value="1"/>
+        <Setter Property="CornerRadius"      Value="12"/>
+        <Setter Property="Padding"           Value="12,6"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- ═══ iOS-26 GLASS PRIMITIVES (2026-09-10) ═══
+         Module icon squircle: 46px, rounded 14, per-module vivid gradient
+         (AboutIcon.* keyed by module name — icons stay vivid in dark),
+         white specular gloss strip across the top half. -->
+    <Style x:Key="AboutModuleIconBorderStyle" TargetType="Border">
+        <Setter Property="Width" Value="46"/>
+        <Setter Property="Height" Value="46"/>
+        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource AboutGlassSlabStroke}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Background" Value="{DynamicResource LiquidAccentGradient}"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Name}" Value="Sheet Store">
+                <Setter Property="Background" Value="{DynamicResource AboutIcon.SheetStore}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Name}" Value="Proforma Invoice">
+                <Setter Property="Background" Value="{DynamicResource AboutIcon.Proforma}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Name}" Value="Job Order">
+                <Setter Property="Background" Value="{DynamicResource AboutIcon.JobOrder}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Name}" Value="Delivery Note">
+                <Setter Property="Background" Value="{DynamicResource AboutIcon.Delivery}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Name}" Value="Tax Invoice">
+                <Setter Property="Background" Value="{DynamicResource AboutIcon.Tax}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Name}" Value="Statements &amp; Reports">
+                <Setter Property="Background" Value="{DynamicResource AboutIcon.Statements}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Name}" Value="Settings">
+                <Setter Property="Background" Value="{DynamicResource AboutIcon.Settings}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Name}" Value="Users · Audit · Activity">
+                <Setter Property="Background" Value="{DynamicResource AboutIcon.Users}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Name}" Value="Multi-page Dashboard">
+                <Setter Property="Background" Value="{DynamicResource AboutIcon.Dashboard}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Name}" Value="Shared Export Engine">
+                <Setter Property="Background" Value="{DynamicResource AboutIcon.Export}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Name}" Value="AI Assistant">
+                <Setter Property="Background" Value="{DynamicResource AboutIcon.Ai}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Name}" Value="Light + Dark Themes">
+                <Setter Property="Background" Value="{DynamicResource AboutIcon.Themes}"/>
+            </DataTrigger>
+        </Style.Triggers>
     </Style>
 
     <!-- Icon tile — glossy accent-gradient badge (mirrors the splash module
@@ -194,57 +253,56 @@
     <!-- ═══ TEMPLATES (glass) ═══ -->
 
     <DataTemplate x:Key="HeroPillarTemplate">
-        <Border CornerRadius="{DynamicResource Surface.Secondary.CornerRadius}"
-                Width="148"
-                Height="118"
-                Padding="16,14"
-                Margin="6"
-                BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"
-                Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
-                BorderBrush="{DynamicResource Surface.Secondary.BorderBrush}"
+        <!-- 2026-09-10: compact glass chip (mockup "12 MODULES / 5 DATABASES
+             / AI READY" pills) instead of the 148×118 stat box. -->
+        <Border CornerRadius="12"
+                Padding="12,7"
+                Margin="0,0,8,8"
+                BorderThickness="1"
+                Background="{DynamicResource AboutGlassPanelBrush}"
+                BorderBrush="{DynamicResource AboutGlassSlabStroke}"
                 SnapsToDevicePixels="True">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Border Style="{StaticResource IconTileStyle}"
-                        Width="38" Height="38"
-                        HorizontalAlignment="Center"
-                        Margin="0,0,0,7">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Width="22" Height="22"
+                        CornerRadius="7"
+                        Background="{DynamicResource LiquidAccentGradient}"
+                        VerticalAlignment="Center">
                     <TextBlock Text="{Binding Icon}"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="{StaticResource TextBodyLarge}"
+                               FontSize="11"
                                Style="{StaticResource GlyphStyle}"/>
                 </Border>
-                <TextBlock Text="{Binding Value}"
-                           FontSize="{StaticResource TextSubhead}"
-                           FontWeight="Bold"
-                           HorizontalAlignment="Center"
-                           Margin="0,2,0,0"
-                           Foreground="{DynamicResource LiquidSnow}"
-                           IsHitTestVisible="False"/>
-                <TextBlock Text="{Binding Label}"
-                           FontSize="{StaticResource TextCaption}"
-                           FontWeight="Bold"
-                           HorizontalAlignment="Center"
-                           Margin="0,3,0,0"
-                           Foreground="{DynamicResource LiquidAccent}"
-                           IsHitTestVisible="False"/>
+                <StackPanel Margin="8,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Value}"
+                               FontSize="{StaticResource TextBody}"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource LiquidSnow}"
+                               IsHitTestVisible="False"/>
+                    <TextBlock Text="{Binding Label}"
+                               FontSize="9"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource AboutGlassCaptionBrush}"
+                               IsHitTestVisible="False"/>
+                </StackPanel>
             </StackPanel>
         </Border>
     </DataTemplate>
 
     <DataTemplate x:Key="ModuleChipTemplate">
-        <!-- 2026-09-10 fluid upgrade: each module chip lifts and brightens
-             its border smoothly on hover (animated RenderTransform + border
-             brush swap). RenderTransformOrigin centres the lift so the card
-             scales in place. Pure micro-interaction — no layout change. -->
+        <!-- 2026-09-10 iOS-26 REWRITE: full-width glass SLAB (mockup-exact).
+             Horizontal: 46px vivid gradient squircle + 13px semibold name +
+             10px gray caption over the wallpaper-lit frosted panel. The
+             hover-lift micro-interaction and its named transforms
+             (ModuleChipScale / ModuleChipLift) are preserved verbatim. -->
         <Border x:Name="ModuleChipRoot"
-                CornerRadius="{DynamicResource Surface.Secondary.CornerRadius}"
-                MinHeight="140"
-                Padding="18,16"
-                Margin="7"
+                CornerRadius="20"
+                MinHeight="76"
+                Padding="16,12"
+                Margin="5"
                 HorizontalAlignment="Stretch"
-                BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"
-                Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
-                BorderBrush="{DynamicResource Surface.Secondary.BorderBrush}"
+                BorderThickness="1"
+                BorderBrush="{DynamicResource AboutGlassSlabStroke}"
+                Background="{DynamicResource AboutGlassSlabBrush}"
                 SnapsToDevicePixels="True"
                 RenderTransformOrigin="0.5,0.5">
             <Border.RenderTransform>
@@ -276,7 +334,7 @@
                                             <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
                                         </DoubleAnimation>
                                         <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)"
-                                                         To="-4" Duration="0:0:0.18">
+                                                         To="-3" Duration="0:0:0.18">
                                             <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
                                         </DoubleAnimation>
                                     </Storyboard>
@@ -305,74 +363,57 @@
                 </Style>
             </Border.Style>
             <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                <Grid Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <TextBlock Text="{DynamicResource About.LIVEModule}"
-                               FontSize="{StaticResource TextCaption}"
-                               FontWeight="Bold"
-                               Foreground="{DynamicResource LiquidMuted}"
-                               VerticalAlignment="Center"
-                               IsHitTestVisible="False"/>
-
-                    <Border Grid.Column="1"
-                            Background="{DynamicResource Surface.Detail.BackgroundBrush}"
-                            BorderBrush="{DynamicResource Surface.Primary.BorderBrush}"
-                            BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"
-                            CornerRadius="{DynamicResource Surface.Detail.CornerRadius}"
-                            Padding="8,3"
-                            VerticalAlignment="Center"
-                            SnapsToDevicePixels="True">
-                        <TextBlock Text="{DynamicResource About.Active}"
-                                   FontSize="{StaticResource TextCaption}"
-                                   FontWeight="Bold"
-                                   Foreground="{DynamicResource LiquidAccent}"
-                                   IsHitTestVisible="False"/>
-                    </Border>
-                </Grid>
-
-                <Grid Grid.Row="1" Margin="0,14,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="14"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Border Style="{StaticResource IconTileStyle}"
-                            Width="48"
-                            Height="48"
-                            VerticalAlignment="Top">
+                <!-- Vivid gradient squircle + white gloss strip -->
+                <Border Grid.Column="0"
+                        Style="{StaticResource AboutModuleIconBorderStyle}">
+                    <Grid>
                         <TextBlock Text="{Binding Icon}"
                                    FontFamily="Segoe MDL2 Assets"
                                    FontSize="{StaticResource TextTitleLarge}"
                                    Style="{StaticResource GlyphStyle}"/>
-                    </Border>
+                        <!-- specular gloss: top-half white fade -->
+                        <Border Height="18" CornerRadius="14,14,0,0"
+                                VerticalAlignment="Top"
+                                IsHitTestVisible="False">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+                                    <GradientStop Color="#59FFFFFF" Offset="0"/>
+                                    <GradientStop Color="#00FFFFFF" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                    </Grid>
+                </Border>
 
-                    <StackPanel Grid.Column="2"
-                                VerticalAlignment="Center">
-                        <TextBlock Text="{Binding Name}"
-                                   FontSize="{StaticResource TextSection}"
-                                   FontWeight="Bold"
-                                   Foreground="{DynamicResource LiquidSnow}"
-                                   TextWrapping="Wrap"
-                                   IsHitTestVisible="False"/>
-                        <TextBlock Text="{Binding Description}"
-                                   FontSize="{StaticResource TextBody}"
-                                   Foreground="{DynamicResource LiquidFrost}"
-                                   TextWrapping="Wrap"
-                                   LineHeight="18"
-                                   Margin="0,4,0,0"
-                                   IsHitTestVisible="False"/>
-                    </StackPanel>
-                </Grid>
+                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Name}"
+                               FontSize="{StaticResource TextBodyLarge}"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource LiquidSnow}"
+                               TextTrimming="CharacterEllipsis"
+                               IsHitTestVisible="False"/>
+                    <TextBlock Text="{Binding Description}"
+                               FontSize="{StaticResource TextCaption}"
+                               Foreground="{DynamicResource AboutGlassCaptionBrush}"
+                               TextTrimming="CharacterEllipsis"
+                               Margin="0,2,0,0"
+                               IsHitTestVisible="False"/>
+                </StackPanel>
+
+                <!-- rim-light chevron: quiet affordance like the iOS list row -->
+                <TextBlock Grid.Column="3" Text="&#xE76C;"
+                           FontFamily="Segoe MDL2 Assets"
+                           FontSize="{StaticResource TextBody}"
+                           Foreground="{DynamicResource AboutGlassCaptionBrush}"
+                           VerticalAlignment="Center"
+                           IsHitTestVisible="False"/>
             </Grid>
         </Border>
     </DataTemplate>

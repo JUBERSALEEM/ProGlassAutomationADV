@@ -60,24 +60,24 @@
                 <Setter Property="Foreground" Value="{DynamicResource LiquidFrost}"/>
                 <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
                 <Setter Property="FontWeight" Value="SemiBold"/>
-                <Setter Property="Margin" Value="0,0,8,0"/>
+                <Setter Property="Margin" Value="0,0,4,0"/>
                 <Setter Property="Padding" Value="0"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="ListBoxItem">
                             <Border x:Name="TabBg"
-                                    Background="{DynamicResource AboutInteractiveBrush}"
-                                    BorderBrush="{DynamicResource AboutInteractiveBorderBrush}"
-                                    BorderThickness="{DynamicResource CardBorderThickness}"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Padding="18,9"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent"
+                                    BorderThickness="1"
+                                    CornerRadius="16"
+                                    Padding="18,7"
                                     SnapsToDevicePixels="True">
                                 <ContentPresenter HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="TabBg" Property="Background" Value="{DynamicResource AboutInteractiveHoverBrush}"/>
+                                    <Setter TargetName="TabBg" Property="Background" Value="{DynamicResource AboutGlassPanelBrush}"/>
                                 </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter TargetName="TabBg" Property="Background" Value="{DynamicResource LiquidAccentDeep}"/>
@@ -135,6 +135,13 @@
              code-behind Loaded handler (AboutView.xaml.cs), wrapped in
              try/catch so it can never crash the page. The transforms below are
              named so the code-behind can drive them. -->
+        <!-- 2026-09-10 iOS-26 stage: full-bleed pastel mesh (light) /
+             deep-navy aurora (dark) behind the glass. Theme-token driven
+             (AboutWallpaperBrush) so Light / Dark / dynamic families all
+             re-tint it live. Painted under the orbs and the glass slabs. -->
+        <Border Background="{DynamicResource AboutWallpaperBrush}"
+                IsHitTestVisible="False"/>
+
         <Ellipse Width="560" Height="560"
                  HorizontalAlignment="Right" VerticalAlignment="Top"
                  Margin="0,-180,-140,0" IsHitTestVisible="False"
@@ -170,7 +177,7 @@
                       FocusVisualStyle="{x:Null}"
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
-            <StackPanel Margin="40,40,40,40">
+            <StackPanel Margin="26,22,26,26">
 
                 <!-- ═══ HERO — frosted identity strip ═══ -->
                 <Border Style="{StaticResource HeroCardStyle}">
@@ -179,7 +186,7 @@
                                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                                 IsHitTestVisible="False"/>
 
-                        <Grid Margin="34,30">
+                        <Grid Margin="24,18">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
@@ -193,16 +200,16 @@
                             <!-- App icon — larger frosted brand tile with a
                                  soft accent halo + slow dashed orbit ring, so
                                  the About hero mirrors the splash brand moment. -->
-                            <Grid Grid.Row="0" Grid.Column="0" Margin="0,0,30,0">
+                            <Grid Grid.Row="0" Grid.Column="0" Margin="0,0,22,0">
                                 <!-- accent halo bloom -->
-                                <Ellipse Width="128" Height="128"
+                                <Ellipse Width="86" Height="86"
                                          Fill="{DynamicResource LiquidAccent}"
                                          Opacity="0.22" IsHitTestVisible="False">
                                     <Ellipse.Effect>
-                                        <BlurEffect Radius="34"/>
+                                        <BlurEffect Radius="26"/>
                                     </Ellipse.Effect>
                                 </Ellipse>
-                                <Ellipse Width="122" Height="122"
+                                <Ellipse Width="80" Height="80"
                                          Stroke="{DynamicResource LiquidAccent}"
                                          StrokeThickness="1" StrokeDashArray="4 6"
                                          Opacity="0.5" IsHitTestVisible="False"
@@ -216,14 +223,17 @@
                                         <RotateTransform x:Name="IconRingRotate" Angle="0"/>
                                     </Ellipse.RenderTransform>
                                 </Ellipse>
-                                <Border Width="100" Height="100"
-                                        CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                                        Background="{DynamicResource AboutInteractiveHoverBrush}"
-                                        BorderBrush="{DynamicResource AboutInteractiveBorderStrongBrush}"
-                                        BorderThickness="{DynamicResource CardBorderThickness}"
+                                <!-- iOS-26: vivid gradient squircle (54px visual
+                                     in a 64px tile) with the rim light — matches
+                                     the module slabs. -->
+                                <Border Width="64" Height="64"
+                                        CornerRadius="18"
+                                        Background="{DynamicResource LiquidAccentGradient}"
+                                        BorderBrush="{DynamicResource AboutGlassSlabStroke}"
+                                        BorderThickness="1"
                                         SnapsToDevicePixels="True">
-                                    <Border Width="90" Height="90"
-                                            CornerRadius="{DynamicResource CardCornerRadius}"
+                                    <Border Width="54" Height="54"
+                                            CornerRadius="14"
                                             ClipToBounds="True">
                                         <!--
                                           Shared frozen app icon
@@ -260,18 +270,19 @@
                                            IsHitTestVisible="False"/>
                             </StackPanel>
 
-                            <!-- Version / build / edition -->
+                            <!-- Version / build / edition — iOS-26: one compact
+                                 version pill + a horizontal flow of glass chips
+                                 (was a 210px vertical stack of 5 boxes). -->
                             <StackPanel Grid.Row="0"
                                         Grid.Column="2"
                                         VerticalAlignment="Center"
-                                        HorizontalAlignment="Right"
-                                        Width="210">
+                                        HorizontalAlignment="Right">
                                 <Border Background="{DynamicResource LiquidAccentDeep}"
-                                        CornerRadius="{DynamicResource CardCornerRadius}"
-                                        Padding="16,8"
-                                        HorizontalAlignment="Stretch"
-                                        BorderBrush="{DynamicResource AboutInteractiveBorderStrongBrush}"
-                                        BorderThickness="{DynamicResource CardBorderThickness}"
+                                        CornerRadius="12"
+                                        Padding="14,6"
+                                        HorizontalAlignment="Right"
+                                        BorderBrush="{DynamicResource AboutGlassSlabStroke}"
+                                        BorderThickness="1"
                                         SnapsToDevicePixels="True">
                                     <TextBlock Text="{Binding Version}"
                                                FontSize="{StaticResource TextBody}"
@@ -280,53 +291,42 @@
                                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                IsHitTestVisible="False"/>
                                 </Border>
-                                <!-- 2.0.1 release note — one-line chip under the
-                                     version pill (bound from AboutViewModel). -->
-                                <Border Style="{StaticResource ChipStyle}" Margin="0,8,0,0"
-                                        HorizontalAlignment="Stretch">
-                                    <TextBlock Text="{Binding WhatsNew}"
-                                               FontSize="{StaticResource TextCaption}"
-                                               FontWeight="SemiBold"
-                                               TextAlignment="Center"
-                                               TextWrapping="Wrap"
-                                               Foreground="{DynamicResource LiquidAccent}"
-                                               IsHitTestVisible="False"/>
-                                </Border>
-                                <Border Style="{StaticResource ChipStyle}" Margin="0,8,0,0"
-                                        HorizontalAlignment="Stretch">
-                                    <TextBlock Text="{Binding Build}"
-                                               FontSize="{StaticResource TextBody}"
-                                               FontWeight="SemiBold"
-                                               TextAlignment="Center"
-                                               Foreground="{DynamicResource LiquidAccent}"
-                                               IsHitTestVisible="False"/>
-                                </Border>
-                                <Border Style="{StaticResource ChipStyle}" Margin="0,8,0,0"
-                                        HorizontalAlignment="Stretch">
-                                    <TextBlock Text="{Binding LicenseStatus.EditionDisplay}"
-                                               FontSize="{StaticResource TextBody}"
-                                               FontWeight="Bold"
-                                               TextAlignment="Center"
-                                               Foreground="{DynamicResource LiquidAccent}"
-                                               TextWrapping="Wrap"
-                                               IsHitTestVisible="False"/>
-                                </Border>
-                                <Border Style="{StaticResource ChipStyle}" Margin="0,8,0,0"
-                                        HorizontalAlignment="Stretch">
-                                    <TextBlock Text="{Binding LicenseStatus.StatusBadge}"
-                                               FontSize="{StaticResource TextBody}"
-                                               FontWeight="Bold"
-                                               TextAlignment="Center"
-                                               Foreground="{DynamicResource LiquidSnow}"
-                                               TextWrapping="Wrap"
-                                               IsHitTestVisible="False"/>
-                                </Border>
+                                <WrapPanel HorizontalAlignment="Right" Margin="0,8,0,0">
+                                    <Border Style="{StaticResource ChipStyle}" Margin="0,0,6,6">
+                                        <TextBlock Text="{Binding WhatsNew}"
+                                                   FontSize="{StaticResource TextCaption}"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource LiquidAccent}"
+                                                   IsHitTestVisible="False"/>
+                                    </Border>
+                                    <Border Style="{StaticResource ChipStyle}" Margin="0,0,6,6">
+                                        <TextBlock Text="{Binding Build}"
+                                                   FontSize="{StaticResource TextCaption}"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource LiquidAccent}"
+                                                   IsHitTestVisible="False"/>
+                                    </Border>
+                                    <Border Style="{StaticResource ChipStyle}" Margin="0,0,6,6">
+                                        <TextBlock Text="{Binding LicenseStatus.EditionDisplay}"
+                                                   FontSize="{StaticResource TextCaption}"
+                                                   FontWeight="Bold"
+                                                   Foreground="{DynamicResource LiquidAccent}"
+                                                   IsHitTestVisible="False"/>
+                                    </Border>
+                                    <Border Style="{StaticResource ChipStyle}" Margin="0,0,0,6">
+                                        <TextBlock Text="{Binding LicenseStatus.StatusBadge}"
+                                                   FontSize="{StaticResource TextCaption}"
+                                                   FontWeight="Bold"
+                                                   Foreground="{DynamicResource LiquidSnow}"
+                                                   IsHitTestVisible="False"/>
+                                    </Border>
+                                </WrapPanel>
                             </StackPanel>
 
                             <!-- Hero metrics restored: bind the shared pillar collections
                                  so the header once again exposes module count, databases,
                                  offline-first posture and AI readiness. -->
-                            <Grid Grid.Row="1" Grid.ColumnSpan="3" Margin="0,28,0,0">
+                            <Grid Grid.Row="1" Grid.ColumnSpan="3" Margin="0,18,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="24"/>
@@ -359,12 +359,20 @@
                     </Grid>
                 </Border>
 
-                <!-- ═══ TAB STRIP ═══ -->
-                <ListBox ItemsSource="{Binding Tabs}"
-                         SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
-                         Style="{StaticResource AboutTabListStyle}"
-                         ItemContainerStyle="{StaticResource AboutTabItemStyle}"
-                         Margin="0,0,0,22"/>
+                <!-- ═══ TAB STRIP — floating glass capsule (iOS-26) ═══ -->
+                <Border HorizontalAlignment="Left"
+                        Background="{DynamicResource AboutGlassCapsuleBrush}"
+                        BorderBrush="{DynamicResource AboutGlassSlabStroke}"
+                        BorderThickness="1"
+                        CornerRadius="22"
+                        Padding="6,5"
+                        Margin="0,2,0,20"
+                        SnapsToDevicePixels="True">
+                    <ListBox ItemsSource="{Binding Tabs}"
+                             SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
+                             Style="{StaticResource AboutTabListStyle}"
+                             ItemContainerStyle="{StaticResource AboutTabItemStyle}"/>
+                </Border>
 
                 <!-- ═══ SECTION CONTENT (switched by SelectedTabIndex) ═══
                      2026-09-10 fluid upgrade: each section now fades and

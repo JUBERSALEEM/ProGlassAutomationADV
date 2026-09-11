@@ -222,9 +222,10 @@
                         Padding="14,14">
                     <ItemsControl ItemsSource="{Binding TechStack}"
                                   ItemTemplate="{StaticResource TechItemTemplate}">
+                        <!-- 2026-09-10: 2-across wide glass items -->
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <UniformGrid Columns="4"/>
+                                <UniformGrid Columns="2"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>

@@ -732,4 +732,70 @@
     <Thickness x:Key="Border.BoxNoTopThickness">1,0,1,1</Thickness>
     <Thickness x:Key="Border.RightBottomHairlineThickness">0,0,1,1</Thickness>
 
+
+        <!-- ═══ ABOUT · iOS-26 LIQUID GLASS STAGE (2026-09-10) ═══
+             Full-bleed pastel mesh + frosted crystal slabs. Every About
+             screen reads these via DynamicResource, so Light / Dark and
+             every dynamic visual family re-tint the stage live. -->
+        <LinearGradientBrush x:Key="AboutWallpaperBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+            <GradientStop Color="#DCEBFF" Offset="0"/>
+            <GradientStop Color="#F3EBFF" Offset="0.55"/>
+            <GradientStop Color="#FFECF1" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="AboutGlassSlabBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+            <GradientStop Color="#F8FFFFFF" Offset="0"/>
+            <GradientStop Color="#D2FFFFFF" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="AboutGlassPanelBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+            <GradientStop Color="#EAFFFFFF" Offset="0"/>
+            <GradientStop Color="#C8FFFFFF" Offset="1"/>
+        </LinearGradientBrush>
+        <SolidColorBrush x:Key="AboutGlassSlabStroke" Color="#EAFFFFFF" po:Freeze="True"/>
+        <SolidColorBrush x:Key="AboutGlassHairlineStroke" Color="#B3F0F4FF" po:Freeze="True"/>
+        <LinearGradientBrush x:Key="AboutGlassCapsuleBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+            <GradientStop Color="#FBFFFFFF" Offset="0"/>
+            <GradientStop Color="#E0FFFFFF" Offset="1"/>
+        </LinearGradientBrush>
+        <SolidColorBrush x:Key="AboutGlassCaptionBrush" Color="#6E6E73" po:Freeze="True"/>
+        <SolidColorBrush x:Key="AboutGlassGlowBrush" Color="#66FFFFFF" po:Freeze="True"/>
+        <!-- ═══ ABOUT · iOS-26 LIQUID GLASS STAGE (2026-09-10) ═══
+             Module icon gradients: VIVID IN BOTH THEMES (the iOS dark-mode
+             trick — dark changes surfaces, icons stay bright). -->
+        <LinearGradientBrush x:Key="AboutIcon.SheetStore" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+            <GradientStop Color="#0A84FF" Offset="0"/><GradientStop Color="#0040DD" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="AboutIcon.Proforma" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+            <GradientStop Color="#5856D6" Offset="0"/><GradientStop Color="#3634A3" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="AboutIcon.JobOrder" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+            <GradientStop Color="#FF9F0A" Offset="0"/><GradientStop Color="#F57C00" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="AboutIcon.Delivery" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+            <GradientStop Color="#30D158" Offset="0"/><GradientStop Color="#248A3D" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="AboutIcon.Tax" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+            <GradientStop Color="#FF375F" Offset="0"/><GradientStop Color="#E0244B" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="AboutIcon.Statements" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+            <GradientStop Color="#BF5AF2" Offset="0"/><GradientStop Color="#8944AB" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="AboutIcon.Dashboard" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+            <GradientStop Color="#40C8E0" Offset="0"/><GradientStop Color="#0AA5C2" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="AboutIcon.Export" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+            <GradientStop Color="#FFD60A" Offset="0"/><GradientStop Color="#F5A800" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="AboutIcon.Ai" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+            <GradientStop Color="#FF6EC6" Offset="0"/><GradientStop Color="#BF5AF2" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="AboutIcon.Users" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+            <GradientStop Color="#64748B" Offset="0"/><GradientStop Color="#475569" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="AboutIcon.Settings" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+            <GradientStop Color="#8E8E93" Offset="0"/><GradientStop Color="#6B6B70" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="AboutIcon.Themes" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+            <GradientStop Color="#66E3C4" Offset="0"/><GradientStop Color="#2BC8A0" Offset="1"/>
+        </LinearGradientBrush>
+
 </ResourceDictionary>
