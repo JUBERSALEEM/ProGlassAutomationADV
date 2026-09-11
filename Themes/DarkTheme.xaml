@@ -683,18 +683,13 @@
              Same keys as LightTheme — only the token values swap, which is
              exactly why the About module re-skins instantly. -->
         <SolidColorBrush x:Key="AboutWallpaperBrush" Color="Transparent" po:Freeze="True"/>
-        <!-- NORMAL (non-iOS26) defaults: exact aliases of the classic Surface
-             tokens — the pre-redesign look. The iOS 26 family overrides these
-             keys at runtime (VisualThemeEngine.ApplyIos26). -->
-        <StaticResource x:Key="AboutGlassSlabBrush" ResourceKey="Surface.Primary.BackgroundBrush"/>
-        <StaticResource x:Key="AboutGlassPanelBrush" ResourceKey="Surface.Secondary.BackgroundBrush"/>
-        <StaticResource x:Key="AboutGlassSlabStroke" ResourceKey="Surface.Primary.BorderBrush"/>
-        <StaticResource x:Key="AboutGlassHairlineStroke" ResourceKey="Surface.Secondary.BorderBrush"/>
-        <StaticResource x:Key="AboutGlassCapsuleBrush" ResourceKey="Surface.Secondary.BackgroundBrush"/>
-        <StaticResource x:Key="AboutGlassCaptionBrush" ResourceKey="MutedForegroundBrush"/>
+        <!-- NORMAL (non-iOS26) defaults. Deliberately NO StaticResource here:
+             App.xaml merges this dictionary BEFORE DesignTokens.xaml, so
+             forward StaticResource references would throw at load. The iOS 26
+             engine part (VisualThemeEngine.Ios26.cs) seeds live Surface.*
+             aliases into the glass keys on every non-iOS26 apply, and the
+             iOS 26 family overrides them at runtime. -->
         <SolidColorBrush x:Key="AboutGlassGlowBrush" Color="Transparent" po:Freeze="True"/>
-        <StaticResource x:Key="AboutCardCornerRadius" ResourceKey="Surface.Primary.CornerRadius"/>
-        <StaticResource x:Key="AboutPanelCornerRadius" ResourceKey="Surface.Secondary.CornerRadius"/>
         <Visibility x:Key="AboutGlassChromeVisibility">Collapsed</Visibility>
         <!-- ═══ ABOUT · iOS-26 LIQUID GLASS STAGE (2026-09-10) ═══
              Module icon gradients: VIVID IN BOTH THEMES (the iOS dark-mode

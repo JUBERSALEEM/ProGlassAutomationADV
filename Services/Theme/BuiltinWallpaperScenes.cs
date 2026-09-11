@@ -74,6 +74,7 @@ namespace ProGlassAutomation.Services.Theme
 
                 if (f == VisualThemeEngine.CrystalFluid) return CrystalFluidScene(dark);
                 if (f == VisualThemeEngine.Monet)            return GoldenHour(h, s, dark);
+                if (f == VisualThemeEngine.Ios26)            return AuroraScene(dark);
                 return Studio(dark);
             }
             catch
@@ -83,6 +84,27 @@ namespace ProGlassAutomation.Services.Theme
         }
 
         // ── Scene painters ────────────────────────────────────────────
+
+        /// <summary>iOS 26 "Aurora" (2026-09-11) — the family's signature
+        /// scene: electric pastel mesh in light, charcoal aurora in dark.
+        /// Matches the About stage wallpaper (VisualThemeEngine.Ios26.cs).</summary>
+        private static LinearGradientBrush AuroraScene(bool dark)
+        {
+            var b = new LinearGradientBrush
+            {
+                StartPoint = new System.Windows.Point(0, 0),
+                EndPoint = new System.Windows.Point(0.8, 1)
+            };
+            string[] stops = dark
+                ? new[] { "#0B0D13", "#141322", "#1D1032", "#0E1220" }
+                : new[] { "#C7DBFF", "#E4D6FF", "#FFD9E8", "#FFF3EC" };
+            double[] offsets = { 0.0, 0.42, 0.78, 1.0 };
+            for (int i = 0; i < stops.Length; i++)
+                b.GradientStops.Add(new GradientStop(Parse(stops[i]), offsets[i]));
+            b.Freeze();
+            return b;
+        }
+
 
         /// <summary>Crystal Fluid (2026-09-05, replaces "Crystal Sea") —
         /// the §22 environment: white light upper-left, soft cyan

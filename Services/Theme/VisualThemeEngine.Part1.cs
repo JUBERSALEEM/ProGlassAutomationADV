@@ -357,10 +357,26 @@ namespace ProGlassAutomation.Services.Theme
                 resources.Remove("CrystalPreviewHostVisibility");
                 foreach (var ck in CrystalFluidTokenKeys)
                     resources.Remove(ck);
-                // iOS 26 (2026-09-10): same removal contract as Crystal Fluid —
-                // non-iOS26 families always see the theme-dictionary defaults.
+                // iOS 26 removal contract (2026-09-11): notify-critical gates
+                // get explicit fallback SETS (the indexer raises
+                // ResourcesChanged; Remove() did not reliably notify — the
+                // CrystalWaterDefaultEnabled lesson); every other key is
+                // removed so the theme-dictionary defaults shine through.
                 foreach (var ck in Ios26TokenKeys)
-                    resources.Remove(ck);
+                {
+                    if (ck == "AboutGlassChromeVisibility")
+                        resources["AboutGlassChromeVisibility"] =
+                            System.Windows.Visibility.Collapsed;
+                    else if (ck == "AboutWallpaperBrush")
+                        resources["AboutWallpaperBrush"] = Ios26NeutralWallpaper;
+                    else
+                        resources.Remove(ck);
+                }
+                // Re-seed the About glass keys from the CURRENT Surface.*
+                // values BEFORE the family switch (ERR-50472F lesson: no
+                // absence window — iOS 26 overrides them right after in the
+                // switch; every other family keeps the live aliases).
+                SeedNeutralAboutTokens(resources);
                 // PRE-SEED (2026-09-05 — ERR-50472F): ClearOverrides just
                 // opened a window where managed keys are ABSENT. A
                 // template inflating against this dictionary in the same
