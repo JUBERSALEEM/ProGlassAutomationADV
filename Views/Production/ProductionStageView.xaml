@@ -1,24 +1,29 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Production/ProductionStageView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Production — shared stage screen, screens redesign 2026-09-11
+     MODULE: Production — shared stage body, screens redesign 2026-09-11
 
-     Hosted by all eight production module views. Binds to
-     ProductionStageViewModelBase and renders a two-tier master–detail:
+     Hosted by all eight production module views (each module owns its
+     own stage-identity header; this control is the shared body).
 
-       TIER 1 — UNIT LIST (left): one row per unit shaped like the
-                Step 5 grid the estimator built — Job / PI No, Salesman,
-                Ref, W1·H1 + W2·H2, Qty, Unit SQM, Total SQM, LM and
-                this stage's progress. Charge work (fan holes, polish LM,
-                mitring LM) appears as "(whole spec)" batch rows.
+     Renders, top to bottom:
+       • PIPELINE CHAIN BAR — the whole eight-stage chain with live
+         factory-wide counts; the current stage is highlighted and any
+         chip navigates straight to its module, so work can be followed
+         stage by stage like a production chain.
+       • release bar — work comes EXCLUSIVELY from confirmed Job Orders.
+       • floor-connectivity warning (completing before the predecessor).
+       • KPI strip + search/job/status filters.
+       • master–detail body:
+           Tier 1 — unit list shaped like the Step 5 grid (Job / PI No,
+                    Customer, Salesman, Ref, W1/H1 + W2/H2, Qty, SQM,
+                    Total SQM, LM, progress; charge work as "(whole
+                    spec)" batch rows).
+           Tier 2 — unit detail with Open Job Order / Open Proforma
+                    Invoice cross-navigation and pane-level items with
+                    Start / Complete / Reopen actions.
 
-       TIER 2 — UNIT DETAIL (right): job header with customer / project /
-                salesman plus OPEN JOB ORDER and OPEN PROFORMA INVOICE
-                cross-navigation (Step 5/6 checking), and the pane-level
-                stage items with Start / Complete / Reopen floor actions.
-
-     Source lock: work arrives ONLY from confirmed Job Orders. See
-     docs/PRODUCTION_SCREENS_DESIGN_2026-09-11.md.
+     See docs/PRODUCTION_SCREENS_DESIGN_2026-09-11.md.
 ═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Production.ProductionStageView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -31,70 +36,108 @@
     <Grid Background="{DynamicResource WindowBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ══ Stage identity header + release bar ═══════════════════ -->
-        <StackPanel Grid.Row="0" Margin="4,4,4,12">
-            <Grid Margin="4,0,4,12">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+        <!-- ══ Pipeline chain bar — the whole production chain ═══════ -->
+        <Border Grid.Row="0"
+                CornerRadius="{DynamicResource CardCornerRadius}"
+                Background="{DynamicResource DashAmbientBrush}"
+                Padding="12,10"
+                Margin="4,0,4,10">
+            <StackPanel>
+                <Grid>
+                    <TextBlock Text="PRODUCTION PIPELINE"
+                               FontSize="{StaticResource TextCaption}"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                    <TextBlock Text="Click a stage to follow the work"
+                               FontSize="{StaticResource TextCaption}"
+                               Foreground="{DynamicResource MutedForegroundBrush}"
+                               HorizontalAlignment="Right"/>
+                </Grid>
 
-                <!-- Stage icon tile (tinted per stage — resolved from
-                     StageTintBrushKey in code-behind, WPF cannot bind a
-                     DynamicResource key) -->
-                <Border x:Name="StageIconTile"
-                        Grid.Column="0"
-                        Width="52" Height="52"
-                        CornerRadius="{DynamicResource CardCornerRadius}"
-                        Background="{DynamicResource TintBlueBrush}"
-                        VerticalAlignment="Center"
-                        Margin="0,0,14,0">
-                    <TextBlock Text="{Binding Icon}"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="24"
-                               Foreground="{DynamicResource AccentBrush}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
-                </Border>
+                <ItemsControl ItemsSource="{Binding ChainStages}" Margin="0,8,0,0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Cursor="Hand"
+                                    Margin="0,0,8,6"
+                                    Command="{Binding DataContext.OpenStageCommand,
+                                              RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                    CommandParameter="{Binding NavKey}"
+                                    ToolTip="{Binding CountLabel}">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="ChipBorder"
+                                                CornerRadius="10"
+                                                Padding="10,6"
+                                                Background="{DynamicResource ModuleBackgroundBrush}"
+                                                BorderBrush="{DynamicResource GlassBorderGradientSoft}"
+                                                BorderThickness="1"
+                                                SnapsToDevicePixels="True">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Ordinal}"
+                                                           FontSize="{StaticResource TextCaption}"
+                                                           FontWeight="Bold"
+                                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,0,8,0"/>
+                                                <TextBlock Text="{Binding Icon}"
+                                                           FontFamily="Segoe MDL2 Assets"
+                                                           FontSize="15"
+                                                           Foreground="{DynamicResource AccentBrush}"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,0,8,0"/>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Name}"
+                                                               FontSize="{StaticResource TextCaption}"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                    <TextBlock Text="{Binding CountLabel}"
+                                                               FontSize="{StaticResource TextXSmall}"
+                                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="ChipBorder" Property="BorderBrush"
+                                                        Value="{DynamicResource AccentBrush}"/>
+                                            </Trigger>
+                                            <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                                <Setter TargetName="ChipBorder" Property="Background"
+                                                        Value="{DynamicResource ElevatedSurfaceBrush}"/>
+                                                <Setter TargetName="ChipBorder" Property="BorderBrush"
+                                                        Value="{DynamicResource AccentBrush}"/>
+                                                <Setter TargetName="ChipBorder" Property="BorderThickness" Value="1.5"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding HasWork}" Value="False">
+                                                <Setter TargetName="ChipBorder" Property="Opacity" Value="0.55"/>
+                                            </DataTrigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
 
-                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding ModuleName}"
-                                   Style="{StaticResource ModulePageTitleStyle}"/>
-                        <Border CornerRadius="9"
-                                Background="{DynamicResource DashAmbientBrush}"
-                                Padding="10,3"
-                                Margin="12,0,0,0"
-                                VerticalAlignment="Center">
-                            <TextBlock Text="{Binding StageOrdinalLabel}"
-                                       FontSize="{StaticResource TextCaption}"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
-                        </Border>
-                    </StackPanel>
-                    <TextBlock Text="{Binding Description}"
-                               Style="{StaticResource ModulePageSubtitleStyle}"/>
-                </StackPanel>
-
-                <Button Grid.Column="2"
-                        Style="{StaticResource OutlinedPillButton}"
-                        Command="{Binding RefreshCommand}"
-                        Tag="&#xE72C;"
-                        Content="Refresh"
-                        MinWidth="140"
-                        VerticalAlignment="Center"/>
-            </Grid>
-
-            <!-- Release bar — Job Orders only (confirmed PIs) -->
+        <!-- ══ Release bar + connectivity warning ════════════════════ -->
+        <StackPanel Grid.Row="1" Margin="4,0,4,10">
             <Border Style="{StaticResource ModuleListShellStyle}" Padding="12">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0"
@@ -117,7 +160,14 @@
                             Command="{Binding ReleaseCommand}"
                             Tag="&#xE768;"
                             Content="Release to Production"
-                            MinWidth="210"/>
+                            MinWidth="210"
+                            Margin="0,0,8,0"/>
+                    <Button Grid.Column="3"
+                            Style="{StaticResource OutlinedPillButton}"
+                            Command="{Binding RefreshCommand}"
+                            Tag="&#xE72C;"
+                            Content="Refresh"
+                            MinWidth="120"/>
                 </Grid>
             </Border>
 
@@ -160,7 +210,7 @@
         </StackPanel>
 
         <!-- ══ Shell: KPIs + filters + master–detail body ════════════ -->
-        <Border Grid.Row="1"
+        <Border Grid.Row="2"
                 Style="{StaticResource ModuleListShellStyle}" Margin="4,0,4,4">
             <Grid>
                 <Grid.RowDefinitions>

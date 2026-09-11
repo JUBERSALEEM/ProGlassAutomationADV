@@ -126,6 +126,10 @@ namespace ProGlassAutomation.ViewModels
         /// </summary>
         private T WireProductionCrossNav<T>(T vm) where T : ProductionStageViewModelBase
         {
+            // Pipeline chain bar: any stage chip opens its module so the
+            // floor can follow work through the chain.
+            vm.OnOpenStage = key => Navigate(key);
+
             vm.OnOpenJobOrderByNumber = async jobNo =>
             {
                 if (string.IsNullOrWhiteSpace(jobNo) || _jobs == null) return;

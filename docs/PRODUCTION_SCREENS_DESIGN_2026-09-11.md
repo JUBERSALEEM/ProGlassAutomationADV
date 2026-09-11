@@ -11,15 +11,29 @@ and a full worked example showing exactly what the floor sees.
 
 ## 1. Information architecture
 
-Every module screen is a **two-tier master–detail** built on the shared
-`ProductionStageView` (one design, eight skins — same pattern the app uses
-for Saved Job Orders → Job Order detail):
+Each stage module is a real, designed page. The **module view**
+(`CuttingView.xaml` etc.) owns the stage-identity header — tinted icon
+tile, module title, `Stage n of 8` badge, description, and a one-line
+chain-context hint (what feeds this stage and where it feeds next).
+Below the header sits the shared `ProductionStageView` body: a
+**pipeline chain bar**, the release bar, KPIs, filters, and the
+two-tier master–detail list/detail (same pattern the app uses for Saved
+Job Orders → Job Order detail).
+
+The **pipeline chain bar** shows all eight stages in floor order with
+factory-wide counts; the current stage is highlighted and any chip
+navigates straight to that stage's module — so an operator can follow a
+job through the chain without leaving production.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│ [icon tile]  CUTTING          Stage 1 of 8                    [Refresh]│
+│ [icon tile]  CUTTING   Stage 1 of 8                                    │
 │ Track glass cutting operations…                                        │
-│ ┌ Release from Job Order [ JOB-2026-0031 · Emaar (Released) ▾ ] [Release] ┐
+│ › Stage 1 of 8 · first stage — cut panes feed Holes, Polish, Tempering │
+│ ┌ PRODUCTION PIPELINE ─────────────── click a stage to follow the work ┐│
+│ │ ①Cutting  ②Holes  ③Polish  ④EdgeDel  ⑤Mitring  ⑥Temper  ⑦Pair  ⑧Dbl ││
+│ └───────────────────────────────────────────────────────────────────── ┘│
+│ ┌ Release from Job Order [ JOB-2026-0031 · Emaar (Released) ▾ ] [Release] [Refresh] ┐
 │ └ release message / amber floor-connectivity warning banner          ┘
 │ KPI: In queue 96 · Pending 84 · In progress 8 · Completed 4 ·        │
 │      Load 214.6 m² / 148 pcs · Ready for dispatch 2 / 7              │

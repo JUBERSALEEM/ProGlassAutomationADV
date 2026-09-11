@@ -38,9 +38,18 @@ production.db (work items per stage, idempotent re-release)
   EDGE_GRINDING → Polish LM; MITRING → Mitring LM; ARGON / SILICON /
   U-INSERT / OVERLAP / SHUTTER_BONDING → notes on the assembly item.
 
-**Screens (redesign 2026-09-11)** — every module is a two-tier
-master–detail, full design + worked samples in
+**Screens (redesign 2026-09-11)** — every module is a real designed
+page, full design + worked samples in
 `docs/PRODUCTION_SCREENS_DESIGN_2026-09-11.md`:
+
+- **Module view** (`CuttingView.xaml` … `DoublingLaminationView.xaml`) —
+  stage-identity header: tinted icon tile, module title, `Stage n of 8`
+  badge, description and a one-line chain-context hint (what feeds this
+  stage, where it feeds next). Each XAML is a full page, not a stub.
+- **Pipeline chain bar** (top of every module) — all eight stages in
+  floor order with factory-wide done/total counts; the current stage is
+  highlighted and any chip opens that stage's module, so work can be
+  followed stage by stage like a production chain.
 
 - **Tier 1 · Unit list** — one row per unit, shaped like the Step 5 grid:
   Job / PI No · Customer · Salesman · Spec · Ref · Build · W1/H1 + W2/H2 ·

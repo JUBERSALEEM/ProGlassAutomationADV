@@ -265,6 +265,37 @@ namespace ProGlassAutomation.Services.Production
             return rows.ToDictionary(r => r.Stage, r => r.Count);
         }
 
+        /// <summary>
+        /// Factory-wide counts per stage (all jobs) — drives the pipeline
+        /// chain bar: every stage module shows the whole production chain
+        /// so operators can follow work stage by stage.
+        /// </summary>
+        public sealed class ProductionChainSummaryRow
+        {
+            public int Stage { get; set; }
+            public int Pending { get; set; }
+            public int InProgress { get; set; }
+            public int Completed { get; set; }
+        }
+
+        public static async Task<List<ProductionChainSummaryRow>> GetChainSummaryAsync()
+        {
+            EnsureInitialized();
+            using var db = new ProductionDbContext();
+            return await db.WorkItems
+                .AsNoTracking()
+                .GroupBy(i => i.Stage)
+                .Select(g => new ProductionChainSummaryRow
+                {
+                    Stage = g.Key,
+                    Pending = g.Count(i => i.Status == (int)WorkItemStatus.Pending),
+                    InProgress = g.Count(i => i.Status == (int)WorkItemStatus.InProgress),
+                    Completed = g.Count(i => i.Status == (int)WorkItemStatus.Completed)
+                })
+                .ToListAsync()
+                .ConfigureAwait(false);
+        }
+
         // ── Stage list + detail projections (screens redesign 2026-09-11) ─
 
         /// <summary>

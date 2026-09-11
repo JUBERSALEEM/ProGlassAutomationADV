@@ -133,6 +133,32 @@ namespace ProGlassAutomation.ViewModels.Production
         public SavedProductionWorkItem? BatchItem { get; init; }
     }
 
+    /// <summary>
+    /// One chip in the pipeline chain bar. Every stage module renders the
+    /// whole eight-stage chain so the floor can follow work from Cutting
+    /// through to Doubling/Lamination; the current stage is highlighted
+    /// and any chip navigates to its module.
+    /// </summary>
+    public sealed class ProductionChainStageChip
+    {
+        public int Ordinal { get; init; }
+        public string NavKey { get; init; } = "";
+        public string Name { get; init; } = "";
+        public string Icon { get; init; } = "";
+
+        public int Pending { get; init; }
+        public int InProgress { get; init; }
+        public int Completed { get; init; }
+
+        public int Total => Pending + InProgress + Completed;
+        public bool HasWork => Total > 0;
+        public bool IsCleared => Total > 0 && Completed == Total;
+        public bool IsCurrent { get; init; }
+
+        public string CountLabel =>
+            $"{Completed.ToString(CultureInfo.InvariantCulture)}/{Total.ToString(CultureInfo.InvariantCulture)} done";
+    }
+
     /// <summary>Shared behaviour for all eight production stage modules.</summary>
     public abstract class ProductionStageViewModelBase : ViewModelBase
     {
@@ -149,6 +175,9 @@ namespace ProGlassAutomation.ViewModels.Production
         public Action<string>? OnOpenJobOrderByNumber { get; set; }
         public Action<string>? OnOpenProformaByNumber { get; set; }
 
+        /// <summary>Chain-bar navigation: open any stage module by nav key.</summary>
+        public Action<string>? OnOpenStage { get; set; }
+
         protected ProductionStageViewModelBase()
         {
             RefreshCommand = new RelayCommand(_ =>
@@ -160,6 +189,12 @@ namespace ProGlassAutomation.ViewModels.Production
             ReleaseCommand = new RelayCommand(
                 _ => AsyncUtility.SafeFireAndForget(ReleaseSelectedAsync, "Production release"),
                 _ => SelectedSource != null && !IsReleasing);
+
+            OpenStageCommand = new RelayCommand(p =>
+            {
+                if (p is string navKey && !string.IsNullOrWhiteSpace(navKey))
+                    OnOpenStage?.Invoke(navKey);
+            }, _ => true);
 
             OpenJobOrderCommand = new RelayCommand(_ =>
             {
@@ -191,6 +226,7 @@ namespace ProGlassAutomation.ViewModels.Production
         public ICommand RefreshCommand { get; }
         public ICommand LoadSourcesCommand { get; }
         public ICommand ReleaseCommand { get; }
+        public ICommand OpenStageCommand { get; }
         public ICommand OpenJobOrderCommand { get; }
         public ICommand OpenProformaCommand { get; }
         public ICommand StartCommand { get; }
@@ -387,24 +423,58 @@ namespace ProGlassAutomation.ViewModels.Production
         /// <summary>Pane-level items for the selected unit (detail grid).</summary>
         public ObservableCollection<ProductionWorkItemRow> SelectedStageItems { get; } = new();
 
-        // ── Stage identity (drives the designed header) ──────────────────
+        // ── Pipeline chain bar ───────────────────────────────────────────
+
+        /// <summary>
+        /// The eight-stage chain, in floor order. Shared metadata with the
+        /// stage VMs (same names, same Segoe MDL2 glyphs).
+        /// </summary>
+        private static readonly (ProductionStage Stage, string NavKey, string Name, string Icon)[] ChainMetadata =
+        {
+            (ProductionStage.Cutting,             "Cutting",             "Cutting",         "\uE8C6"),
+            (ProductionStage.HolesCutouts,        "HolesCutouts",        "Holes & Cutouts", "\uE71D"),
+            (ProductionStage.Polish,              "Polish",              "Polish",          "\uE895"),
+            (ProductionStage.EdgeDeletion,        "EdgeDeletion",        "Edge Deletion",   "\uE774"),
+            (ProductionStage.Mitring,             "Mitring",             "Mitring",         "\uE7E8"),
+            (ProductionStage.Tempering,           "Tempering",           "Tempering",       "\uE728"),
+            (ProductionStage.Pairing,             "Pairing",             "Pairing",         "\uE71B"),
+            (ProductionStage.DoublingLamination,  "DoublingLamination",  "Double / Lam",    "\uE81C")
+        };
+
+        /// <summary>Whole-chain chips, refreshed with every list/KPI load.</summary>
+        public ObservableCollection<ProductionChainStageChip> ChainStages { get; } = new();
+
+        private async Task LoadChainAsync()
+        {
+            var rows = await Task.Run(ProductionRepository.GetChainSummaryAsync)
+                .ConfigureAwait(true);
+
+            var byStage = rows.ToDictionary(r => r.Stage);
+
+            ChainStages.Clear();
+            int ordinal = 0;
+            foreach (var (stage, navKey, name, icon) in ChainMetadata)
+            {
+                ordinal++;
+                byStage.TryGetValue((int)stage, out var counts);
+                ChainStages.Add(new ProductionChainStageChip
+                {
+                    Ordinal = ordinal,
+                    NavKey = navKey,
+                    Name = name,
+                    Icon = icon,
+                    Pending = counts?.Pending ?? 0,
+                    InProgress = counts?.InProgress ?? 0,
+                    Completed = counts?.Completed ?? 0,
+                    IsCurrent = stage == Stage
+                });
+            }
+        }
+
+        // ── Stage identity ───────────────────────────────────────────────
 
         /// <summary>"Stage 3 of 8" — position in the factory pipeline.</summary>
         public string StageOrdinalLabel => $"Stage {((int)Stage).ToString(CultureInfo.InvariantCulture)} of 8";
-
-        /// <summary>Stage-specific tint for the icon tile.</summary>
-        public string StageTintBrushKey => Stage switch
-        {
-            ProductionStage.Cutting => "TintBlueBrush",
-            ProductionStage.HolesCutouts => "TintRedBrush",
-            ProductionStage.Polish => "TintPurpleBrush",
-            ProductionStage.EdgeDeletion => "TintGrayBrush",
-            ProductionStage.Mitring => "TintIndigoBrush",
-            ProductionStage.Tempering => "TintAmberBrush",
-            ProductionStage.Pairing => "TintGreenBrush",
-            ProductionStage.DoublingLamination => "TintBlueBrush",
-            _ => "TintGrayBrush"
-        };
 
         // ── Loading ──────────────────────────────────────────────────────
 
@@ -425,6 +495,7 @@ namespace ProGlassAutomation.ViewModels.Production
         {
             await LoadListAsync().ConfigureAwait(true);
             await LoadKpisAsync().ConfigureAwait(true);
+            await LoadChainAsync().ConfigureAwait(true);
         }
 
         private async Task LoadListAsync()
