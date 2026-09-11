@@ -239,10 +239,39 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                 // a new row sharing the original's RootProformaId.
                 new(1004, "Proforma Invoice: revision chain columns", connection =>
                 {
+                    // ERR-C7CC11 LESSON (2026-09-11): RevisionNumber MUST be
+                    // NOT NULL DEFAULT 0 — the house pattern (see
+                    // AddVoidColumns/AddRowVersionColumn). The original NULL
+                    // DDL left pre-existing rows with NULL, and EF threw
+                    // "data is NULL at ordinal 14" materializing the
+                    // non-nullable int property on every PI load.
                     SchemaMigrationSql.AddColumnIfMissing(connection, "ProformaInvoices", "RootProformaId", "TEXT NULL");
-                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProformaInvoices", "RevisionNumber", "INTEGER NULL");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProformaInvoices", "RevisionNumber", "INTEGER NOT NULL DEFAULT 0");
                     SchemaMigrationSql.CreateIndexIfNotExists(connection,
                         "CREATE INDEX IF NOT EXISTS IX_ProformaInvoices_RootProformaId ON ProformaInvoices(RootProformaId);");
+                }),
+
+                // ERR-C7CC11 REPAIR (2026-09-11): databases that already ran
+                // the original NULL-DDL 1004 carry NULL RevisionNumber (and
+                // blank RootProformaId) on every pre-revision row. Backfill:
+                // originals become revision 0 and their own chain root —
+                // exactly what GetRevisionChainAsync already treats them as.
+                new(1005, "Proforma Invoice: backfill revision-chain columns", connection =>
+                {
+                    using (var cmd = connection.CreateCommand())
+                    {
+                        cmd.CommandText =
+                            "UPDATE ProformaInvoices SET RevisionNumber = 0 " +
+                            "WHERE RevisionNumber IS NULL;";
+                        cmd.ExecuteNonQuery();
+                    }
+                    using (var cmd = connection.CreateCommand())
+                    {
+                        cmd.CommandText =
+                            "UPDATE ProformaInvoices SET RootProformaId = ProformaId " +
+                            "WHERE RootProformaId IS NULL OR RootProformaId = '';";
+                        cmd.ExecuteNonQuery();
+                    }
                 })
             };
 
