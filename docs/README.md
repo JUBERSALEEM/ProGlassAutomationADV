@@ -176,6 +176,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 |---|---|
 | [`PRODUCTION_DISTRIBUTION_PLAN_2026-09-11.md`](PRODUCTION_DISTRIBUTION_PLAN_2026-09-11.md) | Production Distribution — analysis + phased plan wiring SGU/DGU/LAM/DGU+LAM specs into the 8 production stages |
 | [`PRODUCTION_SCREENS_DESIGN_2026-09-11.md`](PRODUCTION_SCREENS_DESIGN_2026-09-11.md) | Production module screens — list + detail design, field contract, worked samples |
+| [`PRODUCTION_MODULE_EXAMPLES_2026-09-11.md`](PRODUCTION_MODULE_EXAMPLES_2026-09-11.md) | One job through all eight production screens — per-module list rows, sidebar totals, dispatch panel, delivery-note caps |
 
 ## Release, CI & readiness
 
