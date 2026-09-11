@@ -23,8 +23,9 @@ ProductionDistributionEngine
 production.db (work items per stage, idempotent re-release)
         ▼
   Cutting → Holes → Polish → EdgeDel → Mitring → Tempering → Pairing → Double/Lam
-        (predecessor connectivity: completing out of order raises a warning;
-         a unit is READY FOR DISPATCH when every stage item is completed)
+        (PIECE FLOW: each stage records QtyDone; only completed pieces move
+         to the next stage — write is clamped to what arrived upstream.
+         A unit is READY FOR DISPATCH when its full quantity finishes the chain)
 ```
 
 **Routing rules** — see `docs/PRODUCTION_DISTRIBUTION_PLAN_2026-09-11.md`:
@@ -47,27 +48,31 @@ page, full design + worked samples in
   badge, description and a one-line chain-context hint (what feeds this
   stage, where it feeds next). Each XAML is a full page, not a stub.
 - **Pipeline chain bar** (top of every module) — all eight stages in
-  floor order with factory-wide done/total counts; the current stage is
-  highlighted and any chip opens that stage's module, so work can be
-  followed stage by stage like a production chain.
+  floor order with factory-wide piece counts (open · done/total); the
+  current stage is highlighted and any chip opens that stage's module,
+  so work can be followed stage by stage like a production chain.
 
 - **Tier 1 · Unit list** — long production rows with the FULL Step 5
   shape (pricing excluded): Job / PI No · Customer · Salesman · Spec ·
   Sr · Ref · Build · W1/H1 + W2/H2 · Qty · SQM1/TOT SQM1/LM1 ·
-  SQM2/TOT SQM2/LM2 · stage progress (n/m). Charge work (fan holes,
-  polish LM, mitring LM) shows as `(whole spec)` batch rows. Filters:
-  free-text search, job, status. KPI chips: queue / pending / in
-  progress / completed / load / ready-for-dispatch.
-- **Tool-chain flow** — every unit enters at Cutting and its row moves
-  to the next module only when the previous stage is complete
-  (`ComputeReleasedKeys` gate). Held rows are counted in a
-  "waiting upstream" strip so the backlog stays visible; the chain
-  bar's open count reflects released (actionable) work only.
+  SQM2/TOT SQM2/LM2 · **IN / DONE / BALANCE** (this stage's piece flow).
+  Charge stages (fan holes, polish, mitring) fan out per pane so cut
+  pieces walk through them. Filters: free-text search, job, status.
+  KPI chips: arrived / pending / in progress / completed / load /
+  ready-for-dispatch.
+- **Piece flow (toolchain)** — every piece enters at Cutting; only the
+  pieces a stage completes (QtyDone) arrive in the next stage. Floor
+  writes are clamped to the arrived quantity
+  (`ComputeUnitFlows` + `SetDoneQtyAsync`). Units with no pieces arrived
+  yet are counted in a "waiting upstream" strip so the backlog stays
+  visible; the chain bar's open count reflects arrived (actionable)
+  pieces only.
 - **Tier 2 · Unit detail** — selecting a row opens the job header
   (Job No, PI No, Customer, Project, Salesman) with **Open Job Order**
   and **Open Proforma Invoice** cross-navigation (checks Step 5 sizes /
   Step 6 charges in the source documents), plus the pane-level stage
-  items with Start / Complete / Reopen floor actions.
+  items each showing IN / DONE / BALANCE and a done-piece editor
+  (Save clamped to IN, All, Reset).
 
 **Key files**
 

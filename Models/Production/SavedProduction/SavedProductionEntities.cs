@@ -100,6 +100,13 @@ namespace ProGlassAutomation.Models.Production.SavedProduction
         public int HeightMm { get; set; }
         public int Qty { get; set; }
 
+        /// <summary>
+        /// Pieces the floor has COMPLETED in this stage (0..Qty). Production
+        /// flows piece by piece: only this many pieces are available to the
+        /// next stage. QtyDone == Qty means the whole quantity has moved on.
+        /// </summary>
+        public int QtyDone { get; set; }
+
         [Column(TypeName = "decimal(18, 3)")]
         public decimal UnitSqm { get; set; }
 

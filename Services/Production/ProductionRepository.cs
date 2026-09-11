@@ -209,34 +209,6 @@ namespace ProGlassAutomation.Services.Production
 
         // ── Stage queue queries ──────────────────────────────────────────
 
-        /// <summary>Queue for one stage module, newest release first.</summary>
-        public static async Task<List<SavedProductionWorkItem>> GetStageQueueAsync(
-            ProductionStage stage,
-            string? jobRefFilter = null,
-            WorkItemStatus? statusFilter = null)
-        {
-            EnsureInitialized();
-            using var db = new ProductionDbContext();
-
-            IQueryable<SavedProductionWorkItem> query = db.WorkItems
-                .AsNoTracking()
-                .Where(i => i.Stage == (int)stage);
-
-            if (!string.IsNullOrWhiteSpace(jobRefFilter))
-                query = query.Where(i => i.JobRef == jobRefFilter);
-
-            if (statusFilter.HasValue)
-                query = query.Where(i => i.Status == (int)statusFilter.Value);
-
-            return await query
-                .OrderBy(i => i.JobRef)
-                .ThenBy(i => i.SpecGroupNumber)
-                .ThenBy(i => i.SerialNumber)
-                .ThenBy(i => i.Position)
-                .ToListAsync()
-                .ConfigureAwait(false);
-        }
-
         /// <summary>All job refs with at least one work item (for pickers).</summary>
         public static async Task<List<SavedProductionRelease>> GetReleasesAsync()
         {
@@ -249,33 +221,16 @@ namespace ProGlassAutomation.Services.Production
                 .ConfigureAwait(false);
         }
 
-        /// <summary>Stage-level counts for one job (dashboard chips).</summary>
-        public static async Task<Dictionary<int, int>> GetStageCountsAsync(string jobRef)
-        {
-            EnsureInitialized();
-            using var db = new ProductionDbContext();
-            var rows = await db.WorkItems
-                .AsNoTracking()
-                .Where(i => i.JobRef == jobRef && i.Status != (int)WorkItemStatus.Completed)
-                .GroupBy(i => i.Stage)
-                .Select(g => new { Stage = g.Key, Count = g.Count() })
-                .ToListAsync()
-                .ConfigureAwait(false);
-
-            return rows.ToDictionary(r => r.Stage, r => r.Count);
-        }
-
         /// <summary>
-        /// Factory-wide counts per stage (all jobs) — drives the pipeline
-        /// chain bar. Counts honour the production-chain gate: "open" only
-        /// counts work that is actually RELEASED into the stage (its
-        /// upstream stages are complete), so the chain bar shows where the
-        /// live work really sits.
+        /// Factory-wide PIECE counts per stage (all jobs) — drives the
+        /// pipeline chain bar. Total = pieces arrived from upstream,
+        /// Completed = pieces the floor finished here, Open = the balance
+        /// still to work. The chain bar shows where the live pieces sit.
         /// </summary>
         public sealed class ProductionChainSummaryRow
         {
             public int Stage { get; set; }
-            /// <summary>Released AND not yet completed (actionable now).</summary>
+            /// <summary>Arrived but not yet completed (actionable now).</summary>
             public int Open { get; set; }
             public int Completed { get; set; }
             public int Total { get; set; }
@@ -287,99 +242,287 @@ namespace ProGlassAutomation.Services.Production
             using var db = new ProductionDbContext();
             var all = await db.WorkItems.AsNoTracking().ToListAsync().ConfigureAwait(false);
 
-            var releasedKeys = ComputeReleasedKeys(all);
-            int completed = (int)WorkItemStatus.Completed;
-
-            return all
-                .GroupBy(i => i.Stage)
+            // Piece counts per stage: Open = arrived-but-not-done pieces,
+            // Completed = done pieces, Total = arrived pieces.
+            var flows = ComputeUnitFlows(all);
+            return flows
+                .SelectMany(f => f.Stages.Select(kv => (kv.Key, kv.Value)))
+                .GroupBy(t => t.Key, t => t.Value)
                 .Select(g => new ProductionChainSummaryRow
                 {
                     Stage = g.Key,
-                    Open = g.Count(i => releasedKeys.Contains(i.UniqueKey) && i.Status != completed),
-                    Completed = g.Count(i => i.Status == completed),
-                    Total = g.Count()
+                    Total = g.Sum(x => x.Inflow),
+                    Completed = g.Sum(x => x.Done),
+                    Open = g.Sum(x => Math.Max(0, x.Inflow - x.Done))
                 })
+                .OrderBy(r => r.Stage)
                 .ToList();
         }
 
-        // ── Production-chain flow gate (screens redesign 2026-09-11) ────
+        // ── Piece-flow engine (production toolchain, 2026-09-11) ────────
         //
-        // Work moves through the factory like a tool chain: every pane
-        // enters at Cutting, and a unit's data only appears in the NEXT
-        // module once its upstream stages are fully complete. A pane is
-        // RELEASED into stage N when every non-charge item of its unit in
-        // stages below N is Completed. Charge batches (Holes / Polish /
-        // Mitring / Edge Deletion) are spec-level and release once the
-        // spec's cutting is done.
+        // Production flows PIECE BY PIECE. Every stage item tracks how
+        // many pieces the floor has completed (QtyDone, 0..Qty); only the
+        // completed quantity arrives in the next stage:
         //
-        // This gate is the single source of truth for "what is actionable
-        // right now" — the stage lists, the chain bar and the waiting
-        // counts all derive from it.
+        //   Cutting (all pieces) → Holes / Polish / Edge Deletion /
+        //   Mitring (each receives the CUT quantity; a piece must finish
+        //   every one of these before it may be tempered) → Tempering →
+        //   Pairing → Doubling/Lamination.
+        //
+        // ComputeUnitFlows is the single source of truth: the module
+        // lists, the chain bar, the KPIs and the clamped floor writes all
+        // derive from it.
+
+        /// <summary>One stage item with its flowed quantity.</summary>
+        public sealed class ProductionFlowItem
+        {
+            public SavedProductionWorkItem Item { get; set; } = null!;
+
+            /// <summary>Pieces that arrived at this stage (available to work).</summary>
+            public int Inflow { get; set; }
+
+            public int Done => Math.Min(Item.QtyDone, Inflow);
+            public int Balance => Math.Max(0, Inflow - Item.QtyDone);
+        }
+
+        /// <summary>Full flow state of one unit (Job + Spec + Step 5 serial).</summary>
+        public sealed class ProductionUnitFlow
+        {
+            public string JobRef { get; set; } = "";
+            public string SourceProformaId { get; set; } = "";
+            public string CustomerName { get; set; } = "";
+            public string ProjectName { get; set; } = "";
+            public string Salesman { get; set; } = "";
+            public int SpecGroupNumber { get; set; }
+            public string SpecName { get; set; } = "";
+            public string BuildType { get; set; } = "";
+            public int SerialNumber { get; set; }
+            public string GlassRef { get; set; } = "";
+            public int Qty { get; set; }
+
+            // Step-5 envelope (from the cutting panes — identical geometry
+            // in every stage, pricing excluded).
+            public int W1 { get; set; }
+            public int H1 { get; set; }
+            public int W2 { get; set; }
+            public int H2 { get; set; }
+            public decimal UnitSqm1 { get; set; }
+            public decimal TotalSqm1 { get; set; }
+            public decimal Lm1 { get; set; }
+            public decimal UnitSqm2 { get; set; }
+            public decimal TotalSqm2 { get; set; }
+            public decimal Lm2 { get; set; }
+
+            public List<SavedProductionWorkItem> AllItems { get; set; } = new();
+
+            /// <summary>Stage → (pieces arrived, pieces done).</summary>
+            public Dictionary<int, (int Inflow, int Done)> Stages { get; } = new();
+
+            /// <summary>Stage → per-item flows (drives the detail panel).</summary>
+            public Dictionary<int, List<ProductionFlowItem>> StageItems { get; } = new();
+
+            /// <summary>Pieces that finished every required pane stage.</summary>
+            public int PaneReadyQty { get; set; }
+
+            /// <summary>True when the whole quantity finished the last stage.</summary>
+            public bool IsDispatchReady { get; set; }
+        }
+
+        /// <summary>Edge/drill work that must finish a piece before tempering.</summary>
+        private static readonly int[] EdgeWorkStages =
+        {
+            (int)ProductionStage.HolesCutouts,
+            (int)ProductionStage.Polish,
+            (int)ProductionStage.EdgeDeletion,
+            (int)ProductionStage.Mitring
+        };
 
         /// <summary>
-        /// Returns the UniqueKeys of every item that is RELEASED into its
-        /// stage right now (upstream work complete). Pure over the item
-        /// list — no DB round-trips.
+        /// Computes the piece-flow state of every unit. Pure over the item
+        /// list — the gate for lists, chain bar, KPIs and floor writes.
         /// </summary>
-        private static HashSet<string> ComputeReleasedKeys(List<SavedProductionWorkItem> all)
+        public static List<ProductionUnitFlow> ComputeUnitFlows(List<SavedProductionWorkItem> all)
         {
-            var released = new HashSet<string>(StringComparer.Ordinal);
+            var flows = new List<ProductionUnitFlow>();
             int cutting = (int)ProductionStage.Cutting;
-            int completed = (int)WorkItemStatus.Completed;
+            int tempering = (int)ProductionStage.Tempering;
+            int pairing = (int)ProductionStage.Pairing;
+            int doubling = (int)ProductionStage.DoublingLamination;
 
-            // Pane / unit items: released when the unit's own items in all
-            // earlier stages are complete. Cutting (stage 1) is the entry
-            // point — everything is released into it.
-            foreach (var unit in all.Where(i => i.Position != "Batch")
+            foreach (var group in all
+                .Where(i => i.Position != "Batch")
                 .GroupBy(i => (i.JobRef, i.SpecGroupNumber, i.SerialNumber)))
             {
-                var items = unit.ToList();
-                foreach (var item in items)
+                var items = group.ToList();
+                var first = items[0];
+
+                var flow = new ProductionUnitFlow
                 {
-                    bool ok = item.Stage == cutting
-                        || items.Where(x => x.Stage < item.Stage)
-                                .All(x => x.Status == completed);
-                    if (ok) released.Add(item.UniqueKey);
+                    JobRef = first.JobRef,
+                    SourceProformaId = first.SourceProformaId,
+                    CustomerName = first.CustomerName,
+                    ProjectName = first.ProjectName,
+                    Salesman = first.Salesman,
+                    SpecGroupNumber = first.SpecGroupNumber,
+                    SpecName = first.SpecName,
+                    BuildType = first.BuildType,
+                    SerialNumber = first.SerialNumber,
+                    GlassRef = first.GlassRef,
+                    Qty = items.Max(i => i.Qty),
+                    AllItems = items
+                };
+
+                // ── Geometry from the cutting panes ──────────────────────
+                var cut = items.Where(i => i.Stage == cutting).ToList();
+                var src = cut.Count > 0 ? cut : items;
+                var pane1 = src.FirstOrDefault(i =>
+                        i.Position is "Glass" or "Unit" or "Outer"
+                        && i.WidthMm > 0 && i.HeightMm > 0)
+                    ?? src.FirstOrDefault(i =>
+                        i.Position == "Lam Outer"
+                        && i.WidthMm > 0 && i.HeightMm > 0);
+                var pane2 = src.FirstOrDefault(i =>
+                    i.Position is "Inner" or "Lam Inner" or "Middle"
+                    && i.WidthMm > 0 && i.HeightMm > 0);
+
+                if (pane1 != null)
+                {
+                    flow.W1 = pane1.WidthMm;
+                    flow.H1 = pane1.HeightMm;
+                    flow.UnitSqm1 = SqmCalculator.CalculatePanel(flow.W1, flow.H1);
+                    flow.TotalSqm1 = Math.Round(flow.UnitSqm1 * flow.Qty, 3, MidpointRounding.AwayFromZero);
+                    flow.Lm1 = pane1.TotalLm;
                 }
+                if (pane2 != null)
+                {
+                    flow.W2 = pane2.WidthMm;
+                    flow.H2 = pane2.HeightMm;
+                    flow.UnitSqm2 = SqmCalculator.CalculatePanel(flow.W2, flow.H2);
+                    flow.TotalSqm2 = Math.Round(flow.UnitSqm2 * flow.Qty, 3, MidpointRounding.AwayFromZero);
+                    flow.Lm2 = pane2.TotalLm;
+                }
+
+                void AddAgg(int stage, int inflow, int done)
+                {
+                    inflow = Math.Max(0, inflow);
+                    done = Math.Clamp(done, 0, inflow);
+                    flow.Stages[stage] = flow.Stages.TryGetValue(stage, out var agg)
+                        ? (agg.Inflow + inflow, agg.Done + done)
+                        : (inflow, done);
+                }
+
+                // ── Per-pane piece flow ──────────────────────────────────
+                int paneReady = int.MaxValue;
+                bool hasPane = false;
+
+                foreach (var panes in items
+                    .Where(i => i.Position is not ("Unit" or "Batch"))
+                    .GroupBy(i => i.Position))
+                {
+                    hasPane = true;
+                    var paneItems = panes.ToList();
+
+                    var cutItem = paneItems.FirstOrDefault(i => i.Stage == cutting);
+                    int cutDone = cutItem == null ? 0 : Math.Clamp(cutItem.QtyDone, 0, cutItem.Qty);
+                    if (cutItem != null)
+                    {
+                        AddAgg(cutting, cutItem.Qty, cutDone);
+                        if (!flow.StageItems.TryGetValue(cutting, out var cl))
+                            flow.StageItems[cutting] = cl = new List<ProductionFlowItem>();
+                        cl.Add(new ProductionFlowItem { Item = cutItem, Inflow = cutItem.Qty });
+                    }
+
+                    // Edge work after cutting — every edge stage receives
+                    // the cut quantity; the MIN across them bounds the
+                    // pieces allowed to move on (a piece needs all of it).
+                    int edgeDoneMin = int.MaxValue;
+                    foreach (int edgeStage in EdgeWorkStages)
+                    {
+                        var edgeItems = paneItems.Where(i => i.Stage == edgeStage).ToList();
+                        if (edgeItems.Count == 0) continue;
+
+                        int stageDone = Math.Min(edgeItems.Min(i => i.QtyDone), cutDone);
+                        edgeDoneMin = Math.Min(edgeDoneMin, stageDone);
+                        AddAgg(edgeStage, cutDone, stageDone);
+
+                        if (!flow.StageItems.TryGetValue(edgeStage, out var el))
+                            flow.StageItems[edgeStage] = el = new List<ProductionFlowItem>();
+                        foreach (var ei in edgeItems)
+                            el.Add(new ProductionFlowItem { Item = ei, Inflow = cutDone });
+                    }
+
+                    int readyForTemper = Math.Min(cutDone,
+                        edgeDoneMin == int.MaxValue ? cutDone : edgeDoneMin);
+
+                    var temperItem = paneItems.FirstOrDefault(i => i.Stage == tempering);
+                    if (temperItem != null)
+                    {
+                        int temperDone = Math.Clamp(temperItem.QtyDone, 0, readyForTemper);
+                        AddAgg(tempering, readyForTemper, temperDone);
+                        if (!flow.StageItems.TryGetValue(tempering, out var tl))
+                            flow.StageItems[tempering] = tl = new List<ProductionFlowItem>();
+                        tl.Add(new ProductionFlowItem { Item = temperItem, Inflow = readyForTemper });
+                        paneReady = Math.Min(paneReady, temperDone);
+                    }
+                    else
+                    {
+                        paneReady = Math.Min(paneReady, readyForTemper);
+                    }
+                }
+
+                flow.PaneReadyQty = hasPane && paneReady != int.MaxValue
+                    ? Math.Max(0, paneReady) : 0;
+
+                // ── Unit-level assembly stages ───────────────────────────
+                var pairItem = items.FirstOrDefault(i => i.Stage == pairing);
+                if (pairItem != null)
+                {
+                    int pairDone = Math.Clamp(pairItem.QtyDone, 0, flow.PaneReadyQty);
+                    AddAgg(pairing, flow.PaneReadyQty, pairDone);
+                    if (!flow.StageItems.TryGetValue(pairing, out var pl))
+                        flow.StageItems[pairing] = pl = new List<ProductionFlowItem>();
+                    pl.Add(new ProductionFlowItem { Item = pairItem, Inflow = flow.PaneReadyQty });
+
+                    var doubleItem = items.FirstOrDefault(i => i.Stage == doubling);
+                    if (doubleItem != null)
+                    {
+                        int doubleDone = Math.Clamp(doubleItem.QtyDone, 0, pairDone);
+                        AddAgg(doubling, pairDone, doubleDone);
+                        if (!flow.StageItems.TryGetValue(doubling, out var dl))
+                            flow.StageItems[doubling] = dl = new List<ProductionFlowItem>();
+                        dl.Add(new ProductionFlowItem { Item = doubleItem, Inflow = pairDone });
+
+                        flow.IsDispatchReady = flow.Qty > 0 && doubleDone >= flow.Qty;
+                    }
+                }
+                else
+                {
+                    // SGU: the pane chain end IS dispatch readiness.
+                    flow.IsDispatchReady = flow.Qty > 0 && flow.PaneReadyQty >= flow.Qty;
+                }
+
+                flows.Add(flow);
             }
 
-            // Charge batches: spec-level work released once the spec's
-            // cutting is fully done (a spec with no cutting items has
-            // nothing to wait for and is released immediately).
-            var cutDone = all
-                .Where(i => i.Stage == cutting && i.Position != "Batch")
-                .GroupBy(i => (i.JobRef, i.SpecGroupNumber))
-                .ToDictionary(g => g.Key, g => g.All(x => x.Status == completed));
-
-            foreach (var batch in all.Where(i => i.Position == "Batch"))
-            {
-                if (!cutDone.TryGetValue((batch.JobRef, batch.SpecGroupNumber), out bool pendingCuts)
-                    || pendingCuts)
-                {
-                    released.Add(batch.UniqueKey);
-                }
-            }
-
-            return released;
+            return flows;
         }
 
         /// <summary>
-        /// Earliest incomplete upstream stage for a not-yet-released unit —
+        /// Earliest upstream stage that is still holding pieces back —
         /// drives the "waiting on Cutting / Tempering…" label.
         /// </summary>
-        private static string WaitingOnLabel(
-            List<SavedProductionWorkItem> unitItems, int currentStage)
+        private static string WaitingOnLabel(ProductionUnitFlow flow, int currentStage)
         {
-            int completed = (int)WorkItemStatus.Completed;
-            var blocker = unitItems
-                .Where(i => i.Position != "Batch" && i.Stage < currentStage
-                            && i.Status != completed)
-                .OrderBy(i => i.Stage)
+            var blocker = flow.Stages
+                .Where(kv => kv.Key < currentStage && kv.Value.Done < kv.Value.Inflow)
+                .OrderBy(kv => kv.Key)
+                .Select(kv => kv.Key)
                 .FirstOrDefault();
 
-            return blocker == null
+            return blocker == 0
                 ? "Waiting upstream"
-                : $"Waiting on {ProductionDistributionEngine.StageLabel((ProductionStage)blocker.Stage)}";
+                : $"Waiting on {ProductionDistributionEngine.StageLabel((ProductionStage)blocker)}";
         }
 
         // ── Stage list + detail projections ──────────────────────────────
@@ -387,7 +530,7 @@ namespace ProGlassAutomation.Services.Production
         /// <summary>
         /// One unit row for the module list: the FULL Step-5 shape (Sr,
         /// Ref, W1/H1, W2/H2, Qty, SQM + LM split per pane — pricing
-        /// deliberately excluded) plus this stage's progress and flow state.
+        /// excluded) plus this stage's piece flow: In / Done / Balance.
         /// </summary>
         public sealed class ProductionUnitProjection
         {
@@ -408,8 +551,7 @@ namespace ProGlassAutomation.Services.Production
             public int H2 { get; set; }
             public int Qty { get; set; }
 
-            // Step-5 maths, split by pane (no Rate / Value — production
-            // reads geometry, never pricing).
+            // Step-5 maths split by pane (no Rate / Value).
             public decimal UnitSqm1 { get; set; }
             public decimal TotalSqm1 { get; set; }
             public decimal Lm1 { get; set; }
@@ -417,52 +559,46 @@ namespace ProGlassAutomation.Services.Production
             public decimal TotalSqm2 { get; set; }
             public decimal Lm2 { get; set; }
 
-            public int DoneCount { get; set; }
-            public int TotalCount { get; set; }
+            // ── Piece flow for THIS stage ────────────────────────────────
+            /// <summary>Pieces that arrived from upstream.</summary>
+            public int Inflow { get; set; }
+            /// <summary>Pieces the floor completed here.</summary>
+            public int DoneQty { get; set; }
+            public int BalanceQty { get; set; }
+
+            /// <summary>Area/LM that actually arrived (KPI load).</summary>
+            public decimal ArrivedArea { get; set; }
+            public decimal ArrivedLm { get; set; }
 
             /// <summary>0 Pending · 1 InProgress · 2 Completed.</summary>
             public int AggregateStatus { get; set; }
 
-            /// <summary>
-            /// Flow state: true = released into this stage (actionable);
-            /// false = still waiting on an earlier stage. When the caller
-            /// asks for waiting rows too, WaitingOn explains why.
-            /// </summary>
-            public bool FlowReleased { get; set; } = true;
+            /// <summary>"" when pieces have arrived; else who holds them.</summary>
             public string WaitingOn { get; set; } = "";
 
-            /// <summary>This stage's items for the unit (drives the detail panel).</summary>
-            public List<SavedProductionWorkItem> Items { get; set; } = new();
+            /// <summary>This stage's per-item flows (detail panel).</summary>
+            public List<ProductionFlowItem> FlowItems { get; set; } = new();
         }
 
-        /// <summary>A charge batch row with its flow state.</summary>
-        public sealed class ProductionBatchProjection
-        {
-            public SavedProductionWorkItem Item { get; set; } = null!;
-            public bool FlowReleased { get; set; } = true;
-            public string WaitingOn { get; set; } = "";
-        }
-
-        /// <summary>Stage list = unit rows + charge batch rows.</summary>
+        /// <summary>Stage list = unit rows with piece flow.</summary>
         public sealed class ProductionStageListData
         {
             public List<ProductionUnitProjection> Units { get; set; } = new();
-            public List<ProductionBatchProjection> BatchItems { get; set; } = new();
 
             /// <summary>
-            /// Work allocated to this stage but held back by an incomplete
-            /// upstream stage — the pipeline backlog (tool-chain gating).
+            /// Units allocated to this stage where no piece has arrived
+            /// yet — the pipeline backlog (they flow in as upstream
+            /// completes pieces).
             /// </summary>
             public int WaitingUnits { get; set; }
-            public int WaitingBatch { get; set; }
         }
 
         /// <summary>
-        /// Builds the module list view. PRODUCTION-CHAIN RULE: by default a
-        /// unit only appears once its upstream stages are complete
-        /// (<paramref name="includeWaiting"/>=false) — completed data moves
-        /// to the next module exactly like a tool chain. Pass
-        /// includeWaiting=true to also see the rows still held upstream.
+        /// Builds the module list. PRODUCTION-CHAIN RULE: a unit appears
+        /// with the quantity that has actually ARRIVED from upstream
+        /// (In); Done/Balance track this stage's floor progress. Units
+        /// with nothing arrived yet are counted as waiting (or shown when
+        /// <paramref name="includeWaiting"/> is true).
         /// </summary>
         public static async Task<ProductionStageListData> GetStageListAsync(
             ProductionStage stage,
@@ -474,8 +610,8 @@ namespace ProGlassAutomation.Services.Production
             EnsureInitialized();
             using var db = new ProductionDbContext();
 
-            // Load EVERY stage for the job scope — the flow gate needs the
-            // upstream statuses, not just this stage's own items.
+            // Piece flow needs the whole job (all stages), not just this
+            // stage's own items.
             IQueryable<SavedProductionWorkItem> scope = db.WorkItems.AsNoTracking();
             if (!string.IsNullOrWhiteSpace(jobRefFilter))
                 scope = scope.Where(i => i.JobRef == jobRefFilter);
@@ -488,145 +624,82 @@ namespace ProGlassAutomation.Services.Production
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-            var releasedKeys = ComputeReleasedKeys(all);
-
+            var flows = ComputeUnitFlows(all);
             int stageInt = (int)stage;
-            IEnumerable<SavedProductionWorkItem> stageItems =
-                all.Where(i => i.Stage == stageInt);
-
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                string term = search.Trim();
-                stageItems = stageItems.Where(i =>
-                    Contains(i.GlassRef, term) || Contains(i.CustomerName, term)
-                    || Contains(i.JobRef, term) || Contains(i.SpecName, term)
-                    || Contains(i.Salesman, term));
-            }
-
             var data = new ProductionStageListData();
-            int completed = (int)WorkItemStatus.Completed;
 
-            // Full item set per unit (all stages) — the Step-5 envelope and
-            // the "waiting on" trace both need the whole unit, not just the
-            // current stage's slice.
-            var unitLookup = all
-                .Where(i => i.Position != "Batch")
-                .GroupBy(i => (i.JobRef, i.SpecGroupNumber, i.SerialNumber))
-                .ToDictionary(g => g.Key, g => g.ToList());
-
-            // ── Unit rows (pane / assembly items) ────────────────────────
-            var unitItems = stageItems.Where(i => i.Position != "Batch").ToList();
-
-            foreach (var group in unitItems
-                .GroupBy(i => (i.JobRef, i.SpecGroupNumber, i.SerialNumber)))
+            foreach (var flow in flows)
             {
-                var list = group.OrderBy(i => i.Position).ToList();
-                var first = list[0];
-                unitLookup.TryGetValue(group.Key, out var fullUnit);
-                fullUnit ??= list;
+                if (!flow.StageItems.TryGetValue(stageInt, out var stageItems))
+                    continue; // this unit has no work allocated to this stage
 
-                bool released = list.All(i => releasedKeys.Contains(i.UniqueKey));
-                if (!released)
+                var agg = flow.Stages.TryGetValue(stageInt, out var a) ? a : (0, 0);
+                bool arrived = agg.Inflow > 0;
+
+                if (!arrived)
                 {
                     data.WaitingUnits++;
                     if (!includeWaiting) continue;
                 }
 
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    string term = search.Trim();
+                    if (!(Contains(flow.GlassRef, term) || Contains(flow.CustomerName, term)
+                        || Contains(flow.JobRef, term) || Contains(flow.SpecName, term)
+                        || Contains(flow.Salesman, term)))
+                        continue;
+                }
+
                 var unit = new ProductionUnitProjection
                 {
-                    JobRef = first.JobRef,
-                    SourceProformaId = first.SourceProformaId,
-                    CustomerName = first.CustomerName,
-                    ProjectName = first.ProjectName,
-                    Salesman = first.Salesman,
-                    SpecGroupNumber = first.SpecGroupNumber,
-                    SpecName = first.SpecName,
-                    BuildType = first.BuildType,
-                    SerialNumber = first.SerialNumber,
-                    GlassRef = first.GlassRef,
-                    Qty = fullUnit.Max(i => i.Qty),
-                    Items = list,
-                    FlowReleased = released,
-                    WaitingOn = released ? "" : WaitingOnLabel(fullUnit, stageInt)
+                    JobRef = flow.JobRef,
+                    SourceProformaId = flow.SourceProformaId,
+                    CustomerName = flow.CustomerName,
+                    ProjectName = flow.ProjectName,
+                    Salesman = flow.Salesman,
+                    SpecGroupNumber = flow.SpecGroupNumber,
+                    SpecName = flow.SpecName,
+                    BuildType = flow.BuildType,
+                    SerialNumber = flow.SerialNumber,
+                    GlassRef = flow.GlassRef,
+                    Qty = flow.Qty,
+                    W1 = flow.W1,
+                    H1 = flow.H1,
+                    W2 = flow.W2,
+                    H2 = flow.H2,
+                    UnitSqm1 = flow.UnitSqm1,
+                    TotalSqm1 = flow.TotalSqm1,
+                    Lm1 = flow.Lm1,
+                    UnitSqm2 = flow.UnitSqm2,
+                    TotalSqm2 = flow.TotalSqm2,
+                    Lm2 = flow.Lm2,
+                    Inflow = agg.Inflow,
+                    DoneQty = agg.Done,
+                    BalanceQty = Math.Max(0, agg.Inflow - agg.Done),
+                    WaitingOn = arrived ? "" : WaitingOnLabel(flow, stageInt),
+                    FlowItems = stageItems,
+                    AggregateStatus = !arrived || agg.Done == 0 ? 0
+                        : agg.Done >= agg.Inflow ? 2 : 1
                 };
 
-                // Step-5 envelope from the unit's CUTTING panes — geometry
-                // is identical in every stage, so cutting is the single
-                // source of truth for W1/H1, W2/H2 and the pane LM.
-                // Pane-1 = Glass / Outer / Unit; a pure LAM has no "Outer",
-                // so its "Lam Outer" is the envelope instead (DGU+LAM always
-                // has a real "Outer", so the fallback never fires there).
-                var cut = fullUnit.Where(i => i.Stage == (int)ProductionStage.Cutting).ToList();
-                var source = cut.Count > 0 ? cut : fullUnit;
-
-                var pane1 = source.FirstOrDefault(i =>
-                    i.Position is "Glass" or "Unit" or "Outer"
-                    && i.WidthMm > 0 && i.HeightMm > 0)
-                    ?? source.FirstOrDefault(i =>
-                    i.Position == "Lam Outer"
-                    && i.WidthMm > 0 && i.HeightMm > 0);
-
-                // Pane-2 = Inner / Middle / the laminate's inner layer.
-                // (In DGU+LAM, "Lam Outer" belongs to pane 2's laminate
-                // pair — never to the pane-1 slot.)
-                var pane2 = source.FirstOrDefault(i =>
-                    i.Position is "Inner" or "Lam Inner" or "Middle"
-                    && i.WidthMm > 0 && i.HeightMm > 0);
-
-                if (pane1 != null)
+                // Load that physically arrived at this stage.
+                foreach (var fi in stageItems)
                 {
-                    unit.W1 = pane1.WidthMm;
-                    unit.H1 = pane1.HeightMm;
-                    unit.UnitSqm1 = SqmCalculator.CalculatePanel(unit.W1, unit.H1);
-                    unit.TotalSqm1 = Math.Round(unit.UnitSqm1 * unit.Qty, 3, MidpointRounding.AwayFromZero);
-                    unit.Lm1 = pane1.TotalLm;
+                    unit.ArrivedArea += fi.Item.UnitSqm * fi.Inflow;
+                    if (fi.Item.Qty > 0)
+                        unit.ArrivedLm += fi.Item.TotalLm * fi.Inflow / fi.Item.Qty;
                 }
-
-                if (pane2 != null)
-                {
-                    unit.W2 = pane2.WidthMm;
-                    unit.H2 = pane2.HeightMm;
-                    unit.UnitSqm2 = SqmCalculator.CalculatePanel(unit.W2, unit.H2);
-                    unit.TotalSqm2 = Math.Round(unit.UnitSqm2 * unit.Qty, 3, MidpointRounding.AwayFromZero);
-                    unit.Lm2 = pane2.TotalLm;
-                }
-
-                unit.DoneCount = list.Count(i => i.Status == completed);
-                unit.TotalCount = list.Count;
-                unit.AggregateStatus =
-                    unit.DoneCount == unit.TotalCount ? 2
-                    : list.Any(i => i.Status == (int)WorkItemStatus.InProgress) ? 1
-                    : 0;
+                unit.ArrivedArea = Math.Round(unit.ArrivedArea, 3, MidpointRounding.AwayFromZero);
+                unit.ArrivedLm = Math.Round(unit.ArrivedLm, 3, MidpointRounding.AwayFromZero);
 
                 data.Units.Add(unit);
-            }
-
-            // ── Charge batch rows ────────────────────────────────────────
-            foreach (var batch in stageItems.Where(i => i.Position == "Batch"))
-            {
-                bool released = releasedKeys.Contains(batch.UniqueKey);
-                if (!released)
-                {
-                    data.WaitingBatch++;
-                    if (!includeWaiting) continue;
-                }
-                data.BatchItems.Add(new ProductionBatchProjection
-                {
-                    Item = batch,
-                    FlowReleased = released,
-                    WaitingOn = released
-                        ? ""
-                        : $"Waiting on {ProductionDistributionEngine.StageLabel(ProductionStage.Cutting)}"
-                });
             }
 
             if (statusFilter.HasValue)
             {
                 int wanted = (int)statusFilter.Value;
-                data.Units = data.Units
-                    .Where(u => u.AggregateStatus == wanted).ToList();
-                data.BatchItems = data.BatchItems
-                    .Where(b => b.Item.Status == wanted).ToList();
+                data.Units = data.Units.Where(u => u.AggregateStatus == wanted).ToList();
             }
 
             return data;
@@ -636,45 +709,12 @@ namespace ProGlassAutomation.Services.Production
             !string.IsNullOrEmpty(value)
             && value.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0;
 
-        // ── Connectivity: predecessor checks + dispatch readiness ────────
+        // ── Connectivity: chain counts + dispatch readiness ──────────────
 
         /// <summary>
-        /// How many of the same unit's predecessor-stage items are NOT yet
-        /// completed. The floor rule: a pane must be cut before it is
-        /// drilled/polished/mitred, and cut before it is tempered; a unit
-        /// must be paired before assembly. Returns 0 when the item has no
-        /// predecessor stage (Cutting, charge batches).
-        ///
-        /// Unit identity = JobRef + SpecGroupNumber + SerialNumber. Batch
-        /// (charge-driven) items are spec-level, never part of a unit.
-        /// </summary>
-        public static async Task<int> GetPendingPredecessorCountAsync(SavedProductionWorkItem item)
-        {
-            if (item == null || string.IsNullOrWhiteSpace(item.PredecessorStage)) return 0;
-
-            EnsureInitialized();
-            using var db = new ProductionDbContext();
-
-            int predecessorStage = StageFromLabel(item.PredecessorStage);
-            if (predecessorStage == 0) return 0;
-
-            return await db.WorkItems
-                .AsNoTracking()
-                .CountAsync(i =>
-                    i.JobRef == item.JobRef
-                    && i.SpecGroupNumber == item.SpecGroupNumber
-                    && i.SerialNumber == item.SerialNumber
-                    && i.Position != "Batch"
-                    && i.Stage == predecessorStage
-                    && i.Status != (int)WorkItemStatus.Completed)
-                .ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Dispatch readiness across all released jobs (or one job):
-        /// a unit is READY when every stage item in it is completed.
-        /// Batch charge items are spec-level work, not unit stages, so they
-        /// never hold a unit hostage.
+        /// Dispatch readiness across all released jobs (or one job): a unit
+        /// is READY when its whole quantity finished the last stage of its
+        /// chain (Doubling for multi-pane builds, the pane chain for SGU).
         /// </summary>
         public static async Task<(int TotalUnits, int ReadyUnits)> GetUnitReadinessAsync(
             string? jobRef = null)
@@ -682,60 +722,61 @@ namespace ProGlassAutomation.Services.Production
             EnsureInitialized();
             using var db = new ProductionDbContext();
 
-            var query = db.WorkItems
-                .AsNoTracking()
-                .Where(i => i.Position != "Batch");
-
+            IQueryable<SavedProductionWorkItem> scope = db.WorkItems.AsNoTracking();
             if (!string.IsNullOrWhiteSpace(jobRef))
-                query = query.Where(i => i.JobRef == jobRef);
+                scope = scope.Where(i => i.JobRef == jobRef);
 
-            var items = await query
-                .Select(i => new { i.JobRef, i.SpecGroupNumber, i.SerialNumber, i.Status })
-                .ToListAsync()
-                .ConfigureAwait(false);
+            var all = await scope.ToListAsync().ConfigureAwait(false);
+            var flows = ComputeUnitFlows(all);
 
-            int total = 0, ready = 0;
-            foreach (var unit in items
-                .GroupBy(i => new { i.JobRef, i.SpecGroupNumber, i.SerialNumber }))
-            {
-                total++;
-                if (unit.All(i => i.Status == (int)WorkItemStatus.Completed))
-                    ready++;
-            }
-
-            return (total, ready);
+            return (flows.Count, flows.Count(f => f.IsDispatchReady));
         }
 
-        /// <summary>Label → stage value (0 when unknown).</summary>
-        private static int StageFromLabel(string label) => label switch
-        {
-            "Cutting" => (int)ProductionStage.Cutting,
-            "Holes & Cutouts" => (int)ProductionStage.HolesCutouts,
-            "Polish" => (int)ProductionStage.Polish,
-            "Edge Deletion" => (int)ProductionStage.EdgeDeletion,
-            "Mitring" => (int)ProductionStage.Mitring,
-            "Tempering" => (int)ProductionStage.Tempering,
-            "Pairing" => (int)ProductionStage.Pairing,
-            "Doubling / Lamination" => (int)ProductionStage.DoublingLamination,
-            _ => 0
-        };
+        // ── Floor writes (piece flow) ────────────────────────────────────
 
-        // ── Status updates ───────────────────────────────────────────────
-
-        public static async Task<bool> SetStatusAsync(int itemId, WorkItemStatus status)
+        /// <summary>
+        /// Records how many pieces the floor completed on one stage item.
+        /// The value is CLAMPED to the pieces that actually arrived from
+        /// upstream — a stage can never report more done than it received
+        /// (that is the tool chain). Status follows the quantity:
+        /// 0 → Pending · partial → InProgress · full inflow → Completed.
+        /// </summary>
+        public static async Task<(bool Ok, int AppliedQty, string Message)> SetDoneQtyAsync(
+            int itemId, int requestedQty)
         {
             EnsureInitialized();
             using var db = new ProductionDbContext();
 
             var row = await db.WorkItems.FindAsync(itemId).ConfigureAwait(false);
-            if (row == null) return false;
+            if (row == null) return (false, 0, "Work item not found.");
 
-            row.Status = (int)status;
+            // Flow context: how many pieces arrived at this item's stage.
+            var all = await db.WorkItems.AsNoTracking().ToListAsync().ConfigureAwait(false);
+            var flows = ComputeUnitFlows(all);
+
+            int inflow = row.Qty; // fallback = the item's own quantity
+            var flowItem = flows
+                .SelectMany(f => f.StageItems.Values.SelectMany(list => list))
+                .FirstOrDefault(fi => fi.Item.Id == itemId);
+            if (flowItem != null) inflow = flowItem.Inflow;
+
+            int applied = Math.Clamp(requestedQty, 0, Math.Max(0, inflow));
+
+            row.QtyDone = applied;
+            row.Status = applied == 0 ? (int)WorkItemStatus.Pending
+                : applied >= inflow && inflow > 0 ? (int)WorkItemStatus.Completed
+                : (int)WorkItemStatus.InProgress;
             row.UpdatedAt = DateTime.Now;
-            row.CompletedAt = status == WorkItemStatus.Completed ? DateTime.Now : null;
+            row.CompletedAt = row.Status == (int)WorkItemStatus.Completed ? DateTime.Now : null;
 
             await db.SaveChangesAsync().ConfigureAwait(false);
-            return true;
+
+            string message = requestedQty > inflow
+                ? $"Only {inflow.ToString(System.Globalization.CultureInfo.InvariantCulture)} piece(s) " +
+                  "have arrived from the previous stage — saved that many."
+                : "";
+
+            return (true, applied, message);
         }
     }
 }

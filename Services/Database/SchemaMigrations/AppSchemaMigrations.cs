@@ -390,6 +390,15 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                 new(1001, "Production: salesman column", connection =>
                 {
                     SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionWorkItems", "Salesman", "TEXT NOT NULL DEFAULT ''");
+                }),
+
+                // Piece-flow (2026-09-11): every stage item tracks how many
+                // pieces the floor has completed (QtyDone, 0..Qty). Only the
+                // completed quantity arrives in the next stage — production
+                // moves piece by piece, like a tool chain.
+                new(1002, "Production: QtyDone piece-flow counter", connection =>
+                {
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionWorkItems", "QtyDone", "INTEGER NOT NULL DEFAULT 0");
                 })
             };
 

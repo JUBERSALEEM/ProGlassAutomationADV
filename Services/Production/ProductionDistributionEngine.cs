@@ -119,12 +119,17 @@ namespace ProGlassAutomation.Services.Production
                 .Where(c => c != null && c.IsActive)
                 .ToList();
 
+            // Pane occurrences are resolved once per spec and shared by the
+            // per-spec distribution and the charge distribution (charges now
+            // fan out per pane too, so piece quantities flow through them).
+            var occurrenceCache = new Dictionary<int, List<PaneOccurrence>>();
+
             foreach (var group in groups)
             {
-                DistributeGroup(plan, snapshot, group, assemblyNotes);
+                DistributeGroup(plan, snapshot, group, assemblyNotes, occurrenceCache);
             }
 
-            DistributeChargeItems(plan, snapshot, groups, charges);
+            DistributeChargeItems(plan, snapshot, groups, charges, occurrenceCache);
 
             plan.Items = plan.Items
                 .OrderBy(i => i.SpecGroupNumber)
@@ -197,10 +202,12 @@ namespace ProGlassAutomation.Services.Production
             ProductionJobPlan plan,
             ProformaInvoiceSnapshot snapshot,
             SpecGroupSnapshot group,
-            Dictionary<int, List<string>> assemblyNotes)
+            Dictionary<int, List<string>> assemblyNotes,
+            Dictionary<int, List<PaneOccurrence>> occurrenceCache)
         {
             string buildType = ResolveBuildType(group, snapshot);
             var occurrences = ResolvePaneOccurrences(buildType, group, plan);
+            occurrenceCache[group.GroupNumber] = occurrences;
 
             var rows = (group.ItemRows ?? new List<GlassItemRowSnapshot>())
                 .Where(r => r != null && !IsEmptyRow(r))
@@ -399,7 +406,8 @@ namespace ProGlassAutomation.Services.Production
             ProductionJobPlan plan,
             ProformaInvoiceSnapshot snapshot,
             List<SpecGroupSnapshot> groups,
-            List<PredefinedChargeSnapshot> charges)
+            List<PredefinedChargeSnapshot> charges,
+            Dictionary<int, List<PaneOccurrence>> occurrenceCache)
         {
             foreach (var charge in charges)
             {
@@ -430,49 +438,63 @@ namespace ProGlassAutomation.Services.Production
                     continue;
                 }
 
+                // PIECE FLOW: charge work fans out per pane, exactly like
+                // cutting/tempering — so cut pieces physically walk through
+                // Holes / Polish / Mitring on their way to tempering.
                 foreach (int specNo in targets)
                 {
                     var group = groups.First(g => g.GroupNumber == specNo);
-                    string unit = stage == ProductionStage.HolesCutouts ? "QTY" : "LM";
+                    string buildType = ResolveBuildType(group, snapshot);
+                    string metricUnit = stage == ProductionStage.HolesCutouts ? "QTY" : "LM";
 
-                    var item = new ProductionWorkItem
-                    {
-                        UniqueKey = BuildKey(plan.JobRef, specNo, 0, "Batch", stage.Value, key),
-                        JobRef = plan.JobRef,
-                        SourceProformaId = plan.SourceProformaId,
-                        CustomerName = plan.CustomerName,
-                        ProjectName = plan.ProjectName,
-                        Salesman = plan.Salesman,
-                        SpecGroupNumber = specNo,
-                        SpecName = group.SelectedSpecName ?? "",
-                        BuildType = ResolveBuildType(group, snapshot),
-                        SerialNumber = 0,
-                        GlassRef = "(whole spec)",
-                        Position = "Batch",
-                        Qty = 0,
-                        Stage = stage.Value,
-                        Status = WorkItemStatus.Pending,
-                        PredecessorStage = stage == ProductionStage.HolesCutouts
-                            ? StageLabel(ProductionStage.Cutting) : "",
-                        ChargeTemplateKey = key,
-                        ChargeMetricQty = charge.MetricQty ?? 0m,
-                        ChargeMetricUnit = unit,
-                        Notes = ChargeNote(charge, targets)
-                    };
+                    if (!occurrenceCache.TryGetValue(specNo, out var occurrences) || occurrences.Count == 0)
+                        continue;
 
-                    if (item.Stage == ProductionStage.Polish)
+                    var rows = (group.ItemRows ?? new List<GlassItemRowSnapshot>())
+                        .Where(r => r != null && !IsEmptyRow(r))
+                        .OrderBy(r => r.SerialNumber)
+                        .ToList();
+
+                    foreach (var row in rows)
                     {
-                        item.PolishSubTypeLabel = key == "EDGE_GRINDING"
-                            ? "EDGE GRINDING (PRE-POLISH)"
-                            : PolishLabel(charge);
-                        item.TotalLm = charge.MetricQty ?? 0m;
+                        foreach (var occ in occurrences)
+                        {
+                            int w = occ.Slot == PaneSlot.Pane1 ? row.W1 : row.W2;
+                            int h = occ.Slot == PaneSlot.Pane1 ? row.H1 : row.H2;
+                            if (w <= 0 || h <= 0) continue; // same skip rule as cutting
+
+                            int qty = row.Qty <= 0 ? 1 : row.Qty;
+                            decimal unitSqm = SqmCalculator.CalculatePanel(w, h);
+                            decimal totalSqm = Round3(unitSqm * qty);
+                            int perimeterFactor = row.PerimeterFactor > 0 ? row.PerimeterFactor : 2;
+                            decimal totalLm = stage == ProductionStage.HolesCutouts
+                                ? 0m
+                                : Round3(((decimal)w + h) / 1000m * perimeterFactor * qty);
+
+                            var item = BaseItem(plan, group, row, buildType, occ, w, h, qty,
+                                unitSqm, totalSqm, totalLm, stage.Value,
+                                predecessor: StageLabel(ProductionStage.Cutting));
+
+                            // Charge identity rides in the key — two charges
+                            // in the same stage (e.g. FAN_HOLES + CUTOUT)
+                            // must stay distinct items.
+                            item.UniqueKey = BuildKey(plan.JobRef, specNo, row.SerialNumber,
+                                occ.Position, stage.Value, chargeKey: key);
+                            item.ChargeTemplateKey = key;
+                            item.ChargeMetricQty = charge.MetricQty ?? 0m;
+                            item.ChargeMetricUnit = metricUnit;
+                            item.Notes = ChargeNote(charge, targets);
+
+                            if (stage == ProductionStage.Polish)
+                            {
+                                item.PolishSubTypeLabel = key == "EDGE_GRINDING"
+                                    ? "EDGE GRINDING (PRE-POLISH)"
+                                    : PolishLabel(charge);
+                            }
+
+                            plan.Items.Add(item);
+                        }
                     }
-                    else if (item.Stage == ProductionStage.Mitring)
-                    {
-                        item.TotalLm = charge.MetricQty ?? 0m;
-                    }
-
-                    plan.Items.Add(item);
                 }
             }
         }

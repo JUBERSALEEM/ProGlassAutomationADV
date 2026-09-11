@@ -6,9 +6,12 @@
 //   • SGU rows distribute W1/H1 only; W2/H2 belong to multi-pane builds.
 //   • FT / Heat Strengthened / Heat Soaked panes get a Tempering item
 //     after Cutting; Annealed panes go Cutting → ready for dispatch.
-//   • Step 6 FAN_HOLES/HOLES feed the Holes & Cutouts queue with the
-//     charged qty; POLISH feeds the Polish queue with the charged LM and
-//     its sub-type label.
+//   • Step 6 FAN_HOLES/HOLES feed the Holes & Cutouts stage per pane
+//     (charged qty rides along); POLISH feeds the Polish stage per pane
+//     with the charged LM + sub-type label; MITRING feeds Mitring.
+//   • Piece flow: ComputeUnitFlows tracks done pieces per stage — cut
+//     pieces walk into edge work, finished edge pieces walk into
+//     tempering, ready panes walk into pairing/doubling.
 //   • DGU splits into Outer (W1/H1) + Inner (W2/H2) with Pairing +
 //     Doubling items; LAM labels the pair Lam Outer/Lam Inner; DGU+LAM
 //     cuts THREE panes (lam pair shares W2/H2); triple DGU cuts three
@@ -193,8 +196,116 @@ namespace ProGlassAutomation.Tests.Agent
 
             var polish = Stage(Distribute(snap), ProductionStage.Polish).Single();
             Assert.Equal(72.5m, polish.ChargeMetricQty);
-            Assert.Equal(72.5m, polish.TotalLm);
+            // Piece flow: polish is a per-pane stage item — its LM is the
+            // pane perimeter work ((1000+800)/1000 × 2 × 10 pcs), while the
+            // charged commercial LM rides along as ChargeMetricQty.
+            Assert.Equal(36.0m, polish.TotalLm);
+            Assert.Equal(10, polish.Qty);
+            Assert.Equal("Glass", polish.Position);
             Assert.Contains("AllSidePolish", polish.PolishSubTypeLabel);
+        }
+
+        [Fact]
+        public void Charges_fan_out_per_pane_on_multi_pane_builds()
+        {
+            var snap = Snapshot(
+                Group(1, "6mm Clear FT Glass + 12mm ASP + 6mm Clear Annealed Glass",
+                    Row(1, "D-01", 1200, 900, 5, w2: 1190, h2: 890)));
+            snap.OtherCharges.PredefinedCharges.Add(Charge("FAN_HOLES", 20m, 1));
+
+            // Both panes walk through the holes stage — pieces flow.
+            var holes = Stage(Distribute(snap), ProductionStage.HolesCutouts).ToList();
+            Assert.Equal(2, holes.Count);
+            Assert.Contains(holes, h => h.Position == "Outer" && h.WidthMm == 1200);
+            Assert.Contains(holes, h => h.Position == "Inner" && h.WidthMm == 1190);
+            Assert.All(holes, h => Assert.Equal(5, h.Qty));
+            Assert.All(holes, h => Assert.Equal("Cutting", h.PredecessorStage));
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  PIECE FLOW — quantities walk the chain (owner model 2026-09-11)
+        // ══════════════════════════════════════════════════════════════
+
+        private static ProGlassAutomation.Models.Production.SavedProduction.SavedProductionWorkItem FlowItem(
+            string key, ProductionStage stage, string position, int qty, int done,
+            int w = 1000, int h = 800) => new()
+        {
+            Id = key.GetHashCode(),
+            UniqueKey = key,
+            JobRef = "JOB-FLOW",
+            SpecGroupNumber = 1,
+            SerialNumber = 1,
+            GlassRef = "G-01",
+            Position = position,
+            Stage = (int)stage,
+            Qty = qty,
+            QtyDone = done,
+            WidthMm = w,
+            HeightMm = h
+        };
+
+        [Fact]
+        public void Cut_pieces_flow_to_holes_and_only_done_pieces_move_on()
+        {
+            // SGU FT: cut 10 of 24 → holes receives 10; holes 5 done →
+            // only 5 are eligible for tempering.
+            var items = new List<ProGlassAutomation.Models.Production.SavedProduction.SavedProductionWorkItem>
+            {
+                FlowItem("cut", ProductionStage.Cutting, "Glass", 24, 10),
+                FlowItem("holes", ProductionStage.HolesCutouts, "Glass", 24, 5),
+                FlowItem("temper", ProductionStage.Tempering, "Glass", 24, 0)
+            };
+
+            var flow = ProductionRepository.ComputeUnitFlows(items).Single();
+
+            Assert.Equal((24, 10), flow.Stages[(int)ProductionStage.Cutting]);
+            Assert.Equal((10, 5), flow.Stages[(int)ProductionStage.HolesCutouts]);
+            Assert.Equal((5, 0), flow.Stages[(int)ProductionStage.Tempering]);
+            Assert.False(flow.IsDispatchReady);
+        }
+
+        [Fact]
+        public void All_pieces_holed_release_the_whole_cut_quantity_to_tempering()
+        {
+            var items = new List<ProGlassAutomation.Models.Production.SavedProduction.SavedProductionWorkItem>
+            {
+                FlowItem("cut", ProductionStage.Cutting, "Glass", 24, 10),
+                FlowItem("holes", ProductionStage.HolesCutouts, "Glass", 24, 10),
+                FlowItem("temper", ProductionStage.Tempering, "Glass", 24, 5)
+            };
+
+            var flow = ProductionRepository.ComputeUnitFlows(items).Single();
+            Assert.Equal((10, 5), flow.Stages[(int)ProductionStage.Tempering]);
+        }
+
+        [Fact]
+        public void Pairing_waits_for_the_slowest_pane()
+        {
+            // DGU: outer FT tempered 5; inner annealed cut 10 → only 5
+            // units may be paired.
+            var items = new List<ProGlassAutomation.Models.Production.SavedProduction.SavedProductionWorkItem>
+            {
+                FlowItem("cut-o", ProductionStage.Cutting, "Outer", 10, 10),
+                FlowItem("cut-i", ProductionStage.Cutting, "Inner", 10, 10, w: 990, h: 790),
+                FlowItem("temp-o", ProductionStage.Tempering, "Outer", 10, 5),
+                FlowItem("pair", ProductionStage.Pairing, "Unit", 10, 2)
+            };
+
+            var flow = ProductionRepository.ComputeUnitFlows(items).Single();
+            Assert.Equal((5, 2), flow.Stages[(int)ProductionStage.Pairing]);
+        }
+
+        [Fact]
+        public void Sgu_annealed_chain_is_dispatch_ready_when_fully_cut()
+        {
+            var items = new List<ProGlassAutomation.Models.Production.SavedProduction.SavedProductionWorkItem>
+            {
+                FlowItem("cut", ProductionStage.Cutting, "Glass", 12, 12)
+            };
+
+            var flow = ProductionRepository.ComputeUnitFlows(items).Single();
+            Assert.Equal(12, flow.PaneReadyQty);
+            Assert.True(flow.IsDispatchReady);
         }
 
         [Fact]

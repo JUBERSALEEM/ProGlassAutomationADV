@@ -435,8 +435,9 @@
                                 <DataGridTextColumn Header="SQM2" Binding="{Binding Sqm2Label}" Width="70"/>
                                 <DataGridTextColumn Header="TOT SQM2" Binding="{Binding TotalSqm2Label}" Width="85"/>
                                 <DataGridTextColumn Header="LM2" Binding="{Binding Lm2Label}" Width="70"/>
-                                <DataGridTextColumn Header="STAGE" Binding="{Binding ProgressLabel}" Width="90"/>
-                                <DataGridTextColumn Header="CHARGE" Binding="{Binding MetricLabel}" Width="170"/>
+                                <DataGridTextColumn Header="IN" Binding="{Binding InflowLabel}" Width="55"/>
+                                <DataGridTextColumn Header="DONE" Binding="{Binding DoneLabel}" Width="60"/>
+                                <DataGridTextColumn Header="BALANCE" Binding="{Binding BalanceLabel}" Width="80"/>
                             </DataGrid.Columns>
                         </DataGrid>
 
@@ -534,7 +535,6 @@
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
 
                                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Job No" Style="{StaticResource ModuleListKpiLabelStyle}" Margin="0,2"/>
@@ -569,65 +569,58 @@
                                     <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding SelectedSizeSummary}" FontSize="{StaticResource TextBody}"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap" Margin="12,2,0,2"/>
 
-                                    <TextBlock Grid.Row="7" Grid.Column="0" Text="Charge" Style="{StaticResource ModuleListKpiLabelStyle}" Margin="0,2"
-                                               Visibility="{Binding IsBatchSelection,
-                                                            Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                    <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding SelectedBatchMetric}" FontSize="{StaticResource TextBody}"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap" Margin="12,2,0,2"
-                                               Visibility="{Binding IsBatchSelection,
-                                                            Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 </Grid>
 
-                                <!-- Pane-level stage items -->
-                                <TextBlock Text="STAGE ITEMS" Style="{StaticResource ModuleListKpiLabelStyle}" Margin="0,14,0,6"/>
-                                <DataGrid ItemsSource="{Binding SelectedStageItems}"
-                                          Style="{StaticResource GodViewGridStyle}"
-                                          ColumnHeaderStyle="{StaticResource GodViewHeaderStyle}"
-                                          SelectionMode="Single"
-                                          CanUserAddRows="False"
-                                          IsReadOnly="True"
-                                          MaxHeight="340">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="POS" Binding="{Binding Position}" Width="70"/>
-                                        <DataGridTextColumn Header="TREATMENT" Binding="{Binding Treatment}" Width="*"/>
-                                        <DataGridTextColumn Header="SIZE (MM)" Binding="{Binding SizeLabel}" Width="110"/>
-                                        <DataGridTextColumn Header="QTY" Binding="{Binding QtyLabel}" Width="50"/>
-                                        <DataGridTextColumn Header="SQM" Binding="{Binding SqmLabel}" Width="70"/>
-                                        <DataGridTextColumn Header="LM" Binding="{Binding LmLabel}" Width="70"/>
-                                    </DataGrid.Columns>
-                                </DataGrid>
-
-                                <!-- Detail (sub-type / notes / predecessor) + status -->
-                                <ItemsControl ItemsSource="{Binding SelectedStageItems}" Margin="0,10,0,0">
+                                <!-- Pane-level stage items — piece flow editor -->
+                                <ItemsControl ItemsSource="{Binding SelectedStageItems}" Margin="0,14,0,0">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border CornerRadius="{DynamicResource CardCornerRadius}"
                                                     Background="{DynamicResource DashAmbientBrush}"
-                                                    Padding="10,8"
-                                                    Margin="0,0,0,6">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <StackPanel Grid.Column="0">
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="{Binding Position}"
-                                                                       FontSize="{StaticResource TextBody}"
-                                                                       FontWeight="SemiBold"
-                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                            <TextBlock Text=" · "
-                                                                       FontSize="{StaticResource TextBody}"
-                                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                    Padding="12,10"
+                                                    Margin="0,0,0,8">
+                                                <StackPanel>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel Grid.Column="0">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <TextBlock Text="{Binding Position}"
+                                                                           FontSize="{StaticResource TextBody}"
+                                                                           FontWeight="SemiBold"
+                                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                <TextBlock Text=" · "
+                                                                           FontSize="{StaticResource TextBody}"
+                                                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                                <TextBlock Text="{Binding SizeLabel}"
+                                                                           FontSize="{StaticResource TextBody}"
+                                                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                                <TextBlock Text=" · "
+                                                                           FontSize="{StaticResource TextBody}"
+                                                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                                <TextBlock Text="{Binding QtyLabel, StringFormat='Qty {0}'}"
+                                                                           FontSize="{StaticResource TextBody}"
+                                                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                            </StackPanel>
                                                             <TextBlock Text="{Binding DetailLabel}"
                                                                        FontSize="{StaticResource TextBody}"
                                                                        TextWrapping="Wrap"
-                                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                                                       Margin="0,2,0,0"/>
+                                                            <TextBlock Text="{Binding ChargeLabel}"
+                                                                       FontSize="{StaticResource TextBody}"
+                                                                       FontWeight="SemiBold"
+                                                                       Foreground="{DynamicResource AccentBrush}"
+                                                                       TextWrapping="Wrap"
+                                                                       Margin="0,2,0,0"/>
                                                         </StackPanel>
-                                                        <TextBlock Text="{Binding StatusLabel}"
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="{Binding StatusLabel}"
                                                                    FontSize="{StaticResource TextCaption}"
                                                                    FontWeight="SemiBold"
-                                                                   Margin="0,2,0,0">
+                                                                   VerticalAlignment="Center">
                                                             <TextBlock.Style>
                                                                 <Style TargetType="TextBlock">
                                                                     <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
@@ -642,34 +635,72 @@
                                                                 </Style>
                                                             </TextBlock.Style>
                                                         </TextBlock>
+                                                    </Grid>
+
+                                                    <!-- Pieces: arrived / done / balance -->
+                                                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                                        <Border CornerRadius="8" Background="{DynamicResource ModuleBackgroundBrush}" Padding="10,4" Margin="0,0,6,0">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <TextBlock Text="IN " FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                                           Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
+                                                                <TextBlock Text="{Binding InflowLabel}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                            </StackPanel>
+                                                        </Border>
+                                                        <Border CornerRadius="8" Background="{DynamicResource ModuleBackgroundBrush}" Padding="10,4" Margin="0,0,6,0">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <TextBlock Text="DONE " FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                                           Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
+                                                                <TextBlock Text="{Binding DoneLabel}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                                           Foreground="{DynamicResource SuccessBrush}"/>
+                                                            </StackPanel>
+                                                        </Border>
+                                                        <Border CornerRadius="8" Background="{DynamicResource ModuleBackgroundBrush}" Padding="10,4">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <TextBlock Text="BALANCE " FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                                           Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
+                                                                <TextBlock Text="{Binding BalanceLabel}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                                           Foreground="{DynamicResource WarningBrush}"/>
+                                                            </StackPanel>
+                                                        </Border>
                                                     </StackPanel>
-                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                                        <Button Content="Start"
-                                                                Style="{StaticResource OutlinedPillButton}"
-                                                                Command="{Binding DataContext.StartCommand,
-                                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                                CommandParameter="{Binding}"
-                                                                Visibility="{Binding CanStart,
-                                                                             Converter={StaticResource BoolToVisibilityConverter}}"
-                                                                Margin="4,0" Padding="10,2"/>
-                                                        <Button Content="Complete"
+
+                                                    <!-- Floor input: pieces completed at this stage -->
+                                                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0"
+                                                                Visibility="{Binding CanWork,
+                                                                             Converter={StaticResource BoolToVisibilityConverter}}">
+                                                        <TextBlock Text="Done pcs"
+                                                                   FontSize="{StaticResource TextBody}"
+                                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                                   VerticalAlignment="Center"
+                                                                   Margin="0,0,8,0"/>
+                                                        <TextBox Text="{Binding DoneInput, UpdateSourceTrigger=PropertyChanged}"
+                                                                 Width="70"
+                                                                 VerticalContentAlignment="Center"
+                                                                 ToolTip="Pieces completed at this stage (cannot exceed IN)"/>
+                                                        <Button Content="Save"
                                                                 Style="{StaticResource PrimaryPillButton}"
-                                                                Command="{Binding DataContext.CompleteCommand,
+                                                                Command="{Binding DataContext.SaveQtyCommand,
                                                                           RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                 CommandParameter="{Binding}"
-                                                                Visibility="{Binding CanComplete,
-                                                                             Converter={StaticResource BoolToVisibilityConverter}}"
-                                                                Margin="4,0" Padding="10,2"/>
-                                                        <Button Content="Reopen"
+                                                                Margin="8,0,0,0" Padding="14,2"
+                                                                ToolTip="Save the done-piece count — only completed pieces move to the next stage"/>
+                                                        <Button Content="All"
                                                                 Style="{StaticResource OutlinedPillButton}"
-                                                                Command="{Binding DataContext.ReopenCommand,
+                                                                Command="{Binding DataContext.CompleteAllCommand,
                                                                           RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                 CommandParameter="{Binding}"
-                                                                Visibility="{Binding CanReopen,
-                                                                             Converter={StaticResource BoolToVisibilityConverter}}"
-                                                                Margin="4,0" Padding="10,2"/>
+                                                                Margin="6,0,0,0" Padding="12,2"
+                                                                ToolTip="Complete every piece that arrived"/>
+                                                        <Button Content="Reset"
+                                                                Style="{StaticResource OutlinedPillButton}"
+                                                                Command="{Binding DataContext.ResetQtyCommand,
+                                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                CommandParameter="{Binding}"
+                                                                Margin="6,0,0,0" Padding="12,2"
+                                                                ToolTip="Set done pieces back to zero"/>
                                                     </StackPanel>
-                                                </Grid>
+                                                </StackPanel>
                                             </Border>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>

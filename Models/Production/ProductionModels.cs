@@ -109,6 +109,13 @@ namespace ProGlassAutomation.Models.Production
         public WorkItemStatus Status { get; set; } = WorkItemStatus.Pending;
 
         /// <summary>
+        /// Pieces the floor has completed at this stage (0..Qty). Only this
+        /// many pieces are available to the next stage — production flows
+        /// piece by piece. Persisted floor state; never set by the engine.
+        /// </summary>
+        public int QtyDone { get; set; }
+
+        /// <summary>
         /// Stage that must complete before this one starts ("" = none).
         /// Encodes the factory precedence: cutting → edge work/holes →
         /// tempering → pairing → doubling/lamination.

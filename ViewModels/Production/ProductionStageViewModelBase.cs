@@ -1,22 +1,25 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Production/ProductionStageViewModelBase.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Production — shared stage view model (screens redesign 2026-09-11)
+// MODULE: Production — shared stage view model (piece flow, 2026-09-11)
 //
-// Base for the eight production stage modules. Each module screen is a
+// Base for the eight production stage modules. Production moves piece by
+// piece, like a tool chain:
+//
+//   Cutting → Holes / Polish / Edge Deletion / Mitring → Tempering →
+//   Pairing → Doubling / Lamination
+//
+// Each stage item tracks DONE pieces (QtyDone); only the completed
+// quantity arrives in the next module. Every module screen is a
 // two-tier master–detail:
 //
-//   TIER 1 — UNIT LIST: one row per unit (Job + Spec + Step 5 serial),
-//            shaped like the Step 5 grid the estimator built:
-//            PI/Job No · Salesman · Ref · W1 · H1 · W2 · H2 · Qty ·
-//            Unit SQM · Total SQM · LM · this stage's progress.
-//            Charge-driven work (fan holes, polish LM, mitring LM) shows
-//            as "(whole spec)" batch rows.
+//   TIER 1 — UNIT LIST: full Step-5 rows (Sr, Ref, W1/H1, W2/H2, Qty,
+//            SQM/LM per pane — no pricing) with this stage's piece flow:
+//            IN (arrived) · DONE · BALANCE.
 //
-//   TIER 2 — UNIT DETAIL: select a row → job header (customer, project,
-//            salesman, PI No, Job No) with OPEN JOB ORDER / OPEN PI
-//            cross-navigation, plus the pane-level stage items for this
-//            module with Start / Complete / Reopen floor actions.
+//   TIER 2 — UNIT DETAIL: job header with OPEN JOB ORDER / OPEN PI
+//            cross-navigation, plus the pane-level stage items where the
+//            floor records done quantities (clamped to what arrived).
 //
 // See docs/PRODUCTION_SCREENS_DESIGN_2026-09-11.md for the full design.
 // ═══════════════════════════════════════════════════════════════════════
@@ -36,69 +39,105 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.Production
 {
-    /// <summary>One pane-level stage item in the detail panel.</summary>
+    /// <summary>
+    /// One pane-level stage item in the detail panel with its piece flow
+    /// (arrived / done / balance) and the floor's done-qty editor state.
+    /// </summary>
     public sealed class ProductionWorkItemRow : ViewModelBase
     {
-        public SavedProductionWorkItem Item { get; }
+        private readonly ProductionRepository.ProductionFlowItem _flow;
 
-        public ProductionWorkItemRow(SavedProductionWorkItem item)
+        public ProductionWorkItemRow(ProductionRepository.ProductionFlowItem flow)
         {
-            Item = item;
+            _flow = flow;
+            _doneInput = Done.ToString(CultureInfo.InvariantCulture);
         }
 
-        public int Id => Item.Id;
-        public string Position => string.IsNullOrWhiteSpace(Item.Position) ? "—" : Item.Position;
-        public string Treatment => string.IsNullOrWhiteSpace(Item.Treatment) ? "—" : Item.Treatment;
+        public SavedProductionWorkItem Item => _flow.Item;
+        public int Id => _flow.Item.Id;
 
-        public string SizeLabel => Item.WidthMm > 0 && Item.HeightMm > 0
-            ? $"{Item.WidthMm.ToString(CultureInfo.InvariantCulture)} × {Item.HeightMm.ToString(CultureInfo.InvariantCulture)} mm"
+        public string Position => string.IsNullOrWhiteSpace(_flow.Item.Position) ? "—" : _flow.Item.Position;
+        public string Treatment => string.IsNullOrWhiteSpace(_flow.Item.Treatment) ? "—" : _flow.Item.Treatment;
+
+        public string SizeLabel => _flow.Item.WidthMm > 0 && _flow.Item.HeightMm > 0
+            ? $"{_flow.Item.WidthMm.ToString(CultureInfo.InvariantCulture)} × {_flow.Item.HeightMm.ToString(CultureInfo.InvariantCulture)} mm"
             : "—";
 
-        public string QtyLabel => Item.Qty > 0
-            ? Item.Qty.ToString(CultureInfo.InvariantCulture) : "—";
+        public string QtyLabel => _flow.Item.Qty > 0
+            ? _flow.Item.Qty.ToString(CultureInfo.InvariantCulture) : "—";
 
-        public string SqmLabel => Item.TotalSqm > 0
-            ? Item.TotalSqm.ToString("0.###", CultureInfo.InvariantCulture) + " m²" : "—";
+        public string ChargeLabel
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(_flow.Item.ChargeTemplateKey)) return "";
+                string label = _flow.Item.ChargeTemplateKey.Replace('_', ' ');
+                if (_flow.Item.ChargeMetricQty > 0)
+                {
+                    label += $" · {_flow.Item.ChargeMetricQty.ToString("0.###", CultureInfo.InvariantCulture)}" +
+                        $" {_flow.Item.ChargeMetricUnit}";
+                }
+                return label;
+            }
+        }
 
-        public string LmLabel => Item.TotalLm > 0
-            ? Item.TotalLm.ToString("0.###", CultureInfo.InvariantCulture) + " LM" : "—";
+        // ── Piece flow ───────────────────────────────────────────────────
+
+        public int Inflow => _flow.Inflow;
+        public int Done => _flow.Done;
+        public int Balance => _flow.Balance;
+
+        public string InflowLabel => Inflow.ToString(CultureInfo.InvariantCulture);
+        public string DoneLabel => Done.ToString(CultureInfo.InvariantCulture);
+        public string BalanceLabel => Balance.ToString(CultureInfo.InvariantCulture);
+
+        public string FlowSummaryLabel =>
+            $"{Done.ToString(CultureInfo.InvariantCulture)}/{Inflow.ToString(CultureInfo.InvariantCulture)} done";
 
         public string DetailLabel
         {
             get
             {
                 var parts = new List<string>();
-                if (!string.IsNullOrWhiteSpace(Item.PolishSubTypeLabel)) parts.Add(Item.PolishSubTypeLabel);
-                if (!string.IsNullOrWhiteSpace(Item.Notes)) parts.Add(Item.Notes);
-                if (!string.IsNullOrWhiteSpace(Item.PredecessorStage)) parts.Add($"after {Item.PredecessorStage}");
+                if (!string.IsNullOrWhiteSpace(_flow.Item.PolishSubTypeLabel)) parts.Add(_flow.Item.PolishSubTypeLabel);
+                if (!string.IsNullOrWhiteSpace(_flow.Item.Notes)) parts.Add(_flow.Item.Notes);
                 return parts.Count == 0 ? "—" : string.Join(" · ", parts);
             }
         }
 
-        public WorkItemStatus Status => (WorkItemStatus)Item.Status;
+        public WorkItemStatus Status =>
+            Done == 0 ? WorkItemStatus.Pending
+            : Done >= Inflow && Inflow > 0 ? WorkItemStatus.Completed
+            : WorkItemStatus.InProgress;
 
         public string StatusLabel => Status switch
         {
-            WorkItemStatus.Pending => "PENDING",
+            WorkItemStatus.Pending => Inflow == 0 ? "WAITING UPSTREAM" : "PENDING",
             WorkItemStatus.InProgress => "IN PROGRESS",
             WorkItemStatus.Completed => "COMPLETED",
             _ => ""
         };
 
-        public bool CanStart => Status == WorkItemStatus.Pending;
-        public bool CanComplete => Status == WorkItemStatus.InProgress;
-        public bool CanReopen => Status != WorkItemStatus.Pending;
+        public bool CanWork => Inflow > 0;
+
+        // ── Done-qty editor ──────────────────────────────────────────────
+
+        private string _doneInput;
+        /// <summary>Floor input: pieces completed at this stage.</summary>
+        public string DoneInput
+        {
+            get => _doneInput;
+            set { if (_doneInput == value) return; _doneInput = value; OnPropertyChanged(); }
+        }
     }
 
     /// <summary>
-    /// One master-list row: a unit envelope (Step-5 shaped) or a charge
-    /// batch row ("whole spec").
+    /// One master-list row: a unit with its full Step-5 envelope and this
+    /// stage's piece flow (IN / DONE / BALANCE).
     /// </summary>
     public sealed class ProductionListRow
     {
-        public bool IsBatch { get; init; }
-
-        /// <summary>Unit identity — JobRef|Spec|Serial. Batch rows use the item id.</summary>
+        /// <summary>Unit identity — JobRef|Spec|Serial.</summary>
         public string RowKey { get; init; } = "";
 
         // ── Shared columns ───────────────────────────────────────────────
@@ -109,9 +148,9 @@ namespace ProGlassAutomation.ViewModels.Production
         public string Customer { get; init; } = "";
         public string Salesman { get; init; } = "";
         public string SpecLabel { get; init; } = "";
+        public string SerialLabel { get; init; } = "—";
         public string GlassRef { get; init; } = "";
         public string BuildType { get; init; } = "";
-        public string SerialLabel { get; init; } = "—";
 
         // ── Unit envelope — full Step 5 shape, per pane, no pricing ─────
         public string W1Label { get; init; } = "—";
@@ -125,20 +164,15 @@ namespace ProGlassAutomation.ViewModels.Production
         public string Sqm2Label { get; init; } = "—";
         public string TotalSqm2Label { get; init; } = "—";
         public string Lm2Label { get; init; } = "—";
-        public string ProgressLabel { get; init; } = "";
 
-        /// <summary>Production-chain flow: released = actionable here.</summary>
-        public bool FlowReleased { get; init; } = true;
+        // ── This stage's piece flow ──────────────────────────────────────
+        public string InflowLabel { get; init; } = "0";
+        public string DoneLabel { get; init; } = "0";
+        public string BalanceLabel { get; init; } = "0";
         public string WaitingOn { get; init; } = "";
 
-        // ── Batch rows (Step 6 charge work) ──────────────────────────────
-        public string MetricLabel { get; init; } = "";
-
-        /// <summary>Unit rows: this stage's items (detail panel source).</summary>
-        public List<SavedProductionWorkItem> StageItems { get; init; } = new();
-
-        /// <summary>Batch rows: the charge item itself.</summary>
-        public SavedProductionWorkItem? BatchItem { get; init; }
+        /// <summary>This stage's per-item flows (detail panel source).</summary>
+        public List<ProductionRepository.ProductionFlowItem> FlowItems { get; init; } = new();
     }
 
     /// <summary>
@@ -154,7 +188,7 @@ namespace ProGlassAutomation.ViewModels.Production
         public string Name { get; init; } = "";
         public string Icon { get; init; } = "";
 
-        /// <summary>Released into the stage AND not yet completed.</summary>
+        /// <summary>Pieces arrived but not yet done (actionable now).</summary>
         public int Open { get; init; }
         public int Completed { get; init; }
         public int Total { get; init; }
@@ -217,18 +251,21 @@ namespace ProGlassAutomation.ViewModels.Production
                     OnOpenProformaByNumber?.Invoke(SelectedPiNo);
             }, _ => HasSelection && !string.IsNullOrWhiteSpace(SelectedPiNo));
 
-            StartCommand = new RelayCommand(p =>
-                AsyncUtility.SafeFireAndForget(() => SetStatusAsync(p, WorkItemStatus.InProgress), "Work item start"),
-                p => p is ProductionWorkItemRow r && r.CanStart);
+            SaveQtyCommand = new RelayCommand(p =>
+                AsyncUtility.SafeFireAndForget(() => ApplyDoneQtyAsync(p, null), "Work item qty save"),
+                p => p is ProductionWorkItemRow r && r.CanWork);
 
-            CompleteCommand = new RelayCommand(p =>
-                AsyncUtility.SafeFireAndForget(() => SetStatusAsync(p, WorkItemStatus.Completed), "Work item complete"),
-                p => p is ProductionWorkItemRow r && r.CanComplete);
+            CompleteAllCommand = new RelayCommand(p =>
+                AsyncUtility.SafeFireAndForget(() => ApplyDoneQtyAsync(p, CompleteAllMarker), "Work item qty all"),
+                p => p is ProductionWorkItemRow r && r.CanWork);
 
-            ReopenCommand = new RelayCommand(p =>
-                AsyncUtility.SafeFireAndForget(() => SetStatusAsync(p, WorkItemStatus.Pending), "Work item reopen"),
-                p => p is ProductionWorkItemRow r && r.CanReopen);
+            ResetQtyCommand = new RelayCommand(p =>
+                AsyncUtility.SafeFireAndForget(() => ApplyDoneQtyAsync(p, 0), "Work item qty reset"),
+                p => p is ProductionWorkItemRow r && r.Done > 0);
         }
+
+        /// <summary>Marker: "complete every piece that arrived" (inflow).</summary>
+        private const int CompleteAllMarker = -1;
 
         // ── Commands ─────────────────────────────────────────────────────
 
@@ -238,9 +275,9 @@ namespace ProGlassAutomation.ViewModels.Production
         public ICommand OpenStageCommand { get; }
         public ICommand OpenJobOrderCommand { get; }
         public ICommand OpenProformaCommand { get; }
-        public ICommand StartCommand { get; }
-        public ICommand CompleteCommand { get; }
-        public ICommand ReopenCommand { get; }
+        public ICommand SaveQtyCommand { get; }
+        public ICommand CompleteAllCommand { get; }
+        public ICommand ResetQtyCommand { get; }
 
         // ── Release picker ───────────────────────────────────────────────
 
@@ -376,10 +413,20 @@ namespace ProGlassAutomation.ViewModels.Production
         private string _unitsReadyLabel = "0 / 0";
         public string UnitsReadyLabel { get => _unitsReadyLabel; private set { if (_unitsReadyLabel == value) return; _unitsReadyLabel = value; OnPropertyChanged(); } }
 
+        private string _actionWarning = "";
+        /// <summary>Feedback from clamped floor writes ("only N arrived").</summary>
+        public string ActionWarning
+        {
+            get => _actionWarning;
+            private set { if (_actionWarning == value) return; _actionWarning = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasActionWarning)); }
+        }
+
+        public bool HasActionWarning => !string.IsNullOrWhiteSpace(_actionWarning);
+
         private string _waitingUpstreamLabel = "";
         /// <summary>
-        /// Production-chain backlog: work allocated to this stage but held
-        /// back until the upstream stage completes (tool-chain gating).
+        /// Pipeline backlog: units allocated to this stage where no piece
+        /// has arrived yet — they flow in as upstream completes pieces.
         /// </summary>
         public string WaitingUpstreamLabel
         {
@@ -389,16 +436,6 @@ namespace ProGlassAutomation.ViewModels.Production
 
         public bool HasWaitingUpstream => !string.IsNullOrWhiteSpace(_waitingUpstreamLabel);
 
-        private string _actionWarning = "";
-        /// <summary>Floor connectivity feedback (completing before the predecessor stage).</summary>
-        public string ActionWarning
-        {
-            get => _actionWarning;
-            private set { if (_actionWarning == value) return; _actionWarning = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasActionWarning)); }
-        }
-
-        public bool HasActionWarning => !string.IsNullOrWhiteSpace(_actionWarning);
-
         // ── Detail panel (tier 2) ────────────────────────────────────────
 
         private bool _hasSelection;
@@ -406,13 +443,6 @@ namespace ProGlassAutomation.ViewModels.Production
         {
             get => _hasSelection;
             private set { if (_hasSelection == value) return; _hasSelection = value; OnPropertyChanged(); }
-        }
-
-        private bool _isBatchSelection;
-        public bool IsBatchSelection
-        {
-            get => _isBatchSelection;
-            private set { if (_isBatchSelection == value) return; _isBatchSelection = value; OnPropertyChanged(); }
         }
 
         private string _selectedJobNo = "";
@@ -439,10 +469,7 @@ namespace ProGlassAutomation.ViewModels.Production
         private string _selectedSizeSummary = "";
         public string SelectedSizeSummary { get => _selectedSizeSummary; private set { if (_selectedSizeSummary == value) return; _selectedSizeSummary = value; OnPropertyChanged(); } }
 
-        private string _selectedBatchMetric = "";
-        public string SelectedBatchMetric { get => _selectedBatchMetric; private set { if (_selectedBatchMetric == value) return; _selectedBatchMetric = value; OnPropertyChanged(); } }
-
-        /// <summary>Pane-level items for the selected unit (detail grid).</summary>
+        /// <summary>Pane-level stage items for the selected unit.</summary>
         public ObservableCollection<ProductionWorkItemRow> SelectedStageItems { get; } = new();
 
         // ── Pipeline chain bar ───────────────────────────────────────────
@@ -544,21 +571,19 @@ namespace ProGlassAutomation.ViewModels.Production
                 ListRows.Clear();
                 foreach (var unit in data.Units)
                     ListRows.Add(BuildUnitRow(unit));
-                foreach (var batch in data.BatchItems)
-                    ListRows.Add(BuildBatchRow(batch));
 
                 IsListEmpty = ListRows.Count == 0;
 
-                int waiting = data.WaitingUnits + data.WaitingBatch;
+                int waiting = data.WaitingUnits;
                 WaitingUpstreamLabel = waiting > 0
-                    ? $"{waiting.ToString(CultureInfo.InvariantCulture)} row(s) allocated to this stage are " +
-                      "held upstream — they appear here the moment their previous stage completes."
+                    ? $"{waiting.ToString(CultureInfo.InvariantCulture)} unit(s) allocated to this stage have " +
+                      "no pieces arrived yet — they flow in as the previous stage completes pieces."
                     : "";
 
-                // Restore the selection across reloads (status actions reload).
+                // Restore the selection across reloads (floor writes reload).
                 if (previousKey != null)
                 {
-                    var match = ListRows.FirstOrDefault(r => r.RowKey == previousKey);
+                    var match = ListRows.FirstOrDefault(x => x.RowKey == previousKey);
                     if (match != null) { _selectedRow = match; OnPropertyChanged(nameof(SelectedRow)); RefreshDetailPanel(); }
                     else ClearDetailPanel();
                 }
@@ -576,40 +601,33 @@ namespace ProGlassAutomation.ViewModels.Production
         private async Task LoadKpisAsync()
         {
             // KPIs describe what is ACTIONABLE in this stage right now —
-            // the same flow-gated population the list shows (job filter
-            // applies; search/status filters don't). Waiting rows are
-            // loaded too so the backlog stays honest.
+            // arrived pieces, done pieces and the load they carry. Job
+            // filter applies; search/status filters don't.
             string? jobRef = _selectedJobFilter == AllJobsFilter ? null : _selectedJobFilter;
             var data = await Task.Run(() =>
                 ProductionRepository.GetStageListAsync(Stage, jobRef, null, null, includeWaiting: true))
                 .ConfigureAwait(true);
 
-            var units = data.Units.Where(u => u.FlowReleased).ToList();
-            var batches = data.BatchItems.Where(b => b.FlowReleased).Select(b => b.Item).ToList();
+            var arrived = data.Units.Where(u => u.Inflow > 0).ToList();
 
-            TotalCount = units.Count + batches.Count;
-            PendingCount = units.Count(u => u.AggregateStatus == 0)
-                + batches.Count(b => b.Status == (int)WorkItemStatus.Pending);
-            InProgressCount = units.Count(u => u.AggregateStatus == 1)
-                + batches.Count(b => b.Status == (int)WorkItemStatus.InProgress);
-            CompletedCount = units.Count(u => u.AggregateStatus == 2)
-                + batches.Count(b => b.Status == (int)WorkItemStatus.Completed);
+            TotalCount = arrived.Count;
+            PendingCount = arrived.Count(u => u.AggregateStatus == 0);
+            InProgressCount = arrived.Count(u => u.AggregateStatus == 1);
+            CompletedCount = arrived.Count(u => u.AggregateStatus == 2);
 
-            decimal area = units.Sum(u => u.TotalSqm1 + u.TotalSqm2);
+            decimal area = arrived.Sum(u => u.ArrivedArea);
             AreaTotalLabel = area.ToString("0.##", CultureInfo.InvariantCulture) + " m²";
 
             decimal stageMetric = Stage is ProductionStage.Polish or ProductionStage.Mitring
-                ? units.Sum(u => u.Lm1 + u.Lm2) + batches.Sum(b => b.TotalLm)
-                : Stage == ProductionStage.HolesCutouts
-                    ? batches.Sum(b => b.ChargeMetricQty)
-                    : units.Sum(u => u.Qty);
+                ? arrived.Sum(u => u.ArrivedLm)
+                : arrived.Sum(u => u.Inflow);
 
             MetricTotalLabel = Stage switch
             {
                 ProductionStage.Polish or ProductionStage.Mitring =>
                     stageMetric.ToString("0.##", CultureInfo.InvariantCulture) + " LM",
                 ProductionStage.HolesCutouts =>
-                    stageMetric.ToString("0", CultureInfo.InvariantCulture) + " holes/cutouts",
+                    stageMetric.ToString("0", CultureInfo.InvariantCulture) + " pcs to drill/cut",
                 _ => stageMetric.ToString("0", CultureInfo.InvariantCulture) + " pcs"
             };
 
@@ -633,7 +651,7 @@ namespace ProGlassAutomation.ViewModels.Production
             OnPropertyChanged(nameof(SelectedJobFilter));
         }
 
-        // ── Row builders ─────────────────────────────────────────────────
+        // ── Row builder ──────────────────────────────────────────────────
 
         private static string FmtInt(int v) =>
             v > 0 ? v.ToString(CultureInfo.InvariantCulture) : "—";
@@ -653,12 +671,11 @@ namespace ProGlassAutomation.ViewModels.Production
             {
                 2 => "COMPLETED",
                 1 => "IN PROGRESS",
-                _ => "PENDING"
+                _ => unit.Inflow == 0 ? "WAITING UPSTREAM" : "PENDING"
             };
 
             return new ProductionListRow
             {
-                IsBatch = false,
                 RowKey = $"U|{unit.JobRef}|{unit.SpecGroupNumber}|{unit.SerialNumber}",
                 StatusGlyph = glyph,
                 StatusLabel = statusLabel,
@@ -668,10 +685,10 @@ namespace ProGlassAutomation.ViewModels.Production
                 Salesman = unit.Salesman,
                 SpecLabel = $"Spec {unit.SpecGroupNumber.ToString(CultureInfo.InvariantCulture)}" +
                     (string.IsNullOrWhiteSpace(unit.SpecName) ? "" : $" · {unit.SpecName}"),
-                GlassRef = string.IsNullOrWhiteSpace(unit.GlassRef) ? "—" : unit.GlassRef,
-                BuildType = unit.BuildType,
                 SerialLabel = unit.SerialNumber > 0
                     ? unit.SerialNumber.ToString(CultureInfo.InvariantCulture) : "—",
+                GlassRef = string.IsNullOrWhiteSpace(unit.GlassRef) ? "—" : unit.GlassRef,
+                BuildType = unit.BuildType,
                 W1Label = FmtInt(unit.W1),
                 H1Label = FmtInt(unit.H1),
                 W2Label = FmtInt(unit.W2),
@@ -683,44 +700,11 @@ namespace ProGlassAutomation.ViewModels.Production
                 Sqm2Label = FmtDec(unit.UnitSqm2, ""),
                 TotalSqm2Label = FmtDec(unit.TotalSqm2, ""),
                 Lm2Label = FmtDec(unit.Lm2, ""),
-                ProgressLabel = $"{unit.DoneCount.ToString(CultureInfo.InvariantCulture)}/{unit.TotalCount.ToString(CultureInfo.InvariantCulture)}",
-                FlowReleased = unit.FlowReleased,
+                InflowLabel = unit.Inflow.ToString(CultureInfo.InvariantCulture),
+                DoneLabel = unit.DoneQty.ToString(CultureInfo.InvariantCulture),
+                BalanceLabel = unit.BalanceQty.ToString(CultureInfo.InvariantCulture),
                 WaitingOn = unit.WaitingOn,
-                StageItems = unit.Items
-            };
-        }
-
-        private ProductionListRow BuildBatchRow(ProductionRepository.ProductionBatchProjection projection)
-        {
-            var batch = projection.Item;
-            string statusLabel = batch.Status switch
-            {
-                (int)WorkItemStatus.Completed => "COMPLETED",
-                (int)WorkItemStatus.InProgress => "IN PROGRESS",
-                _ => "PENDING"
-            };
-
-            return new ProductionListRow
-            {
-                IsBatch = true,
-                RowKey = $"B|{batch.Id}",
-                StatusGlyph = batch.Status == (int)WorkItemStatus.Completed ? "✓"
-                    : batch.Status == (int)WorkItemStatus.InProgress ? "◐" : "●",
-                StatusLabel = statusLabel,
-                JobRef = batch.JobRef,
-                PiNo = batch.SourceProformaId,
-                Customer = batch.CustomerName,
-                Salesman = batch.Salesman,
-                SpecLabel = $"Spec {batch.SpecGroupNumber.ToString(CultureInfo.InvariantCulture)}" +
-                    (string.IsNullOrWhiteSpace(batch.SpecName) ? "" : $" · {batch.SpecName}"),
-                GlassRef = "(whole spec)",
-                BuildType = batch.BuildType,
-                MetricLabel = $"{batch.ChargeMetricQty.ToString("0.###", CultureInfo.InvariantCulture)} " +
-                    $"{batch.ChargeMetricUnit} · {(batch.ChargeTemplateKey ?? "").Replace('_', ' ')}",
-                ProgressLabel = statusLabel,
-                FlowReleased = projection.FlowReleased,
-                WaitingOn = projection.WaitingOn,
-                BatchItem = batch
+                FlowItems = unit.FlowItems
             };
         }
 
@@ -736,7 +720,6 @@ namespace ProGlassAutomation.ViewModels.Production
             }
 
             HasSelection = true;
-            IsBatchSelection = row.IsBatch;
             SelectedJobNo = row.JobRef;
             SelectedPiNo = row.PiNo;
             SelectedCustomer = row.Customer;
@@ -744,40 +727,23 @@ namespace ProGlassAutomation.ViewModels.Production
             SelectedSpecLabel = row.SpecLabel;
             SelectedRef = row.GlassRef;
 
+            var first = row.FlowItems.FirstOrDefault()?.Item;
+            SelectedProject = first?.ProjectName ?? "";
+
+            var sizes = new List<string>();
+            if (row.W1Label != "—") sizes.Add($"W1 {row.W1Label} × H1 {row.H1Label}");
+            if (row.W2Label != "—") sizes.Add($"W2 {row.W2Label} × H2 {row.H2Label}");
+            SelectedSizeSummary = sizes.Count == 0 ? "—"
+                : string.Join("  ·  ", sizes) + $"  ·  Qty {row.QtyLabel}";
+
             SelectedStageItems.Clear();
-
-            if (row.IsBatch && row.BatchItem != null)
-            {
-                var b = row.BatchItem;
-                SelectedProject = b.ProjectName;
-                SelectedSizeSummary = string.IsNullOrWhiteSpace(b.Notes) ? "—" : b.Notes;
-                SelectedBatchMetric =
-                    $"{b.ChargeMetricQty.ToString("0.###", CultureInfo.InvariantCulture)} {b.ChargeMetricUnit} · " +
-                    $"{(b.ChargeTemplateKey ?? "").Replace('_', ' ')}" +
-                    (string.IsNullOrWhiteSpace(b.PolishSubTypeLabel) ? "" : $" · {b.PolishSubTypeLabel}");
-                SelectedStageItems.Add(new ProductionWorkItemRow(b));
-            }
-            else
-            {
-                var first = row.StageItems.FirstOrDefault();
-                SelectedProject = first?.ProjectName ?? "";
-
-                var sizes = new List<string>();
-                if (row.W1Label != "—") sizes.Add($"W1 {row.W1Label} × H1 {row.H1Label}");
-                if (row.W2Label != "—") sizes.Add($"W2 {row.W2Label} × H2 {row.H2Label}");
-                SelectedSizeSummary = sizes.Count == 0 ? "—"
-                    : string.Join("  ·  ", sizes) + $"  ·  Qty {row.QtyLabel}";
-                SelectedBatchMetric = "";
-
-                foreach (var item in row.StageItems)
-                    SelectedStageItems.Add(new ProductionWorkItemRow(item));
-            }
+            foreach (var flowItem in row.FlowItems)
+                SelectedStageItems.Add(new ProductionWorkItemRow(flowItem));
         }
 
         private void ClearDetailPanel()
         {
             HasSelection = false;
-            IsBatchSelection = false;
             SelectedJobNo = "";
             SelectedPiNo = "";
             SelectedCustomer = "";
@@ -786,7 +752,6 @@ namespace ProGlassAutomation.ViewModels.Production
             SelectedSpecLabel = "";
             SelectedRef = "";
             SelectedSizeSummary = "";
-            SelectedBatchMetric = "";
             SelectedStageItems.Clear();
         }
 
@@ -833,36 +798,43 @@ namespace ProGlassAutomation.ViewModels.Production
             }
         }
 
-        // ── Floor actions ────────────────────────────────────────────────
+        // ── Floor actions (piece quantities) ─────────────────────────────
 
-        private async Task SetStatusAsync(object? parameter, WorkItemStatus status)
+        /// <summary>
+        /// Saves the done-piece count for one stage item. The repository
+        /// clamps to the pieces that actually arrived from upstream — the
+        /// tool chain can never be overstated. <paramref name="qtyOverride"/>
+        /// supports Complete-all (inflow) and Reset (0); null reads the
+        /// row's editor input.
+        /// </summary>
+        private async Task ApplyDoneQtyAsync(object? parameter, int? qtyOverride)
         {
             if (parameter is not ProductionWorkItemRow row) return;
 
-            // FLOOR CONNECTIVITY: completing a stage whose predecessor work
-            // for this unit is still open is allowed (the floor sometimes
-            // has a reason) but surfaced loudly — never silently.
-            if (status == WorkItemStatus.Completed)
+            int requested;
+            if (qtyOverride.HasValue)
             {
-                int pendingPredecessors = await Task.Run(() =>
-                    ProductionRepository.GetPendingPredecessorCountAsync(row.Item))
-                    .ConfigureAwait(true);
-
-                ActionWarning = pendingPredecessors > 0
-                    ? $"Heads-up: {pendingPredecessors.ToString(CultureInfo.InvariantCulture)} " +
-                      $"{row.Item.PredecessorStage} item(s) for this unit are not completed yet — " +
-                      "the upstream stage normally finishes first."
-                    : "";
+                requested = qtyOverride.Value == CompleteAllMarker ? row.Inflow : qtyOverride.Value;
             }
             else
             {
-                ActionWarning = "";
+                string raw = (row.DoneInput ?? "").Trim();
+                if (!int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out requested))
+                {
+                    ActionWarning = "Enter a whole number of pieces.";
+                    return;
+                }
             }
 
-            bool ok = await Task.Run(() =>
-                ProductionRepository.SetStatusAsync(row.Id, status)).ConfigureAwait(true);
+            var (ok, applied, message) = await Task.Run(() =>
+                ProductionRepository.SetDoneQtyAsync(row.Id, requested))
+                .ConfigureAwait(true);
 
-            if (ok) await LoadAllAsync().ConfigureAwait(true);
+            if (ok)
+            {
+                ActionWarning = message; // clamp notice or empty
+                await LoadAllAsync().ConfigureAwait(true);
+            }
         }
     }
 }
