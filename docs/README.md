@@ -179,6 +179,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`PRODUCTION_MODULE_EXAMPLES_2026-09-11.md`](PRODUCTION_MODULE_EXAMPLES_2026-09-11.md) | One job through all eight production screens — per-module list rows, sidebar totals, dispatch panel, delivery-note caps |
 | [`PRODUCTION_STEP4_MAPPING_ANALYSIS_2026-09-11.md`](PRODUCTION_STEP4_MAPPING_ANALYSIS_2026-09-11.md) | Complete Step 4 / Step 5 → production mapping: pane builds, overlap vs equal-size W2/H2 semantics, per-module industry detail |
 | [`PRODUCTION_DGU_OVERLAP_PIPELINE_EXAMPLE_2026-09-11.md`](PRODUCTION_DGU_OVERLAP_PIPELINE_EXAMPLE_2026-09-11.md) | DGU overlap job order end-to-end: all eight modules, dispatch panels, and two dispatched delivery notes (balance-only rule) |
+| [`OPTIMIZATION_MODULE_DESIGN_2026-09-12.md`](OPTIMIZATION_MODULE_DESIGN_2026-09-12.md) | Glass cutting optimization module — deep analysis, engine design (Quick + Optimize stages), smart color-merge picker, multi-stock, margins/kerf profiles, 2D preview, phased plan |
 
 ## Release, CI & readiness
 
