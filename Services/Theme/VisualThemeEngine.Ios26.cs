@@ -95,6 +95,13 @@ namespace ProGlassAutomation.Services.Theme
             "LiquidGlassFrostedBrush", "LiquidCard", "LiquidOverlayBrush",
             "ShellLiquidBrush", "ShellLiquidBorderBrush", "ShellSheenBrush",
             "MotionEaseOutKeySpline", "MotionSpringKeySpline",
+            "Surface.Primary.BackgroundBrush", "Surface.Secondary.BackgroundBrush",
+            "Surface.Detail.BackgroundBrush", "Surface.Primary.BorderBrush",
+            "Surface.Secondary.BorderBrush", "Surface.Detail.BorderBrush",
+            "Surface.Primary.CornerRadius", "Surface.Secondary.CornerRadius",
+            "Surface.Detail.CornerRadius", "LiquidAccentGradient",
+            "DashHeroBlueBrush", "DashAmbientBlob1Brush", "DashAmbientBlob2Brush",
+            "DashLiquidSurfaceBrush", "DashLiquidBorderBrush",
         };
 
         /// <summary>Every key the iOS 26 family publishes (About + global).
@@ -142,16 +149,39 @@ namespace ProGlassAutomation.Services.Theme
         private static Dictionary<string, object> Ios26GlobalLight() =>
             new()
             {
-                // Window + module + chrome surfaces (macOS light gray)
-                ["AppBackgroundBrush"]      = Ios26Sol(false, "#F5F5F7", null),
-                ["WindowBackgroundBrush"]   = Ios26Lin2("#F7F8FB", "#EFF1F6", null),
-                ["ModuleBackgroundBrush"]   = Ios26Sol(false, "#F6F7FA", null),
-                ["SideMenuBackgroundBrush"] = Ios26Sol(false, "#F0F1F5", null),
+                // PLAIN WHITE stage (owner directive 2026-09-11: "use white
+                // background — plain white, enhance more") — vivid icon
+                // gradients and pastel ambient blobs glow against pure white.
+                ["AppBackgroundBrush"]      = Ios26Sol(false, "#FFFFFF", null),
+                ["WindowBackgroundBrush"]   = Ios26Lin2("#FFFFFF", "#FAFAFC", null),
+                ["ModuleBackgroundBrush"]   = Ios26Sol(false, "#FFFFFF", null),
+                ["SideMenuBackgroundBrush"] = Ios26Sol(false, "#FAFAFC", null),
                 ["ElevatedSurfaceBrush"]    = Ios26Sol(false, "#FFFFFF", null),
                 ["PopupSurfaceBrush"]       = Ios26Sol(false, "#FFFFFF", null),
                 ["DialogSurfaceBrush"]      = Ios26Sol(false, "#FFFFFF", null),
-                ["DialogInsetBrush"]        = Ios26Sol(false, "#E9E9EE", null),
-                ["SidebarCardBrush"]        = Ios26Lin2("#D8FFFFFF", "#C0FFFFFF", null),
+                ["DialogInsetBrush"]        = Ios26Sol(false, "#F2F2F7", null),
+                ["SidebarCardBrush"]        = Ios26Lin2("#F4FFFFFF", "#E8FFFFFF", null),
+
+                // Surface.* white family — re-skins every token-driven card,
+                // badge and icon tile app-wide (IconBadge*, SurfaceDetail…)
+                ["Surface.Primary.BackgroundBrush"]   = Ios26Lin2("#F6FFFFFF", "#E9FFFFFF", null),
+                ["Surface.Secondary.BackgroundBrush"] = Ios26Sol(false, "#F7F7FA", null),
+                ["Surface.Detail.BackgroundBrush"]    = Ios26Sol(false, "#FFFFFF", null),
+                ["Surface.Primary.BorderBrush"]       = Ios26Sol(false, "#14000000", null),
+                ["Surface.Secondary.BorderBrush"]     = Ios26Sol(false, "#10000000", null),
+                ["Surface.Detail.BorderBrush"]        = Ios26Sol(false, "#10000000", null),
+                ["Surface.Primary.CornerRadius"]      = new CornerRadius(16),
+                ["Surface.Secondary.CornerRadius"]    = new CornerRadius(14),
+                ["Surface.Detail.CornerRadius"]       = new CornerRadius(12),
+
+                // GLOBAL ICON LANGUAGE — fixed vivid iOS app-icon ramp
+                // (macOS rule: icons do not follow accent; they glow on white).
+                ["LiquidAccentGradient"]   = Ios26Diag3("#0A84FF", "#5E5CE6", "#BF5AF2"),
+                ["DashHeroBlueBrush"]      = Ios26Sol(false, "#0A84FF", null),
+                ["DashAmbientBlob1Brush"]  = Ios26Sol(false, "#66B7D3FF", null),
+                ["DashAmbientBlob2Brush"]  = Ios26Sol(false, "#66E8C8FF", null),
+                ["DashLiquidSurfaceBrush"] = Ios26Lin2("#F2FFFFFF", "#E2FFFFFF", null),
+                ["DashLiquidBorderBrush"]  = Ios26Sol(false, "#1EFFFFFF", null),
 
                 // Apple ink typography
                 ["PrimaryForegroundBrush"]   = Ios26Sol(false, "#1D1D1F", null),
@@ -217,6 +247,25 @@ namespace ProGlassAutomation.Services.Theme
                 ["DialogSurfaceBrush"]      = Ios26Sol(true, "#26272E", null),
                 ["DialogInsetBrush"]        = Ios26Sol(true, "#1E1F25", null),
                 ["SidebarCardBrush"]        = Ios26Lin2("#26FFFFFF", "#12FFFFFF", null),
+
+                // Surface.* dark frost (same geometry language)
+                ["Surface.Primary.BackgroundBrush"]   = Ios26Lin2("#2EFFFFFF", "#14FFFFFF", null),
+                ["Surface.Secondary.BackgroundBrush"] = Ios26Sol(true, "#1FFFFFFF", null),
+                ["Surface.Detail.BackgroundBrush"]    = Ios26Sol(true, "#14FFFFFF", null),
+                ["Surface.Primary.BorderBrush"]       = Ios26Sol(true, "#2EFFFFFF", null),
+                ["Surface.Secondary.BorderBrush"]     = Ios26Sol(true, "#22FFFFFF", null),
+                ["Surface.Detail.BorderBrush"]        = Ios26Sol(true, "#1EFFFFFF", null),
+                ["Surface.Primary.CornerRadius"]      = new CornerRadius(16),
+                ["Surface.Secondary.CornerRadius"]    = new CornerRadius(14),
+                ["Surface.Detail.CornerRadius"]       = new CornerRadius(12),
+
+                // icons stay VIVID in dark (iOS rule) — same fixed ramp
+                ["LiquidAccentGradient"]   = Ios26Diag3("#0A84FF", "#5E5CE6", "#BF5AF2"),
+                ["DashHeroBlueBrush"]      = Ios26Sol(true, "#0A84FF", null),
+                ["DashAmbientBlob1Brush"]  = Ios26Sol(true, "#407B5BFF", null),
+                ["DashAmbientBlob2Brush"]  = Ios26Sol(true, "#40FF6EC7", null),
+                ["DashLiquidSurfaceBrush"] = Ios26Lin2("#24FFFFFF", "#10FFFFFF", null),
+                ["DashLiquidBorderBrush"]  = Ios26Sol(true, "#22FFFFFF", null),
 
                 ["PrimaryForegroundBrush"]   = Ios26Sol(true, "#F5F5F7", null),
                 ["SecondaryForegroundBrush"] = Ios26Sol(true, "#C7C7CC", null),
@@ -305,6 +354,22 @@ namespace ProGlassAutomation.Services.Theme
             if (c2 != null)
                 b.GradientStops.Add(new GradientStop(
                     (Color)ColorConverter.ConvertFromString(c2), 1));
+            b.Freeze();
+            return b;
+        }
+
+        /// <summary>Diagonal (0,0 → 1,1) three-stop gradient — the iOS
+        /// app-icon ramp orientation.</summary>
+        private static LinearGradientBrush Ios26Diag3(string c0, string c1, string c2)
+        {
+            var b = new LinearGradientBrush
+            {
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(1, 1)
+            };
+            b.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(c0), 0));
+            b.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(c1), 0.5));
+            b.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(c2), 1));
             b.Freeze();
             return b;
         }

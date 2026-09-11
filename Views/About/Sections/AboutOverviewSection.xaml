@@ -50,101 +50,108 @@
         <aboutSections:AboutCrashReportsCard/>
 
         <!-- ═══ ABOUT ═══ -->
-        <Border Style="{StaticResource AboutCardStyle}">
-            <StackPanel>
-                <Grid Margin="0,0,0,18">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="{DynamicResource ToolTip.About}"
-                                   Style="{StaticResource SectionTitleStyle}"/>
-                        <TextBlock Text="{DynamicResource About.PurposeBuiltERPUAEGlassManufacturing}"
-                                   Style="{StaticResource SectionSubtitleStyle}"
-                                   Margin="0,0,0,0"/>
-                    </StackPanel>
-
-                    <Border Grid.Column="1"
-                            Style="{StaticResource AboutHeaderBadgeStyle}">
-                        <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}">
-                            <Run Text="{DynamicResource About.LIVEModules}"/>
-                            <Run Text="{Binding Modules.Count, Mode=OneWay}"/>
-                        </TextBlock>
-                    </Border>
-                </Grid>
-
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="24"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0">
-                        <Border Style="{StaticResource AboutSectionPanelStyle}">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource Nav.Overview}" Style="{StaticResource AboutPanelKickerStyle}"/>
-                                <TextBlock Style="{StaticResource AboutPanelTextStyle}">
-                                    <Run Text="{DynamicResource About.ProglassAutomationPurposeBuiltWindowsDesktop}"/>
-                                    <Run Text="{DynamicResource About.UAEBasedGlassManufacturingCompanies}" FontWeight="Bold" Foreground="{DynamicResource LiquidSnow}"/>
-                                    <Run Text="{DynamicResource About.ReplacesSpreadsheetDrivenWorkflowsFully}"/>
-                                </TextBlock>
-                            </StackPanel>
-                        </Border>
-
-                        <Border Style="{StaticResource AboutSectionPanelStyle}">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource About.EngineeringPrinciples}" Style="{StaticResource AboutPanelKickerStyle}"/>
-                                <TextBlock Style="{StaticResource AboutPanelTextStyle}">
-                                    <Run Text="{DynamicResource About.DeterministicCalculations}" FontWeight="Bold" Foreground="{DynamicResource LiquidSnow}"/>
-                                    <Run Text="{DynamicResource About.FormulaProducesResultTimeNoHiddenStateRace}"/>
-                                    <LineBreak/><LineBreak/>
-                                    <Run Text="{DynamicResource About.ModularIsolation}" FontWeight="Bold" Foreground="{DynamicResource LiquidSnow}"/>
-                                    <Run Text="{DynamicResource About.BusinessDomainDataBoundaryLimitingBlast}"/>
-                                    <LineBreak/><LineBreak/>
-                                    <Run Text="{DynamicResource About.AISafeArchitecture}" FontWeight="Bold" Foreground="{DynamicResource LiquidSnow}"/>
-                                    <Run Text="{DynamicResource About.StrictMVVMConventionsKeepCodebase}"/>
-                                </TextBlock>
-                            </StackPanel>
-                        </Border>
-
-                        <Border Style="{StaticResource AboutSectionPanelStyle}" Margin="0,0,0,0">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource About.DATAOwnershipDeployment}" Style="{StaticResource AboutPanelKickerStyle}"/>
-                                <TextBlock Style="{StaticResource AboutPanelTextStyle}"
-                                           Text="{DynamicResource About.StandaloneWindowsDeploymentNoCloudDependency}"/>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="2">
-                        <Border Style="{StaticResource AboutSectionPanelStyle}">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource About.FinancialCompliance}" Style="{StaticResource AboutPanelKickerStyle}"/>
-                                <TextBlock Style="{StaticResource AboutPanelTextStyle}">
-                                    <Run Text="{DynamicResource About.MonetaryValuesStoredDisplayed}"/>
-                                    <Run Text="{DynamicResource About.CurrencyUAE}" FontWeight="Bold" Foreground="{DynamicResource LiquidSnow}"/>
-                                    <Run Text="{DynamicResource About.FullPrecisionUAE5VATZeroRatedExportSupport}"/>
-                                </TextBlock>
-                            </StackPanel>
-                        </Border>
-
-                        <Border Style="{StaticResource AboutSectionPanelStyle}" Margin="0,0,0,0">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource About.ExtensibilityFuture}" Style="{StaticResource AboutPanelKickerStyle}"/>
-                                <TextBlock Style="{StaticResource AboutPanelTextStyle}">
-                                    <Run Text="{DynamicResource About.CurrentReleaseShips}"/>
-                                    <Run Text="{Binding Modules.Count, Mode=OneWay}" FontWeight="Bold" Foreground="{DynamicResource LiquidSnow}"/>
-                                    <Run Text="{DynamicResource About.ActiveModulesCommercialProductionLifecycle}"/>
-                                </TextBlock>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </Grid>
+        <!-- ═══ 2026-09-11 MOCKUP REBUILD: slim header + three floating
+             cards in one row (Overview · Engineering · Compliance+Future).
+             Every DynamicResource Run preserved verbatim from the previous
+             two-column text wall. ═══ -->
+        <Grid Margin="0,0,0,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="{DynamicResource ToolTip.About}"
+                           Style="{StaticResource SectionTitleStyle}"/>
+                <TextBlock Text="{DynamicResource About.PurposeBuiltERPUAEGlassManufacturing}"
+                           Style="{StaticResource SectionSubtitleStyle}"
+                           Margin="0,0,0,0"/>
             </StackPanel>
-        </Border>
+            <Border Grid.Column="1"
+                    Style="{StaticResource AboutHeaderBadgeStyle}">
+                <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}">
+                    <Run Text="{DynamicResource About.LIVEModules}"/>
+                    <Run Text="{Binding Modules.Count, Mode=OneWay}"/>
+                </TextBlock>
+            </Border>
+        </Grid>
+
+        <Grid Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- CARD A · Overview + Data ownership -->
+            <Border Grid.Column="0" Style="{StaticResource AboutCardStyle}">
+                <StackPanel>
+                    <Border Style="{StaticResource AboutSectionPanelStyle}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource Nav.Overview}" Style="{StaticResource AboutPanelKickerStyle}"/>
+                            <TextBlock Style="{StaticResource AboutPanelTextStyle}">
+                                <Run Text="{DynamicResource About.ProglassAutomationPurposeBuiltWindowsDesktop}"/>
+                                <Run Text="{DynamicResource About.UAEBasedGlassManufacturingCompanies}" FontWeight="Bold" Foreground="{DynamicResource LiquidSnow}"/>
+                                <Run Text="{DynamicResource About.ReplacesSpreadsheetDrivenWorkflowsFully}"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource AboutSectionPanelStyle}" Margin="0,12,0,0">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource About.DATAOwnershipDeployment}" Style="{StaticResource AboutPanelKickerStyle}"/>
+                            <TextBlock Style="{StaticResource AboutPanelTextStyle}"
+                                       Text="{DynamicResource About.StandaloneWindowsDeploymentNoCloudDependency}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- CARD B · Engineering principles -->
+            <Border Grid.Column="2" Style="{StaticResource AboutCardStyle}">
+                <Border Style="{StaticResource AboutSectionPanelStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource About.EngineeringPrinciples}" Style="{StaticResource AboutPanelKickerStyle}"/>
+                        <TextBlock Style="{StaticResource AboutPanelTextStyle}">
+                            <Run Text="{DynamicResource About.DeterministicCalculations}" FontWeight="Bold" Foreground="{DynamicResource LiquidSnow}"/>
+                            <Run Text="{DynamicResource About.FormulaProducesResultTimeNoHiddenStateRace}"/>
+                            <LineBreak/><LineBreak/>
+                            <Run Text="{DynamicResource About.ModularIsolation}" FontWeight="Bold" Foreground="{DynamicResource LiquidSnow}"/>
+                            <Run Text="{DynamicResource About.BusinessDomainDataBoundaryLimitingBlast}"/>
+                            <LineBreak/><LineBreak/>
+                            <Run Text="{DynamicResource About.AISafeArchitecture}" FontWeight="Bold" Foreground="{DynamicResource LiquidSnow}"/>
+                            <Run Text="{DynamicResource About.StrictMVVMConventionsKeepCodebase}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+            </Border>
+
+            <!-- CARD C · Financial compliance + extensibility -->
+            <Border Grid.Column="4" Style="{StaticResource AboutCardStyle}">
+                <StackPanel>
+                    <Border Style="{StaticResource AboutSectionPanelStyle}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource About.FinancialCompliance}" Style="{StaticResource AboutPanelKickerStyle}"/>
+                            <TextBlock Style="{StaticResource AboutPanelTextStyle}">
+                                <Run Text="{DynamicResource About.MonetaryValuesStoredDisplayed}"/>
+                                <Run Text="{DynamicResource About.CurrencyUAE}" FontWeight="Bold" Foreground="{DynamicResource LiquidSnow}"/>
+                                <Run Text="{DynamicResource About.FullPrecisionUAE5VATZeroRatedExportSupport}"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource AboutSectionPanelStyle}" Margin="0,12,0,0">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource About.ExtensibilityFuture}" Style="{StaticResource AboutPanelKickerStyle}"/>
+                            <TextBlock Style="{StaticResource AboutPanelTextStyle}">
+                                <Run Text="{DynamicResource About.CurrentReleaseShips}"/>
+                                <Run Text="{Binding Modules.Count, Mode=OneWay}" FontWeight="Bold" Foreground="{DynamicResource LiquidSnow}"/>
+                                <Run Text="{DynamicResource About.ActiveModulesCommercialProductionLifecycle}"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Grid>
 
         <!-- ═══ CAPABILITIES ═══ -->
         <Border Style="{StaticResource AboutCardStyle}">
