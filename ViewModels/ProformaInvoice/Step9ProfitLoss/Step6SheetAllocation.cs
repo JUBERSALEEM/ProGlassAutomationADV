@@ -143,7 +143,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             {
                 decimal boughtArea = setup.SheetQuantity * sheetAreas[0];
                 if (boughtArea > 0m)
-                    return Math.Round(totalSourceSqm / boughtArea * 100m, 2);
+                    // 2026-09-11: inferred utilization MUST cap at 100%.
+                    // >100% means Step 6 bought FEWER sheets than the checked
+                    // sources need (e.g. default SHEET QTY 1 against a large
+                    // pane) — that is a SHORTFALL, not super-efficiency (the
+                    // "249%" report). The shortfall itself is surfaced by the
+                    // caller via the needed-sheets comparison.
+                    return Math.Round(Math.Min(100m, totalSourceSqm / boughtArea * 100m), 2);
             }
 
             return 100m;

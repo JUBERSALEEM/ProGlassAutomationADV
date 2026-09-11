@@ -274,7 +274,7 @@
                                 </Style>
                             </TextBlock.Style>
                         </TextBlock>
-                        <TextBlock Text="used ÷ bought" Style="{StaticResource SheetSubCaptionStyle}"/>
+                        <TextBlock Text="charged used ÷ bought" Style="{StaticResource SheetSubCaptionStyle}"/>
                     </StackPanel>
                 </Border>
                 <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource SheetCardStyle}" Margin="0,0,8,0">
@@ -354,6 +354,54 @@
                     </TextBlock>
                         <TextBlock Text="{Binding LandedRateSummaryDisplay}" FontSize="{StaticResource TextCaption}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,4,0,0" TextWrapping="Wrap" IsHitTestVisible="False"/>
+
+                        <!-- ═══ 5-SECTION SHEET PRICE RECONCILIATION (2026-09-11):
+                             BUY = USED + WASTAGE CHARGED + WASTAGE NOT CHARGED,
+                             with the Step 6 billed amount and balance check ═══ -->
+                        <Border Margin="0,12,0,0" Padding="14,10"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                BorderBrush="{DynamicResource OutlineBrush}"
+                                BorderThickness="{DynamicResource Border.HairlineThickness}">
+                            <StackPanel>
+                                <TextBlock Text="SHEET PRICE RECONCILIATION — BUY = USED + WASTAGE (CHARGED) + WASTAGE (NOT CHARGED)"
+                                           Style="{StaticResource SheetCaptionStyle}"/>
+                                <TextBlock Text="{Binding ReconciliationSummaryDisplay}"
+                                           FontSize="{StaticResource TextCaption}"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                           TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                <TextBlock Text="{Binding UnchargedWastageNotice}"
+                                           FontSize="{StaticResource TextCaption}"
+                                           Foreground="{DynamicResource WarningBrush}"
+                                           TextWrapping="Wrap" Margin="0,6,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding UnchargedWastageNotice}" Value="">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <TextBlock Text="{Binding EfficiencyBasisNote}"
+                                           FontSize="{StaticResource TextCaption}"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           TextWrapping="Wrap" Margin="0,3,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding EfficiencyBasisNote}" Value="">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
                 </StackPanel>
             </Border>
 
@@ -669,6 +717,24 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="Yield premium" Style="{StaticResource SheetKvLabelStyle}"/>
                                 <TextBlock Grid.Column="1" Text="{Binding YieldPremiumDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Wastage — charged (Step 6)" Style="{StaticResource SheetKvLabelStyle}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding WastageValueChargedDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Wastage — not charged (loss)" Style="{StaticResource SheetKvLabelStyle}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding WastageValueUnchargedDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>

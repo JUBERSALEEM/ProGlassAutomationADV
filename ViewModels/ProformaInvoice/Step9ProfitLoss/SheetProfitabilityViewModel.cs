@@ -187,6 +187,45 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         public string TotalStep6ChargeDisplay => $"AED {TotalStep6Charge:N2}";
 
+        // ── 5-SECTION RECONCILIATION TOTALS (2026-09-11) ───────────────
+        // BUY = USED + WASTAGE CHARGED + WASTAGE NOT CHARGED (+ balance).
+        private decimal _totalChargedWastageValue;
+
+        public decimal TotalChargedWastageValue
+        {
+            get => _totalChargedWastageValue;
+            private set => SetTotals(ref _totalChargedWastageValue, value, nameof(TotalChargedWastageValueDisplay));
+        }
+
+        public string TotalChargedWastageValueDisplay => $"AED {TotalChargedWastageValue:N2}";
+
+        private decimal _totalUnchargedWastageValue;
+
+        public decimal TotalUnchargedWastageValue
+        {
+            get => _totalUnchargedWastageValue;
+            private set => SetTotals(ref _totalUnchargedWastageValue, value, nameof(TotalUnchargedWastageValueDisplay));
+        }
+
+        public string TotalUnchargedWastageValueDisplay => $"AED {TotalUnchargedWastageValue:N2}";
+
+        /// <summary>One-line 5-section identity: buy = used + charged waste
+        /// + uncharged waste, with the Step 6 billed amount and balance.</summary>
+        public string ReconciliationSummaryDisplay =>
+            $"BUY {TotalBuyPriceDisplay}  =  USED {TotalUsedPriceDisplay}" +
+            $"  +  WASTAGE CHARGED {TotalChargedWastageValueDisplay}" +
+            $"  +  WASTAGE NOT CHARGED {TotalUnchargedWastageValueDisplay}" +
+            $"   ·   STEP 6 BILLED {TotalStep6ChargeDisplay}" +
+            $"   ·   BALANCE {ReconciliationBalanceDisplay}{(IsInBalance ? " ✓" : " ✗")}";
+
+        /// <summary>Policy notice: uncharged wastage (e.g. clear) explained —
+        /// shown only when uncharged wastage exists (collapses on empty).</summary>
+        public string UnchargedWastageNotice => TotalUnchargedWastageValue <= 0m
+            ? ""
+            : $"AED {TotalUnchargedWastageValue:N2} of wastage value is NOT billed in Step 6 " +
+              "(uncharged panes — e.g. clear, typically not charged to the customer). " +
+              "Treated as absorbed loss and EXCLUDED from the charged-efficiency KPI.";
+
         private decimal _usageEfficiencyPercent;
         public decimal UsageEfficiencyPercent
         {
@@ -287,6 +326,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         }
 
         private string _statusMessage = "Press REFRESH to analyze sheet profitability.";
+        /// <summary>Explains which rows feed the efficiency KPI (charged
+        /// basis per the 2026-09-11 directive; all-material fallback).</summary>
+        public string EfficiencyBasisNote { get; private set; } = "";
+
         public string StatusMessage
         {
             get => _statusMessage;
@@ -533,6 +576,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 decimal usedPriceSum = 0m;
                 decimal wastageValueSum = 0m;
                 decimal step6ChargeSum = 0m;
+                decimal chargedWastageValueSum = 0m;
+                decimal unchargedWastageValueSum = 0m;
+                decimal chargedBuyAreaSum = 0m;
+                decimal chargedUsedAreaSum = 0m;
 
                 var step6HandledSources = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -591,6 +638,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     usedPriceSum += row.UsedSheetPrice;
                     wastageValueSum += row.WastageValue;
                     step6ChargeSum += row.Step6Charge;
+                    chargedWastageValueSum += row.WastageValueCharged;
+                    unchargedWastageValueSum += row.WastageValueUncharged;
+                    if (row.Step6Charge > 0m && !row.IsSetupNotice)
+                    {
+                        chargedBuyAreaSum += row.BuySheetArea;
+                        chargedUsedAreaSum += row.UsedArea;
+                    }
                 }
 
                 // Senior ERP rule: the Sheet Details tab must be driven by
@@ -645,7 +699,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             decimal buySheets = allocation.SheetQuantity;
                             decimal usedSheets = allocation.SheetQuantity;
                             decimal buySheetArea = Math.Round(buySheets * sheetSqm, 4);
-                            decimal utilizationPercent = allocation.UtilizationPercent;
+                            decimal utilizationPercent = Math.Min(100m, allocation.UtilizationPercent);
                             decimal usedArea = utilizationPercent > 0m
                                 ? Math.Round(buySheetArea * utilizationPercent / 100m, 4)
                                 : src.SqmValue;
@@ -658,11 +712,24 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 ? Math.Round(setup.ResultAmount * (src.SqmValue / totalSourceSqm), 2)
                                 : 0m;
 
+                            // 2026-09-11 SHORTFALL on setup rows: the checked
+                            // sources may need MORE whole sheets than Step 6
+                            // bought (classic with the default SHEET QTY 1).
+                            // That is a shortfall — surfaced with a negative
+                            // WastageSheets so the SHORTFALL badge + list fire —
+                            // never as >100% "efficiency".
+                            int neededSheets = sheetSqm > 0m
+                                ? (int)Math.Ceiling(totalSourceSqm / sheetSqm)
+                                : allocation.SheetQuantity;
+                            bool setupShortfall = neededSheets > allocation.SheetQuantity;
+
                             bool mixedSetup = sources.Count > 1;
-                            string diagnostic = mixedSetup
-                                ? $"Shared Step 6 setup: {setup.SheetQuantity} sheet(s) split by source SQM and {utilizationPercent:0.##}% utilization. This spec receives {allocation.SheetQuantity} sheet(s)."
-                                : "Step 6 wastage setup source — bought and used sheet quantity both read from Step 6.";
-                            if (charge <= 0m && wastageArea > 0m)
+                            string diagnostic = setupShortfall
+                                ? $"SHORTFALL — checked sources need ≈{neededSheets} sheet(s) but Step 6 bought {allocation.SheetQuantity}. Review the Step 6 SHEET QTY."
+                                : mixedSetup
+                                    ? $"Shared Step 6 setup: {setup.SheetQuantity} sheet(s) split by source SQM and {utilizationPercent:0.##}% utilization. This spec receives {allocation.SheetQuantity} sheet(s)."
+                                    : "Step 6 wastage setup source — bought and used sheet quantity both read from Step 6.";
+                            if (charge <= 0m && wastageArea > 0m && !setupShortfall)
                                 diagnostic += " No active wastage charge is posted for the leftover area.";
 
                             string key = SheetSourceKey(src.SpecNumber, src.SideLabel);
@@ -678,8 +745,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 SheetSize = $"{src.SheetWidthMm} × {src.SheetHeightMm} mm",
                                 SheetSqm = sheetSqm,
                                 BuySheets = buySheets,
-                                UsedSheets = usedSheets,
-                                WastageSheets = 0m,
+                                UsedSheets = setupShortfall ? neededSheets : usedSheets,
+                                WastageSheets = setupShortfall ? buySheets - neededSheets : 0m,
                                 BuySheetArea = buySheetArea,
                                 UsedArea = usedArea,
                                 WastageArea = wastageArea,
@@ -840,8 +907,30 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 TotalUsedPrice = usedPriceSum;
                 TotalWastageValue = wastageValueSum;
                 TotalStep6Charge = step6ChargeSum;
-                UsageEfficiencyPercent = buyAreaSum > 0m
-                    ? Math.Round(usedAreaSum / buyAreaSum * 100m, 1)
+                TotalChargedWastageValue = chargedWastageValueSum;
+                TotalUnchargedWastageValue = unchargedWastageValueSum;
+
+                // 2026-09-11 OWNER DIRECTIVE: the efficiency KPI is computed
+                // on STEP 6-CHARGED rows only — panes deliberately not
+                // charged (e.g. clear) must not distort it. All-material
+                // fallback when nothing is charged; clamped ≤ 100 (a >100%
+                // utilization is a shortfall, never "efficiency").
+                decimal effBuy = chargedBuyAreaSum;
+                decimal effUsed = chargedUsedAreaSum;
+                if (effBuy <= 0m)
+                {
+                    effBuy = buyAreaSum;
+                    effUsed = usedAreaSum;
+                    EfficiencyBasisNote =
+                        "Efficiency shown on the ALL-MATERIAL basis (no Step 6 charges posted).";
+                }
+                else
+                {
+                    EfficiencyBasisNote =
+                        "Efficiency computed on Step 6-CHARGED rows only — uncharged panes (e.g. clear) excluded.";
+                }
+                UsageEfficiencyPercent = effBuy > 0m
+                    ? Math.Min(100m, Math.Round(effUsed / effBuy * 100m, 1))
                     : 0m;
 
                 HasShortfalls = ShortfallMessages.Count > 0;
@@ -857,6 +946,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 OnPropertyChanged(nameof(WastageValueSharePercent));
                 OnPropertyChanged(nameof(WastageValueShareDisplay));
                 OnPropertyChanged(nameof(LandedRateSummaryDisplay));
+                OnPropertyChanged(nameof(ReconciliationSummaryDisplay));
+                OnPropertyChanged(nameof(UnchargedWastageNotice));
+                OnPropertyChanged(nameof(EfficiencyBasisNote));
                 OnPropertyChanged(nameof(Step6ChargeSharePercent));
                 OnPropertyChanged(nameof(Step6ChargeShareDisplay));
 
@@ -902,6 +994,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             TotalUsedPrice = 0m;
             TotalWastageValue = 0m;
             TotalStep6Charge = 0m;
+            TotalChargedWastageValue = 0m;
+            TotalUnchargedWastageValue = 0m;
+            EfficiencyBasisNote = "";
+            OnPropertyChanged(nameof(EfficiencyBasisNote));
             UsageEfficiencyPercent = 0m;
             HasShortfalls = false;
             HasReviewItems = false;
@@ -1282,6 +1378,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public string YieldPremiumDisplay => YieldPremiumPercent > 0m
             ? $"+{YieldPremiumPercent:0.#}% yield"
             : "—";
+
+        // ── WASTAGE SPLIT (2026-09-11, owner directive) ────────────────
+        // Material wastage value splits by whether the pane is billed in
+        // Step 6: charged wastage is recovered through the Step 6 charge;
+        // uncharged wastage (clear — typically not charged to customers)
+        // is the absorbed-loss share. charged + uncharged = WastageValue.
+        public decimal WastageValueCharged => Step6Charge > 0m ? WastageValue : 0m;
+
+        public string WastageValueChargedDisplay => $"AED {WastageValueCharged:N2}";
+
+        public decimal WastageValueUncharged => WastageValue - WastageValueCharged;
+
+        public string WastageValueUnchargedDisplay => $"AED {WastageValueUncharged:N2}";
 
         private decimal _buySheetPrice;
         /// <summary>Total sheet price = the Step 9 glass row amount.</summary>
