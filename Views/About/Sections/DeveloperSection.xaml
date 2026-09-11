@@ -23,19 +23,10 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../AboutStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </UserControl.Resources>
 
-        <!-- ════════════════════════════════════════════════════════════
-             2026-09-11 MOCKUP-EXACT REBUILD (owner-approved board):
-             centered page header → three floating cards in one row
-             (Profile · Stack · Principles+Capabilities) → full-width
-             facts strip. All data bindings preserved; the email pill
-             keeps its code-behind handler.
-             ════════════════════════════════════════════════════════════ -->
-        <UserControl.Resources>
-            <ResourceDictionary>
-                <!-- STACK pill -->
+            <!-- 2026-09-11 mockup rebuild templates (SINGLE Resources block —
+                 WPF forbids setting UserControl.Resources twice, MC3024) -->
+<!-- STACK pill -->
                 <DataTemplate x:Key="DevStackPillTemplate">
                     <Border Margin="0,0,8,8"
                             Padding="12,5"
@@ -71,10 +62,17 @@
                                    IsHitTestVisible="False"/>
                     </StackPanel>
                 </DataTemplate>
-            </ResourceDictionary>
-        </UserControl.Resources>
+        </ResourceDictionary>
+    </UserControl.Resources>
 
-        <StackPanel>
+        <!-- ════════════════════════════════════════════════════════════
+             2026-09-11 MOCKUP-EXACT REBUILD (owner-approved board):
+             centered page header → three floating cards in one row
+             (Profile · Stack · Principles+Capabilities) → full-width
+             facts strip. All data bindings preserved; the email pill
+             keeps its code-behind handler.
+             ════════════════════════════════════════════════════════════ -->
+                <StackPanel>
 
             <!-- ── Centered page header (mockup) ── -->
             <StackPanel HorizontalAlignment="Center" Margin="0,2,0,16">
