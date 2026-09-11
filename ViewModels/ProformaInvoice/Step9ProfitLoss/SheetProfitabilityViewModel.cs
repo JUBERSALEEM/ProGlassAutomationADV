@@ -41,6 +41,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Services.Export.Core;
@@ -511,6 +512,43 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                 var step6HandledSources = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+                // 2026-09-11 OWNER FIX — Step 6 charges must NEVER vanish
+                // from this breakdown. A wastage row that carries an amount
+                // but has an incomplete sheet setup (no SHEET QTY, no
+                // checked pane source, no allocatable sheet size) used to
+                // be skipped with a silent `continue`. It now emits a
+                // visible "STEP 6 SETUP" notice row + a review message.
+                // MONEY RULE: the notice row deliberately carries charge 0
+                // in the SUM — the amount is shown in the diagnostic text.
+                // When a matching Step 5 pane exists, the fallback path
+                // already posts the share on that pane's row; summing the
+                // full amount here as well would DOUBLE-COUNT it.
+                void EmitSetupNoticeRow(WastageRow setup, string reason)
+                {
+                    var row = new SheetProfitRow
+                    {
+                        SpecName = setup.ColorName ?? "Step 6 charge",
+                        SpecNumber = 0,
+                        GlassTypeLabel = FamilyLabelFor(setup.ColorName ?? ""),
+                        PaneSide = "STEP 6 SETUP",
+                        GlassName = setup.ColorName ?? "",
+                        SheetSize = $"{setup.SelectedSheetWidthMm} × {setup.SelectedSheetHeightMm} mm",
+                        Step6Charge = 0m,
+                        Step6SourceLabel = setup.SourceSummaryText,
+                        Step6SheetQuantity = setup.SheetQuantity,
+                        Step6Rate = setup.Rate,
+                        IsSetupNotice = true,
+                        DiagnosticMessage = reason +
+                            (setup.IsActive && setup.ResultAmount > 0m
+                                ? $" The setup carries AED {setup.ResultAmount:N2} — complete the Step 6 sheet setup to post it."
+                                : setup.IsActive
+                                    ? " The setup has no charge amount."
+                                    : " The setup row is inactive — its charge is not posted."),
+                    };
+                    SheetBreakdown.Add(row);
+                    ReviewMessages.Add($"{row.SpecName} · STEP 6 SETUP — {reason}");
+                }
+
                 void AddSheetRow(SheetProfitRow row)
                 {
                     SheetBreakdown.Add(row);
@@ -542,18 +580,35 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 {
                     foreach (var setup in setupRows)
                     {
-                        if (setup == null || setup.SheetQuantity <= 0) continue;
+                        if (setup == null) continue;
 
                         var sources = setup.AvailableSources
                             .Where(s => s != null && s.IsChecked)
                             .ToList();
-                        if (sources.Count == 0) continue;
+                        if (setup.SheetQuantity <= 0)
+                        {
+                            EmitSetupNoticeRow(setup,
+                                "Step 6 charge has no SHEET QTY — set the quantity in the Step 6 wastage setup.");
+                            continue;
+                        }
+                        if (sources.Count == 0)
+                        {
+                            EmitSetupNoticeRow(setup,
+                                "Step 6 charge has no checked pane source — tick at least one source in the Step 6 wastage setup.");
+                            continue;
+                        }
 
                         decimal totalSourceSqm = sources.Sum(s => s.SqmValue);
                         if (totalSourceSqm <= 0m)
                             totalSourceSqm = setup.TotalSqm;
 
                         var allocations = Step6SheetAllocation.Allocate(setup, sources);
+                        if (allocations.Count == 0)
+                        {
+                            EmitSetupNoticeRow(setup,
+                                "Step 6 charge could not be allocated — its sources have no usable sheet sizes.");
+                            continue;
+                        }
 
                         foreach (var allocation in allocations)
                         {
@@ -1285,6 +1340,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             }
         }
 
+        /// <summary>True on Step 6 setup notice rows (incomplete setup —
+        /// the charge is explained, not posted). 2026-09-11 owner fix.</summary>
+        public bool IsSetupNotice { get; set; }
+
         /// <summary>Bought fewer sheets than required — Step 6 SHEET QTY too low.</summary>
         public bool HasShortfall => WastageSheets < 0m;
 
@@ -1302,6 +1361,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         {
             get
             {
+                if (IsSetupNotice) return "STEP 6";
                 if (HasShortfall) return "SHORTFALL";
                 if (HasChargeWithoutWastage) return "REVIEW";
                 if (HasWastageWithoutCharge) return "NO CHARGE";
