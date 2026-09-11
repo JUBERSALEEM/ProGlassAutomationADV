@@ -412,7 +412,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                         {
                             trn.AutoItem().PaddingRight(M.StackGap).Text("TRN:")
                                 .FontSize(M.MetaValueFont).SemiBold().FontColor(T.Muted);
-                            trn.AutoItem()
+                            // RelativeItem (not Auto): a long TRN wraps
+                            // instead of overflowing the row — auto items
+                            // that exceed their row throw a QuestPDF layout
+                            // conflict.
+                            trn.RelativeItem()
                                 .Text(string.IsNullOrWhiteSpace(info.CompanyTrn)
                                     ? "—" : info.CompanyTrn)
                                 .FontSize(M.MetaValueFont).SemiBold().FontColor(T.Text);
@@ -499,8 +503,18 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             Clamp(info.LogoHeightMm > 0 ? info.LogoHeightMm : 26,
                 PrintTokenService.LogoMinHeightMm, PrintTokenService.LogoMaxHeightMm);
 
-        private static float TopPanelLogoW(LetterheadInfo info) =>
-            Clamp(info.LogoWidthMm > 0 ? info.LogoWidthMm : 160, 40, 180);
+        private static float TopPanelLogoW(LetterheadInfo info)
+        {
+            // A fixed Width larger than its parent is a hard QuestPDF layout
+            // conflict ("conflicting size constraints"), so the chip is
+            // clamped to the ACTUAL band width: page width minus margins,
+            // masthead padding and the chip's own chrome. With airy themes
+            // (20 mm margins) a 180 mm mark would otherwise overflow.
+            float mastheadPadMm = (float)(M.MastheadPadH * 25.4 / 72.0);
+            float safeMax = 210f - (2f * T.MarginMm) - (2f * mastheadPadMm) - 8f;
+            float hi = Math.Max(40f, Math.Min(180f, safeMax));
+            return Clamp(info.LogoWidthMm > 0 ? info.LogoWidthMm : 160, 40, hi);
+        }
 
         private static float TopPanelLogoH(LetterheadInfo info) =>
             Clamp(info.LogoHeightMm > 0 ? info.LogoHeightMm : 24, 10, 32);
@@ -654,7 +668,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                     v.AutoItem().PaddingRight(M.RowGap)
                         .Text("•")
                         .FontSize(M.LabelFont).FontColor(T.Muted);
-                    v.AutoItem()
+                    // Relative: a long status wraps instead of overflowing
+                    // the row (AutoItems that exceed their row raise a
+                    // QuestPDF sizing conflict).
+                    v.RelativeItem()
                         .Text(string.IsNullOrWhiteSpace(doc.ProformaStatus)
                             ? "Draft" : doc.ProformaStatus)
                         .FontSize(M.ValueFont).SemiBold()
@@ -839,41 +856,35 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             decimal area = doc.SpecGroups.Sum(g => g.TotalArea);
             decimal value = doc.SpecGroups.Sum(g => g.TotalValue);
 
+            // ERR FIX (2026-09-11): this band was a Row of AutoItems — when
+            // the stat cluster's combined width exceeded the page (long
+            // labels + large values), QuestPDF raised "conflicting size
+            // constraints". Spans inside RelativeItems can never demand
+            // more width than exists; they wrap instead.
+            string onAccentMuted = PiPrintTokens.OnAccentMuted();
+
             container.Background(T.Accent).Padding(M.CardPad).Row(row =>
             {
-                row.RelativeItem().AlignMiddle().Row(left =>
+                row.RelativeItem(1.6f).AlignMiddle().Text(left =>
                 {
-                    left.AutoItem().PaddingRight(M.RowGap)
-                        .Text(PiStr.GrandSpecTotal)
-                        .FontSize(M.GroupFont).Bold().FontColor(T.AccentOn);
-                    left.AutoItem().PaddingRight(M.RowGap)
-                        .Text("•")
-                        .FontSize(M.GroupFont).FontColor(PiPrintTokens.OnAccentMuted());
-                    left.AutoItem().PaddingRight(M.RowGap)
-                        .Text($"{specs.ToString(CultureInfo.InvariantCulture)} {PiStr.Specs}")
-                        .FontSize(M.GroupFont).SemiBold().FontColor(T.AccentOn);
-                    left.AutoItem().PaddingRight(M.StackGap)
-                        .Text(PiStr.QtyLabel)
-                        .FontSize(M.GroupFont).FontColor(PiPrintTokens.OnAccentMuted());
-                    left.AutoItem().PaddingRight(M.RowGap)
-                        .Text(qty.ToString(CultureInfo.InvariantCulture))
-                        .FontSize(M.GroupFont).Bold().FontColor(T.AccentOn);
-                    left.AutoItem().PaddingRight(M.StackGap)
-                        .Text(PiStr.TotalSqmLabel)
-                        .FontSize(M.GroupFont).FontColor(PiPrintTokens.OnAccentMuted());
-                    left.AutoItem()
-                        .Text(Sqm(area))
-                        .FontSize(M.GroupFont).Bold().FontColor(T.AccentOn);
+                    left.DefaultTextStyle(x => x.FontSize(M.GroupFont).FontColor(T.AccentOn));
+                    left.Span(PiStr.GrandSpecTotal).Bold();
+                    left.Span("  •  ").FontColor(onAccentMuted);
+                    left.Span($"{specs.ToString(CultureInfo.InvariantCulture)} {PiStr.Specs}").SemiBold();
+                    left.Span("   ").FontColor(onAccentMuted);
+                    left.Span(PiStr.QtyLabel).FontColor(onAccentMuted);
+                    left.Span(" " + qty.ToString(CultureInfo.InvariantCulture)).Bold();
+                    left.Span("   ").FontColor(onAccentMuted);
+                    left.Span(PiStr.TotalSqmLabel).FontColor(onAccentMuted);
+                    left.Span(" " + Sqm(area)).Bold();
                 });
 
-                row.AutoItem().AlignMiddle().Row(right =>
+                row.RelativeItem(1f).AlignRight().AlignMiddle().Text(right =>
                 {
-                    right.AutoItem().PaddingRight(M.StackGap)
-                        .Text(PiStr.ValueLabel)
-                        .FontSize(M.GroupFont).FontColor(PiPrintTokens.OnAccentMuted());
-                    right.AutoItem()
-                        .Text(Money(value))
-                        .FontSize(M.GrandValueFont).Bold().FontColor(T.AccentOn);
+                    right.DefaultTextStyle(x => x.FontSize(M.GroupFont).FontColor(T.AccentOn));
+                    right.Span(PiStr.ValueLabel).FontColor(onAccentMuted);
+                    right.Span("  ");
+                    right.Span(Money(value)).Bold().FontSize(M.GrandValueFont);
                 });
             });
         }
@@ -1130,7 +1141,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                         s.AutoItem().PaddingRight(M.StackGap)
                             .Text("Status:")
                             .FontSize(M.MetaValueFont).FontColor(T.Muted);
-                        s.AutoItem()
+                        // Relative so a long status wraps, never overflows.
+                        s.RelativeItem()
                             .Text(string.IsNullOrWhiteSpace(doc.PreparedByStatus)
                                 ? "Draft" : doc.PreparedByStatus)
                             .FontSize(M.MetaValueFont).Bold()
