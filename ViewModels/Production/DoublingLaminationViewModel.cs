@@ -11,7 +11,7 @@ namespace ProGlassAutomation.ViewModels.Production
     {
         public override ProductionStage Stage => ProductionStage.DoublingLamination;
         public override string ModuleName => "Doubling / Lamination";
-        public override string Description => "Manage double glazing and lamination processes for finished glass units.";
+        public override string Description => "Final assembly: DGU units (spacer, seal, gas fill) and laminated lites (interlayer + autoclave). Every unit finished here becomes dispatch-ready pieces feeding the delivery notes.";
         public override string Icon => "\uE81C"; // Segoe MDL2 (matches AboutView production stages)
     }
 }

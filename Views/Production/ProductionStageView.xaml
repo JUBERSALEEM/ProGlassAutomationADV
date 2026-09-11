@@ -569,6 +569,40 @@
                                     <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding SelectedSizeSummary}" FontSize="{StaticResource TextBody}"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap" Margin="12,2,0,2"/>
 
+                                    <!-- Step 4/5 spec intelligence -->
+                                    <TextBlock Text="{Binding SelectedSizeRuleLabel}"
+                                               FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,8,0,0"
+                                               Visibility="{Binding HasSizeRule,
+                                                            Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    <Grid Margin="0,6,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Treatments"
+                                                   FontSize="{StaticResource TextBody}"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding SelectedTreatmentsLabel}"
+                                                   FontSize="{StaticResource TextBody}"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   TextWrapping="Wrap"/>
+                                    </Grid>
+                                    <Grid Margin="0,3,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Released"
+                                                   FontSize="{StaticResource TextBody}"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding SelectedArrivalLabel}"
+                                                   FontSize="{StaticResource TextBody}"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    </Grid>
+
                                 </Grid>
 
                                 <!-- Pane-level stage items — piece flow editor -->

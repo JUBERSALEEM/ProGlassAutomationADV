@@ -11,7 +11,7 @@ namespace ProGlassAutomation.ViewModels.Production
     {
         public override ProductionStage Stage => ProductionStage.Polish;
         public override string ModuleName => "Polish";
-        public override string Description => "Track polishing operations for edges and surfaces.";
+        public override string Description => "Edge polishing and grinding per pane, measured in LM. Polished edges protect handling and seal adhesion — every piece must finish here before Tempering.";
         public override string Icon => "\uE895"; // Segoe MDL2 (matches AboutView production stages)
     }
 }

@@ -11,7 +11,7 @@ namespace ProGlassAutomation.ViewModels.Production
     {
         public override ProductionStage Stage => ProductionStage.Cutting;
         public override string ModuleName => "Cutting";
-        public override string Description => "Track glass cutting operations, machine assignments, and cut piece output.";
+        public override string Description => "First station of the chain: every pane is cut to size — W1×H1, plus W2×H2 for overlap glass (blank W2/H2 cuts equal-size lites). Cut pieces feed Holes, Polish, Mitring and Tempering.";
         public override string Icon => "\uE8C6"; // Segoe MDL2 (matches AboutView production stages)
     }
 }

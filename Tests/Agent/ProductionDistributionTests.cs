@@ -434,6 +434,70 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         // ══════════════════════════════════════════════════════════════
+        //  STEP 4/5 SIZE SEMANTICS (owner rules 2026-09-11)
+        //  • W2/H2 blank on a multi-pane build → EQUAL-SIZE unit: the
+        //    second pane inherits W1×H1 (never skipped, never warned).
+        //  • W2/H2 present → OVERLAP glass: cut exactly W2×H2.
+        //  • Pane quantities always read from the spec build: every pane
+        //    occurrence cuts the row qty (qty 20 → outer 20 + inner 20).
+        // ══════════════════════════════════════════════════════════════
+
+        [Fact]
+        public void Dgu_blank_w2h2_inner_inherits_w1h1_equal_size_unit()
+        {
+            var plan = ProductionDistributionEngine.Distribute("JOB-EQ", Snapshot(
+                Group(1, "6mm Clear FT Glass + 12mm ASP + 6mm Clear Annealed Glass",
+                    Row(1, "D-01", 1200, 900, 20)))); // W2/H2 left blank
+
+            var cutting = Stage(plan.Items, ProductionStage.Cutting).ToList();
+            Assert.Equal(2, cutting.Count); // both panes are cut
+            Assert.Contains(cutting, c => c.Position == "Outer" && c.WidthMm == 1200 && c.HeightMm == 900 && c.Qty == 20);
+            Assert.Contains(cutting, c => c.Position == "Inner" && c.WidthMm == 1200 && c.HeightMm == 900 && c.Qty == 20);
+            Assert.DoesNotContain(plan.Warnings, w => w.Contains("was skipped"));
+        }
+
+        [Fact]
+        public void Dgu_with_w2h2_is_overlap_glass_cut_to_exact_size()
+        {
+            var plan = ProductionDistributionEngine.Distribute("JOB-OL", Snapshot(
+                Group(1, "6mm Clear FT Glass + 12mm ASP + 6mm Clear Annealed Glass",
+                    Row(1, "D-01", 1500, 1200, 10, w2: 1250, h2: 950))));
+
+            var cutting = Stage(plan.Items, ProductionStage.Cutting).ToList();
+            Assert.Contains(cutting, c => c.Position == "Outer" && c.WidthMm == 1500 && c.HeightMm == 1200);
+            Assert.Contains(cutting, c => c.Position == "Inner" && c.WidthMm == 1250 && c.HeightMm == 950 && c.Qty == 10);
+        }
+
+        [Fact]
+        public void Lam_blank_w2h2_both_lites_inherit_w1h1()
+        {
+            var plan = ProductionDistributionEngine.Distribute("JOB-LAM", Snapshot(
+                Group(1, "6mm Clear FT Glass + 1.52mm Clear PVB + 6mm Clear FT Glass",
+                    Row(1, "L-01", 1000, 1000, 4))));
+
+            var cutting = Stage(plan.Items, ProductionStage.Cutting).ToList();
+            Assert.Equal(2, cutting.Count);
+            Assert.All(cutting, c => Assert.Equal(1000, c.WidthMm));
+            Assert.All(cutting, c => Assert.Equal(1000, c.HeightMm));
+            Assert.All(cutting, c => Assert.Equal(4, c.Qty));
+        }
+
+        [Fact]
+        public void Charges_fan_out_to_inherited_pane_sizes_too()
+        {
+            var snap = Snapshot(
+                Group(1, "6mm Clear FT Glass + 12mm ASP + 6mm Clear Annealed Glass",
+                    Row(1, "D-01", 1400, 1000, 6))); // blank W2/H2
+            snap.OtherCharges.PredefinedCharges.Add(Charge("FAN_HOLES", 12m, 1));
+
+            var holes = Stage(ProductionDistributionEngine.Distribute("JOB-CH", snap).Items,
+                ProductionStage.HolesCutouts).ToList();
+            Assert.Equal(2, holes.Count);
+            Assert.All(holes, h => Assert.Equal(1400, h.WidthMm));
+            Assert.All(holes, h => Assert.Equal(1000, h.HeightMm));
+        }
+
+        // ══════════════════════════════════════════════════════════════
         //  SCOPE LOCK (2026-09-11) — only the four Step 4 build families
         //  exist. Triple glazing is NOT in the product today: a name with
         //  three glass tokens and no interlayer degrades to the supported

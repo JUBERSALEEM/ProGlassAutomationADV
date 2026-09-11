@@ -11,7 +11,7 @@ namespace ProGlassAutomation.ViewModels.Production
     {
         public override ProductionStage Stage => ProductionStage.Mitring;
         public override string ModuleName => "Mitring";
-        public override string Description => "Track mitring operations for angled edge finishing.";
+        public override string Description => "Corner mitring and angled edge work per pane, measured in LM — architectural edge detail that must complete before Tempering.";
         public override string Icon => "\uE7E8"; // Segoe MDL2 (matches AboutView production stages)
     }
 }

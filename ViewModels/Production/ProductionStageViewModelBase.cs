@@ -161,6 +161,9 @@ namespace ProGlassAutomation.ViewModels.Production
         public string W2Label { get; init; } = "—";
         public string H2Label { get; init; } = "—";
         public string QtyLabel { get; init; } = "—";
+
+        /// <summary>Step 4/5 size rule badge for multi-pane builds.</summary>
+        public string SizeRuleLabel { get; init; } = "";
         public string Sqm1Label { get; init; } = "—";
         public string TotalSqm1Label { get; init; } = "—";
         public string Lm1Label { get; init; } = "—";
@@ -484,6 +487,22 @@ namespace ProGlassAutomation.ViewModels.Production
         private string _selectedSizeSummary = "";
         public string SelectedSizeSummary { get => _selectedSizeSummary; private set { if (_selectedSizeSummary == value) return; _selectedSizeSummary = value; OnPropertyChanged(); } }
 
+        // ── Sidebar: row detail (Step 4/5 spec intelligence) ─────────────
+
+        private string _selectedSizeRuleLabel = "";
+        /// <summary>Overlap glass vs equal-size unit (multi-pane builds).</summary>
+        public string SelectedSizeRuleLabel { get => _selectedSizeRuleLabel; private set { if (_selectedSizeRuleLabel == value) return; _selectedSizeRuleLabel = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasSizeRule)); } }
+
+        public bool HasSizeRule => !string.IsNullOrWhiteSpace(_selectedSizeRuleLabel);
+
+        private string _selectedTreatmentsLabel = "";
+        /// <summary>Pane treatments from the Step 4 composition.</summary>
+        public string SelectedTreatmentsLabel { get => _selectedTreatmentsLabel; private set { if (_selectedTreatmentsLabel == value) return; _selectedTreatmentsLabel = value; OnPropertyChanged(); } }
+
+        private string _selectedArrivalLabel = "";
+        /// <summary>When this unit was released to the floor.</summary>
+        public string SelectedArrivalLabel { get => _selectedArrivalLabel; private set { if (_selectedArrivalLabel == value) return; _selectedArrivalLabel = value; OnPropertyChanged(); } }
+
         /// <summary>Pane-level stage items for the selected unit.</summary>
         public ObservableCollection<ProductionWorkItemRow> SelectedStageItems { get; } = new();
 
@@ -673,6 +692,10 @@ namespace ProGlassAutomation.ViewModels.Production
                     stageMetric.ToString("0.##", CultureInfo.InvariantCulture) + " LM",
                 ProductionStage.HolesCutouts =>
                     stageMetric.ToString("0", CultureInfo.InvariantCulture) + " pcs to drill/cut",
+                ProductionStage.Pairing =>
+                    stageMetric.ToString("0", CultureInfo.InvariantCulture) + " units to pair",
+                ProductionStage.DoublingLamination =>
+                    stageMetric.ToString("0", CultureInfo.InvariantCulture) + " units to assemble",
                 _ => stageMetric.ToString("0", CultureInfo.InvariantCulture) + " pcs"
             };
 
@@ -705,6 +728,20 @@ namespace ProGlassAutomation.ViewModels.Production
 
         private static string FmtInt(int v) =>
             v > 0 ? v.ToString(CultureInfo.InvariantCulture) : "—";
+
+        /// <summary>
+        /// Step 4/5 size semantics: a second size pair on the row means
+        /// OVERLAP glass; an inherited (equal) pair means an EQUAL-SIZE
+        /// unit where the blank W2/H2 took W1/H1 at distribution.
+        /// </summary>
+        private static string BuildSizeRule(ProductionRepository.ProductionUnitProjection unit)
+        {
+            if (unit.BuildType == "Sgu" || unit.W2 <= 0 || unit.H2 <= 0) return "";
+
+            return unit.W2 == unit.W1 && unit.H2 == unit.H1
+                ? $"EQUAL-SIZE UNIT — both lites {unit.W1.ToString(CultureInfo.InvariantCulture)}×{unit.H1.ToString(CultureInfo.InvariantCulture)}"
+                : $"OVERLAP GLASS — inner {unit.W2.ToString(CultureInfo.InvariantCulture)}×{unit.H2.ToString(CultureInfo.InvariantCulture)}";
+        }
 
         private static string FmtDec(decimal v, string suffix) =>
             v > 0 ? v.ToString("0.###", CultureInfo.InvariantCulture) + suffix : "—";
@@ -746,6 +783,7 @@ namespace ProGlassAutomation.ViewModels.Production
                 W2Label = FmtInt(unit.W2),
                 H2Label = FmtInt(unit.H2),
                 QtyLabel = FmtInt(unit.Qty),
+                SizeRuleLabel = BuildSizeRule(unit),
                 Sqm1Label = FmtDec(unit.UnitSqm1, ""),
                 TotalSqm1Label = FmtDec(unit.TotalSqm1, ""),
                 Lm1Label = FmtDec(unit.Lm1, ""),
@@ -787,6 +825,22 @@ namespace ProGlassAutomation.ViewModels.Production
             if (row.W2Label != "—") sizes.Add($"W2 {row.W2Label} × H2 {row.H2Label}");
             SelectedSizeSummary = sizes.Count == 0 ? "—"
                 : string.Join("  ·  ", sizes) + $"  ·  Qty {row.QtyLabel}";
+
+            // Step 4/5 size rule — overlap glass vs equal-size unit.
+            SelectedSizeRuleLabel = row.SizeRuleLabel;
+
+            // Step 4 composition intelligence: pane treatments.
+            var treatments = row.FlowItems
+                .Select(fi => fi.Item.Treatment)
+                .Where(t => !string.IsNullOrWhiteSpace(t))
+                .Distinct()
+                .ToList();
+            SelectedTreatmentsLabel = treatments.Count == 0 ? "—"
+                : string.Join(" · ", treatments);
+
+            SelectedArrivalLabel = first?.CreatedAt == null || first.CreatedAt == default
+                ? "—"
+                : first.CreatedAt.ToString("dd MMM yyyy HH:mm", CultureInfo.InvariantCulture);
 
             SelectedStageItems.Clear();
             foreach (var flowItem in row.FlowItems)
@@ -878,6 +932,9 @@ namespace ProGlassAutomation.ViewModels.Production
             SelectedSpecLabel = "";
             SelectedRef = "";
             SelectedSizeSummary = "";
+            SelectedSizeRuleLabel = "";
+            SelectedTreatmentsLabel = "";
+            SelectedArrivalLabel = "";
             SelectedStageItems.Clear();
             SelectedPcsSummary = "—";
             SelectedSqmSummary = "—";
