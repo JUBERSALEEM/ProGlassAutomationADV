@@ -196,6 +196,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         public ICommand ClearFiltersCommand { get; private set; }
         public ICommand LoadInvoiceCommand { get; private set; }
         public ICommand DuplicateInvoiceCommand { get; private set; }
+        public ICommand CreateRevisionCommand { get; private set; }
         public ICommand DeleteInvoiceCommand { get; private set; }
         public ICommand ChangeStatusCommand { get; private set; }
         public ICommand ExportPdfFromListCommand { get; private set; }
@@ -257,6 +258,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
             DuplicateInvoiceCommand = new RelayCommand(
                 async p => await DuplicateAsync(p as SavedInvoiceListItem));
+            CreateRevisionCommand = new RelayCommand(
+                async p => await CreateRevisionAsync(p as SavedInvoiceListItem));
             DeleteInvoiceCommand = new RelayCommand(
                 async p => await DeleteAsync(p as SavedInvoiceListItem));
 
@@ -660,6 +663,90 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         }
 
         // ── Actions ───────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// 2026-09-11 PI REVISION SUPPORT: a posted PI's body is frozen by
+        /// DocumentLifecyclePolicy (the Save command refuses to rewrite
+        /// Approved/Cancelled bodies — "corrected by a new revision"). This
+        /// action IS that revision: it clones the committed document into a
+        /// NEW Draft row sharing the original's RootProformaId
+        /// ("PI-0001-R1"), leaving the original byte-identical for audit.
+        /// The revision opens in the wizard immediately (Draft bodies are
+        /// editable) and re-enters the normal save → send → approve flow.
+        /// </summary>
+        private async Task CreateRevisionAsync(SavedInvoiceListItem? item)
+        {
+            if (item == null) return;
+            if (!PermissionService.Require(
+                    AppPermissions.ProformaCreate, "create a proforma revision"))
+                return;
+
+            try
+            {
+                var source = await _invoices.GetByIdAsync(item.Id);
+                if (source == null) return;
+
+                // Policy gates: drafts are already editable; voided /
+                // cancelled documents are terminal history.
+                string status = ProformaInvoiceStatus.Normalize(source.Status);
+                if (status == ProformaInvoiceStatus.Draft)
+                    return;
+                if (source.IsVoid || status == ProformaInvoiceStatus.Cancelled)
+                    return;
+
+                string root = string.IsNullOrWhiteSpace(source.RootProformaId)
+                    ? source.ProformaId
+                    : source.RootProformaId;
+                var chain = await _invoices.GetRevisionChainAsync(root);
+                int nextRev = chain.Count == 0
+                    ? 1
+                    : chain.Max(x => x.RevisionNumber) + 1;
+
+                var revision = new SavedProformaInvoice
+                {
+                    ProformaId = $"{root}-R{nextRev}",
+                    RootProformaId = root,
+                    RevisionNumber = nextRev,
+                    InquiryId = source.InquiryId,
+                    CompanyName = source.CompanyName,
+                    CustomerName = source.CustomerName,
+                    ProjectName = source.ProjectName,
+                    Status = ProformaInvoiceStatus.Draft,
+                    IssueDate = source.IssueDate,
+                    ValidUntil = source.ValidUntil,
+                    GlassMaterialsSubtotal = source.GlassMaterialsSubtotal,
+                    OtherChargesSubtotal = source.OtherChargesSubtotal,
+                    DiscountAmount = source.DiscountAmount,
+                    VatAmount = source.VatAmount,
+                    GrandTotalVatInclusive = source.GrandTotalVatInclusive,
+                    FullSnapshotJson = source.FullSnapshotJson,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    RowVersion = 0
+                };
+
+                // Uniqueness guard (pathological collisions only).
+                int guard = 0;
+                while (await _invoices.ExistsByProformaIdAsync(revision.ProformaId)
+                       && guard++ < 5)
+                    revision.ProformaId = $"{root}-R{nextRev}-{guard}";
+
+                int newId = await _invoices.InsertAsync(revision);
+                AuditService.Log(
+                    AuditSections.Proforma, "PI revision created",
+                    $"{revision.ProformaId} (rev {nextRev} of {root})");
+
+                // Refresh the list, then open the revision in the wizard —
+                // a Draft body is editable, which is the entire point.
+                await LoadInvoicesAsync();
+                OnInvoiceLoadRequested?.Invoke(newId);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"[SavedInvoicesList] revision failed: {ExceptionMessages.Deep(ex)}");
+            }
+        }
 
         private void RequestLoad(SavedInvoiceListItem item)
         {

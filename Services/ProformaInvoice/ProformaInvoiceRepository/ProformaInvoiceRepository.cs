@@ -83,6 +83,23 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 .AnyAsync(x => x.ProformaId == proformaId).ConfigureAwait(false);
         }
 
+        /// <summary>Revision chain of one PI: the original (ProformaId ==
+        /// root, usually RevisionNumber 0) plus every "-R{n}" revision.
+        /// Legacy originals have a blank RootProformaId — the root id itself
+        /// is matched so they still resolve. 2026-09-11.</summary>
+        public async Task<List<SavedProformaInvoice>> GetRevisionChainAsync(
+            string rootProformaId)
+        {
+            var root = (rootProformaId ?? "").Trim();
+            if (root.Length == 0) return new List<SavedProformaInvoice>();
+
+            using var db = new ProformaInvoicesDbContext();
+            return await db.ProformaInvoices
+                .Where(x => x.RootProformaId == root || x.ProformaId == root)
+                .OrderBy(x => x.RevisionNumber).ThenBy(x => x.Id)
+                .ToListAsync().ConfigureAwait(false);
+        }
+
         /// <summary>
         /// Suggests the next available ProformaId by auto-incrementing the trailing number.
         ///

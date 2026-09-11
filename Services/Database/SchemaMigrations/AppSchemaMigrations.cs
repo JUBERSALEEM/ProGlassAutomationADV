@@ -232,7 +232,18 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
 
                 // ERP hardening (Phase 5): optimistic-concurrency counter.
                 new(1003, "Proforma Invoice: RowVersion concurrency counter", connection =>
-                    AddRowVersionColumn(connection, "ProformaInvoices"))
+                    AddRowVersionColumn(connection, "ProformaInvoices")),
+
+                // PI REVISIONS (2026-09-11): linked-draft revision chain.
+                // The original document is never rewritten; each revision is
+                // a new row sharing the original's RootProformaId.
+                new(1004, "Proforma Invoice: revision chain columns", connection =>
+                {
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProformaInvoices", "RootProformaId", "TEXT NULL");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProformaInvoices", "RevisionNumber", "INTEGER NULL");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProformaInvoices_RootProformaId ON ProformaInvoices(RootProformaId);");
+                })
             };
 
         // specifications.db

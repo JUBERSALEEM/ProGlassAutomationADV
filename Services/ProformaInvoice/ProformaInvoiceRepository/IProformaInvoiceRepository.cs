@@ -53,6 +53,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         /// </summary>
         Task<SavedProformaInvoice?> GetByProformaIdAsync(string proformaId);
 
+        /// <summary>All rows of one revision chain (original + revisions),
+        /// ordered by revision number. 2026-09-11 revision support.</summary>
+        Task<List<SavedProformaInvoice>> GetRevisionChainAsync(string rootProformaId);
+
         /// <summary>
         /// Returns all invoices ordered by CreatedAt DESC.
         /// BUG-12: Optional cancellation token for long-running loads.

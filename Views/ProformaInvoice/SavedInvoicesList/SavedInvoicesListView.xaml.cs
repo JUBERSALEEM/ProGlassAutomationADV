@@ -58,6 +58,8 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
                 vm.LoadInvoiceCommand, item, bold: true));
             menu.Items.Add(CreateMenuItem("📋  Duplicate Invoice",
                 vm.DuplicateInvoiceCommand, item));
+            menu.Items.Add(CreateMenuItem("🧬  Create Revision (original preserved)",
+                vm.CreateRevisionCommand, item));
 
             menu.Items.Add(new Separator
             {

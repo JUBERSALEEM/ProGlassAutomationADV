@@ -127,5 +127,15 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         /// SavedTaxInvoice.RowVersion for the full rationale.
         /// </summary>
         public int RowVersion { get; set; }
+
+        // ── REVISION CHAIN (2026-09-11) ────────────────────────────────
+        // A posted PI's body is frozen (DocumentLifecyclePolicy.CanEditBody)
+        // and is corrected by creating a linked DRAFT revision — never by
+        // rewriting the committed document. RevisionNumber 0 = the original;
+        // RootProformaId is the chain key (the original's ProformaId; blank
+        // on legacy originals, treated as their own root).
+        public string RootProformaId { get; set; } = "";
+
+        public int RevisionNumber { get; set; }
     }
 }
