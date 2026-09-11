@@ -54,6 +54,7 @@ namespace ProGlassAutomation.Services.Theme
             (VisualThemeEngine.CrystalFluid,
                 VisualThemeEngine.FamilyDisplayName(
                     VisualThemeEngine.CrystalFluid)),
+            (VisualThemeEngine.Ios26, "Aurora"),
         };
 
         /// <summary>Draws the scene for a family. Unknown/empty family →

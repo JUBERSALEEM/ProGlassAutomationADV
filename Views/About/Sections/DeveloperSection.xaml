@@ -60,7 +60,7 @@
                     <Border Grid.Column="0"
                             Style="{StaticResource AboutSectionPanelStyle}"
                             Margin="0,0,0,0"
-                            Padding="24,22">
+                            Padding="16,14">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <Border Width="84"
@@ -110,7 +110,7 @@
                             </StackPanel>
 
                             <Border Margin="0,20,0,0"
-                                    Padding="18,10"
+                                    Padding="12,8"
                                     HorizontalAlignment="Left"
                                     Cursor="Hand"
                                     Background="{DynamicResource AboutInteractiveBrush}"
@@ -138,7 +138,7 @@
                     <Border Grid.Column="2"
                             Style="{StaticResource AboutSectionPanelStyle}"
                             Margin="0,0,0,0"
-                            Padding="24,22">
+                            Padding="16,14">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource About.ProductFacts}"
                                        Style="{StaticResource AboutPanelKickerStyle}"/>

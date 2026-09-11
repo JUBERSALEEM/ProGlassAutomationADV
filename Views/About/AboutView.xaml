@@ -306,13 +306,6 @@
                                                    Foreground="{DynamicResource LiquidAccent}"
                                                    IsHitTestVisible="False"/>
                                     </Border>
-                                    <Border Style="{StaticResource ChipStyle}" Margin="0,0,6,6">
-                                        <TextBlock Text="{Binding LicenseStatus.EditionDisplay}"
-                                                   FontSize="{StaticResource TextCaption}"
-                                                   FontWeight="Bold"
-                                                   Foreground="{DynamicResource LiquidAccent}"
-                                                   IsHitTestVisible="False"/>
-                                    </Border>
                                     <Border Style="{StaticResource ChipStyle}" Margin="0,0,0,6">
                                         <TextBlock Text="{Binding LicenseStatus.StatusBadge}"
                                                    FontSize="{StaticResource TextCaption}"
@@ -367,6 +360,7 @@
                         CornerRadius="22"
                         Padding="6,5"
                         Margin="0,2,0,20"
+                        Visibility="{DynamicResource AboutGlassChromeVisibility}"
                         SnapsToDevicePixels="True">
                     <ListBox ItemsSource="{Binding Tabs}"
                              SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"

@@ -80,6 +80,8 @@ namespace ProGlassAutomation.ViewModels.Settings
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.NormalIndustrial),
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Monet),
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.CrystalFluid),
+            // iOS 26 (2026-09-10): the Liquid Glass About redesign family.
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Ios26),
         };
 
         public string SelectedVisualTheme

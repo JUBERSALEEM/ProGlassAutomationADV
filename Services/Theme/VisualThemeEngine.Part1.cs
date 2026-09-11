@@ -357,6 +357,10 @@ namespace ProGlassAutomation.Services.Theme
                 resources.Remove("CrystalPreviewHostVisibility");
                 foreach (var ck in CrystalFluidTokenKeys)
                     resources.Remove(ck);
+                // iOS 26 (2026-09-10): same removal contract as Crystal Fluid —
+                // non-iOS26 families always see the theme-dictionary defaults.
+                foreach (var ck in Ios26TokenKeys)
+                    resources.Remove(ck);
                 // PRE-SEED (2026-09-05 — ERR-50472F): ClearOverrides just
                 // opened a window where managed keys are ABSENT. A
                 // template inflating against this dictionary in the same
@@ -381,6 +385,10 @@ namespace ProGlassAutomation.Services.Theme
 
                     case NormalIndustrial:
                         ApplyIndustrial(resources);
+                        break;
+
+                    case Ios26:
+                        ApplyIos26(resources);
                         break;
                 }
 

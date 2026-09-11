@@ -62,7 +62,8 @@
         <Setter Property="BorderBrush"         Value="{DynamicResource AboutGlassSlabStroke}"/>
         <Setter Property="BorderThickness"     Value="1"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
-        <Setter Property="CornerRadius"        Value="20"/>
+        <Setter Property="CornerRadius"        Value="{DynamicResource AboutCardCornerRadius}"/>
+        <Setter Property="Effect"              Value="{DynamicResource AboutCardEffect}"/>
         <Setter Property="Padding"             Value="26,22"/>
         <Setter Property="Margin"              Value="0,0,0,16"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -79,7 +80,8 @@
         <Setter Property="Background" Value="{DynamicResource AboutGlassPanelBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource AboutGlassHairlineStroke}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource AboutPanelCornerRadius}"/>
+        <Setter Property="Effect" Value="{DynamicResource AboutCardEffect}"/>
         <Setter Property="Padding" Value="16,14"/>
         <Setter Property="Margin" Value="0,0,0,14"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -169,7 +171,7 @@
         <Setter Property="Background"        Value="{DynamicResource AboutGlassPanelBrush}"/>
         <Setter Property="BorderBrush"       Value="{DynamicResource AboutGlassSlabStroke}"/>
         <Setter Property="BorderThickness"   Value="1"/>
-        <Setter Property="CornerRadius"      Value="12"/>
+        <Setter Property="CornerRadius"      Value="{DynamicResource AboutPanelCornerRadius}"/>
         <Setter Property="Padding"           Value="12,6"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
@@ -295,7 +297,7 @@
              hover-lift micro-interaction and its named transforms
              (ModuleChipScale / ModuleChipLift) are preserved verbatim. -->
         <Border x:Name="ModuleChipRoot"
-                CornerRadius="20"
+                CornerRadius="{DynamicResource AboutCardCornerRadius}"
                 MinHeight="76"
                 Padding="16,12"
                 Margin="5"
@@ -319,6 +321,7 @@
                      RenderTransform: Children[0] is the ScaleTransform,
                      Children[1] the TranslateTransform declared above. -->
                 <Style TargetType="Border">
+                    <Setter Property="Effect" Value="{DynamicResource AboutCardEffect}"/>
                     <Style.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="BorderBrush" Value="{DynamicResource LiquidAccent}"/>
@@ -418,17 +421,8 @@
                         CornerRadius="10"
                         Padding="8,3"
                         VerticalAlignment="Center"
+                        Visibility="{DynamicResource AboutGlassChromeVisibility}"
                         SnapsToDevicePixels="True">
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="Visibility" Value="Visible"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding StatChip}" Value="">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
                     <TextBlock Text="{Binding StatChip}"
                                FontSize="9"
                                FontWeight="Bold"
@@ -436,11 +430,12 @@
                                IsHitTestVisible="False"/>
                 </Border>
 
-                <!-- rim-light chevron: quiet affordance like the iOS list row -->
+                <!-- iOS-chrome chevron (iOS 26 family only) -->
                 <TextBlock Grid.Column="4" Text="&#xE76C;"
                            FontFamily="Segoe MDL2 Assets"
                            FontSize="{StaticResource TextBody}"
                            Foreground="{DynamicResource AboutGlassCaptionBrush}"
+                           Visibility="{DynamicResource AboutGlassChromeVisibility}"
                            VerticalAlignment="Center"
                            IsHitTestVisible="False"/>
             </Grid>
@@ -448,9 +443,9 @@
     </DataTemplate>
 
     <DataTemplate x:Key="TechItemTemplate">
-        <Border CornerRadius="{DynamicResource Surface.Detail.CornerRadius}"
-                MinHeight="84"
-                Padding="16,14"
+        <Border CornerRadius="{DynamicResource AboutPanelCornerRadius}"
+                MinHeight="64"
+                Padding="14,10"
                 Margin="7"
                 HorizontalAlignment="Stretch"
                 BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"
@@ -487,9 +482,9 @@
     </DataTemplate>
 
     <DataTemplate x:Key="CapabilityCardTemplate">
-        <Border CornerRadius="{DynamicResource Surface.Secondary.CornerRadius}"
-                MinHeight="176"
-                Padding="20,20"
+        <Border CornerRadius="{DynamicResource AboutPanelCornerRadius}"
+                MinHeight="132"
+                Padding="16,14"
                 Margin="8"
                 HorizontalAlignment="Stretch"
                 BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"

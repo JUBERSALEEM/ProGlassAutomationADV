@@ -682,27 +682,20 @@
              Dark adaptation: deep navy aurora mesh + smoked glass slabs.
              Same keys as LightTheme — only the token values swap, which is
              exactly why the About module re-skins instantly. -->
-        <LinearGradientBrush x:Key="AboutWallpaperBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
-            <GradientStop Color="#0B0D13" Offset="0"/>
-            <GradientStop Color="#141322" Offset="0.55"/>
-            <GradientStop Color="#1D1032" Offset="1"/>
-        </LinearGradientBrush>
-        <LinearGradientBrush x:Key="AboutGlassSlabBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-            <GradientStop Color="#33FFFFFF" Offset="0"/>
-            <GradientStop Color="#17FFFFFF" Offset="1"/>
-        </LinearGradientBrush>
-        <LinearGradientBrush x:Key="AboutGlassPanelBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-            <GradientStop Color="#2BFFFFFF" Offset="0"/>
-            <GradientStop Color="#12FFFFFF" Offset="1"/>
-        </LinearGradientBrush>
-        <SolidColorBrush x:Key="AboutGlassSlabStroke" Color="#3DF2F6FF" po:Freeze="True"/>
-        <SolidColorBrush x:Key="AboutGlassHairlineStroke" Color="#24F2F6FF" po:Freeze="True"/>
-        <LinearGradientBrush x:Key="AboutGlassCapsuleBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-            <GradientStop Color="#38FFFFFF" Offset="0"/>
-            <GradientStop Color="#1FFFFFFF" Offset="1"/>
-        </LinearGradientBrush>
-        <SolidColorBrush x:Key="AboutGlassCaptionBrush" Color="#AEB7C4" po:Freeze="True"/>
-        <SolidColorBrush x:Key="AboutGlassGlowBrush" Color="#1AFFFFFF" po:Freeze="True"/>
+        <SolidColorBrush x:Key="AboutWallpaperBrush" Color="Transparent" po:Freeze="True"/>
+        <!-- NORMAL (non-iOS26) defaults: exact aliases of the classic Surface
+             tokens — the pre-redesign look. The iOS 26 family overrides these
+             keys at runtime (VisualThemeEngine.ApplyIos26). -->
+        <StaticResource x:Key="AboutGlassSlabBrush" ResourceKey="Surface.Primary.BackgroundBrush"/>
+        <StaticResource x:Key="AboutGlassPanelBrush" ResourceKey="Surface.Secondary.BackgroundBrush"/>
+        <StaticResource x:Key="AboutGlassSlabStroke" ResourceKey="Surface.Primary.BorderBrush"/>
+        <StaticResource x:Key="AboutGlassHairlineStroke" ResourceKey="Surface.Secondary.BorderBrush"/>
+        <StaticResource x:Key="AboutGlassCapsuleBrush" ResourceKey="Surface.Secondary.BackgroundBrush"/>
+        <StaticResource x:Key="AboutGlassCaptionBrush" ResourceKey="MutedForegroundBrush"/>
+        <SolidColorBrush x:Key="AboutGlassGlowBrush" Color="Transparent" po:Freeze="True"/>
+        <StaticResource x:Key="AboutCardCornerRadius" ResourceKey="Surface.Primary.CornerRadius"/>
+        <StaticResource x:Key="AboutPanelCornerRadius" ResourceKey="Surface.Secondary.CornerRadius"/>
+        <Visibility x:Key="AboutGlassChromeVisibility">Collapsed</Visibility>
         <!-- ═══ ABOUT · iOS-26 LIQUID GLASS STAGE (2026-09-10) ═══
              Module icon gradients: VIVID IN BOTH THEMES (the iOS dark-mode
              trick — dark changes surfaces, icons stay bright). -->
