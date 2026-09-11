@@ -86,7 +86,10 @@ namespace ProGlassAutomation.Services.Theme
         // ── APPLY ─────────────────────────────────────────────────────
         private static void ApplyIos26(ResourceDictionary resources)
         {
-            bool dark = ProGlassAutomation.Services.Theme.ThemeManager
+            // Unqualified on purpose: ThemeManager lives in
+            // ProGlassAutomation.Services (NOT .Services.Theme) — the
+            // namespace walk-up resolves it, same as Part1/Part3.
+            bool dark = ThemeManager
                 .CurrentTheme.ToString().Contains("Dark");
 
             // Gates FIRST (indexer set → live DynamicResource re-evaluation).
