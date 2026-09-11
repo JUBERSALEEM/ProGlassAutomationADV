@@ -181,3 +181,91 @@ Edge Deletion: queue for coated-glass edge deletion (future automation).
   and Statement drill-downs.
 - Unit status aggregation: all items completed → COMPLETED; any in progress →
   IN PROGRESS; else PENDING. Filters apply to the aggregate.
+
+## 5. Appendix — one job, all eight modules (screen by screen)
+
+**Job:** JOB-2026-0031 · PI-2026-0148 · AL NOOR TOWER · Emaar Interiors ·
+salesman **Ravi Kumar** (Released).
+
+| Spec | Build | Composition | Rows |
+|---|---|---|---|
+| Spec 1 | SGU | 6mm Clear FT Glass | G-101 1200×900 ×24 · G-102 800×600 ×12 |
+| Spec 2 | DGU | 6mm Clear FT + 12A Argon + 6mm Clear Annealed | G-201 1500×1100 ×10 |
+| Spec 3 | LAM | 8mm Clear FT + 1.52 Clear PVB + 8mm Clear FT | G-301 2000×1000 ×4 |
+
+**Step 6 charges:** FAN_HOLES ×8 (Spec 1) · POLISH All-Sided (Specs 1–3) ·
+MITRING (Spec 3) · ARGON (Spec 2).
+
+**Snapshot moment:** all cutting finished · G-101 tempered, G-102 tempering,
+G-201 outer tempered · Spec 1 holes done · Spec 1 polish in progress.
+
+Chain bar at this moment:
+`① Cutting 4/4 · ② Holes 1/1 · ③ Polish 1 open · ④ EdgeDel 0/0 · ⑤ Mitring 1 open · ⑥ Tempering 2 open · ⑦ Pairing 1 open · ⑧ Double/Lam 0 open`
+
+### ① Cutting — Stage 1 of 8 (entry point)
+Actionable **4 rows · 0 waiting** — every pane enters here.
+
+| St | Sr | Ref | Build | W1×H1 | W2×H2 | Qty | SQM1 | TOT1 | LM1 | SQM2 | TOT2 | LM2 | Prog |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| ✓ | 1 | G-101 | SGU | 1200×900 | — | 24 | 1.08 | 25.92 | 100.8 | — | — | — | 1/1 |
+| ✓ | 2 | G-102 | SGU | 800×600 | — | 12 | 0.48 | 5.76 | 33.6 | — | — | — | 1/1 |
+| ✓ | 1 | G-201 | DGU | 1500×1100 | 1500×1100 | 10 | 1.65 | 16.50 | 52.0 | 1.65 | 16.50 | 52.0 | 2/2 |
+| ✓ | 1 | G-301 | LAM | 2000×1000 | 2000×1000 | 4 | 2.00 | 8.00 | 24.0 | 2.00 | 8.00 | 24.0 | 2/2 |
+
+### ② Holes & Cutouts — Stage 2 (released: Spec 1 cutting done)
+Actionable **1 batch row**.
+
+| St | Spec | Ref | Charge | Metric | Prog |
+|---|---|---|---|---|---|
+| ✓ | Spec 1 · 6mm Clear FT | (whole spec) | FAN HOLES | 8 QTY | COMPLETED |
+
+### ③ Polish — Stage 3 (released: each spec's cutting done)
+Actionable **3 batch rows**.
+
+| St | Spec | Charge | Metric | Prog |
+|---|---|---|---|---|
+| ◐ | Spec 1 · 6mm Clear FT | POLISH · ALL SIDED | 134.4 LM | IN PROGRESS |
+| ● | Spec 2 · DGU 6+12A+6 | POLISH · ALL SIDED | 104.0 LM | PENDING |
+| ● | Spec 3 · LAM 8+PVB+8 | POLISH · ALL SIDED | 48.0 LM | PENDING |
+
+### ④ Edge Deletion — Stage 4
+**Empty.** No Step-6 charge feeds it yet — reserved queue for coated-glass
+edge deletion (future automation). The screen shows the empty state.
+
+### ⑤ Mitring — Stage 5 (released: Spec 3 cutting done)
+Actionable **1 batch row**.
+
+| St | Spec | Charge | Metric | Prog |
+|---|---|---|---|---|
+| ● | Spec 3 · LAM 8+PVB+8 | MITRING | 24.0 LM | PENDING |
+
+### ⑥ Tempering — Stage 6 (released per pane as cutting completes)
+Actionable **4 rows** (only furnace-eligible panes — G-201's annealed inner
+never appears here).
+
+| St | Sr | Ref | Pane | W×H | Qty | Treatment | Prog |
+|---|---|---|---|---|---|---|---|
+| ✓ | 1 | G-101 | Glass | 1200×900 | 24 | FT CYCLE | COMPLETED |
+| ◐ | 2 | G-102 | Glass | 800×600 | 12 | FT CYCLE | IN PROGRESS |
+| ✓ | 1 | G-201 | Outer | 1500×1100 | 10 | FT CYCLE | COMPLETED |
+| ● | 1 | G-301 | Lam Outer + Lam Inner | 2000×1000 | 4 | FT CYCLE | PENDING |
+
+### ⑦ Pairing — Stage 7
+Actionable **1 row · 1 waiting**. G-201 is released (both panes cut, FT outer
+tempered, inner annealed); G-301 waits for its laminate tempering.
+
+| St | Sr | Ref | Build | Envelope | Qty | Prog |
+|---|---|---|---|---|---|---|
+| ● | 1 | G-201 | DGU | 1500×1100 ×2 panes | 10 | 0/1 |
+
+> ⏳ waiting upstream: `G-301 (LAM) — Waiting on Tempering`
+
+### ⑧ Doubling / Lamination — Stage 8
+Actionable **0 rows · 2 waiting** — assembly starts only after pairing.
+
+> ⏳ waiting upstream: `G-201 (DGU) — Waiting on Pairing` · `G-301 (LAM) — Waiting on Pairing`
+
+When G-201's pairing completes, its row appears here with the assembly note
+`DGU ASSEMBLY · SPACER 12MM · ARGON GAS FILL`; G-301 will carry
+`LAMINATION · PVB 1.52MM CLEAR`. Completing assembly moves both units into
+**Ready for dispatch**.
