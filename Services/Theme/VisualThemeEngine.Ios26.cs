@@ -8,31 +8,33 @@
 //
 // Two override layers, published ONLY while iOS 26 is the active family
 // (removed on every switch-away — see Part1 removal contract):
-//   1. GLOBAL layer  — the shared token surface every module already
-//      consumes dynamically: window/module/side-menu surfaces, Apple ink
-//      text colors, hairline outlines, the Radius.*/Card*/Control radius
-//      scale, the GLOBAL effect tokens (Shadow*, Dash*, GlassShadow*),
-//      the Liquid*/Shell frost vocabulary, dialog/popup surfaces and the
-//      Motion* KeySplines (Apple curves). Views re-skin on the switch
-//      with zero per-view edits — the owner's "everything dynamic" bet.
+//   1. GLOBAL layer  — the shared token surface every module consumes
+//      dynamically: surfaces, Apple ink text colors, hairlines, the
+//      radius scale, the GLOBAL effect tokens, the Liquid/Shell frost
+//      vocabulary and the Motion* KeySplines.
 //   2. ABOUT layer   — the About redesign specifics (wallpaper, slabs,
-//      chrome gate, card shadow) from the 2026-09-10 milestone.
+//      chrome gate, card shadow).
+//
+// ⚠ CCTPURITY CONTRACT (ERR-760BA3, 2026-09-11): the type initializer of
+//   VisualThemeEngine runs the moment ANY engine member is touched during
+//   startup. This file therefore builds NO WPF objects at type-init time:
+//   Ios26TokenKeys is a pure string-array merge; ALL brush construction
+//   (tables, wallpaper fallback) happens lazily — the tables only inside
+//   ApplyIos26 (apply-time, WPF fully alive), the neutral wallpaper via
+//   a lazy property. Violating this once killed the app at boot.
 //
 // PERF GUARD: every global effect is BlurRadius ≤ 14 at Depth ≤ 3
-// (the 2026-08-25 freeze was r28 across 20 About cards). If any machine
-// stutters, dial Opacity/BlurRadius here — one file.
+// (the 2026-08-25 freeze was r28 across 20 About cards).
 //
 // NORMAL RESTORE: SeedNeutralAboutTokens copies the CURRENT Surface.*
-// values into the About glass keys on every non-iOS26 apply — live
-// aliases, so Normal tracks the user's surface material/opacity at all
-// times. No static literals, no cross-file StaticResource (App.xaml
-// merges theme dicts BEFORE DesignTokens.xaml — forward references
-// would crash at load; fixed 2026-09-11 after shipping that bomb in
-// c219dc7).
+// values into the About glass keys on every non-iOS26 apply (Part1,
+// BEFORE the family switch — no absence window). No literals, no
+// cross-file StaticResource (theme dicts merge before DesignTokens).
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 
@@ -43,12 +45,15 @@ namespace ProGlassAutomation.Services.Theme
         /// <summary>iOS 26 Liquid Glass — the full-application family.</summary>
         public const string Ios26 = "iOS 26";
 
-        /// <summary>Switch-away fallback for the About stage wallpaper
-        /// (frozen, shared). Explicit indexer SET — Remove() does not
-        /// reliably notify live DynamicResource consumers.</summary>
-        internal static readonly SolidColorBrush Ios26NeutralWallpaper = CreateNeutralWallpaper();
+        /// <summary>Switch-away fallback for the About stage wallpaper.
+        /// LAZY (see CCTPURITY): first touch happens during a family
+        /// switch, never during type initialization.</summary>
+        internal static SolidColorBrush Ios26NeutralWallpaper =>
+            _ios26NeutralWallpaper ??= CreateIos26NeutralWallpaper();
 
-        private static SolidColorBrush CreateNeutralWallpaper()
+        private static SolidColorBrush? _ios26NeutralWallpaper;
+
+        private static SolidColorBrush CreateIos26NeutralWallpaper()
         {
             var b = new SolidColorBrush(Colors.Transparent);
             b.Freeze();
@@ -66,29 +71,44 @@ namespace ProGlassAutomation.Services.Theme
             "AboutCardEffect",
         };
 
+        /// <summary>Key names of the global override tables. PURE STRINGS —
+        /// deliberately NOT derived by calling the table builders (they
+        /// construct WPF brushes; the cctor must stay WPF-free, CCTPURITY).
+        /// The static battery asserts this list stays in sync with the
+        /// tables.</summary>
+        private static readonly string[] Ios26GlobalKeyNames =
+        {
+            "AppBackgroundBrush", "WindowBackgroundBrush", "ModuleBackgroundBrush",
+            "SideMenuBackgroundBrush", "ElevatedSurfaceBrush", "PopupSurfaceBrush",
+            "DialogSurfaceBrush", "DialogInsetBrush", "SidebarCardBrush",
+            "PrimaryForegroundBrush", "SecondaryForegroundBrush",
+            "MutedForegroundBrush", "TextPrimaryBrush", "TextSecondaryBrush",
+            "DividerBrush", "OutlineBrush", "OutlineDefaultBrush",
+            "OutlineStrongBrush", "CardCornerRadius", "CardCornerRadiusLarge",
+            "ControlCornerRadius", "Radius.Small", "Radius.Medium",
+            "Radius.Large", "Radius.Hero", "ShadowSoft", "ShadowElevated",
+            "ShadowDeep", "DashCardShadowEffect", "DashSubtleShadowEffect",
+            "DashInteractiveShadowEffect", "GlassShadowPanel", "GlassShadowSoft",
+            "GlassShadowSoftButton", "GlassShadowSoftCheckBox",
+            "GlassShadowSoftTextBox", "GlassShadowSoftToggle",
+            "GlassShadowActive", "GlassShadowActiveButton", "LiquidGlassBrush",
+            "LiquidGlassFrostedBrush", "LiquidCard", "LiquidOverlayBrush",
+            "ShellLiquidBrush", "ShellLiquidBorderBrush", "ShellSheenBrush",
+            "MotionEaseOutKeySpline", "MotionSpringKeySpline",
+        };
+
         /// <summary>Every key the iOS 26 family publishes (About + global).
         /// Part1 iterates this on switch-away; chrome/wallpaper get explicit
         /// fallback SETS (indexer raises ResourcesChanged — Remove() did not
         /// reliably notify, the CrystalWaterDefaultEnabled lesson).</summary>
         internal static readonly string[] Ios26TokenKeys =
-            BuildIos26TokenKeys();
+            Ios26AboutKeys.Concat(Ios26GlobalKeyNames).Distinct().ToArray();
 
-        private static string[] BuildIos26TokenKeys()
-        {
-            var keys = new List<string>(Ios26AboutKeys);
-            foreach (var d in new[] { Ios26GlobalLight(), Ios26GlobalDark() })
-                foreach (var k in d.Keys)
-                    if (!keys.Contains(k))
-                        keys.Add(k);
-            return keys.ToArray();
-        }
-
-        // ── APPLY ─────────────────────────────────────────────────────
+        // ── APPLY (apply-time only — never the cctor) ─────────────────
         private static void ApplyIos26(ResourceDictionary resources)
         {
             // Unqualified on purpose: ThemeManager lives in
-            // ProGlassAutomation.Services (NOT .Services.Theme) — the
-            // namespace walk-up resolves it, same as Part1/Part3.
+            // ProGlassAutomation.Services (NOT .Services.Theme).
             bool dark = ThemeManager
                 .CurrentTheme.ToString().Contains("Dark");
 
@@ -110,7 +130,7 @@ namespace ProGlassAutomation.Services.Theme
             resources["AboutGlassGlowBrush"] = Ios26Sol(dark, "#66FFFFFF", "#1AFFFFFF");
             resources["AboutCardCornerRadius"] = new CornerRadius(20);
             resources["AboutPanelCornerRadius"] = new CornerRadius(16);
-            resources["AboutCardEffect"] = Ios26Shadow(dark, 12, 3, 0.18, 0.45);
+            resources["AboutCardEffect"] = Ios26Shadow(dark, 12, 3, 0.18);
 
             // ── GLOBAL layer ──────────────────────────────────────────
             var tokens = dark ? Ios26GlobalDark() : Ios26GlobalLight();
@@ -118,20 +138,20 @@ namespace ProGlassAutomation.Services.Theme
                 resources[kv.Key] = kv.Value;
         }
 
-        // ── GLOBAL TOKEN TABLE ────────────────────────────────────────
+        // ── GLOBAL TOKEN TABLES (apply-time only) ─────────────────────
         private static Dictionary<string, object> Ios26GlobalLight() =>
             new()
             {
                 // Window + module + chrome surfaces (macOS light gray)
                 ["AppBackgroundBrush"]      = Ios26Sol(false, "#F5F5F7", null),
-                ["WindowBackgroundBrush"]   = Ios26Lin(false, "#F7F8FB", "#EFF1F6", null, null, null, null),
+                ["WindowBackgroundBrush"]   = Ios26Lin2("#F7F8FB", "#EFF1F6", null),
                 ["ModuleBackgroundBrush"]   = Ios26Sol(false, "#F6F7FA", null),
                 ["SideMenuBackgroundBrush"] = Ios26Sol(false, "#F0F1F5", null),
                 ["ElevatedSurfaceBrush"]    = Ios26Sol(false, "#FFFFFF", null),
                 ["PopupSurfaceBrush"]       = Ios26Sol(false, "#FFFFFF", null),
                 ["DialogSurfaceBrush"]      = Ios26Sol(false, "#FFFFFF", null),
                 ["DialogInsetBrush"]        = Ios26Sol(false, "#E9E9EE", null),
-                ["SidebarCardBrush"]        = Ios26Lin(false, "#D8FFFFFF", "#C0FFFFFF", null, null, null, null),
+                ["SidebarCardBrush"]        = Ios26Lin2("#D8FFFFFF", "#C0FFFFFF", null),
 
                 // Apple ink typography
                 ["PrimaryForegroundBrush"]   = Ios26Sol(false, "#1D1D1F", null),
@@ -147,56 +167,56 @@ namespace ProGlassAutomation.Services.Theme
                 ["OutlineStrongBrush"]    = Ios26Sol(false, "#24000000", null),
 
                 // Radius scale — iOS continuous-corner language
-                ["CardCornerRadius"]     = new CornerRadius(14),
+                ["CardCornerRadius"]      = new CornerRadius(14),
                 ["CardCornerRadiusLarge"] = new CornerRadius(20),
-                ["ControlCornerRadius"]  = new CornerRadius(10),
-                ["Radius.Small"]         = new CornerRadius(8),
-                ["Radius.Medium"]        = new CornerRadius(12),
-                ["Radius.Large"]         = new CornerRadius(16),
-                ["Radius.Hero"]          = new CornerRadius(22),
+                ["ControlCornerRadius"]   = new CornerRadius(10),
+                ["Radius.Small"]          = new CornerRadius(8),
+                ["Radius.Medium"]         = new CornerRadius(12),
+                ["Radius.Large"]          = new CornerRadius(16),
+                ["Radius.Hero"]           = new CornerRadius(22),
 
                 // GLOBAL shadows — small, soft, cheap (perf guard)
-                ["ShadowSoft"]                  = Ios26Shadow(false, 10, 2, 0.10, 0.0),
-                ["ShadowElevated"]              = Ios26Shadow(false, 14, 3, 0.14, 0.0),
-                ["ShadowDeep"]                  = Ios26Shadow(false, 14, 4, 0.18, 0.0),
-                ["DashCardShadowEffect"]        = Ios26Shadow(false, 10, 2, 0.10, 0.0),
-                ["DashSubtleShadowEffect"]      = Ios26Shadow(false, 8, 1, 0.08, 0.0),
-                ["DashInteractiveShadowEffect"] = Ios26Shadow(false, 12, 3, 0.16, 0.0),
-                ["GlassShadowPanel"]            = Ios26Shadow(false, 10, 2, 0.10, 0.0),
-                ["GlassShadowSoft"]             = Ios26Shadow(false, 8, 1, 0.08, 0.0),
-                ["GlassShadowSoftButton"]       = Ios26Shadow(false, 8, 1, 0.08, 0.0),
-                ["GlassShadowSoftCheckBox"]     = Ios26Shadow(false, 8, 1, 0.08, 0.0),
-                ["GlassShadowSoftTextBox"]      = Ios26Shadow(false, 8, 1, 0.08, 0.0),
-                ["GlassShadowSoftToggle"]       = Ios26Shadow(false, 8, 1, 0.08, 0.0),
-                ["GlassShadowActive"]           = Ios26Shadow(false, 12, 2, 0.16, 0.0),
-                ["GlassShadowActiveButton"]     = Ios26Shadow(false, 12, 2, 0.16, 0.0),
+                ["ShadowSoft"]                  = Ios26Shadow(false, 10, 2, 0.10),
+                ["ShadowElevated"]              = Ios26Shadow(false, 14, 3, 0.14),
+                ["ShadowDeep"]                  = Ios26Shadow(false, 14, 4, 0.18),
+                ["DashCardShadowEffect"]        = Ios26Shadow(false, 10, 2, 0.10),
+                ["DashSubtleShadowEffect"]      = Ios26Shadow(false, 8, 1, 0.08),
+                ["DashInteractiveShadowEffect"] = Ios26Shadow(false, 12, 3, 0.16),
+                ["GlassShadowPanel"]            = Ios26Shadow(false, 10, 2, 0.10),
+                ["GlassShadowSoft"]             = Ios26Shadow(false, 8, 1, 0.08),
+                ["GlassShadowSoftButton"]       = Ios26Shadow(false, 8, 1, 0.08),
+                ["GlassShadowSoftCheckBox"]     = Ios26Shadow(false, 8, 1, 0.08),
+                ["GlassShadowSoftTextBox"]      = Ios26Shadow(false, 8, 1, 0.08),
+                ["GlassShadowSoftToggle"]       = Ios26Shadow(false, 8, 1, 0.08),
+                ["GlassShadowActive"]           = Ios26Shadow(false, 12, 2, 0.16),
+                ["GlassShadowActiveButton"]     = Ios26Shadow(false, 12, 2, 0.16),
 
                 // Liquid/Shell frost vocabulary
-                ["LiquidGlassBrush"]       = Ios26Lin(false, "#E6FFFFFF", "#B8FFFFFF", null, null, null, null),
-                ["LiquidGlassFrostedBrush"] = Ios26Lin(false, "#F2FFFFFF", "#D8FFFFFF", null, null, null, null),
-                ["LiquidCard"]             = Ios26Lin(false, "#F8FFFFFF", "#E8FFFFFF", null, null, null, null),
-                ["LiquidOverlayBrush"]     = Ios26Sol(false, "#14000000", null),
-                ["ShellLiquidBrush"]       = Ios26Lin(false, "#EAFFFFFF", "#CCFFFFFF", null, null, null, null),
-                ["ShellLiquidBorderBrush"] = Ios26Sol(false, "#26FFFFFF", null),
-                ["ShellSheenBrush"]        = Ios26Lin(false, "#80FFFFFF", "#00FFFFFF", null, null, null, null),
+                ["LiquidGlassBrush"]        = Ios26Lin2("#E6FFFFFF", "#B8FFFFFF", null),
+                ["LiquidGlassFrostedBrush"] = Ios26Lin2("#F2FFFFFF", "#D8FFFFFF", null),
+                ["LiquidCard"]              = Ios26Lin2("#F8FFFFFF", "#E8FFFFFF", null),
+                ["LiquidOverlayBrush"]      = Ios26Sol(false, "#14000000", null),
+                ["ShellLiquidBrush"]        = Ios26Lin2("#EAFFFFFF", "#CCFFFFFF", null),
+                ["ShellLiquidBorderBrush"]  = Ios26Sol(false, "#26FFFFFF", null),
+                ["ShellSheenBrush"]         = Ios26Lin2("#80FFFFFF", "#00FFFFFF", null),
 
                 // Apple motion curves (strings — theme dicts publish sys:String)
-                ["MotionEaseOutKeySpline"]  = "0.16,1.0 0.3,1.0",
-                ["MotionSpringKeySpline"]   = "0.3,1.2 0.4,1.0",
+                ["MotionEaseOutKeySpline"] = "0.16,1.0 0.3,1.0",
+                ["MotionSpringKeySpline"]  = "0.3,1.2 0.4,1.0",
             };
 
         private static Dictionary<string, object> Ios26GlobalDark() =>
             new()
             {
                 ["AppBackgroundBrush"]      = Ios26Sol(true, "#16171C", null),
-                ["WindowBackgroundBrush"]   = Ios26Lin(true, "#17181D", "#101116", null, null, null, null),
+                ["WindowBackgroundBrush"]   = Ios26Lin2("#17181D", "#101116", null),
                 ["ModuleBackgroundBrush"]   = Ios26Sol(true, "#1B1C22", null),
                 ["SideMenuBackgroundBrush"] = Ios26Sol(true, "#131418", null),
                 ["ElevatedSurfaceBrush"]    = Ios26Sol(true, "#232429", null),
                 ["PopupSurfaceBrush"]       = Ios26Sol(true, "#26272E", null),
                 ["DialogSurfaceBrush"]      = Ios26Sol(true, "#26272E", null),
                 ["DialogInsetBrush"]        = Ios26Sol(true, "#1E1F25", null),
-                ["SidebarCardBrush"]        = Ios26Lin(true, "#26FFFFFF", "#12FFFFFF", null, null, null, null),
+                ["SidebarCardBrush"]        = Ios26Lin2("#26FFFFFF", "#12FFFFFF", null),
 
                 ["PrimaryForegroundBrush"]   = Ios26Sol(true, "#F5F5F7", null),
                 ["SecondaryForegroundBrush"] = Ios26Sol(true, "#C7C7CC", null),
@@ -217,38 +237,38 @@ namespace ProGlassAutomation.Services.Theme
                 ["Radius.Large"]          = new CornerRadius(16),
                 ["Radius.Hero"]           = new CornerRadius(22),
 
-                ["ShadowSoft"]                  = Ios26Shadow(true, 10, 2, 0.30, 0.0),
-                ["ShadowElevated"]              = Ios26Shadow(true, 14, 3, 0.36, 0.0),
-                ["ShadowDeep"]                  = Ios26Shadow(true, 14, 4, 0.42, 0.0),
-                ["DashCardShadowEffect"]        = Ios26Shadow(true, 10, 2, 0.30, 0.0),
-                ["DashSubtleShadowEffect"]      = Ios26Shadow(true, 8, 1, 0.24, 0.0),
-                ["DashInteractiveShadowEffect"] = Ios26Shadow(true, 12, 3, 0.34, 0.0),
-                ["GlassShadowPanel"]            = Ios26Shadow(true, 10, 2, 0.30, 0.0),
-                ["GlassShadowSoft"]             = Ios26Shadow(true, 8, 1, 0.24, 0.0),
-                ["GlassShadowSoftButton"]       = Ios26Shadow(true, 8, 1, 0.24, 0.0),
-                ["GlassShadowSoftCheckBox"]     = Ios26Shadow(true, 8, 1, 0.24, 0.0),
-                ["GlassShadowSoftTextBox"]      = Ios26Shadow(true, 8, 1, 0.24, 0.0),
-                ["GlassShadowSoftToggle"]       = Ios26Shadow(true, 8, 1, 0.24, 0.0),
-                ["GlassShadowActive"]           = Ios26Shadow(true, 12, 2, 0.36, 0.0),
-                ["GlassShadowActiveButton"]     = Ios26Shadow(true, 12, 2, 0.36, 0.0),
+                ["ShadowSoft"]                  = Ios26Shadow(true, 10, 2, 0.30),
+                ["ShadowElevated"]              = Ios26Shadow(true, 14, 3, 0.36),
+                ["ShadowDeep"]                  = Ios26Shadow(true, 14, 4, 0.42),
+                ["DashCardShadowEffect"]        = Ios26Shadow(true, 10, 2, 0.30),
+                ["DashSubtleShadowEffect"]      = Ios26Shadow(true, 8, 1, 0.24),
+                ["DashInteractiveShadowEffect"] = Ios26Shadow(true, 12, 3, 0.34),
+                ["GlassShadowPanel"]            = Ios26Shadow(true, 10, 2, 0.30),
+                ["GlassShadowSoft"]             = Ios26Shadow(true, 8, 1, 0.24),
+                ["GlassShadowSoftButton"]       = Ios26Shadow(true, 8, 1, 0.24),
+                ["GlassShadowSoftCheckBox"]     = Ios26Shadow(true, 8, 1, 0.24),
+                ["GlassShadowSoftTextBox"]      = Ios26Shadow(true, 8, 1, 0.24),
+                ["GlassShadowSoftToggle"]       = Ios26Shadow(true, 8, 1, 0.24),
+                ["GlassShadowActive"]           = Ios26Shadow(true, 12, 2, 0.36),
+                ["GlassShadowActiveButton"]     = Ios26Shadow(true, 12, 2, 0.36),
 
-                ["LiquidGlassBrush"]       = Ios26Lin(true, "#2EFFFFFF", "#14FFFFFF", null, null, null, null),
-                ["LiquidGlassFrostedBrush"] = Ios26Lin(true, "#33FFFFFF", "#1FFFFFFF", null, null, null, null),
-                ["LiquidCard"]             = Ios26Lin(true, "#2BFFFFFF", "#12FFFFFF", null, null, null, null),
-                ["LiquidOverlayBrush"]     = Ios26Sol(true, "#33000000", null),
-                ["ShellLiquidBrush"]       = Ios26Lin(true, "#24FFFFFF", "#10FFFFFF", null, null, null, null),
-                ["ShellLiquidBorderBrush"] = Ios26Sol(true, "#22FFFFFF", null),
-                ["ShellSheenBrush"]        = Ios26Lin(true, "#40FFFFFF", "#00FFFFFF", null, null, null, null),
+                ["LiquidGlassBrush"]        = Ios26Lin2("#2EFFFFFF", "#14FFFFFF", null),
+                ["LiquidGlassFrostedBrush"] = Ios26Lin2("#33FFFFFF", "#1FFFFFFF", null),
+                ["LiquidCard"]              = Ios26Lin2("#2BFFFFFF", "#12FFFFFF", null),
+                ["LiquidOverlayBrush"]      = Ios26Sol(true, "#33000000", null),
+                ["ShellLiquidBrush"]        = Ios26Lin2("#24FFFFFF", "#10FFFFFF", null),
+                ["ShellLiquidBorderBrush"]  = Ios26Sol(true, "#22FFFFFF", null),
+                ["ShellSheenBrush"]         = Ios26Lin2("#40FFFFFF", "#00FFFFFF", null),
 
-                ["MotionEaseOutKeySpline"]  = "0.16,1.0 0.3,1.0",
-                ["MotionSpringKeySpline"]   = "0.3,1.2 0.4,1.0",
+                ["MotionEaseOutKeySpline"] = "0.16,1.0 0.3,1.0",
+                ["MotionSpringKeySpline"]  = "0.3,1.2 0.4,1.0",
             };
 
         // ── NORMAL RESTORE (live Surface.* aliases) ───────────────────
         /// <summary>Copies the CURRENT Surface.* values into the About glass
-        /// keys. Called on every non-iOS26 family apply (Part1). Indexer
-        /// sets — live views re-evaluate immediately. No literals: Normal
-        /// keeps tracking the user's surface material/opacity choices.</summary>
+        /// keys. Called by Part1 on every family apply BEFORE the switch
+        /// (ERR-50472F: no absence window). Indexer sets — live views
+        /// re-evaluate immediately.</summary>
         internal static void SeedNeutralAboutTokens(ResourceDictionary r)
         {
             r["AboutGlassSlabBrush"]      = r["Surface.Primary.BackgroundBrush"];
@@ -262,35 +282,53 @@ namespace ProGlassAutomation.Services.Theme
         }
 
         // ── brush/effect helpers (frozen — safe to share) ─────────────
+        /// <summary>Dual-variant vertical gradient (About layer: one call
+        /// carries both the light and the dark stop set).</summary>
         private static LinearGradientBrush Ios26Lin(bool dark,
             string l0, string l1, string? l2, string d0, string d1, string? d2)
+            => dark ? Ios26Lin2(d0, d1, d2) : Ios26Lin2(l0, l1, l2);
+
+        /// <summary>Single-variant vertical gradient. Null-safe: a null
+        /// stop string is skipped (ERR-760BA3 — ConvertFromString(null)
+        /// returns null and the (Color) unbox throws NRE).</summary>
+        private static LinearGradientBrush Ios26Lin2(string c0, string c1, string? c2)
         {
-            string c0 = dark ? d0 : l0, c1 = dark ? d1 : l1, c2 = dark ? d2 : l2;
-            var b = new LinearGradientBrush { StartPoint = new Point(0, 0), EndPoint = new Point(0, 1) };
-            b.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(c0), 0));
-            b.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(c1), c2 == null ? 1 : 0.55));
+            var b = new LinearGradientBrush
+            {
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(0, 1)
+            };
+            b.GradientStops.Add(new GradientStop(
+                (Color)ColorConverter.ConvertFromString(c0), 0));
+            b.GradientStops.Add(new GradientStop(
+                (Color)ColorConverter.ConvertFromString(c1), c2 == null ? 1 : 0.55));
             if (c2 != null)
-                b.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(c2), 1));
+                b.GradientStops.Add(new GradientStop(
+                    (Color)ColorConverter.ConvertFromString(c2), 1));
             b.Freeze();
             return b;
         }
 
         private static SolidColorBrush Ios26Sol(bool dark, string light, string? darkHex)
         {
-            var b = new SolidColorBrush((Color)ColorConverter.ConvertFromString(dark ? darkHex ?? light : light));
+            var b = new SolidColorBrush(
+                (Color)ColorConverter.ConvertFromString(dark ? darkHex ?? light : light));
             b.Freeze();
             return b;
         }
 
+        /// <summary>Soft iOS shadow. Opacity is passed EXPLICITLY per table
+        /// (no implicit dark multiplier — an earlier heuristic silently
+        /// produced 0.66 opacity in dark).</summary>
         private static System.Windows.Media.Effects.DropShadowEffect Ios26Shadow(
-            bool dark, double blur, double depth, double opLight, double opDark)
+            bool dark, double blur, double depth, double opacity)
         {
             var e = new System.Windows.Media.Effects.DropShadowEffect
             {
                 BlurRadius = blur,
                 ShadowDepth = depth,
                 Direction = 270,
-                Opacity = dark ? (opDark > 0 ? opDark : opLight * 2.2) : opLight,
+                Opacity = opacity,
                 Color = dark ? Colors.Black
                     : (Color)ColorConverter.ConvertFromString("#1E293B")
             };
