@@ -1,8 +1,9 @@
-using System.Windows.Controls;
 
 namespace ProGlassAutomation.Views.Production
 {
-    public partial class TemperingView : UserControl
+    /// <summary>Tempering — Stage 6 of 8. Separate page (own columns + detail);
+    /// shared page plumbing only via ProductionStagePageBase.</summary>
+    public partial class TemperingView : ProductionStagePageBase
     {
         public TemperingView()
         {

@@ -12,6 +12,7 @@ namespace ProGlassAutomation.ViewModels.Production
         public override ProductionStage Stage => ProductionStage.HolesCutouts;
         public override string ModuleName => "Holes & Cutouts";
         public override string Description => "Pre-tempering drilling and cutout station: fan holes, holes, countersinks and cutouts per pane — a module may hold several charge types on the same unit. Every piece must finish here before Tempering.";
+        public override string IndustryFocus => "Drill & cutout — fan holes, holes, countersinks, cutouts · per pane, per charge · finished pieces only may temper.";
         public override string Icon => "\uE71D"; // Segoe MDL2 (matches AboutView production stages)
     }
 }

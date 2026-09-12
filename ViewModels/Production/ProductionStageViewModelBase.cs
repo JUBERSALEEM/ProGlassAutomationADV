@@ -223,6 +223,19 @@ namespace ProGlassAutomation.ViewModels.Production
         public abstract string Description { get; }
         public abstract string Icon { get; }
 
+        /// <summary>
+        /// One-line "what this station physically does" hero line, shown in
+        /// each stage's own detail sidebar (industry focus). Distinct per
+        /// stage — this is what makes the eight screens read as separate
+        /// factory stations instead of one shared grid.
+        /// </summary>
+        public abstract string IndustryFocus { get; }
+
+        /// <summary>"pcs" for pane stages, "units" for pairing/assembly.</summary>
+        public string WorkUnitLabel =>
+            Stage is ProductionStage.Pairing or ProductionStage.DoublingLamination
+                ? "units" : "pcs";
+
         // Cross-navigation hooks — wired by MainViewModel exactly like
         // Sales Report / Statement drill-downs.
         public Action<string>? OnOpenJobOrderByNumber { get; set; }

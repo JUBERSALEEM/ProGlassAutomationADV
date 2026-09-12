@@ -12,6 +12,7 @@ namespace ProGlassAutomation.ViewModels.Production
         public override ProductionStage Stage => ProductionStage.Tempering;
         public override string ModuleName => "Tempering";
         public override string Description => "Furnace station for FT / Heat-Strengthened / Heat-Soaked panes. A piece enters only when cutting and all its edge work are done; SGU pieces leave the factory dispatch-ready straight from here.";
+        public override string IndustryFocus => "Furnace cycles — FT / HS / HST panes only · IN = cut + all edge work · SGU dispatch-ready off the furnace.";
         public override string Icon => "\uE728"; // Segoe MDL2 (matches AboutView production stages)
     }
 }

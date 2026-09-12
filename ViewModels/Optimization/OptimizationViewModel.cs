@@ -34,6 +34,7 @@ using ProGlassAutomation.Services.JobOrder.Mapper;
 using ProGlassAutomation.Services.JobOrder.Repository;
 using ProGlassAutomation.Services.Optimization;
 using ProGlassAutomation.Services.Production;
+using ProGlassAutomation.Utilities;
 
 namespace ProGlassAutomation.ViewModels.Optimization
 {
@@ -197,13 +198,22 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         // ── RESULT tab ─────────────────────────────────────────────────
 
-        public sealed class SheetRowVm
+        public sealed class SheetRowVm : ViewModels.ViewModelBase
         {
+            private bool _isSelected;
             public string SheetNo { get; set; } = string.Empty;
             public string StockLabel { get; set; } = string.Empty;
             public string PieceCount { get; set; } = string.Empty;
             public string Utilization { get; set; } = string.Empty;
             public int Index { get; set; }
+
+            /// <summary>Highlighted in the 2D filmstrip when this is the
+            /// sheet currently on the canvas.</summary>
+            public bool IsSelected
+            {
+                get => _isSelected;
+                set { if (_isSelected == value) return; _isSelected = value; OnPropertyChanged(); }
+            }
         }
 
         public ObservableCollection<SheetRowVm> SheetRows { get; } = new();
@@ -231,6 +241,16 @@ namespace ProGlassAutomation.ViewModels.Optimization
         private string _runMessage = string.Empty;
         public string RunMessage { get => _runMessage; private set { _runMessage = value; OnPropertyChanged(); } }
 
+        // ── async run state (progress bar + button gating) ─────────────
+        private bool _isRunning;
+        public bool IsRunning { get => _isRunning; private set { _isRunning = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanRun)); } }
+
+        /// <summary>Run buttons are enabled only when no run is in flight.</summary>
+        public bool CanRun => !_isRunning;
+
+        private string _runStageLabel = string.Empty;
+        public string RunStageLabel { get => _runStageLabel; private set { _runStageLabel = value; OnPropertyChanged(); } }
+
         // ── 2D VIEW tab ────────────────────────────────────────────────
 
         public sealed class PieceRectVm
@@ -249,19 +269,72 @@ namespace ProGlassAutomation.ViewModels.Optimization
         private double _renderHeight;
         private string _previewCaption = string.Empty;
         private int _selectedSheetIndex;
+        private double _previewScale = 1.0;
 
         public double RenderWidth { get => _renderWidth; private set { _renderWidth = value; OnPropertyChanged(); } }
         public double RenderHeight { get => _renderHeight; private set { _renderHeight = value; OnPropertyChanged(); } }
         public string PreviewCaption { get => _previewCaption; private set { _previewCaption = value; OnPropertyChanged(); } }
 
+        /// <summary>Canvas zoom factor (0.4× .. 2.0×) for the 2D layout view.</summary>
+        public double PreviewScale
+        {
+            get => _previewScale;
+            private set
+            {
+                double clamped = System.Math.Clamp(value, 0.4, 2.0);
+                if (_previewScale == clamped) return;
+                _previewScale = clamped;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(PreviewScaleLabel));
+                RebuildPreview();
+            }
+        }
+
+        public string PreviewScaleLabel => (_previewScale * 100).ToString("0", CultureInfo.InvariantCulture) + "%";
+
+        // ── 2D chrome: scaled margin zone (usable rectangle) ────────────
+        private double _usableX;
+        private double _usableY;
+        private double _usableW;
+        private double _usableH;
+        public double UsableX { get => _usableX; private set { _usableX = value; OnPropertyChanged(); } }
+        public double UsableY { get => _usableY; private set { _usableY = value; OnPropertyChanged(); } }
+        public double UsableW { get => _usableW; private set { _usableW = value; OnPropertyChanged(); } }
+        public double UsableH { get => _usableH; private set { _usableH = value; OnPropertyChanged(); } }
+
+        private string _previewStockLabel = string.Empty;
+        public string PreviewStockLabel { get => _previewStockLabel; private set { _previewStockLabel = value; OnPropertyChanged(); } }
+
+        private string _previewUtilization = "—";
+        public string PreviewUtilization { get => _previewUtilization; private set { _previewUtilization = value; OnPropertyChanged(); } }
+
+        private string _previewPiecesCount = "—";
+        public string PreviewPiecesCount { get => _previewPiecesCount; private set { _previewPiecesCount = value; OnPropertyChanged(); } }
+
+        private string _marginZoneLabel = string.Empty;
+        public string MarginZoneLabel { get => _marginZoneLabel; private set { _marginZoneLabel = value; OnPropertyChanged(); } }
+
+        private bool _hasPreview;
+        public bool HasPreview { get => _hasPreview; private set { _hasPreview = value; OnPropertyChanged(); } }
+
         public int SelectedSheetIndex
         {
             get => _selectedSheetIndex;
-            set { _selectedSheetIndex = value; OnPropertyChanged(); RebuildPreview(); }
+            set
+            {
+                if (_selectedSheetIndex == value) return;
+                _selectedSheetIndex = value;
+                OnPropertyChanged();
+                RebuildPreview();
+            }
         }
 
         public ICommand SelectPreviousSheetCommand { get; }
         public ICommand SelectNextSheetCommand { get; }
+        public ICommand SelectSheetCommand { get; }
+        public ICommand PreviewZoomInCommand { get; }
+        public ICommand PreviewZoomOutCommand { get; }
+        public ICommand PreviewZoomResetCommand { get; }
 
         private OptimizationResult _lastResult;
         private MarginProfile _lastMargins;
@@ -295,6 +368,17 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (_lastResult != null && SelectedSheetIndex < _lastResult.Sheets.Count - 1)
                     SelectedSheetIndex++;
             });
+            SelectSheetCommand = new RelayCommand(p =>
+            {
+                if (p is int idx && _lastResult != null && idx >= 0 && idx < _lastResult.Sheets.Count)
+                {
+                    SelectedSheetIndex = idx;
+                    SelectedTabIndex = 5; // jump straight to the 2D VIEW
+                }
+            });
+            PreviewZoomInCommand = new RelayCommand(_ => PreviewScale += 0.25);
+            PreviewZoomOutCommand = new RelayCommand(_ => PreviewScale -= 0.25);
+            PreviewZoomResetCommand = new RelayCommand(_ => PreviewScale = 1.0);
 
             foreach (var s in DefaultStockPool()) Stocks.Add(s);
             RefreshDerived();
@@ -666,18 +750,55 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         // ── run ────────────────────────────────────────────────────────
 
+        /// <summary>
+        /// Validates inputs on the UI thread, then runs the packing engine
+        /// on a background thread (UI stays fluid while OPTIMIZE iterates).
+        /// The result is applied back on the dispatcher by
+        /// <see cref="SafeFireAndForget"/>'s captured context.
+        /// </summary>
         private void Run(string stage)
         {
+            if (IsRunning) return;
             if (!TryBuildInputs(out var pieces, out var stocks, out var margins))
                 return;
 
+            int effort = int.TryParse(SelectedEffortLevel, NumberStyles.Integer,
+                CultureInfo.InvariantCulture, out int lvl) && lvl >= 1 && lvl <= 5 ? lvl : 3;
             var rotation = RotationEnabled ? RotationPolicy.Free90 : RotationPolicy.Locked;
-            var result = stage == "OPTIMIZE"
-                ? GuillotinePacker.PackOptimize(pieces, stocks, margins, rotation,
-                    int.TryParse(SelectedEffortLevel, NumberStyles.Integer,
-                        CultureInfo.InvariantCulture, out int lvl) && lvl >= 1 && lvl <= 5 ? lvl : 3)
-                : GuillotinePacker.PackQuick(pieces, stocks, margins, rotation);
 
+            IsRunning = true;
+            RunStageLabel = stage == "OPTIMIZE"
+                ? $"Optimizing — level {effort.ToString(CultureInfo.InvariantCulture)} · {pieces.Count.ToString(CultureInfo.InvariantCulture)} pieces…"
+                : $"Quick packing — {pieces.Count.ToString(CultureInfo.InvariantCulture)} pieces…";
+            RunMessage = "";
+
+            AsyncUtility.SafeFireAndForget(
+                () => RunCoreAsync(stage, pieces, stocks, margins, rotation, effort),
+                "Optimization run");
+        }
+
+        private async Task RunCoreAsync(
+            string stage, List<CutPiece> pieces, List<StockSize> stocks,
+            MarginProfile margins, RotationPolicy rotation, int effort)
+        {
+            try
+            {
+                var result = await Task.Run(() => stage == "OPTIMIZE"
+                    ? GuillotinePacker.PackOptimize(pieces, stocks, margins, rotation, effort)
+                    : GuillotinePacker.PackQuick(pieces, stocks, margins, rotation))
+                    .ConfigureAwait(true);
+
+                ApplyResult(stage, result, margins, rotation);
+            }
+            finally
+            {
+                IsRunning = false;
+            }
+        }
+
+        private void ApplyResult(string stage, OptimizationResult result,
+            MarginProfile margins, RotationPolicy rotation)
+        {
             _lastResult = result;
             _lastMargins = margins;
 
@@ -686,9 +807,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
             double stockArea = result.Sheets.Sum(s => (long)s.Stock.WidthMm * s.Stock.HeightMm);
             double util = stockArea == 0 ? 0 : glass / stockArea * 100.0;
 
+            string rotationLabel = rotation == RotationPolicy.Free90 ? "rotation ON" : "rotation LOCKED";
             ResultStage = stage == "OPTIMIZE"
-                ? $"OPTIMIZE · level {SelectedEffortLevel} · {(RotationEnabled ? "rotation ON" : "rotation LOCKED")}"
-                : $"QUICK · {(RotationEnabled ? "rotation ON" : "rotation LOCKED")}";
+                ? $"OPTIMIZE · level {SelectedEffortLevel} · {rotationLabel}"
+                : $"QUICK · {rotationLabel}";
             ResultSheets = result.SheetsUsed.ToString(CultureInfo.InvariantCulture);
             ResultUtilization = util.ToString("0.00", CultureInfo.InvariantCulture) + "%";
             ResultUnplaced = result.Unplaced.Count.ToString(CultureInfo.InvariantCulture);
@@ -716,6 +838,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
 
             HasResult = true;
+            _selectedSheetIndex = -1;
             SelectedSheetIndex = 0;
             RebuildPreview();
 
@@ -733,19 +856,43 @@ namespace ProGlassAutomation.ViewModels.Optimization
         private void RebuildPreview()
         {
             SheetRects.Clear();
+            RefreshSheetSelection();
+
             if (_lastResult == null || _lastResult.Sheets.Count == 0 ||
                 SelectedSheetIndex < 0 || SelectedSheetIndex >= _lastResult.Sheets.Count)
             {
                 RenderWidth = 0;
                 RenderHeight = 0;
                 PreviewCaption = string.Empty;
+                PreviewStockLabel = string.Empty;
+                PreviewUtilization = "—";
+                PreviewPiecesCount = "—";
+                MarginZoneLabel = string.Empty;
+                HasPreview = false;
                 return;
             }
 
+            HasPreview = true;
             var sheet = _lastResult.Sheets[SelectedSheetIndex];
-            double scale = PreviewRenderWidth / sheet.Stock.WidthMm;
-            RenderWidth = PreviewRenderWidth;
+            double scale = PreviewRenderWidth * PreviewScale / sheet.Stock.WidthMm;
+            RenderWidth = PreviewRenderWidth * PreviewScale;
             RenderHeight = sheet.Stock.HeightMm * scale;
+
+            // Margin zone = the usable rectangle inside the edge trims.
+            UsableX = sheet.UsableX * scale;
+            UsableY = sheet.UsableY * scale;
+            UsableW = sheet.UsableWidth * scale;
+            UsableH = sheet.UsableHeight * scale;
+
+            MarginZoneLabel = string.Format(CultureInfo.InvariantCulture,
+                "margins LM {0} · RM {1} · TM {2} · BM {3} · kerf {4} mm",
+                _lastMargins.LeftMm, _lastMargins.RightMm,
+                _lastMargins.TopMm, _lastMargins.BottomMm, _lastMargins.KerfMm);
+
+            PreviewStockLabel = string.Format(CultureInfo.InvariantCulture,
+                "{0} × {1} mm", sheet.Stock.WidthMm, sheet.Stock.HeightMm);
+            PreviewUtilization = sheet.UtilizationLabel;
+            PreviewPiecesCount = sheet.Pieces.Count.ToString(CultureInfo.InvariantCulture);
 
             foreach (var p in sheet.Pieces)
             {
@@ -766,6 +913,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 "Sheet {0} of {1} — stock {2} × {3} mm — {4} pieces",
                 SelectedSheetIndex + 1, _lastResult.Sheets.Count,
                 sheet.Stock.WidthMm, sheet.Stock.HeightMm, sheet.Pieces.Count);
+        }
+
+        private void RefreshSheetSelection()
+        {
+            foreach (var row in SheetRows)
+                row.IsSelected = row.Index == SelectedSheetIndex;
         }
     }
 }

@@ -43,29 +43,43 @@ production.db (work items per stage, idempotent re-release)
   EDGE_GRINDING → Polish LM; MITRING → Mitring LM; ARGON / SILICON /
   U-INSERT / OVERLAP / SHUTTER_BONDING → notes on the assembly item.
 
-**Screens (redesign 2026-09-11)** — every module is a real designed
-page, full design + worked samples in
-`docs/PRODUCTION_SCREENS_DESIGN_2026-09-11.md`:
+**Screens (redesign 2026-09-12)** — the eight modules are now **separate
+pages**, not one shared screen. Each stage owns its own columns and its
+own detail sidebar; only the *chrome* is shared (pipeline chain bar,
+release bar, KPI strip, filter bar — small controls in `Controls/`).
+Full design + analysis in
+`docs/PRODUCTION_OPTIMIZATION_REDESIGN_2026-09-12.md`:
 
-- **Module view** (`CuttingView.xaml` … `DoublingLaminationView.xaml`) —
-  stage-identity header: tinted icon tile, module title, `Stage n of 8`
-  badge, description and a one-line chain-context hint (what feeds this
-  stage, where it feeds next). Each XAML is a full page, not a stub.
-- **Pipeline chain bar** (top of every module) — all eight stages in
-  floor order with factory-wide piece counts (open · done/total); the
-  current stage is highlighted and any chip opens that stage's module,
-  so work can be followed stage by stage like a production chain.
-
-- **Tier 1 · Unit list** — long production rows with the FULL Step 5
-  shape (pricing excluded): Job / PI No · Customer · Salesman · Spec ·
-  Sr · Ref · Build · W1/H1 + W2/H2 · Qty · SQM1/TOT SQM1/LM1 ·
-  SQM2/TOT SQM2/LM2 · **IN / DONE / BALANCE** (this stage's piece flow).
-  Charge stages (fan holes, polish, mitring) fan out per pane so cut
-  pieces walk through them. Filters: free-text search, job, status.
-  KPI chips: arrived / pending / in progress / completed / load /
-  ready-for-dispatch. The grid is **virtualized and paginated** —
-  100 rows at a time, next 100 on scroll (footer shows progress), so
-  very long jobs stay responsive.
+- **Module pages** (`CuttingView.xaml` … `DoublingLaminationView.xaml`) —
+  each is a self-contained page with its own stage-identity header
+  (distinct tint, icon tile, `Stage n of 8` badge, description, chain
+  context) and a per-stage focus hero card in the detail sidebar.
+  The **master grid columns are stage-specific**:
+  - **Cutting** — full Step-5 envelope: ST · JOB · PI · CUSTOMER ·
+    SALESMAN · SPEC · SR · REF · BUILD · W1 · H1 · W2 · H2 · QTY ·
+    SQM1/TOT SQM1/LM1 · SQM2/TOT SQM2/LM2 · IN · DONE · BALANCE.
+  - **Polish / Mitring** — LM-based: … QTY · LM1 · LM2 · IN · DONE · BALANCE.
+  - **Holes & Cutouts / Edge Deletion / Tempering / Pairing / Doubling** —
+    piece/unit flow: … QTY · IN · DONE · BALANCE (no pricing, no SQM/LM noise).
+- **Pipeline chain bar** (`Controls/ProductionPipelineBar.xaml`) — all
+  eight stages in floor order with factory-wide piece counts (open ·
+  done/total); the current stage is highlighted and any chip opens that
+  stage's module, so work can be followed stage by stage.
+- **Release bar** (`Controls/ProductionReleaseBar.xaml`) — confirmed Job
+  Order picker, release action, release message + clamped-write warning.
+- **KPI strip** (`Controls/ProductionKpiStrip.xaml`) — arrived / pending /
+  in progress / completed / load (m² + stage metric) / ready-for-dispatch;
+  labels are stage-aware (LM vs pcs vs units).
+- **Filter bar** (`Controls/ProductionFilterBar.xaml`) — search / job /
+  status + the waiting-upstream backlog strip.
+- **Piece flow (toolchain)** — every piece enters at Cutting; only the
+  pieces a stage completes (QtyDone) arrive in the next stage. Floor
+  writes are clamped to the arrived quantity
+  (`ComputeUnitFlows` + `SetDoneQtyAsync`). Units with no pieces arrived
+  yet are counted in a "waiting upstream" strip so the backlog stays
+  visible; the chain bar's open count reflects arrived (actionable)
+  pieces only. The grid is **virtualized and paginated** — 100 rows at a
+  time, next 100 on scroll (footer shows progress).
 - **Piece flow (toolchain)** — every piece enters at Cutting; only the
   pieces a stage completes (QtyDone) arrive in the next stage. Floor
   writes are clamped to the arrived quantity
@@ -94,8 +108,13 @@ page, full design + worked samples in
 
 | File | Role |
 |---|---|
-| `ProductionStageView.xaml` | Shared master–detail screen hosted by all 8 module views |
-| `ViewModels/Production/ProductionStageViewModelBase.cs` | List + detail, filters, KPIs, floor actions, cross-nav hooks |
+| `CuttingView.xaml` … `DoublingLaminationView.xaml` | Eight SEPARATE stage pages (own columns + detail) |
+| `ProductionStagePageBase.cs` | Code-behind plumbing: initial load + 100-row scroll feed |
+| `Controls/ProductionPipelineBar.xaml` | Shared pipeline chain bar (chrome) |
+| `Controls/ProductionReleaseBar.xaml` | Shared release bar (chrome) |
+| `Controls/ProductionKpiStrip.xaml` | Shared KPI strip (chrome) |
+| `Controls/ProductionFilterBar.xaml` | Shared filter bar + waiting-upstream strip (chrome) |
+| `ViewModels/Production/ProductionStageViewModelBase.cs` | List + detail, filters, KPIs, floor actions, cross-nav hooks, stage identity |
 | `Services/Production/ProductionDistributionEngine.cs` | Snapshot → work items (pure, deterministic) |
 | `Services/Production/ProductionReleaseService.cs` | Release picker + orchestration |
 | `Services/Production/ProductionRepository.cs` | production.db persistence + stage list/detail projections |

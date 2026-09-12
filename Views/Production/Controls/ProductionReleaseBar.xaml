@@ -1,0 +1,94 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Production/Controls/ProductionReleaseBar.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Production — shared release bar (chrome only)
+
+     Work arrives EXCLUSIVELY from confirmed Job Orders (Released /
+     In-Production, non-void). This bar picks a released JO, distributes
+     it to the floor, and surfaces the release message plus any clamped
+     floor-write warning. DataContext = ProductionStageViewModelBase.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Production.Controls.ProductionReleaseBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{DynamicResource AppFontFamily}"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+    <StackPanel Margin="4,0,4,10">
+        <Border Style="{StaticResource ModuleListShellStyle}" Padding="12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0"
+                           Text="Release from Job Order"
+                           FontSize="{StaticResource TextBody}"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           VerticalAlignment="Center"
+                           Margin="0,0,12,0"/>
+                <ComboBox Grid.Column="1"
+                          ItemsSource="{Binding Sources}"
+                          SelectedItem="{Binding SelectedSource}"
+                          DisplayMemberPath="DisplayLabel"
+                          Style="{StaticResource ModuleListFilterComboStyle}"
+                          Margin="0,0,8,0"
+                          VerticalAlignment="Center"
+                          ToolTip="Released / In-Production Job Orders (confirmed PIs only — drafts never reach the floor)"/>
+                <Button Grid.Column="2"
+                        Style="{StaticResource PrimaryPillButton}"
+                        Command="{Binding ReleaseCommand}"
+                        Tag="&#xE768;"
+                        Content="Release to Production"
+                        MinWidth="210"
+                        Margin="0,0,8,0"/>
+                <Button Grid.Column="3"
+                        Style="{StaticResource OutlinedPillButton}"
+                        Command="{Binding RefreshCommand}"
+                        Tag="&#xE72C;"
+                        Content="Refresh"
+                        MinWidth="120"/>
+            </Grid>
+        </Border>
+
+        <TextBlock Text="{Binding ReleaseMessage}"
+                   Margin="8,8,8,0"
+                   TextWrapping="Wrap"
+                   FontSize="{StaticResource TextBody}">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ReleaseSucceeded}" Value="True">
+                            <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+
+        <!-- Floor connectivity warning (complete before predecessor / clamped write) -->
+        <Border Margin="0,8,0,0"
+                CornerRadius="{DynamicResource CardCornerRadius}"
+                Background="{DynamicResource TintAmberBrush}"
+                Padding="12,8"
+                Visibility="{Binding HasActionWarning,
+                             Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="&#xE7BA;"
+                           FontFamily="Segoe MDL2 Assets"
+                           FontSize="{StaticResource TextBody}"
+                           Foreground="{DynamicResource WarningBrush}"
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,0"/>
+                <TextBlock Text="{Binding ActionWarning}"
+                           TextWrapping="Wrap"
+                           FontSize="{StaticResource TextBody}"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

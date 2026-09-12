@@ -77,6 +77,7 @@
     <Color x:Key="TintAmberColor">#FFF7E6</Color>
     <Color x:Key="TintPurpleColor">#F4F0FF</Color>
     <Color x:Key="TintGrayColor">#F1F5F9</Color>
+    <Color x:Key="TintTealColor">#F0FDFA</Color>
 
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -426,6 +427,7 @@
     <SolidColorBrush x:Key="TintAmberBrush" Color="{StaticResource TintAmberColor}" po:Freeze="True"/>
     <SolidColorBrush x:Key="TintPurpleBrush" Color="{StaticResource TintPurpleColor}" po:Freeze="True"/>
     <SolidColorBrush x:Key="TintGrayBrush" Color="#0FFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="TintTealBrush" Color="{StaticResource TintTealColor}" po:Freeze="True"/>
     <SolidColorBrush x:Key="TintBlueBrush" Color="#EFF6FF" po:Freeze="True"/>
 
 

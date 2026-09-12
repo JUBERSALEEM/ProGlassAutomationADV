@@ -1,12 +1,23 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Optimization/OptimizationView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Optimization — module shell (design 2026-09-12)
+     MODULE: Optimization — glass cutting optimization (redesign 2026-09-12)
 
-     Tabs: JOBS → SIZES → STOCKS → MARGINS → RESULT → 2D VIEW.
-     Runs the calibrated guillotine engine (Services/Optimization):
-     QUICK single pass or OPTIMIZE multi-start levels 1–5. Rotation is
-     enabled by default for all pieces (adaptive 0/90 mix).
+     Industrial redesign — six purpose-built tabs:
+       JOBS      — confirmed Job-Order picker (source lock) + ad-hoc parts
+       SIZES     — parts merged by glass composition (thickness + colour)
+       STOCKS    — stock pool (Sheet Store sizes + custom), best-fit rule
+       SETTINGS  — cutting settings: per-thickness margins, kerf, min
+                   breakout, rotation policy, effort level
+       SUMMARY   — sheets used, utilization, unplaced, oracle verdict +
+                   per-sheet table (click a sheet → its 2D layout)
+       2D VIEW   — scaled sheet canvas: margin zone, kerf gaps, piece
+                   labels, zoom + filmstrip
+
+     The engine (Services/Optimization/GuillotinePacker) is pure and
+     deterministic; runs execute on a background thread so the UI stays
+     fluid while OPTIMIZE iterates. See
+     docs/PRODUCTION_OPTIMIZATION_REDESIGN_2026-09-12.md.
 ═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Optimization.OptimizationView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -30,7 +41,7 @@
                BasedOn="{StaticResource FieldLabelStyle}"/>
 
         <!-- Self-contained input styles (IntInputStyle/ComboStyle are
-             view-local in other modules — referencing them here threw
+             view-local elsewhere — referencing them here threw
              'Cannot find resource' at runtime, ERR-413D37). -->
         <Style x:Key="OptIntInput" TargetType="TextBox"
                BasedOn="{StaticResource ModernTextBoxStyle}">
@@ -51,55 +62,110 @@
             <Setter Property="MaxDropDownHeight" Value="320"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
+
+        <!-- Filmstrip thumb: a sheet chip in the 2D view navigator. -->
+        <Style x:Key="SheetChipStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Chip" CornerRadius="10" Padding="10,7"
+                                Background="{DynamicResource ModuleBackgroundBrush}"
+                                BorderBrush="{DynamicResource GlassBorderGradientSoft}"
+                                BorderThickness="1" SnapsToDevicePixels="True">
+                            <StackPanel>
+                                <TextBlock x:Name="No" Text="{Binding SheetNo, StringFormat='Sheet {0}'}"
+                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                <TextBlock x:Name="Util" Text="{Binding Utilization}"
+                                           FontSize="{StaticResource TextXSmall}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource SuccessBrush}" Margin="0,1,0,0"/>
+                                <TextBlock Text="{Binding StockLabel}" FontSize="{StaticResource TextXSmall}"
+                                           Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chip" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                <Setter TargetName="Chip" Property="Background" Value="{DynamicResource ElevatedSurfaceBrush}"/>
+                                <Setter TargetName="Chip" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Chip" Property="BorderThickness" Value="1.5"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
     <Grid Background="{DynamicResource WindowBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- ══ Header ═════════════════════════════════════════════════ -->
-        <Border Grid.Row="0"
-                CornerRadius="{DynamicResource CardCornerRadius}"
-                Background="{DynamicResource DashAmbientBrush}"
-                Padding="14,10"
-                Margin="4,0,4,4">
+        <Border Grid.Row="0" CornerRadius="{DynamicResource CardCornerRadius}"
+                Background="{DynamicResource DashAmbientBrush}" Padding="14,10" Margin="4,0,4,4">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="OPTIMIZATION"
-                               Style="{StaticResource ModulePageTitleStyle}"/>
+                    <TextBlock Text="OPTIMIZATION" Style="{StaticResource ModulePageTitleStyle}"/>
                     <TextBlock Style="{StaticResource ModulePageSubtitleStyle}">
                         <Run Text="Cutting plans that minimize waste — pieces in, sheets out, verified layouts."/>
-                        <Run Text="  ·  UI REV 2026-09-12·B" FontWeight="SemiBold"/>
                     </TextBlock>
                 </StackPanel>
+                <TextBlock Grid.Column="1" Text="{Binding PieceSummary}"
+                           FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           VerticalAlignment="Center" Margin="0,0,12,0"/>
+            </Grid>
+        </Border>
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding PieceSummary}"
-                               FontSize="{StaticResource TextBody}"
-                               Foreground="{DynamicResource MutedForegroundBrush}"
-                               VerticalAlignment="Center"
-                               Margin="0,0,12,0"/>
-                    <Button Content="Run Quick"
-                            Style="{StaticResource OutlinedPillButton}"
-                            Command="{Binding RunQuickCommand}"
-                            Margin="0,0,8,0"/>
-                    <Button Content="Run Optimize"
-                            Style="{StaticResource PrimaryPillButton}"
-                            Command="{Binding RunOptimizeCommand}"/>
+        <!-- ══ Run bar — engine controls + progress ═══════════════════ -->
+        <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Padding="12" Margin="4,0,4,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
+                    <TextBlock Text="{Binding RunStageLabel}"
+                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                               Foreground="{DynamicResource AccentBrush}"
+                               Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <ProgressBar Height="4" IsIndeterminate="True"
+                                 Margin="0,4,0,0" MaxWidth="520" HorizontalAlignment="Left"
+                                 Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 </StackPanel>
+
+                <Button Grid.Column="1" Content="Run Quick"
+                        Style="{StaticResource OutlinedPillButton}"
+                        Command="{Binding RunQuickCommand}"
+                        IsEnabled="{Binding CanRun}"
+                        Margin="0,0,8,0"
+                        ToolTip="One fast deterministic pass (guillotine shelves) — seconds"/>
+                <Button Grid.Column="2" Content="Run Optimize"
+                        Style="{StaticResource PrimaryPillButton}"
+                        Command="{Binding RunOptimizeCommand}"
+                        IsEnabled="{Binding CanRun}"
+                        ToolTip="Multi-start search, effort level 1–5 — best utilization wins"/>
             </Grid>
         </Border>
 
         <!-- ══ Tab strip ══════════════════════════════════════════════ -->
-        <UniformGrid Grid.Row="1" Columns="6" Margin="4,0">
+        <UniformGrid Grid.Row="2" Columns="6" Margin="4,0">
             <RadioButton GroupName="OptTabs" Tag="&#xE8A5;" Content="Jobs"
                          IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"
                          Style="{StaticResource TabCardInactiveStyle}"/>
@@ -109,10 +175,10 @@
             <RadioButton GroupName="OptTabs" Tag="&#xE7B8;" Content="Stocks"
                          IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=2}"
                          Style="{StaticResource TabCardInactiveStyle}"/>
-            <RadioButton GroupName="OptTabs" Tag="&#xE713;" Content="Margins"
+            <RadioButton GroupName="OptTabs" Tag="&#xE713;" Content="Settings"
                          IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}"
                          Style="{StaticResource TabCardInactiveStyle}"/>
-            <RadioButton GroupName="OptTabs" Tag="&#xE9D9;" Content="Result"
+            <RadioButton GroupName="OptTabs" Tag="&#xE9D9;" Content="Summary"
                          IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=4}"
                          Style="{StaticResource TabCardInactiveStyle}"/>
             <RadioButton GroupName="OptTabs" Tag="&#xE80A;" Content="2D View"
@@ -121,10 +187,10 @@
         </UniformGrid>
 
         <!-- ══ Content ════════════════════════════════════════════════ -->
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="3">
 
             <!-- ── TAB 0 · JOBS ─────────────────────────────────────── -->
-            <Grid Visibility="Collapsed">
+            <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -137,123 +203,105 @@
                 </Grid.Style>
 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="320"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0" Style="{StaticResource OptPanel}">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <StackPanel>
-                        <TextBlock Text="CONFIRMED JOB ORDERS · SOURCE LOCK"
-                                   FontSize="{StaticResource TextCaption}"
-                                   FontWeight="Bold"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                   Margin="0,0,0,10"/>
+                        <StackPanel>
+                            <TextBlock Text="CONFIRMED JOB ORDERS · SOURCE LOCK"
+                                       FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                       Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,10"/>
 
-                        <ListBox ItemsSource="{Binding AvailableJobs}"
-                                 SelectedItem="{Binding SelectedJob}"
-                                 Background="Transparent"
-                                 BorderThickness="0"
-                                 MaxHeight="240"
-                                 Margin="-4,0,0,8"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Margin="2,4">
-                                        <TextBlock Text="{Binding JobOrderId}"
-                                                   FontSize="{StaticResource TextBody}"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                        <TextBlock Text="{Binding Summary}"
-                                                   FontSize="{StaticResource TextCaption}"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                                   TextTrimming="CharacterEllipsis"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
+                            <ListBox ItemsSource="{Binding AvailableJobs}"
+                                     SelectedItem="{Binding SelectedJob}"
+                                     Style="{StaticResource ModuleReportListBoxStyle}"
+                                     MaxHeight="260" Margin="-4,0,0,8">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border CornerRadius="10" Padding="10,8" Margin="2,4"
+                                                Background="{DynamicResource ModuleBackgroundBrush}"
+                                                BorderBrush="{DynamicResource GlassBorderGradientSoft}" BorderThickness="1">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding JobOrderId}" FontSize="{StaticResource TextBody}"
+                                                           FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                <TextBlock Text="{Binding Summary}" FontSize="{StaticResource TextCaption}"
+                                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                                           TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
 
-                        <Button Content="Load cutting list from selected job"
-                                Style="{StaticResource PrimaryPillButton}"
-                                Command="{Binding LoadSelectedJobCommand}"
-                                HorizontalAlignment="Stretch"
-                                Margin="0,0,0,8"/>
+                            <Button Content="Load cutting list from selected job"
+                                    Style="{StaticResource PrimaryPillButton}"
+                                    Command="{Binding LoadSelectedJobCommand}"
+                                    HorizontalAlignment="Stretch" Margin="0,0,0,8"/>
 
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                             <Button Content="Refresh jobs"
                                     Style="{StaticResource OutlinedPillButton}"
-                                    Command="{Binding RefreshJobsCommand}"/>
+                                    Command="{Binding RefreshJobsCommand}"
+                                    HorizontalAlignment="Left"/>
+
+                            <TextBlock Text="{Binding JobsStatusText}" FontSize="{StaticResource TextCaption}"
+                                       TextWrapping="Wrap" Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Margin="0,8,0,12"/>
+
+                            <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,0,0,12"/>
+
+                            <TextBlock Text="MANUAL PIECES (AD-HOC)"
+                                       FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                       Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,10"/>
+
+                            <TextBlock Text="Glass composition" Style="{StaticResource OptFieldLabel}"/>
+                            <TextBox Text="{Binding NewPiece.GlassRef, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,8"/>
+
+                            <TextBlock Text="Piece label" Style="{StaticResource OptFieldLabel}"/>
+                            <TextBox Text="{Binding NewPiece.PieceLabel, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource ModernTextBoxStyle}" Margin="0,0,0,8"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="70"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                    <TextBlock Text="Width mm" Style="{StaticResource OptFieldLabel}"/>
+                                    <TextBox Text="{Binding NewPiece.WidthText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource OptIntInput}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                    <TextBlock Text="Height mm" Style="{StaticResource OptFieldLabel}"/>
+                                    <TextBox Text="{Binding NewPiece.HeightText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource OptIntInput}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Qty" Style="{StaticResource OptFieldLabel}"/>
+                                    <TextBox Text="{Binding NewPiece.QtyText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource OptIntInput}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Button Content="Add piece" Style="{StaticResource PrimaryPillButton}"
+                                    Command="{Binding AddPieceCommand}"
+                                    HorizontalAlignment="Stretch" Margin="0,4,0,12"/>
+
+                            <Button Content="Load reference job (calibration)"
+                                    Style="{StaticResource OutlinedPillButton}"
+                                    Command="{Binding LoadReferenceJobCommand}"
+                                    HorizontalAlignment="Stretch" Margin="0,0,0,8"/>
+                            <Button Content="Clear list" Style="{StaticResource OutlinedPillButton}"
+                                    Command="{Binding ClearPiecesCommand}"
+                                    HorizontalAlignment="Stretch"/>
+
+                            <TextBlock Text="Source lock: cutting runs ONLY from confirmed Job Orders — select one above. Manual entry below is for ad-hoc pieces only."
+                                       FontSize="{StaticResource TextCaption}" TextWrapping="Wrap"
+                                       Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,14,0,0"/>
                         </StackPanel>
-
-                        <TextBlock Text="{Binding JobsStatusText}"
-                                   FontSize="{StaticResource TextCaption}"
-                                   TextWrapping="Wrap"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                   Margin="0,0,0,12"/>
-
-                        <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,0,0,12"/>
-
-                        <TextBlock Text="MANUAL PIECES (AD-HOC)"
-                                   FontSize="{StaticResource TextCaption}"
-                                   FontWeight="Bold"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                   Margin="0,0,0,10"/>
-
-                        <TextBlock Text="Glass composition" Style="{StaticResource OptFieldLabel}"/>
-                        <TextBox Text="{Binding NewPiece.GlassRef, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource ModernTextBoxStyle}"
-                                 Margin="0,0,0,8"/>
-
-                        <TextBlock Text="Piece label" Style="{StaticResource OptFieldLabel}"/>
-                        <TextBox Text="{Binding NewPiece.PieceLabel, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource ModernTextBoxStyle}"
-                                 Margin="0,0,0,8"/>
-
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="70"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" Margin="0,0,8,0">
-                                <TextBlock Text="Width mm" Style="{StaticResource OptFieldLabel}"/>
-                                <TextBox Text="{Binding NewPiece.WidthText, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource OptIntInput}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="1" Margin="0,0,8,0">
-                                <TextBlock Text="Height mm" Style="{StaticResource OptFieldLabel}"/>
-                                <TextBox Text="{Binding NewPiece.HeightText, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource OptIntInput}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="Qty" Style="{StaticResource OptFieldLabel}"/>
-                                <TextBox Text="{Binding NewPiece.QtyText, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource OptIntInput}"/>
-                            </StackPanel>
-                        </Grid>
-
-                        <Button Content="Add piece"
-                                Style="{StaticResource PrimaryPillButton}"
-                                Command="{Binding AddPieceCommand}"
-                                HorizontalAlignment="Stretch"
-                                Margin="0,4,0,16"/>
-
-                        <Button Content="Load reference job (calibration)"
-                                Style="{StaticResource OutlinedPillButton}"
-                                Command="{Binding LoadReferenceJobCommand}"
-                                HorizontalAlignment="Stretch"
-                                Margin="0,0,0,8"/>
-                        <Button Content="Clear list"
-                                Style="{StaticResource OutlinedPillButton}"
-                                Command="{Binding ClearPiecesCommand}"
-                                HorizontalAlignment="Stretch"/>
-
-                        <TextBlock Text="Source lock: cutting runs ONLY from confirmed Job Orders — select one above. Manual entry below is for ad-hoc pieces only."
-                                   FontSize="{StaticResource TextCaption}"
-                                   TextWrapping="Wrap"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                   Margin="0,14,0,0"/>
-                    </StackPanel>
                     </ScrollViewer>
                 </Border>
 
@@ -264,64 +312,53 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="1"
-                                   Text="{Binding PiecesEmptyHint}"
-                                   FontSize="{StaticResource TextBody}"
-                                   TextWrapping="Wrap"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                   VerticalAlignment="Top"
-                                   Margin="4,8,4,0"/>
+                        <TextBlock Grid.Row="0" Text="{Binding PieceSummary}" FontSize="{StaticResource TextSubhead}"
+                                   FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,0,4"/>
+                        <TextBlock Grid.Row="1" Text="{Binding PiecesEmptyHint}" FontSize="{StaticResource TextBody}"
+                                   TextWrapping="Wrap" Foreground="{DynamicResource MutedForegroundBrush}"
+                                   VerticalAlignment="Top" Margin="4,8,4,0"/>
 
-                        <Grid Grid.Row="0" Margin="0,0,0,6">
+                        <Grid Grid.Row="0" Margin="0,0,0,6" Visibility="{Binding HasPieces, Converter={StaticResource BoolToVisibilityConverter}}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="110"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="120"/>
                                 <ColumnDefinition Width="60"/>
-                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="80"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="Label" Style="{StaticResource OptFieldLabel}"/>
                             <TextBlock Grid.Column="1" Text="Glass composition" Style="{StaticResource OptFieldLabel}"/>
                             <TextBlock Grid.Column="2" Text="W × H (mm)" Style="{StaticResource OptFieldLabel}"/>
                             <TextBlock Grid.Column="3" Text="Qty" Style="{StaticResource OptFieldLabel}"/>
+                            <TextBlock Grid.Column="4" Text="Action" Style="{StaticResource OptFieldLabel}"/>
                         </Grid>
 
-                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                                      Visibility="{Binding HasPieces, Converter={StaticResource BoolToVisibilityConverter}}">
                             <ItemsControl ItemsSource="{Binding Pieces}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Padding="4,6"
-                                                BorderThickness="0,0,0,1"
-                                                BorderBrush="{DynamicResource DividerBrush}">
+                                        <Border Padding="4,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource DividerBrush}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="110"/>
                                                     <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="110"/>
+                                                    <ColumnDefinition Width="120"/>
                                                     <ColumnDefinition Width="60"/>
-                                                    <ColumnDefinition Width="70"/>
+                                                    <ColumnDefinition Width="80"/>
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock Grid.Column="0" Text="{Binding PieceLabel}"
-                                                           FontSize="{StaticResource TextBody}"
+                                                <TextBlock Grid.Column="0" Text="{Binding PieceLabel}" FontSize="{StaticResource TextBody}"
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                <TextBlock Grid.Column="1" Text="{Binding GlassRef}"
-                                                           FontSize="{StaticResource TextBody}"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                           TextTrimming="CharacterEllipsis"/>
-                                                <TextBlock Grid.Column="2"
-                                                           FontSize="{StaticResource TextBody}"
+                                                <TextBlock Grid.Column="1" Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Grid.Column="2" FontSize="{StaticResource TextBody}"
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                                    <Run Text="{Binding WidthText, Mode=OneWay}"/>
-                                                    <Run Text="×"/>
-                                                    <Run Text="{Binding HeightText, Mode=OneWay}"/>
+                                                    <Run Text="{Binding WidthText, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding HeightText, Mode=OneWay}"/>
                                                 </TextBlock>
-                                                <TextBlock Grid.Column="3" Text="{Binding QtyText}"
-                                                           FontSize="{StaticResource TextBody}"
+                                                <TextBlock Grid.Column="3" Text="{Binding QtyText}" FontSize="{StaticResource TextBody}"
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                <Button Grid.Column="4" Content="Remove"
-                                                        Style="{StaticResource RowOutlinedButton}"
-                                                        Command="{Binding DataContext.RemovePieceCommand,
-                                                                  RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                <Button Grid.Column="4" Content="Remove" Style="{StaticResource RowOutlinedButton}"
+                                                        Command="{Binding DataContext.RemovePieceCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding}"/>
                                             </Grid>
                                         </Border>
@@ -334,7 +371,7 @@
             </Grid>
 
             <!-- ── TAB 1 · SIZES ────────────────────────────────────── -->
-            <Grid Visibility="Collapsed">
+            <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -354,66 +391,54 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0"
-                                   Text="Pieces merge into cutting groups by glass composition (thickness + colour). Each group runs as its own optimization."
-                                   FontSize="{StaticResource TextBody}"
-                                   TextWrapping="Wrap"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                   Margin="0,0,0,12"/>
+                                   Text="Parts merge into cutting groups by glass composition (thickness + colour). Each group runs as its own optimization — different glass never mixes on a sheet."
+                                   FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,12"/>
 
-                        <TextBlock Grid.Row="1"
-                                   Text="{Binding PiecesEmptyHint}"
-                                   FontSize="{StaticResource TextBody}"
-                                   TextWrapping="Wrap"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                   VerticalAlignment="Top"
-                                   Margin="4,8,4,0"/>
+                        <TextBlock Grid.Row="1" Text="{Binding PiecesEmptyHint}" FontSize="{StaticResource TextBody}"
+                                   TextWrapping="Wrap" Foreground="{DynamicResource MutedForegroundBrush}"
+                                   VerticalAlignment="Top" Margin="4,8,4,0"/>
 
                         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                            <StackPanel>
-                                <Grid Margin="0,0,0,6">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="120"/>
-                                        <ColumnDefinition Width="120"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Composition" Style="{StaticResource OptFieldLabel}"/>
-                                    <TextBlock Grid.Column="1" Text="Pieces" Style="{StaticResource OptFieldLabel}"/>
-                                    <TextBlock Grid.Column="2" Text="Area (m²)" Style="{StaticResource OptFieldLabel}"/>
-                                </Grid>
-                                <ItemsControl ItemsSource="{Binding SizeGroups}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border Padding="4,8"
-                                                    BorderThickness="0,0,0,1"
-                                                    BorderBrush="{DynamicResource DividerBrush}">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="120"/>
-                                                        <ColumnDefinition Width="120"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0" Text="{Binding Composition}"
-                                                               FontSize="{StaticResource TextBody}"
+                            <ItemsControl ItemsSource="{Binding SizeGroups}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border CornerRadius="{DynamicResource CardCornerRadius}"
+                                                Background="{DynamicResource ModuleBackgroundBrush}"
+                                                BorderBrush="{DynamicResource GlassBorderGradientSoft}" BorderThickness="1"
+                                                Padding="14,10" Margin="0,0,0,8">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="120"/>
+                                                    <ColumnDefinition Width="120"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="{Binding Composition}"
+                                                           FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           TextWrapping="Wrap" Margin="0,0,12,0"/>
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="Pieces" Style="{StaticResource OptFieldLabel}"/>
+                                                    <TextBlock Text="{Binding PieceCount}" FontSize="{StaticResource TextBody}"
                                                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                    <TextBlock Grid.Column="1" Text="{Binding PieceCount}"
-                                                               FontSize="{StaticResource TextBody}"
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Area (m²)" Style="{StaticResource OptFieldLabel}"/>
+                                                    <TextBlock Text="{Binding AreaM2}" FontSize="{StaticResource TextBody}"
                                                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                    <TextBlock Grid.Column="2" Text="{Binding AreaM2}"
-                                                               FontSize="{StaticResource TextBody}"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </ScrollViewer>
                     </Grid>
                 </Border>
             </Grid>
 
             <!-- ── TAB 2 · STOCKS ───────────────────────────────────── -->
-            <Grid Visibility="Collapsed">
+            <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -435,10 +460,8 @@
 
                         <TextBlock Grid.Row="0"
                                    Text="Stock pool for the run. The engine always consumes the smallest stock that fits each piece — big racks stay available for the glass that needs them. Available = 0 means unlimited."
-                                   FontSize="{StaticResource TextBody}"
-                                   TextWrapping="Wrap"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                   Margin="0,0,0,12"/>
+                                   FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,12"/>
 
                         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
                             <StackPanel Margin="0,0,8,0">
@@ -456,44 +479,34 @@
                                 <TextBox Text="{Binding NewStock.AvailableText, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource OptIntInput}"/>
                             </StackPanel>
-                            <Button Content="Add stock"
-                                    Style="{StaticResource PrimaryPillButton}"
-                                    Command="{Binding AddStockCommand}"
-                                    VerticalAlignment="Bottom"
-                                    Margin="0,0,0,8"/>
+                            <Button Content="Add stock" Style="{StaticResource PrimaryPillButton}"
+                                    Command="{Binding AddStockCommand}" VerticalAlignment="Bottom" Margin="0,0,0,8"/>
                         </StackPanel>
 
                         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{Binding Stocks}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Padding="4,8"
-                                                BorderThickness="0,0,0,1"
-                                                BorderBrush="{DynamicResource DividerBrush}">
+                                        <Border CornerRadius="{DynamicResource CardCornerRadius}"
+                                                Background="{DynamicResource ModuleBackgroundBrush}"
+                                                BorderBrush="{DynamicResource GlassBorderGradientSoft}" BorderThickness="1"
+                                                Padding="14,10" Margin="0,0,0,8">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="120"/>
-                                                    <ColumnDefinition Width="80"/>
+                                                    <ColumnDefinition Width="160"/>
+                                                    <ColumnDefinition Width="90"/>
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock Grid.Column="0"
-                                                           FontSize="{StaticResource TextBody}"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                                    <Run Text="{Binding WidthText, Mode=OneWay}"/>
-                                                    <Run Text="×"/>
-                                                    <Run Text="{Binding HeightText, Mode=OneWay}"/>
-                                                    <Run Text="mm"/>
+                                                <TextBlock Grid.Column="0" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center">
+                                                    <Run Text="{Binding WidthText, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding HeightText, Mode=OneWay}"/><Run Text=" mm"/>
                                                 </TextBlock>
-                                                <TextBlock Grid.Column="1"
-                                                           FontSize="{StaticResource TextBody}"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                                    <Run Text="available:"/>
-                                                    <Run Text="{Binding AvailableText, Mode=OneWay}"/>
+                                                <TextBlock Grid.Column="1" FontSize="{StaticResource TextBody}"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center">
+                                                    <Run Text="available: "/><Run Text="{Binding AvailableText, Mode=OneWay}"/>
                                                 </TextBlock>
-                                                <Button Grid.Column="2" Content="Remove"
-                                                        Style="{StaticResource RowOutlinedButton}"
-                                                        Command="{Binding DataContext.RemoveStockCommand,
-                                                                  RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                <Button Grid.Column="2" Content="Remove" Style="{StaticResource RowOutlinedButton}"
+                                                        Command="{Binding DataContext.RemoveStockCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding}"/>
                                             </Grid>
                                         </Border>
@@ -505,8 +518,8 @@
                 </Border>
             </Grid>
 
-            <!-- ── TAB 3 · MARGINS ──────────────────────────────────── -->
-            <Grid Visibility="Collapsed">
+            <!-- ── TAB 3 · SETTINGS ─────────────────────────────────── -->
+            <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -519,12 +532,9 @@
                 </Grid.Style>
 
                 <Border Style="{StaticResource OptPanel}">
-                    <StackPanel MaxWidth="720" HorizontalAlignment="Left">
-                        <TextBlock Text="CUTTING SETTINGS"
-                                   FontSize="{StaticResource TextCaption}"
-                                   FontWeight="Bold"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                   Margin="0,0,0,10"/>
+                    <StackPanel MaxWidth="760" HorizontalAlignment="Left">
+                        <TextBlock Text="CUTTING SETTINGS" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                   Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,10"/>
 
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -535,69 +545,55 @@
                                 <TextBlock Text="Glass thickness (mm)" Style="{StaticResource OptFieldLabel}"/>
                                 <TextBox Text="{Binding ThicknessText, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource OptIntInput}"/>
-
                                 <TextBlock Text="Left margin LM (mm)" Style="{StaticResource OptFieldLabel}"/>
                                 <TextBox Text="{Binding LeftMarginText, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource OptIntInput}"/>
-
                                 <TextBlock Text="Right margin RM (mm)" Style="{StaticResource OptFieldLabel}"/>
                                 <TextBox Text="{Binding RightMarginText, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource OptIntInput}"/>
-
                                 <TextBlock Text="Top margin TM (mm)" Style="{StaticResource OptFieldLabel}"/>
                                 <TextBox Text="{Binding TopMarginText, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource OptIntInput}"/>
-
                                 <TextBlock Text="Bottom margin BM (mm)" Style="{StaticResource OptFieldLabel}"/>
                                 <TextBox Text="{Binding BottomMarginText, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource OptIntInput}"/>
                             </StackPanel>
-
                             <StackPanel Grid.Column="1">
                                 <TextBlock Text="Kerf / blade (mm)" Style="{StaticResource OptFieldLabel}"/>
                                 <TextBox Text="{Binding KerfText, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource OptIntInput}"/>
-
                                 <TextBlock Text="Minimum breakout (mm)" Style="{StaticResource OptFieldLabel}"/>
                                 <TextBox Text="{Binding MinBreakoutText, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource OptIntInput}"/>
 
-                                <CheckBox IsChecked="{Binding RotationEnabled}"
-                                          Margin="0,10,0,4"
+                                <CheckBox IsChecked="{Binding RotationEnabled}" Margin="0,10,0,4"
                                           Foreground="{DynamicResource PrimaryForegroundBrush}">
                                     <TextBlock Text="Allow rotation (0° / 90° mix) — enabled by default for all pieces"
-                                               TextWrapping="Wrap"
-                                               FontSize="{StaticResource TextBody}"
+                                               TextWrapping="Wrap" FontSize="{StaticResource TextBody}"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                 </CheckBox>
 
-                                <TextBlock Text="Optimize effort level" Style="{StaticResource OptFieldLabel}"
-                                           Margin="0,10,0,0"/>
+                                <TextBlock Text="Optimize effort level" Style="{StaticResource OptFieldLabel}" Margin="0,10,0,0"/>
                                 <ComboBox ItemsSource="{Binding EffortLevels}"
                                           SelectedItem="{Binding SelectedEffortLevel}"
-                                          Style="{StaticResource OptComboStyle}"
-                                          Width="90"
-                                          HorizontalAlignment="Left"/>
+                                          Style="{StaticResource OptComboStyle}" Width="90" HorizontalAlignment="Left"/>
                             </StackPanel>
                         </Grid>
 
                         <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
-                            <Button Content="Load house defaults"
-                                    Style="{StaticResource OutlinedPillButton}"
+                            <Button Content="Load house defaults" Style="{StaticResource OutlinedPillButton}"
                                     Command="{Binding LoadHouseDefaultsCommand}"/>
                         </StackPanel>
 
                         <TextBlock Text="House defaults (floor-confirmed): 6mm glass → LM/RM/TM/BM 15mm, minimum breakout 15mm, kerf 3mm (4mm from 10mm). Every value is editable per run."
-                                   FontSize="{StaticResource TextCaption}"
-                                   TextWrapping="Wrap"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                   Margin="0,12,0,0"/>
+                                   FontSize="{StaticResource TextCaption}" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,12,0,0"/>
                     </StackPanel>
                 </Border>
             </Grid>
 
-            <!-- ── TAB 4 · RESULT ───────────────────────────────────── -->
-            <Grid Visibility="Collapsed">
+            <!-- ── TAB 4 · SUMMARY ──────────────────────────────────── -->
+            <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -627,55 +623,50 @@
 
                             <Border Grid.Column="0" Style="{StaticResource SurfaceSecondaryStyle}" Padding="12,8" Margin="0,0,6,0">
                                 <StackPanel>
-                                    <TextBlock Text="SHEETS" FontSize="{StaticResource TextCaption}"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                    <TextBlock Text="{Binding ResultSheets}" FontSize="{StaticResource TextSubhead}"
-                                               FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text="SHEETS" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                    <TextBlock Text="{Binding ResultSheets}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                 </StackPanel>
                             </Border>
                             <Border Grid.Column="1" Style="{StaticResource SurfaceSecondaryStyle}" Padding="12,8" Margin="6,0">
                                 <StackPanel>
-                                    <TextBlock Text="UTILIZATION" FontSize="{StaticResource TextCaption}"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                    <TextBlock Text="{Binding ResultUtilization}" FontSize="{StaticResource TextSubhead}"
-                                               FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text="UTILIZATION" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                    <TextBlock Text="{Binding ResultUtilization}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
                                 </StackPanel>
                             </Border>
                             <Border Grid.Column="2" Style="{StaticResource SurfaceSecondaryStyle}" Padding="12,8" Margin="6,0">
                                 <StackPanel>
-                                    <TextBlock Text="UNPLACED" FontSize="{StaticResource TextCaption}"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                    <TextBlock Text="{Binding ResultUnplaced}" FontSize="{StaticResource TextSubhead}"
-                                               FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text="UNPLACED" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                    <TextBlock Text="{Binding ResultUnplaced}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                 </StackPanel>
                             </Border>
                             <Border Grid.Column="3" Style="{StaticResource SurfaceSecondaryStyle}" Padding="12,8" Margin="6,0,0,0">
                                 <StackPanel>
-                                    <TextBlock Text="ORACLE" FontSize="{StaticResource TextCaption}"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                    <TextBlock Text="{Binding ResultOracle}" FontSize="{StaticResource TextBody}"
-                                               FontWeight="SemiBold"
-                                               TextWrapping="Wrap"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text="ORACLE" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                    <TextBlock Text="{Binding ResultOracle}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                               TextWrapping="Wrap" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                 </StackPanel>
                             </Border>
                         </Grid>
 
-                        <TextBlock Grid.Row="1" Text="{Binding RunMessage}"
-                                   FontSize="{StaticResource TextBody}"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                   Margin="2,10,0,6"/>
+                        <TextBlock Grid.Row="1" Text="{Binding RunMessage}" FontSize="{StaticResource TextBody}"
+                                   Foreground="{DynamicResource MutedForegroundBrush}" Margin="2,10,0,6"/>
+
+                        <TextBlock Grid.Row="2" Text="Run Quick or Optimize to produce a cutting plan. Every sheet is clickable — select one to inspect its 2D layout."
+                                   FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource MutedForegroundBrush}" Margin="2,0,0,0"
+                                   Visibility="{Binding HasResult, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
 
                         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto"
                                       Visibility="{Binding HasResult, Converter={StaticResource BoolToVisibilityConverter}}">
                             <StackPanel>
-                                <TextBlock Text="{Binding ResultStage}"
-                                           FontSize="{StaticResource TextCaption}"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"
-                                           Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding ResultStage}" FontSize="{StaticResource TextCaption}"
+                                           Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,8"/>
                                 <Grid Margin="0,0,0,6">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="80"/>
+                                        <ColumnDefinition Width="90"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="120"/>
                                         <ColumnDefinition Width="120"/>
@@ -688,30 +679,38 @@
                                 <ItemsControl ItemsSource="{Binding SheetRows}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Padding="4,8"
-                                                    BorderThickness="0,0,0,1"
-                                                    BorderBrush="{DynamicResource DividerBrush}">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="80"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="120"/>
-                                                        <ColumnDefinition Width="120"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0" Text="{Binding SheetNo}"
-                                                               FontSize="{StaticResource TextBody}"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                    <TextBlock Grid.Column="1" Text="{Binding StockLabel}"
-                                                               FontSize="{StaticResource TextBody}"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                    <TextBlock Grid.Column="2" Text="{Binding PieceCount}"
-                                                               FontSize="{StaticResource TextBody}"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                    <TextBlock Grid.Column="3" Text="{Binding Utilization}"
-                                                               FontSize="{StaticResource TextBody}"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                </Grid>
-                                            </Border>
+                                            <Button Cursor="Hand" HorizontalContentAlignment="Stretch"
+                                                    Command="{Binding DataContext.SelectSheetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding Index}">
+                                                <Button.Template>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border x:Name="Row" Padding="4,8" BorderThickness="0,0,0,1"
+                                                                BorderBrush="{DynamicResource DividerBrush}">
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="90"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="120"/>
+                                                                    <ColumnDefinition Width="120"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock Grid.Column="0" Text="{Binding SheetNo}" FontSize="{StaticResource TextBody}"
+                                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                <TextBlock Grid.Column="1" Text="{Binding StockLabel}" FontSize="{StaticResource TextBody}"
+                                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                <TextBlock Grid.Column="2" Text="{Binding PieceCount}" FontSize="{StaticResource TextBody}"
+                                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                <TextBlock Grid.Column="3" Text="{Binding Utilization}" FontSize="{StaticResource TextBody}"
+                                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                            </Grid>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="Row" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
@@ -722,7 +721,7 @@
             </Grid>
 
             <!-- ── TAB 5 · 2D VIEW ──────────────────────────────────── -->
-            <Grid Visibility="Collapsed">
+            <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -738,77 +737,151 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
+                        <!-- Navigator: prev/next + caption + zoom -->
                         <Grid Grid.Row="0" Margin="0,0,0,10">
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="◀ Prev"
-                                        Style="{StaticResource OutlinedPillButton}"
-                                        Command="{Binding SelectPreviousSheetCommand}"
-                                        Margin="0,0,8,0"/>
-                                <Button Content="Next ▶"
-                                        Style="{StaticResource OutlinedPillButton}"
-                                        Command="{Binding SelectNextSheetCommand}"
-                                        Margin="0,0,16,0"/>
-                                <TextBlock Text="{Binding PreviewCaption}"
-                                           FontSize="{StaticResource TextBody}"
-                                           FontWeight="SemiBold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                           VerticalAlignment="Center"/>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <Button Content="◀ Prev" Style="{StaticResource OutlinedPillButton}"
+                                        Command="{Binding SelectPreviousSheetCommand}" Margin="0,0,8,0"/>
+                                <Button Content="Next ▶" Style="{StaticResource OutlinedPillButton}"
+                                        Command="{Binding SelectNextSheetCommand}"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" Text="{Binding PreviewCaption}" FontSize="{StaticResource TextBody}"
+                                       FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       VerticalAlignment="Center" Margin="12,0"/>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Content="−" Style="{StaticResource OutlinedPillButton}" Width="34"
+                                        Command="{Binding PreviewZoomOutCommand}" Margin="0,0,6,0" ToolTip="Zoom out"/>
+                                <Border CornerRadius="8" Background="{DynamicResource ModuleBackgroundBrush}" Padding="10,3"
+                                        Margin="0,0,6,0" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding PreviewScaleLabel}" FontSize="{StaticResource TextCaption}"
+                                               FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                </Border>
+                                <Button Content="+" Style="{StaticResource OutlinedPillButton}" Width="34"
+                                        Command="{Binding PreviewZoomInCommand}" Margin="0,0,6,0" ToolTip="Zoom in"/>
+                                <Button Content="100%" Style="{StaticResource OutlinedPillButton}"
+                                        Command="{Binding PreviewZoomResetCommand}" ToolTip="Reset zoom"/>
                             </StackPanel>
                         </Grid>
 
-                        <ScrollViewer Grid.Row="1"
-                                      HorizontalScrollBarVisibility="Auto"
-                                      VerticalScrollBarVisibility="Auto">
-                            <Border BorderBrush="{DynamicResource DividerBrush}"
-                                    BorderThickness="2"
-                                    Background="{DynamicResource DashAmbientBrush}"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Top">
-                                <Canvas Width="{Binding RenderWidth}"
-                                        Height="{Binding RenderHeight}">
-                                    <ItemsControl ItemsSource="{Binding SheetRects}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <Canvas/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemContainerStyle>
-                                            <Style TargetType="ContentPresenter">
-                                                <Setter Property="Canvas.Left" Value="{Binding X}"/>
-                                                <Setter Property="Canvas.Top" Value="{Binding Y}"/>
-                                            </Style>
-                                        </ItemsControl.ItemContainerStyle>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border Width="{Binding Width}"
-                                                        Height="{Binding Height}"
-                                                        BorderThickness="1"
-                                                        BorderBrush="{DynamicResource WindowBackgroundBrush}">
-                                                    <Border.Style>
-                                                        <Style TargetType="Border">
-                                                            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding Rotated}" Value="True">
-                                                                    <Setter Property="Background" Value="{DynamicResource MutedForegroundBrush}"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Border.Style>
-                                                    <TextBlock Text="{Binding Label}"
-                                                               FontSize="9"
-                                                               Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                                               Margin="3,2"
-                                                               TextTrimming="CharacterEllipsis"/>
-                                                </Border>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </Canvas>
-                            </Border>
+                        <!-- Filmstrip — one chip per sheet -->
+                        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                                      Visibility="{Binding HasResult, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <ItemsControl ItemsSource="{Binding SheetRows}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource SheetChipStyle}"
+                                                Command="{Binding DataContext.SelectSheetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding Index}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </ScrollViewer>
+
+                        <!-- Canvas area -->
+                        <Grid Grid.Row="2">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                                        Visibility="{Binding HasPreview, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                <TextBlock Text="&#xE80A;" FontFamily="Segoe MDL2 Assets" FontSize="44"
+                                           HorizontalAlignment="Center" Foreground="{DynamicResource MutedForegroundBrush}" Opacity="0.6"/>
+                                <TextBlock Text="No layout to preview yet" FontSize="{StaticResource TextSubhead}" FontWeight="SemiBold"
+                                           HorizontalAlignment="Center" Margin="0,12,0,4" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                <TextBlock Text="Run Quick or Optimize, then pick a sheet from Summary — the canvas shows every piece, the margin zone, kerf gaps and rotation."
+                                           FontSize="{StaticResource TextBody}" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="460"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                            </StackPanel>
+
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                                          Visibility="{Binding HasPreview, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <StackPanel>
+                                    <!-- Sheet chrome: stock + metrics -->
+                                    <Border CornerRadius="{DynamicResource CardCornerRadius}"
+                                            Background="{DynamicResource DashAmbientBrush}" Padding="12,8"
+                                            Margin="0,0,0,8" HorizontalAlignment="Left">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding PreviewStockLabel}" FontSize="{StaticResource TextBody}"
+                                                       FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,16,0"/>
+                                            <TextBlock Text="{Binding PreviewUtilization}" FontSize="{StaticResource TextBody}"
+                                                       FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}" Margin="0,0,16,0"/>
+                                            <TextBlock Text="{Binding PreviewPiecesCount}" FontSize="{StaticResource TextBody}"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,16,0"/>
+                                            <TextBlock Text="{Binding MarginZoneLabel}" FontSize="{StaticResource TextCaption}"
+                                                       Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Scaled sheet canvas -->
+                                    <Border BorderBrush="{DynamicResource DividerBrush}" BorderThickness="2"
+                                            Background="{DynamicResource DashAmbientBrush}"
+                                            HorizontalAlignment="Left" VerticalAlignment="Top">
+                                        <Canvas Width="{Binding RenderWidth}" Height="{Binding RenderHeight}">
+                                            <!-- Usable rectangle inside the edge trims (margin zone) -->
+                                            <Rectangle Canvas.Left="{Binding UsableX}" Canvas.Top="{Binding UsableY}"
+                                                       Width="{Binding UsableW}" Height="{Binding UsableH}"
+                                                       Stroke="{DynamicResource AccentBrush}" StrokeThickness="1"
+                                                       StrokeDashArray="4,3" Fill="Transparent" IsHitTestVisible="False"/>
+                                            <!-- Placed pieces -->
+                                            <ItemsControl ItemsSource="{Binding SheetRects}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <Canvas/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemContainerStyle>
+                                                    <Style TargetType="ContentPresenter">
+                                                        <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                                                        <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                                                    </Style>
+                                                </ItemsControl.ItemContainerStyle>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Width="{Binding Width}" Height="{Binding Height}"
+                                                                BorderThickness="1" BorderBrush="{DynamicResource WindowBackgroundBrush}">
+                                                            <Border.Style>
+                                                                <Style TargetType="Border">
+                                                                    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Rotated}" Value="True">
+                                                                            <Setter Property="Background" Value="{DynamicResource MutedForegroundBrush}"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Border.Style>
+                                                            <TextBlock Text="{Binding Label}" FontSize="9"
+                                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                                       Margin="3,2" TextTrimming="CharacterEllipsis"/>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </Canvas>
+                                    </Border>
+
+                                    <!-- Legend -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                        <Border Width="14" Height="14" Background="{DynamicResource AccentBrush}" CornerRadius="3" Margin="0,0,8,0"/>
+                                        <TextBlock Text="original orientation" FontSize="{StaticResource TextCaption}"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                                        <Border Width="14" Height="14" Background="{DynamicResource MutedForegroundBrush}" CornerRadius="3" Margin="0,0,8,0"/>
+                                        <TextBlock Text="rotated 90°" FontSize="{StaticResource TextCaption}"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Grid>
                     </Grid>
                 </Border>
             </Grid>

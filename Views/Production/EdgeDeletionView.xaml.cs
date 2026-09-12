@@ -1,8 +1,9 @@
-using System.Windows.Controls;
 
 namespace ProGlassAutomation.Views.Production
 {
-    public partial class EdgeDeletionView : UserControl
+    /// <summary>Edge Deletion — Stage 4 of 8. Separate page (own columns + detail);
+    /// shared page plumbing only via ProductionStagePageBase.</summary>
+    public partial class EdgeDeletionView : ProductionStagePageBase
     {
         public EdgeDeletionView()
         {

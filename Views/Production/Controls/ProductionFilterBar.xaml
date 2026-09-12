@@ -1,0 +1,64 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Production/Controls/ProductionFilterBar.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Production — shared filter bar (chrome only)
+
+     Search + job + status filters, plus the waiting-upstream tool-chain
+     backlog strip. DataContext = ProductionStageViewModelBase.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Production.Controls.ProductionFilterBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{DynamicResource AppFontFamily}"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+    <StackPanel>
+        <Border Style="{StaticResource ModuleListFilterBarStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="170"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0"
+                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource ModuleListFilterInputStyle}"
+                         Margin="0,0,8,0"
+                         VerticalContentAlignment="Center"
+                         ToolTip="Search Ref / customer / job / spec / salesman"/>
+                <ComboBox Grid.Column="1"
+                          ItemsSource="{Binding JobFilters}"
+                          SelectedItem="{Binding SelectedJobFilter}"
+                          Style="{StaticResource ModuleListFilterComboStyle}"
+                          Margin="0,0,8,0"
+                          ToolTip="Filter by released job"/>
+                <ComboBox Grid.Column="2"
+                          ItemsSource="{Binding StatusFilters}"
+                          SelectedItem="{Binding SelectedStatusFilter}"
+                          Style="{StaticResource ModuleListFilterComboStyle}"
+                          ToolTip="Filter by stage status"/>
+            </Grid>
+        </Border>
+
+        <!-- Waiting-upstream strip (tool-chain backlog) -->
+        <Border CornerRadius="{DynamicResource CardCornerRadius}"
+                Background="{DynamicResource TintIndigoBrush}"
+                Padding="10,6"
+                Margin="12,4,12,0"
+                Visibility="{Binding HasWaitingUpstream,
+                             Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="&#xE823;"
+                           FontFamily="Segoe MDL2 Assets"
+                           FontSize="{StaticResource TextBody}"
+                           Foreground="{DynamicResource AccentBrush}"
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,0"/>
+                <TextBlock Text="{Binding WaitingUpstreamLabel}"
+                           TextWrapping="Wrap"
+                           FontSize="{StaticResource TextBody}"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>
