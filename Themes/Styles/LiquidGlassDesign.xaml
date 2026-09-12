@@ -735,7 +735,7 @@
                                 <Border Height="7" CornerRadius="{DynamicResource Radius.Top.Medium}" VerticalAlignment="Top"
                                         Background="{DynamicResource GlassTopReflection}" Opacity="0.6" Margin="1,1,1,0"/>
                                 <TextBlock x:Name="Glyph" Text="&#xE73E;" FontFamily="Segoe MDL2 Assets"
-                                           FontSize="{StaticResource TextXSmall}" Foreground="{DynamicResource TextPrimaryBrush}"
+                                           FontSize="{DynamicResource TextXSmall}" Foreground="{DynamicResource TextPrimaryBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"
                                            Visibility="Collapsed"/>
                             </Grid>
@@ -864,7 +864,7 @@
                                           Content="{TemplateBinding SelectionBoxItem}"
                                           ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"/>
                         <TextBlock x:Name="Arrow" Text="&#xE70D;" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="{StaticResource TextXSmall}" Foreground="{DynamicResource TextSecondaryBrush}"
+                                   FontSize="{DynamicResource TextXSmall}" Foreground="{DynamicResource TextSecondaryBrush}"
                                    HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,14,0"
                                    IsHitTestVisible="False"/>
                         <Popup x:Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}"
