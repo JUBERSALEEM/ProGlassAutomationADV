@@ -409,7 +409,7 @@
                                   VirtualizingPanel.VirtualizationMode="Recycling"
                                   VirtualizingPanel.ScrollUnit="Pixel"
                                   ScrollViewer.CanContentScroll="True"
-                                  ScrollChanged="MasterGrid_ScrollChanged">
+                                  ScrollViewer.ScrollChanged="MasterGrid_ScrollChanged">
                             <DataGrid.Columns>
                                 <DataGridTemplateColumn Header="ST" Width="42">
                                     <DataGridTemplateColumn.CellTemplate>
@@ -503,6 +503,7 @@
                             Style="{StaticResource SurfaceSecondaryStyle}"
                             Margin="6,6,6,6"
                             Padding="14">
+                        <Grid>
 
                         <!-- No-selection hint -->
                         <StackPanel VerticalAlignment="Center"
@@ -869,6 +870,7 @@
 
                             </StackPanel>
                         </ScrollViewer>
+                        </Grid>
                     </Border>
                 </Grid>
             </Grid>
