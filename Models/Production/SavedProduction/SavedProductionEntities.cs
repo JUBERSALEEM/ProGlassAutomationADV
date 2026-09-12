@@ -149,5 +149,56 @@ namespace ProGlassAutomation.Models.Production.SavedProduction
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
         public DateTime? CompletedAt { get; set; }
+
+        /// <summary>
+        /// Operator who last marked this item COMPLETED (username / display
+        /// name). Empty while the item has never completed. ADDITIVE —
+        /// populated by the piece-flow entry writer (2026-09-12).
+        /// </summary>
+        [MaxLength(120)]
+        public string CompletedBy { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// One floor entry on a work item — every "mark done" records who did
+    /// it and when, so the audit trail shows exactly which operator moved
+    /// pieces through the factory and at what time. One row per save, per
+    /// stage item (Outer / Inner / …).
+    /// </summary>
+    [Table("ProductionEntries")]
+    public class SavedProductionEntry
+    {
+        [Key]
+        public int Id { get; set; }
+
+        /// <summary>FK to the stage work item this entry was recorded on.</summary>
+        public int WorkItemId { get; set; }
+
+        [Required, MaxLength(60)]
+        public string JobRef { get; set; } = string.Empty;
+
+        /// <summary>ProductionStage enum value stored as int.</summary>
+        public int Stage { get; set; }
+
+        public int SpecGroupNumber { get; set; }
+        public int SerialNumber { get; set; }
+
+        [MaxLength(30)]
+        public string Position { get; set; } = string.Empty;
+
+        [MaxLength(400)]
+        public string SpecName { get; set; } = string.Empty;
+
+        [MaxLength(100)]
+        public string GlassRef { get; set; } = string.Empty;
+
+        /// <summary>Pieces now marked done on the item after this entry.</summary>
+        public int Qty { get; set; }
+
+        /// <summary>Operator who saved the entry (AuditService.CurrentUser).</summary>
+        [MaxLength(120)]
+        public string DoneBy { get; set; } = string.Empty;
+
+        public DateTime DoneAt { get; set; } = DateTime.Now;
     }
 }

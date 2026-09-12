@@ -19,6 +19,7 @@ namespace ProGlassAutomation.Services.Production
     {
         public DbSet<SavedProductionRelease> Releases { get; set; }
         public DbSet<SavedProductionWorkItem> WorkItems { get; set; }
+        public DbSet<SavedProductionEntry> Entries { get; set; }
 
         public static string DatabaseFilePath =>
             Path.Combine(
@@ -57,6 +58,12 @@ namespace ProGlassAutomation.Services.Production
                 .HasDatabaseName("IX_ProductionWorkItem_Status");
             item.HasIndex(i => i.SpecGroupNumber)
                 .HasDatabaseName("IX_ProductionWorkItem_SpecGroupNumber");
+
+            var entry = modelBuilder.Entity<SavedProductionEntry>();
+            entry.HasIndex(e => e.WorkItemId)
+                 .HasDatabaseName("IX_ProductionEntry_WorkItemId");
+            entry.HasIndex(e => new { e.JobRef, e.Stage, e.SpecGroupNumber, e.SerialNumber })
+                 .HasDatabaseName("IX_ProductionEntry_Unit");
         }
     }
 }

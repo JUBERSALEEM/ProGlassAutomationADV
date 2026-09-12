@@ -15,6 +15,7 @@
 using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.Production;
 using ProGlassAutomation.Models.Production.SavedProduction;
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database.SchemaMigrations;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Utilities;
@@ -40,6 +41,24 @@ namespace ProGlassAutomation.Services.Production
     {
         private static bool _initialized;
         private static readonly object InitLock = new();
+
+        /// <summary>
+        /// Raised after any floor entry is saved (a work item's done qty
+        /// changed). Stage screens subscribe to live-refresh their lists and
+        /// detail pages the instant an operator marks pieces done — no
+        /// manual refresh. Raised on the caller's (UI) thread after the
+        /// database write; listeners marshal as needed.
+        /// </summary>
+        public static event Action? WorkItemsChanged;
+
+        private static void RaiseWorkItemsChanged()
+        {
+            try { WorkItemsChanged?.Invoke(); }
+            catch (Exception ex)
+            {
+                AppLogService.Debug("[ProductionRepository] WorkItemsChanged listener failed: " + ex.Message);
+            }
+        }
 
         /// <summary>Creates production.db on first use (idempotent).</summary>
         public static void EnsureInitialized()
@@ -783,6 +802,8 @@ namespace ProGlassAutomation.Services.Production
         /// upstream — a stage can never report more done than it received
         /// (that is the tool chain). Status follows the quantity:
         /// 0 → Pending · partial → InProgress · full inflow → Completed.
+        /// Every save writes a piece-flow ENTRY (who + when) so the audit
+        /// trail shows which operator moved pieces through the factory.
         /// </summary>
         public static async Task<(bool Ok, int AppliedQty, string Message)> SetDoneQtyAsync(
             int itemId, int requestedQty)
@@ -811,8 +832,29 @@ namespace ProGlassAutomation.Services.Production
                 : (int)WorkItemStatus.InProgress;
             row.UpdatedAt = DateTime.Now;
             row.CompletedAt = row.Status == (int)WorkItemStatus.Completed ? DateTime.Now : null;
+            if (row.Status == (int)WorkItemStatus.Completed)
+                row.CompletedBy = AuditService.CurrentUsername;
+
+            // Piece-flow entry: who marked these pieces done, and when.
+            db.Entries.Add(new SavedProductionEntry
+            {
+                WorkItemId = row.Id,
+                JobRef = row.JobRef,
+                Stage = row.Stage,
+                SpecGroupNumber = row.SpecGroupNumber,
+                SerialNumber = row.SerialNumber,
+                Position = row.Position,
+                SpecName = row.SpecName,
+                GlassRef = row.GlassRef,
+                Qty = applied,
+                DoneBy = AuditService.CurrentUsername,
+                DoneAt = DateTime.Now
+            });
 
             await db.SaveChangesAsync().ConfigureAwait(false);
+
+            // Live refresh: every stage screen re-reads its list + detail.
+            RaiseWorkItemsChanged();
 
             string message = requestedQty > inflow
                 ? $"Only {inflow.ToString(System.Globalization.CultureInfo.InvariantCulture)} piece(s) " +
@@ -820,6 +862,26 @@ namespace ProGlassAutomation.Services.Production
                 : "";
 
             return (true, applied, message);
+        }
+
+        /// <summary>
+        /// The floor audit trail for one unit at one stage (Outer + Inner
+        /// entries together), newest first: "Qty done · by operator · time".
+        /// </summary>
+        public static async Task<List<SavedProductionEntry>> GetUnitEntriesAsync(
+            string jobRef, int specGroupNumber, int serialNumber, ProductionStage stage)
+        {
+            EnsureInitialized();
+            using var db = new ProductionDbContext();
+            return await db.Entries.AsNoTracking()
+                .Where(e => e.JobRef == jobRef
+                    && e.SpecGroupNumber == specGroupNumber
+                    && e.SerialNumber == serialNumber
+                    && e.Stage == (int)stage)
+                .OrderByDescending(e => e.DoneAt)
+                .Take(100)
+                .ToListAsync()
+                .ConfigureAwait(false);
         }
     }
 }

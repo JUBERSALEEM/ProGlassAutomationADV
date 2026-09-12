@@ -13,13 +13,17 @@
 // quantity arrives in the next module. Every module screen is a
 // two-tier master–detail:
 //
-//   TIER 1 — UNIT LIST: full Step-5 rows (Sr, Ref, W1/H1, W2/H2, Qty,
-//            SQM/LM per pane — no pricing) with this stage's piece flow:
-//            IN (arrived) · DONE · BALANCE.
+//   TIER 1 — UNIT LIST (main stage screen): one row per unit with
+//            SR · JOB NO · CUSTOMER · TOTAL · DONE · BALANCE plus a
+//            status chip. Double-click opens the full-page detail.
 //
-//   TIER 2 — UNIT DETAIL: job header with OPEN JOB ORDER / OPEN PI
-//            cross-navigation, plus the pane-level stage items where the
-//            floor records done quantities (clamped to what arrived).
+//   TIER 2 — FULL-PAGE UNIT DETAIL: top completed-KPI strip, a card
+//            per pane (Outer / Inner — single glass shows the spec
+//            name) with W1×H1 (and W2/H2), per-pane TOTAL/DONE/BALANCE,
+//            a Qty Done input + Save, unit totals, and the recent
+//            entries log (who marked done, when). Completed pieces flow
+//            into the next stage automatically; the main list
+//            live-refreshes on every floor entry.
 //
 // See docs/PRODUCTION_SCREENS_DESIGN_2026-09-11.md for the full design.
 // ═══════════════════════════════════════════════════════════════════════
@@ -62,6 +66,40 @@ namespace ProGlassAutomation.ViewModels.Production
         public string SizeLabel => _flow.Item.WidthMm > 0 && _flow.Item.HeightMm > 0
             ? $"{_flow.Item.WidthMm.ToString(CultureInfo.InvariantCulture)} × {_flow.Item.HeightMm.ToString(CultureInfo.InvariantCulture)} mm"
             : "—";
+
+        /// <summary>
+        /// Card title: OUTER / INNER for pane builds; the spec name
+        /// directly for single-glass units (SGU).
+        /// </summary>
+        public string PaneTitle
+        {
+            get
+            {
+                string p = _flow.Item.Position ?? "";
+                if (string.Equals(p, "Unit", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(p, "Glass", StringComparison.OrdinalIgnoreCase) ||
+                    string.IsNullOrWhiteSpace(p))
+                    return string.IsNullOrWhiteSpace(_flow.Item.SpecName) ? "Glass" : _flow.Item.SpecName;
+                return p;
+            }
+        }
+
+        /// <summary>Spec + treatment + glass ref, only where not already the title.</summary>
+        public string PaneSubtitle
+        {
+            get
+            {
+                var parts = new List<string>();
+                if (!string.IsNullOrWhiteSpace(_flow.Item.SpecName) &&
+                    !string.Equals(PaneTitle, _flow.Item.SpecName, StringComparison.OrdinalIgnoreCase))
+                    parts.Add(_flow.Item.SpecName);
+                if (!string.IsNullOrWhiteSpace(_flow.Item.Treatment))
+                    parts.Add(_flow.Item.Treatment);
+                if (!string.IsNullOrWhiteSpace(_flow.Item.GlassRef))
+                    parts.Add("Ref " + _flow.Item.GlassRef);
+                return parts.Count == 0 ? "" : string.Join(" · ", parts);
+            }
+        }
 
         public string QtyLabel => _flow.Item.Qty > 0
             ? _flow.Item.Qty.ToString(CultureInfo.InvariantCulture) : "—";
@@ -119,6 +157,14 @@ namespace ProGlassAutomation.ViewModels.Production
         };
 
         public bool CanWork => Inflow > 0;
+
+        /// <summary>Operator who last completed this item (empty if never).</summary>
+        public string DoneBy => string.IsNullOrWhiteSpace(_flow.Item.CompletedBy)
+            ? "—" : _flow.Item.CompletedBy;
+
+        public string CompletedAtLabel => _flow.Item.CompletedAt == null
+            ? "—"
+            : _flow.Item.CompletedAt.Value.ToString("dd MMM yyyy HH:mm", CultureInfo.InvariantCulture);
 
         // ── Done-qty editor ──────────────────────────────────────────────
 
@@ -303,6 +349,14 @@ namespace ProGlassAutomation.ViewModels.Production
             CreateDeliveryNoteCommand = new RelayCommand(
                 _ => AsyncUtility.SafeFireAndForget(CreateDeliveryNoteAsync, "Production delivery note"),
                 _ => HasSelection && !string.IsNullOrWhiteSpace(SelectedJobNo));
+
+            OpenUnitCommand = new RelayCommand(p => OpenUnit(p as ProductionListRow));
+            CloseDetailCommand = new RelayCommand(_ => IsDetailOpen = false);
+
+            // Live refresh: the instant any floor entry is saved (by any
+            // screen), every stage module re-reads its list, KPIs, chain
+            // and open detail page — no manual refresh button needed.
+            ProductionRepository.WorkItemsChanged += OnWorkItemsChanged;
         }
 
         /// <summary>Marker: "complete every piece that arrived" (inflow).</summary>
@@ -560,6 +614,41 @@ namespace ProGlassAutomation.ViewModels.Production
 
         /// <summary>Pane-level stage items for the selected unit.</summary>
         public ObservableCollection<ProductionWorkItemRow> SelectedStageItems { get; } = new();
+
+        // ── Full-page unit detail (double-click opens, back returns) ──────
+
+        private bool _isDetailOpen;
+        /// <summary>True while the full-page unit detail overlay is showing.</summary>
+        public bool IsDetailOpen
+        {
+            get => _isDetailOpen;
+            private set { if (_isDetailOpen == value) return; _isDetailOpen = value; OnPropertyChanged(); }
+        }
+
+        private string _selectedSerialLabel = "—";
+        public string SelectedSerialLabel { get => _selectedSerialLabel; private set { if (_selectedSerialLabel == value) return; _selectedSerialLabel = value; OnPropertyChanged(); } }
+
+        private string _selectedUnitTotalLabel = "0";
+        /// <summary>Unit TOTAL pieces (outer + inner summed) for the KPI panel.</summary>
+        public string SelectedUnitTotalLabel { get => _selectedUnitTotalLabel; private set { if (_selectedUnitTotalLabel == value) return; _selectedUnitTotalLabel = value; OnPropertyChanged(); } }
+
+        private string _selectedUnitDoneLabel = "0";
+        public string SelectedUnitDoneLabel { get => _selectedUnitDoneLabel; private set { if (_selectedUnitDoneLabel == value) return; _selectedUnitDoneLabel = value; OnPropertyChanged(); } }
+
+        private string _selectedUnitBalanceLabel = "0";
+        public string SelectedUnitBalanceLabel { get => _selectedUnitBalanceLabel; private set { if (_selectedUnitBalanceLabel == value) return; _selectedUnitBalanceLabel = value; OnPropertyChanged(); } }
+
+        private string _selectedUnitCompletedPctLabel = "0%";
+        public string SelectedUnitCompletedPctLabel { get => _selectedUnitCompletedPctLabel; private set { if (_selectedUnitCompletedPctLabel == value) return; _selectedUnitCompletedPctLabel = value; OnPropertyChanged(); } }
+
+        /// <summary>Floor audit trail for the selected unit at this stage.</summary>
+        public ObservableCollection<string> DetailEntries { get; } = new();
+
+        private bool _hasDetailEntries;
+        public bool HasDetailEntries { get => _hasDetailEntries; private set { if (_hasDetailEntries == value) return; _hasDetailEntries = value; OnPropertyChanged(); } }
+
+        public ICommand OpenUnitCommand { get; }
+        public ICommand CloseDetailCommand { get; }
 
         // ── Sidebar: stage totals (total / done / balance in the stage's
         //    metrics — pieces, SQM and LM, every module) ─────────────────
@@ -1022,6 +1111,17 @@ namespace ProGlassAutomation.ViewModels.Production
             SelectedLmSummary = Summary(Math.Round(lmTotal, 2, MidpointRounding.AwayFromZero),
                 Math.Round(lmDone, 2, MidpointRounding.AwayFromZero), " LM");
 
+            // Full-page KPI panel: unit TOTAL / DONE / BALANCE / COMPLETED %.
+            SelectedSerialLabel = row.SerialLabel;
+            SelectedUnitTotalLabel = pcsTotal.ToString(CultureInfo.InvariantCulture);
+            SelectedUnitDoneLabel = pcsDone.ToString(CultureInfo.InvariantCulture);
+            SelectedUnitBalanceLabel = (pcsTotal - pcsDone).ToString(CultureInfo.InvariantCulture);
+            SelectedUnitCompletedPctLabel = pcsTotal == 0 ? "0%"
+                : ((double)pcsDone / pcsTotal * 100.0).ToString("0.#", CultureInfo.InvariantCulture) + "%";
+
+            // Floor audit trail for this unit at this stage.
+            AsyncUtility.SafeFireAndForget(RefreshDetailEntriesAsync, "Production entry log");
+
             // Dispatch figures — finished pieces flow into delivery notes.
             AsyncUtility.SafeFireAndForget(
                 () => RefreshDispatchAsync(row.JobRef, row.SpecGroupNumber, row.SerialNumber),
@@ -1083,6 +1183,7 @@ namespace ProGlassAutomation.ViewModels.Production
 
         private void ClearDetailPanel()
         {
+            IsDetailOpen = false;   // selection is gone — close the full-page detail
             HasSelection = false;
             SelectedJobNo = "";
             SelectedPiNo = "";
@@ -1099,12 +1200,68 @@ namespace ProGlassAutomation.ViewModels.Production
             SelectedPcsSummary = "—";
             SelectedSqmSummary = "—";
             SelectedLmSummary = "—";
+            SelectedSerialLabel = "—";
+            SelectedUnitTotalLabel = "0";
+            SelectedUnitDoneLabel = "0";
+            SelectedUnitBalanceLabel = "0";
+            SelectedUnitCompletedPctLabel = "0%";
+            DetailEntries.Clear();
+            HasDetailEntries = false;
             HasDispatchPanel = false;
             SelectedDispatchReadyLabel = "0";
             SelectedDispatchDeliveredLabel = "0";
             SelectedDispatchBalanceLabel = "0";
             DispatchBalance = 0;
             AsyncUtility.InvalidateCommandsThrottled();
+        }
+
+        /// <summary>Opens the full-page unit detail (double-click on a row).</summary>
+        private void OpenUnit(ProductionListRow? row)
+        {
+            if (row == null) return;
+            SelectedRow = row;   // refreshes the detail panel state
+            IsDetailOpen = true;
+        }
+
+        /// <summary>Live-refresh hook: re-reads everything after a floor write.</summary>
+        private void OnWorkItemsChanged()
+        {
+            var dispatcher = System.Windows.Application.Current?.Dispatcher;
+            void Reload() => AsyncUtility.SafeFireAndForget(LoadAllAsync, "Production live refresh");
+            if (dispatcher != null && !dispatcher.CheckAccess())
+                dispatcher.BeginInvoke(new Action(Reload));
+            else
+                Reload();
+        }
+
+        /// <summary>
+        /// Loads the floor audit trail for the selected unit at this stage:
+        /// each "mark done" save — who, when and how many — newest first.
+        /// </summary>
+        private async Task RefreshDetailEntriesAsync()
+        {
+            var row = _selectedRow;
+            if (row == null) return;
+
+            var entries = await Task.Run(() =>
+                ProductionRepository.GetUnitEntriesAsync(
+                    row.JobRef, row.SpecGroupNumber, row.SerialNumber, Stage))
+                .ConfigureAwait(true);
+
+            // Selection may have moved on while loading.
+            if (_selectedRow == null || _selectedRow.RowKey != row.RowKey) return;
+
+            DetailEntries.Clear();
+            foreach (var e in entries)
+            {
+                string position = string.IsNullOrWhiteSpace(e.Position) ? "" : e.Position + " · ";
+                string who = string.IsNullOrWhiteSpace(e.DoneBy) ? "operator" : e.DoneBy;
+                DetailEntries.Add(string.Format(CultureInfo.InvariantCulture,
+                    "{0} pcs marked done · {1}{2} · {3}",
+                    e.Qty, position, who,
+                    e.DoneAt.ToString("dd MMM yyyy HH:mm", CultureInfo.InvariantCulture)));
+            }
+            HasDetailEntries = DetailEntries.Count > 0;
         }
 
         // ── Release sources ──────────────────────────────────────────────

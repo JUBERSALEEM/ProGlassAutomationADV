@@ -399,6 +399,41 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                 new(1002, "Production: QtyDone piece-flow counter", connection =>
                 {
                     SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionWorkItems", "QtyDone", "INTEGER NOT NULL DEFAULT 0");
+                }),
+
+                // Piece-flow entries (2026-09-12): every "mark done" save
+                // writes an entry (who + when) so the floor audit trail is
+                // complete. EnsureCreated() builds the table for fresh
+                // installs; this adds it for databases already in the field.
+                new(1003, "Production: piece-flow entry log table", connection =>
+                {
+                    SchemaMigrationSql.CreateTableIfNotExists(connection, @"
+                        CREATE TABLE IF NOT EXISTS ProductionEntries (
+                            Id              INTEGER NOT NULL CONSTRAINT PK_ProductionEntries PRIMARY KEY AUTOINCREMENT,
+                            WorkItemId      INTEGER NOT NULL,
+                            JobRef          TEXT NOT NULL,
+                            Stage           INTEGER NOT NULL DEFAULT 0,
+                            SpecGroupNumber INTEGER NOT NULL DEFAULT 0,
+                            SerialNumber    INTEGER NOT NULL DEFAULT 0,
+                            Position        TEXT NOT NULL DEFAULT '',
+                            SpecName        TEXT NOT NULL DEFAULT '',
+                            GlassRef        TEXT NOT NULL DEFAULT '',
+                            Qty             INTEGER NOT NULL DEFAULT 0,
+                            DoneBy          TEXT NOT NULL DEFAULT '',
+                            DoneAt          TEXT NOT NULL
+                        );");
+
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProductionEntry_WorkItemId ON ProductionEntries (WorkItemId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProductionEntry_Unit ON ProductionEntries (JobRef, Stage, SpecGroupNumber, SerialNumber);");
+                }),
+
+                // Piece-flow attribution (2026-09-12): the operator who
+                // last completed a work item, shown in the detail page.
+                new(1004, "Production: CompletedBy column", connection =>
+                {
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionWorkItems", "CompletedBy", "TEXT NOT NULL DEFAULT ''");
                 })
             };
 
