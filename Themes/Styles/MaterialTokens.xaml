@@ -1,0 +1,61 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Themes/Styles/MaterialTokens.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: ProGlass Design System — MATERIAL ENGINE LAYER (Level 3)
+
+     WHY THIS FILE
+       The master design-system directive requires a material engine that
+       supports Solid / Elevated / Frosted / Glass / CrystalLiquid through
+       ONE reusable surface primitive. The primitive already exists — the
+       token-driven Surface* styles (DesignTokens.xaml) for the opaque
+       materials and the LiquidGlass* surfaces for the translucent ones.
+       This file names the five material LEVELS canonically so any module
+       consumes them through a single, family-aware vocabulary.
+
+     MATERIAL LEVEL MAP (canonical → implementation)
+       Solid        → SurfacePrimaryStyle           (opaque work surface)
+       Elevated     → SurfaceSecondaryStyle         (raised layer)
+       Frosted      → LiquidGlassSubtleCardStyle    (light frost translucency)
+       Glass        → LiquidGlassCard               (defined glass surface)
+       CrystalLiquid→ LiquidGlassStrongCardStyle    (deep crystal surface)
+       Detail       → SurfaceDetailStyle            (inline/detail layer)
+       Panel        → LiquidGlassPanel              (chrome panel)
+
+     GUARANTEES
+       · These are aliases only — no template is duplicated or replaced.
+       · Crystal theatre (water/bubbles/caustics/refraction) is NOT added
+         here; it stays where it belongs (CrystalFluid environment surfaces).
+         Frosted/Glass/CrystalLiquid resolve through the SAME family-driven
+         brushes as the LiquidGlass implementations, so under Industrial and
+         Monet they re-tint to industrial/Monet materials — no water effects.
+       · Readability wins: translucent surfaces never wrap dense data grids;
+         those stay on Solid/Elevated (see DataGridStyles).
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ── MATERIAL LEVELS · ProGlassSurface (TargetType Border) ─────── -->
+
+    <!-- Opaque work surface (the base layer of every module). -->
+    <Style x:Key="ProGlassSurface.Solid"         TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+
+    <!-- Raised layer — dialogs, popovers, elevated cards. -->
+    <Style x:Key="ProGlassSurface.Elevated"      TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}"/>
+
+    <!-- Inline/detail layer — field groups, inline status. -->
+    <Style x:Key="ProGlassSurface.Detail"        TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}"/>
+
+    <!-- Light frost translucency — non-data chrome only. -->
+    <Style x:Key="ProGlassSurface.Frosted"       TargetType="Border" BasedOn="{StaticResource LiquidGlassSubtleCardStyle}"/>
+
+    <!-- Defined glass surface — non-data chrome only. -->
+    <Style x:Key="ProGlassSurface.Glass"         TargetType="Border" BasedOn="{StaticResource LiquidGlassCard}"/>
+
+    <!-- Deep crystal surface — crystal family accent surfaces only. -->
+    <Style x:Key="ProGlassSurface.CrystalLiquid" TargetType="Border" BasedOn="{StaticResource LiquidGlassStrongCardStyle}"/>
+
+    <!-- Chrome panel (sidebars, footers, overlay shells). -->
+    <Style x:Key="ProGlassSurface.Panel"         TargetType="Border" BasedOn="{StaticResource LiquidGlassPanel}"/>
+
+</ResourceDictionary>

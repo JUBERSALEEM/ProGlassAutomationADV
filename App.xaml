@@ -122,6 +122,16 @@
                      whole system live. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/LiquidGlassStyles.xaml"/>
 
+                <!-- ProGlass Design System MATERIAL ENGINE LAYER (2026-09-13).
+                     Purely additive: canonical material levels
+                     (ProGlassSurface.Solid/Elevated/Frosted/Glass/
+                     CrystalLiquid + Detail/Panel) over the token-driven
+                     Surface* and LiquidGlass* primitives. Merged after both
+                     implementations so StaticResource BasedOn resolves.
+                     No template duplicated; crystal theatre stays confined
+                     to the CrystalFluid environment dictionaries. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/MaterialTokens.xaml"/>
+
                 <!-- Modern rounded context-menu styles for every module's
                      right-click menu (Proforma / Job Order / Delivery Note /
                      Tax Invoice). -->
