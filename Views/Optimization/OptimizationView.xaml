@@ -75,8 +75,10 @@
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="OPTIMIZATION"
                                Style="{StaticResource ModulePageTitleStyle}"/>
-                    <TextBlock Text="Cutting plans that minimize waste — pieces in, sheets out, verified layouts."
-                               Style="{StaticResource ModulePageSubtitleStyle}"/>
+                    <TextBlock Style="{StaticResource ModulePageSubtitleStyle}">
+                        <Run Text="Cutting plans that minimize waste — pieces in, sheets out, verified layouts."/>
+                        <Run Text="  ·  UI REV 2026-09-12·B" FontWeight="SemiBold"/>
+                    </TextBlock>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
