@@ -25,9 +25,15 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus;
+using ProGlassAutomation.Models.Production;
+using ProGlassAutomation.Services.JobOrder.Mapper;
+using ProGlassAutomation.Services.JobOrder.Repository;
 using ProGlassAutomation.Services.Optimization;
+using ProGlassAutomation.Services.Production;
 
 namespace ProGlassAutomation.ViewModels.Optimization
 {
@@ -41,7 +47,53 @@ namespace ProGlassAutomation.ViewModels.Optimization
             set { _selectedTabIndex = value; OnPropertyChanged(); }
         }
 
-        // ── JOBS tab: piece list ────────────────────────────────────────
+        // ── JOBS tab: confirmed Job-Order picker (source lock) ─────────
+        // Production runs COMPLETELY from the confirmed PI (Job Order).
+        // The picker lists every non-draft, non-void JO; loading one expands
+        // its cutting pieces through the production distribution engine so
+        // the W2/H2 size semantics (equal-size vs overlap) match the floor.
+
+        public sealed class JobOptionVm
+        {
+            public string JobOrderId { get; set; } = string.Empty;
+            public string CustomerName { get; set; } = string.Empty;
+            public string Summary { get; set; } = string.Empty;
+            public int PieceRows { get; set; }
+            /// <summary>Cutting pieces (glass, label, w, h, qty) pre-expanded.</summary>
+            public List<(string Glass, string Label, int W, int H, int Qty)> Pieces { get; } = new();
+        }
+
+        public ObservableCollection<JobOptionVm> AvailableJobs { get; } = new();
+
+        private JobOptionVm? _selectedJob;
+        public JobOptionVm? SelectedJob
+        {
+            get => _selectedJob;
+            set { _selectedJob = value; OnPropertyChanged(); }
+        }
+
+        private string _jobsStatusText = "Loading confirmed job orders…";
+        public string JobsStatusText
+        {
+            get => _jobsStatusText;
+            set { _jobsStatusText = value; OnPropertyChanged(); }
+        }
+
+        private bool _hasPieces;
+        public bool HasPieces
+        {
+            get => _hasPieces;
+            private set { _hasPieces = value; OnPropertyChanged(); OnPropertyChanged(nameof(PiecesEmptyHint)); }
+        }
+
+        /// <summary>Shown on JOBS/SIZES tabs while the cutting list is empty.</summary>
+        public string PiecesEmptyHint => HasPieces
+            ? string.Empty
+            : "No pieces yet — select a confirmed job order on the left and load its cutting list, or add pieces manually below.";
+
+        public ICommand RefreshJobsCommand { get; }
+        public ICommand LoadSelectedJobCommand { get; }
+
 
         public sealed class PieceEntryVm : ViewModels.ViewModelBase
         {
@@ -222,6 +274,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
             RemovePieceCommand = new RelayCommand(p => RemovePiece(p as PieceEntryVm));
             ClearPiecesCommand = new RelayCommand(_ => { Pieces.Clear(); RefreshDerived(); });
             LoadReferenceJobCommand = new RelayCommand(_ => LoadReferenceJob());
+            RefreshJobsCommand = new RelayCommand(_ => LoadJobsAsync());
+            LoadSelectedJobCommand = new RelayCommand(_ => LoadSelectedJob());
+            LoadJobsAsync();
 
             AddStockCommand = new RelayCommand(_ => AddStock());
             RemoveStockCommand = new RelayCommand(p => RemoveStock(p as StockEntryVm));
@@ -280,6 +335,111 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             if (entry != null) Pieces.Remove(entry);
             RefreshDerived();
+        }
+
+        /// <summary>
+        /// Lists every confirmed (non-draft, non-void) Job Order and expands
+        /// its cutting pieces via the production distribution engine — the
+        /// same code the floor uses, so sizes/semantics never drift.
+        /// Never throws: any failure surfaces as a status line.
+        /// </summary>
+        private async void LoadJobsAsync()
+        {
+            JobsStatusText = "Loading confirmed job orders…";
+            try
+            {
+                var repo = App.ServiceProvider?.GetService(typeof(IJobOrderRepository)) as IJobOrderRepository;
+                if (repo == null)
+                {
+                    JobsStatusText = "Job store is not available yet — use Refresh.";
+                    return;
+                }
+
+                var all = await repo.GetAllAsync().ConfigureAwait(false);
+                var options = new List<JobOptionVm>();
+
+                foreach (var jo in all
+                    .Where(j => j != null && !j.IsVoid && !JobOrderStatusValues.Is(j.Status, JobOrderStatusValues.Draft))
+                    .OrderByDescending(j => j.UpdatedAt)
+                    .Take(100))
+                {
+                    var snapshot = JobOrderMapper.DeserializeSnapshot(jo);
+                    var plan = ProductionDistributionEngine.Distribute(
+                        jo.JobOrderId, snapshot?.EmbeddedInvoice);
+
+                    var cut = plan.Items
+                        .Where(i => i.Stage == ProductionStage.Cutting && i.WidthMm > 0 && i.HeightMm > 0)
+                        .ToList();
+
+                    var opt = new JobOptionVm
+                    {
+                        JobOrderId = jo.JobOrderId,
+                        CustomerName = jo.CustomerName
+                    };
+
+                    foreach (var g in cut
+                        .GroupBy(i => new { i.GlassRef, i.WidthMm, i.HeightMm, Label = i.SpecName })
+                        .OrderBy(g => g.Key.Label))
+                    {
+                        int qty = g.Sum(i => i.Qty);
+                        opt.Pieces.Add((g.Key.GlassRef, g.Key.Label, g.Key.WidthMm, g.Key.HeightMm, qty));
+                    }
+
+                    int pcs = opt.Pieces.Sum(p => p.Qty);
+                    double m2 = opt.Pieces.Sum(p => p.W / 1000.0 * p.H / 1000.0 * p.Qty);
+                    opt.PieceRows = opt.Pieces.Count;
+                    opt.Summary = string.Format(CultureInfo.InvariantCulture,
+                        "{0} · {1} pcs · {2:0.0} m²", jo.CustomerName, pcs, m2);
+
+                    if (opt.Pieces.Count > 0) options.Add(opt);
+                }
+
+                var dispatcher = System.Windows.Application.Current?.Dispatcher;
+                if (dispatcher != null)
+                {
+                    dispatcher.Invoke(() =>
+                    {
+                        AvailableJobs.Clear();
+                        foreach (var o in options) AvailableJobs.Add(o);
+                        SelectedJob = null;
+                        JobsStatusText = options.Count == 0
+                            ? "No confirmed job orders with cutting pieces yet."
+                            : string.Format(CultureInfo.InvariantCulture,
+                                "{0} confirmed job order(s) ready.", options.Count);
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                JobsStatusText = "Job list unavailable: " + ex.Message;
+            }
+        }
+
+        /// <summary>Copies the selected JO's cutting pieces into the run.</summary>
+        private void LoadSelectedJob()
+        {
+            if (SelectedJob == null)
+            {
+                RunMessage = "Select a confirmed job order first.";
+                return;
+            }
+
+            Pieces.Clear();
+            foreach (var (glass, label, w, h, qty) in SelectedJob.Pieces)
+            {
+                Pieces.Add(new PieceEntryVm
+                {
+                    GlassRef = glass,
+                    PieceLabel = label,
+                    WidthText = w.ToString(CultureInfo.InvariantCulture),
+                    HeightText = h.ToString(CultureInfo.InvariantCulture),
+                    QtyText = qty.ToString(CultureInfo.InvariantCulture)
+                });
+            }
+
+            RefreshDerived();
+            RunMessage = string.Format(CultureInfo.InvariantCulture,
+                "Loaded {0} cutting rows from {1}.", SelectedJob.PieceRows, SelectedJob.JobOrderId);
         }
 
         /// <summary>
@@ -352,6 +512,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 ? "No pieces yet"
                 : string.Format(CultureInfo.InvariantCulture,
                     "{0} pieces · {1:0.00} m² glass", count, area);
+
+            HasPieces = count > 0;
 
             SizeGroups.Clear();
             foreach (var grp in Pieces

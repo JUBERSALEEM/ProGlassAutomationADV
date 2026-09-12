@@ -142,8 +142,58 @@
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0" Style="{StaticResource OptPanel}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
-                        <TextBlock Text="ADD CUTTING PIECES"
+                        <TextBlock Text="CONFIRMED JOB ORDERS · SOURCE LOCK"
+                                   FontSize="{StaticResource TextCaption}"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   Margin="0,0,0,10"/>
+
+                        <ListBox ItemsSource="{Binding AvailableJobs}"
+                                 SelectedItem="{Binding SelectedJob}"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 MaxHeight="240"
+                                 Margin="-4,0,0,8"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="2,4">
+                                        <TextBlock Text="{Binding JobOrderId}"
+                                                   FontSize="{StaticResource TextBody}"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        <TextBlock Text="{Binding Summary}"
+                                                   FontSize="{StaticResource TextCaption}"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <Button Content="Load cutting list from selected job"
+                                Style="{StaticResource PrimaryPillButton}"
+                                Command="{Binding LoadSelectedJobCommand}"
+                                HorizontalAlignment="Stretch"
+                                Margin="0,0,0,8"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <Button Content="Refresh jobs"
+                                    Style="{StaticResource OutlinedPillButton}"
+                                    Command="{Binding RefreshJobsCommand}"/>
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding JobsStatusText}"
+                                   FontSize="{StaticResource TextCaption}"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   Margin="0,0,0,12"/>
+
+                        <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,0,0,12"/>
+
+                        <TextBlock Text="MANUAL PIECES (AD-HOC)"
                                    FontSize="{StaticResource TextCaption}"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource MutedForegroundBrush}"
@@ -198,12 +248,13 @@
                                 Command="{Binding ClearPiecesCommand}"
                                 HorizontalAlignment="Stretch"/>
 
-                        <TextBlock Text="The smart Job-Order picker (confirmed JOs only — source lock) arrives with the next phase; pieces can already be entered or loaded from the calibration job."
+                        <TextBlock Text="Source lock: cutting runs ONLY from confirmed Job Orders — select one above. Manual entry below is for ad-hoc pieces only."
                                    FontSize="{StaticResource TextCaption}"
                                    TextWrapping="Wrap"
                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                    Margin="0,14,0,0"/>
                     </StackPanel>
+                    </ScrollViewer>
                 </Border>
 
                 <Border Grid.Column="1" Style="{StaticResource OptPanel}">
@@ -212,6 +263,14 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="1"
+                                   Text="{Binding PiecesEmptyHint}"
+                                   FontSize="{StaticResource TextBody}"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   VerticalAlignment="Top"
+                                   Margin="4,8,4,0"/>
 
                         <Grid Grid.Row="0" Margin="0,0,0,6">
                             <Grid.ColumnDefinitions>
@@ -300,6 +359,14 @@
                                    TextWrapping="Wrap"
                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                    Margin="0,0,0,12"/>
+
+                        <TextBlock Grid.Row="1"
+                                   Text="{Binding PiecesEmptyHint}"
+                                   FontSize="{StaticResource TextBody}"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   VerticalAlignment="Top"
+                                   Margin="4,8,4,0"/>
 
                         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                             <StackPanel>
