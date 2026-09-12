@@ -405,4 +405,44 @@
         </Setter>
     </Style>
 
+    <!-- ─────────────────────────────────────────────────────────────────
+         Global input-style aliases (ERR-413D37 hardening)
+
+         Views had been defining IntInputStyle / DecimalInputStyle /
+         ComboStyle locally (e.g. AddEditSheetView); any other view that
+         referenced those keys crashed at runtime with "Cannot find
+         resource". The canonical definitions now live HERE so the keys
+         resolve app-wide. Views that still keep local definitions with
+         the same names simply shadow these — behavior unchanged.
+         ───────────────────────────────────────────────────────────────── -->
+
+    <Style x:Key="IntInputStyle" TargetType="TextBox"
+           BasedOn="{StaticResource ModernTextBoxStyle}">
+        <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
+        <Setter Property="behaviors:TextBoxBehaviors.AcceptIntegersOnly" Value="True"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="MinHeight" Value="40"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="DecimalInputStyle" TargetType="TextBox"
+           BasedOn="{StaticResource ModernTextBoxStyle}">
+        <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
+        <Setter Property="behaviors:TextBoxBehaviors.AcceptDecimals" Value="True"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="MinHeight" Value="40"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="ComboStyle" TargetType="ComboBox"
+           BasedOn="{StaticResource ModernEditableComboBoxStyle}">
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="MinHeight" Value="40"/>
+        <Setter Property="Padding" Value="12,0"/>
+        <Setter Property="IsEditable" Value="True"/>
+        <Setter Property="MaxDropDownHeight" Value="320"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="behaviors:EditableComboBoxTypingBehavior.IsEnabled" Value="True"/>
+    </Style>
+
 </ResourceDictionary>
