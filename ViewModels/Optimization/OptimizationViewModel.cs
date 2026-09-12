@@ -81,6 +81,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             ExportLayoutReportCommand = new RelayCommand(_ => ExportLayoutReport());
             ExportPartsReportCommand = new RelayCommand(_ => ExportPartsReport());
             ExportStocksReportCommand = new RelayCommand(_ => ExportStocksReport());
+            ExportIndustrialReportCommand = new RelayCommand(_ => ExportIndustrialReport());
 
             SelectPreviousSheetCommand = new RelayCommand(_ =>
             {

@@ -36,6 +36,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public string PieceCount { get; set; } = string.Empty;
             public string Utilization { get; set; } = string.Empty;
             public string WasteLabel { get; set; } = string.Empty;
+            /// <summary>Utilization band for colour coding: Good ≥85% /
+            /// Mid 70–84% / Low &lt;70% (matches the industrial report).</summary>
+            public string UtilizationTone { get; set; } = "Good";
             /// <summary>Cutting-group (glass composition) this sheet belongs to.</summary>
             public string Composition { get; set; } = string.Empty;
             public int Index { get; set; }
@@ -201,12 +204,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 "Optimization run");
         }
 
-        /// <summary>Groups the piece list by glass composition — one pack run each.</summary>
+        /// <summary>Groups the piece list by glass composition — one pack run
+        /// each. Keys are trimmed so the run composition exactly matches the
+        /// SIZES merge, the STOCKS rack tags and the industrial report.</summary>
         private static List<(string Composition, List<CutPiece> Pieces)> BuildCuttingGroups(List<CutPiece> pieces)
         {
             return pieces
                 .GroupBy(p => string.IsNullOrWhiteSpace(p.GlassRef)
-                        ? "(unlabelled glass)" : p.GlassRef,
+                        ? "(unlabelled glass)" : p.GlassRef.Trim(),
                     StringComparer.OrdinalIgnoreCase)
                 .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase)
                 .Select(g => (g.Key, g.ToList()))
@@ -419,6 +424,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             "{0} × {1}", sheet.Stock.WidthMm, sheet.Stock.HeightMm),
                         PieceCount = sheet.Pieces.Count.ToString(CultureInfo.InvariantCulture),
                         Utilization = sheetUtil.ToString("0.0", CultureInfo.InvariantCulture) + "%",
+                        UtilizationTone = sheetUtil >= 85.0 ? "Good" : sheetUtil >= 70.0 ? "Mid" : "Low",
                         WasteLabel = (sheetWaste / 1_000_000.0).ToString("0.00", CultureInfo.InvariantCulture) + " m²",
                         Composition = r.Composition,
                         Index = flatIndex
@@ -433,6 +439,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
             RebuildPreview();
 
             RefreshStockUsage(runs);
+
+            RebuildIndustrialReport();
 
             RunMessage = string.Format(CultureInfo.InvariantCulture,
                 "{0}: {1} cutting group(s), {2} sheet(s), {3:0.00}% utilization, {4} unplaced.",

@@ -172,7 +172,21 @@
                                                                     <TextBlock Grid.Column="3" Text="{Binding PieceCount}" FontSize="{StaticResource TextBody}"
                                                                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                                                     <TextBlock Grid.Column="4" Text="{Binding Utilization}" FontSize="{StaticResource TextBody}"
-                                                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                                                               FontWeight="SemiBold">
+                                                                        <TextBlock.Style>
+                                                                            <Style TargetType="TextBlock">
+                                                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                                                <Style.Triggers>
+                                                                                    <DataTrigger Binding="{Binding UtilizationTone}" Value="Mid">
+                                                                                        <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+                                                                                    </DataTrigger>
+                                                                                    <DataTrigger Binding="{Binding UtilizationTone}" Value="Low">
+                                                                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                                                    </DataTrigger>
+                                                                                </Style.Triggers>
+                                                                            </Style>
+                                                                        </TextBlock.Style>
+                                                                    </TextBlock>
                                                                     <TextBlock Grid.Column="5" Text="{Binding WasteLabel}" FontSize="{StaticResource TextBody}"
                                                                                Foreground="{DynamicResource MutedForegroundBrush}"/>
                                                                 </Grid>

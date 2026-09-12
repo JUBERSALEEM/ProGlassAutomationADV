@@ -3,11 +3,10 @@
      MODULE: Optimization — Reports tab (hosted by OptimizationView).
      DataContext = OptimizationViewModel (inherited from the shell).
 
-     Consolidated industry report over the current session:
-       1 · LAYOUT SUMMARY  (per-sheet cut plan)
-       2 · PARTS SUMMARY   (merged glass groups / cutting list)
-       3 · STOCKS SUMMARY  (Step 4 rack pool + usage)
-     Each section exports CSV through the shared report engine.
+     The owner's industrial cut report leads this tab: grouped by glass
+     composition, one utilization line per spec × sheet size, then a
+     GLASS REF / W1 / H1 / W2 / H2 / QTY / TOTAL SQM piece table per
+     spec. The legacy layout / parts / stocks session summaries follow.
 ═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Optimization.Tabs.ReportTabView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -94,7 +93,136 @@
                                 </Grid>
                             </Border>
 
-                            <!-- ── 1 · LAYOUT SUMMARY ── -->
+                            <!-- ══ 1 · INDUSTRIAL CUT REPORT ══ -->
+                            <Border Style="{StaticResource OptPanelCard}" Margin="0,0,0,16">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="1 · INDUSTRIAL CUT REPORT" Style="{StaticResource OptPanelTitle}"/>
+                                            <TextBlock Text="Grouped by glass composition — thickness, spec, sheet size, utilized quantity and utilization %, then the glass-ref size table per spec."
+                                                       FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="1" Content="Export CSV" Style="{StaticResource PrimaryPillButton}"
+                                                Command="{Binding ExportIndustrialReportCommand}" VerticalAlignment="Center"
+                                                ToolTip="Export the owner-format report (utilization lines + GLASS REF / W1 / H1 / W2 / H2 / QTY / TOTAL SQM tables)"/>
+                                    </Grid>
+
+                                    <!-- empty hint -->
+                                    <TextBlock Text="No report yet — add pieces on the JOBS tab, then run a cut."
+                                               FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}"
+                                               TextWrapping="Wrap" Margin="0,0,0,8"
+                                               Visibility="{Binding HasIndustrialReport, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+
+                                    <ItemsControl ItemsSource="{Binding IndustrialReport}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Style="{StaticResource OptInnerCard}" Margin="0,0,0,10">
+                                                    <StackPanel>
+                                                        <!-- spec heading -->
+                                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                                            <TextBlock Text="{Binding ThicknessLabel}" FontSize="{StaticResource TextBody}"
+                                                                       FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                                            <TextBlock Text="{Binding SpecName}" FontSize="{StaticResource TextBody}"
+                                                                       FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                       Margin="8,0,0,0"/>
+                                                            <TextBlock Text="{Binding Composition}" FontSize="{StaticResource TextCaption}"
+                                                                       Foreground="{DynamicResource MutedForegroundBrush}" Margin="10,1,0,0"
+                                                                       TextTrimming="CharacterEllipsis"/>
+                                                        </StackPanel>
+
+                                                        <!-- utilization line(s) -->
+                                                        <ItemsControl ItemsSource="{Binding Utilization}">
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <TextBlock Text="{Binding Line}" FontSize="{StaticResource TextBody}"
+                                                                               FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,1,0,4">
+                                                                        <TextBlock.Style>
+                                                                            <Style TargetType="TextBlock">
+                                                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                                                <Style.Triggers>
+                                                                                    <DataTrigger Binding="{Binding Tone}" Value="Mid">
+                                                                                        <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+                                                                                    </DataTrigger>
+                                                                                    <DataTrigger Binding="{Binding Tone}" Value="Low">
+                                                                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                                                    </DataTrigger>
+                                                                                </Style.Triggers>
+                                                                            </Style>
+                                                                        </TextBlock.Style>
+                                                                    </TextBlock>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+
+                                                        <TextBlock Text="— not yet optimized —" FontSize="{StaticResource TextCaption}"
+                                                                   Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,6"
+                                                                   Visibility="{Binding HasUtilization, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+
+                                                        <!-- piece table -->
+                                                        <Grid Margin="0,6,0,2">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="72"/>
+                                                                <ColumnDefinition Width="72"/>
+                                                                <ColumnDefinition Width="72"/>
+                                                                <ColumnDefinition Width="72"/>
+                                                                <ColumnDefinition Width="64"/>
+                                                                <ColumnDefinition Width="104"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0" Text="GLASS REF" Style="{StaticResource OptHeader}"/>
+                                                            <TextBlock Grid.Column="1" Text="W1" Style="{StaticResource OptHeader}" TextAlignment="Right"/>
+                                                            <TextBlock Grid.Column="2" Text="H1" Style="{StaticResource OptHeader}" TextAlignment="Right"/>
+                                                            <TextBlock Grid.Column="3" Text="W2" Style="{StaticResource OptHeader}" TextAlignment="Right"/>
+                                                            <TextBlock Grid.Column="4" Text="H2" Style="{StaticResource OptHeader}" TextAlignment="Right"/>
+                                                            <TextBlock Grid.Column="5" Text="QTY" Style="{StaticResource OptHeader}" TextAlignment="Right"/>
+                                                            <TextBlock Grid.Column="6" Text="TOTAL SQM" Style="{StaticResource OptHeader}" TextAlignment="Right"/>
+                                                        </Grid>
+                                                        <ItemsControl ItemsSource="{Binding Pieces}">
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <Border Padding="0,4" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource DividerBrush}">
+                                                                        <Grid>
+                                                                            <Grid.ColumnDefinitions>
+                                                                                <ColumnDefinition Width="*"/>
+                                                                                <ColumnDefinition Width="72"/>
+                                                                                <ColumnDefinition Width="72"/>
+                                                                                <ColumnDefinition Width="72"/>
+                                                                                <ColumnDefinition Width="72"/>
+                                                                                <ColumnDefinition Width="64"/>
+                                                                                <ColumnDefinition Width="104"/>
+                                                                            </Grid.ColumnDefinitions>
+                                                                            <TextBlock Grid.Column="0" Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}"
+                                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                                            <TextBlock Grid.Column="1" Text="{Binding W1}" FontSize="{StaticResource TextBody}"
+                                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}" TextAlignment="Right"/>
+                                                                            <TextBlock Grid.Column="2" Text="{Binding H1}" FontSize="{StaticResource TextBody}"
+                                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}" TextAlignment="Right"/>
+                                                                            <TextBlock Grid.Column="3" Text="{Binding W2}" FontSize="{StaticResource TextBody}"
+                                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}" TextAlignment="Right"/>
+                                                                            <TextBlock Grid.Column="4" Text="{Binding H2}" FontSize="{StaticResource TextBody}"
+                                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}" TextAlignment="Right"/>
+                                                                            <TextBlock Grid.Column="5" Text="{Binding Qty}" FontSize="{StaticResource TextBody}"
+                                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" TextAlignment="Right"/>
+                                                                            <TextBlock Grid.Column="6" Text="{Binding TotalSqm}" FontSize="{StaticResource TextBody}"
+                                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" TextAlignment="Right"/>
+                                                                        </Grid>
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- ══ 2 · LAYOUT SUMMARY ══ -->
                             <Border Style="{StaticResource OptPanelCard}" Margin="0,0,0,16">
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -107,7 +235,7 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Grid.Column="0">
-                                            <TextBlock Text="1 · LAYOUT SUMMARY" Style="{StaticResource OptPanelTitle}"/>
+                                            <TextBlock Text="2 · LAYOUT SUMMARY" Style="{StaticResource OptPanelTitle}"/>
                                             <TextBlock Text="Every sheet the engine produced — stock, pieces, utilization and offcut."
                                                        FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}"/>
                                         </StackPanel>
@@ -134,45 +262,45 @@
                                         <ItemsControl ItemsSource="{Binding SheetRows}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Button Cursor="Hand" HorizontalContentAlignment="Stretch"
-                                                            Command="{Binding DataContext.SelectSheetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                            CommandParameter="{Binding Index}" ToolTip="Open in 2D view">
-                                                        <Button.Template>
-                                                            <ControlTemplate TargetType="Button">
-                                                                <Border x:Name="Row" Padding="4,8" BorderThickness="0,0,0,1"
-                                                                        BorderBrush="{DynamicResource DividerBrush}">
-                                                                    <Grid>
-                                                                        <Grid.ColumnDefinitions>
-                                                                            <ColumnDefinition Width="70"/>
-                                                                            <ColumnDefinition Width="*"/>
-                                                                            <ColumnDefinition Width="130"/>
-                                                                            <ColumnDefinition Width="80"/>
-                                                                            <ColumnDefinition Width="110"/>
-                                                                            <ColumnDefinition Width="110"/>
-                                                                        </Grid.ColumnDefinitions>
-                                                                        <TextBlock Grid.Column="0" Text="{Binding SheetNo}" FontSize="{StaticResource TextBody}"
-                                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                                        <TextBlock Grid.Column="1" Text="{Binding Composition}" FontSize="{StaticResource TextBody}"
-                                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                                                   TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
-                                                                        <TextBlock Grid.Column="2" Text="{Binding StockLabel}" FontSize="{StaticResource TextBody}"
-                                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                                        <TextBlock Grid.Column="3" Text="{Binding PieceCount}" FontSize="{StaticResource TextBody}"
-                                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                                        <TextBlock Grid.Column="4" Text="{Binding Utilization}" FontSize="{StaticResource TextBody}"
-                                                                                   Foreground="{DynamicResource SuccessBrush}"/>
-                                                                        <TextBlock Grid.Column="5" Text="{Binding WasteLabel}" FontSize="{StaticResource TextBody}"
-                                                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                                                    </Grid>
-                                                                </Border>
-                                                                <ControlTemplate.Triggers>
-                                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                                        <Setter TargetName="Row" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-                                                                    </Trigger>
-                                                                </ControlTemplate.Triggers>
-                                                            </ControlTemplate>
-                                                        </Button.Template>
-                                                    </Button>
+                                                    <Border Padding="4,8" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource DividerBrush}">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="70"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="130"/>
+                                                                <ColumnDefinition Width="80"/>
+                                                                <ColumnDefinition Width="110"/>
+                                                                <ColumnDefinition Width="110"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0" Text="{Binding SheetNo}" FontSize="{StaticResource TextBody}"
+                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                            <TextBlock Grid.Column="1" Text="{Binding Composition}" FontSize="{StaticResource TextBody}"
+                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                       TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
+                                                            <TextBlock Grid.Column="2" Text="{Binding StockLabel}" FontSize="{StaticResource TextBody}"
+                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                            <TextBlock Grid.Column="3" Text="{Binding PieceCount}" FontSize="{StaticResource TextBody}"
+                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                            <TextBlock Grid.Column="4" Text="{Binding Utilization}" FontSize="{StaticResource TextBody}"
+                                                                       FontWeight="SemiBold">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding UtilizationTone}" Value="Mid">
+                                                                                <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding UtilizationTone}" Value="Low">
+                                                                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                            <TextBlock Grid.Column="5" Text="{Binding WasteLabel}" FontSize="{StaticResource TextBody}"
+                                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                        </Grid>
+                                                    </Border>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
@@ -180,7 +308,7 @@
                                 </Grid>
                             </Border>
 
-                            <!-- ── 2 · PARTS SUMMARY ── -->
+                            <!-- ══ 3 · PARTS SUMMARY ══ -->
                             <Border Style="{StaticResource OptPanelCard}" Margin="0,0,0,16">
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -193,9 +321,9 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Grid.Column="0">
-                                            <TextBlock Text="2 · PARTS SUMMARY" Style="{StaticResource OptPanelTitle}"/>
-                                            <TextBlock Text="{Binding PieceSummary}" FontSize="{StaticResource TextCaption}"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                            <TextBlock Text="3 · PARTS SUMMARY" Style="{StaticResource OptPanelTitle}"/>
+                                            <TextBlock Text="Merged glass groups — the cutting list summarized by composition."
+                                                       FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}"/>
                                         </StackPanel>
                                         <Button Grid.Column="1" Content="Export CSV" Style="{StaticResource OutlinedPillButton}"
                                                 Command="{Binding ExportPartsReportCommand}" VerticalAlignment="Center"/>
@@ -242,7 +370,7 @@
                                 </Grid>
                             </Border>
 
-                            <!-- ── 3 · STOCKS SUMMARY ── -->
+                            <!-- ══ 4 · STOCKS SUMMARY ══ -->
                             <Border Style="{StaticResource OptPanelCard}">
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -255,7 +383,7 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Grid.Column="0">
-                                            <TextBlock Text="3 · STOCKS SUMMARY" Style="{StaticResource OptPanelTitle}"/>
+                                            <TextBlock Text="4 · STOCKS SUMMARY" Style="{StaticResource OptPanelTitle}"/>
                                             <TextBlock Text="{Binding StocksStatusText}" FontSize="{StaticResource TextCaption}"
                                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
                                         </StackPanel>

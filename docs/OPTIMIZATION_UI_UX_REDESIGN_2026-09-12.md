@@ -59,15 +59,24 @@ current rating, the concrete issues found, and the phased plan to reach
 - Inputs rounded to match cards.
 - REPORT tab: layout/parts/stocks summaries + CSV export.
 
-### Phase 2 — visual polish (pending)
+### Phase 2 — visual polish (in progress)
 - Elevate KPI cards with the shared `CardStyles` treatment (top accent
   hairline, refined shadow) instead of the module's bespoke `OptKpiCard`.
 - Unify card corner radius tokens (10/12px) into a single `OptCorner`
   token; remove per-view literal radii.
 - Add a sheet thumbnail mini-map inside the 2D centre read-out.
-- Per-sheet utilisation colour coding (green ≥85%, amber 70–84%, red <70%).
+- Per-sheet utilisation colour coding (green ≥85%, amber 70–84%,
+  red <70%). ✅ *(done — SUMMARY sheet rows and the industrial report
+  utilisation lines are tone-coded via `UtilizationTone`)*
 
-### Phase 3 — reporting depth (pending)
+### Phase 3 — reporting depth (in progress)
+- **Industrial cut report (owner format).** ✅ *(done — the REPORT tab now
+  leads with the owner's production report: grouped by glass composition,
+  `6MM THICKNESS …(SPEC) 3210 * 2250 SHEET UTILIZED QTY 17 (SHEET SIZE)
+  - 82.77% UTILIZATION INNER` utilisation lines, then a
+  `GLASS REF / W1 / H1 / W2 / H2 / QTY / TOTAL SQM` piece table per spec;
+  exported through the shared CSV engine as
+  `Optimization_Industrial_Cut_Report`.)*
 - PDF export (layout with scaled sheet vector + piece labels) via the
   existing QuestPDF engine; parts/stocks as paginated tables.
 - "Export all three summaries" combined report action.

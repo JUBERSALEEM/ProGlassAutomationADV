@@ -234,6 +234,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             RebuildCuttingGroups();
             RebuildCutPlan();
             RefreshKpis();
+            RebuildIndustrialReport();
         }
 
         /// <summary>
