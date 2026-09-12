@@ -75,19 +75,58 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public string TotalSqm { get; set; } = string.Empty;
         }
 
+        /// <summary>Flattened row for the Excel/PDF industrial export —
+        /// composition as the section key, an optional utilization line,
+        /// then the piece-table columns.</summary>
+        public sealed class IndustrialSectionRow
+        {
+            public string Section = string.Empty;
+            public string Line = string.Empty;
+            public string GlassRef = string.Empty;
+            public string W1 = string.Empty;
+            public string H1 = string.Empty;
+            public string W2 = string.Empty;
+            public string H2 = string.Empty;
+            public string Qty = string.Empty;
+            public string TotalSqm = string.Empty;
+        }
+
         public ObservableCollection<IndustrialReportSpecVm> IndustrialReport { get; } = new();
 
         private bool _hasIndustrialReport;
         public bool HasIndustrialReport { get => _hasIndustrialReport; private set { _hasIndustrialReport = value; OnPropertyChanged(); } }
 
         // ── export commands ──────────────────────────────────────────
+        // One command per report surface; the format travels as the button's
+        // CommandParameter ("CSV" / "Excel" / "PDF"). ExportAll emits the
+        // three session summaries as a single sectioned document.
 
         public ICommand ExportLayoutReportCommand { get; }
         public ICommand ExportPartsReportCommand { get; }
         public ICommand ExportStocksReportCommand { get; }
         public ICommand ExportIndustrialReportCommand { get; }
+        public ICommand ExportAllCommand { get; }
 
-        private void ExportLayoutReport()
+        /// <summary>Maps a button parameter to the export format (default CSV).</summary>
+        private static ExportFormat ParseExportFormat(object? parameter)
+        {
+            if (parameter is ExportFormat fmt) return fmt;
+            string? s = parameter as string;
+            if (string.Equals(s, "Excel", StringComparison.OrdinalIgnoreCase)) return ExportFormat.Excel;
+            if (string.Equals(s, "PDF", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(s, "Pdf", StringComparison.OrdinalIgnoreCase)) return ExportFormat.Pdf;
+            return ExportFormat.Csv;
+        }
+
+        /// <summary>Numeric cells stay numeric in Excel; anything else stays text.</summary>
+        private static object ExcelNumber(string text)
+        {
+            if (int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out int i)) return i;
+            if (double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double d)) return d;
+            return text;
+        }
+
+        private void ExportLayoutReport(ExportFormat format)
         {
             if (!HasResult || SheetRows.Count == 0)
             {
@@ -95,19 +134,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 return;
             }
             AsyncUtility.SafeFireAndForget(
-                async () => await ReportingExportService.ExportCsvAsync(
+                async () => await OptimizationReportExport.RunAsync(
+                    format,
                     SheetRows.ToList(),
                     "Optimization — Layout Summary",
                     new[] { "Sheet", "Glass", "Stock (mm)", "Pieces", "Utilization", "Offcut (m²)" },
-                    r => new[]
-                    {
-                        r.SheetNo, r.Composition, r.StockLabel, r.PieceCount, r.Utilization, r.WasteLabel
-                    },
-                    new ExportRequest { SuggestedFileName = "Optimization_Layout_Summary" }),
+                    r => new[] { r.SheetNo, r.Composition, r.StockLabel, r.PieceCount, r.Utilization, r.WasteLabel },
+                    r => new object[] { ExcelNumber(r.SheetNo), r.Composition, r.StockLabel, ExcelNumber(r.PieceCount), r.Utilization, r.WasteLabel },
+                    "Optimization_Layout_Summary"),
                 "Optimization layout report export");
         }
 
-        private void ExportPartsReport()
+        private void ExportPartsReport(ExportFormat format)
         {
             if (!HasPieces || SizeGroups.Count == 0)
             {
@@ -115,16 +153,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 return;
             }
             AsyncUtility.SafeFireAndForget(
-                async () => await ReportingExportService.ExportCsvAsync(
+                async () => await OptimizationReportExport.RunAsync(
+                    format,
                     SizeGroups.ToList(),
                     "Optimization — Parts Summary",
                     new[] { "Glass Composition", "Thickness", "Pieces", "Area (m²)" },
                     g => new[] { g.Composition, g.Thickness, g.PieceCount, g.AreaM2 },
-                    new ExportRequest { SuggestedFileName = "Optimization_Parts_Summary" }),
+                    g => new object[] { g.Composition, g.Thickness, ExcelNumber(g.PieceCount), ExcelNumber(g.AreaM2) },
+                    "Optimization_Parts_Summary"),
                 "Optimization parts report export");
         }
 
-        private void ExportStocksReport()
+        private void ExportStocksReport(ExportFormat format)
         {
             if (Stocks.Count == 0)
             {
@@ -132,7 +172,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 return;
             }
             AsyncUtility.SafeFireAndForget(
-                async () => await ReportingExportService.ExportCsvAsync(
+                async () => await OptimizationReportExport.RunAsync(
+                    format,
                     Stocks.ToList(),
                     "Optimization — Stocks Summary",
                     new[] { "Sheet (mm)", "Glass / Group", "Available", "Used this run", "Source", "In run" },
@@ -145,23 +186,136 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         s.SourceLabel,
                         s.IsUsedInRun ? "Yes" : "No"
                     },
-                    new ExportRequest { SuggestedFileName = "Optimization_Stocks_Summary" }),
+                    s => new object[]
+                    {
+                        s.WidthText + "×" + s.HeightText,
+                        s.CompositionLabel,
+                        ExcelNumber(s.AvailableText),
+                        s.UsedLabel,
+                        s.SourceLabel,
+                        s.IsUsedInRun ? "Yes" : "No"
+                    },
+                    "Optimization_Stocks_Summary"),
                 "Optimization stocks report export");
         }
 
-        private void ExportIndustrialReport()
+        private void ExportIndustrialReport(ExportFormat format)
         {
             if (!HasIndustrialReport)
             {
                 RunMessage = "Nothing to export — add pieces (JOBS tab) and run a cut first.";
                 return;
             }
-            var layout = new IndustrialReportCsvLayout(IndustrialReport.ToList());
+
+            if (format == ExportFormat.Csv)
+            {
+                // Owner format: utilization line(s) then the GLASS REF /
+                // W1 / H1 / W2 / H2 / QTY / TOTAL SQM table per composition.
+                var layout = new IndustrialReportCsvLayout(IndustrialReport.ToList());
+                AsyncUtility.SafeFireAndForget(
+                    async () => await new CsvExportEngine().ExportAsync(
+                        layout,
+                        new ExportRequest { SuggestedFileName = "Optimization_Industrial_Cut_Report" }),
+                    "Optimization industrial report export");
+                return;
+            }
+
+            // Excel / PDF: one sectioned table — the composition is the
+            // SECTION, the utilization line rides in its own LINE column,
+            // then the piece rows.
+            var rows = new List<IndustrialSectionRow>();
+            foreach (var spec in IndustrialReport)
+            {
+                if (spec.Utilization.Count == 0)
+                    rows.Add(new IndustrialSectionRow { Section = spec.Composition });
+                else
+                    foreach (var line in spec.Utilization)
+                        rows.Add(new IndustrialSectionRow { Section = spec.Composition, Line = line.Line });
+
+                foreach (var p in spec.Pieces)
+                {
+                    rows.Add(new IndustrialSectionRow
+                    {
+                        Section = spec.Composition,
+                        GlassRef = p.GlassRef,
+                        W1 = p.W1, H1 = p.H1, W2 = p.W2, H2 = p.H2,
+                        Qty = p.Qty, TotalSqm = p.TotalSqm
+                    });
+                }
+            }
+
             AsyncUtility.SafeFireAndForget(
-                async () => await new CsvExportEngine().ExportAsync(
-                    layout,
-                    new ExportRequest { SuggestedFileName = "Optimization_Industrial_Cut_Report" }),
+                async () => await OptimizationReportExport.RunAsync(
+                    format,
+                    rows,
+                    "Optimization — Industrial Cut Report",
+                    new[] { "SECTION", "LINE", "GLASS REF", "W1", "H1", "W2", "H2", "QTY", "TOTAL SQM" },
+                    r => new[] { r.Section, r.Line, r.GlassRef, r.W1, r.H1, r.W2, r.H2, r.Qty, r.TotalSqm },
+                    r => new object[] { r.Section, r.Line, r.GlassRef, ExcelNumber(r.W1), ExcelNumber(r.H1), ExcelNumber(r.W2), ExcelNumber(r.H2), ExcelNumber(r.Qty), ExcelNumber(r.TotalSqm) },
+                    "Optimization_Industrial_Cut_Report"),
                 "Optimization industrial report export");
+        }
+
+        /// <summary>
+        /// Combined action: layout + parts + stocks in ONE document, grouped
+        /// by a leading SECTION column (LAYOUT SUMMARY / PARTS SUMMARY /
+        /// STOCKS SUMMARY).
+        /// </summary>
+        private void ExportAll(ExportFormat format)
+        {
+            if (!HasResult && !HasPieces && Stocks.Count == 0)
+            {
+                RunMessage = "Nothing to export — add pieces, select job orders and run a cut first.";
+                return;
+            }
+
+            var rows = new List<OptimizationReportExport.CombinedRow>();
+
+            foreach (var r in SheetRows)
+                rows.Add(new OptimizationReportExport.CombinedRow
+                {
+                    Section = "Layout Summary",
+                    GlassSheet = r.Composition,
+                    SizeThickness = r.StockLabel,
+                    Pieces = r.PieceCount,
+                    UtilArea = r.Utilization,
+                    OffcutUsed = r.WasteLabel,
+                    Source = "Sheet " + r.SheetNo
+                });
+
+            foreach (var g in SizeGroups)
+                rows.Add(new OptimizationReportExport.CombinedRow
+                {
+                    Section = "Parts Summary",
+                    GlassSheet = g.Composition,
+                    SizeThickness = g.Thickness,
+                    Pieces = g.PieceCount,
+                    UtilArea = g.AreaM2 + " m²",
+                    OffcutUsed = string.Empty,
+                    Source = string.Empty
+                });
+
+            foreach (var s in Stocks)
+                rows.Add(new OptimizationReportExport.CombinedRow
+                {
+                    Section = "Stocks Summary",
+                    GlassSheet = s.CompositionLabel,
+                    SizeThickness = s.WidthText + "×" + s.HeightText,
+                    Pieces = string.Empty,
+                    UtilArea = s.AvailableText,
+                    OffcutUsed = s.UsedLabel,
+                    Source = s.SourceLabel
+                });
+
+            if (rows.Count == 0)
+            {
+                RunMessage = "Nothing to export — the session summaries are empty.";
+                return;
+            }
+
+            AsyncUtility.SafeFireAndForget(
+                async () => await OptimizationReportExport.RunCombinedAsync(format, rows),
+                "Optimization combined report export");
         }
 
         // ── industrial report build ──────────────────────────────────

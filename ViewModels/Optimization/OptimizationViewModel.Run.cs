@@ -160,6 +160,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
         private string _runStageLabel = string.Empty;
         public string RunStageLabel { get => _runStageLabel; private set { _runStageLabel = value; OnPropertyChanged(); } }
 
+        /// <summary>The last successfully applied engine stage ("QUICK" /
+        /// "OPTIMIZE") — session save uses it to name and later re-run the
+        /// session with the same stage.</summary>
+        private string _lastRunStage = "QUICK";
+        public string LastRunStage => _lastRunStage;
+
         // ── run ────────────────────────────────────────────────────────
 
         /// <summary>
@@ -170,9 +176,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// </summary>
         private void Run(string stage)
         {
-            if (IsRunning) return;
+            // A run that never starts must not leave the "reopen to REPORT"
+            // flag dangling — clear it on every early exit.
+            if (IsRunning) { _openToReportAfterRun = false; return; }
             if (!TryBuildInputs(out var pieces, out var stockPool, out var margins))
-                return;
+            { _openToReportAfterRun = false; return; }
 
             int effort = int.TryParse(SelectedEffortLevel, NumberStyles.Integer,
                 CultureInfo.InvariantCulture, out int lvl) && lvl >= 1 && lvl <= 5 ? lvl : 3;
@@ -188,6 +196,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     .ToList();
                 if (groups.Count == 0)
                 {
+                    _openToReportAfterRun = false;
                     RunMessage = "The selected cutting group has no valid pieces.";
                     return;
                 }
@@ -341,6 +350,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         private void ApplyResults(string stage, List<GroupRun> runs, RotationPolicy rotation)
         {
+            _lastRunStage = stage;
+
             // Result summary first, then the per-group breakdown ordered
             // MAX → lowest utilization (the owner's preferred reading order).
             runs = runs.OrderByDescending(r => r.UtilizationPct).ToList();
@@ -446,7 +457,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 "{0}: {1} cutting group(s), {2} sheet(s), {3:0.00}% utilization, {4} unplaced.",
                 stage, runs.Count, totalSheets, util, totalUnplaced);
 
-            SelectedTabIndex = 4; // RESULT tab
+            // A session reopen re-runs the saved stage and lands on the
+            // REPORT tab; a manual run lands on RESULT.
+            SelectedTabIndex = _openToReportAfterRun ? 6 : 4;
+            _openToReportAfterRun = false;
         }
 
         /// <summary>

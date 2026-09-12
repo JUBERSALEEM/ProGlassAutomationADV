@@ -40,6 +40,16 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         public ObservableCollection<PieceRectVm> SheetRects { get; } = new();
 
+        // ── Mini-map thumbnail (Phase 2): a fixed 120px-wide scaled-down
+        //    render of the current sheet so the operator sees the whole
+        //    layout at a glance, independent of the canvas zoom. ────────
+        public ObservableCollection<PieceRectVm> MiniMapRects { get; } = new();
+
+        private double _miniMapWidth;
+        private double _miniMapHeight;
+        public double MiniMapWidth { get => _miniMapWidth; private set { _miniMapWidth = value; OnPropertyChanged(); } }
+        public double MiniMapHeight { get => _miniMapHeight; private set { _miniMapHeight = value; OnPropertyChanged(); } }
+
         private double _renderWidth;
         private double _renderHeight;
         private string _previewCaption = string.Empty;
@@ -133,10 +143,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
         // ── 2D preview ─────────────────────────────────────────────────
 
         private const double PreviewRenderWidth = 860.0;
+        private const double MiniMapRenderWidth = 120.0;
 
         private void RebuildPreview()
         {
             SheetRects.Clear();
+            MiniMapRects.Clear();
             RefreshSheetSelection();
 
             if (_flatSheets.Count == 0 ||
@@ -144,6 +156,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
             {
                 RenderWidth = 0;
                 RenderHeight = 0;
+                MiniMapWidth = 0;
+                MiniMapHeight = 0;
                 PreviewCaption = string.Empty;
                 PreviewSheetCounter = string.Empty;
                 PreviewGroupLabel = string.Empty;
@@ -217,6 +231,24 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 "{0} — sheet {1} of {2} — stock {3} × {4} mm — {5} pieces",
                 flat.Run.Composition, flat.SheetIndex + 1, result.Sheets.Count,
                 sheet.Stock.WidthMm, sheet.Stock.HeightMm, sheet.Pieces.Count);
+
+            // Mini-map thumbnail: a fixed 120px-wide, zoom-independent
+            // scaled-down render of the whole sheet + its placed pieces.
+            double miniScale = MiniMapRenderWidth / sheet.Stock.WidthMm;
+            MiniMapWidth = MiniMapRenderWidth;
+            MiniMapHeight = sheet.Stock.HeightMm * miniScale;
+            foreach (var p in sheet.Pieces)
+            {
+                MiniMapRects.Add(new PieceRectVm
+                {
+                    X = p.X * miniScale,
+                    Y = p.Y * miniScale,
+                    Width = System.Math.Max(1, p.WidthMm * miniScale),
+                    Height = System.Math.Max(1, p.HeightMm * miniScale),
+                    Rotated = p.Rotated,
+                    Label = string.Empty // the thumbnail shows placement, not labels
+                });
+            }
         }
 
         private void RefreshSheetSelection()

@@ -78,10 +78,17 @@ namespace ProGlassAutomation.ViewModels.Optimization
             RunQuickCommand = new RelayCommand(_ => Run(stage: "QUICK"));
             RunOptimizeCommand = new RelayCommand(_ => Run(stage: "OPTIMIZE"));
 
-            ExportLayoutReportCommand = new RelayCommand(_ => ExportLayoutReport());
-            ExportPartsReportCommand = new RelayCommand(_ => ExportPartsReport());
-            ExportStocksReportCommand = new RelayCommand(_ => ExportStocksReport());
-            ExportIndustrialReportCommand = new RelayCommand(_ => ExportIndustrialReport());
+            ExportLayoutReportCommand = new RelayCommand(p => ExportLayoutReport(ParseExportFormat(p)));
+            ExportPartsReportCommand = new RelayCommand(p => ExportPartsReport(ParseExportFormat(p)));
+            ExportStocksReportCommand = new RelayCommand(p => ExportStocksReport(ParseExportFormat(p)));
+            ExportIndustrialReportCommand = new RelayCommand(p => ExportIndustrialReport(ParseExportFormat(p)));
+            ExportAllCommand = new RelayCommand(p => ExportAll(ParseExportFormat(p)));
+
+            SaveSessionCommand = new RelayCommand(_ => SaveSessionAsync());
+            OpenSessionCommand = new RelayCommand(p => OpenSession(p as SessionRowVm));
+            DeleteSessionCommand = new RelayCommand(p => DeleteSession(p as SessionRowVm));
+            RefreshSessionsCommand = new RelayCommand(_ => LoadSavedSessionsAsync());
+            _ = LoadSavedSessionsAsync();
 
             SelectPreviousSheetCommand = new RelayCommand(_ =>
             {

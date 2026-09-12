@@ -59,7 +59,7 @@ current rating, the concrete issues found, and the phased plan to reach
 - Inputs rounded to match cards.
 - REPORT tab: layout/parts/stocks summaries + CSV export.
 
-### Phase 2 — visual polish (in progress)
+### Phase 2 — visual polish  ✅ (done)
 - Elevate KPI cards with the shared `CardStyles` treatment (top accent
   hairline, refined shadow) instead of the module's bespoke `OptKpiCard`.
 - Unify card corner radius tokens (10/12px) into a single `OptCorner`
@@ -69,7 +69,7 @@ current rating, the concrete issues found, and the phased plan to reach
   red <70%). ✅ *(done — SUMMARY sheet rows and the industrial report
   utilisation lines are tone-coded via `UtilizationTone`)*
 
-### Phase 3 — reporting depth (in progress)
+### Phase 3 — reporting depth  ✅ (done)
 - **Industrial cut report (owner format).** ✅ *(done — the REPORT tab now
   leads with the owner's production report: grouped by glass composition,
   `6MM THICKNESS …(SPEC) 3210 * 2250 SHEET UTILIZED QTY 17 (SHEET SIZE)
@@ -77,10 +77,14 @@ current rating, the concrete issues found, and the phased plan to reach
   `GLASS REF / W1 / H1 / W2 / H2 / QTY / TOTAL SQM` piece table per spec;
   exported through the shared CSV engine as
   `Optimization_Industrial_Cut_Report`.)*
-- PDF export (layout with scaled sheet vector + piece labels) via the
-  existing QuestPDF engine; parts/stocks as paginated tables.
-- "Export all three summaries" combined report action.
-- Persist optimisation sessions (saved layouts reopen into the REPORT tab).
+- CSV + Excel + PDF export for every summary via the shared
+  `ReportingExportService`; Excel/PDF render the industrial report as a
+  sectioned table.
+- "Export all three summaries" combined report action (one document,
+  grouped by a leading SECTION column).
+- Persist optimisation sessions (saved layouts reopen into the REPORT
+  tab) — `SavedOptimizationSession` + `OptimizationSessionRepository` +
+  `OptimizationViewModel.Session.cs` with Save / Open / Delete.
 
 ---
 

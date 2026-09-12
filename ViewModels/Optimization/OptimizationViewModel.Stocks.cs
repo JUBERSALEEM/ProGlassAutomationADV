@@ -206,12 +206,20 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         private void RefreshStockUsage(List<GroupRun> runs)
         {
-            var used = new Dictionary<(int W, int H), int>();
+            // A Step 4 rack is tagged with the glass composition it belongs
+            // to. Keying usage by (width, height) ALONE double-counts when a
+            // job's outer and inner panes happen to share one sheet size:
+            // both the low-e and clear 3210×2250 racks then read "34 sheets
+            // used" (17 + 17) instead of their own 17 each. Keying by
+            // (width, height, composition) keeps every rack's tally scoped
+            // to its OWN cutting group.
+            var used = new Dictionary<(int W, int H, string C), int>();
             foreach (var r in runs)
             {
+                string comp = (r.Composition ?? string.Empty).Trim().ToLowerInvariant();
                 foreach (var sheet in r.Result.Sheets)
                 {
-                    var key = (sheet.Stock.WidthMm, sheet.Stock.HeightMm);
+                    var key = (sheet.Stock.WidthMm, sheet.Stock.HeightMm, comp);
                     used.TryGetValue(key, out int n);
                     used[key] = n + 1;
                 }
@@ -219,13 +227,36 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             foreach (var s in Stocks)
             {
+                if (!int.TryParse(s.WidthText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int w) ||
+                    !int.TryParse(s.HeightText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int h))
+                {
+                    s.UsedLabel = string.Empty;
+                    continue;
+                }
+
+                string comp = (s.Composition ?? string.Empty).Trim().ToLowerInvariant();
+
                 int n = 0;
-                bool known = int.TryParse(s.WidthText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int w) &&
-                             int.TryParse(s.HeightText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int h) &&
-                             used.TryGetValue((w, h), out n);
-                s.UsedLabel = known
-                    ? n.ToString(CultureInfo.InvariantCulture) + (n == 1 ? " sheet used" : " sheets used")
-                    : string.Empty;
+                if (used.TryGetValue((w, h, comp), out n))
+                {
+                    s.UsedLabel = n.ToString(CultureInfo.InvariantCulture)
+                        + (n == 1 ? " sheet used" : " sheets used");
+                }
+                else if (comp.Length == 0)
+                {
+                    // A manual "any group" rack carries no composition tag —
+                    // its tally is every group that packed that sheet size.
+                    n = runs.Sum(r => r.Result.Sheets.Count(
+                        sh => sh.Stock.WidthMm == w && sh.Stock.HeightMm == h));
+                    s.UsedLabel = n > 0
+                        ? n.ToString(CultureInfo.InvariantCulture)
+                            + (n == 1 ? " sheet used" : " sheets used")
+                        : string.Empty;
+                }
+                else
+                {
+                    s.UsedLabel = string.Empty;
+                }
             }
         }
     }

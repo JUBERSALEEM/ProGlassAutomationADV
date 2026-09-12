@@ -16,8 +16,10 @@ using ProGlassAutomation.Models.Production;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.JobOrder.Mapper;
 using ProGlassAutomation.Services.JobOrder.Repository;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Optimization;
 using ProGlassAutomation.Services.Production;
+using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss;
 
@@ -36,6 +38,16 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             private bool _isSelected;
             public string JobOrderId { get; set; } = string.Empty;
+            /// <summary>The source Proforma Invoice this job order was cut from —
+            /// shown on the card so the operator always knows which Step 5 is
+            /// being imported (a voided PI can never be mistaken for a live one).</summary>
+            public string SourceProformaId { get; set; } = string.Empty;
+
+            /// <summary>Display label for the source PI ("from PI-2026-001"),
+            /// empty when the job carries no source reference.</summary>
+            public string SourceLabel => string.IsNullOrWhiteSpace(SourceProformaId)
+                ? string.Empty
+                : "from " + SourceProformaId;
             public string CustomerName { get; set; } = string.Empty;
             public string Summary { get; set; } = string.Empty;
             public int PieceRows { get; set; }
@@ -241,11 +253,43 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     return;
                 }
 
+                // Source-lock guard: a Job Order converted from a VOIDED
+                // Proforma Invoice must never appear in the picker. The JO's
+                // own IsVoid flag tracks voiding the JO itself — it says
+                // nothing about the PI it was cut from, so we read the PI
+                // void flags and exclude any JO whose source PI is voided.
+                // This is what stopped a live PI-2026-001 from silently
+                // importing the Step 5 of its voided twin PI-2026-002.
+                var voidedPis = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                try
+                {
+                    var invoiceRepo = App.ServiceProvider?.GetService(typeof(IProformaInvoiceRepository))
+                        as IProformaInvoiceRepository;
+                    if (invoiceRepo != null)
+                    {
+                        var piRows = await invoiceRepo.GetListRowsAsync().ConfigureAwait(false);
+                        foreach (var row in piRows)
+                        {
+                            if (row != null && row.IsVoid && !string.IsNullOrWhiteSpace(row.ProformaId))
+                                voidedPis.Add(row.ProformaId.Trim());
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // The source-lock must not break the picker if the PI
+                    // store is unavailable — degrade to the old behaviour
+                    // and say so on the status line.
+                    AppLogService.Warning($"[Optimization] could not read voided PI list: {ex.Message}");
+                }
+
                 var all = await repo.GetAllAsync().ConfigureAwait(false);
                 var options = new List<JobOptionVm>();
 
                 foreach (var jo in all
-                    .Where(j => j != null && !j.IsVoid && !JobOrderStatusValues.Is(j.Status, JobOrderStatusValues.Draft))
+                    .Where(j => j != null && !j.IsVoid
+                        && !JobOrderStatusValues.Is(j.Status, JobOrderStatusValues.Draft)
+                        && !voidedPis.Contains(j.SourceProformaId ?? string.Empty))
                     .OrderByDescending(j => j.UpdatedAt)
                     .Take(100))
                 {
@@ -260,6 +304,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     var opt = new JobOptionVm
                     {
                         JobOrderId = jo.JobOrderId,
+                        SourceProformaId = jo.SourceProformaId ?? string.Empty,
                         CustomerName = jo.CustomerName
                     };
 

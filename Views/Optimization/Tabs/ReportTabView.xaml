@@ -49,11 +49,27 @@
                                             <TextBlock Text="{Binding ResultStage}" FontSize="{StaticResource TextCaption}"
                                                        Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0"/>
                                         </StackPanel>
-                                        <Border Grid.Column="1" CornerRadius="8" Background="{DynamicResource TintBlueBrush}" Padding="12,7"
-                                                VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding ResultOracle}" FontSize="{StaticResource TextCaption}"
-                                                       FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
-                                        </Border>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Border CornerRadius="8" Background="{DynamicResource TintBlueBrush}" Padding="12,7"
+                                                    VerticalAlignment="Center" Margin="0,0,16,0">
+                                                <TextBlock Text="{Binding ResultOracle}" FontSize="{StaticResource TextCaption}"
+                                                           FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
+                                            </Border>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="EXPORT ALL SUMMARIES" Style="{StaticResource OptHeader}"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                                    <Button Content="CSV" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
+                                                            Command="{Binding ExportAllCommand}" CommandParameter="CSV"
+                                                            ToolTip="Layout + Parts + Stocks summaries as one CSV"/>
+                                                    <Button Content="Excel" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
+                                                            Command="{Binding ExportAllCommand}" CommandParameter="Excel"
+                                                            ToolTip="Layout + Parts + Stocks summaries as one Excel workbook"/>
+                                                    <Button Content="PDF" Style="{StaticResource PrimaryPillButton}"
+                                                            Command="{Binding ExportAllCommand}" CommandParameter="PDF"
+                                                            ToolTip="Layout + Parts + Stocks summaries as one PDF"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </StackPanel>
                                     </Grid>
 
                                     <Grid Grid.Row="1" Margin="0,14,0,0">
@@ -106,9 +122,17 @@
                                             <TextBlock Text="Grouped by glass composition — thickness, spec, sheet size, utilized quantity and utilization %, then the glass-ref size table per spec."
                                                        FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap"/>
                                         </StackPanel>
-                                        <Button Grid.Column="1" Content="Export CSV" Style="{StaticResource PrimaryPillButton}"
-                                                Command="{Binding ExportIndustrialReportCommand}" VerticalAlignment="Center"
-                                                ToolTip="Export the owner-format report (utilization lines + GLASS REF / W1 / H1 / W2 / H2 / QTY / TOTAL SQM tables)"/>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Content="CSV" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
+                                                    Command="{Binding ExportIndustrialReportCommand}" CommandParameter="CSV"
+                                                    ToolTip="Export the owner-format report (utilization lines + GLASS REF / W1 / H1 / W2 / H2 / QTY / TOTAL SQM tables) as CSV"/>
+                                            <Button Content="Excel" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
+                                                    Command="{Binding ExportIndustrialReportCommand}" CommandParameter="Excel"
+                                                    ToolTip="Export the industrial cut report as a sectioned Excel workbook"/>
+                                            <Button Content="PDF" Style="{StaticResource PrimaryPillButton}"
+                                                    Command="{Binding ExportIndustrialReportCommand}" CommandParameter="PDF"
+                                                    ToolTip="Export the industrial cut report as a paginated PDF"/>
+                                        </StackPanel>
                                     </Grid>
 
                                     <!-- empty hint -->
@@ -239,8 +263,14 @@
                                             <TextBlock Text="Every sheet the engine produced — stock, pieces, utilization and offcut."
                                                        FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}"/>
                                         </StackPanel>
-                                        <Button Grid.Column="1" Content="Export CSV" Style="{StaticResource OutlinedPillButton}"
-                                                Command="{Binding ExportLayoutReportCommand}" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Content="CSV" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
+                                                    Command="{Binding ExportLayoutReportCommand}" CommandParameter="CSV"/>
+                                            <Button Content="Excel" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
+                                                    Command="{Binding ExportLayoutReportCommand}" CommandParameter="Excel"/>
+                                            <Button Content="PDF" Style="{StaticResource OutlinedPillButton}"
+                                                    Command="{Binding ExportLayoutReportCommand}" CommandParameter="PDF"/>
+                                        </StackPanel>
                                     </Grid>
                                     <StackPanel Grid.Row="1">
                                         <Grid Margin="0,0,0,6">
@@ -325,8 +355,14 @@
                                             <TextBlock Text="Merged glass groups — the cutting list summarized by composition."
                                                        FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}"/>
                                         </StackPanel>
-                                        <Button Grid.Column="1" Content="Export CSV" Style="{StaticResource OutlinedPillButton}"
-                                                Command="{Binding ExportPartsReportCommand}" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Content="CSV" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
+                                                    Command="{Binding ExportPartsReportCommand}" CommandParameter="CSV"/>
+                                            <Button Content="Excel" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
+                                                    Command="{Binding ExportPartsReportCommand}" CommandParameter="Excel"/>
+                                            <Button Content="PDF" Style="{StaticResource OutlinedPillButton}"
+                                                    Command="{Binding ExportPartsReportCommand}" CommandParameter="PDF"/>
+                                        </StackPanel>
                                     </Grid>
                                     <StackPanel Grid.Row="1">
                                         <Grid Margin="0,0,0,6">
@@ -387,8 +423,14 @@
                                             <TextBlock Text="{Binding StocksStatusText}" FontSize="{StaticResource TextCaption}"
                                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
                                         </StackPanel>
-                                        <Button Grid.Column="1" Content="Export CSV" Style="{StaticResource OutlinedPillButton}"
-                                                Command="{Binding ExportStocksReportCommand}" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Content="CSV" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
+                                                    Command="{Binding ExportStocksReportCommand}" CommandParameter="CSV"/>
+                                            <Button Content="Excel" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
+                                                    Command="{Binding ExportStocksReportCommand}" CommandParameter="Excel"/>
+                                            <Button Content="PDF" Style="{StaticResource OutlinedPillButton}"
+                                                    Command="{Binding ExportStocksReportCommand}" CommandParameter="PDF"/>
+                                        </StackPanel>
                                     </Grid>
                                     <StackPanel Grid.Row="1">
                                         <Grid Margin="0,0,0,6">
@@ -438,6 +480,67 @@
                                         </ItemsControl>
                                     </StackPanel>
                                 </Grid>
+                            </Border>
+
+                            <!-- ══ 5 · SAVED SESSIONS ══ -->
+                            <Border Style="{StaticResource OptPanelCard}" Margin="0,16,0,0">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="5 · SAVED SESSIONS" Style="{StaticResource OptPanelTitle}"/>
+                                            <TextBlock Text="{Binding SessionStatus}" FontSize="{StaticResource TextCaption}"
+                                                       Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Content="Save session" Style="{StaticResource PrimaryPillButton}" Margin="0,0,8,0"
+                                                    Command="{Binding SaveSessionCommand}"
+                                                    ToolTip="Snapshot the cutting list, Step 4 stock pool and margins so the layout can be reopened later"/>
+                                            <Button Content="Refresh" Style="{StaticResource OutlinedPillButton}"
+                                                    Command="{Binding RefreshSessionsCommand}"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <TextBlock Text="No saved sessions yet — save the current cutting list to reopen it later."
+                                               FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}"
+                                               TextWrapping="Wrap" Margin="0,0,0,8"
+                                               Visibility="{Binding HasSessions, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+
+                                    <ItemsControl ItemsSource="{Binding SavedSessions}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Style="{StaticResource OptInnerCard}" Margin="0,0,0,8">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding Name}" FontSize="{StaticResource TextBody}"
+                                                                       FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                       TextTrimming="CharacterEllipsis"/>
+                                                            <TextBlock Text="{Binding Detail}" FontSize="{StaticResource TextCaption}"
+                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,2,0,0"/>
+                                                            <TextBlock Text="{Binding CreatedLabel}" FontSize="{StaticResource TextCaption}"
+                                                                       Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0"/>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <Button Content="Open" Style="{StaticResource OutlinedPillButton}" Margin="0,0,8,0"
+                                                                    Command="{Binding DataContext.OpenSessionCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                    CommandParameter="{Binding}"/>
+                                                            <Button Content="Delete" Style="{StaticResource OptGhostButton}"
+                                                                    Command="{Binding DataContext.DeleteSessionCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                    CommandParameter="{Binding}"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
                             </Border>
 
                         </StackPanel>

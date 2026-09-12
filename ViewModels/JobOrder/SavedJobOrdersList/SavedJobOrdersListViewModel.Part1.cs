@@ -759,6 +759,21 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     return;
                 }
 
+                // A voided quote must never be converted into a Job Order —
+                // the picker now hides voided quotes, but this hard guard
+                // catches every other entry point (a stale dialog, a direct
+                // call) so a soft-closed PI-2026-002 can never masquerade as
+                // the live PI-2026-001 it shares a base number with.
+                if (saved.IsVoid)
+                {
+                    _dialogs.Show(
+                        $"Proforma Invoice {proformaId} is void and cannot be converted to a Job Order.",
+                        "Voided Proforma Invoice",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
                 // A quote can legitimately be built twice (a revised order,
                 // a split delivery), so this warns rather than blocks - but
                 // it has to warn, or a double-click silently duplicates a

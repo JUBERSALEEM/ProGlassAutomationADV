@@ -64,6 +64,9 @@
                                                 <StackPanel Grid.Column="1">
                                                     <TextBlock Text="{Binding JobOrderId}" FontSize="{StaticResource TextBody}"
                                                                FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                    <TextBlock Text="{Binding SourceLabel, Mode=OneWay}"
+                                                               FontSize="{StaticResource TextCaption}"
+                                                               Foreground="{DynamicResource AccentBrush}" Margin="0,1,0,0"/>
                                                     <TextBlock Text="{Binding CustomerName}" FontSize="{StaticResource TextCaption}"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                TextTrimming="CharacterEllipsis" Margin="0,1,0,8"/>

@@ -8,12 +8,19 @@
          the optimization shell and its six tab views stay lean.
          ═════════════════════════════════════════════════════════════ -->
 
-        <!-- ══ Panel card — 12px rounded, thin glass border ══════════ -->
+        <!-- ══ Single card corner-radius token (Phase 2) ══════════════
+             Every card in the module reads this ONE value instead of
+             scattered 10/12px literals. Defined here (not per-theme)
+             because the optimization card language is constant across
+             light and dark. -->
+        <CornerRadius x:Key="OptCorner">12</CornerRadius>
+
+        <!-- ══ Panel card — thin glass border, OptCorner radius ═══════ -->
         <Style x:Key="OptPanelCard" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="CornerRadius" Value="{StaticResource OptCorner}"/>
             <Setter Property="Padding" Value="18,16"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
@@ -23,17 +30,41 @@
             <Setter Property="Background" Value="{DynamicResource ElevatedSurfaceBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="CornerRadius" Value="{StaticResource OptCorner}"/>
             <Setter Property="Padding" Value="12,10"/>
         </Style>
 
-        <!-- KPI stat card -->
+        <!-- ══ KPI stat card — shared CardStyles elevation: refined
+             shadow + a 1px top accent hairline over the glass border. -->
         <Style x:Key="OptKpiCard" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="CornerRadius" Value="{StaticResource OptCorner}"/>
             <Setter Property="Padding" Value="16,14"/>
+            <Setter Property="Effect" Value="{DynamicResource ShadowSoft}"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Border">
+                        <Grid>
+                            <!-- card surface + glass border -->
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="{TemplateBinding CornerRadius}"/>
+                            <!-- 1px top accent hairline -->
+                            <Border BorderThickness="{DynamicResource Border.TopHairlineThickness}"
+                                    BorderBrush="{DynamicResource AccentBrush}"
+                                    CornerRadius="{TemplateBinding CornerRadius}"
+                                    VerticalAlignment="Top" Margin="1,0,1,0"/>
+                            <!-- Border is a Decorator: re-host its Child. -->
+                            <ContentPresenter Content="{TemplateBinding Child}"
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <!-- Tinted square icon badge on each KPI card -->

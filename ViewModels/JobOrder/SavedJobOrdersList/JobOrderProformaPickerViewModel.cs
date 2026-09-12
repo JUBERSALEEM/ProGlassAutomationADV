@@ -47,6 +47,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         private readonly IDialogService _dialogs;
         private readonly List<PickerItem> _all = new();
         private string _selectedId = "";
+        private int _voidedCount;
 
         /// <summary>Chosen Proforma id, valid only after RequestClose(true).</summary>
         public string SelectedProformaId { get; private set; } = "";
@@ -146,8 +147,20 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 var attachmentService = new ProformaAttachmentService();
 
                 _all.Clear();
+                int voidedCount = 0;
                 foreach (var p in proformas.OrderByDescending(x => x.CreatedAt))
                 {
+                    // Voided quotes can never be converted to a Job Order.
+                    // They are excluded outright here — showing them invites
+                    // the exact "wrong PI" mistake where a job built from a
+                    // live PI-2026-001 silently imports the Step 5 of its
+                    // voided twin (PI-2026-002, same base number, soft-closed).
+                    if (p.IsVoid)
+                    {
+                        voidedCount++;
+                        continue;
+                    }
+
                     string id = p.ProformaId ?? "";
 
                     var approval = await DescribeApprovalAsync(
@@ -165,6 +178,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     });
                 }
 
+                _voidedCount = voidedCount;
                 Refresh();
             }
             catch (Exception ex)
@@ -273,10 +287,17 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             int approvedTotal = _all.Count(p => p.Status.Equals(
                 ApprovedStatus, StringComparison.OrdinalIgnoreCase));
 
+            string voidedNote = _voidedCount > 0
+                ? $"{_voidedCount} voided quote(s) excluded"
+                : string.Empty;
+
             CountText = ShowAll
                 ? $"Showing {items.Count} of {_all.Count} quotes (all statuses)"
                 : $"Showing {items.Count} approved quote(s) — "
                   + $"{_all.Count - approvedTotal} hidden by status filter";
+
+            if (!string.IsNullOrEmpty(voidedNote))
+                CountText += " · " + voidedNote;
             OnPropertyChanged(nameof(CountText));
 
             if (items.Count == 0)
