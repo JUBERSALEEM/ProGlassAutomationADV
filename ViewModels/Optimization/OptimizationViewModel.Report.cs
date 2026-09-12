@@ -203,10 +203,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     var inner = refGroup.FirstOrDefault(p => IsSecondPane(p.Position));
 
                     int w1 = 0, h1 = 0, w2 = 0, h2 = 0, qty = 0;
+                    // Outer/Glass pane → W1/H1; Inner/Lam Inner pane → W2/H2
+                    // (the Step 5 column semantics: W1/H1 = first pane, W2/H2
+                    // = second pane). A ref carrying both panes fills both.
                     if (outer != null && outer.TryParse(out int ow, out int oh, out int oq)) { w1 = ow; h1 = oh; qty = oq; }
                     if (inner != null && inner.TryParse(out int iw, out int ih, out int iq)) { w2 = iw; h2 = ih; if (qty == 0) qty = iq; }
-                    // Single-pane ref (SGU): the row's W/H is W1/H1.
-                    if (outer == null && inner != null) { w1 = w2; h1 = h2; w2 = 0; h2 = 0; }
 
                     double unitMm2 = w1 > 0 && h1 > 0 ? (double)w1 * h1 : (double)w2 * h2;
                     double totalSqm = unitMm2 / 1_000_000.0 * qty;
