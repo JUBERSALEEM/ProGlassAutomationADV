@@ -244,6 +244,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`KPI_LIVE_AND_DISPLAY_FIXES_2026-09-10.md`](KPI_LIVE_AND_DISPLAY_FIXES_2026-09-10.md) | KPI Live Updates + Overview Delivery Count + Per-SQM + Profitability Layout |
 | [`MONEY_ROUNDING_POLICY.md`](MONEY_ROUNDING_POLICY.md) | Money Rounding Policy |
 | [`OPTIMIZATION_CALIBRATION_BENCHMARK_2026-09-12.md`](OPTIMIZATION_CALIBRATION_BENCHMARK_2026-09-12.md) | Optimization — Calibration Benchmark Report (2026-09-12) |
+| [`OPTIMIZATION_CLEAR_16SHEET_ANALYSIS_2026-09-12.md`](OPTIMIZATION_CLEAR_16SHEET_ANALYSIS_2026-09-12.md) | CLEAR Job — Deep 16-Sheet Feasibility Analysis (2026-09-12) |
 | [`OPTIMIZATION_MODULE_DESIGN_2026-09-12.md`](OPTIMIZATION_MODULE_DESIGN_2026-09-12.md) | Glass Cutting Optimization Module — Deep Analysis & Implementation Plan |
 | [`PHASE_BALANCE.md`](PHASE_BALANCE.md) | Phase Balance — ProGlass Automation ADV |
 | [`PI_PDF_WYSIWYG_REDESIGN_2026-09-11.md`](PI_PDF_WYSIWYG_REDESIGN_2026-09-11.md) | PI Step 7 / PDF Export — WYSIWYG Redesign (Senior Analysis) |
