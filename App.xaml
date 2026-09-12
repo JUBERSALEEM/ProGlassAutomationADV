@@ -37,6 +37,14 @@
                      Loaded before Shell/Card/List/Dialog/module dictionaries so all
                      non-print XAML can consume SurfacePrimary/Secondary/Detail. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/DesignTokens.xaml"/>
+                <!-- ProGlass Design System SEMANTIC TOKEN LAYER (2026-09-13).
+                     Purely additive DynamicResource aliases that expose the
+                     canonical semantic names (SurfaceWorkspaceBrush,
+                     TextMutedBrush, RadiusCard, Motion.*) over the existing
+                     engine-managed material keys. Merged right after
+                     DesignTokens so every downstream dictionary and view can
+                     consume the semantic vocabulary. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/SemanticTokens.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ShellStyles.xaml"/>
 
                 <!-- ── Shared style dictionaries (order matters for BasedOn chains) ── -->

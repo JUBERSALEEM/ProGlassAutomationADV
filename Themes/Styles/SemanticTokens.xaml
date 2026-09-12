@@ -1,0 +1,88 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Themes/Styles/SemanticTokens.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: ProGlass Design System — SEMANTIC TOKEN LAYER (Phase C)
+
+     WHY THIS FILE
+       The master design-system directive requires module XAML to consume
+       SEMANTIC names (SurfaceWorkspaceBrush, TextMutedBrush, RadiusCard…),
+       never theme-specific implementation brushes (GlassUltraClearBrush,
+       ModuleBackgroundBrush…). The existing dictionaries are correct and
+       battle-tested, but their key names are the legacy/material names.
+
+       This file is the COMPATIBILITY / ALIAS layer: it adds the canonical
+       semantic names as pure DynamicResource aliases that point at the
+       existing, engine-managed keys. Nothing here overrides or deletes
+       anything — it is 100% additive.
+
+       ALIAS DIRECTION (documented decision)
+         canonical  →  legacy material key
+       The VisualThemeEngine keeps publishing the legacy keys at runtime
+       (ManagedKeys + family painters). Each alias re-resolves through
+       DynamicResource, so a family switch (Industrial / Monet / iPhone 17
+       Pro Max / iOS 26) or a Light/Dark flip re-tints every canonical
+       consumer live. Modules that already use the legacy keys keep
+       working unchanged; new/refactored modules adopt the semantic names.
+
+     DO NOT
+       · add a key here that already exists elsewhere (merged-dictionary
+         later-wins would silently shadow it);
+       · convert this file's aliases to StaticResource (they must track
+         runtime theme/appearance changes);
+       · delete a legacy key — the compatibility layer exists precisely so
+         the two vocabularies can coexist until views are migrated.
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <!-- ── LEVEL 2 · SEMANTIC SURFACES ────────────────────────────────
+         One name per surface ROLE, resolved per theme family:
+           Industrial → solid slate/white material
+           Monet      → Monet-tinted material
+           Crystal    → crystal glass material                            -->
+    <DynamicResource x:Key="SurfaceWindowBrush"    ResourceKey="WindowBackgroundBrush"/>
+    <DynamicResource x:Key="SurfaceWorkspaceBrush" ResourceKey="ModuleBackgroundBrush"/>
+    <DynamicResource x:Key="SurfaceCardBrush"      ResourceKey="GlassUltraClearBrush"/>
+    <DynamicResource x:Key="SurfaceElevatedBrush"  ResourceKey="ElevatedSurfaceBrush"/>
+    <DynamicResource x:Key="SurfaceInputBrush"     ResourceKey="ModuleBackgroundBrush"/>
+    <DynamicResource x:Key="SurfacePopupBrush"     ResourceKey="PopupSurfaceBrush"/>
+    <DynamicResource x:Key="SurfaceSidebarBrush"   ResourceKey="SideMenuBackgroundBrush"/>
+
+    <!-- ── LEVEL 2 · SEMANTIC TEXT ──────────────────────────────────── -->
+    <DynamicResource x:Key="TextMutedBrush" ResourceKey="MutedForegroundBrush"/>
+
+    <!-- ── LEVEL 2 · SEMANTIC BORDERS / DIVIDERS ────────────────────── -->
+    <DynamicResource x:Key="BorderSubtleBrush" ResourceKey="OutlineDefaultBrush"/>
+    <DynamicResource x:Key="BorderStrongBrush" ResourceKey="OutlineStrongBrush"/>
+
+    <!-- ── LEVEL 2 · FOCUS & ACCENT STATES ──────────────────────────── -->
+    <DynamicResource x:Key="FocusBrush"        ResourceKey="LiquidFocusBrush"/>
+    <DynamicResource x:Key="AccentPressedBrush" ResourceKey="AccentDarkBrush"/>
+
+    <!-- ── LEVEL 1 · RADIUS (semantic geometry) ───────────────────────
+         RadiusControl / RadiusCard / RadiusLarge / RadiusDialog alias the
+         FAMILY-MANAGED corner tokens (ControlCornerRadius, CardCornerRadius,
+         CardCornerRadiusLarge) so a theme family can change the whole
+         radius hierarchy in one place; RadiusCompact rides the fixed fine
+         scale; RadiusPill is the 999 capsule.                                -->
+    <DynamicResource x:Key="RadiusCompact" ResourceKey="Radius.Small"/>
+    <DynamicResource x:Key="RadiusControl" ResourceKey="ControlCornerRadius"/>
+    <DynamicResource x:Key="RadiusCard"    ResourceKey="CardCornerRadius"/>
+    <DynamicResource x:Key="RadiusLarge"   ResourceKey="CardCornerRadiusLarge"/>
+    <DynamicResource x:Key="RadiusDialog"  ResourceKey="CardCornerRadiusLarge"/>
+    <CornerRadius x:Key="RadiusPill">999</CornerRadius>
+
+    <!-- ── LEVEL 1 · MOTION (semantic durations) ──────────────────────
+         Published as sys:String exactly like the engine's
+         MotionEaseOutKeySpline / MotionSpringKeySpline tokens; WPF's
+         DurationConverter parses them where a Storyboard consumes one.
+         ReducedMotion is honoured by the consumers, not by these values.  -->
+    <sys:String x:Key="Motion.Instant">0:0:0</sys:String>
+    <sys:String x:Key="Motion.Fast">0:0:0.15</sys:String>
+    <sys:String x:Key="Motion.Standard">0:0:0.2</sys:String>
+    <sys:String x:Key="Motion.Slow">0:0:0.35</sys:String>
+    <sys:String x:Key="Motion.Emphasis">0:0:0.5</sys:String>
+
+</ResourceDictionary>
