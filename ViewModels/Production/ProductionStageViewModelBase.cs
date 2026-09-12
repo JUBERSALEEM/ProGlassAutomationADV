@@ -104,6 +104,29 @@ namespace ProGlassAutomation.ViewModels.Production
         public string QtyLabel => _flow.Item.Qty > 0
             ? _flow.Item.Qty.ToString(CultureInfo.InvariantCulture) : "—";
 
+        // ── Grid columns (Step-5 cut-list style) ─────────────────────────
+
+        /// <summary>Row number within its grid (1-based, assigned on populate).</summary>
+        public int RowIndex { get; set; }
+
+        /// <summary>The unit serial — SR shown in the detail header.</summary>
+        public int SerialNumber => _flow.Item.SerialNumber;
+
+        public string GlassRef => string.IsNullOrWhiteSpace(_flow.Item.GlassRef)
+            ? "—" : _flow.Item.GlassRef;
+
+        public string WLabel => _flow.Item.WidthMm > 0
+            ? _flow.Item.WidthMm.ToString(CultureInfo.InvariantCulture) : "—";
+
+        public string HLabel => _flow.Item.HeightMm > 0
+            ? _flow.Item.HeightMm.ToString(CultureInfo.InvariantCulture) : "—";
+
+        /// <summary>Raw pane position for OUTER/INNER grouping.</summary>
+        public string PositionKey => _flow.Item.Position ?? "";
+
+        /// <summary>Fully completed at this stage → moves to the COMPLETED section.</summary>
+        public bool IsCompleted => Done >= Inflow && Inflow > 0;
+
         public string ChargeLabel
         {
             get
@@ -352,6 +375,10 @@ namespace ProGlassAutomation.ViewModels.Production
 
             OpenUnitCommand = new RelayCommand(p => OpenUnit(p as ProductionListRow));
             CloseDetailCommand = new RelayCommand(_ => IsDetailOpen = false);
+
+            SaveAllDoneCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(SaveAllDoneAsync, "Work item qty save all"),
+                _ => SelectedStageItems.Any(i => i.CanWork));
 
             // Live refresh: the instant any floor entry is saved (by any
             // screen), every stage module re-reads its list, KPIs, chain
@@ -615,6 +642,76 @@ namespace ProGlassAutomation.ViewModels.Production
         /// <summary>Pane-level stage items for the selected unit.</summary>
         public ObservableCollection<ProductionWorkItemRow> SelectedStageItems { get; } = new();
 
+        // ── Detail grids (Step-5 cut-list style: OUTER left / INNER right) ─
+
+        /// <summary>Outer panes still in progress at this stage (left grid).</summary>
+        public ObservableCollection<ProductionWorkItemRow> OuterStageItems { get; } = new();
+
+        /// <summary>Inner panes still in progress at this stage (right grid).</summary>
+        public ObservableCollection<ProductionWorkItemRow> InnerStageItems { get; } = new();
+
+        /// <summary>Panes fully completed — moved to the COMPLETED section.</summary>
+        public ObservableCollection<ProductionWorkItemRow> CompletedStageItems { get; } = new();
+
+        private bool _isSingleGlass;
+        /// <summary>True when the unit has a single glass pane (SGU) — one centered grid.</summary>
+        public bool IsSingleGlass
+        {
+            get => _isSingleGlass;
+            private set
+            {
+                if (_isSingleGlass == value) return;
+                _isSingleGlass = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(OuterGridTitle));
+                OnPropertyChanged(nameof(OuterWHeader));
+                OnPropertyChanged(nameof(OuterHHeader));
+            }
+        }
+
+        public bool HasInnerGrid => InnerStageItems.Count > 0;
+        public bool HasCompletedSection => CompletedStageItems.Count > 0;
+
+        private string _selectedSpecName = "";
+        public string SelectedSpecName
+        {
+            get => _selectedSpecName;
+            private set { if (_selectedSpecName == value) return; _selectedSpecName = value; OnPropertyChanged(); OnPropertyChanged(nameof(OuterGridTitle)); }
+        }
+
+        /// <summary>Left grid title: "OUTER" for pane builds, the spec name for SGU.</summary>
+        public string OuterGridTitle => IsSingleGlass
+            ? (string.IsNullOrWhiteSpace(SelectedSpecName) ? "GLASS" : SelectedSpecName)
+            : "OUTER";
+
+        public string OuterWHeader => IsSingleGlass ? "W" : "W1";
+        public string OuterHHeader => IsSingleGlass ? "H" : "H1";
+
+        // ── AutoSum footers (column-end totals per grid) ────────────────
+
+        private int _outerTotalSum, _outerQtySum, _outerDoneSum, _outerBalanceSum;
+        public int OuterTotalSum { get => _outerTotalSum; private set { if (_outerTotalSum == value) return; _outerTotalSum = value; OnPropertyChanged(); } }
+        public int OuterQtySum { get => _outerQtySum; private set { if (_outerQtySum == value) return; _outerQtySum = value; OnPropertyChanged(); } }
+        public int OuterDoneSum { get => _outerDoneSum; private set { if (_outerDoneSum == value) return; _outerDoneSum = value; OnPropertyChanged(); } }
+        public int OuterBalanceSum { get => _outerBalanceSum; private set { if (_outerBalanceSum == value) return; _outerBalanceSum = value; OnPropertyChanged(); } }
+
+        private int _innerTotalSum, _innerQtySum, _innerDoneSum, _innerBalanceSum;
+        public int InnerTotalSum { get => _innerTotalSum; private set { if (_innerTotalSum == value) return; _innerTotalSum = value; OnPropertyChanged(); } }
+        public int InnerQtySum { get => _innerQtySum; private set { if (_innerQtySum == value) return; _innerQtySum = value; OnPropertyChanged(); } }
+        public int InnerDoneSum { get => _innerDoneSum; private set { if (_innerDoneSum == value) return; _innerDoneSum = value; OnPropertyChanged(); } }
+        public int InnerBalanceSum { get => _innerBalanceSum; private set { if (_innerBalanceSum == value) return; _innerBalanceSum = value; OnPropertyChanged(); } }
+
+        private int _completedTotalSum, _completedDoneSum;
+        public int CompletedTotalSum { get => _completedTotalSum; private set { if (_completedTotalSum == value) return; _completedTotalSum = value; OnPropertyChanged(); } }
+        public int CompletedDoneSum { get => _completedDoneSum; private set { if (_completedDoneSum == value) return; _completedDoneSum = value; OnPropertyChanged(); } }
+
+        // ── Main-list AutoSum footer ──────────────────────────────────────
+
+        private int _listTotalSum, _listDoneSum, _listBalanceSum;
+        public int ListTotalSum { get => _listTotalSum; private set { if (_listTotalSum == value) return; _listTotalSum = value; OnPropertyChanged(); } }
+        public int ListDoneSum { get => _listDoneSum; private set { if (_listDoneSum == value) return; _listDoneSum = value; OnPropertyChanged(); } }
+        public int ListBalanceSum { get => _listBalanceSum; private set { if (_listBalanceSum == value) return; _listBalanceSum = value; OnPropertyChanged(); } }
+
         // ── Full-page unit detail (double-click opens, back returns) ──────
 
         private bool _isDetailOpen;
@@ -649,6 +746,9 @@ namespace ProGlassAutomation.ViewModels.Production
 
         public ICommand OpenUnitCommand { get; }
         public ICommand CloseDetailCommand { get; }
+
+        /// <summary>Saves every editable DONE cell in the detail grid in one batch.</summary>
+        public ICommand SaveAllDoneCommand { get; }
 
         // ── Sidebar: stage totals (total / done / balance in the stage's
         //    metrics — pieces, SQM and LM, every module) ─────────────────
@@ -805,6 +905,12 @@ namespace ProGlassAutomation.ViewModels.Production
                 _listCache = data.Units;
                 _loadedRowCount = 0;
                 ListRows.Clear();
+
+                // AutoSum footer over the full filtered set (not just the
+                // virtualized page) — TOTAL / DONE / BALANCE column ends.
+                ListTotalSum = _listCache.Sum(u => u.Inflow);
+                ListDoneSum = _listCache.Sum(u => u.DoneQty);
+                ListBalanceSum = _listCache.Sum(u => u.BalanceQty);
 
                 // Keep the selection visible across reloads: extend the
                 // first page far enough to include the selected row.
@@ -1085,6 +1191,10 @@ namespace ProGlassAutomation.ViewModels.Production
             foreach (var flowItem in row.FlowItems)
                 SelectedStageItems.Add(new ProductionWorkItemRow(flowItem));
 
+            SelectedSpecName = first?.SpecName ?? "";
+            IsSingleGlass = row.FlowItems.Count == 1;
+            RebuildUnitPanels();
+
             AsyncUtility.InvalidateCommandsThrottled();
 
             // Stage totals — total / done / balance in pieces, SQM and LM.
@@ -1126,6 +1236,104 @@ namespace ProGlassAutomation.ViewModels.Production
             AsyncUtility.SafeFireAndForget(
                 () => RefreshDispatchAsync(row.JobRef, row.SpecGroupNumber, row.SerialNumber),
                 "Production dispatch panel");
+        }
+
+        private static bool IsInnerPosition(string position) =>
+            string.Equals(position, "Inner", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(position, "Lam Inner", StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Distributes the selected unit's panes into the OUTER / INNER grids
+        /// (fully completed panes move to the COMPLETED section) and computes
+        /// the AutoSum footers for each grid.
+        /// </summary>
+        private void RebuildUnitPanels()
+        {
+            OuterStageItems.Clear();
+            InnerStageItems.Clear();
+            CompletedStageItems.Clear();
+
+            int outerIdx = 0, innerIdx = 0, doneIdx = 0;
+            int ot = 0, oq = 0, od = 0, ob = 0;
+            int it = 0, iq = 0, id = 0, ib = 0;
+            int ct = 0, cd = 0;
+
+            foreach (var row in SelectedStageItems)
+            {
+                if (row.IsCompleted)
+                {
+                    row.RowIndex = ++doneIdx;
+                    CompletedStageItems.Add(row);
+                    ct += row.Inflow;
+                    cd += row.Done;
+                }
+                else if (IsInnerPosition(row.PositionKey))
+                {
+                    row.RowIndex = ++innerIdx;
+                    InnerStageItems.Add(row);
+                    it += row.Inflow;
+                    iq += row.Item.Qty;
+                    id += row.Done;
+                    ib += row.Balance;
+                }
+                else
+                {
+                    row.RowIndex = ++outerIdx;
+                    OuterStageItems.Add(row);
+                    ot += row.Inflow;
+                    oq += row.Item.Qty;
+                    od += row.Done;
+                    ob += row.Balance;
+                }
+            }
+
+            OuterTotalSum = ot; OuterQtySum = oq; OuterDoneSum = od; OuterBalanceSum = ob;
+            InnerTotalSum = it; InnerQtySum = iq; InnerDoneSum = id; InnerBalanceSum = ib;
+            CompletedTotalSum = ct; CompletedDoneSum = cd;
+
+            OnPropertyChanged(nameof(HasInnerGrid));
+            OnPropertyChanged(nameof(HasCompletedSection));
+        }
+
+        /// <summary>
+        /// Saves every editable DONE cell in the detail grid as one batch —
+        /// the AutoSum footers, KPI cards and main list update on reload.
+        /// </summary>
+        private async Task SaveAllDoneAsync()
+        {
+            var rows = SelectedStageItems.Where(i => i.CanWork).ToList();
+            if (rows.Count == 0) return;
+
+            var updates = new List<(int ItemId, int RequestedQty)>();
+            foreach (var row in rows)
+            {
+                string raw = (row.DoneInput ?? "").Trim();
+                if (!int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int requested))
+                {
+                    ActionWarning = $"Enter a whole number for {row.PaneTitle}.";
+                    return;
+                }
+                if (requested == row.Done) continue;
+                updates.Add((row.Id, requested));
+            }
+
+            if (updates.Count == 0) return;
+
+            var (ok, messages) = await Task.Run(() =>
+                ProductionRepository.SetDoneQtyBatchAsync(updates))
+                .ConfigureAwait(true);
+
+            if (!ok)
+            {
+                ActionWarning = messages.Count > 0 ? messages[0] : "Could not save done quantities.";
+                return;
+            }
+            if (messages.Count > 0)
+                ActionWarning = messages[messages.Count - 1];
+
+            // Reload: KPI strip, AutoSum footers, COMPLETED section and the
+            // main list all refresh from the database.
+            await LoadAllAsync().ConfigureAwait(true);
         }
 
         private static string Summary(int total, int done, string suffix) =>
@@ -1185,6 +1393,16 @@ namespace ProGlassAutomation.ViewModels.Production
         {
             IsDetailOpen = false;   // selection is gone — close the full-page detail
             HasSelection = false;
+            OuterStageItems.Clear();
+            InnerStageItems.Clear();
+            CompletedStageItems.Clear();
+            OuterTotalSum = OuterQtySum = OuterDoneSum = OuterBalanceSum = 0;
+            InnerTotalSum = InnerQtySum = InnerDoneSum = InnerBalanceSum = 0;
+            CompletedTotalSum = CompletedDoneSum = 0;
+            OnPropertyChanged(nameof(HasInnerGrid));
+            OnPropertyChanged(nameof(HasCompletedSection));
+            SelectedSpecName = "";
+            IsSingleGlass = false;
             SelectedJobNo = "";
             SelectedPiNo = "";
             SelectedCustomer = "";

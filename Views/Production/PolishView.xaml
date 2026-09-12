@@ -201,11 +201,37 @@
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <Border Grid.Row="1" Padding="10,5" Background="{DynamicResource ModuleBackgroundBrush}"
-                            Visibility="{Binding HasListFooter, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="{Binding ListFooterLabel}" FontSize="{StaticResource TextCaption}"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
-                    </Border>
+                    <StackPanel Grid.Row="1">
+                        <Border Padding="10,5" Background="{DynamicResource ModuleBackgroundBrush}"
+                                Visibility="{Binding HasListFooter, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="{Binding ListFooterLabel}" FontSize="{StaticResource TextCaption}"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                        </Border>
+                        <!-- AutoSum footer — TOTAL / DONE / BALANCE column ends -->
+                        <Border Style="{StaticResource LineItemsFooterStyle}" Padding="10,6"
+                                Visibility="{Binding IsListEmpty, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                            <Grid Margin="0,0,18,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="54"/>
+                                    <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="1.5*"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="90"/>
+                                    <ColumnDefinition Width="150"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Text="TOTALS" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                           Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Left"
+                                           VerticalAlignment="Center" Margin="8,0,0,0"/>
+                                <TextBlock Grid.Column="3" Text="{Binding ListTotalSum}" Style="{StaticResource LineItemsReadonlyStyle}"
+                                           FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                <TextBlock Grid.Column="4" Text="{Binding ListDoneSum}" Style="{StaticResource LineItemsReadonlyStyle}"
+                                           FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                <TextBlock Grid.Column="5" Text="{Binding ListBalanceSum}" Style="{StaticResource LineItemsReadonlyStyle}"
+                                           FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
 
                     <StackPanel Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"
                                 Visibility="{Binding IsListEmpty, Converter={StaticResource BoolToVisibilityConverter}}">

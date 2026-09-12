@@ -865,6 +865,84 @@ namespace ProGlassAutomation.Services.Production
         }
 
         /// <summary>
+        /// Batch version of <see cref="SetDoneQtyAsync"/> — saves many row
+        /// edits in ONE database round trip (one SaveChanges, one entry per
+        /// row, one live-refresh event). Used by the detail grid's
+        /// "SAVE DONE" button so a 100-row unit saves instantly.
+        /// </summary>
+        public static async Task<(bool Ok, List<string> Messages)> SetDoneQtyBatchAsync(
+            IReadOnlyList<(int ItemId, int RequestedQty)> updates)
+        {
+            if (updates.Count == 0) return (true, new List<string>());
+            EnsureInitialized();
+            using var db = new ProductionDbContext();
+
+            var ids = updates.Select(u => u.ItemId).ToHashSet();
+            var rows = await db.WorkItems
+                .Where(w => ids.Contains(w.Id))
+                .ToListAsync().ConfigureAwait(false);
+            if (rows.Count == 0) return (false, new List<string> { "No work items found." });
+
+            // Flow context — how many pieces arrived at each item's stage.
+            var all = await db.WorkItems.AsNoTracking().ToListAsync().ConfigureAwait(false);
+            var flows = ComputeUnitFlows(all);
+
+            var now = DateTime.Now;
+            string user = AuditService.CurrentUsername;
+            var messages = new List<string>();
+            int changed = 0;
+
+            foreach (var (itemId, requested) in updates)
+            {
+                var row = rows.FirstOrDefault(r => r.Id == itemId);
+                if (row == null) continue;
+
+                int inflow = row.Qty; // fallback = the item's own quantity
+                var flowItem = flows
+                    .SelectMany(f => f.StageItems.Values.SelectMany(list => list))
+                    .FirstOrDefault(fi => fi.Item.Id == itemId);
+                if (flowItem != null) inflow = flowItem.Inflow;
+
+                int applied = Math.Clamp(requested, 0, Math.Max(0, inflow));
+
+                row.QtyDone = applied;
+                row.Status = applied == 0 ? (int)WorkItemStatus.Pending
+                    : applied >= inflow && inflow > 0 ? (int)WorkItemStatus.Completed
+                    : (int)WorkItemStatus.InProgress;
+                row.UpdatedAt = now;
+                row.CompletedAt = row.Status == (int)WorkItemStatus.Completed ? now : null;
+                if (row.Status == (int)WorkItemStatus.Completed)
+                    row.CompletedBy = user;
+
+                db.Entries.Add(new SavedProductionEntry
+                {
+                    WorkItemId = row.Id,
+                    JobRef = row.JobRef,
+                    Stage = row.Stage,
+                    SpecGroupNumber = row.SpecGroupNumber,
+                    SerialNumber = row.SerialNumber,
+                    Position = row.Position,
+                    SpecName = row.SpecName,
+                    GlassRef = row.GlassRef,
+                    Qty = applied,
+                    DoneBy = user,
+                    DoneAt = now
+                });
+
+                if (requested > inflow)
+                    messages.Add($"Only {inflow.ToString(System.Globalization.CultureInfo.InvariantCulture)} " +
+                        "piece(s) have arrived for the previous stage — saved that many.");
+
+                changed++;
+            }
+
+            if (changed == 0) return (true, messages);
+            await db.SaveChangesAsync().ConfigureAwait(false);
+            RaiseWorkItemsChanged();
+            return (true, messages);
+        }
+
+        /// <summary>
         /// The floor audit trail for one unit at one stage (Outer + Inner
         /// entries together), newest first: "Qty done · by operator · time".
         /// </summary>
