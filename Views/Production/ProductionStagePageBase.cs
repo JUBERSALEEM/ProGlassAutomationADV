@@ -22,11 +22,13 @@ namespace ProGlassAutomation.Views.Production
     /// Shared code-behind plumbing for the eight stage pages. The views
     /// themselves are fully separate; this base only triggers the initial
     /// async load and forwards master-grid scroll geometry to the VM so
-    /// very long jobs keep loading in pages of 100.
+    /// very long jobs keep loading in pages of 100. The stage pages use
+    /// this class as their XAML ROOT element (not &lt;UserControl&gt;) so the
+    /// generated partial and the code-behind partial share one base.
     /// </summary>
-    public abstract class ProductionStagePageBase : UserControl
+    public class ProductionStagePageBase : UserControl
     {
-        protected ProductionStagePageBase()
+        public ProductionStagePageBase()
         {
             Loaded += OnViewLoaded;
         }
