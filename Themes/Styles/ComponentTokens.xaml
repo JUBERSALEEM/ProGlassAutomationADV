@@ -1,0 +1,80 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Themes/Styles/ComponentTokens.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: ProGlass Design System — COMPONENT TOKEN LAYER (Level 4)
+
+     WHY THIS FILE
+       The master design-system directive requires ONE canonical component
+       vocabulary: ProGlassButton, ProGlassPill, ProGlassTabs, ProGlassInput.
+       The canonical implementations already exist (Styles/ButtonStyles.xaml,
+       Themes/Styles/PillStyles.xaml, ModuleTabStyles.xaml, InputStyles.xaml)
+       but their keys are generation-specific. This file adds the canonical
+       names as thin BasedOn aliases so new/refactored modules can consume
+       ProGlass* keys while the legacy keys keep working unchanged.
+
+     RULES
+       · Purely additive — nothing here deletes or overrides a legacy key.
+       · BasedOn uses StaticResource because the targets are merged BEFORE
+         this dictionary and never change identity at runtime; their VALUES
+         are still theme-driven via DynamicResource inside the templates.
+       · TargetType must match the base style exactly (verified below).
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ── BUTTONS · ProGlassButton ─────────────────────────────────────
+         Canonical hierarchy over the v3 ButtonStyles (single source of
+         truth). Variants are aliases, not independent templates.          -->
+
+    <Style x:Key="ProGlassButton.Base"      TargetType="Button" BasedOn="{StaticResource PillButtonBase}"/>
+    <Style x:Key="ProGlassButton.Primary"   TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}"/>
+    <Style x:Key="ProGlassButton.Secondary" TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}"/>
+    <Style x:Key="ProGlassButton.Success"   TargetType="Button" BasedOn="{StaticResource SuccessPillButton}"/>
+    <Style x:Key="ProGlassButton.Danger"    TargetType="Button" BasedOn="{StaticResource DangerButton}"/>
+    <Style x:Key="ProGlassButton.Tab"       TargetType="Button" BasedOn="{StaticResource TabPillButton}"/>
+
+    <!-- Row-docked action buttons (list/detail rows, footers) -->
+    <Style x:Key="ProGlassButton.RowPrimary"   TargetType="Button" BasedOn="{StaticResource RowPrimaryButton}"/>
+    <Style x:Key="ProGlassButton.RowSecondary" TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}"/>
+    <Style x:Key="ProGlassButton.RowSuccess"   TargetType="Button" BasedOn="{StaticResource RowSuccessButton}"/>
+    <Style x:Key="ProGlassButton.RowDanger"    TargetType="Button" BasedOn="{StaticResource RowDangerButton}"/>
+
+    <!-- Report/toolbar buttons -->
+    <Style x:Key="ProGlassButton.ReportPrimary"   TargetType="Button" BasedOn="{StaticResource ReportToolbarPrimaryButton}"/>
+    <Style x:Key="ProGlassButton.ReportSecondary" TargetType="Button" BasedOn="{StaticResource ReportToolbarOutlinedButton}"/>
+    <Style x:Key="ProGlassButton.ExportPrimary"   TargetType="Button" BasedOn="{StaticResource ReportExportPrimaryButton}"/>
+    <Style x:Key="ProGlassButton.ExportSecondary" TargetType="Button" BasedOn="{StaticResource ReportExportOutlinedButton}"/>
+
+    <!-- ── PILLS · ProGlassPill (semantic) ───────────────────────────────
+         Status / Priority / Tag / Outline variants over PillStyles.xaml.
+         Preserve semantic meaning — never collapse to generic badges.      -->
+
+    <Style x:Key="ProGlassPill.Status.Accent"   TargetType="Border" BasedOn="{StaticResource StatusPillAccentStyle}"/>
+    <Style x:Key="ProGlassPill.Status.Success"  TargetType="Border" BasedOn="{StaticResource StatusPillSuccessStyle}"/>
+    <Style x:Key="ProGlassPill.Status.Warning"  TargetType="Border" BasedOn="{StaticResource StatusPillWarningStyle}"/>
+    <Style x:Key="ProGlassPill.Status.Danger"   TargetType="Border" BasedOn="{StaticResource StatusPillDangerStyle}"/>
+    <Style x:Key="ProGlassPill.Status.Info"     TargetType="Border" BasedOn="{StaticResource StatusPillInfoStyle}"/>
+    <Style x:Key="ProGlassPill.Status.Neutral"  TargetType="Border" BasedOn="{StaticResource StatusPillNeutralStyle}"/>
+
+    <Style x:Key="ProGlassPill.Priority.High"   TargetType="Border" BasedOn="{StaticResource PriorityPillHighStyle}"/>
+    <Style x:Key="ProGlassPill.Priority.Medium" TargetType="Border" BasedOn="{StaticResource PriorityPillMediumStyle}"/>
+    <Style x:Key="ProGlassPill.Priority.Low"    TargetType="Border" BasedOn="{StaticResource PriorityPillLowStyle}"/>
+
+    <Style x:Key="ProGlassPill.Tag"     TargetType="Border" BasedOn="{StaticResource TagPillStyle}"/>
+    <Style x:Key="ProGlassPill.Outline" TargetType="Border" BasedOn="{StaticResource OutlinePillStyle}"/>
+
+    <!-- ── TABS · ProGlassTabs ────────────────────────────────────────── -->
+    <Style x:Key="ProGlassTabs.Strip"  TargetType="Border"  BasedOn="{StaticResource ModuleTabStripStyle}"/>
+    <Style x:Key="ProGlassTabs.Button" TargetType="Button"  BasedOn="{StaticResource ModuleTabButtonStyle}"/>
+    <Style x:Key="ProGlassTabs.Pill"   TargetType="TabItem" BasedOn="{StaticResource PillTabItemStyle}"/>
+
+    <!-- ── INPUTS · ProGlassInput ─────────────────────────────────────── -->
+    <Style x:Key="ProGlassInput.TextBox"         TargetType="TextBox"     BasedOn="{StaticResource ModernTextBoxStyle}"/>
+    <Style x:Key="ProGlassInput.PasswordBox"     TargetType="PasswordBox" BasedOn="{StaticResource ModernPasswordBoxStyle}"/>
+    <Style x:Key="ProGlassInput.ComboBox"        TargetType="ComboBox"    BasedOn="{StaticResource ModernComboBoxStyle}"/>
+    <Style x:Key="ProGlassInput.EditableComboBox" TargetType="ComboBox"   BasedOn="{StaticResource ModernEditableComboBoxStyle}"/>
+    <Style x:Key="ProGlassInput.Int"             TargetType="TextBox"     BasedOn="{StaticResource IntInputStyle}"/>
+    <Style x:Key="ProGlassInput.Decimal"         TargetType="TextBox"     BasedOn="{StaticResource DecimalInputStyle}"/>
+
+</ResourceDictionary>
