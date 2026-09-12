@@ -1,6 +1,6 @@
 <!-- ═══════════════════════════════════════════════════════════════
      FILE: Views/Production/Controls/ProductionUnitDetailTemplates.xaml
-     MODULE: Production — Step-5 cut-list grid templates for the unit
+     MODULE: Production — Step-5 cut-list grid templates for the job
      detail overlay (OUTER left / INNER right). Shared as a merged
      resource dictionary so the detail control stays lean.
 ═══════════════════════════════════════════════════════════════════ -->
@@ -69,9 +69,13 @@
                                             <ColumnDefinition Width="0.72*"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="{Binding RowIndex}" Style="{StaticResource LineItemsSerialStyle}"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"
-                                                   HorizontalAlignment="Left" Margin="6,0"/>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="6,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding SerialLabel}" FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                            <TextBlock Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
                                         <TextBlock Grid.Column="2" Text="{Binding WLabel}" Style="{StaticResource LineItemsReadonlyStyle}"/>
                                         <TextBlock Grid.Column="3" Text="{Binding HLabel}" Style="{StaticResource LineItemsReadonlyStyle}"/>
                                         <TextBlock Grid.Column="4" Text="{Binding InflowLabel}" Style="{StaticResource LineItemsReadonlyStyle}"/>
@@ -175,9 +179,13 @@
                                             <ColumnDefinition Width="0.72*"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="{Binding RowIndex}" Style="{StaticResource LineItemsSerialStyle}"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"
-                                                   HorizontalAlignment="Left" Margin="6,0"/>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="6,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding SerialLabel}" FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                            <TextBlock Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
                                         <TextBlock Grid.Column="2" Text="{Binding WLabel}" Style="{StaticResource LineItemsReadonlyStyle}"/>
                                         <TextBlock Grid.Column="3" Text="{Binding HLabel}" Style="{StaticResource LineItemsReadonlyStyle}"/>
                                         <TextBlock Grid.Column="4" Text="{Binding InflowLabel}" Style="{StaticResource LineItemsReadonlyStyle}"/>

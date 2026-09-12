@@ -3,14 +3,13 @@
      PROJECT: ProGlassAutomation
      MODULE: Production — Doubling / Lamination (Stage 8 of 8) — SEPARATE page
 
-     Own page, not a shared body. The main list is the unit queue:
-     SR · JOB NO · CUSTOMER · TOTAL · DONE · BALANCE plus a status chip.
-     Double-clicking a row opens the full-page unit detail (shared
-     ProductionUnitDetailControl): completed-KPI strip, one card per pane
-     (OUTER / INNER — single glass shows the spec name) with its own size,
-     TOTAL/DONE/BALANCE, a Qty Done input + Save, unit totals, and the
-     recent entries log. Completed pieces flow to the next stage
-     automatically; the list live-refreshes on every floor entry.
+     Own page, not a shared body. The main list is the job queue: one
+     row per Job Order — TOTAL / DONE / BALANCE are the whole job's pieces
+     summed across every unit. Double-clicking a row opens the full-page
+     job detail (shared ProductionUnitDetailControl): the job's OUTER /
+     INNER cut-list grids carry every unit's rows with a Qty Done input +
+     Save; completed pieces flow to the next stage automatically and the
+     list live-refreshes on every floor entry.
 ═══════════════════════════════════════════════════════════════════ -->
 <pgp:ProductionStagePageBase x:Class="ProGlassAutomation.Views.Production.DoublingLaminationView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -93,19 +92,19 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBlock Text="Double-click a row to open the full-page unit detail and record done pieces — completed pieces flow to the next stage automatically and this list live-refreshes on every save."
+                        <TextBlock Text="Double-click a job to open the full-page job detail — every unit of the job is listed there and DONE is recorded per row; completed pieces flow to the next stage automatically and this list live-refreshes on every save."
                                    FontSize="{StaticResource TextCaption}" TextWrapping="Wrap"
                                    Foreground="{DynamicResource MutedForegroundBrush}"/>
                     </StackPanel>
                 </Border>
 
-                <!-- ── Main list: SR · JOB NO · CUSTOMER · TOTAL · DONE · BALANCE · STATUS ── -->
+                <!-- ── Main list: # · JOB NO · CUSTOMER · TOTAL · DONE · BALANCE · STATUS ── -->
                 <Grid Grid.Row="3">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <DataGrid Grid.Row="0" x:Name="MasterGrid"
+                    <DataGrid Grid.Row="0" x:Name="MasterGrid" RowHeight="44"
                               ItemsSource="{Binding ListRows}"
                               SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
                               Style="{StaticResource GodViewGridStyle}"
@@ -125,16 +124,28 @@
                                                   AncestorType=DataGrid}}"/>
                         </DataGrid.InputBindings>
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="SR" Width="54">
+                            <DataGridTemplateColumn Header="#" Width="44">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding SerialLabel}" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                        <TextBlock Text="{Binding IndexLabel}" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}"
                                                    VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="JOB NO" Binding="{Binding JobRef}" Width="130"/>
+                            <DataGridTemplateColumn Header="JOB NO" Width="130">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding JobRef}" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding UnitsLabel}" FontSize="{StaticResource TextCaption}"
+                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTextColumn Header="CUSTOMER" Binding="{Binding Customer}" Width="1.5*"/>
                             <DataGridTemplateColumn Header="TOTAL" Width="80">
                                 <DataGridTemplateColumn.CellTemplate>
@@ -212,7 +223,7 @@
                                 Visibility="{Binding IsListEmpty, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                             <Grid Margin="0,0,18,0">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="54"/>
+                                    <ColumnDefinition Width="44"/>
                                     <ColumnDefinition Width="130"/>
                                     <ColumnDefinition Width="1.5*"/>
                                     <ColumnDefinition Width="80"/>
@@ -248,7 +259,7 @@
             </Grid>
         </Border>
 
-        <!-- ══ Full-page unit detail (double-click a row) ═════════════ -->
+        <!-- ══ Full-page job detail (double-click a row) ═════════════ -->
         <production:ProductionUnitDetailControl Grid.Row="0" Grid.RowSpan="4" Panel.ZIndex="20"/>
     </Grid>
 </pgp:ProductionStagePageBase>

@@ -15,6 +15,9 @@
 //   • GetRowDispatchStateAsync(jobOrderId, spec, serial) — the dispatch
 //     card figures for one unit row: ready / delivered / balance.
 //
+//   • GetJobDispatchStateAsync(jobOrderId) — the same figures summed
+//     across every unit row of a Job Order (the job-scoped detail card).
+//
 // Confirmed = Dispatched / Delivered / Signed / Received
 // (DeliveryNoteWorkflow.IsConfirmedDelivery) — in-progress drafts do not
 // consume balance, matching DeliveryNoteCreateService rule 5.
@@ -87,6 +90,38 @@ namespace ProGlassAutomation.Services.Production
             catch (Exception ex)
             {
                 AppLogService.Debug("[ProductionDeliveryGateway] row state failed: " + ex.Message);
+                return (0, 0, 0, false);
+            }
+        }
+
+        /// <summary>Dispatch card figures for a whole Job Order (all rows summed).</summary>
+        public static async Task<(int Ready, int Delivered, int Balance, bool ProductionManaged)>
+            GetJobDispatchStateAsync(string jobOrderId)
+        {
+            try
+            {
+                var ready = await ProductionRepository
+                    .GetDispatchReadyByRowAsync(jobOrderId).ConfigureAwait(false);
+
+                if (ready == null) return (0, 0, 0, false);
+
+                int totalReady = 0;
+                foreach (var row in ready.Values) totalReady += row.Ready;
+
+                var deliveredMap = await GetConfirmedDeliveredAsync(jobOrderId)
+                    .ConfigureAwait(false);
+                int totalDelivered = 0;
+                foreach (var kv in deliveredMap)
+                {
+                    int rowReady = ready.TryGetValue(kv.Key, out var r) ? r.Ready : 0;
+                    totalDelivered += Math.Min(kv.Value, rowReady);
+                }
+
+                return (totalReady, totalDelivered, Math.Max(0, totalReady - totalDelivered), true);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug("[ProductionDeliveryGateway] job state failed: " + ex.Message);
                 return (0, 0, 0, false);
             }
         }

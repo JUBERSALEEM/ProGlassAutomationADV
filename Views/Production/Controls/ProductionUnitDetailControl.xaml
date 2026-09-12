@@ -1,16 +1,17 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Production/Controls/ProductionUnitDetailControl.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Production — shared full-page unit detail overlay
+     MODULE: Production — shared full-page job detail overlay
 
-     Step-5 cut-list style, not cards: the unit's panes are two editable
+     Step-5 cut-list style, not cards: the job's panes are two editable
      grids side by side — OUTER (left, W1/H1) and INNER (right, W2/H2) —
      with columns # · GLASS REF · W · H · TOTAL · QTY · DONE · BALANCE.
-     DONE is an editable cell; one SAVE DONE writes the whole grid in a
-     batch. Each grid has an AutoSum footer (TOTAL/DONE/BALANCE column
-     ends). Fully completed panes move to the COMPLETED section at the
-     end. Single-glass units render one grid, centered, titled by the
-     spec name. KPI cards on top update on every save; the main list
+     Every unit of the selected Job Order is listed as a row; DONE is an
+     editable cell and one SAVE DONE writes the whole grid in a batch.
+     Each grid has an AutoSum footer (TOTAL/DONE/BALANCE column ends).
+     Fully completed panes move to the COMPLETED section at the end.
+     Single-glass jobs render one grid, centered, titled by the spec
+     name. KPI cards on top update on every save; the main list
      live-refreshes.
 ═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Production.Controls.ProductionUnitDetailControl"
@@ -64,7 +65,7 @@
                                    Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <TextBlock Text="{Binding ModuleName}" Style="{StaticResource ModulePageTitleStyle}"
                                    VerticalAlignment="Center"/>
-                        <TextBlock Text="· UNIT DETAIL" FontSize="{StaticResource TextSubhead}" FontWeight="SemiBold"
+                        <TextBlock Text="· JOB DETAIL" FontSize="{StaticResource TextSubhead}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
                     </StackPanel>
                     <TextBlock Text="{Binding Description}" Style="{StaticResource ModulePageSubtitleStyle}" Margin="0,2,0,0"/>
@@ -73,7 +74,7 @@
                 <Border Grid.Column="2" CornerRadius="9" Background="{DynamicResource TintTealBrush}"
                         Padding="14,5" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="SR " FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                        <TextBlock Text="JOB " FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
                         <TextBlock Text="{Binding SelectedSerialLabel}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
@@ -86,7 +87,7 @@
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="18,16,18,20">
             <StackPanel MaxWidth="1280" HorizontalAlignment="Stretch">
 
-                <!-- ══ Unit identity ═══════════════════════════════════ -->
+                <!-- ══ Job identity ═══════════════════════════════════ -->
                 <Border Style="{StaticResource SurfaceSecondaryStyle}" Padding="16,12">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -126,7 +127,7 @@
                                 <TextBlock Text="TOTAL" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding SelectedUnitTotalLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
                                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                <TextBlock Text="pieces in this unit" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="pieces in this job" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </Border>
                         <Border Background="Transparent" Padding="14,10">
@@ -150,7 +151,7 @@
                                 <TextBlock Text="COMPLETED" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding SelectedUnitCompletedPctLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
                                            Foreground="{DynamicResource AccentBrush}"/>
-                                <TextBlock Text="of unit progress" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="of job progress" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </Border>
                     </UniformGrid>
@@ -163,7 +164,7 @@
                             ToolTip="Save every DONE cell in the grids — AutoSum, KPI cards and the main list refresh instantly"/>
                     <Button Content="Complete all items" Style="{StaticResource OutlinedPillButton}"
                             Command="{Binding CompleteUnitCommand}" Margin="8,0,0,0" Padding="16,8"
-                            ToolTip="Complete every arrived piece of this unit in one action"/>
+                            ToolTip="Complete every arrived piece of this job in one action"/>
                 </StackPanel>
 
                 <!-- ══ Grids: OUTER (left) · INNER (right), SGU centered ═ -->
@@ -250,9 +251,13 @@
                                                 <ColumnDefinition Width="1.3*"/>
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="0" Text="{Binding RowIndex}" Style="{StaticResource LineItemsSerialStyle}"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"
-                                                       HorizontalAlignment="Left" Margin="6,0"/>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="6,0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding SerialLabel}" FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                <TextBlock Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
                                             <TextBlock Grid.Column="2" Text="{Binding WLabel}" Style="{StaticResource LineItemsReadonlyStyle}"/>
                                             <TextBlock Grid.Column="3" Text="{Binding HLabel}" Style="{StaticResource LineItemsReadonlyStyle}"/>
                                             <TextBlock Grid.Column="4" Text="{Binding QtyLabel}" Style="{StaticResource LineItemsReadonlyStyle}"/>
@@ -322,7 +327,7 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                         </StackPanel>
-                        <TextBlock Text="No entries yet for this unit — save a done quantity to record the operator, date and time."
+                        <TextBlock Text="No entries yet for this job — save a done quantity to record the operator, date and time."
                                    FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}"
                                    TextWrapping="Wrap"
                                    Visibility="{Binding HasDetailEntries, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>

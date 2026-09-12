@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Views/Production/Controls/ProductionUnitDetailControl.xaml.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Production — shared full-page unit detail overlay (code-behind)
+// MODULE: Production — shared full-page job detail overlay (code-behind)
 //
 // Pure view: all state and behaviour live on ProductionStageViewModelBase
 // (inherited DataContext). This control only hosts the overlay XAML.

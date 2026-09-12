@@ -3,7 +3,7 @@
      PROJECT: ProGlassAutomation
      MODULE: Production — shared KPI strip (chrome only)
 
-     Live stage KPIs: arrived rows · pending · in progress · completed ·
+     Live stage KPIs: arrived jobs · pending · in progress · completed ·
      load (m² + stage metric) · ready-for-dispatch pieces. Labels are
      stage-aware via the VM (LM vs pcs vs units). DataContext =
      ProductionStageViewModelBase.

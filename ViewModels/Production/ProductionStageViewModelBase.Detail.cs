@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════
 // FILE: ProductionStageViewModelBase.Detail.cs
-// MODULE: Production — full-page unit detail: OUTER/INNER grids,
+// MODULE: Production — full-page job detail: OUTER/INNER grids,
 //         AutoSum footers, dispatch and delivery note (partial of
 //         ProductionStageViewModelBase)
 // ═══════════════════════════════════════════════════════════════
@@ -71,7 +71,7 @@ namespace ProGlassAutomation.ViewModels.Production
         /// <summary>When this unit was released to the floor.</summary>
         public string SelectedArrivalLabel { get => _selectedArrivalLabel; private set { if (_selectedArrivalLabel == value) return; _selectedArrivalLabel = value; OnPropertyChanged(); } }
 
-        /// <summary>Pane-level stage items for the selected unit.</summary>
+        /// <summary>Pane-level stage items for the selected job (every unit's rows).</summary>
         public ObservableCollection<ProductionWorkItemRow> SelectedStageItems { get; } = new();
 
         // ── Detail grids (Step-5 cut-list style: OUTER left / INNER right) ─
@@ -86,7 +86,7 @@ namespace ProGlassAutomation.ViewModels.Production
         public ObservableCollection<ProductionWorkItemRow> CompletedStageItems { get; } = new();
 
         private bool _isSingleGlass;
-        /// <summary>True when the unit has a single glass pane (SGU) — one centered grid.</summary>
+        /// <summary>True when the job has a single glass pane (SGU) — one centered grid.</summary>
         public bool IsSingleGlass
         {
             get => _isSingleGlass;
@@ -144,10 +144,10 @@ namespace ProGlassAutomation.ViewModels.Production
         public int ListDoneSum { get => _listDoneSum; private set { if (_listDoneSum == value) return; _listDoneSum = value; OnPropertyChanged(); } }
         public int ListBalanceSum { get => _listBalanceSum; private set { if (_listBalanceSum == value) return; _listBalanceSum = value; OnPropertyChanged(); } }
 
-        // ── Full-page unit detail (double-click opens, back returns) ──────
+        // ── Full-page job detail (double-click opens, back returns) ──────
 
         private bool _isDetailOpen;
-        /// <summary>True while the full-page unit detail overlay is showing.</summary>
+        /// <summary>True while the full-page job detail overlay is showing.</summary>
         public bool IsDetailOpen
         {
             get => _isDetailOpen;
@@ -158,7 +158,7 @@ namespace ProGlassAutomation.ViewModels.Production
         public string SelectedSerialLabel { get => _selectedSerialLabel; private set { if (_selectedSerialLabel == value) return; _selectedSerialLabel = value; OnPropertyChanged(); } }
 
         private string _selectedUnitTotalLabel = "0";
-        /// <summary>Unit TOTAL pieces (outer + inner summed) for the KPI panel.</summary>
+        /// <summary>Job TOTAL pieces (outer + inner summed) for the KPI panel.</summary>
         public string SelectedUnitTotalLabel { get => _selectedUnitTotalLabel; private set { if (_selectedUnitTotalLabel == value) return; _selectedUnitTotalLabel = value; OnPropertyChanged(); } }
 
         private string _selectedUnitDoneLabel = "0";
@@ -170,7 +170,7 @@ namespace ProGlassAutomation.ViewModels.Production
         private string _selectedUnitCompletedPctLabel = "0%";
         public string SelectedUnitCompletedPctLabel { get => _selectedUnitCompletedPctLabel; private set { if (_selectedUnitCompletedPctLabel == value) return; _selectedUnitCompletedPctLabel = value; OnPropertyChanged(); } }
 
-        /// <summary>Floor audit trail for the selected unit at this stage.</summary>
+        /// <summary>Floor audit trail for the selected job at this stage.</summary>
         public ObservableCollection<string> DetailEntries { get; } = new();
 
         private bool _hasDetailEntries;
@@ -295,53 +295,45 @@ namespace ProGlassAutomation.ViewModels.Production
                 return;
             }
 
+            // The detail carries the WHOLE job: every arrived unit's pane
+            // rows are flattened into the OUTER / INNER cut-list grids —
+            // this is the real per-piece data the floor edits and saves.
+            var units = row.Units;
             HasSelection = true;
             SelectedJobNo = row.JobRef;
             SelectedPiNo = row.PiNo;
             SelectedCustomer = row.Customer;
             SelectedSalesman = row.Salesman;
-            SelectedSpecLabel = row.SpecLabel;
-            SelectedRef = row.GlassRef;
 
-            var first = row.FlowItems.FirstOrDefault()?.Item;
+            int unitCount = units.Count;
+            int specCount = units.Select(u => u.SpecGroupNumber).Distinct().Count();
+            SelectedSpecLabel = unitCount == 0
+                ? ""
+                : $"{unitCount.ToString(CultureInfo.InvariantCulture)} unit(s) · " +
+                  $"{specCount.ToString(CultureInfo.InvariantCulture)} spec(s)";
+            SelectedSerialLabel = row.JobRef;   // header badge shows the job number
+
+            var items = units.SelectMany(u => u.FlowItems).ToList();
+            var first = items.FirstOrDefault()?.Item;
             SelectedProject = first?.ProjectName ?? "";
+            SelectedRef = "";
 
-            var sizes = new List<string>();
-            if (row.W1Label != "—") sizes.Add($"W1 {row.W1Label} × H1 {row.H1Label}");
-            if (row.W2Label != "—") sizes.Add($"W2 {row.W2Label} × H2 {row.H2Label}");
-            SelectedSizeSummary = sizes.Count == 0 ? "—"
-                : string.Join("  ·  ", sizes) + $"  ·  Qty {row.QtyLabel}";
-
-            // Step 4/5 size rule — overlap glass vs equal-size unit.
-            SelectedSizeRuleLabel = row.SizeRuleLabel;
-
-            // Step 4 composition intelligence: pane treatments.
-            var treatments = row.FlowItems
-                .Select(fi => fi.Item.Treatment)
-                .Where(t => !string.IsNullOrWhiteSpace(t))
-                .Distinct()
-                .ToList();
-            SelectedTreatmentsLabel = treatments.Count == 0 ? "—"
-                : string.Join(" · ", treatments);
-
-            SelectedArrivalLabel = first?.CreatedAt == null || first.CreatedAt == default
-                ? "—"
-                : first.CreatedAt.ToString("dd MMM yyyy HH:mm", CultureInfo.InvariantCulture);
+            // Single-glass job → one centered grid; pane builds → OUTER/INNER.
+            bool hasInner = items.Any(f => IsInnerPosition(f.Item.Position));
+            IsSingleGlass = !hasInner;
+            SelectedSpecName = specCount == 1 ? (first?.SpecName ?? "") : "";
 
             SelectedStageItems.Clear();
-            foreach (var flowItem in row.FlowItems)
+            foreach (var flowItem in items)
                 SelectedStageItems.Add(new ProductionWorkItemRow(flowItem));
 
-            SelectedSpecName = first?.SpecName ?? "";
-            IsSingleGlass = row.FlowItems.Count == 1;
             RebuildUnitPanels();
-
             AsyncUtility.InvalidateCommandsThrottled();
 
-            // Stage totals — total / done / balance in pieces, SQM and LM.
+            // Job totals — total / done / balance in pieces, SQM and LM.
             int pcsTotal = 0, pcsDone = 0;
             decimal sqmTotal = 0m, sqmDone = 0m, lmTotal = 0m, lmDone = 0m;
-            foreach (var fi in row.FlowItems)
+            foreach (var fi in items)
             {
                 int inflow = fi.Inflow;
                 int done = fi.Done;
@@ -362,20 +354,19 @@ namespace ProGlassAutomation.ViewModels.Production
             SelectedLmSummary = Summary(Math.Round(lmTotal, 2, MidpointRounding.AwayFromZero),
                 Math.Round(lmDone, 2, MidpointRounding.AwayFromZero), " LM");
 
-            // Full-page KPI panel: unit TOTAL / DONE / BALANCE / COMPLETED %.
-            SelectedSerialLabel = row.SerialLabel;
+            // Full-page KPI panel: job TOTAL / DONE / BALANCE / COMPLETED %.
             SelectedUnitTotalLabel = pcsTotal.ToString(CultureInfo.InvariantCulture);
             SelectedUnitDoneLabel = pcsDone.ToString(CultureInfo.InvariantCulture);
             SelectedUnitBalanceLabel = (pcsTotal - pcsDone).ToString(CultureInfo.InvariantCulture);
             SelectedUnitCompletedPctLabel = pcsTotal == 0 ? "0%"
                 : ((double)pcsDone / pcsTotal * 100.0).ToString("0.#", CultureInfo.InvariantCulture) + "%";
 
-            // Floor audit trail for this unit at this stage.
+            // Floor audit trail for the whole job at this stage.
             AsyncUtility.SafeFireAndForget(RefreshDetailEntriesAsync, "Production entry log");
 
             // Dispatch figures — finished pieces flow into delivery notes.
             AsyncUtility.SafeFireAndForget(
-                () => RefreshDispatchAsync(row.JobRef, row.SpecGroupNumber, row.SerialNumber),
+                () => RefreshDispatchAsync(row.JobRef),
                 "Production dispatch panel");
         }
 
@@ -384,7 +375,7 @@ namespace ProGlassAutomation.ViewModels.Production
             string.Equals(position, "Lam Inner", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
-        /// Distributes the selected unit's panes into the OUTER / INNER grids
+        /// Distributes the selected job's panes into the OUTER / INNER grids
         /// (fully completed panes move to the COMPLETED section) and computes
         /// the AutoSum footers for each grid.
         /// </summary>
@@ -487,17 +478,14 @@ namespace ProGlassAutomation.ViewModels.Production
             $"{done.ToString("0.##", CultureInfo.InvariantCulture)}{suffix} done · " +
             $"{(total - done).ToString("0.##", CultureInfo.InvariantCulture)}{suffix} left";
 
-        private async Task RefreshDispatchAsync(string jobRef, int specGroupNumber, int serialNumber)
+        private async Task RefreshDispatchAsync(string jobRef)
         {
             var (ready, delivered, balance, managed) = await Task.Run(() =>
-                ProductionDeliveryGateway.GetRowDispatchStateAsync(
-                    jobRef, specGroupNumber, serialNumber))
+                ProductionDeliveryGateway.GetJobDispatchStateAsync(jobRef))
                 .ConfigureAwait(true);
 
             // Selection may have moved on while loading.
-            if (_selectedRow == null || _selectedRow.JobRef != jobRef ||
-                _selectedRow.SpecGroupNumber != specGroupNumber ||
-                _selectedRow.SerialNumber != serialNumber) return;
+            if (_selectedRow == null || _selectedRow.JobRef != jobRef) return;
 
             HasDispatchPanel = managed;
             SelectedDispatchReadyLabel = ready.ToString(CultureInfo.InvariantCulture);
@@ -509,7 +497,7 @@ namespace ProGlassAutomation.ViewModels.Production
 
         /// <summary>
         /// Creates (or reopens) the Dispatching delivery note for the
-        /// selected unit's Job Order — it opens with remaining balance
+        /// selected Job Order — it opens with remaining balance
         /// only, capped to the pieces production has finished.
         /// </summary>
         private async Task CreateDeliveryNoteAsync()
@@ -574,7 +562,7 @@ namespace ProGlassAutomation.ViewModels.Production
             AsyncUtility.InvalidateCommandsThrottled();
         }
 
-        /// <summary>Opens the full-page unit detail (double-click on a row).</summary>
+        /// <summary>Opens the full-page job detail (double-click on a job row).</summary>
         private void OpenUnit(ProductionListRow? row)
         {
             if (row == null) return;
@@ -594,7 +582,7 @@ namespace ProGlassAutomation.ViewModels.Production
         }
 
         /// <summary>
-        /// Loads the floor audit trail for the selected unit at this stage:
+        /// Loads the floor audit trail for the selected job at this stage:
         /// each "mark done" save — who, when and how many — newest first.
         /// </summary>
         private async Task RefreshDetailEntriesAsync()
@@ -603,8 +591,7 @@ namespace ProGlassAutomation.ViewModels.Production
             if (row == null) return;
 
             var entries = await Task.Run(() =>
-                ProductionRepository.GetUnitEntriesAsync(
-                    row.JobRef, row.SpecGroupNumber, row.SerialNumber, Stage))
+                ProductionRepository.GetJobEntriesAsync(row.JobRef, Stage))
                 .ConfigureAwait(true);
 
             // Selection may have moved on while loading.

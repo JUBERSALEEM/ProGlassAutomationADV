@@ -13,17 +13,18 @@
 // quantity arrives in the next module. Every module screen is a
 // two-tier master–detail:
 //
-//   TIER 1 — UNIT LIST (main stage screen): one row per unit with
-//            SR · JOB NO · CUSTOMER · TOTAL · DONE · BALANCE plus a
-//            status chip. Double-click opens the full-page detail.
+//   TIER 1 — JOB LIST (main stage screen): one row per Job Order with
+//            # · JOB NO · CUSTOMER · TOTAL · DONE · BALANCE plus a
+//            status chip — every quantity is the whole job's aggregate
+//            across all of its units. Double-click opens the detail.
 //
-//   TIER 2 — FULL-PAGE UNIT DETAIL: top completed-KPI strip, a card
-//            per pane (Outer / Inner — single glass shows the spec
-//            name) with W1×H1 (and W2/H2), per-pane TOTAL/DONE/BALANCE,
-//            a Qty Done input + Save, unit totals, and the recent
-//            entries log (who marked done, when). Completed pieces flow
-//            into the next stage automatically; the main list
-//            live-refreshes on every floor entry.
+//   TIER 2 — FULL-PAGE JOB DETAIL: top completed-KPI strip, the job's
+//            OUTER / INNER cut-list grids (single glass shows the spec
+//            name) carrying every unit's rows with W1×H1 (and W2/H2),
+//            per-row TOTAL/DONE/BALANCE, a Qty Done input + Save, job
+//            totals, and the recent entries log (who marked done, when).
+//            Completed pieces flow into the next stage automatically;
+//            the main list live-refreshes on every floor entry.
 //
 // See docs/PRODUCTION_SCREENS_DESIGN_2026-09-11.md for the full design.
 // ═══════════════════════════════════════════════════════════════════════
@@ -111,6 +112,11 @@ namespace ProGlassAutomation.ViewModels.Production
 
         /// <summary>The unit serial — SR shown in the detail header.</summary>
         public int SerialNumber => _flow.Item.SerialNumber;
+
+        /// <summary>"SR n" tag that keeps each unit's rows distinguishable when
+        /// a whole job's units are flattened into the OUTER / INNER grids.</summary>
+        public string SerialLabel => SerialNumber > 0
+            ? $"SR {SerialNumber.ToString(CultureInfo.InvariantCulture)}" : "—";
 
         public string GlassRef => string.IsNullOrWhiteSpace(_flow.Item.GlassRef)
             ? "—" : _flow.Item.GlassRef;
@@ -206,11 +212,8 @@ namespace ProGlassAutomation.ViewModels.Production
     /// </summary>
     public sealed class ProductionListRow
     {
-        /// <summary>Unit identity — JobRef|Spec|Serial.</summary>
+        /// <summary>Job identity — J|JobRef.</summary>
         public string RowKey { get; init; } = "";
-
-        public int SpecGroupNumber { get; init; }
-        public int SerialNumber { get; init; }
 
         // ── Shared columns ───────────────────────────────────────────────
         public string StatusGlyph { get; init; } = "";
@@ -219,35 +222,24 @@ namespace ProGlassAutomation.ViewModels.Production
         public string PiNo { get; init; } = "";
         public string Customer { get; init; } = "";
         public string Salesman { get; init; } = "";
-        public string SpecLabel { get; init; } = "";
-        public string SerialLabel { get; init; } = "—";
-        public string GlassRef { get; init; } = "";
-        public string BuildType { get; init; } = "";
 
-        // ── Unit envelope — full Step 5 shape, per pane, no pricing ─────
-        public string W1Label { get; init; } = "—";
-        public string H1Label { get; init; } = "—";
-        public string W2Label { get; init; } = "—";
-        public string H2Label { get; init; } = "—";
-        public string QtyLabel { get; init; } = "—";
+        /// <summary>Running row number (1-based) in the job queue.</summary>
+        public string IndexLabel { get; init; } = "";
 
-        /// <summary>Step 4/5 size rule badge for multi-pane builds.</summary>
-        public string SizeRuleLabel { get; init; } = "";
-        public string Sqm1Label { get; init; } = "—";
-        public string TotalSqm1Label { get; init; } = "—";
-        public string Lm1Label { get; init; } = "—";
-        public string Sqm2Label { get; init; } = "—";
-        public string TotalSqm2Label { get; init; } = "—";
-        public string Lm2Label { get; init; } = "—";
+        /// <summary>"{N} units · {M} specs" caption under the job number.</summary>
+        public string UnitsLabel { get; init; } = "";
 
-        // ── This stage's piece flow ──────────────────────────────────────
+        // ── This stage's piece flow, aggregated across the whole job ────
         public string InflowLabel { get; init; } = "0";
         public string DoneLabel { get; init; } = "0";
         public string BalanceLabel { get; init; } = "0";
-        public string WaitingOn { get; init; } = "";
 
-        /// <summary>This stage's per-item flows (detail panel source).</summary>
-        public List<ProductionRepository.ProductionFlowItem> FlowItems { get; init; } = new();
+        /// <summary>
+        /// Every arrived unit of the job. The full-page job detail flattens
+        /// these into its OUTER / INNER cut-list grids — this is the real
+        /// per-piece data the floor edits (DONE) and saves.
+        /// </summary>
+        public List<ProductionRepository.ProductionUnitProjection> Units { get; init; } = new();
     }
 
     /// <summary>

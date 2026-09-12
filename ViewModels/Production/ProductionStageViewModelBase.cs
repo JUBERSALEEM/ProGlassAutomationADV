@@ -230,8 +230,15 @@ namespace ProGlassAutomation.ViewModels.Production
         /// </summary>
         private const int ListPageSize = 100;
 
-        /// <summary>Full filtered projection behind the current list.</summary>
-        private List<ProductionRepository.ProductionUnitProjection> _listCache = new();
+        /// <summary>One job's arrived units, grouped for the per-job list.</summary>
+        private sealed class JobGroup
+        {
+            public string JobRef = "";
+            public List<ProductionRepository.ProductionUnitProjection> Units = new();
+        }
+
+        /// <summary>Full filtered projection behind the current list (one group per job).</summary>
+        private List<JobGroup> _listCache = new();
         private int _loadedRowCount;
         private bool _isLoadingMore;
 
@@ -265,7 +272,7 @@ namespace ProGlassAutomation.ViewModels.Production
         }
 
         private string _listFooterLabel = "";
-        /// <summary>"Showing X of Y units — scroll for more".</summary>
+        /// <summary>"Showing X of Y jobs — scroll for more".</summary>
         public string ListFooterLabel
         {
             get => _listFooterLabel;
@@ -371,31 +378,36 @@ namespace ProGlassAutomation.ViewModels.Production
                     _ => null
                 };
 
+                // Per-job list: the repository projects units; we group them
+                // here so the list shows ONE row per job. The status filter
+                // is applied at the JOB level (aggregate) below, not per unit.
                 var data = await Task.Run(() =>
                     ProductionRepository.GetStageListAsync(
-                        Stage, jobRef, status,
+                        Stage, jobRef, null,
                         string.IsNullOrWhiteSpace(_searchText) ? null : _searchText))
                     .ConfigureAwait(true);
 
-                // Full filtered projection is cached; the grid renders it
-                // in pages of 100 (virtualized) so huge jobs stay fluid.
-                _listCache = data.Units;
+                _listCache = GroupJobs(data.Units, status);
                 _loadedRowCount = 0;
                 ListRows.Clear();
 
-                // AutoSum footer over the full filtered set (not just the
-                // virtualized page) — TOTAL / DONE / BALANCE column ends.
-                ListTotalSum = _listCache.Sum(u => u.Inflow);
-                ListDoneSum = _listCache.Sum(u => u.DoneQty);
-                ListBalanceSum = _listCache.Sum(u => u.BalanceQty);
+                // AutoSum footer over the full filtered set — TOTAL / DONE /
+                // BALANCE column ends, summed across every job.
+                int total = 0, done = 0, balance = 0;
+                foreach (var g in _listCache)
+                {
+                    total += g.Units.Sum(u => u.Inflow);
+                    done += g.Units.Sum(u => u.DoneQty);
+                    balance += g.Units.Sum(u => u.BalanceQty);
+                }
+                ListTotalSum = total; ListDoneSum = done; ListBalanceSum = balance;
 
                 // Keep the selection visible across reloads: extend the
-                // first page far enough to include the selected row.
+                // first page far enough to include the selected job.
                 int firstPageSize = Math.Min(ListPageSize, _listCache.Count);
                 if (previousKey != null)
                 {
-                    int idx = _listCache.FindIndex(u =>
-                        $"U|{u.JobRef}|{u.SpecGroupNumber}|{u.SerialNumber}" == previousKey);
+                    int idx = _listCache.FindIndex(g => $"J|{g.JobRef}" == previousKey);
                     if (idx >= firstPageSize) firstPageSize = idx + 1;
                 }
                 AppendRows(firstPageSize);
@@ -426,22 +438,49 @@ namespace ProGlassAutomation.ViewModels.Production
             }
         }
 
+        /// <summary>Groups the unit projection into one entry per job, keeping the repository's order.</summary>
+        private static List<JobGroup> GroupJobs(
+            List<ProductionRepository.ProductionUnitProjection> units, WorkItemStatus? status)
+        {
+            var groups = units
+                .GroupBy(u => u.JobRef)
+                .Select(g => new JobGroup { JobRef = g.Key, Units = g.ToList() })
+                .ToList();
+
+            if (status.HasValue)
+                groups = groups.Where(g => JobStatus(g) == status.Value).ToList();
+
+            return groups;
+        }
+
+        /// <summary>A job's aggregate status: COMPLETED only when every unit
+        /// has arrived and is fully done; IN PROGRESS once any piece is done.</summary>
+        private static WorkItemStatus JobStatus(JobGroup group)
+        {
+            if (group.Units.Count == 0) return WorkItemStatus.Pending;
+            bool anyDone = group.Units.Any(u => u.DoneQty > 0);
+            bool allDone = group.Units.All(u => u.Inflow > 0 && u.DoneQty >= u.Inflow);
+            return allDone ? WorkItemStatus.Completed
+                : anyDone ? WorkItemStatus.InProgress
+                : WorkItemStatus.Pending;
+        }
+
         /// <summary>Appends rows until the list holds <paramref name="targetCount"/> rows.</summary>
         private void AppendRows(int targetCount)
         {
             targetCount = Math.Min(targetCount, _listCache.Count);
             while (_loadedRowCount < targetCount)
             {
-                ListRows.Add(BuildUnitRow(_listCache[_loadedRowCount]));
+                ListRows.Add(BuildJobRow(_listCache[_loadedRowCount], _loadedRowCount + 1));
                 _loadedRowCount++;
             }
 
             ListFooterLabel = _listCache.Count == 0 ? "" :
                 _loadedRowCount < _listCache.Count
                     ? $"Showing {_loadedRowCount.ToString(CultureInfo.InvariantCulture)} of " +
-                      $"{_listCache.Count.ToString(CultureInfo.InvariantCulture)} units — scroll for the next " +
+                      $"{_listCache.Count.ToString(CultureInfo.InvariantCulture)} jobs — scroll for the next " +
                       $"{ListPageSize.ToString(CultureInfo.InvariantCulture)}"
-                    : $"Showing all {_listCache.Count.ToString(CultureInfo.InvariantCulture)} unit(s)";
+                    : $"Showing all {_listCache.Count.ToString(CultureInfo.InvariantCulture)} job(s)";
         }
 
         /// <summary>
@@ -475,33 +514,43 @@ namespace ProGlassAutomation.ViewModels.Production
                 ProductionRepository.GetStageListAsync(Stage, jobRef, null, null, includeWaiting: true))
                 .ConfigureAwait(true);
 
-            var arrived = data.Units.Where(u => u.Inflow > 0).ToList();
+            // The main list is one row per job, so the KPI chips count jobs
+            // (with the same job-level status buckets as the status filter);
+            // only jobs that have actually arrived work count as "in queue".
+            var jobs = data.Units
+                .GroupBy(u => u.JobRef)
+                .Select(g => new JobGroup { JobRef = g.Key, Units = g.ToList() })
+                .Where(g => g.Units.Any(u => u.Inflow > 0))
+                .ToList();
 
-            TotalCount = arrived.Count;
-            PendingCount = arrived.Count(u => u.AggregateStatus == 0);
-            InProgressCount = arrived.Count(u => u.AggregateStatus == 1);
-            CompletedCount = arrived.Count(u => u.AggregateStatus == 2);
+            TotalCount = jobs.Count;
+            PendingCount = jobs.Count(g => JobStatus(g) == WorkItemStatus.Pending);
+            InProgressCount = jobs.Count(g => JobStatus(g) == WorkItemStatus.InProgress);
+            CompletedCount = jobs.Count(g => JobStatus(g) == WorkItemStatus.Completed);
 
-            // Piece-flow KPI hints: the boards count rows, the floor reads
+            // Piece-flow KPI hints: the chips count jobs, the floor reads
             // pieces — both stay visible (units for assembly stages).
             string unitSuffix = Stage is ProductionStage.Pairing or ProductionStage.DoublingLamination
                 ? " units" : " pcs";
             PendingPiecesHint = "Σ " +
-                arrived.Where(u => u.AggregateStatus == 0).Sum(u => u.Inflow)
+                jobs.Where(g => JobStatus(g) == WorkItemStatus.Pending)
+                    .Sum(g => g.Units.Sum(u => u.Inflow))
                     .ToString(CultureInfo.InvariantCulture) + unitSuffix;
             InProgressPiecesHint = "Σ " +
-                arrived.Where(u => u.AggregateStatus == 1).Sum(u => u.DoneQty)
+                jobs.Where(g => JobStatus(g) == WorkItemStatus.InProgress)
+                    .Sum(g => g.Units.Sum(u => u.DoneQty))
                     .ToString(CultureInfo.InvariantCulture) + unitSuffix + " done";
             CompletedPiecesHint = "Σ " +
-                arrived.Where(u => u.AggregateStatus == 2).Sum(u => u.DoneQty)
+                jobs.Where(g => JobStatus(g) == WorkItemStatus.Completed)
+                    .Sum(g => g.Units.Sum(u => u.DoneQty))
                     .ToString(CultureInfo.InvariantCulture) + unitSuffix + " done";
 
-            decimal area = arrived.Sum(u => u.ArrivedArea);
+            decimal area = jobs.Sum(g => g.Units.Sum(u => u.ArrivedArea));
             AreaTotalLabel = area.ToString("0.##", CultureInfo.InvariantCulture) + " m²";
 
             decimal stageMetric = Stage is ProductionStage.Polish or ProductionStage.Mitring
-                ? arrived.Sum(u => u.ArrivedLm)
-                : arrived.Sum(u => u.Inflow);
+                ? jobs.Sum(g => g.Units.Sum(u => u.ArrivedLm))
+                : jobs.Sum(g => g.Units.Sum(u => u.Inflow));
 
             MetricTotalLabel = Stage switch
             {
@@ -548,75 +597,52 @@ namespace ProGlassAutomation.ViewModels.Production
 
         // ── Row builder ──────────────────────────────────────────────────
 
-        private static string FmtInt(int v) =>
-            v > 0 ? v.ToString(CultureInfo.InvariantCulture) : "—";
-
         /// <summary>
-        /// Step 4/5 size semantics: a second size pair on the row means
-        /// OVERLAP glass; an inherited (equal) pair means an EQUAL-SIZE
-        /// unit where the blank W2/H2 took W1/H1 at distribution.
+        /// Builds ONE list row per job: the job queue entry aggregates every
+        /// arrived unit of the job into TOTAL / DONE / BALANCE and a status.
+        /// The full per-piece data lives in <see cref="ProductionListRow.Units"/>
+        /// and is edited in the full-page job detail.
         /// </summary>
-        private static string BuildSizeRule(ProductionRepository.ProductionUnitProjection unit)
+        private ProductionListRow BuildJobRow(JobGroup group, int index)
         {
-            if (unit.BuildType == "Sgu" || unit.W2 <= 0 || unit.H2 <= 0) return "";
+            int total = group.Units.Sum(u => u.Inflow);
+            int done = group.Units.Sum(u => u.DoneQty);
+            int balance = group.Units.Sum(u => u.BalanceQty);
 
-            return unit.W2 == unit.W1 && unit.H2 == unit.H1
-                ? $"EQUAL-SIZE UNIT — both lites {unit.W1.ToString(CultureInfo.InvariantCulture)}×{unit.H1.ToString(CultureInfo.InvariantCulture)}"
-                : $"OVERLAP GLASS — inner {unit.W2.ToString(CultureInfo.InvariantCulture)}×{unit.H2.ToString(CultureInfo.InvariantCulture)}";
-        }
-
-        private static string FmtDec(decimal v, string suffix) =>
-            v > 0 ? v.ToString("0.###", CultureInfo.InvariantCulture) + suffix : "—";
-
-        private ProductionListRow BuildUnitRow(ProductionRepository.ProductionUnitProjection unit)
-        {
-            string glyph = unit.AggregateStatus switch
+            WorkItemStatus status = JobStatus(group);
+            string glyph = status switch
             {
-                2 => "✓",
-                1 => "◐",
+                WorkItemStatus.Completed => "✓",
+                WorkItemStatus.InProgress => "◐",
                 _ => "●"
             };
-            string statusLabel = unit.AggregateStatus switch
+            string statusLabel = status switch
             {
-                2 => "COMPLETED",
-                1 => "IN PROGRESS",
-                _ => unit.Inflow == 0 ? "WAITING UPSTREAM" : "PENDING"
+                WorkItemStatus.Completed => "COMPLETED",
+                WorkItemStatus.InProgress => "IN PROGRESS",
+                _ => "PENDING"
             };
+
+            var first = group.Units[0];
+            int unitCount = group.Units.Count;
+            int specCount = group.Units.Select(u => u.SpecGroupNumber).Distinct().Count();
 
             return new ProductionListRow
             {
-                RowKey = $"U|{unit.JobRef}|{unit.SpecGroupNumber}|{unit.SerialNumber}",
-                SpecGroupNumber = unit.SpecGroupNumber,
-                SerialNumber = unit.SerialNumber,
+                RowKey = $"J|{group.JobRef}",
                 StatusGlyph = glyph,
                 StatusLabel = statusLabel,
-                JobRef = unit.JobRef,
-                PiNo = unit.SourceProformaId,
-                Customer = unit.CustomerName,
-                Salesman = unit.Salesman,
-                SpecLabel = $"Spec {unit.SpecGroupNumber.ToString(CultureInfo.InvariantCulture)}" +
-                    (string.IsNullOrWhiteSpace(unit.SpecName) ? "" : $" · {unit.SpecName}"),
-                SerialLabel = unit.SerialNumber > 0
-                    ? unit.SerialNumber.ToString(CultureInfo.InvariantCulture) : "—",
-                GlassRef = string.IsNullOrWhiteSpace(unit.GlassRef) ? "—" : unit.GlassRef,
-                BuildType = unit.BuildType,
-                W1Label = FmtInt(unit.W1),
-                H1Label = FmtInt(unit.H1),
-                W2Label = FmtInt(unit.W2),
-                H2Label = FmtInt(unit.H2),
-                QtyLabel = FmtInt(unit.Qty),
-                SizeRuleLabel = BuildSizeRule(unit),
-                Sqm1Label = FmtDec(unit.UnitSqm1, ""),
-                TotalSqm1Label = FmtDec(unit.TotalSqm1, ""),
-                Lm1Label = FmtDec(unit.Lm1, ""),
-                Sqm2Label = FmtDec(unit.UnitSqm2, ""),
-                TotalSqm2Label = FmtDec(unit.TotalSqm2, ""),
-                Lm2Label = FmtDec(unit.Lm2, ""),
-                InflowLabel = unit.Inflow.ToString(CultureInfo.InvariantCulture),
-                DoneLabel = unit.DoneQty.ToString(CultureInfo.InvariantCulture),
-                BalanceLabel = unit.BalanceQty.ToString(CultureInfo.InvariantCulture),
-                WaitingOn = unit.WaitingOn,
-                FlowItems = unit.FlowItems
+                JobRef = group.JobRef,
+                PiNo = first.SourceProformaId,
+                Customer = first.CustomerName,
+                Salesman = first.Salesman,
+                IndexLabel = index.ToString(CultureInfo.InvariantCulture),
+                UnitsLabel = $"{unitCount.ToString(CultureInfo.InvariantCulture)} unit(s) · " +
+                             $"{specCount.ToString(CultureInfo.InvariantCulture)} spec(s)",
+                InflowLabel = total.ToString(CultureInfo.InvariantCulture),
+                DoneLabel = done.ToString(CultureInfo.InvariantCulture),
+                BalanceLabel = balance.ToString(CultureInfo.InvariantCulture),
+                Units = group.Units
             };
         }
 
@@ -704,8 +730,8 @@ namespace ProGlassAutomation.ViewModels.Production
 
         /// <summary>
         /// Floor convenience: complete every arrived piece of the selected
-        /// unit in one action. Each item is clamped to its inflow by the
-        /// repository, so a unit with partly-arrived panes still only
+        /// job in one action. Each item is clamped to its inflow by the
+        /// repository, so a job with partly-arrived panes still only
         /// completes what actually arrived.
         /// </summary>
         private async Task CompleteUnitAsync()

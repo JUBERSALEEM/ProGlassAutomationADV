@@ -961,5 +961,22 @@ namespace ProGlassAutomation.Services.Production
                 .ToListAsync()
                 .ConfigureAwait(false);
         }
+
+        /// <summary>
+        /// The floor audit trail for a whole job at one stage (every unit's
+        /// entries together), newest first: "Qty done · by operator · time".
+        /// </summary>
+        public static async Task<List<SavedProductionEntry>> GetJobEntriesAsync(
+            string jobRef, ProductionStage stage)
+        {
+            EnsureInitialized();
+            using var db = new ProductionDbContext();
+            return await db.Entries.AsNoTracking()
+                .Where(e => e.JobRef == jobRef && e.Stage == (int)stage)
+                .OrderByDescending(e => e.DoneAt)
+                .Take(200)
+                .ToListAsync()
+                .ConfigureAwait(false);
+        }
     }
 }
