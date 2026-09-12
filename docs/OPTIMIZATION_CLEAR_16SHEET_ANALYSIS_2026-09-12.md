@@ -88,9 +88,10 @@ count to the engine's QUICK run but with balanced sheets:
    score line (~0–1mm effective), not a 3mm saw kerf. The 17→16
    boundary is exactly this kind of 2–3mm per cut: 64 pieces ≈ 150+
    cuts × 2–3mm ≈ 0.3–0.5 m² — roughly the last sheet's trigger.
-   CP-SAT verification at kerf 1mm was still running at the time of
-   writing (bound already tightened to [3,17] bins, no 16-sheet
-   solution found yet); the result lands in a follow-up commit.
+   **Result (2026-09-12):** CP-SAT at kerf 1mm, 1100s, free-form
+   non-guillotine: also no 16-sheet solution (status UNKNOWN, best
+   17). Kerf alone therefore does not unlock sheet #16 within the
+   search budget.
 2. **Free-form cut sequencing.** CP-SAT (no guillotine restriction)
    did not find 16 in 1100s either, but that is not a proof of
    impossibility. If the reference tool shows its sheet layouts,
