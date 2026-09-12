@@ -210,13 +210,13 @@ namespace ProGlassAutomation.Tests.Agent
 
         // ── 9. DISPLAY NAME VS PERSISTED IDENTITY ───────────────────────
         [Fact]
-        public void Crystal_fluid_identity_is_stable_display_is_ios17pm()
+        public void Crystal_fluid_identity_is_stable_display_is_iphone_17_pro_max()
         {
             // persisted identity can never be renamed in place
             Assert.Equal("Crystal Fluid", VisualThemeEngine.CrystalFluid);
 
             // view-layer display name is the authored theme name
-            Assert.Equal("Ios-17pm",
+            Assert.Equal("iPhone 17 Pro Max",
                 VisualThemeEngine.FamilyDisplayName(
                     VisualThemeEngine.CrystalFluid));
             // non-crystal families surface their identity verbatim

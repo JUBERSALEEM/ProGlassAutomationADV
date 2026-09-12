@@ -1859,7 +1859,7 @@
     <sys:String x:Key="Settings.CrystalBubbleIntensity">Bubble intensity</sys:String>
     <sys:String x:Key="Settings.CrystalCausticIntensity">Caustic intensity</sys:String>
     <sys:String x:Key="Settings.CrystalMaterialHint">Six live axes tune the crystal water — water, caustics, bubbles and reflection. Glass, border and shadow opacity stay at their authored look.</sys:String>
-    <sys:String x:Key="Settings.CrystalOnlyIos17pm">Crystal Fluid tuning appears only while Ios-17pm is the active theme. Normal and Monet keep their card shape and gradient controls in Appearance.</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">Crystal Fluid tuning appears only while iPhone 17 Pro Max is the active theme. Normal, Monet and iOS 26 keep their card shape and gradient controls in Appearance.</sys:String>
     <sys:String x:Key="Settings.CrystalPreviewHint">Live preview — the same water surface real screens use.</sys:String>
     <sys:String x:Key="Settings.CrystalReflectionOpacity">Reflection opacity</sys:String>
     <sys:String x:Key="Settings.CrystalWaterOpacity">Water opacity</sys:String>
@@ -2012,14 +2012,14 @@
     <sys:String x:Key="Settings.NewHereLoadSmallLinkedDemoDatasetExplore">New here? Load a small linked demo dataset to explore every module — only on an empty database.</sys:String>
     <sys:String x:Key="Settings.NoJobsYetGenerateSelectedGenerateStart">No jobs yet. Generate Selected or Generate All to start a recording.</sys:String>
     <sys:String x:Key="Settings.NoUpdateHistoryYetCheckUpdatesRecordFirst">No update history yet. Check for updates to record the first entry.</sys:String>
-    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal, Monet or Ios-17pm — restyles the whole app instantly. Normal is the default: a clean, professional ERP design system that adapts to Light and Dark. Monet derives its palette from your accent colour; Ios-17pm is the light-only crystal-fluid look.</sys:String>
+    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal, Monet, iOS 26 or iPhone 17 Pro Max — restyles the whole app instantly. Normal is the default: a clean, professional ERP design system that adapts to Light and Dark. Monet derives its palette from your accent colour; iOS 26 is the Apple Liquid Glass look; iPhone 17 Pro Max is the light-only crystal-fluid look.</sys:String>
     <sys:String x:Key="Settings.NothingTaughtYet">Nothing has been taught yet.</sys:String>
     <sys:String x:Key="Settings.OPENOutput">OPEN OUTPUT</sys:String>
     <sys:String x:Key="Settings.OPENRecordings">OPEN RECORDINGS</sys:String>
     <sys:String x:Key="Settings.OPENToolsFolder">OPEN TOOLS FOLDER</sys:String>
     <sys:String x:Key="Settings.OfficialFfmpegPAGE">OFFICIAL FFMPEG PAGE</sys:String>
     <sys:String x:Key="Settings.OfflineSpeechTextOpenaiWhisper95AccuracyNo">Offline speech-to-text with OpenAI Whisper — 95%+ accuracy, no cloud.</sys:String>
-    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">One global text colour for every view. Auto follows the theme — Ios-17pm uses the About palette. Pick a colour so text always stays visible over frosted surfaces.</sys:String>
+    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">One global text colour for every view. Auto follows the theme — iPhone 17 Pro Max uses the About palette. Pick a colour so text always stays visible over frosted surfaces.</sys:String>
     <sys:String x:Key="Settings.OneImageBehindModulePlusModuleOverrides">One image behind every module, plus per-module overrides for individual screens.</sys:String>
     <sys:String x:Key="Settings.OperatorCheatSheetCuttingBay">Operator cheat-sheet for the cutting bay.</sys:String>
     <sys:String x:Key="Settings.OperatorRunningJobShopFloor">Operator running this job on the shop floor.</sys:String>

@@ -1859,7 +1859,7 @@
     <sys:String x:Key="Settings.CrystalBubbleIntensity">बुलबुला तीव्रता</sys:String>
     <sys:String x:Key="Settings.CrystalCausticIntensity">कॉस्टिक तीव्रता</sys:String>
     <sys:String x:Key="Settings.CrystalMaterialHint">छह लाइव अक्ष क्रिस्टल जल को ट्यून करते हैं — जल, कॉस्टिक, बुलबुले और परावर्तन। काँच, किनारा और छाया अपारदर्शिता अपने निर्धारित रूप में रहती है।</sys:String>
-    <sys:String x:Key="Settings.CrystalOnlyIos17pm">क्रिस्टल फ्लूइड ट्यूनिंग केवल तब दिखती है जब Ios-17pm थीम सक्रिय हो। Normal और Monet अपने कार्ड आकार और ग्रेडिएंट नियंत्रण Appearance में रखते हैं।</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">क्रिस्टल फ्लूइड ट्यूनिंग केवल तब दिखती है जब iPhone 17 Pro Max थीम सक्रिय हो। Normal और Monet अपने कार्ड आकार और ग्रेडिएंट नियंत्रण Appearance में रखते हैं।</sys:String>
     <sys:String x:Key="Settings.CrystalPreviewHint">लाइव पूर्वावलोकन — वही जल सतह जो वास्तविक स्क्रीन उपयोग करती हैं।</sys:String>
     <sys:String x:Key="Settings.CrystalReflectionOpacity">परावर्तन अपारदर्शिता</sys:String>
     <sys:String x:Key="Settings.CrystalWaterOpacity">जल अपारदर्शिता</sys:String>
@@ -2012,14 +2012,14 @@
     <sys:String x:Key="Settings.NewHereLoadSmallLinkedDemoDatasetExplore">नए हैं? हर मॉड्यूल का अन्वेषण करने के लिए छोटा जुड़ा डेमो डेटासेट लोड करें — केवल खाली डेटाबेस पर।</sys:String>
     <sys:String x:Key="Settings.NoJobsYetGenerateSelectedGenerateStart">अभी कोई कार्य नहीं। रिकॉर्डिंग शुरू करने के लिए चयनित बनाएँ या सभी बनाएँ का उपयोग करें।</sys:String>
     <sys:String x:Key="Settings.NoUpdateHistoryYetCheckUpdatesRecordFirst">अभी कोई अपडेट इतिहास नहीं। पहली प्रविष्टि दर्ज करने के लिए अपडेट जाँचें।</sys:String>
-    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal, Monet या Ios-17pm — पूरे ऐप को तुरंत नया रूप देता है। Normal डिफ़ॉल्ट है: एक साफ, पेशेवर ERP डिज़ाइन प्रणाली जो लाइट और डार्क के अनुकूल होती है। Monet अपना पैलेट आपके एक्सेंट रंग से लेता है; Ios-17pm केवल-लाइट क्रिस्टल-फ्लुइड लुक है।</sys:String>
+    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal, Monet या iPhone 17 Pro Max — पूरे ऐप को तुरंत नया रूप देता है। Normal डिफ़ॉल्ट है: एक साफ, पेशेवर ERP डिज़ाइन प्रणाली जो लाइट और डार्क के अनुकूल होती है। Monet अपना पैलेट आपके एक्सेंट रंग से लेता है; iPhone 17 Pro Max केवल-लाइट क्रिस्टल-फ्लुइड लुक है।</sys:String>
     <sys:String x:Key="Settings.NothingTaughtYet">अभी तक कुछ नहीं सिखाया गया।</sys:String>
     <sys:String x:Key="Settings.OPENOutput">आउटपुट खोलें</sys:String>
     <sys:String x:Key="Settings.OPENRecordings">रिकॉर्डिंग खोलें</sys:String>
     <sys:String x:Key="Settings.OPENToolsFolder">टूल्स फ़ोल्डर खोलें</sys:String>
     <sys:String x:Key="Settings.OfficialFfmpegPAGE">आधिकारिक FFMPEG पृष्ठ</sys:String>
     <sys:String x:Key="Settings.OfflineSpeechTextOpenaiWhisper95AccuracyNo">OpenAI Whisper के साथ ऑफ़लाइन वाक्-से-पाठ — 95%+ सटीकता, कोई क्लाउड नहीं।</sys:String>
-    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">हर दृश्य के लिए एक वैश्विक पाठ रंग। ऑटो थीम का पालन करता है — Ios-17pm About पैलेट का उपयोग करता है। एक रंग चुनें ताकि पाठ फ्रॉस्टेड सतहों पर हमेशा दृश्यमान रहे।</sys:String>
+    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">हर दृश्य के लिए एक वैश्विक पाठ रंग। ऑटो थीम का पालन करता है — iPhone 17 Pro Max About पैलेट का उपयोग करता है। एक रंग चुनें ताकि पाठ फ्रॉस्टेड सतहों पर हमेशा दृश्यमान रहे।</sys:String>
     <sys:String x:Key="Settings.OneImageBehindModulePlusModuleOverrides">हर मॉड्यूल के पीछे एक छवि, साथ ही व्यक्तिगत स्क्रीन के लिए प्रति-मॉड्यूल अधिलेखन।</sys:String>
     <sys:String x:Key="Settings.OperatorCheatSheetCuttingBay">कटिंग बे के लिए ऑपरेटर चीट-शीट।</sys:String>
     <sys:String x:Key="Settings.OperatorRunningJobShopFloor">ऑपरेटर जो इस कार्य को शॉप फ़्लोर पर चला रहा है।</sys:String>

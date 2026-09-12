@@ -67,14 +67,15 @@ namespace ProGlassAutomation.Tests.Agent
         // ══════════════════════════════════════════════════════════════
 
         [Fact]
-        public void Removed_families_are_gone_and_normal_industrial_is_the_default_family()
+        public void Removed_families_are_gone_and_normal_is_the_default_family()
         {
             // 2026-08-29 rewrite removed the two confusing "Glass"/"Glassy"
             // families. 2026-09-06 theme reduction then removed the iOS
             // Liquid Glass, Ocean, Professional and Industrial families.
-            // 2026-09-07 restored the industrial look as Normal
-            // (Industrial) and made it the constant app-wide default;
-            // every unknown/removed value resolves to Normal.
+            // 2026-09-12 consolidation (owner ask: "keep only 4") retires
+            // "Normal (Industrial)" from the 4-family switcher and makes
+            // Normal the constant app-wide default; every unknown/removed
+            // value resolves to Normal.
             string engine = Engine;
             Assert.DoesNotContain("public const string Glass =", engine, StringComparison.Ordinal);
             Assert.DoesNotContain("public const string Glassy =", engine, StringComparison.Ordinal);
@@ -86,23 +87,24 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.DoesNotContain("\"Glassy\" => LiquidGlass", engine, StringComparison.Ordinal);
 
             string config = Read("Services/AI/AIConfig/AppConfig.cs");
-            Assert.Contains("= \"Normal (Industrial)\";", config, StringComparison.Ordinal);
+            Assert.Contains("= \"Normal\";", config, StringComparison.Ordinal);
             Assert.DoesNotContain("= \"iOS Liquid Glass\";", config, StringComparison.Ordinal);
 
             // App.StartupCore.cs is pulled in by the App.*.cs convention.
             string appCs = Read("App.xaml.cs");
-            Assert.Contains("?? VisualThemeEngine.NormalIndustrial", appCs, StringComparison.Ordinal);
+            Assert.Contains("?? VisualThemeEngine.Normal", appCs, StringComparison.Ordinal);
             Assert.DoesNotContain("?? \"iOS Liquid Glass\"", appCs, StringComparison.Ordinal);
 
-            // The settings options list ships the retained families
-            // (plus the 2026-09-07 restoration, Normal Industrial) and
-            // none of the removed ones.
+            // The settings options list ships exactly the retained four
+            // families (Normal, Monet, iPhone 17 Pro Max = Crystal Fluid,
+            // iOS 26) and none of the removed ones.
             string vm = Read(
                 "ViewModels/Settings/SettingsViewModel.ThemeWallpaper.cs");
             Assert.Contains("VisualThemeEngine.Normal)", vm, StringComparison.Ordinal);
-            Assert.Contains("VisualThemeEngine.NormalIndustrial)", vm, StringComparison.Ordinal);
             Assert.Contains("VisualThemeEngine.Monet)", vm, StringComparison.Ordinal);
             Assert.Contains("VisualThemeEngine.CrystalFluid)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.Ios26)", vm, StringComparison.Ordinal);
+            Assert.DoesNotContain("VisualThemeEngine.NormalIndustrial", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.LiquidGlass", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Ocean", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Professional", vm, StringComparison.Ordinal);
@@ -114,12 +116,13 @@ namespace ProGlassAutomation.Tests.Agent
         [Fact]
         public void Industrial_round_fixes_are_pinned()
         {
-            // 2026-09-07 round: (1) saved "Normal" configs migrate once to
-            // "Normal (Industrial)"; (2) the crystal water gate publishes an
-            // explicit FALSE outside Ios-17pm instead of removing the key;
-            // (3) the read-only EditorTitle bindings are pinned OneWay so the
-            // water wrapper's re-parenting can never re-activate them as
-            // TwoWay (ERR-21172E).
+            // 2026-09-12 round: (1) saved "Normal (Industrial)" configs
+            // migrate once to the default "Normal" (the retired family
+            // folds into the 4-family catalogue); (2) the crystal water
+            // gate publishes an explicit FALSE outside iPhone 17 Pro Max
+            // instead of removing the key; (3) the read-only EditorTitle
+            // bindings are pinned OneWay so the water wrapper's re-parenting
+            // can never re-activate them as TwoWay (ERR-21172E).
             string configService = Read("Services/AI/AIConfig/ConfigService.cs");
             Assert.Contains("VisualThemeMigrated", configService, StringComparison.Ordinal);
             Assert.Contains("VisualThemeEngine.NormalIndustrial", configService, StringComparison.Ordinal);

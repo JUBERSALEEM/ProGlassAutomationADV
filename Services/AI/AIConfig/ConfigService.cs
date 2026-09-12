@@ -130,24 +130,24 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                 config.Appearance ??= new AppearanceSettings();
                 config.DataConnectivity ??= new DataConnectivitySettings();
 
-                // ── One-time theme migration (2026-09-07) ────────────────
-                // Saved configs created before the industrial restoration
-                // pinned "Normal" (the cream SaaS canvas). Those installs
-                // now open on the restored "Normal (Industrial)" family so
-                // they get the defined card edges the owner asked for —
-                // without any manual re-pick. The VisualThemeMigrated flag
-                // makes this run EXACTLY ONCE per install: a user who later
-                // deliberately re-selects cream Normal keeps it, because
-                // the flag is already set and the condition never matches
-                // again.
+                // ── One-time theme migration (2026-09-12) ────────────────
+                // The 2026-09-07 migration upgraded saved "Normal" configs
+                // to "Normal (Industrial)". That family is now retired from
+                // the 4-family switcher (Normal / Monet / iPhone 17 Pro Max
+                // / iOS 26), so any saved "Normal (Industrial)" value must
+                // fold back to the single global default "Normal". The
+                // VisualThemeMigrated flag makes this run EXACTLY ONCE per
+                // install: a user who later deliberately re-picks a family
+                // keeps it, because the flag is already set.
                 if (!config.Appearance.VisualThemeMigrated)
                 {
                     config.Appearance.VisualThemeMigrated = true;
-                    if (string.Equals(config.Appearance.VisualTheme, "Normal",
+                    if (string.Equals(config.Appearance.VisualTheme,
+                            VisualThemeEngine.NormalIndustrial,
                             StringComparison.Ordinal))
                     {
                         config.Appearance.VisualTheme =
-                            VisualThemeEngine.NormalIndustrial;
+                            VisualThemeEngine.Normal;
                     }
                 }
 

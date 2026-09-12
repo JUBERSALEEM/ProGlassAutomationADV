@@ -1859,7 +1859,7 @@
     <sys:String x:Key="Settings.CrystalBubbleIntensity">거품 강도</sys:String>
     <sys:String x:Key="Settings.CrystalCausticIntensity">코스틱 강도</sys:String>
     <sys:String x:Key="Settings.CrystalMaterialHint">6개의 라이브 축으로 크리스탈 물을 조정합니다 — 물, 코스틱, 거품, 반사. 유리·테두리·그림자 불투명도는 디자인된 모습을 유지합니다.</sys:String>
-    <sys:String x:Key="Settings.CrystalOnlyIos17pm">Crystal Fluid 조정은 Ios-17pm 테마가 활성일 때만 표시됩니다. Normal과 Monet은 카드 모양 및 그라데이션 컨트롤을 Appearance에서 유지합니다.</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">Crystal Fluid 조정은 iPhone 17 Pro Max 테마가 활성일 때만 표시됩니다. Normal과 Monet은 카드 모양 및 그라데이션 컨트롤을 Appearance에서 유지합니다.</sys:String>
     <sys:String x:Key="Settings.CrystalPreviewHint">라이브 미리보기 — 실제 화면과 동일한 수면.</sys:String>
     <sys:String x:Key="Settings.CrystalReflectionOpacity">반사 불투명도</sys:String>
     <sys:String x:Key="Settings.CrystalWaterOpacity">물 불투명도</sys:String>
@@ -2012,14 +2012,14 @@
     <sys:String x:Key="Settings.NewHereLoadSmallLinkedDemoDatasetExplore">처음이신가요? 연결된 작은 데모 데이터 세트를 로드하여 모든 모듈을 탐색하세요 — 빈 데이터베이스에서만.</sys:String>
     <sys:String x:Key="Settings.NoJobsYetGenerateSelectedGenerateStart">아직 작업이 없습니다. [선택 생성] 또는 [모두 생성]으로 녹화를 시작하세요.</sys:String>
     <sys:String x:Key="Settings.NoUpdateHistoryYetCheckUpdatesRecordFirst">아직 업데이트 기록이 없습니다. 업데이트를 확인하여 첫 항목을 기록하세요.</sys:String>
-    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal, Monet 또는 Ios-17pm — 앱 전체를 즉시 재스타일링. Normal이 기본: 라이트/다크에 적응하는 깔끔하고 전문적인 ERP 디자인 시스템. Monet은 액센트 색상에서 팔레트를 가져오고, Ios-17pm은 라이트 전용 크리스털 플루이드 룩입니다.</sys:String>
+    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal, Monet 또는 iPhone 17 Pro Max — 앱 전체를 즉시 재스타일링. Normal이 기본: 라이트/다크에 적응하는 깔끔하고 전문적인 ERP 디자인 시스템. Monet은 액센트 색상에서 팔레트를 가져오고, iPhone 17 Pro Max은 라이트 전용 크리스털 플루이드 룩입니다.</sys:String>
     <sys:String x:Key="Settings.NothingTaughtYet">아직 학습된 것이 없습니다.</sys:String>
     <sys:String x:Key="Settings.OPENOutput">출력 열기</sys:String>
     <sys:String x:Key="Settings.OPENRecordings">녹화 열기</sys:String>
     <sys:String x:Key="Settings.OPENToolsFolder">도구 폴더 열기</sys:String>
     <sys:String x:Key="Settings.OfficialFfmpegPAGE">공식 FFMPEG 페이지</sys:String>
     <sys:String x:Key="Settings.OfflineSpeechTextOpenaiWhisper95AccuracyNo">OpenAI Whisper로 오프라인 음성-텍스트 — 95%+ 정확도, 클라우드 없음.</sys:String>
-    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">모든 보기에 하나의 전역 텍스트 색상. 테마를 자동으로 따름 — Ios-17pm은 About 팔레트를 사용. 프로스트 표면 위에서도 텍스트가 항상 보이도록 색상을 선택하세요.</sys:String>
+    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">모든 보기에 하나의 전역 텍스트 색상. 테마를 자동으로 따름 — iPhone 17 Pro Max은 About 팔레트를 사용. 프로스트 표면 위에서도 텍스트가 항상 보이도록 색상을 선택하세요.</sys:String>
     <sys:String x:Key="Settings.OneImageBehindModulePlusModuleOverrides">모든 모듈 뒤에 하나의 이미지, 개별 화면용 모듈별 재정의 추가.</sys:String>
     <sys:String x:Key="Settings.OperatorCheatSheetCuttingBay">절단 구역용 운영자 치트 시트.</sys:String>
     <sys:String x:Key="Settings.OperatorRunningJobShopFloor">공장 현장에서 이 작업을 실행하는 운영자.</sys:String>

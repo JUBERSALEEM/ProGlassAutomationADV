@@ -38,16 +38,12 @@ namespace ProGlassAutomation.ViewModels.Settings
     public sealed partial class SettingsViewModel : ViewModelBase, IDisposable
     {
         // ══════════════════════════════════════════════════════════════
-        //  v2 — VISUAL THEME & WALLPAPER. Family catalogue (2026-09-06
-        //       theme reduction): Normal / Monet / Crystal Fluid
-        //       (displayed "Ios-17pm"). Professional, iOS Liquid Glass,
-        //       Ocean and the Industrial trio were removed; saved
-        //       configs referencing any removed family resolve to Normal
-        //       via the engine's Normalize mapping.
-        //       2026-09-07 restoration: "Normal (Industrial)" — the
-        //       pre-cream August-26 Normal (white + blue, professional
-        //       industrial layout, defined card edges) — is selectable
-        //       again beside the cream Normal.
+        //  v2 — VISUAL THEME & WALLPAPER. Family catalogue (2026-09-12
+        //       consolidation, owner ask: "keep only 4"): Normal / Monet /
+        //       iPhone 17 Pro Max (Crystal Fluid) / iOS 26. The
+        //       "Normal (Industrial)" family is retired from the
+        //       switcher — saved configs referencing it resolve to
+        //       Normal via the engine's Normalize mapping.
         // ══════════════════════════════════════════════════════════════
 
         /// <summary>One selectable visual family. Display pairs the family
@@ -77,17 +73,17 @@ namespace ProGlassAutomation.ViewModels.Settings
         public List<VisualThemeOptionRow> VisualThemeOptions { get; } = new()
         {
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Normal),
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.NormalIndustrial),
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Monet),
+            // iPhone 17 Pro Max: the water-glass family (Crystal Fluid).
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.CrystalFluid),
-            // iOS 26 (2026-09-10): the Liquid Glass About redesign family.
+            // iOS 26: the Liquid Glass application-wide family.
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Ios26),
         };
 
         public string SelectedVisualTheme
         {
             get => _config?.Appearance?.VisualTheme
-                ?? ProGlassAutomation.Services.Theme.VisualThemeEngine.NormalIndustrial;
+                ?? ProGlassAutomation.Services.Theme.VisualThemeEngine.Normal;
             set
             {
                 if (_config == null || string.IsNullOrEmpty(value))

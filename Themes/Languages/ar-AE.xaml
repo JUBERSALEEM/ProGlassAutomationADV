@@ -1859,7 +1859,7 @@
     <sys:String x:Key="Settings.CrystalBubbleIntensity">شدة الفقاعات</sys:String>
     <sys:String x:Key="Settings.CrystalCausticIntensity">شدة الانعكاس الضوئي</sys:String>
     <sys:String x:Key="Settings.CrystalMaterialHint">ستة محاور حية تضبط الماء البلوري — الماء والانعكاسات والفقاعات. تبقى شفافية الزجاج والحواف والظلال على مظهرها الأصلي.</sys:String>
-    <sys:String x:Key="Settings.CrystalOnlyIos17pm">يظهر ضبط Crystal Fluid فقط عندما يكون مظهر Ios-17pm نشطًا. يحتفظ Normal و Monet بأدوات شكل البطاقة والتدرجات في قسم المظهر.</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">يظهر ضبط Crystal Fluid فقط عندما يكون مظهر iPhone 17 Pro Max نشطًا. يحتفظ Normal و Monet بأدوات شكل البطاقة والتدرجات في قسم المظهر.</sys:String>
     <sys:String x:Key="Settings.CrystalPreviewHint">معاينة حية — نفس سطح الماء المستخدم في الشاشات الحقيقية.</sys:String>
     <sys:String x:Key="Settings.CrystalReflectionOpacity">شفافية الانعكاس</sys:String>
     <sys:String x:Key="Settings.CrystalWaterOpacity">شفافية الماء</sys:String>
@@ -2012,14 +2012,14 @@
     <sys:String x:Key="Settings.NewHereLoadSmallLinkedDemoDatasetExplore">جديد هنا؟ حمّل مجموعة بيانات تجريبية صغيرة مترابطة لاستكشاف كل وحدة — فقط على قاعدة بيانات فارغة.</sys:String>
     <sys:String x:Key="Settings.NoJobsYetGenerateSelectedGenerateStart">لا مهام بعد. استخدم توليد المحدد أو توليد جميع الوحدات لبدء التسجيل.</sys:String>
     <sys:String x:Key="Settings.NoUpdateHistoryYetCheckUpdatesRecordFirst">لا سجل تحديثات بعد. تحقق من التحديثات لتسجيل الإدخال الأول.</sys:String>
-    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal أو Monet أو Ios-17pm — يعيد تشكيل التطبيق بالكامل فورًا. Normal هو الافتراضي: نظام تصميم ERP احترافي نظيف يتكيف مع الفاتح والداكن. يشتق Monet لوحته من لون التمييز الخاص بك؛ أما Ios-17pm فهو المظهر البلوري السائل الخاص بالوضع الفاتح فقط.</sys:String>
+    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal أو Monet أو iPhone 17 Pro Max — يعيد تشكيل التطبيق بالكامل فورًا. Normal هو الافتراضي: نظام تصميم ERP احترافي نظيف يتكيف مع الفاتح والداكن. يشتق Monet لوحته من لون التمييز الخاص بك؛ أما iPhone 17 Pro Max فهو المظهر البلوري السائل الخاص بالوضع الفاتح فقط.</sys:String>
     <sys:String x:Key="Settings.NothingTaughtYet">لم يتم تعليم أي شيء بعد.</sys:String>
     <sys:String x:Key="Settings.OPENOutput">فتح المخرجات</sys:String>
     <sys:String x:Key="Settings.OPENRecordings">فتح التسجيلات</sys:String>
     <sys:String x:Key="Settings.OPENToolsFolder">فتح مجلد الأدوات</sys:String>
     <sys:String x:Key="Settings.OfficialFfmpegPAGE">صفحة FFMPEG الرسمية</sys:String>
     <sys:String x:Key="Settings.OfflineSpeechTextOpenaiWhisper95AccuracyNo">تحويل الكلام إلى نص دون اتصال باستخدام OpenAI Whisper — دقة تزيد عن 95%، دون سحابة.</sys:String>
-    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">لون نص عالمي واحد لكل عرض. تلقائي يتبع السمة — Ios-17pm يستخدم لوحة About. اختر لونًا ليبقى النص ظاهرًا دائمًا فوق الأسطح المصنفرة.</sys:String>
+    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">لون نص عالمي واحد لكل عرض. تلقائي يتبع السمة — iPhone 17 Pro Max يستخدم لوحة About. اختر لونًا ليبقى النص ظاهرًا دائمًا فوق الأسطح المصنفرة.</sys:String>
     <sys:String x:Key="Settings.OneImageBehindModulePlusModuleOverrides">صورة واحدة خلف كل وحدة، بالإضافة إلى تجاوزات لكل وحدة للشاشات الفردية.</sys:String>
     <sys:String x:Key="Settings.OperatorCheatSheetCuttingBay">ورقة إرشاد سريع للمشغّل في منطقة القص.</sys:String>
     <sys:String x:Key="Settings.OperatorRunningJobShopFloor">المشغّل الذي ينفذ هذا العمل في ورشة التصنيع.</sys:String>

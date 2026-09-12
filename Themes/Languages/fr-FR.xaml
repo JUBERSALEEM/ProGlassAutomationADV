@@ -1859,7 +1859,7 @@
     <sys:String x:Key="Settings.CrystalBubbleIntensity">Intensité des bulles</sys:String>
     <sys:String x:Key="Settings.CrystalCausticIntensity">Intensité des caustiques</sys:String>
     <sys:String x:Key="Settings.CrystalMaterialHint">Six axes en direct règlent l&#x27;eau cristalline : eau, caustiques, bulles et reflet. L&#x27;opacité du verre, des bordures et des ombres conserve son aspect conçu.</sys:String>
-    <sys:String x:Key="Settings.CrystalOnlyIos17pm">Le réglage Crystal Fluid n&#x27;apparaît que lorsque le thème Ios-17pm est actif. Normal et Monet conservent leurs commandes de forme de carte et de dégradés dans Apparence.</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">Le réglage Crystal Fluid n&#x27;apparaît que lorsque le thème iPhone 17 Pro Max est actif. Normal et Monet conservent leurs commandes de forme de carte et de dégradés dans Apparence.</sys:String>
     <sys:String x:Key="Settings.CrystalPreviewHint">Aperçu en direct : la même surface d&#x27;eau que les écrans réels.</sys:String>
     <sys:String x:Key="Settings.CrystalReflectionOpacity">Opacité du reflet</sys:String>
     <sys:String x:Key="Settings.CrystalWaterOpacity">Opacité de l&#x27;eau</sys:String>
@@ -2012,14 +2012,14 @@
     <sys:String x:Key="Settings.NewHereLoadSmallLinkedDemoDatasetExplore">Nouveau ici ? Chargez un petit jeu de données de démo lié pour explorer chaque module — uniquement sur une base de données vide.</sys:String>
     <sys:String x:Key="Settings.NoJobsYetGenerateSelectedGenerateStart">Aucun travail pour l&#x27;instant. Générez la sélection ou tout pour démarrer un enregistrement.</sys:String>
     <sys:String x:Key="Settings.NoUpdateHistoryYetCheckUpdatesRecordFirst">Pas encore d&#x27;historique de mises à jour. Recherchez des mises à jour pour enregistrer la première entrée.</sys:String>
-    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal, Monet ou Ios-17pm — restyle instantanément toute l&#x27;application. Normal est le défaut : un système de design ERP propre et professionnel qui s&#x27;adapte au Clair et au Sombre. Monet tire sa palette de votre couleur d&#x27;accent ; Ios-17pm est le look cristal-fluide en Clair uniquement.</sys:String>
+    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal, Monet ou iPhone 17 Pro Max — restyle instantanément toute l&#x27;application. Normal est le défaut : un système de design ERP propre et professionnel qui s&#x27;adapte au Clair et au Sombre. Monet tire sa palette de votre couleur d&#x27;accent ; iPhone 17 Pro Max est le look cristal-fluide en Clair uniquement.</sys:String>
     <sys:String x:Key="Settings.NothingTaughtYet">Rien n&#x27;a encore été appris.</sys:String>
     <sys:String x:Key="Settings.OPENOutput">OUVRIR LA SORTIE</sys:String>
     <sys:String x:Key="Settings.OPENRecordings">OUVRIR LES ENREGISTREMENTS</sys:String>
     <sys:String x:Key="Settings.OPENToolsFolder">OUVRIR LE DOSSIER D&#x27;OUTILS</sys:String>
     <sys:String x:Key="Settings.OfficialFfmpegPAGE">PAGE FFMPEG OFFICIELLE</sys:String>
     <sys:String x:Key="Settings.OfflineSpeechTextOpenaiWhisper95AccuracyNo">Reconnaissance vocale hors ligne avec OpenAI Whisper — précision supérieure à 95 %, sans cloud.</sys:String>
-    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">Une couleur de texte globale pour chaque vue. Suit automatiquement le thème — Ios-17pm utilise la palette À propos. Choisissez une couleur pour que le texte reste toujours visible sur les surfaces givrées.</sys:String>
+    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">Une couleur de texte globale pour chaque vue. Suit automatiquement le thème — iPhone 17 Pro Max utilise la palette À propos. Choisissez une couleur pour que le texte reste toujours visible sur les surfaces givrées.</sys:String>
     <sys:String x:Key="Settings.OneImageBehindModulePlusModuleOverrides">Une image derrière chaque module, plus des remplacements par module pour les écrans individuels.</sys:String>
     <sys:String x:Key="Settings.OperatorCheatSheetCuttingBay">Aide-mémoire opérateur pour la zone de coupe.</sys:String>
     <sys:String x:Key="Settings.OperatorRunningJobShopFloor">Opérateur exécutant ce travail sur le plancher d&#x27;usine.</sys:String>

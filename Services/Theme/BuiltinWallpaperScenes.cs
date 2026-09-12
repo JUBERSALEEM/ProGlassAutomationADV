@@ -43,18 +43,16 @@ namespace ProGlassAutomation.Services.Theme
     /// transformable by the theme engine (plain gradient brushes).</summary>
     public static class BuiltinWallpaperScenes
     {
-        /// <summary>UI catalogue: key (family name) + display label.</summary>
+        /// <summary>UI catalogue: key (family name) + scene label. The
+        /// scene labels differ from the family display names so the theme
+        /// picker never reads "X — X".</summary>
         public static readonly (string Key, string Label)[] All =
         {
             (VisualThemeEngine.Normal,           "Studio"),
-            (VisualThemeEngine.NormalIndustrial, "Studio"),
             (VisualThemeEngine.Monet,            "Golden Hour"),
-            // Ios-17pm: authored display name for the Crystal Fluid family
-            // (identity const unchanged — labels are view-only).
-            (VisualThemeEngine.CrystalFluid,
-                VisualThemeEngine.FamilyDisplayName(
-                    VisualThemeEngine.CrystalFluid)),
-            (VisualThemeEngine.Ios26, "Aurora"),
+            // Crystal Fluid's §22 pale luminous water environment.
+            (VisualThemeEngine.CrystalFluid,     "Crystal Waters"),
+            (VisualThemeEngine.Ios26,            "Aurora"),
         };
 
         /// <summary>Draws the scene for a family. Unknown/empty family →

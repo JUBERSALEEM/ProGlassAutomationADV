@@ -43,23 +43,23 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public string Theme { get; set; } = "Light";
 
         /// <summary>
-        /// "Normal" | "Normal (Industrial)" | "Monet" | "Crystal Fluid"
-        /// (displayed "Ios-17pm") — see VisualThemeEngine for what each
-        /// does. 2026-09-06 theme reduction removed the six families
-        /// (Professional, iOS Liquid Glass, Ocean, Industrial
-        /// White/Grey/Dark); 2026-09-07 restores the industrial look as
-        /// "Normal (Industrial)" and makes it the constant default.
-        /// Legacy industrial values migrate back to it; any other
-        /// unknown legacy value migrates to Normal.
-        /// Default: Normal (Industrial).
+        /// "Normal" | "Monet" | "Crystal Fluid" (displayed "iPhone 17
+        /// Pro Max") | "iOS 26" — see VisualThemeEngine for what each
+        /// does. 2026-09-12 consolidation (owner ask: "keep only 4"):
+        /// the four selectable families are Normal, Monet, iPhone 17 Pro
+        /// Max and iOS 26. The retired "Normal (Industrial)" value and
+        /// every unknown legacy value migrate to Normal via the engine's
+        /// Normalize mapping.
+        /// Default: Normal.
         /// </summary>
-        public string VisualTheme { get; set; } = "Normal (Industrial)";
+        public string VisualTheme { get; set; } = "Normal";
 
         /// <summary>
-        /// One-time migration marker (2026-09-07): set the first time a
-        /// saved <see cref="VisualTheme"/> of "Normal" is upgraded to
-        /// "Normal (Industrial)". Keeps the migration from re-firing if
-        /// the user later deliberately re-picks the cream Normal.
+        /// One-time migration marker (2026-09-12): set the first time a
+        /// saved <see cref="VisualTheme"/> of "Normal (Industrial)" is
+        /// folded back to the default "Normal" (the retired family). Keeps
+        /// the migration from re-firing if the user later deliberately
+        /// re-picks a family.
         /// </summary>
         public bool VisualThemeMigrated { get; set; }
 

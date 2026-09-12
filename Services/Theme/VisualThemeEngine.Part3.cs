@@ -492,7 +492,16 @@ namespace ProGlassAutomation.Services.Theme
             {
                 Monet => Monet,
                 CrystalFluid => CrystalFluid,
-                NormalIndustrial => NormalIndustrial,
+                // 2026-09-12 fix: "iOS 26" was missing from this switch,
+                // so selecting it in the switcher silently fell through
+                // to Normal and the whole iOS 26 family did 0% of its
+                // work. Register it as a first-class family.
+                Ios26 => Ios26,
+                // 2026-09-12 consolidation (owner: "keep only 4"): the
+                // industrial family is retired from the switcher. Saved
+                // "Normal (Industrial)" and every legacy industrial name
+                // now resolve to Normal — the single global default.
+                NormalIndustrial => Normal,
                 // Legacy transparent-glass names keep landing on Crystal
                 // Fluid (Ios-17pm), never on a missing family.
                 "Ultra Transparent" => CrystalFluid,
@@ -500,19 +509,13 @@ namespace ProGlassAutomation.Services.Theme
                 "Clear" => CrystalFluid,
                 "Crystal" => CrystalFluid,
                 "Crystal Sea" => CrystalFluid,
-                // 2026-09-07 restoration: the removed industrial family
-                // names land back on Normal (Industrial) — the blue
-                // industrial look the owner wants restored — instead of
-                // silently falling through to the cream Normal.
-                "Professional" => NormalIndustrial,
-                "Industrial" => NormalIndustrial,
-                "Industrial White" => NormalIndustrial,
-                "Industrial Grey" => NormalIndustrial,
-                "Industrial Dark" => NormalIndustrial,
-                // 2026-09-06 theme reduction (owner decision: keep Normal,
-                // Monet, Ios-17pm): every other removed family — iOS
-                // Liquid Glass, Ocean — and any unknown saved value
-                // resets to Normal (the new default).
+                "Professional" => Normal,
+                "Industrial" => Normal,
+                "Industrial White" => Normal,
+                "Industrial Grey" => Normal,
+                "Industrial Dark" => Normal,
+                // Every other removed family (iOS Liquid Glass, Ocean) and
+                // any unknown saved value resets to Normal (the default).
                 _ => Normal
             };
         }

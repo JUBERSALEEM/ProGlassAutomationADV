@@ -1859,7 +1859,7 @@
     <sys:String x:Key="Settings.CrystalBubbleIntensity">بلبلوں کی شدت</sys:String>
     <sys:String x:Key="Settings.CrystalCausticIntensity">کاسٹک شدت</sys:String>
     <sys:String x:Key="Settings.CrystalMaterialHint">چھ لائیو محور کرسٹل پانی کو ٹیون کرتے ہیں — پانی، کاسٹک، بلبلے اور عکس۔ شیشے، کنارے اور سائے کی دھندلاپن اپنی طے شدہ صورت پر رہتی ہے۔</sys:String>
-    <sys:String x:Key="Settings.CrystalOnlyIos17pm">کرسٹل فلوئڈ ٹیوننگ صرف اس وقت ظاہر ہوتی ہے جب Ios-17pm تھیم فعال ہو۔ Normal اور Monet اپنے کارڈ شکل اور گریڈینٹ کنٹرول Appearance میں رکھتے ہیں۔</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">کرسٹل فلوئڈ ٹیوننگ صرف اس وقت ظاہر ہوتی ہے جب iPhone 17 Pro Max تھیم فعال ہو۔ Normal اور Monet اپنے کارڈ شکل اور گریڈینٹ کنٹرول Appearance میں رکھتے ہیں۔</sys:String>
     <sys:String x:Key="Settings.CrystalPreviewHint">لائیو پیش نظارہ — وہی پانی کی سطح جو حقیقی اسکرینوں میں ہے۔</sys:String>
     <sys:String x:Key="Settings.CrystalReflectionOpacity">عکس کی دھندلاپن</sys:String>
     <sys:String x:Key="Settings.CrystalWaterOpacity">پانی کی دھندلاپن</sys:String>
@@ -2012,14 +2012,14 @@
     <sys:String x:Key="Settings.NewHereLoadSmallLinkedDemoDatasetExplore">نئے ہیں؟ ہر ماڈیول دریافت کرنے کے لیے چھوٹا منسلک ڈیمو ڈیٹاسیٹ لوڈ کریں — صرف خالی ڈیٹا بیس پر۔</sys:String>
     <sys:String x:Key="Settings.NoJobsYetGenerateSelectedGenerateStart">ابھی کوئی جاب نہیں۔ ریکارڈنگ شروع کرنے کے لیے جنریٹ سلیکٹڈ یا جنریٹ آل استعمال کریں۔</sys:String>
     <sys:String x:Key="Settings.NoUpdateHistoryYetCheckUpdatesRecordFirst">ابھی کوئی اپ ڈیٹ ہسٹری نہیں۔ پہلا اندراج ریکارڈ کرنے کے لیے اپ ڈیٹس چیک کریں۔</sys:String>
-    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal، Monet یا Ios-17pm — پوری ایپ کو فوراً نیا روپ دیتا ہے۔ Normal ڈیفالٹ ہے: ایک صاف، پیشہ ورانہ ERP ڈیزائن سسٹم جو لائٹ اور ڈارک کے مطابق ہوتا ہے۔ Monet اپنا پیلیٹ آپ کے ایکسنٹ رنگ سے لیتا ہے؛ Ios-17pm صرف لائٹ والا کرسٹل-فلوئڈ لُک ہے۔</sys:String>
+    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal، Monet یا iPhone 17 Pro Max — پوری ایپ کو فوراً نیا روپ دیتا ہے۔ Normal ڈیفالٹ ہے: ایک صاف، پیشہ ورانہ ERP ڈیزائن سسٹم جو لائٹ اور ڈارک کے مطابق ہوتا ہے۔ Monet اپنا پیلیٹ آپ کے ایکسنٹ رنگ سے لیتا ہے؛ iPhone 17 Pro Max صرف لائٹ والا کرسٹل-فلوئڈ لُک ہے۔</sys:String>
     <sys:String x:Key="Settings.NothingTaughtYet">ابھی کچھ نہیں سکھایا گیا۔</sys:String>
     <sys:String x:Key="Settings.OPENOutput">آؤٹ پٹ کھولیں</sys:String>
     <sys:String x:Key="Settings.OPENRecordings">ریکارڈنگز کھولیں</sys:String>
     <sys:String x:Key="Settings.OPENToolsFolder">ٹولز فولڈر کھولیں</sys:String>
     <sys:String x:Key="Settings.OfficialFfmpegPAGE">آفیشل FFMPEG صفحہ</sys:String>
     <sys:String x:Key="Settings.OfflineSpeechTextOpenaiWhisper95AccuracyNo">OpenAI Whisper کے ساتھ آف لائن تقریر سے متن — 95%+ درستگی، کوئی کلاؤڈ نہیں۔</sys:String>
-    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">ہر ویو کے لیے ایک عالمی متن کا رنگ۔ آٹو تھیم کی پیروی کرتا ہے — Ios-17pm About پیلیٹ استعمال کرتا ہے۔ ایک رنگ منتخب کریں تاکہ متن فراسٹڈ سطحوں پر ہمیشہ نظر آتا رہے۔</sys:String>
+    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">ہر ویو کے لیے ایک عالمی متن کا رنگ۔ آٹو تھیم کی پیروی کرتا ہے — iPhone 17 Pro Max About پیلیٹ استعمال کرتا ہے۔ ایک رنگ منتخب کریں تاکہ متن فراسٹڈ سطحوں پر ہمیشہ نظر آتا رہے۔</sys:String>
     <sys:String x:Key="Settings.OneImageBehindModulePlusModuleOverrides">ہر ماڈیول کے پیچھے ایک تصویر، علاوہ انفرادی اسکرینوں کے لیے ماڈیول کے مخصوص اوور رائیڈز۔</sys:String>
     <sys:String x:Key="Settings.OperatorCheatSheetCuttingBay">کٹنگ بے کے لیے آپریٹر چیٹ شیٹ۔</sys:String>
     <sys:String x:Key="Settings.OperatorRunningJobShopFloor">آپریٹر جو اس جاب کو شاپ فلور پر چلا رہا ہے۔</sys:String>

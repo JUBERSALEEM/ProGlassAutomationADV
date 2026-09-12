@@ -1859,7 +1859,7 @@
     <sys:String x:Key="Settings.CrystalBubbleIntensity">Kabarcık yoğunluğu</sys:String>
     <sys:String x:Key="Settings.CrystalCausticIntensity">Kostik yoğunluğu</sys:String>
     <sys:String x:Key="Settings.CrystalMaterialHint">Altı canlı eksen kristal suyu ayarlar — su, kostikler, kabarcıklar ve yansıma. Cam, kenarlık ve gölge opaklığı tasarlanmış görünümünü korur.</sys:String>
-    <sys:String x:Key="Settings.CrystalOnlyIos17pm">Crystal Fluid ayarı yalnızca Ios-17pm teması etkinken görünür. Normal ve Monet kart şekli ve degrade kontrollerini Görünüm&#x27;de tutar.</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">Crystal Fluid ayarı yalnızca iPhone 17 Pro Max teması etkinken görünür. Normal ve Monet kart şekli ve degrade kontrollerini Görünüm&#x27;de tutar.</sys:String>
     <sys:String x:Key="Settings.CrystalPreviewHint">Canlı önizleme — gerçek ekranlarla aynı su yüzeyi.</sys:String>
     <sys:String x:Key="Settings.CrystalReflectionOpacity">Yansıma opaklığı</sys:String>
     <sys:String x:Key="Settings.CrystalWaterOpacity">Su opaklığı</sys:String>
@@ -2012,14 +2012,14 @@
     <sys:String x:Key="Settings.NewHereLoadSmallLinkedDemoDatasetExplore">Yeni misiniz? Her modülü keşfetmek için küçük bağlantılı bir demo veri kümesi yükleyin — yalnızca boş bir veritabanında.</sys:String>
     <sys:String x:Key="Settings.NoJobsYetGenerateSelectedGenerateStart">Henüz iş yok. Kayıt başlatmak için Seçileni Oluştur veya Tümünü Oluştur.</sys:String>
     <sys:String x:Key="Settings.NoUpdateHistoryYetCheckUpdatesRecordFirst">Henüz güncelleme geçmişi yok. İlk kaydı yazmak için güncellemeleri kontrol edin.</sys:String>
-    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal, Monet veya Ios-17pm — tüm uygulamayı anında yeniden stillendirir. Normal varsayılandır: Açık ve Koyu&#x27;ya uyum sağlayan temiz, profesyonel bir ERP tasarım sistemi. Monet paletini vurgu renginizden alır; Ios-17pm yalnızca Açık modda çalışan kristal-akışkan görünümdür.</sys:String>
+    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal, Monet veya iPhone 17 Pro Max — tüm uygulamayı anında yeniden stillendirir. Normal varsayılandır: Açık ve Koyu&#x27;ya uyum sağlayan temiz, profesyonel bir ERP tasarım sistemi. Monet paletini vurgu renginizden alır; iPhone 17 Pro Max yalnızca Açık modda çalışan kristal-akışkan görünümdür.</sys:String>
     <sys:String x:Key="Settings.NothingTaughtYet">Henüz hiçbir şey öğretilmedi.</sys:String>
     <sys:String x:Key="Settings.OPENOutput">ÇIKTIYI AÇ</sys:String>
     <sys:String x:Key="Settings.OPENRecordings">KAYITLARI AÇ</sys:String>
     <sys:String x:Key="Settings.OPENToolsFolder">ARAÇLAR KLASÖRÜNÜ AÇ</sys:String>
     <sys:String x:Key="Settings.OfficialFfmpegPAGE">RESMÎ FFMPEG SAYFASI</sys:String>
     <sys:String x:Key="Settings.OfflineSpeechTextOpenaiWhisper95AccuracyNo">OpenAI Whisper ile çevrimdışı konuşma metni — %95+ doğruluk, bulut yok.</sys:String>
-    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">Her görünüm için tek bir genel metin rengi. Temayı otomatik izler — Ios-17pm, Hakkında paletini kullanır. Metnin buzlu yüzeyler üzerinde her zaman görünür kalması için bir renk seçin.</sys:String>
+    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">Her görünüm için tek bir genel metin rengi. Temayı otomatik izler — iPhone 17 Pro Max, Hakkında paletini kullanır. Metnin buzlu yüzeyler üzerinde her zaman görünür kalması için bir renk seçin.</sys:String>
     <sys:String x:Key="Settings.OneImageBehindModulePlusModuleOverrides">Her modülün arkasında bir görsel, ayrıca tek tek ekranlar için modül başına geçersiz kılmalar.</sys:String>
     <sys:String x:Key="Settings.OperatorCheatSheetCuttingBay">Kesim bölümü için operatör kopya kâğıdı.</sys:String>
     <sys:String x:Key="Settings.OperatorRunningJobShopFloor">Bu işi atölyede yürüten operatör.</sys:String>
