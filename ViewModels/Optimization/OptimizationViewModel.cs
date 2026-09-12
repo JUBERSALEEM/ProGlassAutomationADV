@@ -64,6 +64,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public string Summary { get; set; } = string.Empty;
             public int PieceRows { get; set; }
 
+            /// <summary>Quick stats shown on the job card: pieces / area / spec count.</summary>
+            public string PiecesLabel { get; set; } = "0 pcs";
+            public string AreaLabel { get; set; } = "0 m²";
+            public string SpecCountLabel { get; set; } = "0 specs";
+
             /// <summary>Multi-select: tick any number of jobs and combine
             /// their panes (e.g. two jobs whose low-e outers merge into ONE
             /// cutting group).</summary>
@@ -114,6 +119,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             /// <summary>"Outer" / "Inner" / "Lam Outer" / … for panes.</summary>
             public string Position { get; set; } = string.Empty;
+
+            /// <summary>"Spec 1" — the Step 5 spec group this layer belongs to.</summary>
+            public string SpecLabel { get; set; } = string.Empty;
 
             /// <summary>Glass composition ("6mm clear FT glass") or "12mm ASP".</summary>
             public string Title { get; set; } = string.Empty;
@@ -175,6 +183,26 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         private bool _hasSpecBreakdown;
         public bool HasSpecBreakdown { get => _hasSpecBreakdown; private set { _hasSpecBreakdown = value; OnPropertyChanged(); } }
+
+        /// <summary>Flat checklist of every pane across the selected jobs —
+        /// checkbox · position · spec · glass composition · pcs · m².</summary>
+        public ObservableCollection<BuildUpLayerVm> PaneChecklist { get; } = new();
+
+        private bool _hasPaneChecklist;
+        public bool HasPaneChecklist { get => _hasPaneChecklist; private set { _hasPaneChecklist = value; OnPropertyChanged(); } }
+
+        // ── KPI strip (dusk-navy stat cards) ─────────────────────────
+        private string _kpiJobs = "0";
+        public string KpiJobs { get => _kpiJobs; private set { if (_kpiJobs == value) return; _kpiJobs = value; OnPropertyChanged(); } }
+
+        private string _kpiPieces = "0";
+        public string KpiPieces { get => _kpiPieces; private set { if (_kpiPieces == value) return; _kpiPieces = value; OnPropertyChanged(); } }
+
+        private string _kpiGlass = "0 m²";
+        public string KpiGlass { get => _kpiGlass; private set { if (_kpiGlass == value) return; _kpiGlass = value; OnPropertyChanged(); } }
+
+        private string _kpiGroups = "0";
+        public string KpiGroups { get => _kpiGroups; private set { if (_kpiGroups == value) return; _kpiGroups = value; OnPropertyChanged(); } }
 
         private int _selectedPaneCount;
         public int SelectedPaneCount
@@ -772,6 +800,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             {
                                 Kind = "Pane",
                                 Position = occ.Position,
+                                SpecLabel = "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture),
                                 Title = composition,
                                 Thickness = occ.ThicknessMm > 0
                                     ? occ.ThicknessMm.ToString(CultureInfo.InvariantCulture) + "mm"
@@ -835,6 +864,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     opt.Summary = string.Format(CultureInfo.InvariantCulture,
                         "{0} · {1} pcs · {2:0.0} m² · {3} spec(s)",
                         jo.CustomerName, pcs, m2, specCount);
+                    opt.PiecesLabel = pcs.ToString(CultureInfo.InvariantCulture) + " pcs";
+                    opt.AreaLabel = m2.ToString("0.0", CultureInfo.InvariantCulture) + " m²";
+                    opt.SpecCountLabel = specCount.ToString(CultureInfo.InvariantCulture)
+                        + (specCount == 1 ? " spec" : " specs");
 
                     if (opt.Specs.Count > 0) options.Add(opt);
                 }
@@ -856,6 +889,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         SelectedJob = null;
                         RefreshJobsFilter();
                         RebuildSelectedJobBreakdown();
+                        RefreshKpis();
                         JobsStatusText = options.Count == 0
                             ? "No confirmed job orders with cutting pieces yet."
                             : string.Format(CultureInfo.InvariantCulture,
@@ -970,6 +1004,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
 
             HasSpecBreakdown = JobSpecBreakdown.Count > 0;
+
+            PaneChecklist.Clear();
+            foreach (var spec in JobSpecBreakdown)
+                foreach (var layer in spec.Layers)
+                    if (layer.IsPane) PaneChecklist.Add(layer);
+            HasPaneChecklist = PaneChecklist.Count > 0;
+
             RefreshPaneSelectionCount();
         }
 
@@ -1149,6 +1190,31 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             RebuildCuttingGroups();
             RebuildCutPlan();
+            RefreshKpis();
+        }
+
+        /// <summary>
+        /// Recomputes the four dusk-navy KPI cards: confirmed jobs, pieces,
+        /// total glass area and cutting groups (the SIZES selector minus the
+        /// "ALL" sentinel).
+        /// </summary>
+        private void RefreshKpis()
+        {
+            KpiJobs = AvailableJobs.Count.ToString(CultureInfo.InvariantCulture);
+
+            int pcs = 0;
+            double area = 0;
+            foreach (var p in Pieces)
+            {
+                if (!p.TryParse(out int w, out int h, out int q)) continue;
+                pcs += q;
+                area += w / 1000.0 * (h / 1000.0) * q;
+            }
+            KpiPieces = pcs.ToString(CultureInfo.InvariantCulture);
+            KpiGlass = area.ToString("0.0", CultureInfo.InvariantCulture) + " m²";
+
+            int groups = System.Math.Max(0, CuttingGroups.Count - 1); // exclude "ALL — every glass group"
+            KpiGroups = groups.ToString(CultureInfo.InvariantCulture);
         }
 
         /// <summary>True when the SIZES selector is ALL or equals the composition.</summary>
