@@ -2,6 +2,11 @@
      FILE: Views/Optimization/Tabs/TwoDViewTabView.xaml
      MODULE: Optimization — TwoDView tab (hosted by OptimizationView).
      DataContext = OptimizationViewModel (inherited from the shell).
+
+     Redesigned navigator: LEFT previous · CENTRE sheet no + utilization
+     + size · RIGHT next. The canvas is centred with a two-tone trim
+     overlay — LM/RM/TM/BM margin zone (accent) and minimum-breakout
+     band (amber) are never drawn in the same colour.
 ═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Optimization.Tabs.TwoDViewTabView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -28,99 +33,86 @@
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <!-- Navigator: prev/next + caption + zoom -->
-                            <Grid Grid.Row="0" Margin="0,0,0,12">
+                            <!-- ── Navigator: prev · centre read-out · next ── -->
+                            <Grid Grid.Row="0" Margin="0,0,0,14">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0" Orientation="Horizontal">
-                                    <Button Content="&#xE76B;  Prev" Style="{StaticResource OutlinedPillButton}"
-                                            Command="{Binding SelectPreviousSheetCommand}" Margin="0,0,8,0"/>
-                                    <Button Content="Next  &#xE76C;" Style="{StaticResource OutlinedPillButton}"
-                                            Command="{Binding SelectNextSheetCommand}"/>
+
+                                <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}" Width="46" Height="40"
+                                        Command="{Binding SelectPreviousSheetCommand}" ToolTip="Previous sheet"
+                                        Content="&#xE76B;" FontFamily="Segoe MDL2 Assets" FontSize="16"
+                                        VerticalAlignment="Center"/>
+
+                                <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                            Visibility="{Binding HasPreview, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <TextBlock Text="{Binding PreviewSheetCounter}" FontSize="{StaticResource TextSubhead}"
+                                               FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               HorizontalAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,3,0,0">
+                                        <TextBlock Text="{Binding PreviewUtilization}" FontSize="{StaticResource TextBody}"
+                                                   FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}"/>
+                                        <TextBlock Text="  ·  " FontSize="{StaticResource TextBody}"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                        <TextBlock Text="{Binding PreviewStockLabel}" FontSize="{StaticResource TextBody}"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding PreviewGroupLabel}" FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                               HorizontalAlignment="Center" Margin="0,2,0,0" TextTrimming="CharacterEllipsis"
+                                               MaxWidth="420"/>
                                 </StackPanel>
-                                <TextBlock Grid.Column="1" Text="{Binding PreviewCaption}" FontSize="{StaticResource TextBody}"
-                                           FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                           VerticalAlignment="Center" Margin="12,0"/>
-                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Content="−" Style="{StaticResource OutlinedPillButton}" Width="34"
-                                            Command="{Binding PreviewZoomOutCommand}" Margin="0,0,6,0" ToolTip="Zoom out"/>
-                                    <Border CornerRadius="8" Background="{DynamicResource ModuleBackgroundBrush}" Padding="10,3"
-                                            Margin="0,0,6,0" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding PreviewScaleLabel}" FontSize="{StaticResource TextCaption}"
-                                                   FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                    </Border>
-                                    <Button Content="+" Style="{StaticResource OutlinedPillButton}" Width="34"
-                                            Command="{Binding PreviewZoomInCommand}" Margin="0,0,6,0" ToolTip="Zoom in"/>
-                                    <Button Content="100%" Style="{StaticResource OutlinedPillButton}"
-                                            Command="{Binding PreviewZoomResetCommand}" ToolTip="Reset zoom"/>
-                                </StackPanel>
+
+                                <TextBlock Grid.Column="1" Text="No sheets yet — run a cut, then open a sheet from Summary."
+                                           FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Visibility="{Binding HasPreview, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+
+                                <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}" Width="46" Height="40"
+                                        Command="{Binding SelectNextSheetCommand}" ToolTip="Next sheet"
+                                        Content="&#xE76C;" FontFamily="Segoe MDL2 Assets" FontSize="16"
+                                        VerticalAlignment="Center"/>
                             </Grid>
 
-                            <!-- Filmstrip -->
-                            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
-                                          Visibility="{Binding HasResult, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <ItemsControl ItemsSource="{Binding SheetRows}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <StackPanel Orientation="Horizontal"/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Button Style="{StaticResource SheetChipStyle}"
-                                                    Command="{Binding DataContext.SelectSheetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                    CommandParameter="{Binding Index}"/>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ScrollViewer>
-
-                            <!-- Canvas -->
-                            <Grid Grid.Row="2">
+                            <!-- ── Centred canvas ── -->
+                            <Grid Grid.Row="1">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
                                             Visibility="{Binding HasPreview, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                     <TextBlock Text="&#xE80A;" FontFamily="Segoe MDL2 Assets" FontSize="44"
                                                HorizontalAlignment="Center" Foreground="{DynamicResource MutedForegroundBrush}" Opacity="0.6"/>
                                     <TextBlock Text="No layout to preview yet" FontSize="{StaticResource TextSubhead}" FontWeight="SemiBold"
                                                HorizontalAlignment="Center" Margin="0,12,0,4" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text="Run Quick or Optimize, then pick a sheet from Summary — the canvas shows every piece, the margin zone, kerf gaps and rotation."
+                                    <TextBlock Text="Run Quick or Optimize, then open a sheet from Summary — the canvas shows every piece, the margin zone and the minimum-breakout band."
                                                FontSize="{StaticResource TextBody}" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="460"
                                                Foreground="{DynamicResource MutedForegroundBrush}"/>
                                 </StackPanel>
 
                                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
                                               Visibility="{Binding HasPreview, Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <StackPanel>
-                                        <Border CornerRadius="10" Background="{DynamicResource WindowBackgroundBrush}"
-                                                BorderBrush="{DynamicResource GlassBorderGradientSoft}" BorderThickness="1"
-                                                Padding="12,8" Margin="0,0,0,8" HorizontalAlignment="Left">
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding PreviewStockLabel}" FontSize="{StaticResource TextBody}"
-                                                           FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,16,0"/>
-                                                <TextBlock Text="{Binding PreviewUtilization}" FontSize="{StaticResource TextBody}"
-                                                           FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}" Margin="0,0,16,0"/>
-                                                <TextBlock Text="{Binding PreviewPiecesCount}" FontSize="{StaticResource TextBody}"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,16,0"/>
-                                                <TextBlock Text="{Binding MarginZoneLabel}" FontSize="{StaticResource TextCaption}"
-                                                           Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
-                                            </StackPanel>
-                                        </Border>
-
+                                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="12">
                                         <Border BorderBrush="{DynamicResource DividerBrush}" BorderThickness="2"
                                                 Background="{DynamicResource WindowBackgroundBrush}"
-                                                HorizontalAlignment="Left" VerticalAlignment="Top">
+                                                HorizontalAlignment="Center" VerticalAlignment="Center">
                                             <Canvas Width="{Binding RenderWidth}" Height="{Binding RenderHeight}">
+
+                                                <!-- LM/RM/TM/BM margin zone (usable rect) — accent -->
                                                 <Rectangle Canvas.Left="{Binding UsableX}" Canvas.Top="{Binding UsableY}"
                                                            Width="{Binding UsableW}" Height="{Binding UsableH}"
-                                                           Stroke="{DynamicResource AccentBrush}" StrokeThickness="1"
-                                                           StrokeDashArray="4,3" Fill="Transparent" IsHitTestVisible="False"/>
+                                                           Stroke="{DynamicResource AccentBrush}" StrokeThickness="1.5"
+                                                           StrokeDashArray="5,3" Fill="Transparent" IsHitTestVisible="False"/>
+
+                                                <!-- minimum-breakout band — amber (never mixed with the margin colour) -->
+                                                <Rectangle Canvas.Left="{Binding BreakoutX}" Canvas.Top="{Binding BreakoutY}"
+                                                           Width="{Binding BreakoutW}" Height="{Binding BreakoutH}"
+                                                           Stroke="{DynamicResource WarningBrush}" StrokeThickness="1"
+                                                           StrokeDashArray="2,2" Fill="Transparent" IsHitTestVisible="False"/>
+
                                                 <ItemsControl ItemsSource="{Binding SheetRects}">
                                                     <ItemsControl.ItemsPanel>
                                                         <ItemsPanelTemplate>
@@ -136,13 +128,14 @@
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
                                                             <Border Width="{Binding Width}" Height="{Binding Height}"
-                                                                    BorderThickness="1" BorderBrush="{DynamicResource ModuleBackgroundBrush}">
+                                                                    BorderThickness="1" BorderBrush="{DynamicResource DividerBrush}"
+                                                                    CornerRadius="2">
                                                                 <Border.Style>
                                                                     <Style TargetType="Border">
                                                                         <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
                                                                         <Style.Triggers>
                                                                             <DataTrigger Binding="{Binding Rotated}" Value="True">
-                                                                                <Setter Property="Background" Value="{DynamicResource MutedForegroundBrush}"/>
+                                                                                <Setter Property="Background" Value="{DynamicResource InfoBrush}"/>
                                                                             </DataTrigger>
                                                                         </Style.Triggers>
                                                                     </Style>
@@ -156,17 +149,52 @@
                                                 </ItemsControl>
                                             </Canvas>
                                         </Border>
-
-                                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                            <Border Width="14" Height="14" Background="{DynamicResource AccentBrush}" CornerRadius="3" Margin="0,0,8,0"/>
-                                            <TextBlock Text="original orientation" FontSize="{StaticResource TextCaption}"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="0,0,16,0"/>
-                                            <Border Width="14" Height="14" Background="{DynamicResource MutedForegroundBrush}" CornerRadius="3" Margin="0,0,8,0"/>
-                                            <TextBlock Text="rotated 90°" FontSize="{StaticResource TextCaption}"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </StackPanel>
+                                    </Grid>
                                 </ScrollViewer>
+                            </Grid>
+
+                            <!-- ── Footer: zoom + two-tone legend ── -->
+                            <Grid Grid.Row="2" Margin="0,12,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Button Content="−" Style="{StaticResource OutlinedPillButton}" Width="34" Height="34"
+                                            Command="{Binding PreviewZoomOutCommand}" Margin="0,0,6,0" ToolTip="Zoom out"/>
+                                    <Border CornerRadius="8" Background="{DynamicResource ModuleBackgroundBrush}" Padding="10,3"
+                                            Margin="0,0,6,0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding PreviewScaleLabel}" FontSize="{StaticResource TextCaption}"
+                                                   FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                    </Border>
+                                    <Button Content="+" Style="{StaticResource OutlinedPillButton}" Width="34" Height="34"
+                                            Command="{Binding PreviewZoomInCommand}" Margin="0,0,6,0" ToolTip="Zoom in"/>
+                                    <Button Content="100%" Style="{StaticResource OutlinedPillButton}"
+                                            Command="{Binding PreviewZoomResetCommand}" ToolTip="Reset zoom to 100%"/>
+                                </StackPanel>
+
+                                <TextBlock Grid.Column="1" Text="{Binding MarginZoneLabel}" FontSize="{StaticResource TextCaption}"
+                                           Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"
+                                           HorizontalAlignment="Center" Margin="12,0"/>
+
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Width="14" Height="14" Background="Transparent" BorderBrush="{DynamicResource AccentBrush}"
+                                            BorderThickness="1.5" CornerRadius="3" Margin="0,0,6,0"/>
+                                    <TextBlock Text="LM/RM/TM/BM margin" FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                                    <Border Width="14" Height="14" Background="Transparent" BorderBrush="{DynamicResource WarningBrush}"
+                                            BorderThickness="1" CornerRadius="3" Margin="0,0,6,0"/>
+                                    <TextBlock Text="min breakout" FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                                    <Border Width="14" Height="14" Background="{DynamicResource AccentBrush}" CornerRadius="3" Margin="0,0,6,0"/>
+                                    <TextBlock Text="original" FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                                    <Border Width="14" Height="14" Background="{DynamicResource InfoBrush}" CornerRadius="3" Margin="0,0,6,0"/>
+                                    <TextBlock Text="rotated 90°" FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
+                                </StackPanel>
                             </Grid>
                         </Grid>
                     </Border>

@@ -64,6 +64,9 @@
                     <RadioButton GroupName="OptTabs" Tag="&#xE80A;" Content="2D VIEW"
                                  IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=5}"
                                  Style="{StaticResource OptRailTab}"/>
+                    <RadioButton GroupName="OptTabs" Tag="&#xE9F9;" Content="REPORT"
+                                 IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=6}"
+                                 Style="{StaticResource OptRailTab}"/>
                 </StackPanel>
             </DockPanel>
         </Border>
@@ -201,6 +204,7 @@
                 <tabs:SettingsTabView/>
                 <tabs:SummaryTabView/>
                 <tabs:TwoDViewTabView/>
+                <tabs:ReportTabView/>
             </Grid>
         </Grid>
     </Grid>

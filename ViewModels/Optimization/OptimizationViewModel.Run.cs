@@ -332,6 +332,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         private void ApplyResults(string stage, List<GroupRun> runs, RotationPolicy rotation)
         {
+            // Result summary first, then the per-group breakdown ordered
+            // MAX → lowest utilization (the owner's preferred reading order).
+            runs = runs.OrderByDescending(r => r.UtilizationPct).ToList();
+
             _groupRuns.Clear();
             _groupRuns.AddRange(runs);
 

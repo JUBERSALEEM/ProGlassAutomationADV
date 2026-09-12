@@ -3,21 +3,23 @@
 // PROJECT: ProGlassAutomation
 // MODULE: Optimization — module VM (design 2026-09-12)
 //
-// Tabs: JOBS → SIZES → STOCKS → MARGINS → RESULT → 2D VIEW.
-//   • JOBS    — piece list (ref / W×H / qty); a reference job loader
-//               ships with the owner's calibration DGU data. The smart
-//               Job-Order picker arrives next phase (source lock:
-//               confirmed JOs only).
-//   • SIZES   — merged thickness+color summary of the piece list.
-//   • STOCKS  — Step 4 stock pool: the sheet sizes the selected specs
-//               were quoted on (outer/inner per spec), tagged by pane
-//               composition so each cutting group packs against its own
-//               rack ("best sheet size" rule: smallest fitting stock is
-//               consumed first). Never the whole sheet store.
-//   • MARGINS — per-thickness LM/RM/TM/BM, kerf, minimum breakout,
-//               rotation (enabled by default for all pieces).
-//   • RESULT  — sheets, utilization, unplaced, oracle verdict.
-//   • 2D VIEW — scaled sheet canvas with piece labels.
+// Tabs: JOBS → SIZES → STOCKS → SETTINGS → SUMMARY → 2D VIEW → REPORT.
+//   • JOBS     — piece list (ref / W×H / qty); a reference job loader
+//                ships with the owner's calibration DGU data. The smart
+//                Job-Order picker (source lock: confirmed JOs only).
+//   • SIZES    — merged thickness+color summary of the piece list.
+//   • STOCKS   — Step 4 stock pool: the sheet sizes the selected specs
+//                were quoted on (outer/inner per spec), tagged by pane
+//                composition so each cutting group packs against its own
+//                rack. Racks are ticked "use in run" — never the whole
+//                sheet store.
+//   • SETTINGS — per-thickness LM/RM/TM/BM, kerf, minimum breakout,
+//                rotation (enabled by default for all pieces).
+//   • SUMMARY  — sheets, utilization, unplaced, oracle verdict, ordered
+//                highest → lowest utilization.
+//   • 2D VIEW  — centred sheet canvas with two-tone margin/breakout
+//                overlay and prev/next navigation.
+//   • REPORT   — layout / parts / stocks summaries with CSV export.
 //
 // Engine: Services/Optimization/GuillotinePacker (pure, deterministic,
 // calibrated against the owner's benchmark: Low-E 17 @ 82.77%).
@@ -75,6 +77,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             RunQuickCommand = new RelayCommand(_ => Run(stage: "QUICK"));
             RunOptimizeCommand = new RelayCommand(_ => Run(stage: "OPTIMIZE"));
+
+            ExportLayoutReportCommand = new RelayCommand(_ => ExportLayoutReport());
+            ExportPartsReportCommand = new RelayCommand(_ => ExportPartsReport());
+            ExportStocksReportCommand = new RelayCommand(_ => ExportStocksReport());
 
             SelectPreviousSheetCommand = new RelayCommand(_ =>
             {

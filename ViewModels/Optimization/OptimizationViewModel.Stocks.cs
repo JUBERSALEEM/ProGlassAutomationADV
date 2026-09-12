@@ -36,6 +36,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             private string _usedLabel = string.Empty;
             private string _sourceLabel = string.Empty;
             private string _composition = string.Empty;
+            private bool _isUsedInRun = true;
 
             public StockEntryVm(string w, string h) { _widthText = w; _heightText = h; }
             public StockEntryVm(string w, string h, string source) { _widthText = w; _heightText = h; _sourceLabel = source; }
@@ -84,6 +85,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 string.IsNullOrWhiteSpace(_composition) ? "Any group" : _composition;
 
             public bool HasComposition => !string.IsNullOrWhiteSpace(_composition);
+
+            /// <summary>
+            /// Whether this rack participates in the run. Step 4 sheets are
+            /// auto-selected (outer + inner, colour-based); the operator can
+            /// untick any rack so a size is kept on screen but never fed to
+            /// the optimizer.
+            /// </summary>
+            public bool IsUsedInRun
+            {
+                get => _isUsedInRun;
+                set { if (_isUsedInRun == value) return; _isUsedInRun = value; OnPropertyChanged(); }
+            }
         }
 
         public ObservableCollection<StockEntryVm> Stocks { get; } = new();
@@ -173,11 +186,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 string comp = (composition ?? string.Empty).Trim();
                 if (!seen.Add((w, h, comp))) continue;
 
+                // Step 4 sheets are auto-selected for the run (outer and
+                // inner, colour-based); the operator can untick any rack.
                 Stocks.Add(new StockEntryVm(
                     w.ToString(CultureInfo.InvariantCulture),
                     h.ToString(CultureInfo.InvariantCulture),
                     comp,
-                    "Step 4 · " + source));
+                    "Step 4 · " + source)
+                { IsUsedInRun = true });
             }
 
             if (sheets.Count == 0 && Stocks.Count == 0)

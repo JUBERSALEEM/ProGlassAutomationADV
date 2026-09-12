@@ -116,6 +116,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             foreach (var s in Stocks)
             {
+                // Only racks ticked "use in run" are fed to the optimizer —
+                // the STOCKS tab selects which Step 4 sheets each spec uses.
+                if (!s.IsUsedInRun) continue;
+
                 if (!int.TryParse(s.WidthText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int w) ||
                     !int.TryParse(s.HeightText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int h) ||
                     w <= 0 || h <= 0)
@@ -130,7 +134,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
             if (stocks.Count == 0)
             {
-                RunMessage = "Add at least one stock size (STOCKS tab).";
+                RunMessage = "Add at least one stock size and tick it for use (STOCKS tab).";
                 return false;
             }
 

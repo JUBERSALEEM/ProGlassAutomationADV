@@ -50,6 +50,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public double RenderHeight { get => _renderHeight; private set { _renderHeight = value; OnPropertyChanged(); } }
         public string PreviewCaption { get => _previewCaption; private set { _previewCaption = value; OnPropertyChanged(); } }
 
+        private string _previewSheetCounter = string.Empty;
+        /// <summary>"Sheet 3 of 17" — the clean centre read-out of the 2D navigator.</summary>
+        public string PreviewSheetCounter { get => _previewSheetCounter; private set { _previewSheetCounter = value; OnPropertyChanged(); } }
+
+        private string _previewGroupLabel = string.Empty;
+        /// <summary>Cutting-group (glass) label shown next to the sheet counter.</summary>
+        public string PreviewGroupLabel { get => _previewGroupLabel; private set { _previewGroupLabel = value; OnPropertyChanged(); } }
+
         /// <summary>Canvas zoom factor (0.4× .. 2.0×) for the 2D layout view.</summary>
         public double PreviewScale
         {
@@ -76,6 +84,17 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public double UsableY { get => _usableY; private set { _usableY = value; OnPropertyChanged(); } }
         public double UsableW { get => _usableW; private set { _usableW = value; OnPropertyChanged(); } }
         public double UsableH { get => _usableH; private set { _usableH = value; OnPropertyChanged(); } }
+
+        // ── Minimum-breakout band (drawn in a DIFFERENT colour from the
+        //    LM/RM/TM/BM margin zone, per the floor's two-tone rule) ──────
+        private double _breakoutX;
+        private double _breakoutY;
+        private double _breakoutW;
+        private double _breakoutH;
+        public double BreakoutX { get => _breakoutX; private set { _breakoutX = value; OnPropertyChanged(); } }
+        public double BreakoutY { get => _breakoutY; private set { _breakoutY = value; OnPropertyChanged(); } }
+        public double BreakoutW { get => _breakoutW; private set { _breakoutW = value; OnPropertyChanged(); } }
+        public double BreakoutH { get => _breakoutH; private set { _breakoutH = value; OnPropertyChanged(); } }
 
         private string _previewStockLabel = string.Empty;
         public string PreviewStockLabel { get => _previewStockLabel; private set { _previewStockLabel = value; OnPropertyChanged(); } }
@@ -126,10 +145,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 RenderWidth = 0;
                 RenderHeight = 0;
                 PreviewCaption = string.Empty;
+                PreviewSheetCounter = string.Empty;
+                PreviewGroupLabel = string.Empty;
                 PreviewStockLabel = string.Empty;
                 PreviewUtilization = "—";
                 PreviewPiecesCount = "—";
                 MarginZoneLabel = string.Empty;
+                BreakoutX = BreakoutY = BreakoutW = BreakoutH = 0;
                 HasPreview = false;
                 return;
             }
@@ -150,10 +172,22 @@ namespace ProGlassAutomation.ViewModels.Optimization
             UsableW = sheet.UsableWidth * scale;
             UsableH = sheet.UsableHeight * scale;
 
+            // Minimum-breakout band = usable rect inset by the breakout
+            // allowance — the offcut strip the saw keeps inside the trims.
+            double breakoutPx = margins.MinBreakoutMm * scale;
+            BreakoutX = UsableX + breakoutPx;
+            BreakoutY = UsableY + breakoutPx;
+            BreakoutW = System.Math.Max(0, UsableW - 2 * breakoutPx);
+            BreakoutH = System.Math.Max(0, UsableH - 2 * breakoutPx);
+
             MarginZoneLabel = string.Format(CultureInfo.InvariantCulture,
                 "margins LM {0} · RM {1} · TM {2} · BM {3} · kerf {4} mm",
                 margins.LeftMm, margins.RightMm,
                 margins.TopMm, margins.BottomMm, margins.KerfMm);
+
+            PreviewSheetCounter = string.Format(CultureInfo.InvariantCulture,
+                "Sheet {0} of {1}", flat.SheetIndex + 1, result.Sheets.Count);
+            PreviewGroupLabel = flat.Run.Composition;
 
             PreviewStockLabel = string.Format(CultureInfo.InvariantCulture,
                 "{0} × {1} mm", sheet.Stock.WidthMm, sheet.Stock.HeightMm);
