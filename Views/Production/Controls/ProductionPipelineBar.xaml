@@ -21,10 +21,20 @@
             Margin="4,0,4,10">
         <StackPanel>
             <Grid>
-                <TextBlock Text="PRODUCTION PIPELINE"
-                           FontSize="{StaticResource TextCaption}"
-                           FontWeight="Bold"
-                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="PRODUCTION PIPELINE"
+                               FontSize="{StaticResource TextCaption}"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                    <TextBlock Text="·"
+                               FontSize="{StaticResource TextCaption}"
+                               Foreground="{DynamicResource MutedForegroundBrush}"
+                               Margin="8,0"/>
+                    <TextBlock Text="{Binding ChainProgressLabel}"
+                               FontSize="{StaticResource TextCaption}"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource AccentBrush}"/>
+                </StackPanel>
                 <TextBlock Text="Click a stage to follow the work"
                            FontSize="{StaticResource TextCaption}"
                            Foreground="{DynamicResource MutedForegroundBrush}"

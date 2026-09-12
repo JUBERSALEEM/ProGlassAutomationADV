@@ -363,6 +363,10 @@ Own page, not a shared body. Doubling / Lamination is the final assembly station
                                         <StackPanel>
                                             <TextBlock Text="STAGE TOTALS — THIS UNIT" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                        Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,6"/>
+                                            <Button Content="Complete all items" Style="{StaticResource OutlinedPillButton}"
+                                                    Command="{Binding CompleteUnitCommand}"
+                                                    HorizontalAlignment="Left" Margin="0,0,0,8"
+                                                    ToolTip="Complete every arrived piece of this unit in one action — each item is clamped to what arrived upstream"/>
                                             <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="52"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0" Text="Pieces" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                            Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1"/>

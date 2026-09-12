@@ -66,6 +66,22 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         public ObservableCollection<JobOptionVm> AvailableJobs { get; } = new();
 
+        /// <summary>Job picker filtered by <see cref="JobSearchText"/> (id / customer).</summary>
+        public ObservableCollection<JobOptionVm> FilteredJobs { get; } = new();
+
+        private string _jobSearchText = string.Empty;
+        public string JobSearchText
+        {
+            get => _jobSearchText;
+            set
+            {
+                if (_jobSearchText == value) return;
+                _jobSearchText = value;
+                OnPropertyChanged();
+                RefreshJobsFilter();
+            }
+        }
+
         private JobOptionVm? _selectedJob;
         public JobOptionVm? SelectedJob
         {
@@ -104,11 +120,15 @@ namespace ProGlassAutomation.ViewModels.Optimization
             private string _heightText = string.Empty;
             private string _qtyText = "1";
 
+            /// <summary>Raised when an editable field changes (VM refreshes
+            /// the summary, merge groups and cut plan).</summary>
+            public Action? OnEdited { get; set; }
+
             public string GlassRef { get => _glassRef; set { _glassRef = value; OnPropertyChanged(); } }
             public string PieceLabel { get => _pieceLabel; set { _pieceLabel = value; OnPropertyChanged(); } }
-            public string WidthText { get => _widthText; set { _widthText = value; OnPropertyChanged(); } }
-            public string HeightText { get => _heightText; set { _heightText = value; OnPropertyChanged(); } }
-            public string QtyText { get => _qtyText; set { _qtyText = value; OnPropertyChanged(); } }
+            public string WidthText { get => _widthText; set { _widthText = value; OnPropertyChanged(); OnEdited?.Invoke(); } }
+            public string HeightText { get => _heightText; set { _heightText = value; OnPropertyChanged(); OnEdited?.Invoke(); } }
+            public string QtyText { get => _qtyText; set { _qtyText = value; OnPropertyChanged(); OnEdited?.Invoke(); } }
 
             public bool TryParse(out int width, out int height, out int qty)
             {
@@ -143,6 +163,28 @@ namespace ProGlassAutomation.ViewModels.Optimization
         }
 
         public ObservableCollection<SizeGroupVm> SizeGroups { get; } = new();
+
+        // ── SIZES tab: expanded cut plan (the pieces as the saw cuts them) ──
+
+        public sealed class CutPlanRowVm
+        {
+            public string Number { get; set; } = string.Empty;
+            public string Ref { get; set; } = string.Empty;
+            public string Composition { get; set; } = string.Empty;
+            public string Size { get; set; } = string.Empty;
+        }
+
+        public ObservableCollection<CutPlanRowVm> CutPlanRows { get; } = new();
+
+        private bool _hasCutPlan;
+        public bool HasCutPlan { get => _hasCutPlan; private set { _hasCutPlan = value; OnPropertyChanged(); } }
+
+        private string _cutPlanNote = string.Empty;
+        public string CutPlanNote { get => _cutPlanNote; private set { _cutPlanNote = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasCutPlanNote)); } }
+        public bool HasCutPlanNote => !string.IsNullOrWhiteSpace(_cutPlanNote);
+
+        /// <summary>Expanded rows are capped for the on-screen plan (the engine still cuts every piece).</summary>
+        private const int CutPlanDisplayCap = 500;
 
         // ── STOCKS tab ─────────────────────────────────────────────────
 
@@ -205,6 +247,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public string StockLabel { get; set; } = string.Empty;
             public string PieceCount { get; set; } = string.Empty;
             public string Utilization { get; set; } = string.Empty;
+            public string WasteLabel { get; set; } = string.Empty;
             public int Index { get; set; }
 
             /// <summary>Highlighted in the 2D filmstrip when this is the
@@ -234,6 +277,21 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public string ResultOracle { get => _resultOracle; private set { _resultOracle = value; OnPropertyChanged(); } }
         public string ResultStage { get => _resultStage; private set { _resultStage = value; OnPropertyChanged(); } }
         public bool OraclePassed { get => _oraclePassed; private set { _oraclePassed = value; OnPropertyChanged(); } }
+
+        // ── Waste / offcut reporting (utilization + waste = the sheet) ──
+        private string _resultWaste = "—";
+        /// <summary>Total offcut across the run (stock − used), m².</summary>
+        public string ResultWaste { get => _resultWaste; private set { _resultWaste = value; OnPropertyChanged(); } }
+
+        private string _resultWastePct = "—";
+        /// <summary>Weighted waste share of the consumed stock, %.</summary>
+        public string ResultWastePct { get => _resultWastePct; private set { _resultWastePct = value; OnPropertyChanged(); } }
+
+        /// <summary>Pieces the engine could not place on any stock (labels).</summary>
+        public ObservableCollection<string> UnplacedRows { get; } = new();
+
+        private bool _hasUnplaced;
+        public bool HasUnplaced { get => _hasUnplaced; private set { _hasUnplaced = value; OnPropertyChanged(); } }
 
         public ICommand RunQuickCommand { get; }
         public ICommand RunOptimizeCommand { get; }
@@ -394,6 +452,22 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         // ── piece list ops ─────────────────────────────────────────────
 
+        /// <summary>Creates a list piece with the edit callback wired so the
+        /// summary / merge groups / cut plan refresh on inline qty edits.</summary>
+        private PieceEntryVm NewPieceRow(string glass, string label, string w, string h, string qty)
+        {
+            var row = new PieceEntryVm
+            {
+                GlassRef = glass,
+                PieceLabel = label,
+                WidthText = w,
+                HeightText = h,
+                QtyText = qty
+            };
+            row.OnEdited = () => RefreshDerived();
+            return row;
+        }
+
         private void AddPiece()
         {
             if (!NewPiece.TryParse(out _, out _, out _))
@@ -402,14 +476,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 return;
             }
 
-            Pieces.Add(new PieceEntryVm
-            {
-                GlassRef = NewPiece.GlassRef?.Trim() ?? string.Empty,
-                PieceLabel = NewPiece.PieceLabel?.Trim() ?? string.Empty,
-                WidthText = NewPiece.WidthText,
-                HeightText = NewPiece.HeightText,
-                QtyText = NewPiece.QtyText
-            });
+            Pieces.Add(NewPieceRow(
+                NewPiece.GlassRef?.Trim() ?? string.Empty,
+                NewPiece.PieceLabel?.Trim() ?? string.Empty,
+                NewPiece.WidthText, NewPiece.HeightText, NewPiece.QtyText));
             NewPiece = new PieceEntryVm { GlassRef = NewPiece.GlassRef, PieceLabel = string.Empty };
             RunMessage = string.Empty;
             RefreshDerived();
@@ -461,12 +531,24 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         CustomerName = jo.CustomerName
                     };
 
+                    // Merge by glass composition (Step 4/5 spec name) + size —
+                    // the same key the SIZES tab uses. Different row refs of
+                    // the same glass/size collapse into one cut row (they are
+                    // interchangeable on the saw); the refs ride along as the
+                    // label so the 2D view and cut plan stay traceable.
                     foreach (var g in cut
-                        .GroupBy(i => new { i.GlassRef, i.WidthMm, i.HeightMm, Label = i.SpecName })
-                        .OrderBy(g => g.Key.Label))
+                        .GroupBy(i => new { i.SpecName, i.WidthMm, i.HeightMm })
+                        .OrderBy(g => g.Key.SpecName))
                     {
                         int qty = g.Sum(i => i.Qty);
-                        opt.Pieces.Add((g.Key.GlassRef, g.Key.Label, g.Key.WidthMm, g.Key.HeightMm, qty));
+                        string label = string.Join(", ",
+                            g.Select(i => i.GlassRef)
+                             .Where(r => !string.IsNullOrWhiteSpace(r))
+                             .Distinct());
+                        opt.Pieces.Add((
+                            g.Key.SpecName ?? string.Empty,
+                            string.IsNullOrWhiteSpace(label) ? "—" : label,
+                            g.Key.WidthMm, g.Key.HeightMm, qty));
                     }
 
                     int pcs = opt.Pieces.Sum(p => p.Qty);
@@ -486,6 +568,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         AvailableJobs.Clear();
                         foreach (var o in options) AvailableJobs.Add(o);
                         SelectedJob = null;
+                        RefreshJobsFilter();
                         JobsStatusText = options.Count == 0
                             ? "No confirmed job orders with cutting pieces yet."
                             : string.Format(CultureInfo.InvariantCulture,
@@ -497,6 +580,25 @@ namespace ProGlassAutomation.ViewModels.Optimization
             {
                 JobsStatusText = "Job list unavailable: " + ex.Message;
             }
+        }
+
+        /// <summary>
+        /// Rebuilds <see cref="FilteredJobs"/> from <see cref="AvailableJobs"/>
+        /// using <see cref="JobSearchText"/> (job id / customer / summary).
+        /// Runs on the UI thread — callers marshal beforehand.
+        /// </summary>
+        private void RefreshJobsFilter()
+        {
+            string q = (_jobSearchText ?? string.Empty).Trim();
+            IEnumerable<JobOptionVm> items = string.IsNullOrEmpty(q)
+                ? AvailableJobs
+                : AvailableJobs.Where(j =>
+                    (j.JobOrderId ?? string.Empty).Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                    (j.CustomerName ?? string.Empty).Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                    (j.Summary ?? string.Empty).Contains(q, StringComparison.OrdinalIgnoreCase));
+
+            FilteredJobs.Clear();
+            foreach (var item in items) FilteredJobs.Add(item);
         }
 
         /// <summary>Copies the selected JO's cutting pieces into the run.</summary>
@@ -511,14 +613,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
             Pieces.Clear();
             foreach (var (glass, label, w, h, qty) in SelectedJob.Pieces)
             {
-                Pieces.Add(new PieceEntryVm
-                {
-                    GlassRef = glass,
-                    PieceLabel = label,
-                    WidthText = w.ToString(CultureInfo.InvariantCulture),
-                    HeightText = h.ToString(CultureInfo.InvariantCulture),
-                    QtyText = qty.ToString(CultureInfo.InvariantCulture)
-                });
+                Pieces.Add(NewPieceRow(
+                    glass, label,
+                    w.ToString(CultureInfo.InvariantCulture),
+                    h.ToString(CultureInfo.InvariantCulture),
+                    qty.ToString(CultureInfo.InvariantCulture)));
             }
 
             RefreshDerived();
@@ -539,14 +638,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             Pieces.Clear();
             void Add(string composition, string label, int w, int h, int qty) =>
-                Pieces.Add(new PieceEntryVm
-                {
-                    GlassRef = composition,
-                    PieceLabel = label,
-                    WidthText = w.ToString(CultureInfo.InvariantCulture),
-                    HeightText = h.ToString(CultureInfo.InvariantCulture),
-                    QtyText = qty.ToString(CultureInfo.InvariantCulture)
-                });
+                Pieces.Add(NewPieceRow(
+                    composition, label,
+                    w.ToString(CultureInfo.InvariantCulture),
+                    h.ToString(CultureInfo.InvariantCulture),
+                    qty.ToString(CultureInfo.InvariantCulture)));
 
             // Spec 1 — BIG group.
             Add(clear, "11", 1050, 2127, 2); Add(clear, "9", 1054, 2130, 2);
@@ -620,6 +716,53 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     AreaM2 = gArea.ToString("0.00", CultureInfo.InvariantCulture)
                 });
             }
+
+            RebuildCutPlan();
+        }
+
+        /// <summary>
+        /// Expands the piece list into the on-screen cut plan — one numbered
+        /// row per physical piece (qty expands 1..N) with its ref, composition
+        /// and size. Capped at <see cref="CutPlanDisplayCap"/> rows for the
+        /// screen; the engine itself always cuts every piece.
+        /// </summary>
+        private void RebuildCutPlan()
+        {
+            CutPlanRows.Clear();
+            int number = 0;
+            int total = 0;
+            bool truncated = false;
+
+            foreach (var p in Pieces)
+            {
+                if (!p.TryParse(out int w, out int h, out int q)) continue;
+                total += q;
+                if (number >= CutPlanDisplayCap) { truncated = true; continue; }
+
+                string composition = string.IsNullOrWhiteSpace(p.GlassRef) ? "—" : p.GlassRef.Trim();
+                for (int i = 1; i <= q; i++)
+                {
+                    if (number >= CutPlanDisplayCap) { truncated = true; break; }
+                    number++;
+                    string refLabel = string.IsNullOrWhiteSpace(p.PieceLabel)
+                        ? "—" : p.PieceLabel.Trim();
+                    CutPlanRows.Add(new CutPlanRowVm
+                    {
+                        Number = number.ToString(CultureInfo.InvariantCulture),
+                        Ref = q > 1
+                            ? $"{refLabel} {i.ToString(CultureInfo.InvariantCulture)}/{q.ToString(CultureInfo.InvariantCulture)}"
+                            : refLabel,
+                        Composition = composition,
+                        Size = $"{w.ToString(CultureInfo.InvariantCulture)} × {h.ToString(CultureInfo.InvariantCulture)} mm"
+                    });
+                }
+            }
+
+            HasCutPlan = CutPlanRows.Count > 0;
+            CutPlanNote = truncated
+                ? $"Showing the first {CutPlanDisplayCap.ToString(CultureInfo.InvariantCulture)} of " +
+                  $"{total.ToString(CultureInfo.InvariantCulture)} pieces — the engine cuts all of them."
+                : string.Empty;
         }
 
         // ── stock ops ──────────────────────────────────────────────────
@@ -677,12 +820,17 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 }
                 for (int i = 0; i < q; i++)
                 {
+                    string baseLabel = string.IsNullOrWhiteSpace(p.PieceLabel)
+                        ? (p.GlassRef ?? string.Empty).Trim()
+                        : p.PieceLabel.Trim();
                     pieces.Add(new CutPiece
                     {
                         GlassRef = p.GlassRef ?? string.Empty,
+                        // "G-101 3/24" — piece identity the 2D view / cut
+                        // plan carry, matching the design doc's labelling.
                         PieceLabel = q > 1
-                            ? $"{p.PieceLabel}-{i + 1}"
-                            : p.PieceLabel,
+                            ? $"{baseLabel} {i + 1}/{q}"
+                            : baseLabel,
                         WidthMm = w,
                         HeightMm = h,
                         AllowRotate = RotationEnabled
@@ -819,20 +967,37 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 ? "Verified — no overlaps, margins & kerf respected"
                 : string.Format(CultureInfo.InvariantCulture, "{0} layout issue(s)", problems.Count);
 
+            // Waste = consumed stock − placed glass (the offcut the saw leaves).
+            double wasteMm2 = stockArea - glass;
+            ResultWaste = (wasteMm2 / 1_000_000.0).ToString("0.00", CultureInfo.InvariantCulture) + " m²";
+            ResultWastePct = stockArea == 0 ? "0.0%"
+                : (wasteMm2 / stockArea * 100.0).ToString("0.0", CultureInfo.InvariantCulture) + "%";
+
+            UnplacedRows.Clear();
+            foreach (var up in result.Unplaced)
+            {
+                string label = string.IsNullOrWhiteSpace(up.PieceLabel) ? up.GlassRef : up.PieceLabel;
+                UnplacedRows.Add(string.Format(CultureInfo.InvariantCulture,
+                    "{0} · {1} × {2} mm", label, up.WidthMm, up.HeightMm));
+            }
+            HasUnplaced = UnplacedRows.Count > 0;
+
             SheetRows.Clear();
             for (int i = 0; i < result.Sheets.Count; i++)
             {
                 var sheet = result.Sheets[i];
                 double sheetGlass = sheet.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm);
                 double sheetStock = (long)sheet.Stock.WidthMm * sheet.Stock.HeightMm;
+                double sheetWaste = sheetStock - sheetGlass;
+                double sheetUtil = sheetStock == 0 ? 0 : sheetGlass / sheetStock * 100.0;
                 SheetRows.Add(new SheetRowVm
                 {
                     SheetNo = (i + 1).ToString(CultureInfo.InvariantCulture),
                     StockLabel = string.Format(CultureInfo.InvariantCulture,
                         "{0} × {1}", sheet.Stock.WidthMm, sheet.Stock.HeightMm),
                     PieceCount = sheet.Pieces.Count.ToString(CultureInfo.InvariantCulture),
-                    Utilization = (sheetStock == 0 ? 0 : sheetGlass / sheetStock * 100.0)
-                        .ToString("0.0", CultureInfo.InvariantCulture) + "%",
+                    Utilization = sheetUtil.ToString("0.0", CultureInfo.InvariantCulture) + "%",
+                    WasteLabel = (sheetWaste / 1_000_000.0).ToString("0.00", CultureInfo.InvariantCulture) + " m²",
                     Index = i
                 });
             }

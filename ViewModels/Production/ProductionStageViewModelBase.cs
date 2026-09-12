@@ -293,6 +293,10 @@ namespace ProGlassAutomation.ViewModels.Production
                 AsyncUtility.SafeFireAndForget(() => ApplyDoneQtyAsync(p, 0), "Work item qty reset"),
                 p => p is ProductionWorkItemRow r && r.Done > 0);
 
+            CompleteUnitCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(CompleteUnitAsync, "Production unit complete"),
+                _ => HasSelection && SelectedStageItems.Any(i => i.CanWork && i.Done < i.Inflow));
+
             CreateDeliveryNoteCommand = new RelayCommand(
                 _ => AsyncUtility.SafeFireAndForget(CreateDeliveryNoteAsync, "Production delivery note"),
                 _ => HasSelection && !string.IsNullOrWhiteSpace(SelectedJobNo) && _dispatchBalance > 0);
@@ -312,6 +316,7 @@ namespace ProGlassAutomation.ViewModels.Production
         public ICommand SaveQtyCommand { get; }
         public ICommand CompleteAllCommand { get; }
         public ICommand ResetQtyCommand { get; }
+        public ICommand CompleteUnitCommand { get; }
         public ICommand CreateDeliveryNoteCommand { get; }
 
         // ── Release picker ───────────────────────────────────────────────
@@ -604,6 +609,15 @@ namespace ProGlassAutomation.ViewModels.Production
         /// <summary>Whole-chain chips, refreshed with every list/KPI load.</summary>
         public ObservableCollection<ProductionChainStageChip> ChainStages { get; } = new();
 
+        private string _chainProgressLabel = "";
+        /// <summary>Factory-wide aggregate under the chain bar:
+        /// "Floor · 12 open · 45 / 57 done".</summary>
+        public string ChainProgressLabel
+        {
+            get => _chainProgressLabel;
+            private set { if (_chainProgressLabel == value) return; _chainProgressLabel = value; OnPropertyChanged(); }
+        }
+
         private async Task LoadChainAsync()
         {
             var rows = await Task.Run(ProductionRepository.GetChainSummaryAsync)
@@ -613,24 +627,37 @@ namespace ProGlassAutomation.ViewModels.Production
 
             ChainStages.Clear();
             int ordinal = 0;
+            int totalOpen = 0, totalDone = 0, totalAll = 0;
             foreach (var (stage, navKey, name, icon) in ChainMetadata)
             {
                 ordinal++;
                 byStage.TryGetValue((int)stage, out var counts);
+                int open = counts?.Open ?? 0;
+                int done = counts?.Completed ?? 0;
+                int all = counts?.Total ?? 0;
+                totalOpen += open;
+                totalDone += done;
+                totalAll += all;
                 ChainStages.Add(new ProductionChainStageChip
                 {
                     Ordinal = ordinal,
                     NavKey = navKey,
                     Name = name,
                     Icon = icon,
-                    Open = counts?.Open ?? 0,
-                    Completed = counts?.Completed ?? 0,
-                    Total = counts?.Total ?? 0,
+                    Open = open,
+                    Completed = done,
+                    Total = all,
                     UnitLabel = stage is ProductionStage.Pairing or ProductionStage.DoublingLamination
                         ? "units" : "pcs",
                     IsCurrent = stage == Stage
                 });
             }
+
+            ChainProgressLabel = totalAll == 0
+                ? "No work on the floor yet"
+                : $"{totalOpen.ToString(CultureInfo.InvariantCulture)} open · " +
+                  $"{totalDone.ToString(CultureInfo.InvariantCulture)} / " +
+                  $"{totalAll.ToString(CultureInfo.InvariantCulture)} done";
         }
 
         // ── Stage identity ───────────────────────────────────────────────
@@ -966,6 +993,8 @@ namespace ProGlassAutomation.ViewModels.Production
             foreach (var flowItem in row.FlowItems)
                 SelectedStageItems.Add(new ProductionWorkItemRow(flowItem));
 
+            AsyncUtility.InvalidateCommandsThrottled();
+
             // Stage totals — total / done / balance in pieces, SQM and LM.
             int pcsTotal = 0, pcsDone = 0;
             decimal sqmTotal = 0m, sqmDone = 0m, lmTotal = 0m, lmDone = 0m;
@@ -1064,6 +1093,7 @@ namespace ProGlassAutomation.ViewModels.Production
             SelectedDispatchDeliveredLabel = "0";
             SelectedDispatchBalanceLabel = "0";
             DispatchBalance = 0;
+            AsyncUtility.InvalidateCommandsThrottled();
         }
 
         // ── Release sources ──────────────────────────────────────────────
@@ -1146,6 +1176,31 @@ namespace ProGlassAutomation.ViewModels.Production
                 ActionWarning = message; // clamp notice or empty
                 await LoadAllAsync().ConfigureAwait(true);
             }
+        }
+
+        /// <summary>
+        /// Floor convenience: complete every arrived piece of the selected
+        /// unit in one action. Each item is clamped to its inflow by the
+        /// repository, so a unit with partly-arrived panes still only
+        /// completes what actually arrived.
+        /// </summary>
+        private async Task CompleteUnitAsync()
+        {
+            var targets = SelectedStageItems
+                .Where(i => i.CanWork && i.Done < i.Inflow)
+                .ToList();
+            if (targets.Count == 0) return;
+
+            foreach (var row in targets)
+            {
+                var (ok, _, message) = await Task.Run(() =>
+                    ProductionRepository.SetDoneQtyAsync(row.Id, row.Inflow))
+                    .ConfigureAwait(true);
+                if (ok && !string.IsNullOrWhiteSpace(message))
+                    ActionWarning = message;
+            }
+
+            await LoadAllAsync().ConfigureAwait(true);
         }
     }
 }

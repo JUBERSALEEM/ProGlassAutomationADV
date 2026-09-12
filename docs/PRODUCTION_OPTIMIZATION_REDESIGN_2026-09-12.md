@@ -239,7 +239,44 @@ only** (the app builds on the user's next `dotnet build`):
 - SDK-style project — new `.xaml`/`.cs` files are auto-included via implicit
   `Page`/`Compile` globs; no `.csproj` edit required.
 
-## 8. Carried recommendations (not implemented, by design)
+## 8. Professional / industrial hardening pass (second commit)
+
+Applied on top of the redesign, targeting real shop-floor patterns:
+
+**Optimization**
+- **Waste / offcut reporting** — SUMMARY now shows a `WASTE / OFFCUT` KPI
+  (m² + % of consumed stock) and a per-sheet `Offcut` column, so the run
+  reads as *utilization + waste = the sheet* — the metric a glass factory
+  actually signs off on.
+- **Unplaced pieces list** — pieces the engine couldn't place are listed
+  under an amber banner with their size, instead of just a count.
+- **Cut plan** — the SIZES tab now expands the piece list into a numbered
+  **CUT PLAN** (one row per physical piece, `Ref · composition · W×H`,
+  qty expanded `1/N`), capped at 500 on-screen rows with a note — the
+  engine still cuts every piece.
+- **Editable quantities** — the JOBS piece list quantity is inline-editable;
+  the summary, merge groups and cut plan refresh on every keystroke.
+- **Searchable job picker** — filter confirmed Job Orders by id / customer /
+  summary (`JobSearchText` → `FilteredJobs`).
+- **Composition-key merge fix** — the job picker grouped cutting pieces by
+  *row ref* instead of *glass composition*, so merge groups would key on
+  `G-101`-style refs rather than thickness+colour. Now grouped by spec name
+  (composition) + size; the refs ride along as the label, and identical
+  glass/size across refs merges into one cut row.
+- **Tidy per-piece labels** — expanded pieces now carry `G-101 3/24`-style
+  labels into the 2D view and cut plan (was `Label-3`).
+
+**Production**
+- **Live floor progress** — the pipeline chain bar now reads
+  `PRODUCTION PIPELINE · 12 open · 45 / 57 done` (factory-wide aggregate)
+  next to the stage chips.
+- **Complete-all-items** — the unit detail sidebar gained a
+  *Complete all items* action: finish every arrived piece of the selected
+  unit in one click (each item still clamped to its inflow).
+- **8th stage accent** — `TintTealBrush` added so Doubling/Lamination no
+  longer shares Cutting's blue.
+
+## 9. Carried recommendations (not implemented, by design)
 
 - **2D PNG/PDF sheet export** — house export engine hook (design phase 5).
 - **Sheet Store consumption booking** — confirming a run books `Used +=

@@ -214,7 +214,11 @@
                                        FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                        Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,10"/>
 
-                            <ListBox ItemsSource="{Binding AvailableJobs}"
+                            <TextBox Text="{Binding JobSearchText, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource ModuleListFilterInputStyle}" Margin="0,0,0,8"
+                                     ToolTip="Filter by job id, customer or summary"/>
+
+                            <ListBox ItemsSource="{Binding FilteredJobs}"
                                      SelectedItem="{Binding SelectedJob}"
                                      Style="{StaticResource ModuleReportListBoxStyle}"
                                      MaxHeight="260" Margin="-4,0,0,8">
@@ -355,8 +359,9 @@
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}">
                                                     <Run Text="{Binding WidthText, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding HeightText, Mode=OneWay}"/>
                                                 </TextBlock>
-                                                <TextBlock Grid.Column="3" Text="{Binding QtyText}" FontSize="{StaticResource TextBody}"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                <TextBox Grid.Column="3" Text="{Binding QtyText, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource OptIntInput}" Margin="0" MinWidth="50" Width="52"
+                                                         ToolTip="Edit the quantity — the cut plan and run update automatically"/>
                                                 <Button Grid.Column="4" Content="Remove" Style="{StaticResource RowOutlinedButton}"
                                                         Command="{Binding DataContext.RemovePieceCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding}"/>
@@ -400,38 +405,89 @@
                                    VerticalAlignment="Top" Margin="4,8,4,0"/>
 
                         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                            <ItemsControl ItemsSource="{Binding SizeGroups}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border CornerRadius="{DynamicResource CardCornerRadius}"
-                                                Background="{DynamicResource ModuleBackgroundBrush}"
-                                                BorderBrush="{DynamicResource GlassBorderGradientSoft}" BorderThickness="1"
-                                                Padding="14,10" Margin="0,0,0,8">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="120"/>
-                                                    <ColumnDefinition Width="120"/>
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock Grid.Column="0" Text="{Binding Composition}"
-                                                           FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                           TextWrapping="Wrap" Margin="0,0,12,0"/>
-                                                <StackPanel Grid.Column="1">
-                                                    <TextBlock Text="Pieces" Style="{StaticResource OptFieldLabel}"/>
-                                                    <TextBlock Text="{Binding PieceCount}" FontSize="{StaticResource TextBody}"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                </StackPanel>
-                                                <StackPanel Grid.Column="2">
-                                                    <TextBlock Text="Area (m²)" Style="{StaticResource OptFieldLabel}"/>
-                                                    <TextBlock Text="{Binding AreaM2}" FontSize="{StaticResource TextBody}"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                </StackPanel>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                            <StackPanel>
+                                <TextBlock Text="MERGE GROUPS — one optimization run per composition"
+                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                           Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,8"/>
+                                <ItemsControl ItemsSource="{Binding SizeGroups}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="{DynamicResource CardCornerRadius}"
+                                                    Background="{DynamicResource ModuleBackgroundBrush}"
+                                                    BorderBrush="{DynamicResource GlassBorderGradientSoft}" BorderThickness="1"
+                                                    Padding="14,10" Margin="0,0,0,8">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="120"/>
+                                                        <ColumnDefinition Width="120"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding Composition}"
+                                                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                               TextWrapping="Wrap" Margin="0,0,12,0"/>
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock Text="Pieces" Style="{StaticResource OptFieldLabel}"/>
+                                                        <TextBlock Text="{Binding PieceCount}" FontSize="{StaticResource TextBody}"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="2">
+                                                        <TextBlock Text="Area (m²)" Style="{StaticResource OptFieldLabel}"/>
+                                                        <TextBlock Text="{Binding AreaM2}" FontSize="{StaticResource TextBody}"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <!-- Cut plan — the pieces as the saw cuts them -->
+                                <StackPanel Margin="0,14,0,0" Visibility="{Binding HasCutPlan, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <TextBlock Text="CUT PLAN — pieces as the saw cuts them"
+                                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                               Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,8"/>
+                                    <TextBlock Text="{Binding CutPlanNote}" FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap" Margin="0,0,0,6"
+                                               Visibility="{Binding HasCutPlanNote, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="64"/>
+                                            <ColumnDefinition Width="180"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="140"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="#" Style="{StaticResource OptFieldLabel}"/>
+                                        <TextBlock Grid.Column="1" Text="Ref" Style="{StaticResource OptFieldLabel}"/>
+                                        <TextBlock Grid.Column="2" Text="Glass composition" Style="{StaticResource OptFieldLabel}"/>
+                                        <TextBlock Grid.Column="3" Text="Size (mm)" Style="{StaticResource OptFieldLabel}"/>
+                                    </Grid>
+                                    <ItemsControl ItemsSource="{Binding CutPlanRows}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Padding="4,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource DividerBrush}">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="64"/>
+                                                            <ColumnDefinition Width="180"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="140"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="{Binding Number}" FontSize="{StaticResource TextBody}"
+                                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                        <TextBlock Grid.Column="1" Text="{Binding Ref}" FontSize="{StaticResource TextBody}"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
+                                                        <TextBlock Grid.Column="2" Text="{Binding Composition}" FontSize="{StaticResource TextBody}"
+                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
+                                                        <TextBlock Grid.Column="3" Text="{Binding Size}" FontSize="{StaticResource TextBody}"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </StackPanel>
                         </ScrollViewer>
                     </Grid>
                 </Border>
@@ -619,6 +675,7 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
                             <Border Grid.Column="0" Style="{StaticResource SurfaceSecondaryStyle}" Padding="12,8" Margin="0,0,6,0">
@@ -637,12 +694,21 @@
                             </Border>
                             <Border Grid.Column="2" Style="{StaticResource SurfaceSecondaryStyle}" Padding="12,8" Margin="6,0">
                                 <StackPanel>
+                                    <TextBlock Text="WASTE / OFFCUT" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                    <TextBlock Text="{Binding ResultWaste}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                                               Foreground="{DynamicResource WarningBrush}"/>
+                                    <TextBlock Text="{Binding ResultWastePct}" FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="3" Style="{StaticResource SurfaceSecondaryStyle}" Padding="12,8" Margin="6,0">
+                                <StackPanel>
                                     <TextBlock Text="UNPLACED" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}"/>
                                     <TextBlock Text="{Binding ResultUnplaced}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                 </StackPanel>
                             </Border>
-                            <Border Grid.Column="3" Style="{StaticResource SurfaceSecondaryStyle}" Padding="12,8" Margin="6,0,0,0">
+                            <Border Grid.Column="4" Style="{StaticResource SurfaceSecondaryStyle}" Padding="12,8" Margin="6,0,0,0">
                                 <StackPanel>
                                     <TextBlock Text="ORACLE" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}"/>
                                     <TextBlock Text="{Binding ResultOracle}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
@@ -668,20 +734,23 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="90"/>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="120"/>
-                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="110"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="Sheet" Style="{StaticResource OptFieldLabel}"/>
                                     <TextBlock Grid.Column="1" Text="Stock (mm)" Style="{StaticResource OptFieldLabel}"/>
                                     <TextBlock Grid.Column="2" Text="Pieces" Style="{StaticResource OptFieldLabel}"/>
                                     <TextBlock Grid.Column="3" Text="Utilization" Style="{StaticResource OptFieldLabel}"/>
+                                    <TextBlock Grid.Column="4" Text="Offcut" Style="{StaticResource OptFieldLabel}"/>
                                 </Grid>
                                 <ItemsControl ItemsSource="{Binding SheetRows}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Button Cursor="Hand" HorizontalContentAlignment="Stretch"
                                                     Command="{Binding DataContext.SelectSheetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                    CommandParameter="{Binding Index}">
+                                                    CommandParameter="{Binding Index}"
+                                                    ToolTip="Open this sheet in the 2D view">
                                                 <Button.Template>
                                                     <ControlTemplate TargetType="Button">
                                                         <Border x:Name="Row" Padding="4,8" BorderThickness="0,0,0,1"
@@ -690,8 +759,9 @@
                                                                 <Grid.ColumnDefinitions>
                                                                     <ColumnDefinition Width="90"/>
                                                                     <ColumnDefinition Width="*"/>
-                                                                    <ColumnDefinition Width="120"/>
-                                                                    <ColumnDefinition Width="120"/>
+                                                                    <ColumnDefinition Width="110"/>
+                                                                    <ColumnDefinition Width="110"/>
+                                                                    <ColumnDefinition Width="110"/>
                                                                 </Grid.ColumnDefinitions>
                                                                 <TextBlock Grid.Column="0" Text="{Binding SheetNo}" FontSize="{StaticResource TextBody}"
                                                                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
@@ -700,7 +770,9 @@
                                                                 <TextBlock Grid.Column="2" Text="{Binding PieceCount}" FontSize="{StaticResource TextBody}"
                                                                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                                                 <TextBlock Grid.Column="3" Text="{Binding Utilization}" FontSize="{StaticResource TextBody}"
-                                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                           Foreground="{DynamicResource SuccessBrush}"/>
+                                                                <TextBlock Grid.Column="4" Text="{Binding WasteLabel}" FontSize="{StaticResource TextBody}"
+                                                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
                                                             </Grid>
                                                         </Border>
                                                         <ControlTemplate.Triggers>
@@ -714,6 +786,27 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
+
+                                <!-- Unplaced pieces — what didn't fit -->
+                                <StackPanel Margin="0,10,0,0" Visibility="{Binding HasUnplaced, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <Border CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource TintAmberBrush}"
+                                            Padding="12,8" Margin="0,0,0,6">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
+                                                       Foreground="{DynamicResource WarningBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                            <TextBlock Text="Pieces the engine could not place on any stock" FontSize="{StaticResource TextBody}"
+                                                       FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <ItemsControl ItemsSource="{Binding UnplacedRows}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}" FontSize="{StaticResource TextBody}"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,3"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
                             </StackPanel>
                         </ScrollViewer>
                     </Grid>
