@@ -33,6 +33,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public string Composition { get; set; } = string.Empty;
             public string Thickness { get; set; } = string.Empty;
             public string PieceCount { get; set; } = string.Empty;
+            /// <summary>Distinct W×H rows in this group (≠ piece count — one
+            /// size row can carry a qty of many pieces).</summary>
+            public string SizeRows { get; set; } = string.Empty;
             public string AreaM2 { get; set; } = string.Empty;
         }
 

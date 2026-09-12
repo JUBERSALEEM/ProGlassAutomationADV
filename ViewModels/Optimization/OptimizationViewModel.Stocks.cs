@@ -170,9 +170,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// <summary>
         /// Rebuilds <see cref="Stocks"/> so it contains ONLY the Step 4 sheet
         /// sizes of the ticked Job Orders (outer/inner per spec), tagged by
-        /// their pane's glass composition. Runs automatically whenever the
-        /// job selection changes; manual racks the operator adds survive
-        /// until the next selection change. Returns the number of rows.
+        /// their pane's glass composition — never the whole sheet store.
+        /// Runs automatically whenever the job selection changes; the pool
+        /// is fully replaced, so a manual rack added earlier is cleared the
+        /// moment the selection changes (the pool always mirrors the ticked
+        /// jobs' Step 4 sheets). Returns the number of rows.
         /// </summary>
         private int SyncStocksFromSelectedJobs()
         {

@@ -229,11 +229,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
         }
 
         /// <summary>
-        /// Picks the stock sizes for ONE cutting group. Racks tagged with
-        /// this group's glass composition win (the Step 4 sheet the pane was
-        /// quoted on); manual "any group" racks (empty composition) are the
-        /// fallback, and only if no Step 4 sheet is recorded for the glass do
-        /// we drop back to the whole pool so pieces are never silently lost.
+        /// Picks the stock sizes for ONE cutting group. The group's OWN
+        /// Step 4 rack (tagged with its glass composition) always wins;
+        /// manual "any group" racks (empty composition) are the fallback,
+        /// and only when no Step 4 sheet is recorded for the glass do we
+        /// drop back to the whole pool so pieces are never silently lost.
+        /// A manual rack must never be offered to a group that already has
+        /// a dedicated rack — otherwise "smallest stock first" can route a
+        /// spec's pieces onto the wrong rack.
         /// </summary>
         private static List<StockSize> ResolveGroupStocks(
             string composition,
@@ -242,15 +245,16 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             note = string.Empty;
 
-            var matching = pool
-                .Where(t => string.IsNullOrWhiteSpace(t.Composition) ||
-                            string.Equals(t.Composition, composition, StringComparison.OrdinalIgnoreCase))
+            // 1. Dedicated Step 4 racks for this glass.
+            var dedicated = pool
+                .Where(t => !string.IsNullOrWhiteSpace(t.Composition)
+                            && string.Equals(t.Composition, composition, StringComparison.OrdinalIgnoreCase))
                 .Select(t => t.Stock)
                 .ToList();
-            matching = DistinctBySize(matching);
-            if (matching.Count > 0) return matching;
+            dedicated = DistinctBySize(dedicated);
+            if (dedicated.Count > 0) return dedicated;
 
-            // No Step 4 sheet for this glass — use the manual racks if any.
+            // 2. Manual "any group" racks (no composition tag).
             var manual = pool
                 .Where(t => string.IsNullOrWhiteSpace(t.Composition))
                 .Select(t => t.Stock)
@@ -262,8 +266,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 return manual;
             }
 
-            // Nothing dedicated and nothing manual: keep the run alive with
-            // every available rack rather than dropping the pieces.
+            // 3. Nothing dedicated and nothing manual: keep the run alive
+            //    with every available rack rather than dropping the pieces.
             var all = DistinctBySize(pool.Select(t => t.Stock).ToList());
             if (all.Count > 0) note = "no Step 4 sheet — packed on other specs' racks";
             return all;

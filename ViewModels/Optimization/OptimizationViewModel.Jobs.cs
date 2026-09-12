@@ -384,7 +384,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     int pcs = opt.TotalPcs;
                     double m2 = opt.Specs.Sum(sp => sp.Layers.Where(l => l.Kind == "Pane")
                         .Sum(l => l.Pieces.Sum(x => x.W / 1000.0 * x.H / 1000.0 * x.Qty)));
-                    int specCount = opt.Specs.Count;
+                    // Spec count = the PI's ACTUAL specification groups, not
+                    // just the groups that produced selectable panes. A Job
+                    // Order with two specs must read "2 specs" even when one
+                    // spec has no cutting rows yet (previously the card read
+                    // "1 spec" because that group contributed no pane layers
+                    // and never reached opt.Specs).
+                    int specCount = groups.Count;
                     opt.PieceRows = opt.Specs.Sum(sp => sp.Layers.Count(l => l.Kind == "Pane"));
                     opt.Summary = string.Format(CultureInfo.InvariantCulture,
                         "{0} · {1} pcs · {2:0.0} m² · {3} spec(s)",

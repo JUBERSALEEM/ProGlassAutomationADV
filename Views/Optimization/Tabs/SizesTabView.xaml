@@ -71,7 +71,7 @@
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="2">
                                                         <TextBlock Text="SIZE ROWS" Style="{StaticResource OptHeader}"/>
-                                                        <TextBlock Text="{Binding PieceCount}" FontSize="{StaticResource TextBody}"
+                                                        <TextBlock Text="{Binding SizeRows}" FontSize="{StaticResource TextBody}"
                                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="3">

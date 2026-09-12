@@ -210,18 +210,23 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (!SelectedGroupMatches(grp.Key)) continue;
 
                 int gCount = 0;
+                int gRows = 0;
                 double gArea = 0;
+                var gSizes = new HashSet<(int W, int H)>();
                 foreach (var p in grp)
                 {
                     p.TryParse(out int w, out int h, out int q);
                     gCount += q;
                     gArea += w / 1000.0 * (h / 1000.0) * q;
+                    gSizes.Add((w, h));
                 }
+                gRows = gSizes.Count;
                 SizeGroups.Add(new SizeGroupVm
                 {
                     Composition = grp.Key,
                     Thickness = ParseThicknessLabel(grp.Key),
                     PieceCount = gCount.ToString(CultureInfo.InvariantCulture),
+                    SizeRows = gRows.ToString(CultureInfo.InvariantCulture),
                     AreaM2 = gArea.ToString("0.00", CultureInfo.InvariantCulture)
                 });
             }

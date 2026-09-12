@@ -146,14 +146,25 @@ namespace ProGlassAutomation.Services.Production
         // ────────────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Resolves the physical build for a spec group: Step 9's persisted
-        /// classification wins (it saw the same name at costing time); the
-        /// spec-name grammar is the fallback. Never throws — an unreadable
-        /// name degrades to SGU with a warning.
+        /// Resolves the physical build for a spec group. Precedence:
+        ///   1. The operator's Step 5 glass type (<see cref="SpecGroupSnapshot.SelectedGlassType"/>)
+        ///      — the explicit build chosen at Step 4/5 handoff, and the
+        ///      ground truth for what the cutting list actually cuts. Without
+        ///      this, a spec whose NAME doesn't parse to two panes (e.g. a
+        ///      free-typed "6mm clear DGU" name) collapses to SGU and its
+        ///      INNER pane — sizes, pieces and Step 4 sheet — silently
+        ///      disappears from the optimization import.
+        ///   2. Step 9's persisted classification (it saw the same name at
+        ///      costing time).
+        ///   3. The spec-name grammar.
+        /// Never throws — an unreadable name degrades to SGU with a warning.
         /// </summary>
         public static string ResolveBuildType(
             SpecGroupSnapshot group, ProformaInvoiceSnapshot? snapshot)
         {
+            string? fromGlassType = NormalizeGlassTypeToBuildType(group.SelectedGlassType);
+            if (fromGlassType != null) return fromGlassType;
+
             var target = snapshot?.ProfitLoss?.SpecTargets?
                 .FirstOrDefault(t => t != null && t.SpecNumber == group.GroupNumber
                     && !string.IsNullOrWhiteSpace(t.BuildType));
@@ -165,6 +176,27 @@ namespace ProGlassAutomation.Services.Production
             }
 
             return InferBuildTypeFromName(group.SelectedSpecName);
+        }
+
+        /// <summary>
+        /// Maps a Step 5 <c>SelectedGlassType</c> value ("SGU", "DGU",
+        /// "LAM", "DGU+LAM") onto the internal build-type string. Returns
+        /// null when the value is blank or unsupported so callers fall back
+        /// to the next classification source.
+        /// </summary>
+        private static string? NormalizeGlassTypeToBuildType(string? glassType)
+        {
+            if (string.IsNullOrWhiteSpace(glassType)) return null;
+            string t = glassType.Trim().Replace("+", string.Empty)
+                .Replace(" ", string.Empty).ToLowerInvariant();
+            return t switch
+            {
+                "sgu" => "Sgu",
+                "dgu" => "Dgu",
+                "lam" => "Lam",
+                "dgulam" => "DguLam",
+                _ => null
+            };
         }
 
         /// <summary>Local mirror of GlassBuildType names (string contract).</summary>
