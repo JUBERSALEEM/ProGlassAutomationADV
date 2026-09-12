@@ -30,6 +30,7 @@ using System.Windows.Input;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus;
 using ProGlassAutomation.Models.Production;
+using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.JobOrder.Mapper;
 using ProGlassAutomation.Services.JobOrder.Repository;
 using ProGlassAutomation.Services.Optimization;
@@ -60,8 +61,53 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public string CustomerName { get; set; } = string.Empty;
             public string Summary { get; set; } = string.Empty;
             public int PieceRows { get; set; }
-            /// <summary>Cutting pieces (glass, label, w, h, qty) pre-expanded.</summary>
+
+            /// <summary>
+            /// Step 4/5 pane decomposition of this job: one entry per
+            /// spec-group × physical pane (Outer / Inner / Lam …), each
+            /// carrying its OWN glass composition and cutting pieces.
+            /// </summary>
+            public List<PaneChoiceVm> PaneChoices { get; } = new();
+
+            /// <summary>Flat merged cutting list (composition, label, w, h, qty)
+            /// across all panes — convenience for "cut the whole job".</summary>
             public List<(string Glass, string Label, int W, int H, int Qty)> Pieces { get; } = new();
+        }
+
+        /// <summary>
+        /// One physical pane of a Step 5 spec group, decomposed from the
+        /// Step 4 spec name. Two specs that share the same outer pane
+        /// (e.g. a low-e pane on a clear DGU and on an obscure DGU) each
+        /// expose it — the operator multi-selects both and the SIZES merge
+        /// folds them into ONE cutting group by composition.
+        /// </summary>
+        public sealed class PaneChoiceVm : ViewModels.ViewModelBase
+        {
+            private bool _isSelected;
+            public int SpecGroupNumber { get; set; }
+            public string SpecName { get; set; } = string.Empty;
+            public string BuildType { get; set; } = string.Empty;
+            public string Position { get; set; } = string.Empty;
+            public string Composition { get; set; } = string.Empty;
+            public string Thickness { get; set; } = string.Empty;
+            public string Treatment { get; set; } = string.Empty;
+            public string SizesSummary { get; set; } = string.Empty;
+            public int TotalPcs { get; set; }
+            public string AreaLabel { get; set; } = string.Empty;
+            public string CountLabel { get; set; } = string.Empty;
+
+            public string SpecLabel => "Spec " + SpecGroupNumber.ToString(CultureInfo.InvariantCulture)
+                + " · " + BuildType.ToUpperInvariant();
+            public string PaneLabel => string.IsNullOrWhiteSpace(Treatment)
+                ? Position : Position + " · " + Treatment;
+
+            public List<(string Glass, string Label, int W, int H, int Qty)> Pieces { get; } = new();
+
+            public bool IsSelected
+            {
+                get => _isSelected;
+                set { if (_isSelected == value) return; _isSelected = value; OnPropertyChanged(); }
+            }
         }
 
         public ObservableCollection<JobOptionVm> AvailableJobs { get; } = new();
@@ -86,8 +132,42 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public JobOptionVm? SelectedJob
         {
             get => _selectedJob;
-            set { _selectedJob = value; OnPropertyChanged(); }
+            set
+            {
+                if (_selectedJob == value) return;
+                _selectedJob = value;
+                OnPropertyChanged();
+                PopulateJobPanes(value);
+            }
         }
+
+        /// <summary>Pane checklist for the currently selected job (multi-select).</summary>
+        public ObservableCollection<PaneChoiceVm> JobPaneChoices { get; } = new();
+
+        private bool _hasPaneChoices;
+        public bool HasPaneChoices { get => _hasPaneChoices; private set { _hasPaneChoices = value; OnPropertyChanged(); } }
+
+        private int _selectedPaneCount;
+        public int SelectedPaneCount
+        {
+            get => _selectedPaneCount;
+            private set
+            {
+                if (_selectedPaneCount == value) return;
+                _selectedPaneCount = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SelectedPaneSummary));
+                OnPropertyChanged(nameof(HasSelectedPanes));
+                OnPropertyChanged(nameof(AddPanesButtonLabel));
+            }
+        }
+        public string SelectedPaneSummary => SelectedPaneCount == 0
+            ? "No panes selected"
+            : SelectedPaneCount.ToString(CultureInfo.InvariantCulture) + " pane(s) selected";
+        public bool HasSelectedPanes => SelectedPaneCount > 0;
+        public string AddPanesButtonLabel => SelectedPaneCount == 0
+            ? "Add selected panes → cutting list"
+            : "Add " + SelectedPaneCount.ToString(CultureInfo.InvariantCulture) + " selected pane(s) → cutting list";
 
         private string _jobsStatusText = "Loading confirmed job orders…";
         public string JobsStatusText
@@ -109,13 +189,16 @@ namespace ProGlassAutomation.ViewModels.Optimization
             : "No pieces yet — select a confirmed job order on the left and load its cutting list, or add pieces manually below.";
 
         public ICommand RefreshJobsCommand { get; }
-        public ICommand LoadSelectedJobCommand { get; }
+        public ICommand AddSelectedPanesCommand { get; }
+        public ICommand SelectAllPanesCommand { get; }
+        public ICommand ClearPaneSelectionCommand { get; }
 
 
         public sealed class PieceEntryVm : ViewModels.ViewModelBase
         {
             private string _glassRef = "6mm clear ft glass";
             private string _pieceLabel = string.Empty;
+            private string _position = string.Empty;
             private string _widthText = string.Empty;
             private string _heightText = string.Empty;
             private string _qtyText = "1";
@@ -126,6 +209,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             public string GlassRef { get => _glassRef; set { _glassRef = value; OnPropertyChanged(); } }
             public string PieceLabel { get => _pieceLabel; set { _pieceLabel = value; OnPropertyChanged(); } }
+            /// <summary>Pane position provenance — "Outer", "Inner", … ("" for ad-hoc pieces).</summary>
+            public string Position { get => _position; set { _position = value; OnPropertyChanged(); } }
             public string WidthText { get => _widthText; set { _widthText = value; OnPropertyChanged(); OnEdited?.Invoke(); } }
             public string HeightText { get => _heightText; set { _heightText = value; OnPropertyChanged(); OnEdited?.Invoke(); } }
             public string QtyText { get => _qtyText; set { _qtyText = value; OnPropertyChanged(); OnEdited?.Invoke(); } }
@@ -158,6 +243,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public sealed class SizeGroupVm
         {
             public string Composition { get; set; } = string.Empty;
+            public string Thickness { get; set; } = string.Empty;
             public string PieceCount { get; set; } = string.Empty;
             public string AreaM2 { get; set; } = string.Empty;
         }
@@ -248,6 +334,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public string PieceCount { get; set; } = string.Empty;
             public string Utilization { get; set; } = string.Empty;
             public string WasteLabel { get; set; } = string.Empty;
+            /// <summary>Cutting-group (glass composition) this sheet belongs to.</summary>
+            public string Composition { get; set; } = string.Empty;
             public int Index { get; set; }
 
             /// <summary>Highlighted in the 2D filmstrip when this is the
@@ -292,6 +380,51 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         private bool _hasUnplaced;
         public bool HasUnplaced { get => _hasUnplaced; private set { _hasUnplaced = value; OnPropertyChanged(); } }
+
+        // ── RESULT tab: per-cutting-group breakdown ─────────────────────
+        // One run per glass composition — different glass never mixes on a
+        // sheet. Each group reports its own sheets / utilization / waste.
+
+        public sealed class CuttingGroupResultVm
+        {
+            public string Composition { get; set; } = string.Empty;
+            public string Thickness { get; set; } = string.Empty;
+            public string PieceCount { get; set; } = string.Empty;
+            public string Sheets { get; set; } = string.Empty;
+            public string Utilization { get; set; } = string.Empty;
+            public string Waste { get; set; } = string.Empty;
+            public string Unplaced { get; set; } = string.Empty;
+            public string Note { get; set; } = string.Empty;
+            public bool HasNote => !string.IsNullOrWhiteSpace(Note);
+        }
+
+        public ObservableCollection<CuttingGroupResultVm> GroupResults { get; } = new();
+
+        /// <summary>Private per-composition run record (composition, margins, result).</summary>
+        private sealed class GroupRun
+        {
+            public string Composition = string.Empty;
+            public string Thickness = string.Empty;
+            public int PieceCount;
+            public MarginProfile Margins = null!;
+            public OptimizationResult Result = null!;
+            public double UtilizationPct;
+            public double WasteM2;
+            public string UnplacedLabel = "0";
+            public string OracleLabel = string.Empty;
+            public string SheetsLabel = string.Empty;
+            public string MarginNote = string.Empty;
+        }
+
+        /// <summary>Flat sheet index → (group run, sheet index in that run).</summary>
+        private sealed class FlatSheet
+        {
+            public GroupRun Run = null!;
+            public int SheetIndex;
+        }
+
+        private readonly List<GroupRun> _groupRuns = new();
+        private readonly List<FlatSheet> _flatSheets = new();
 
         public ICommand RunQuickCommand { get; }
         public ICommand RunOptimizeCommand { get; }
@@ -394,9 +527,6 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public ICommand PreviewZoomOutCommand { get; }
         public ICommand PreviewZoomResetCommand { get; }
 
-        private OptimizationResult _lastResult;
-        private MarginProfile _lastMargins;
-
         // ── ctor ───────────────────────────────────────────────────────
 
         public OptimizationViewModel()
@@ -406,7 +536,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
             ClearPiecesCommand = new RelayCommand(_ => { Pieces.Clear(); RefreshDerived(); });
             LoadReferenceJobCommand = new RelayCommand(_ => LoadReferenceJob());
             RefreshJobsCommand = new RelayCommand(_ => LoadJobsAsync());
-            LoadSelectedJobCommand = new RelayCommand(_ => LoadSelectedJob());
+            AddSelectedPanesCommand = new RelayCommand(_ => AddSelectedPanes());
+            SelectAllPanesCommand = new RelayCommand(_ => SetAllPanesSelected(true));
+            ClearPaneSelectionCommand = new RelayCommand(_ => SetAllPanesSelected(false));
             LoadJobsAsync();
 
             AddStockCommand = new RelayCommand(_ => AddStock());
@@ -423,12 +555,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
             });
             SelectNextSheetCommand = new RelayCommand(_ =>
             {
-                if (_lastResult != null && SelectedSheetIndex < _lastResult.Sheets.Count - 1)
+                if (SelectedSheetIndex < _flatSheets.Count - 1)
                     SelectedSheetIndex++;
             });
             SelectSheetCommand = new RelayCommand(p =>
             {
-                if (p is int idx && _lastResult != null && idx >= 0 && idx < _lastResult.Sheets.Count)
+                if (p is int idx && idx >= 0 && idx < _flatSheets.Count)
                 {
                     SelectedSheetIndex = idx;
                     SelectedTabIndex = 5; // jump straight to the 2D VIEW
@@ -518,8 +650,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     .Take(100))
                 {
                     var snapshot = JobOrderMapper.DeserializeSnapshot(jo);
-                    var plan = ProductionDistributionEngine.Distribute(
-                        jo.JobOrderId, snapshot?.EmbeddedInvoice);
+                    var invoice = snapshot?.EmbeddedInvoice;
+                    var plan = ProductionDistributionEngine.Distribute(jo.JobOrderId, invoice);
 
                     var cut = plan.Items
                         .Where(i => i.Stage == ProductionStage.Cutting && i.WidthMm > 0 && i.HeightMm > 0)
@@ -531,33 +663,88 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         CustomerName = jo.CustomerName
                     };
 
-                    // Merge by glass composition (Step 4/5 spec name) + size —
-                    // the same key the SIZES tab uses. Different row refs of
-                    // the same glass/size collapse into one cut row (they are
-                    // interchangeable on the saw); the refs ride along as the
-                    // label so the 2D view and cut plan stay traceable.
-                    foreach (var g in cut
-                        .GroupBy(i => new { i.SpecName, i.WidthMm, i.HeightMm })
-                        .OrderBy(g => g.Key.SpecName))
+                    // ── Step 4/5 pane decomposition ─────────────────────
+                    // Each spec group becomes its physical panes (Outer /
+                    // Inner / Lam …) with the pane's OWN glass composition,
+                    // using the SAME pane routing the production floor uses
+                    // (W1/H1 = outer, W2/H2 = inner, equal-size fallback).
+                    // Two specs sharing one outer pane (low-e on a clear DGU
+                    // and on an obscure DGU) expose it once per spec — the
+                    // operator checks both and the SIZES merge folds them
+                    // into ONE cutting group by composition.
+                    var groups = (invoice?.SpecGroups ?? new List<SpecGroupSnapshot>())
+                        .Where(g => g != null)
+                        .OrderBy(g => g.GroupNumber)
+                        .ToList();
+
+                    foreach (var group in groups)
                     {
-                        int qty = g.Sum(i => i.Qty);
-                        string label = string.Join(", ",
-                            g.Select(i => i.GlassRef)
-                             .Where(r => !string.IsNullOrWhiteSpace(r))
-                             .Distinct());
-                        opt.Pieces.Add((
-                            g.Key.SpecName ?? string.Empty,
-                            string.IsNullOrWhiteSpace(label) ? "—" : label,
-                            g.Key.WidthMm, g.Key.HeightMm, qty));
+                        string buildType = ProductionDistributionEngine.ResolveBuildType(group, invoice);
+                        var occurrences = ProductionDistributionEngine.ResolvePaneOccurrences(buildType, group);
+
+                        foreach (var occ in occurrences)
+                        {
+                            var paneItems = cut
+                                .Where(i => i.SpecGroupNumber == group.GroupNumber
+                                    && string.Equals(i.Position, occ.Position, StringComparison.OrdinalIgnoreCase))
+                                .ToList();
+                            if (paneItems.Count == 0) continue;
+
+                            string composition = string.IsNullOrWhiteSpace(occ.Composition)
+                                ? group.SelectedSpecName ?? string.Empty
+                                : occ.Composition;
+
+                            var pane = new PaneChoiceVm
+                            {
+                                SpecGroupNumber = group.GroupNumber,
+                                SpecName = group.SelectedSpecName ?? string.Empty,
+                                BuildType = buildType,
+                                Position = occ.Position,
+                                Composition = composition,
+                                Thickness = occ.ThicknessMm > 0
+                                    ? occ.ThicknessMm.ToString(CultureInfo.InvariantCulture) + "mm"
+                                    : ParseThicknessLabel(composition),
+                                Treatment = occ.Treatment
+                            };
+
+                            // merge identical sizes; the row refs ride along
+                            // as the label so the 2D view and cut plan stay
+                            // traceable back to Step 5.
+                            foreach (var sizeGroup in paneItems
+                                .GroupBy(i => new { i.WidthMm, i.HeightMm })
+                                .OrderBy(g => g.Key.WidthMm).ThenBy(g => g.Key.HeightMm))
+                            {
+                                int qty = sizeGroup.Sum(i => i.Qty);
+                                string label = string.Join(", ",
+                                    sizeGroup.Select(i => i.GlassRef)
+                                             .Where(r => !string.IsNullOrWhiteSpace(r))
+                                             .Distinct());
+                                pane.Pieces.Add((
+                                    composition,
+                                    string.IsNullOrWhiteSpace(label) ? "—" : label,
+                                    sizeGroup.Key.WidthMm, sizeGroup.Key.HeightMm, qty));
+                            }
+
+                            pane.TotalPcs = pane.Pieces.Sum(p => p.Qty);
+                            double paneArea = pane.Pieces.Sum(p => p.W / 1000.0 * p.H / 1000.0 * p.Qty);
+                            pane.AreaLabel = paneArea.ToString("0.00", CultureInfo.InvariantCulture) + " m²";
+                            pane.CountLabel = pane.TotalPcs.ToString(CultureInfo.InvariantCulture) + " pcs";
+                            pane.SizesSummary = BuildSizesSummary(pane.Pieces);
+
+                            opt.PaneChoices.Add(pane);
+                            foreach (var p in pane.Pieces) opt.Pieces.Add(p);
+                        }
                     }
 
-                    int pcs = opt.Pieces.Sum(p => p.Qty);
-                    double m2 = opt.Pieces.Sum(p => p.W / 1000.0 * p.H / 1000.0 * p.Qty);
-                    opt.PieceRows = opt.Pieces.Count;
+                    int pcs = opt.PaneChoices.Sum(p => p.TotalPcs);
+                    double m2 = opt.PaneChoices.Sum(p => p.Pieces.Sum(x => x.W / 1000.0 * x.H / 1000.0 * x.Qty));
+                    int specCount = opt.PaneChoices.Select(p => p.SpecGroupNumber).Distinct().Count();
+                    opt.PieceRows = opt.PaneChoices.Count;
                     opt.Summary = string.Format(CultureInfo.InvariantCulture,
-                        "{0} · {1} pcs · {2:0.0} m²", jo.CustomerName, pcs, m2);
+                        "{0} · {1} pcs · {2:0.0} m² · {3} spec(s)",
+                        jo.CustomerName, pcs, m2, specCount);
 
-                    if (opt.Pieces.Count > 0) options.Add(opt);
+                    if (opt.PaneChoices.Count > 0) options.Add(opt);
                 }
 
                 var dispatcher = System.Windows.Application.Current?.Dispatcher;
@@ -601,34 +788,128 @@ namespace ProGlassAutomation.ViewModels.Optimization
             foreach (var item in items) FilteredJobs.Add(item);
         }
 
-        /// <summary>Copies the selected JO's cutting pieces into the run.</summary>
-        private void LoadSelectedJob()
+        // ── composition helpers ─────────────────────────────────────────
+
+        /// <summary>Leading thickness of a glass composition, e.g. "6mm clear …" → "6mm".</summary>
+        private static string ParseThicknessLabel(string? composition)
         {
-            if (SelectedJob == null)
+            var m = System.Text.RegularExpressions.Regex.Match(
+                composition ?? string.Empty, @"^\s*(\d+(?:\.\d+)?)\s*mm");
+            return m.Success ? m.Groups[1].Value + "mm" : string.Empty;
+        }
+
+        /// <summary>Leading thickness in mm (0 when unreadable).</summary>
+        private static int ParseThicknessMm(string? composition)
+        {
+            var m = System.Text.RegularExpressions.Regex.Match(
+                composition ?? string.Empty, @"^\s*(\d+(?:\.\d+)?)\s*mm");
+            return m.Success && int.TryParse(m.Groups[1].Value, NumberStyles.Integer,
+                CultureInfo.InvariantCulture, out int t) ? t : 0;
+        }
+
+        /// <summary>Compact "first sizes + count" preview for a pane choice row.</summary>
+        private static string BuildSizesSummary(List<(string Glass, string Label, int W, int H, int Qty)> pieces)
+        {
+            var parts = new List<string>();
+            int shown = 0;
+            foreach (var p in pieces)
             {
-                RunMessage = "Select a confirmed job order first.";
-                return;
+                parts.Add(p.W.ToString(CultureInfo.InvariantCulture) + "×" + p.H.ToString(CultureInfo.InvariantCulture));
+                if (++shown >= 3) break;
+            }
+            if (pieces.Count > shown) parts.Add("+" + (pieces.Count - shown).ToString(CultureInfo.InvariantCulture) + " more");
+            return string.Join(", ", parts);
+        }
+
+        /// <summary>Shows the selected job's pane checklist for multi-select.</summary>
+        private void PopulateJobPanes(JobOptionVm? job)
+        {
+            foreach (var pane in JobPaneChoices)
+                pane.PropertyChanged -= OnPaneSelectionChanged;
+
+            JobPaneChoices.Clear();
+            if (job != null)
+            {
+                foreach (var pane in job.PaneChoices)
+                {
+                    pane.PropertyChanged += OnPaneSelectionChanged;
+                    JobPaneChoices.Add(pane);
+                }
             }
 
-            Pieces.Clear();
-            foreach (var (glass, label, w, h, qty) in SelectedJob.Pieces)
-            {
-                Pieces.Add(NewPieceRow(
-                    glass, label,
-                    w.ToString(CultureInfo.InvariantCulture),
-                    h.ToString(CultureInfo.InvariantCulture),
-                    qty.ToString(CultureInfo.InvariantCulture)));
-            }
+            HasPaneChoices = JobPaneChoices.Count > 0;
+            RefreshPaneSelectionCount();
+        }
 
-            RefreshDerived();
-            RunMessage = string.Format(CultureInfo.InvariantCulture,
-                "Loaded {0} cutting rows from {1}.", SelectedJob.PieceRows, SelectedJob.JobOrderId);
+        private void OnPaneSelectionChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(PaneChoiceVm.IsSelected)) return;
+            RefreshPaneSelectionCount();
+        }
+
+        private void RefreshPaneSelectionCount()
+        {
+            SelectedPaneCount = JobPaneChoices.Count(p => p.IsSelected);
+        }
+
+        private void SetAllPanesSelected(bool selected)
+        {
+            foreach (var pane in JobPaneChoices) pane.IsSelected = selected;
+            RefreshPaneSelectionCount();
         }
 
         /// <summary>
-        /// Loads the owner's calibration DGU job (Spec 1 low-e + clear
-        /// panes, Spec 2 ramly outers) — the benchmark the engine is
-        /// pinned against (Low-E 17 sheets @ 82.77%).
+        /// Adds the checked panes' cutting pieces to the run. Each piece keeps
+        /// its per-pane glass composition (so SIZES merges the 76 low-e outer
+        /// panes into ONE group, 64 clear and 12 ramly into their own) and its
+        /// pane position for the 2D view.
+        /// </summary>
+        private void AddSelectedPanes()
+        {
+            var selected = JobPaneChoices.Where(p => p.IsSelected).ToList();
+            if (selected.Count == 0)
+            {
+                RunMessage = "Select at least one pane (Step 4/5 outer or inner) to add.";
+                return;
+            }
+
+            int addedPieces = 0;
+            foreach (var pane in selected)
+            {
+                foreach (var (glass, label, w, h, qty) in pane.Pieces)
+                {
+                    var row = NewPieceRow(
+                        glass, label,
+                        w.ToString(CultureInfo.InvariantCulture),
+                        h.ToString(CultureInfo.InvariantCulture),
+                        qty.ToString(CultureInfo.InvariantCulture));
+                    row.Position = pane.Position;
+                    Pieces.Add(row);
+                    addedPieces += qty;
+                }
+            }
+
+            RefreshDerived();
+
+            var compositions = selected
+                .Select(p => p.Composition)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            RunMessage = string.Format(CultureInfo.InvariantCulture,
+                "Added {0} pane(s) → {1} pieces in {2} cutting group(s): {3}.",
+                selected.Count, addedPieces, compositions.Count,
+                string.Join(" · ", compositions));
+        }
+
+        /// <summary>
+        /// Loads the owner's calibration DGU job — the benchmark the engine
+        /// is pinned against (Low-E 17 sheets @ 82.77%). Decomposed exactly
+        /// as Step 4/5 records it:
+        ///   • Spec 1 — "…low e (outer) + 12mm asp + 6mm clear (inner)": 64 units.
+        ///   • Spec 2 — "…low e (outer) + 12mm asp + 6mm obscure ramly (inner)": 12 units.
+        ///   • OUTER = 6mm Climaguard low-e on BOTH specs → 76 pieces.
+        ///   • INNER = 64 clear + 12 ramly obscure.
+        /// Total 152 pieces in three cutting groups.
         /// </summary>
         private void LoadReferenceJob()
         {
@@ -636,44 +917,49 @@ namespace ProGlassAutomation.ViewModels.Optimization
             const string clear = "6mm clear ft glass";
             const string ramly = "6mm obscure clear ramly ft glass";
 
+            // Step 5 rows: ref, W×H (unit size — equal-size DGU, both panes
+            // cut the same), qty. Spec 1 first (34 rows), Spec 2 (12 rows).
+            (string Ref, int W, int H, int Qty)[] spec1 =
+            {
+                ("11",1050,2127,2),("9",1054,2130,2),("10",1055,2130,2),("12",800,1798,2),
+                ("1",905,2536,2),("2",1054,1986,2),("4",854,1981,2),("7",1003,1857,2),
+                ("3",856,1970,2),("8",844,1457,2),("13",650,1382,2),("14",650,1372,2),
+                ("2",605,1471,2),("5",553,1448,2),("SA",499,1430,2),("S",509,1421,2),
+                ("R17",1815,725,1),("R8",1515,530,1),("R10",2013,828,1),("R10",2513,535,1),
+                ("A2",1055,1985,2),("A11",1046,2130,2),("A9",1050,2130,2),("A10",1055,2130,2),
+                ("A7",968,1889,2),("A4",850,1970,2),("A3",837,1984,2),("A1",838,2532,2),
+                ("A14",657,1350,2),("A8",935,1418,2),("A13",652,1350,2),("A5",654,1479,2),
+                ("A6",655,1474,2),("A12",800,1805,2)
+            };
+
+            (string Ref, int W, int H)[] spec2 =
+            {
+                ("A7",525,380),("A11",725,430),("A13",720,430),("A14",720,430),
+                ("A18",725,430),("A19",725,430),("8",520,375),("12",725,430),
+                ("14",710,430),("15",730,430),("19",720,430),("20",720,430)
+            };
+
             Pieces.Clear();
-            void Add(string composition, string label, int w, int h, int qty) =>
-                Pieces.Add(NewPieceRow(
+            void Add(string composition, string position, string label, int w, int h, int qty)
+            {
+                var row = NewPieceRow(
                     composition, label,
                     w.ToString(CultureInfo.InvariantCulture),
                     h.ToString(CultureInfo.InvariantCulture),
-                    qty.ToString(CultureInfo.InvariantCulture)));
+                    qty.ToString(CultureInfo.InvariantCulture));
+                row.Position = position;
+                Pieces.Add(row);
+            }
 
-            // Spec 1 — BIG group.
-            Add(clear, "11", 1050, 2127, 2); Add(clear, "9", 1054, 2130, 2);
-            Add(clear, "10", 1055, 2130, 2); Add(clear, "12", 800, 1798, 2);
-            Add(lowE, "1", 905, 2536, 2); Add(clear, "2", 1054, 1986, 2);
-            Add(clear, "4", 854, 1981, 2); Add(clear, "7", 1003, 1857, 2);
-            Add(clear, "3", 856, 1970, 2); Add(clear, "8", 844, 1457, 2);
-            Add(clear, "13", 650, 1382, 2); Add(clear, "14", 650, 1372, 2);
-            Add(clear, "2S", 605, 1471, 2); Add(clear, "5", 553, 1448, 2);
-            Add(clear, "SA", 499, 1430, 2); Add(clear, "S", 509, 1421, 2);
-            Add(clear, "R17", 1815, 725, 1); Add(clear, "R8", 1515, 530, 1);
-            Add(clear, "R10a", 2013, 828, 1); Add(clear, "R10b", 2513, 535, 1);
+            // 76 low-e OUTER panes — every unit of both specs.
+            foreach (var (r, w, h, q) in spec1) Add(lowE, "Outer", r, w, h, q);
+            foreach (var (r, w, h) in spec2) Add(lowE, "Outer", r, w, h, 1);
+            // 64 clear INNER panes (Spec 1).
+            foreach (var (r, w, h, q) in spec1) Add(clear, "Inner", r, w, h, q);
+            // 12 ramly obscure INNER panes (Spec 2).
+            foreach (var (r, w, h) in spec2) Add(ramly, "Inner", r, w, h, 1);
 
-            // Spec 1 — A group.
-            Add(clear, "A2", 1055, 1985, 2); Add(clear, "A11", 1046, 2130, 2);
-            Add(clear, "A9", 1050, 2130, 2); Add(clear, "A10", 1055, 2130, 2);
-            Add(clear, "A7", 968, 1889, 2); Add(clear, "A4", 850, 1970, 2);
-            Add(clear, "A3", 837, 1984, 2); Add(lowE, "A1", 838, 2532, 2);
-            Add(clear, "A14", 657, 1350, 2); Add(clear, "A8", 935, 1418, 2);
-            Add(clear, "A13", 652, 1350, 2); Add(clear, "A5", 654, 1479, 2);
-            Add(clear, "A6", 655, 1474, 2); Add(clear, "A12", 800, 1805, 2);
-
-            // Spec 2 — ramly outers (clear panes of the obscure DGU).
-            Add(ramly, "A7", 525, 380, 1); Add(ramly, "A11", 725, 430, 1);
-            Add(ramly, "A13", 720, 430, 1); Add(ramly, "A14", 720, 430, 1);
-            Add(ramly, "A18", 725, 430, 1); Add(ramly, "A19", 725, 430, 1);
-            Add(ramly, "8", 520, 375, 1); Add(ramly, "12", 725, 430, 1);
-            Add(ramly, "14", 710, 430, 1); Add(ramly, "15", 730, 430, 1);
-            Add(ramly, "19", 720, 430, 1); Add(ramly, "20", 720, 430, 1);
-
-            RunMessage = "Reference calibration job loaded (80 pieces, 101.6 m²).";
+            RunMessage = "Reference calibration job loaded — 152 pieces: 76 low-e outer · 64 clear inner · 12 ramly inner.";
             RefreshDerived();
         }
 
@@ -712,6 +998,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 SizeGroups.Add(new SizeGroupVm
                 {
                     Composition = grp.Key,
+                    Thickness = ParseThicknessLabel(grp.Key),
                     PieceCount = gCount.ToString(CultureInfo.InvariantCulture),
                     AreaM2 = gArea.ToString("0.00", CultureInfo.InvariantCulture)
                 });
@@ -831,6 +1118,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         PieceLabel = q > 1
                             ? $"{baseLabel} {i + 1}/{q}"
                             : baseLabel,
+                        Position = p.Position ?? string.Empty,
+                        ThicknessMm = ParseThicknessMm(p.GlassRef),
                         WidthMm = w,
                         HeightMm = h,
                         AllowRotate = RotationEnabled
@@ -900,9 +1189,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         /// <summary>
         /// Validates inputs on the UI thread, then runs the packing engine
-        /// on a background thread (UI stays fluid while OPTIMIZE iterates).
-        /// The result is applied back on the dispatcher by
-        /// <see cref="SafeFireAndForget"/>'s captured context.
+        /// per cutting group (glass composition) on a background thread —
+        /// different glass never mixes on a sheet. Results are applied back
+        /// on the dispatcher by <see cref="SafeFireAndForget"/>.
         /// </summary>
         private void Run(string stage)
         {
@@ -913,30 +1202,83 @@ namespace ProGlassAutomation.ViewModels.Optimization
             int effort = int.TryParse(SelectedEffortLevel, NumberStyles.Integer,
                 CultureInfo.InvariantCulture, out int lvl) && lvl >= 1 && lvl <= 5 ? lvl : 3;
             var rotation = RotationEnabled ? RotationPolicy.Free90 : RotationPolicy.Locked;
+            var groups = BuildCuttingGroups(pieces);
 
             IsRunning = true;
             RunStageLabel = stage == "OPTIMIZE"
-                ? $"Optimizing — level {effort.ToString(CultureInfo.InvariantCulture)} · {pieces.Count.ToString(CultureInfo.InvariantCulture)} pieces…"
-                : $"Quick packing — {pieces.Count.ToString(CultureInfo.InvariantCulture)} pieces…";
+                ? $"Optimizing {groups.Count.ToString(CultureInfo.InvariantCulture)} cutting group(s) · level {effort.ToString(CultureInfo.InvariantCulture)}…"
+                : $"Quick packing {groups.Count.ToString(CultureInfo.InvariantCulture)} cutting group(s)…";
             RunMessage = "";
 
             AsyncUtility.SafeFireAndForget(
-                () => RunCoreAsync(stage, pieces, stocks, margins, rotation, effort),
+                () => RunCoreAsync(stage, groups, stocks, margins, rotation, effort),
                 "Optimization run");
         }
 
+        /// <summary>Groups the piece list by glass composition — one pack run each.</summary>
+        private static List<(string Composition, List<CutPiece> Pieces)> BuildCuttingGroups(List<CutPiece> pieces)
+        {
+            return pieces
+                .GroupBy(p => string.IsNullOrWhiteSpace(p.GlassRef)
+                        ? "(unlabelled glass)" : p.GlassRef,
+                    StringComparer.OrdinalIgnoreCase)
+                .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase)
+                .Select(g => (g.Key, g.ToList()))
+                .ToList();
+        }
+
+        /// <summary>
+        /// Thickness-aware margins: when a cutting group's glass thickness
+        /// differs from the MARGINS tab, the group is cut with that
+        /// thickness's house defaults and the note surfaces on the result.
+        /// </summary>
+        private static (MarginProfile Margins, string Note) ResolveGroupMargins(
+            string composition, MarginProfile userMargins)
+        {
+            int thickness = ParseThicknessMm(composition);
+            if (thickness <= 0 || thickness == userMargins.ThicknessMm)
+                return (userMargins, string.Empty);
+            return (MarginProfile.DefaultFor(thickness),
+                "cut with " + thickness.ToString(CultureInfo.InvariantCulture) + "mm house margins");
+        }
+
         private async Task RunCoreAsync(
-            string stage, List<CutPiece> pieces, List<StockSize> stocks,
-            MarginProfile margins, RotationPolicy rotation, int effort)
+            string stage, List<(string Composition, List<CutPiece> Pieces)> groups,
+            List<StockSize> stocks, MarginProfile margins, RotationPolicy rotation, int effort)
         {
             try
             {
-                var result = await Task.Run(() => stage == "OPTIMIZE"
-                    ? GuillotinePacker.PackOptimize(pieces, stocks, margins, rotation, effort)
-                    : GuillotinePacker.PackQuick(pieces, stocks, margins, rotation))
-                    .ConfigureAwait(true);
+                var runs = new List<GroupRun>();
+                foreach (var (composition, groupPieces) in groups)
+                {
+                    var (groupMargins, marginNote) = ResolveGroupMargins(composition, margins);
 
-                ApplyResult(stage, result, margins, rotation);
+                    var result = await Task.Run(() => stage == "OPTIMIZE"
+                        ? GuillotinePacker.PackOptimize(groupPieces, stocks, groupMargins, rotation, effort)
+                        : GuillotinePacker.PackQuick(groupPieces, stocks, groupMargins, rotation))
+                        .ConfigureAwait(true);
+
+                    double glass = result.Sheets.Sum(s => s.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm));
+                    double stockArea = result.Sheets.Sum(s => (long)s.Stock.WidthMm * s.Stock.HeightMm);
+                    int problems = GuillotinePacker.Verify(result, groupMargins).Count;
+
+                    runs.Add(new GroupRun
+                    {
+                        Composition = composition,
+                        Thickness = ParseThicknessLabel(composition),
+                        PieceCount = groupPieces.Count,
+                        Margins = groupMargins,
+                        Result = result,
+                        UtilizationPct = stockArea == 0 ? 0 : glass / stockArea * 100.0,
+                        WasteM2 = Math.Max(0, (stockArea - glass) / 1_000_000.0),
+                        UnplacedLabel = result.Unplaced.Count.ToString(CultureInfo.InvariantCulture),
+                        OracleLabel = problems == 0 ? "Verified" : problems.ToString(CultureInfo.InvariantCulture) + " issue(s)",
+                        SheetsLabel = result.SheetsUsed.ToString(CultureInfo.InvariantCulture),
+                        MarginNote = marginNote
+                    });
+                }
+
+                ApplyResults(stage, runs, rotation);
             }
             finally
             {
@@ -944,62 +1286,93 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
         }
 
-        private void ApplyResult(string stage, OptimizationResult result,
-            MarginProfile margins, RotationPolicy rotation)
+        private void ApplyResults(string stage, List<GroupRun> runs, RotationPolicy rotation)
         {
-            _lastResult = result;
-            _lastMargins = margins;
+            _groupRuns.Clear();
+            _groupRuns.AddRange(runs);
 
-            var problems = GuillotinePacker.Verify(result, margins);
-            double glass = result.Sheets.Sum(s => s.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm));
-            double stockArea = result.Sheets.Sum(s => (long)s.Stock.WidthMm * s.Stock.HeightMm);
+            double glass = runs.Sum(r => r.Result.Sheets.Sum(s => s.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm)));
+            double stockArea = runs.Sum(r => r.Result.Sheets.Sum(s => (long)s.Stock.WidthMm * s.Stock.HeightMm));
             double util = stockArea == 0 ? 0 : glass / stockArea * 100.0;
+            int totalSheets = runs.Sum(r => r.Result.SheetsUsed);
+            int totalUnplaced = runs.Sum(r => r.Result.Unplaced.Count);
+            int totalProblems = runs.Sum(r => GuillotinePacker.Verify(r.Result, r.Margins).Count);
 
             string rotationLabel = rotation == RotationPolicy.Free90 ? "rotation ON" : "rotation LOCKED";
             ResultStage = stage == "OPTIMIZE"
-                ? $"OPTIMIZE · level {SelectedEffortLevel} · {rotationLabel}"
-                : $"QUICK · {rotationLabel}";
-            ResultSheets = result.SheetsUsed.ToString(CultureInfo.InvariantCulture);
+                ? $"OPTIMIZE · level {SelectedEffortLevel} · {rotationLabel} · {runs.Count} cutting group(s)"
+                : $"QUICK · {rotationLabel} · {runs.Count} cutting group(s)";
+            ResultSheets = totalSheets.ToString(CultureInfo.InvariantCulture);
             ResultUtilization = util.ToString("0.00", CultureInfo.InvariantCulture) + "%";
-            ResultUnplaced = result.Unplaced.Count.ToString(CultureInfo.InvariantCulture);
-            OraclePassed = problems.Count == 0;
-            ResultOracle = problems.Count == 0
+            ResultUnplaced = totalUnplaced.ToString(CultureInfo.InvariantCulture);
+            OraclePassed = totalProblems == 0;
+            ResultOracle = totalProblems == 0
                 ? "Verified — no overlaps, margins & kerf respected"
-                : string.Format(CultureInfo.InvariantCulture, "{0} layout issue(s)", problems.Count);
+                : string.Format(CultureInfo.InvariantCulture, "{0} layout issue(s)", totalProblems);
 
             // Waste = consumed stock − placed glass (the offcut the saw leaves).
-            double wasteMm2 = stockArea - glass;
+            double wasteMm2 = Math.Max(0, stockArea - glass);
             ResultWaste = (wasteMm2 / 1_000_000.0).ToString("0.00", CultureInfo.InvariantCulture) + " m²";
             ResultWastePct = stockArea == 0 ? "0.0%"
-                : (wasteMm2 / stockArea * 100.0).ToString("0.0", CultureInfo.InvariantCulture) + "%";
+                : ((stockArea - glass) / stockArea * 100.0).ToString("0.0", CultureInfo.InvariantCulture) + "%";
 
             UnplacedRows.Clear();
-            foreach (var up in result.Unplaced)
+            foreach (var r in runs)
             {
-                string label = string.IsNullOrWhiteSpace(up.PieceLabel) ? up.GlassRef : up.PieceLabel;
-                UnplacedRows.Add(string.Format(CultureInfo.InvariantCulture,
-                    "{0} · {1} × {2} mm", label, up.WidthMm, up.HeightMm));
+                foreach (var up in r.Result.Unplaced)
+                {
+                    string label = string.IsNullOrWhiteSpace(up.PieceLabel) ? up.GlassRef : up.PieceLabel;
+                    UnplacedRows.Add(string.Format(CultureInfo.InvariantCulture,
+                        "{0} · {1} · {2} × {3} mm",
+                        r.Composition, label, up.WidthMm, up.HeightMm));
+                }
             }
             HasUnplaced = UnplacedRows.Count > 0;
 
-            SheetRows.Clear();
-            for (int i = 0; i < result.Sheets.Count; i++)
+            // Per-cutting-group breakdown (composition → sheets / util / waste).
+            GroupResults.Clear();
+            foreach (var r in runs)
             {
-                var sheet = result.Sheets[i];
-                double sheetGlass = sheet.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm);
-                double sheetStock = (long)sheet.Stock.WidthMm * sheet.Stock.HeightMm;
-                double sheetWaste = sheetStock - sheetGlass;
-                double sheetUtil = sheetStock == 0 ? 0 : sheetGlass / sheetStock * 100.0;
-                SheetRows.Add(new SheetRowVm
+                GroupResults.Add(new CuttingGroupResultVm
                 {
-                    SheetNo = (i + 1).ToString(CultureInfo.InvariantCulture),
-                    StockLabel = string.Format(CultureInfo.InvariantCulture,
-                        "{0} × {1}", sheet.Stock.WidthMm, sheet.Stock.HeightMm),
-                    PieceCount = sheet.Pieces.Count.ToString(CultureInfo.InvariantCulture),
-                    Utilization = sheetUtil.ToString("0.0", CultureInfo.InvariantCulture) + "%",
-                    WasteLabel = (sheetWaste / 1_000_000.0).ToString("0.00", CultureInfo.InvariantCulture) + " m²",
-                    Index = i
+                    Composition = r.Composition,
+                    Thickness = r.Thickness,
+                    PieceCount = r.PieceCount.ToString(CultureInfo.InvariantCulture),
+                    Sheets = r.SheetsLabel,
+                    Utilization = r.UtilizationPct.ToString("0.0", CultureInfo.InvariantCulture) + "%",
+                    Waste = r.WasteM2.ToString("0.00", CultureInfo.InvariantCulture) + " m²",
+                    Unplaced = r.UnplacedLabel,
+                    Note = r.MarginNote
                 });
+            }
+
+            // Filmstrip: flatten every sheet across all cutting groups.
+            _flatSheets.Clear();
+            SheetRows.Clear();
+            int flatIndex = 0;
+            foreach (var r in runs)
+            {
+                for (int i = 0; i < r.Result.Sheets.Count; i++)
+                {
+                    var sheet = r.Result.Sheets[i];
+                    double sheetGlass = sheet.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm);
+                    double sheetStock = (long)sheet.Stock.WidthMm * sheet.Stock.HeightMm;
+                    double sheetWaste = sheetStock - sheetGlass;
+                    double sheetUtil = sheetStock == 0 ? 0 : sheetGlass / sheetStock * 100.0;
+                    _flatSheets.Add(new FlatSheet { Run = r, SheetIndex = i });
+                    SheetRows.Add(new SheetRowVm
+                    {
+                        SheetNo = (flatIndex + 1).ToString(CultureInfo.InvariantCulture),
+                        StockLabel = string.Format(CultureInfo.InvariantCulture,
+                            "{0} × {1}", sheet.Stock.WidthMm, sheet.Stock.HeightMm),
+                        PieceCount = sheet.Pieces.Count.ToString(CultureInfo.InvariantCulture),
+                        Utilization = sheetUtil.ToString("0.0", CultureInfo.InvariantCulture) + "%",
+                        WasteLabel = (sheetWaste / 1_000_000.0).ToString("0.00", CultureInfo.InvariantCulture) + " m²",
+                        Composition = r.Composition,
+                        Index = flatIndex
+                    });
+                    flatIndex++;
+                }
             }
 
             HasResult = true;
@@ -1008,8 +1381,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
             RebuildPreview();
 
             RunMessage = string.Format(CultureInfo.InvariantCulture,
-                "{0}: {1} sheet(s), {2:0.00}% utilization, {3} unplaced.",
-                stage, result.SheetsUsed, util, result.Unplaced.Count);
+                "{0}: {1} cutting group(s), {2} sheet(s), {3:0.00}% utilization, {4} unplaced.",
+                stage, runs.Count, totalSheets, util, totalUnplaced);
 
             SelectedTabIndex = 4; // RESULT tab
         }
@@ -1023,8 +1396,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
             SheetRects.Clear();
             RefreshSheetSelection();
 
-            if (_lastResult == null || _lastResult.Sheets.Count == 0 ||
-                SelectedSheetIndex < 0 || SelectedSheetIndex >= _lastResult.Sheets.Count)
+            if (_flatSheets.Count == 0 ||
+                SelectedSheetIndex < 0 || SelectedSheetIndex >= _flatSheets.Count)
             {
                 RenderWidth = 0;
                 RenderHeight = 0;
@@ -1038,7 +1411,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
 
             HasPreview = true;
-            var sheet = _lastResult.Sheets[SelectedSheetIndex];
+            var flat = _flatSheets[SelectedSheetIndex];
+            var result = flat.Run.Result;
+            var sheet = result.Sheets[flat.SheetIndex];
+            var margins = flat.Run.Margins;
+
             double scale = PreviewRenderWidth * PreviewScale / sheet.Stock.WidthMm;
             RenderWidth = PreviewRenderWidth * PreviewScale;
             RenderHeight = sheet.Stock.HeightMm * scale;
@@ -1051,8 +1428,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             MarginZoneLabel = string.Format(CultureInfo.InvariantCulture,
                 "margins LM {0} · RM {1} · TM {2} · BM {3} · kerf {4} mm",
-                _lastMargins.LeftMm, _lastMargins.RightMm,
-                _lastMargins.TopMm, _lastMargins.BottomMm, _lastMargins.KerfMm);
+                margins.LeftMm, margins.RightMm,
+                margins.TopMm, margins.BottomMm, margins.KerfMm);
 
             PreviewStockLabel = string.Format(CultureInfo.InvariantCulture,
                 "{0} × {1} mm", sheet.Stock.WidthMm, sheet.Stock.HeightMm);
@@ -1061,6 +1438,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             foreach (var p in sheet.Pieces)
             {
+                string refLabel = string.IsNullOrWhiteSpace(p.Piece.PieceLabel)
+                    ? p.Piece.GlassRef : p.Piece.PieceLabel;
+                string positionTag = string.IsNullOrWhiteSpace(p.Piece.Position)
+                    ? string.Empty : p.Piece.Position + " · ";
                 SheetRects.Add(new PieceRectVm
                 {
                     X = p.X * scale,
@@ -1068,15 +1449,15 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     Width = System.Math.Max(1, p.WidthMm * scale),
                     Height = System.Math.Max(1, p.HeightMm * scale),
                     Rotated = p.Rotated,
-                    Label = string.Format(CultureInfo.InvariantCulture, "{0} · {1}×{2}{3}",
-                        string.IsNullOrWhiteSpace(p.Piece.PieceLabel) ? p.Piece.GlassRef : p.Piece.PieceLabel,
+                    Label = string.Format(CultureInfo.InvariantCulture, "{0}{1} · {2}×{3}{4}",
+                        positionTag, refLabel,
                         p.Piece.WidthMm, p.Piece.HeightMm, p.Rotated ? " ⟳" : string.Empty)
                 });
             }
 
             PreviewCaption = string.Format(CultureInfo.InvariantCulture,
-                "Sheet {0} of {1} — stock {2} × {3} mm — {4} pieces",
-                SelectedSheetIndex + 1, _lastResult.Sheets.Count,
+                "{0} — sheet {1} of {2} — stock {3} × {4} mm — {5} pieces",
+                flat.Run.Composition, flat.SheetIndex + 1, result.Sheets.Count,
                 sheet.Stock.WidthMm, sheet.Stock.HeightMm, sheet.Pieces.Count);
         }
 

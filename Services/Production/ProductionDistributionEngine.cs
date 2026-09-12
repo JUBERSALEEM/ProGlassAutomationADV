@@ -122,7 +122,7 @@ namespace ProGlassAutomation.Services.Production
             // Pane occurrences are resolved once per spec and shared by the
             // per-spec distribution and the charge distribution (charges now
             // fan out per pane too, so piece quantities flow through them).
-            var occurrenceCache = new Dictionary<int, List<PaneOccurrence>>();
+            var occurrenceCache = new Dictionary<int, IReadOnlyList<PaneOccurrence>>();
 
             foreach (var group in groups)
             {
@@ -203,10 +203,10 @@ namespace ProGlassAutomation.Services.Production
             ProformaInvoiceSnapshot snapshot,
             SpecGroupSnapshot group,
             Dictionary<int, List<string>> assemblyNotes,
-            Dictionary<int, List<PaneOccurrence>> occurrenceCache)
+            Dictionary<int, IReadOnlyList<PaneOccurrence>> occurrenceCache)
         {
             string buildType = ResolveBuildType(group, snapshot);
-            var occurrences = ResolvePaneOccurrences(buildType, group, plan);
+            var occurrences = ResolvePaneOccurrences(buildType, group, plan.Warnings);
             occurrenceCache[group.GroupNumber] = occurrences;
 
             var rows = (group.ItemRows ?? new List<GlassItemRowSnapshot>())
@@ -320,12 +320,44 @@ namespace ProGlassAutomation.Services.Production
         //  PANE OCCURRENCES (position ↔ dimension pair)
         // ────────────────────────────────────────────────────────────────
 
-        /// <summary>One physical cut: label + which dimension pair feeds it.</summary>
-        private sealed class PaneOccurrence
+        /// <summary>
+        /// One physical cut: label + which dimension pair feeds it. Public so
+        /// the Optimization module reuses the SAME pane routing as the floor —
+        /// position, glass composition and treatment can never drift apart.
+        /// </summary>
+        public sealed class PaneOccurrence
         {
             public string Position { get; init; } = "";
             public PaneSlot Slot { get; init; }
             public PnLPane? Pane { get; init; }
+
+            /// <summary>Per-pane glass composition, e.g.
+            /// "6mm hp neutral 70 low e FT glass". Empty when the spec name
+            /// did not parse (callers fall back to the raw spec name).</summary>
+            public string Composition => Pane == null ? string.Empty : PaneDisplayName(Pane);
+
+            /// <summary>Pane glass thickness in mm (0 when unparsed).</summary>
+            public int ThicknessMm => Pane?.ThicknessMm ?? 0;
+
+            /// <summary>FT / Annealed / Heat Strengthened / Heat Soaked / "".</summary>
+            public string Treatment => Pane?.Treatment ?? string.Empty;
+
+            public bool RequiresTempering => Pane?.RequiresTempering ?? false;
+        }
+
+        /// <summary>
+        /// Canonical per-pane glass label — the merge key the optimizer groups
+        /// by, so two specs sharing the same outer pane (e.g. a low-e pane on
+        /// a clear DGU and an obscure DGU) collapse into ONE cutting group.
+        /// </summary>
+        public static string PaneDisplayName(PnLPane pane)
+        {
+            string color = (pane.Color ?? string.Empty).Trim();
+            string treat = (pane.Treatment ?? string.Empty).Trim();
+            string name = $"{pane.ThicknessMm}mm {color}".Trim();
+            if (treat.Length > 0) name += " " + treat;
+            name += " glass";
+            return name;
         }
 
         /// <summary>
@@ -334,8 +366,8 @@ namespace ProGlassAutomation.Services.Production
         /// does not parse, occurrences degrade to treatment-less slots so
         /// the job still flows — with a warning.
         /// </summary>
-        private static List<PaneOccurrence> ResolvePaneOccurrences(
-            string buildType, SpecGroupSnapshot group, ProductionJobPlan plan)
+        public static IReadOnlyList<PaneOccurrence> ResolvePaneOccurrences(
+            string buildType, SpecGroupSnapshot group, IList<string>? warnings = null)
         {
             var panes = new List<PnLPane>();
             try { panes = PnLSpecParser.ResolveAllPanes(group.SelectedSpecName).ToList(); }
@@ -346,7 +378,7 @@ namespace ProGlassAutomation.Services.Production
 
             if (panes.Count == 0 && buildType != "Sgu")
             {
-                plan.Warnings.Add(
+                warnings?.Add(
                     $"Spec {group.GroupNumber} ('{group.SelectedSpecName ?? ""}') could not be parsed — " +
                     "panes are routed without treatment info (assume ANNEALED unless told otherwise).");
             }
@@ -426,7 +458,7 @@ namespace ProGlassAutomation.Services.Production
             ProformaInvoiceSnapshot snapshot,
             List<SpecGroupSnapshot> groups,
             List<PredefinedChargeSnapshot> charges,
-            Dictionary<int, List<PaneOccurrence>> occurrenceCache)
+            Dictionary<int, IReadOnlyList<PaneOccurrence>> occurrenceCache)
         {
             foreach (var charge in charges)
             {

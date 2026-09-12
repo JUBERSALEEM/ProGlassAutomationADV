@@ -276,7 +276,45 @@ Applied on top of the redesign, targeting real shop-floor patterns:
 - **8th stage accent** — `TintTealBrush` added so Doubling/Lamination no
   longer shares Cutting's blue.
 
-## 9. Carried recommendations (not implemented, by design)
+## 9. Step 4/5 pane-aware import + per-composition runs (third commit)
+
+The owner's calibration job is a two-spec DGU: Spec 1 is
+`6mm hp neutral 70 low-e (outer) + 12mm ASP + 6mm clear (inner)` (64 units),
+Spec 2 is the same outer with `6mm obscure clear ramly (inner)` (12 units).
+The correct cutting reality is **three** cutting groups, not two specs:
+
+| Cutting group (pane glass) | Pieces | Source |
+|---|---|---|
+| 6mm Climaguard low-e (OUTER) | **76** | outer pane of Spec 1 (64) + Spec 2 (12) |
+| 6mm clear (INNER) | **64** | inner pane of Spec 1 |
+| 6mm obscure clear ramly (INNER) | **12** | inner pane of Spec 2 |
+
+The previous optimizer grouped cutting items by the **full spec-name string**,
+so the shared low-e outer pane never merged across the two specs and the
+parts list mis-stated the glass. Fixes in this commit:
+
+- **Single source of truth** — `ProductionDistributionEngine.ResolvePaneOccurrences`
+  is now public and returns each spec's physical panes (position, pane glass
+  `Composition`, thickness, treatment), the same routing the floor uses.
+- **JOBS pane breakdown** — selecting a Job Order shows a Step 4/5 **pane
+  checklist** (one row per spec × pane) with multi-select; "Add selected
+  panes → cutting list" merges each pane's sizes into the run with the
+  pane's **own** composition as the merge key.
+- **SIZES merge by pane composition** — the three groups above appear as
+  three merge groups (thickness shown under each).
+- **Per-composition runs** — the run now packs **one glass composition at a
+  time** (different glass never mixes on a sheet, matching the engine
+  benchmark). SUMMARY reports a per-group breakdown (pieces / sheets /
+  utilization / offcut / unplaced) and the filmstrip tags each sheet with
+  its composition; the 2D view caption and piece labels carry the pane
+  position (Outer / Inner).
+- **Thickness-aware margins** — a cutting group whose glass thickness
+  differs from the MARGINS tab is packed with that thickness's house
+  defaults and the note surfaces on the result.
+- **Calibration data corrected** — the reference job now loads the true
+  152 pieces (76 low-e · 64 clear · 12 ramly), matching the benchmark test.
+
+## 10. Carried recommendations (not implemented, by design)
 
 - **2D PNG/PDF sheet export** — house export engine hook (design phase 5).
 - **Sheet Store consumption booking** — confirming a run books `Used +=
