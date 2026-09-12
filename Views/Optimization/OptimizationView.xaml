@@ -86,6 +86,10 @@
                     <TextBlock Text="OPTIMIZATION" Style="{StaticResource ModulePageTitleStyle}"/>
                     <TextBlock Text="Cutting plans that minimize waste — pieces in, sheets out, verified layouts."
                                FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                    <TextBlock Text="{Binding RunMessage}" FontSize="{StaticResource TextBody}"
+                               FontWeight="SemiBold" Foreground="{DynamicResource WarningBrush}"
+                               TextWrapping="Wrap" Margin="0,4,0,0"
+                               Visibility="{Binding HasRunMessage, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                     <StackPanel VerticalAlignment="Center" Margin="0,0,16,0"

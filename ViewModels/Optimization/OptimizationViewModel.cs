@@ -9,8 +9,11 @@
 //               Job-Order picker arrives next phase (source lock:
 //               confirmed JOs only).
 //   • SIZES   — merged thickness+color summary of the piece list.
-//   • STOCKS  — editable stock pool ("best sheet size" rule: smallest
-//               fitting stock is consumed first).
+//   • STOCKS  — Step 4 stock pool: the sheet sizes the selected specs
+//               were quoted on (outer/inner per spec), tagged by pane
+//               composition so each cutting group packs against its own
+//               rack ("best sheet size" rule: smallest fitting stock is
+//               consumed first). Never the whole sheet store.
 //   • MARGINS — per-thickness LM/RM/TM/BM, kerf, minimum breakout,
 //               rotation (enabled by default for all pieces).
 //   • RESULT  — sheets, utilization, unplaced, oracle verdict.
@@ -94,7 +97,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
             PreviewZoomOutCommand = new RelayCommand(_ => PreviewScale -= 0.25);
             PreviewZoomResetCommand = new RelayCommand(_ => PreviewScale = 1.0);
 
-            foreach (var s in DefaultStockPool()) Stocks.Add(s);
+            // The stock pool starts EMPTY — it is populated from the ticked
+            // Job Orders' Step 4 sheet sizes (STOCKS tab rule). No generic
+            // "full rack" is pre-seeded; the run packs each cutting group
+            // against the rack its spec was quoted on.
             RefreshDerived();
         }
     }

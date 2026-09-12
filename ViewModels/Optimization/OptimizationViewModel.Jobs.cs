@@ -60,8 +60,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public List<SpecOptionVm> Specs { get; } = new();
 
             /// <summary>Stock sheet sizes picked in Step 4 (per spec × pane),
-            /// so the STOCKS tab can import the exact rack the job was quoted on.</summary>
-            public List<(int W, int H, string Source)> Step4Sheets { get; } = new();
+            /// tagged with the pane's glass composition so the STOCKS tab can
+            /// route each cutting group to its OWN rack (never the whole store).
+            /// Tuple = (W, H, glass composition, provenance).</summary>
+            public List<(int W, int H, string Composition, string Source)> Step4Sheets { get; } = new();
 
             public int TotalPcs => Specs.Sum(s => s.Layers.Where(l => l.Kind == "Pane").Sum(l => l.TotalPcs));
         }
@@ -310,7 +312,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
                                     : ParseThicknessLabel(composition),
                                 Sub = occ.Position.ToUpperInvariant()
                                     + (string.IsNullOrWhiteSpace(occ.Treatment)
-                                        ? string.Empty : " · " + occ.Treatment)
+                                        ? string.Empty : " · " + occ.Treatment),
+                                // Panes are pre-ticked so a job's sizes import
+                                // with a single click on "Add selected panes";
+                                // the operator can still untick any pane.
+                                IsSelected = true
                             };
 
                             // merge identical sizes; the row refs ride along
@@ -346,17 +352,33 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         }
 
                         if (spec.Layers.Count > 0) opt.Specs.Add(spec);
-                    }
 
-                    // Step 4 stock sheets (the rack the job was quoted on).
-                    foreach (var group in groups)
-                    {
-                        if (group.OuterSheetWidthMm > 0 && group.OuterSheetHeightMm > 0)
-                            opt.Step4Sheets.Add((group.OuterSheetWidthMm, group.OuterSheetHeightMm,
-                                "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture) + " outer"));
-                        if (group.InnerSheetWidthMm > 0 && group.InnerSheetHeightMm > 0)
-                            opt.Step4Sheets.Add((group.InnerSheetWidthMm, group.InnerSheetHeightMm,
-                                "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture) + " inner"));
+                        // Step 4 stock sheets (the rack the job was quoted on),
+                        // tagged with the pane's glass composition so the STOCKS
+                        // tab routes each cutting group to its own rack. The
+                        // composition here is the SAME canonical label used for
+                        // the cutting list, so group→rack matching is exact.
+                        if (spec.Layers.Count > 0)
+                        {
+                            string ComposeForSlot(PaneSlot slot)
+                            {
+                                var o = occurrences.FirstOrDefault(x => x.Slot == slot);
+                                if (o == null) return string.Empty;
+                                return string.IsNullOrWhiteSpace(o.Composition)
+                                    ? (group.SelectedSpecName ?? string.Empty)
+                                    : o.Composition;
+                            }
+
+                            if (group.OuterSheetWidthMm > 0 && group.OuterSheetHeightMm > 0)
+                                opt.Step4Sheets.Add((group.OuterSheetWidthMm, group.OuterSheetHeightMm,
+                                    ComposeForSlot(PaneSlot.Pane1),
+                                    "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture) + " outer"));
+
+                            if (group.InnerSheetWidthMm > 0 && group.InnerSheetHeightMm > 0)
+                                opt.Step4Sheets.Add((group.InnerSheetWidthMm, group.InnerSheetHeightMm,
+                                    ComposeForSlot(PaneSlot.Pane2),
+                                    "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture) + " inner"));
+                        }
                     }
 
                     int pcs = opt.TotalPcs;
@@ -515,6 +537,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
             HasPaneChecklist = PaneChecklist.Count > 0;
 
             RefreshPaneSelectionCount();
+
+            // STOCKS follows the selection: the pool becomes exactly the
+            // ticked jobs' Step 4 sheet sizes (per pane × composition).
+            SyncStocksFromSelectedJobs();
         }
 
         private void OnLayerSelectionChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -556,14 +582,24 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
 
             int addedPieces = 0;
+            int skipped = 0;
             foreach (var layer in selected)
             {
                 foreach (var (glass, label, w, h, qty) in layer.Pieces)
                 {
-                    var row = NewPieceRow(
-                        glass, label,
-                        w.ToString(CultureInfo.InvariantCulture),
-                        h.ToString(CultureInfo.InvariantCulture),
+                    string wText = w.ToString(CultureInfo.InvariantCulture);
+                    string hText = h.ToString(CultureInfo.InvariantCulture);
+
+                    // Guard against double-import: identical glass × size rows
+                    // already in the cutting list are skipped, so clicking
+                    // "Add selected panes" twice never duplicates the list.
+                    bool exists = Pieces.Any(p =>
+                        string.Equals(p.GlassRef, glass, StringComparison.OrdinalIgnoreCase) &&
+                        string.Equals(p.PieceLabel, label, StringComparison.OrdinalIgnoreCase) &&
+                        p.WidthText == wText && p.HeightText == hText);
+                    if (exists) { skipped++; continue; }
+
+                    var row = NewPieceRow(glass, label, wText, hText,
                         qty.ToString(CultureInfo.InvariantCulture));
                     row.Position = layer.Position;
                     Pieces.Add(row);
@@ -578,9 +614,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
             RunMessage = string.Format(CultureInfo.InvariantCulture,
-                "Added {0} pane layer(s) → {1} pieces in {2} cutting group(s): {3}.",
+                "Added {0} pane layer(s) → {1} pieces in {2} cutting group(s): {3}.{4}",
                 selected.Count, addedPieces, compositions.Count,
-                string.Join(" · ", compositions));
+                string.Join(" · ", compositions),
+                skipped > 0
+                    ? " " + skipped.ToString(CultureInfo.InvariantCulture) + " already-imported row(s) skipped."
+                    : string.Empty);
         }
 
         /// <summary>

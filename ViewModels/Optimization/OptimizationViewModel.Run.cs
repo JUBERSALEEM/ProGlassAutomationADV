@@ -132,7 +132,20 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public ICommand RunOptimizeCommand { get; }
 
         private string _runMessage = string.Empty;
-        public string RunMessage { get => _runMessage; private set { _runMessage = value; OnPropertyChanged(); } }
+        public string RunMessage
+        {
+            get => _runMessage;
+            private set
+            {
+                if (_runMessage == value) return;
+                _runMessage = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasRunMessage));
+            }
+        }
+
+        /// <summary>True when a status/validation message should be shown in the header.</summary>
+        public bool HasRunMessage => !string.IsNullOrWhiteSpace(_runMessage);
 
         // ── async run state (progress bar + button gating) ─────────────
         private bool _isRunning;
@@ -155,7 +168,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         private void Run(string stage)
         {
             if (IsRunning) return;
-            if (!TryBuildInputs(out var pieces, out var stocks, out var margins))
+            if (!TryBuildInputs(out var pieces, out var stockPool, out var margins))
                 return;
 
             int effort = int.TryParse(SelectedEffortLevel, NumberStyles.Integer,
@@ -184,7 +197,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             RunMessage = "";
 
             AsyncUtility.SafeFireAndForget(
-                () => RunCoreAsync(stage, groups, stocks, margins, rotation, effort),
+                () => RunCoreAsync(stage, groups, stockPool, margins, rotation, effort),
                 "Optimization run");
         }
 
@@ -215,9 +228,56 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 "cut with " + thickness.ToString(CultureInfo.InvariantCulture) + "mm house margins");
         }
 
+        /// <summary>
+        /// Picks the stock sizes for ONE cutting group. Racks tagged with
+        /// this group's glass composition win (the Step 4 sheet the pane was
+        /// quoted on); manual "any group" racks (empty composition) are the
+        /// fallback, and only if no Step 4 sheet is recorded for the glass do
+        /// we drop back to the whole pool so pieces are never silently lost.
+        /// </summary>
+        private static List<StockSize> ResolveGroupStocks(
+            string composition,
+            List<(StockSize Stock, string Composition)> pool,
+            out string note)
+        {
+            note = string.Empty;
+
+            var matching = pool
+                .Where(t => string.IsNullOrWhiteSpace(t.Composition) ||
+                            string.Equals(t.Composition, composition, StringComparison.OrdinalIgnoreCase))
+                .Select(t => t.Stock)
+                .ToList();
+            matching = DistinctBySize(matching);
+            if (matching.Count > 0) return matching;
+
+            // No Step 4 sheet for this glass — use the manual racks if any.
+            var manual = pool
+                .Where(t => string.IsNullOrWhiteSpace(t.Composition))
+                .Select(t => t.Stock)
+                .ToList();
+            manual = DistinctBySize(manual);
+            if (manual.Count > 0)
+            {
+                note = "no Step 4 sheet — packed on manual racks";
+                return manual;
+            }
+
+            // Nothing dedicated and nothing manual: keep the run alive with
+            // every available rack rather than dropping the pieces.
+            var all = DistinctBySize(pool.Select(t => t.Stock).ToList());
+            if (all.Count > 0) note = "no Step 4 sheet — packed on other specs' racks";
+            return all;
+        }
+
+        private static List<StockSize> DistinctBySize(List<StockSize> stocks) =>
+            stocks.GroupBy(s => (s.WidthMm, s.HeightMm))
+                  .Select(g => g.First())
+                  .ToList();
+
         private async Task RunCoreAsync(
             string stage, List<(string Composition, List<CutPiece> Pieces)> groups,
-            List<StockSize> stocks, MarginProfile margins, RotationPolicy rotation, int effort)
+            List<(StockSize Stock, string Composition)> stockPool,
+            MarginProfile margins, RotationPolicy rotation, int effort)
         {
             try
             {
@@ -226,9 +286,20 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 {
                     var (groupMargins, marginNote) = ResolveGroupMargins(composition, margins);
 
+                    // Each cutting group packs against ITS OWN Step 4 rack
+                    // (the sheet its pane was quoted on), falling back to
+                    // manual "any group" racks only when no Step 4 sheet is
+                    // recorded for that glass.
+                    var groupStocks = ResolveGroupStocks(composition, stockPool, out string stockNote);
+                    string note = string.IsNullOrWhiteSpace(stockNote)
+                        ? marginNote
+                        : (string.IsNullOrWhiteSpace(marginNote)
+                            ? stockNote
+                            : marginNote + " · " + stockNote);
+
                     var result = await Task.Run(() => stage == "OPTIMIZE"
-                        ? GuillotinePacker.PackOptimize(groupPieces, stocks, groupMargins, rotation, effort)
-                        : GuillotinePacker.PackQuick(groupPieces, stocks, groupMargins, rotation))
+                        ? GuillotinePacker.PackOptimize(groupPieces, groupStocks, groupMargins, rotation, effort)
+                        : GuillotinePacker.PackQuick(groupPieces, groupStocks, groupMargins, rotation))
                         .ConfigureAwait(true);
 
                     double glass = result.Sheets.Sum(s => s.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm));
@@ -247,7 +318,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         UnplacedLabel = result.Unplaced.Count.ToString(CultureInfo.InvariantCulture),
                         OracleLabel = problems == 0 ? "Verified" : problems.ToString(CultureInfo.InvariantCulture) + " issue(s)",
                         SheetsLabel = result.SheetsUsed.ToString(CultureInfo.InvariantCulture),
-                        MarginNote = marginNote
+                        MarginNote = note
                     });
                 }
 

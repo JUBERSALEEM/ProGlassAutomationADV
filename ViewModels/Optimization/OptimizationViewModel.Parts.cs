@@ -165,6 +165,17 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // 12 ramly obscure INNER panes (Spec 2).
             foreach (var (r, w, h) in spec2) Add(ramly, "Inner", r, w, h, 1);
 
+            // STOCKS: the benchmark rack set — each cutting group packs
+            // against its OWN Step 4 rack so the run reproduces the owner's
+            // reference exactly (Low-E 17 sheets @ 82.77% on 3210×2250;
+            // ramly 1 sheet on 2500×1875). Composition tags route each glass
+            // group to its own rack instead of a shared pool.
+            Stocks.Clear();
+            Stocks.Add(new StockEntryVm("3210", "2250", lowE, "reference · low-e outer rack"));
+            Stocks.Add(new StockEntryVm("3210", "2250", clear, "reference · clear inner rack"));
+            Stocks.Add(new StockEntryVm("2500", "1875", ramly, "reference · ramly inner rack"));
+            StocksStatusText = "Reference racks loaded — low-e & clear pack on 3210×2250, ramly on 2500×1875.";
+
             RunMessage = "Reference calibration job loaded — 152 pieces: 76 low-e outer · 64 clear inner · 12 ramly inner.";
             RefreshDerived();
         }

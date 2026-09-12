@@ -74,10 +74,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
         }
 
         private bool TryBuildInputs(
-            out List<CutPiece> pieces, out List<StockSize> stocks, out MarginProfile margins)
+            out List<CutPiece> pieces, out List<(StockSize Stock, string Composition)> stocks, out MarginProfile margins)
         {
             pieces = new List<CutPiece>();
-            stocks = new List<StockSize>();
+            stocks = new List<(StockSize Stock, string Composition)>();
             margins = null;
 
             foreach (var p in Pieces)
@@ -125,7 +125,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 }
                 int max = int.TryParse(s.AvailableText, NumberStyles.Integer,
                     CultureInfo.InvariantCulture, out int a) ? System.Math.Max(0, a) : 0;
-                stocks.Add(new StockSize { WidthMm = w, HeightMm = h, MaxSheets = max });
+                stocks.Add((new StockSize { WidthMm = w, HeightMm = h, MaxSheets = max },
+                    s.Composition ?? string.Empty));
             }
             if (stocks.Count == 0)
             {

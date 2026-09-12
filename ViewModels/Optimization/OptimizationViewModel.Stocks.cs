@@ -35,9 +35,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
             private string _availableText = "99999999"; // effectively unlimited — usage is tracked, not capped
             private string _usedLabel = string.Empty;
             private string _sourceLabel = string.Empty;
+            private string _composition = string.Empty;
 
             public StockEntryVm(string w, string h) { _widthText = w; _heightText = h; }
             public StockEntryVm(string w, string h, string source) { _widthText = w; _heightText = h; _sourceLabel = source; }
+            public StockEntryVm(string w, string h, string composition, string source)
+            {
+                _widthText = w; _heightText = h; _composition = composition ?? string.Empty; _sourceLabel = source;
+            }
 
             public string WidthText { get => _widthText; set { _widthText = value; OnPropertyChanged(); } }
             public string HeightText { get => _heightText; set { _heightText = value; OnPropertyChanged(); } }
@@ -54,6 +59,31 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             /// <summary>Provenance, e.g. "Step 4 · Spec 1 outer".</summary>
             public string SourceLabel { get => _sourceLabel; set { if (_sourceLabel == value) return; _sourceLabel = value; OnPropertyChanged(); } }
+
+            /// <summary>
+            /// The glass composition (cutting group) this rack belongs to.
+            /// Empty = a manual "any glass" rack used by every group without
+            /// its own Step 4 sheet. This is what routes each cutting group
+            /// to its OWN Step 4 rack instead of a shared pool.
+            /// </summary>
+            public string Composition
+            {
+                get => _composition;
+                set
+                {
+                    if (_composition == value) return;
+                    _composition = value ?? string.Empty;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(CompositionLabel));
+                    OnPropertyChanged(nameof(HasComposition));
+                }
+            }
+
+            /// <summary>Human label for the rack's owner ("All groups" for manual racks).</summary>
+            public string CompositionLabel =>
+                string.IsNullOrWhiteSpace(_composition) ? "Any group" : _composition;
+
+            public bool HasComposition => !string.IsNullOrWhiteSpace(_composition);
         }
 
         public ObservableCollection<StockEntryVm> Stocks { get; } = new();
@@ -64,12 +94,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
         private StockEntryVm _newStock = new("3210", "2250", "manual");
         public StockEntryVm NewStock { get => _newStock; private set { _newStock = value; OnPropertyChanged(); } }
 
-        private static IEnumerable<StockEntryVm> DefaultStockPool()
+        private string _stocksStatusText = "Tick a Job Order — its Step 4 sheet sizes become the stock pool for this run.";
+        /// <summary>Feedback line on the STOCKS tab (which job/sheets feed the pool).</summary>
+        public string StocksStatusText
         {
-            yield return new StockEntryVm("3210", "2250", "default rack");
-            yield return new StockEntryVm("2500", "1875", "default rack");
-            yield return new StockEntryVm("2440", "1830", "default rack");
-            yield return new StockEntryVm("3660", "2440", "default rack");
+            get => _stocksStatusText;
+            private set { if (_stocksStatusText == value) return; _stocksStatusText = value; OnPropertyChanged(); }
         }
 
         // ── stock ops ──────────────────────────────────────────────────
@@ -86,52 +116,74 @@ namespace ProGlassAutomation.ViewModels.Optimization
             var row = new StockEntryVm(
                 w.ToString(CultureInfo.InvariantCulture),
                 h.ToString(CultureInfo.InvariantCulture),
+                string.Empty, // manual rack — applies to any cutting group
                 "manual")
             { AvailableText = NewStock.AvailableText };
             Stocks.Add(row);
             RunMessage = string.Empty;
+            StocksStatusText = "Manual rack added — it serves any cutting group without its own Step 4 sheet.";
         }
 
         private void RemoveStock(StockEntryVm entry)
         {
-            if (entry != null && Stocks.Count > 1) Stocks.Remove(entry);
+            if (entry != null) Stocks.Remove(entry);
         }
 
         /// <summary>
-        /// Pulls the Step 4 chosen stock sheets of every ticked Job Order
-        /// into the pool (deduped by size). The job's Step 4 sheet = the
-        /// exact rack the factory quoted on, so the optimizer packs against
-        /// it instead of a generic pool.
+        /// Replaces the stock pool with the Step 4 chosen sheets of every
+        /// ticked Job Order (deduped by size × glass). The job's Step 4
+        /// sheet = the exact rack the factory quoted on, tagged with the
+        /// pane's glass composition so each cutting group packs against its
+        /// own rack — never the whole sheet store.
         /// </summary>
         private void ImportStockFromStep4()
         {
-            var sheets = SelectedJobs.SelectMany(j => j.Step4Sheets).ToList();
-            if (sheets.Count == 0)
+            if (!SelectedJobs.Any())
             {
-                RunMessage = "Tick a Job Order first — its Step 4 sheets import into the stock pool.";
+                StocksStatusText = "Tick a Job Order first — its Step 4 sheets import into the stock pool.";
+                RunMessage = StocksStatusText;
                 return;
             }
 
-            int added = 0;
-            foreach (var (w, h, source) in sheets)
+            int count = SyncStocksFromSelectedJobs();
+            StocksStatusText = count == 0
+                ? "No Step 4 sheet sizes recorded on the selected job(s) — add a rack manually."
+                : string.Format(CultureInfo.InvariantCulture,
+                    "Stock pool = {0} Step 4 sheet size(s) from the selected job(s) — available = unlimited (usage-tracked).",
+                    count);
+            RunMessage = string.Empty;
+        }
+
+        /// <summary>
+        /// Rebuilds <see cref="Stocks"/> so it contains ONLY the Step 4 sheet
+        /// sizes of the ticked Job Orders (outer/inner per spec), tagged by
+        /// their pane's glass composition. Runs automatically whenever the
+        /// job selection changes; manual racks the operator adds survive
+        /// until the next selection change. Returns the number of rows.
+        /// </summary>
+        private int SyncStocksFromSelectedJobs()
+        {
+            var sheets = SelectedJobs.SelectMany(j => j.Step4Sheets).ToList();
+
+            Stocks.Clear();
+            var seen = new HashSet<(int W, int H, string C)>();
+            foreach (var (w, h, composition, source) in sheets)
             {
-                bool exists = Stocks.Any(s =>
-                    int.TryParse(s.WidthText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int ew) &&
-                    int.TryParse(s.HeightText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int eh) &&
-                    ew == w && eh == h);
-                if (exists) continue;
+                if (w <= 0 || h <= 0) continue;
+                string comp = (composition ?? string.Empty).Trim();
+                if (!seen.Add((w, h, comp))) continue;
 
                 Stocks.Add(new StockEntryVm(
                     w.ToString(CultureInfo.InvariantCulture),
                     h.ToString(CultureInfo.InvariantCulture),
+                    comp,
                     "Step 4 · " + source));
-                added++;
             }
 
-            RunMessage = added == 0
-                ? "Step 4 sheets are already in the stock pool."
-                : string.Format(CultureInfo.InvariantCulture,
-                    "Imported {0} Step 4 stock sheet size(s) — available = unlimited (usage-tracked).", added);
+            if (sheets.Count == 0 && Stocks.Count == 0)
+                StocksStatusText = "Tick a Job Order — its Step 4 sheet sizes become the stock pool for this run.";
+
+            return Stocks.Count;
         }
 
         private void RefreshStockUsage(List<GroupRun> runs)
