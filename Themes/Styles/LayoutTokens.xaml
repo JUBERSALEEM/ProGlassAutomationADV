@@ -1,0 +1,51 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Themes/Styles/LayoutTokens.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: ProGlass Design System — LAYOUT LAYER (Level 5 · density)
+
+     WHY THIS FILE
+       The master design-system directive requires an information-dense ERP
+       layout axis with Compact / Comfortable / Spacious variants — no
+       consumer-app whitespace — while keeping the PI industrial station
+       (Rail / WorkDeck / ProductViewport / CommandFooter) as module-level
+       compositions.
+
+       The density ENGINE already exists: ThemeManager.ApplyDisplayDensity
+       publishes DensityInputHeight / DensityButtonHeight / DensityRowHeight /
+       DensityTitleFontSize / DensityKpiValueFontSize / DensityBodyFontSize /
+       DensityButtonMinWidth / DensityCardPadding / DensityStripPadding /
+       DensityPageMargin live (Compact · Normal · Comfortable), with
+       LightTheme/DarkTheme fallbacks so they resolve before the manager
+       runs. Views already bind those keys.
+
+       This file only adds the canonical ProGlassLayout.* vocabulary over
+       the same runtime keys, so new modules consume ONE name. DynamicResource
+       is correct here — the values switch at runtime with density, and with
+       Light/Dark and the active visual family.
+
+     WHAT LAYOUT IS NOT
+       Workspace / Station / Rail / Deck / Grid / List / Queue are
+       COMPOSITIONS of surfaces + grids + these density tokens, and they stay
+       where they already are: ShellStyles (workspace shell), PiIndustrial-
+       Styles (PiStationRail / PiWorkDeck / PiProductViewport /
+       PiCommandFooter / PiCostTile), ListPageStyles (ModuleListShell / rows),
+       DataGridStyles (line-item grids). See the architecture doc for the
+       full layout map. They are NOT flattened into tokens here.
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ── DENSITY · ProGlassLayout (runtime-switched) ───────────────── -->
+    <DynamicResource x:Key="ProGlassLayout.RowHeight"       ResourceKey="DensityRowHeight"/>
+    <DynamicResource x:Key="ProGlassLayout.InputHeight"     ResourceKey="DensityInputHeight"/>
+    <DynamicResource x:Key="ProGlassLayout.ButtonHeight"    ResourceKey="DensityButtonHeight"/>
+    <DynamicResource x:Key="ProGlassLayout.ButtonMinWidth"  ResourceKey="DensityButtonMinWidth"/>
+    <DynamicResource x:Key="ProGlassLayout.TitleFontSize"   ResourceKey="DensityTitleFontSize"/>
+    <DynamicResource x:Key="ProGlassLayout.KpiFontSize"     ResourceKey="DensityKpiValueFontSize"/>
+    <DynamicResource x:Key="ProGlassLayout.BodyFontSize"    ResourceKey="DensityBodyFontSize"/>
+    <DynamicResource x:Key="ProGlassLayout.CardPadding"     ResourceKey="DensityCardPadding"/>
+    <DynamicResource x:Key="ProGlassLayout.SectionPadding"  ResourceKey="DensityStripPadding"/>
+    <DynamicResource x:Key="ProGlassLayout.PageMargin"      ResourceKey="DensityPageMargin"/>
+
+</ResourceDictionary>

@@ -45,6 +45,12 @@
                      DesignTokens so every downstream dictionary and view can
                      consume the semantic vocabulary. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/SemanticTokens.xaml"/>
+                <!-- ProGlass Design System LAYOUT LAYER (2026-09-13).
+                     Additive canonical density vocabulary (ProGlassLayout.*)
+                     over the runtime Density* keys published by
+                     ThemeManager.ApplyDisplayDensity (Light/Dark fallbacks
+                     exist). Merged with the other canonical token layers. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/LayoutTokens.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ShellStyles.xaml"/>
 
                 <!-- ── Shared style dictionaries (order matters for BasedOn chains) ── -->
