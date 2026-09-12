@@ -1642,9 +1642,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             foreach (var s in Stocks)
             {
+                int n = 0;
                 bool known = int.TryParse(s.WidthText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int w) &&
                              int.TryParse(s.HeightText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int h) &&
-                             used.TryGetValue((w, h), out int n);
+                             used.TryGetValue((w, h), out n);
                 s.UsedLabel = known
                     ? n.ToString(CultureInfo.InvariantCulture) + (n == 1 ? " sheet used" : " sheets used")
                     : string.Empty;
