@@ -1859,7 +1859,7 @@
     <sys:String x:Key="Settings.CrystalBubbleIntensity">气泡强度</sys:String>
     <sys:String x:Key="Settings.CrystalCausticIntensity">焦散强度</sys:String>
     <sys:String x:Key="Settings.CrystalMaterialHint">六个实时轴调校水晶水面 — 水、焦散、气泡与反射。玻璃、边框和阴影的不透明度保持设计原样。</sys:String>
-    <sys:String x:Key="Settings.CrystalOnlyIos17pm">仅当 iPhone 17 Pro Max 主题处于活动状态时才会显示 Crystal Fluid 调校。Normal 和 Monet 在外观中保留卡片形状和渐变控件。</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">仅当 iPhone 17 Pro Max 主题处于活动状态时才会显示 Crystal Fluid 调校。Industrial 和 Monet 在外观中保留卡片形状和渐变控件。</sys:String>
     <sys:String x:Key="Settings.CrystalPreviewHint">实时预览 — 与实际屏幕相同的水面。</sys:String>
     <sys:String x:Key="Settings.CrystalReflectionOpacity">反射不透明度</sys:String>
     <sys:String x:Key="Settings.CrystalWaterOpacity">水面不透明度</sys:String>
@@ -2012,7 +2012,7 @@
     <sys:String x:Key="Settings.NewHereLoadSmallLinkedDemoDatasetExplore">新来的？加载一个小型关联演示数据集来探索每个模块 — 仅在空数据库上。</sys:String>
     <sys:String x:Key="Settings.NoJobsYetGenerateSelectedGenerateStart">还没有作业。选择[生成所选]或[生成全部]开始录制。</sys:String>
     <sys:String x:Key="Settings.NoUpdateHistoryYetCheckUpdatesRecordFirst">还没有更新历史。检查更新以记录第一条。</sys:String>
-    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal、Monet 或 iPhone 17 Pro Max — 立即重新设计整个应用。Normal 是默认：一个干净、专业的 ERP 设计系统，适应浅色和深色。Monet 从您的强调色派生调色板；iPhone 17 Pro Max 是仅浅色的水晶流体外观。</sys:String>
+    <sys:String x:Key="Settings.NormalMonetIos17pm">Industrial、Monet 或 iPhone 17 Pro Max — 立即重新设计整个应用。Industrial 是默认：一个干净、专业的 ERP 设计系统，适应浅色和深色。Monet 从您的强调色派生调色板；iPhone 17 Pro Max 是仅浅色的水晶流体外观。</sys:String>
     <sys:String x:Key="Settings.NothingTaughtYet">还没有教授任何内容。</sys:String>
     <sys:String x:Key="Settings.OPENOutput">打开输出</sys:String>
     <sys:String x:Key="Settings.OPENRecordings">打开录制</sys:String>

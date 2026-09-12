@@ -1859,7 +1859,7 @@
     <sys:String x:Key="Settings.CrystalBubbleIntensity">شدة الفقاعات</sys:String>
     <sys:String x:Key="Settings.CrystalCausticIntensity">شدة الانعكاس الضوئي</sys:String>
     <sys:String x:Key="Settings.CrystalMaterialHint">ستة محاور حية تضبط الماء البلوري — الماء والانعكاسات والفقاعات. تبقى شفافية الزجاج والحواف والظلال على مظهرها الأصلي.</sys:String>
-    <sys:String x:Key="Settings.CrystalOnlyIos17pm">يظهر ضبط Crystal Fluid فقط عندما يكون مظهر iPhone 17 Pro Max نشطًا. يحتفظ Normal و Monet بأدوات شكل البطاقة والتدرجات في قسم المظهر.</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">يظهر ضبط Crystal Fluid فقط عندما يكون مظهر iPhone 17 Pro Max نشطًا. يحتفظ Industrial و Monet بأدوات شكل البطاقة والتدرجات في قسم المظهر.</sys:String>
     <sys:String x:Key="Settings.CrystalPreviewHint">معاينة حية — نفس سطح الماء المستخدم في الشاشات الحقيقية.</sys:String>
     <sys:String x:Key="Settings.CrystalReflectionOpacity">شفافية الانعكاس</sys:String>
     <sys:String x:Key="Settings.CrystalWaterOpacity">شفافية الماء</sys:String>
@@ -2012,7 +2012,7 @@
     <sys:String x:Key="Settings.NewHereLoadSmallLinkedDemoDatasetExplore">جديد هنا؟ حمّل مجموعة بيانات تجريبية صغيرة مترابطة لاستكشاف كل وحدة — فقط على قاعدة بيانات فارغة.</sys:String>
     <sys:String x:Key="Settings.NoJobsYetGenerateSelectedGenerateStart">لا مهام بعد. استخدم توليد المحدد أو توليد جميع الوحدات لبدء التسجيل.</sys:String>
     <sys:String x:Key="Settings.NoUpdateHistoryYetCheckUpdatesRecordFirst">لا سجل تحديثات بعد. تحقق من التحديثات لتسجيل الإدخال الأول.</sys:String>
-    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal أو Monet أو iPhone 17 Pro Max — يعيد تشكيل التطبيق بالكامل فورًا. Normal هو الافتراضي: نظام تصميم ERP احترافي نظيف يتكيف مع الفاتح والداكن. يشتق Monet لوحته من لون التمييز الخاص بك؛ أما iPhone 17 Pro Max فهو المظهر البلوري السائل الخاص بالوضع الفاتح فقط.</sys:String>
+    <sys:String x:Key="Settings.NormalMonetIos17pm">Industrial أو Monet أو iPhone 17 Pro Max — يعيد تشكيل التطبيق بالكامل فورًا. Industrial هو الافتراضي: نظام تصميم ERP احترافي نظيف يتكيف مع الفاتح والداكن. يشتق Monet لوحته من لون التمييز الخاص بك؛ أما iPhone 17 Pro Max فهو المظهر البلوري السائل الخاص بالوضع الفاتح فقط.</sys:String>
     <sys:String x:Key="Settings.NothingTaughtYet">لم يتم تعليم أي شيء بعد.</sys:String>
     <sys:String x:Key="Settings.OPENOutput">فتح المخرجات</sys:String>
     <sys:String x:Key="Settings.OPENRecordings">فتح التسجيلات</sys:String>

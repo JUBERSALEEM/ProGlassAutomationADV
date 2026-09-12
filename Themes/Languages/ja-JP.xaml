@@ -1859,7 +1859,7 @@
     <sys:String x:Key="Settings.CrystalBubbleIntensity">気泡の強度</sys:String>
     <sys:String x:Key="Settings.CrystalCausticIntensity">コースティクス強度</sys:String>
     <sys:String x:Key="Settings.CrystalMaterialHint">6つのライブ軸でクリスタルウォーターを調整します（水、コースティクス、気泡、反射）。ガラス・枠線・影の不透明度はデザイン通りの見た目を維持します。</sys:String>
-    <sys:String x:Key="Settings.CrystalOnlyIos17pm">Crystal Fluid の調整は iPhone 17 Pro Max テーマがアクティブなときだけ表示されます。Normal と Monet はカード形状とグラデーションのコントロールを外観で維持します。</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">Crystal Fluid の調整は iPhone 17 Pro Max テーマがアクティブなときだけ表示されます。Industrial と Monet はカード形状とグラデーションのコントロールを外観で維持します。</sys:String>
     <sys:String x:Key="Settings.CrystalPreviewHint">ライブプレビュー — 実際の画面と同じ水面。</sys:String>
     <sys:String x:Key="Settings.CrystalReflectionOpacity">反射の不透明度</sys:String>
     <sys:String x:Key="Settings.CrystalWaterOpacity">水の不透明度</sys:String>
@@ -2012,7 +2012,7 @@
     <sys:String x:Key="Settings.NewHereLoadSmallLinkedDemoDatasetExplore">初めてですか？リンクされた小さなデモデータセットを読み込んで全モジュールを探索 — 空のデータベースのみ。</sys:String>
     <sys:String x:Key="Settings.NoJobsYetGenerateSelectedGenerateStart">まだジョブがありません。[選択を生成] または [すべて生成] で録画を開始します。</sys:String>
     <sys:String x:Key="Settings.NoUpdateHistoryYetCheckUpdatesRecordFirst">まだ更新履歴がありません。更新を確認して最初のエントリを記録してください。</sys:String>
-    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal、Monet、またはiPhone 17 Pro Max — アプリ全体を即座に再スタイル。Normalがデフォルト: ライト/ダークに適応するクリーンでプロフェッショナルなERPデザインシステム。Monetはアクセントカラーからパレットを導出し、iPhone 17 Pro Maxはライト専用のクリスタルフルイドルックです。</sys:String>
+    <sys:String x:Key="Settings.NormalMonetIos17pm">Industrial、Monet、またはiPhone 17 Pro Max — アプリ全体を即座に再スタイル。Industrialがデフォルト: ライト/ダークに適応するクリーンでプロフェッショナルなERPデザインシステム。Monetはアクセントカラーからパレットを導出し、iPhone 17 Pro Maxはライト専用のクリスタルフルイドルックです。</sys:String>
     <sys:String x:Key="Settings.NothingTaughtYet">まだ何も教えられていません。</sys:String>
     <sys:String x:Key="Settings.OPENOutput">出力を開く</sys:String>
     <sys:String x:Key="Settings.OPENRecordings">録画を開く</sys:String>

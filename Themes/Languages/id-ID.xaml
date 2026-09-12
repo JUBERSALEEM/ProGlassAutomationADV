@@ -1859,7 +1859,7 @@
     <sys:String x:Key="Settings.CrystalBubbleIntensity">Intensitas gelembung</sys:String>
     <sys:String x:Key="Settings.CrystalCausticIntensity">Intensitas kaustik</sys:String>
     <sys:String x:Key="Settings.CrystalMaterialHint">Enam sumbu langsung menyetel air kristal — air, kaustik, gelembung, dan pantulan. Opasitas kaca, tepi, dan bayangan tetap pada tampilan aslinya.</sys:String>
-    <sys:String x:Key="Settings.CrystalOnlyIos17pm">Penyetelan Crystal Fluid hanya muncul saat tema iPhone 17 Pro Max aktif. Normal dan Monet tetap memakai kontrol bentuk kartu dan gradien di Appearance.</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">Penyetelan Crystal Fluid hanya muncul saat tema iPhone 17 Pro Max aktif. Industrial dan Monet tetap memakai kontrol bentuk kartu dan gradien di Appearance.</sys:String>
     <sys:String x:Key="Settings.CrystalPreviewHint">Pratinjau langsung — permukaan air yang sama seperti layar asli.</sys:String>
     <sys:String x:Key="Settings.CrystalReflectionOpacity">Opasitas pantulan</sys:String>
     <sys:String x:Key="Settings.CrystalWaterOpacity">Opasitas air</sys:String>
@@ -2012,7 +2012,7 @@
     <sys:String x:Key="Settings.NewHereLoadSmallLinkedDemoDatasetExplore">Baru di sini? Muat set data demo tertaut kecil untuk menjelajahi setiap modul — hanya pada basis data kosong.</sys:String>
     <sys:String x:Key="Settings.NoJobsYetGenerateSelectedGenerateStart">Belum ada pekerjaan. Generate Selected atau Generate All untuk memulai rekaman.</sys:String>
     <sys:String x:Key="Settings.NoUpdateHistoryYetCheckUpdatesRecordFirst">Belum ada riwayat pembaruan. Periksa pembaruan untuk mencatat entri pertama.</sys:String>
-    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal, Monet, atau iPhone 17 Pro Max — menggayakan ulang seluruh aplikasi seketika. Normal adalah default: sistem desain ERP yang bersih dan profesional yang beradaptasi dengan Terang dan Gelap. Monet menurunkan paletnya dari warna aksen Anda; iPhone 17 Pro Max adalah tampilan crystal-fluid khusus Terang.</sys:String>
+    <sys:String x:Key="Settings.NormalMonetIos17pm">Industrial, Monet, atau iPhone 17 Pro Max — menggayakan ulang seluruh aplikasi seketika. Industrial adalah default: sistem desain ERP yang bersih dan profesional yang beradaptasi dengan Terang dan Gelap. Monet menurunkan paletnya dari warna aksen Anda; iPhone 17 Pro Max adalah tampilan crystal-fluid khusus Terang.</sys:String>
     <sys:String x:Key="Settings.NothingTaughtYet">Belum ada yang diajarkan.</sys:String>
     <sys:String x:Key="Settings.OPENOutput">BUKA OUTPUT</sys:String>
     <sys:String x:Key="Settings.OPENRecordings">BUKA REKAMAN</sys:String>

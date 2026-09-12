@@ -48,7 +48,9 @@ namespace ProGlassAutomation.Services.Theme
         /// picker never reads "X — X".</summary>
         public static readonly (string Key, string Label)[] All =
         {
-            (VisualThemeEngine.Normal,           "Studio"),
+            // The strict industrial default renders the calm Studio sweep
+            // over its flat slate stage.
+            (VisualThemeEngine.NormalIndustrial, "Studio"),
             (VisualThemeEngine.Monet,            "Golden Hour"),
             // Crystal Fluid's §22 pale luminous water environment.
             (VisualThemeEngine.CrystalFluid,     "Crystal Waters"),
@@ -67,7 +69,7 @@ namespace ProGlassAutomation.Services.Theme
                 var (h, s, _) = ColorMath.ToHsl(accent);
 
                 string f = string.IsNullOrWhiteSpace(family)
-                    ? VisualThemeEngine.Normal
+                    ? VisualThemeEngine.NormalIndustrial
                     : family!;
 
                 if (f == VisualThemeEngine.CrystalFluid) return CrystalFluidScene(dark);

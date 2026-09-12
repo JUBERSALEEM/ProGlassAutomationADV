@@ -130,24 +130,23 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                 config.Appearance ??= new AppearanceSettings();
                 config.DataConnectivity ??= new DataConnectivitySettings();
 
-                // ── One-time theme migration (2026-09-12) ────────────────
-                // The 2026-09-07 migration upgraded saved "Normal" configs
-                // to "Normal (Industrial)". That family is now retired from
-                // the 4-family switcher (Normal / Monet / iPhone 17 Pro Max
-                // / iOS 26), so any saved "Normal (Industrial)" value must
-                // fold back to the single global default "Normal". The
-                // VisualThemeMigrated flag makes this run EXACTLY ONCE per
-                // install: a user who later deliberately re-picks a family
-                // keeps it, because the flag is already set.
+                // ── One-time theme migration (2026-09-13) ────────────────
+                // The strict industrial look is the app-wide default again
+                // (owner: "strictness industrial pattern"). Saved configs
+                // still pinned to the cream SaaS "Normal" are folded once
+                // to "Normal (Industrial)". The VisualThemeMigrated flag
+                // makes this run EXACTLY ONCE per install: a user who later
+                // deliberately re-picks a family keeps it, because the flag
+                // is already set.
                 if (!config.Appearance.VisualThemeMigrated)
                 {
                     config.Appearance.VisualThemeMigrated = true;
                     if (string.Equals(config.Appearance.VisualTheme,
-                            VisualThemeEngine.NormalIndustrial,
+                            VisualThemeEngine.Normal,
                             StringComparison.Ordinal))
                     {
                         config.Appearance.VisualTheme =
-                            VisualThemeEngine.Normal;
+                            VisualThemeEngine.NormalIndustrial;
                     }
                 }
 

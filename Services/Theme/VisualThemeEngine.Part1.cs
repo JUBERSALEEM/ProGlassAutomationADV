@@ -66,19 +66,18 @@ namespace ProGlassAutomation.Services.Theme
         /// are PERSISTED keys — configs, profiles and window state store
         /// them verbatim, so they can never be renamed in place. Display
         /// names are a pure view concern and live only here.
-        /// The Crystal Fluid family is surfaced to the user as
-        /// "iPhone 17 Pro Max" (the authored water-glass design system,
-        /// previously labelled "Ios-17pm").</summary>
+        /// The strict industrial family is surfaced as "Industrial"; the
+        /// Crystal Fluid family as "iPhone 17 Pro Max".</summary>
         public static string FamilyDisplayName(string family) =>
-            family == CrystalFluid ? "iPhone 17 Pro Max" : family;
+            family == NormalIndustrial ? "Industrial"
+            : family == CrystalFluid ? "iPhone 17 Pro Max"
+            : family;
 
         /// <summary>The Light/Dark mode a family PROMISES by design —
         /// true = Dark, false = Light, null = respects the user's own
-        /// mode choice. 2026-09-06 theme reduction: Normal and Monet
+        /// mode choice. Industrial (Normal Industrial), Monet and iOS 26
         /// follow the user's Light/Dark toggle; Crystal Fluid
-        /// (iPhone 17 Pro Max) is LIGHT-ONLY and snaps to Light.
-        /// 2026-09-12 consolidation: iOS 26 also follows the user's
-        /// mode exactly like Normal.</summary>
+        /// (iPhone 17 Pro Max) is LIGHT-ONLY and snaps to Light.</summary>
         public static bool? ModePairFor(string? family) =>
             family == CrystalFluid ? (bool?)false : null;
 

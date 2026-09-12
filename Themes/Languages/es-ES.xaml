@@ -1859,7 +1859,7 @@
     <sys:String x:Key="Settings.CrystalBubbleIntensity">Intensidad de burbujas</sys:String>
     <sys:String x:Key="Settings.CrystalCausticIntensity">Intensidad de cáusticos</sys:String>
     <sys:String x:Key="Settings.CrystalMaterialHint">Seis ejes en vivo ajustan el agua cristalina: agua, cáusticos, burbujas y reflejo. La opacidad del cristal, el borde y la sombra mantienen su aspecto diseñado.</sys:String>
-    <sys:String x:Key="Settings.CrystalOnlyIos17pm">El ajuste Crystal Fluid aparece solo cuando el tema iPhone 17 Pro Max está activo. Normal y Monet conservan sus controles de forma de tarjeta y degradados en Apariencia.</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">El ajuste Crystal Fluid aparece solo cuando el tema iPhone 17 Pro Max está activo. Industrial y Monet conservan sus controles de forma de tarjeta y degradados en Apariencia.</sys:String>
     <sys:String x:Key="Settings.CrystalPreviewHint">Vista previa en vivo: la misma superficie de agua que usan las pantallas reales.</sys:String>
     <sys:String x:Key="Settings.CrystalReflectionOpacity">Opacidad del reflejo</sys:String>
     <sys:String x:Key="Settings.CrystalWaterOpacity">Opacidad del agua</sys:String>
@@ -2012,7 +2012,7 @@
     <sys:String x:Key="Settings.NewHereLoadSmallLinkedDemoDatasetExplore">¿Nuevo aquí? Cargue un pequeño conjunto demo vinculado para explorar cada módulo — solo en una base de datos vacía.</sys:String>
     <sys:String x:Key="Settings.NoJobsYetGenerateSelectedGenerateStart">Aún no hay trabajos. Use Generar seleccionados o Generar todos para iniciar una grabación.</sys:String>
     <sys:String x:Key="Settings.NoUpdateHistoryYetCheckUpdatesRecordFirst">Aún no hay historial de actualizaciones. Busque actualizaciones para registrar la primera entrada.</sys:String>
-    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal, Monet o iPhone 17 Pro Max — rediseña toda la app al instante. Normal es el predeterminado: un sistema de diseño ERP limpio y profesional que se adapta a Claro y Oscuro. Monet deriva su paleta de tu color de acento; iPhone 17 Pro Max es el aspecto cristal-fluido solo en Claro.</sys:String>
+    <sys:String x:Key="Settings.NormalMonetIos17pm">Industrial, Monet o iPhone 17 Pro Max — rediseña toda la app al instante. Industrial es el predeterminado: un sistema de diseño ERP limpio y profesional que se adapta a Claro y Oscuro. Monet deriva su paleta de tu color de acento; iPhone 17 Pro Max es el aspecto cristal-fluido solo en Claro.</sys:String>
     <sys:String x:Key="Settings.NothingTaughtYet">Aún no se ha enseñado nada.</sys:String>
     <sys:String x:Key="Settings.OPENOutput">ABRIR SALIDA</sys:String>
     <sys:String x:Key="Settings.OPENRecordings">ABRIR GRABACIONES</sys:String>

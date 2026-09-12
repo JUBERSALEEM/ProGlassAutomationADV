@@ -29,13 +29,14 @@ namespace ProGlassAutomation.Tests.Theme
 {
     public class ThemeRegistryParityTests
     {
-        // The complete family catalogue (2026-09-12 consolidation, owner
-        // ask: "keep only 4"): Normal, Monet, iPhone 17 Pro Max (Crystal
-        // Fluid) and iOS 26. Normal (Industrial) is retired from the
-        // switcher and folds to Normal via the engine's Normalize mapping.
+        // The complete family catalogue (2026-09-13 industrial reform,
+        // owner ask: "strictness industrial pattern"): Industrial (Normal
+        // Industrial, the default), Monet, iPhone 17 Pro Max (Crystal
+        // Fluid) and iOS 26. The cream SaaS "Normal" folds to Normal
+        // (Industrial) via the engine's Normalize mapping.
         private static readonly string[] AllFamilies =
         {
-            VisualThemeEngine.Normal,
+            VisualThemeEngine.NormalIndustrial,
             VisualThemeEngine.Monet,
             VisualThemeEngine.CrystalFluid,
             VisualThemeEngine.Ios26,
@@ -160,11 +161,11 @@ namespace ProGlassAutomation.Tests.Theme
         // ── F-06: mode coupling lives in the engine ─────────────────────
 
         [Theory]
-        [InlineData(VisualThemeEngine.Normal, null)]
+        [InlineData(VisualThemeEngine.NormalIndustrial, null)]
         [InlineData(VisualThemeEngine.Monet, null)]
         [InlineData(VisualThemeEngine.Ios26, null)]
         // Crystal Fluid (iPhone 17 Pro Max) is light-only (2026-09-05
-        // product decision); Normal, Monet and iOS 26 respect the
+        // product decision); Industrial, Monet and iOS 26 respect the
         // user's own mode.
         [InlineData(VisualThemeEngine.CrystalFluid, false)]
         public void ModePairFor_OnlyCrystalFluidCouplesTheMode(

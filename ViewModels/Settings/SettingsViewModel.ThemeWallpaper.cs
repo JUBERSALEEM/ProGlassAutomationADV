@@ -38,12 +38,12 @@ namespace ProGlassAutomation.ViewModels.Settings
     public sealed partial class SettingsViewModel : ViewModelBase, IDisposable
     {
         // ══════════════════════════════════════════════════════════════
-        //  v2 — VISUAL THEME & WALLPAPER. Family catalogue (2026-09-12
-        //       consolidation, owner ask: "keep only 4"): Normal / Monet /
-        //       iPhone 17 Pro Max (Crystal Fluid) / iOS 26. The
-        //       "Normal (Industrial)" family is retired from the
-        //       switcher — saved configs referencing it resolve to
-        //       Normal via the engine's Normalize mapping.
+        //  v2 — VISUAL THEME & WALLPAPER. Family catalogue (2026-09-13
+        //       industrial reform, owner ask: "strictness industrial
+        //       pattern"): Industrial (Normal Industrial, default) /
+        //       Monet / iPhone 17 Pro Max (Crystal Fluid) / iOS 26.
+        //       The cream SaaS "Normal" folds into Industrial via the
+        //       engine's Normalize mapping.
         // ══════════════════════════════════════════════════════════════
 
         /// <summary>One selectable visual family. Display pairs the family
@@ -72,7 +72,9 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public List<VisualThemeOptionRow> VisualThemeOptions { get; } = new()
         {
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Normal),
+            // Industrial (strict default): flat slate stage, white cards,
+            // navy ink, defined card edges, dense radii.
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.NormalIndustrial),
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Monet),
             // iPhone 17 Pro Max: the water-glass family (Crystal Fluid).
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.CrystalFluid),
@@ -83,7 +85,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         public string SelectedVisualTheme
         {
             get => _config?.Appearance?.VisualTheme
-                ?? ProGlassAutomation.Services.Theme.VisualThemeEngine.Normal;
+                ?? ProGlassAutomation.Services.Theme.VisualThemeEngine.NormalIndustrial;
             set
             {
                 if (_config == null || string.IsNullOrEmpty(value))

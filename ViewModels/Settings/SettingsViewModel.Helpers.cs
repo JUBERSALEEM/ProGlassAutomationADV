@@ -217,8 +217,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                     ProGlassAutomation.Services.Theme.VisualThemeEngine
                         .LastRequestedModule) &&
                 ProGlassAutomation.Services.Theme.VisualThemeEngine.Current ==
-                    ProGlassAutomation.Services.Theme.VisualThemeEngine.Normal &&
-                (_config?.Appearance?.VisualTheme ?? "Normal") != "Normal")
+                    ProGlassAutomation.Services.Theme.VisualThemeEngine.NormalIndustrial &&
+                (_config?.Appearance?.VisualTheme ?? "Normal (Industrial)") != "Normal (Industrial)")
             {
                 ApplyVisualTheme();
             }

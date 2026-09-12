@@ -492,31 +492,32 @@ namespace ProGlassAutomation.Services.Theme
             {
                 Monet => Monet,
                 CrystalFluid => CrystalFluid,
-                // 2026-09-12 fix: "iOS 26" was missing from this switch,
-                // so selecting it in the switcher silently fell through
-                // to Normal and the whole iOS 26 family did 0% of its
-                // work. Register it as a first-class family.
+                // "iOS 26" is a first-class family (the Liquid Glass
+                // application-wide look).
                 Ios26 => Ios26,
-                // 2026-09-12 consolidation (owner: "keep only 4"): the
-                // industrial family is retired from the switcher. Saved
-                // "Normal (Industrial)" and every legacy industrial name
-                // now resolve to Normal — the single global default.
-                NormalIndustrial => Normal,
+                // 2026-09-13 INDUSTRIAL REFORM (owner: "strictness
+                // industrial pattern"): the strict industrial look is the
+                // app-wide default again. The cream SaaS "Normal" folds
+                // into it, and every legacy industrial name resolves back
+                // to Normal (Industrial) — the single global default.
+                Normal => NormalIndustrial,
+                NormalIndustrial => NormalIndustrial,
                 // Legacy transparent-glass names keep landing on Crystal
-                // Fluid (Ios-17pm), never on a missing family.
+                // Fluid (iPhone 17 Pro Max), never on a missing family.
                 "Ultra Transparent" => CrystalFluid,
                 "Transparent" => CrystalFluid,
                 "Clear" => CrystalFluid,
                 "Crystal" => CrystalFluid,
                 "Crystal Sea" => CrystalFluid,
-                "Professional" => Normal,
-                "Industrial" => Normal,
-                "Industrial White" => Normal,
-                "Industrial Grey" => Normal,
-                "Industrial Dark" => Normal,
+                "Professional" => NormalIndustrial,
+                "Industrial" => NormalIndustrial,
+                "Industrial White" => NormalIndustrial,
+                "Industrial Grey" => NormalIndustrial,
+                "Industrial Dark" => NormalIndustrial,
                 // Every other removed family (iOS Liquid Glass, Ocean) and
-                // any unknown saved value resets to Normal (the default).
-                _ => Normal
+                // any unknown saved value resets to Normal (Industrial) —
+                // the strict industrial default.
+                _ => NormalIndustrial
             };
         }
 

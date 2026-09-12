@@ -1859,7 +1859,7 @@
     <sys:String x:Key="Settings.CrystalBubbleIntensity">Интенсивность пузырей</sys:String>
     <sys:String x:Key="Settings.CrystalCausticIntensity">Интенсивность каустики</sys:String>
     <sys:String x:Key="Settings.CrystalMaterialHint">Шесть живых осей настраивают хрустальную воду — воду, каустику, пузыри и отражение. Непрозрачность стекла, рамок и теней сохраняет заданный вид.</sys:String>
-    <sys:String x:Key="Settings.CrystalOnlyIos17pm">Настройка Crystal Fluid появляется только при активной теме iPhone 17 Pro Max. Normal и Monet сохраняют свои элементы управления формой карточек и градиентами во «Внешнем виде».</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">Настройка Crystal Fluid появляется только при активной теме iPhone 17 Pro Max. Industrial и Monet сохраняют свои элементы управления формой карточек и градиентами во «Внешнем виде».</sys:String>
     <sys:String x:Key="Settings.CrystalPreviewHint">Живой предпросмотр — та же водная поверхность, что и на реальных экранах.</sys:String>
     <sys:String x:Key="Settings.CrystalReflectionOpacity">Непрозрачность отражения</sys:String>
     <sys:String x:Key="Settings.CrystalWaterOpacity">Непрозрачность воды</sys:String>
@@ -2012,7 +2012,7 @@
     <sys:String x:Key="Settings.NewHereLoadSmallLinkedDemoDatasetExplore">Впервые здесь? Загрузите небольшой связанный демо-набор, чтобы изучить каждый модуль — только на пустой базе данных.</sys:String>
     <sys:String x:Key="Settings.NoJobsYetGenerateSelectedGenerateStart">Пока нет заданий. Сгенерируйте выбранное или всё, чтобы начать запись.</sys:String>
     <sys:String x:Key="Settings.NoUpdateHistoryYetCheckUpdatesRecordFirst">Истории обновлений пока нет. Проверьте наличие обновлений, чтобы записать первую запись.</sys:String>
-    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal, Monet или iPhone 17 Pro Max — мгновенно переоформляет всё приложение. Normal — по умолчанию: чистая профессиональная ERP-дизайн-система, адаптирующаяся к светлой и тёмной теме. Monet строит палитру из вашего акцентного цвета; iPhone 17 Pro Max — кристально-жидкий вид только в светлой теме.</sys:String>
+    <sys:String x:Key="Settings.NormalMonetIos17pm">Industrial, Monet или iPhone 17 Pro Max — мгновенно переоформляет всё приложение. Industrial — по умолчанию: чистая профессиональная ERP-дизайн-система, адаптирующаяся к светлой и тёмной теме. Monet строит палитру из вашего акцентного цвета; iPhone 17 Pro Max — кристально-жидкий вид только в светлой теме.</sys:String>
     <sys:String x:Key="Settings.NothingTaughtYet">Пока ничего не обучено.</sys:String>
     <sys:String x:Key="Settings.OPENOutput">ОТКРЫТЬ ВЫВОД</sys:String>
     <sys:String x:Key="Settings.OPENRecordings">ОТКРЫТЬ ЗАПИСИ</sys:String>
