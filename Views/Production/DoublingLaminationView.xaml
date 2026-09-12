@@ -40,7 +40,7 @@
                     VerticalAlignment="Center" Margin="0,0,14,0">
                 <TextBlock Text="{Binding Icon}"
                            FontFamily="Segoe MDL2 Assets"
-                           FontSize="26"
+                           FontSize="{StaticResource TextDisplay}"
                            Foreground="{DynamicResource AccentBrush}"
                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Border>
@@ -48,7 +48,7 @@
             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding ModuleName}" Style="{StaticResource ModulePageTitleStyle}"/>
-                    <Border CornerRadius="9" Background="{DynamicResource DashAmbientBrush}"
+                    <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}"
                             Padding="10,3" Margin="12,0,0,0" VerticalAlignment="Center">
                         <TextBlock Text="{Binding StageOrdinalLabel}"
                                    FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
@@ -177,7 +177,7 @@
                             <DataGridTemplateColumn Header="STATUS" Width="150">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Border CornerRadius="10" Padding="10,3"
+                                        <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,3"
                                                 HorizontalAlignment="Left" VerticalAlignment="Center">
                                             <Border.Style>
                                                 <Style TargetType="Border">

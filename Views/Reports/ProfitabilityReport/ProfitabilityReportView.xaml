@@ -270,13 +270,13 @@
                                             <StackPanel Grid.Column="6" VerticalAlignment="Center">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Visibility="{Binding HasCostData, Converter={StaticResource BoolToVisibilityConverter}}" Background="{DynamicResource TintGreenBrush}">
-                                                        <TextBlock Text="COSTED" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                                        <TextBlock Text="COSTED" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                                                     </Border>
                                                     <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Visibility="{Binding HasCostData, Converter={StaticResource InverseBoolToVisibilityConverter}}" Background="{DynamicResource TintAmberBrush}">
-                                                        <TextBlock Text="NOT COSTED" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                                                        <TextBlock Text="NOT COSTED" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
                                                     </Border>
                                                     <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Margin="4,0,0,0" Background="{DynamicResource TintAmberBrush}" Visibility="{Binding IsStaleCost, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                        <TextBlock Text="STALE" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                                                        <TextBlock Text="STALE" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
                                                     </Border>
                                                 </StackPanel>
                                                 <TextBlock Text="{Binding CostSource}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,2,0,0" ToolTip="{Binding CostSource}"/>

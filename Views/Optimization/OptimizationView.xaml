@@ -29,16 +29,16 @@
             <DockPanel>
                 <!-- Brand -->
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="18,22,18,24">
-                    <Border Width="34" Height="34" CornerRadius="9" Background="{DynamicResource AccentBrush}"
+                    <Border Width="34" Height="34" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource AccentBrush}"
                             VerticalAlignment="Center">
-                        <TextBlock Text="&#xE80A;" FontFamily="Segoe MDL2 Assets" FontSize="18"
+                        <TextBlock Text="&#xE80A;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitle}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
                         <TextBlock Text="PROGLASS" FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Text="OPTIMIZATION" FontSize="10" FontWeight="SemiBold"
+                        <TextBlock Text="OPTIMIZATION" FontSize="{StaticResource TextXSmall}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource AccentBrush}"/>
                     </StackPanel>
                 </StackPanel>
@@ -130,7 +130,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Border Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintBlueBrush}">
-                                <TextBlock Text="&#xE821;" FontFamily="Segoe MDL2 Assets" FontSize="18"
+                                <TextBlock Text="&#xE821;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitle}"
                                            Foreground="{DynamicResource AccentBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
@@ -153,7 +153,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Border Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintGreenBrush}">
-                                <TextBlock Text="&#xE80A;" FontFamily="Segoe MDL2 Assets" FontSize="18"
+                                <TextBlock Text="&#xE80A;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitle}"
                                            Foreground="{DynamicResource SuccessBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
@@ -176,7 +176,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Border Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintAmberBrush}">
-                                <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="18"
+                                <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitle}"
                                            Foreground="{DynamicResource WarningBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
@@ -199,7 +199,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Border Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintTealBrush}">
-                                <TextBlock Text="&#xE8A7;" FontFamily="Segoe MDL2 Assets" FontSize="18"
+                                <TextBlock Text="&#xE8A7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitle}"
                                            Foreground="{DynamicResource InfoBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>

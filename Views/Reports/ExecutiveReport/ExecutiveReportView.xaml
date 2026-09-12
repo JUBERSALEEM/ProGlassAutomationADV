@@ -148,7 +148,7 @@
                                                             </Style>
                                                         </TextBlock.Style>
                                                     </TextBlock>
-                                                    <TextBlock Text="step conv." FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Right"/>
+                                                    <TextBlock Text="step conv." FontSize="{StaticResource TextXSmall}" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Right"/>
                                                 </StackPanel>
                                             </Grid>
                                         </DataTemplate>

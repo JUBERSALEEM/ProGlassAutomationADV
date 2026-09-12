@@ -58,7 +58,7 @@
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="ChipBorder"
-                                            CornerRadius="10"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Padding="10,6"
                                             Background="{DynamicResource ModuleBackgroundBrush}"
                                             BorderBrush="{DynamicResource GlassBorderGradientSoft}"
@@ -73,7 +73,7 @@
                                                        Margin="0,0,8,0"/>
                                             <TextBlock Text="{Binding Icon}"
                                                        FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="15"
+                                                       FontSize="{StaticResource TextSection}"
                                                        Foreground="{DynamicResource AccentBrush}"
                                                        VerticalAlignment="Center"
                                                        Margin="0,0,8,0"/>

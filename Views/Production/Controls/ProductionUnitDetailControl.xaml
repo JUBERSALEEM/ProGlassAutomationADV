@@ -61,7 +61,7 @@
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Icon}" FontFamily="Segoe MDL2 Assets" FontSize="22"
+                        <TextBlock Text="{Binding Icon}" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextHeadline}"
                                    Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <TextBlock Text="{Binding ModuleName}" Style="{StaticResource ModulePageTitleStyle}"
                                    VerticalAlignment="Center"/>
@@ -71,7 +71,7 @@
                     <TextBlock Text="{Binding Description}" Style="{StaticResource ModulePageSubtitleStyle}" Margin="0,2,0,0"/>
                 </StackPanel>
 
-                <Border Grid.Column="2" CornerRadius="9" Background="{DynamicResource TintTealBrush}"
+                <Border Grid.Column="2" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintTealBrush}"
                         Padding="14,5" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="JOB " FontSize="{StaticResource TextCaption}" FontWeight="Bold"
@@ -204,7 +204,7 @@
                                        Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <TextBlock Text="COMPLETED" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
-                            <Border CornerRadius="9" Background="{DynamicResource DashAmbientBrush}"
+                            <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}"
                                     Padding="10,3" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding CompletedStageItems.Count, StringFormat={}{0} rows}"
                                            FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
@@ -341,7 +341,7 @@
                         <TextBlock Text="DISPATCH" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,8"/>
                         <StackPanel Orientation="Horizontal">
-                            <Border CornerRadius="8" Background="{DynamicResource DashAmbientBrush}" Padding="12,6" Margin="0,0,8,0">
+                            <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}" Padding="12,6" Margin="0,0,8,0">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="FINISHED " FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
@@ -349,7 +349,7 @@
                                                Foreground="{DynamicResource SuccessBrush}"/>
                                 </StackPanel>
                             </Border>
-                            <Border CornerRadius="8" Background="{DynamicResource DashAmbientBrush}" Padding="12,6" Margin="0,0,8,0">
+                            <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}" Padding="12,6" Margin="0,0,8,0">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="DELIVERED " FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
@@ -357,7 +357,7 @@
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                 </StackPanel>
                             </Border>
-                            <Border CornerRadius="8" Background="{DynamicResource DashAmbientBrush}" Padding="12,6">
+                            <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}" Padding="12,6">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="BALANCE " FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>

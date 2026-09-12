@@ -223,10 +223,10 @@
                                                         <TextBlock Text="{Binding CompanyName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
                                                         <StackPanel Orientation="Horizontal">
                                                             <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Visibility="{Binding IsSavedCompany, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                                <TextBlock Text="ON FILE" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                                                <TextBlock Text="ON FILE" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                                                             </Border>
                                                             <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Margin="4,0,0,0" Visibility="{Binding IsDefault, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                                <TextBlock Text="DEFAULT" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                                                <TextBlock Text="DEFAULT" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                                             </Border>
                                                             <TextBlock Text="{Binding CompanyLocation}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="6,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                                                         </StackPanel>

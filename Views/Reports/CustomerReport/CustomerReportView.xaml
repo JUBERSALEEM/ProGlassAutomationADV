@@ -232,7 +232,7 @@
                                                         <TextBlock Text="{Binding CustomerName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
                                                         <StackPanel Orientation="Horizontal">
                                                             <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Visibility="{Binding IsSavedClient, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                                <TextBlock Text="SAVED" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                                                <TextBlock Text="SAVED" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                                                             </Border>
                                                             <TextBlock Text="{Binding CustomerReferenceCode}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="6,0,0,0" VerticalAlignment="Center"/>
                                                         </StackPanel>

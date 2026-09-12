@@ -71,15 +71,15 @@
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                TextTrimming="CharacterEllipsis" Margin="0,1,0,8"/>
                                                     <StackPanel Orientation="Horizontal">
-                                                        <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="6" Padding="8,3">
+                                                        <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.Small}" Padding="8,3">
                                                             <TextBlock Text="{Binding PiecesLabel}" FontSize="{StaticResource TextXSmall}"
                                                                        FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
                                                         </Border>
-                                                        <Border Background="{DynamicResource TintAmberBrush}" CornerRadius="6" Padding="8,3" Margin="6,0,0,0">
+                                                        <Border Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource Radius.Small}" Padding="8,3" Margin="6,0,0,0">
                                                             <TextBlock Text="{Binding AreaLabel}" FontSize="{StaticResource TextXSmall}"
                                                                        FontWeight="SemiBold" Foreground="{DynamicResource WarningBrush}"/>
                                                         </Border>
-                                                        <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="6" Padding="8,3" Margin="6,0,0,0">
+                                                        <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource Radius.Small}" Padding="8,3" Margin="6,0,0,0">
                                                             <TextBlock Text="{Binding SpecCountLabel}" FontSize="{StaticResource TextXSmall}"
                                                                        FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}"/>
                                                         </Border>

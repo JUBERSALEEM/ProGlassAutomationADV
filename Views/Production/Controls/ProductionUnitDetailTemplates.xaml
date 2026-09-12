@@ -19,7 +19,7 @@
                         <TextBlock Text="{Binding OuterGridTitle}" FontSize="{StaticResource TextSubhead}"
                                    FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    VerticalAlignment="Center"/>
-                        <Border CornerRadius="9" Background="{DynamicResource DashAmbientBrush}"
+                        <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}"
                                 Padding="10,3" Margin="10,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="{Binding OuterStageItems.Count, StringFormat={}{0} rows}"
                                        FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
@@ -131,7 +131,7 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="INNER" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
-                        <Border CornerRadius="9" Background="{DynamicResource DashAmbientBrush}"
+                        <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}"
                                 Padding="10,3" Margin="10,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="{Binding InnerStageItems.Count, StringFormat={}{0} rows}"
                                        FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"

@@ -285,10 +285,10 @@
                                                 <!-- Compact warning chips so the state is legible without hover. -->
                                                 <StackPanel Orientation="Horizontal" Margin="0,2,0,0" Visibility="{Binding HasWarning, Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <Border Background="{DynamicResource TintGrayBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Visibility="{Binding IsDraft, Converter={StaticResource BoolToVisibilityConverter}}" ToolTip="Draft — not yet sent or approved">
-                                                        <TextBlock Text="DRAFT" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                        <TextBlock Text="DRAFT" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                                     </Border>
                                                     <Border Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Margin="4,0,0,0" Visibility="{Binding IsMissingLineItems, Converter={StaticResource BoolToVisibilityConverter}}" ToolTip="No glass line items — Step 5 not completed">
-                                                        <TextBlock Text="NO ITEMS" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                                                        <TextBlock Text="NO ITEMS" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
                                                     </Border>
                                                 </StackPanel>
                                             </StackPanel>

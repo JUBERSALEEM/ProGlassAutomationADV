@@ -275,7 +275,7 @@
                                                             <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
                                                         </Style>
                                                     </Border.Style>
-                                                    <TextBlock Text="PI" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                                    <TextBlock Text="PI" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                                 </Border>
                                                 <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="4,1" Margin="1,0" ToolTip="{Binding JobOrderId}">
                                                     <Border.Style>
@@ -288,7 +288,7 @@
                                                             </Style.Triggers>
                                                         </Style>
                                                     </Border.Style>
-                                                    <TextBlock Text="JO" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                    <TextBlock Text="JO" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                                 </Border>
                                                 <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="4,1" Margin="1,0" ToolTip="{Binding DeliveryNoteId}">
                                                     <Border.Style>
@@ -301,7 +301,7 @@
                                                             </Style.Triggers>
                                                         </Style>
                                                     </Border.Style>
-                                                    <TextBlock Text="DN" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                    <TextBlock Text="DN" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                                 </Border>
                                                 <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="4,1" Margin="1,0" ToolTip="{Binding TaxInvoiceNumber}">
                                                     <Border.Style>
@@ -314,7 +314,7 @@
                                                             </Style.Triggers>
                                                         </Style>
                                                     </Border.Style>
-                                                    <TextBlock Text="TI" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                    <TextBlock Text="TI" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                                 </Border>
                                             </StackPanel>
                                         </Grid>
@@ -334,7 +334,7 @@
                         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="{Binding PageDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}"/>
                             <Border Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="6,2" Margin="10,0,0,0" Visibility="{Binding IsCapped, Converter={StaticResource BoolToVisibilityConverter}}" ToolTip="Only the 1000 most recent proformas were scanned. Narrow the date range or filter to see older rows.">
-                                <TextBlock Text="SCAN CAPPED — narrow filters for older rows" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                                <TextBlock Text="SCAN CAPPED — narrow filters for older rows" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
                             </Border>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">

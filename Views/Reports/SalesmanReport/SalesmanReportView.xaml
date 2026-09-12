@@ -212,7 +212,7 @@
                                                     <TextBlock Text="{Binding SalesmanName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
                                                     <StackPanel Orientation="Horizontal">
                                                         <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Visibility="{Binding IsSavedSalesman, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                            <TextBlock Text="ON FILE" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                                            <TextBlock Text="ON FILE" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                                                         </Border>
                                                         <TextBlock Text="{Binding Department}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="6,0,0,0" VerticalAlignment="Center"/>
                                                     </StackPanel>

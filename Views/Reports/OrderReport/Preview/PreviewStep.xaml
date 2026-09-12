@@ -95,7 +95,7 @@
                                                        FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                             <Border Background="{DynamicResource TintIndigoBrush}"
-                                                    CornerRadius="8" Padding="8,1" Margin="10,0,0,0"
+                                                    CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,1" Margin="10,0,0,0"
                                                     VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Status}"
                                                            FontSize="{StaticResource TextCaption}"

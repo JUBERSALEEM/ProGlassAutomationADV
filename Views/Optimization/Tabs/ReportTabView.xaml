@@ -50,7 +50,7 @@
                                                        Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Border CornerRadius="8" Background="{DynamicResource TintBlueBrush}" Padding="12,7"
+                                            <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintBlueBrush}" Padding="12,7"
                                                     VerticalAlignment="Center" Margin="0,0,16,0">
                                                 <TextBlock Text="{Binding ResultOracle}" FontSize="{StaticResource TextCaption}"
                                                            FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
