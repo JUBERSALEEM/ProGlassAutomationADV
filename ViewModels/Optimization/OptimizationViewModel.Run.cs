@@ -1,0 +1,371 @@
+// ═══════════════════════════════════════════════════════════════
+// FILE: OptimizationViewModel.Run.cs
+// MODULE: Optimization — SUMMARY — result surface and the pack-engine execution (partial of OptimizationViewModel)
+// ═══════════════════════════════════════════════════════════════
+
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Input;
+using ProGlassAutomation.Commands;
+using ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus;
+using ProGlassAutomation.Models.Production;
+using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Services.JobOrder.Mapper;
+using ProGlassAutomation.Services.JobOrder.Repository;
+using ProGlassAutomation.Services.Optimization;
+using ProGlassAutomation.Services.Production;
+using ProGlassAutomation.Utilities;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss;
+
+namespace ProGlassAutomation.ViewModels.Optimization
+{
+    public partial class OptimizationViewModel : ViewModels.ViewModelBase
+    {
+
+        // ── RESULT tab ─────────────────────────────────────────────────
+
+        public sealed class SheetRowVm : ViewModels.ViewModelBase
+        {
+            private bool _isSelected;
+            public string SheetNo { get; set; } = string.Empty;
+            public string StockLabel { get; set; } = string.Empty;
+            public string PieceCount { get; set; } = string.Empty;
+            public string Utilization { get; set; } = string.Empty;
+            public string WasteLabel { get; set; } = string.Empty;
+            /// <summary>Cutting-group (glass composition) this sheet belongs to.</summary>
+            public string Composition { get; set; } = string.Empty;
+            public int Index { get; set; }
+
+            /// <summary>Highlighted in the 2D filmstrip when this is the
+            /// sheet currently on the canvas.</summary>
+            public bool IsSelected
+            {
+                get => _isSelected;
+                set { if (_isSelected == value) return; _isSelected = value; OnPropertyChanged(); }
+            }
+        }
+
+        public ObservableCollection<SheetRowVm> SheetRows { get; } = new();
+
+        private bool _hasResult;
+        public bool HasResult { get => _hasResult; private set { _hasResult = value; OnPropertyChanged(); } }
+
+        private string _resultSheets = "—";
+        private string _resultUtilization = "—";
+        private string _resultUnplaced = "—";
+        private string _resultOracle = "—";
+        private string _resultStage = string.Empty;
+        private bool _oraclePassed;
+
+        public string ResultSheets { get => _resultSheets; private set { _resultSheets = value; OnPropertyChanged(); } }
+        public string ResultUtilization { get => _resultUtilization; private set { _resultUtilization = value; OnPropertyChanged(); } }
+        public string ResultUnplaced { get => _resultUnplaced; private set { _resultUnplaced = value; OnPropertyChanged(); } }
+        public string ResultOracle { get => _resultOracle; private set { _resultOracle = value; OnPropertyChanged(); } }
+        public string ResultStage { get => _resultStage; private set { _resultStage = value; OnPropertyChanged(); } }
+        public bool OraclePassed { get => _oraclePassed; private set { _oraclePassed = value; OnPropertyChanged(); } }
+
+        // ── Waste / offcut reporting (utilization + waste = the sheet) ──
+        private string _resultWaste = "—";
+        /// <summary>Total offcut across the run (stock − used), m².</summary>
+        public string ResultWaste { get => _resultWaste; private set { _resultWaste = value; OnPropertyChanged(); } }
+
+        private string _resultWastePct = "—";
+        /// <summary>Weighted waste share of the consumed stock, %.</summary>
+        public string ResultWastePct { get => _resultWastePct; private set { _resultWastePct = value; OnPropertyChanged(); } }
+
+        /// <summary>Pieces the engine could not place on any stock (labels).</summary>
+        public ObservableCollection<string> UnplacedRows { get; } = new();
+
+        private bool _hasUnplaced;
+        public bool HasUnplaced { get => _hasUnplaced; private set { _hasUnplaced = value; OnPropertyChanged(); } }
+
+        // ── RESULT tab: per-cutting-group breakdown ─────────────────────
+        // One run per glass composition — different glass never mixes on a
+        // sheet. Each group reports its own sheets / utilization / waste.
+
+        public sealed class CuttingGroupResultVm
+        {
+            public string Composition { get; set; } = string.Empty;
+            public string Thickness { get; set; } = string.Empty;
+            public string PieceCount { get; set; } = string.Empty;
+            public string Sheets { get; set; } = string.Empty;
+            public string Utilization { get; set; } = string.Empty;
+            public string Waste { get; set; } = string.Empty;
+            public string Unplaced { get; set; } = string.Empty;
+            public string Note { get; set; } = string.Empty;
+            public bool HasNote => !string.IsNullOrWhiteSpace(Note);
+        }
+
+        public ObservableCollection<CuttingGroupResultVm> GroupResults { get; } = new();
+
+        /// <summary>Private per-composition run record (composition, margins, result).</summary>
+        private sealed class GroupRun
+        {
+            public string Composition = string.Empty;
+            public string Thickness = string.Empty;
+            public int PieceCount;
+            public MarginProfile Margins = null!;
+            public OptimizationResult Result = null!;
+            public double UtilizationPct;
+            public double WasteM2;
+            public string UnplacedLabel = "0";
+            public string OracleLabel = string.Empty;
+            public string SheetsLabel = string.Empty;
+            public string MarginNote = string.Empty;
+        }
+
+        /// <summary>Flat sheet index → (group run, sheet index in that run).</summary>
+        private sealed class FlatSheet
+        {
+            public GroupRun Run = null!;
+            public int SheetIndex;
+        }
+
+        private readonly List<GroupRun> _groupRuns = new();
+        private readonly List<FlatSheet> _flatSheets = new();
+
+        public ICommand RunQuickCommand { get; }
+        public ICommand RunOptimizeCommand { get; }
+
+        private string _runMessage = string.Empty;
+        public string RunMessage { get => _runMessage; private set { _runMessage = value; OnPropertyChanged(); } }
+
+        // ── async run state (progress bar + button gating) ─────────────
+        private bool _isRunning;
+        public bool IsRunning { get => _isRunning; private set { _isRunning = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanRun)); } }
+
+        /// <summary>Run buttons are enabled only when no run is in flight.</summary>
+        public bool CanRun => !_isRunning;
+
+        private string _runStageLabel = string.Empty;
+        public string RunStageLabel { get => _runStageLabel; private set { _runStageLabel = value; OnPropertyChanged(); } }
+
+        // ── run ────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Validates inputs on the UI thread, then runs the packing engine
+        /// per cutting group (glass composition) on a background thread —
+        /// different glass never mixes on a sheet. Results are applied back
+        /// on the dispatcher by <see cref="SafeFireAndForget"/>.
+        /// </summary>
+        private void Run(string stage)
+        {
+            if (IsRunning) return;
+            if (!TryBuildInputs(out var pieces, out var stocks, out var margins))
+                return;
+
+            int effort = int.TryParse(SelectedEffortLevel, NumberStyles.Integer,
+                CultureInfo.InvariantCulture, out int lvl) && lvl >= 1 && lvl <= 5 ? lvl : 3;
+            var rotation = RotationEnabled ? RotationPolicy.Free90 : RotationPolicy.Locked;
+            var groups = BuildCuttingGroups(pieces);
+
+            // SIZES dropdown: optimize ONE pane group at a time when a
+            // specific composition (outer / inner / …) is selected.
+            if (!string.Equals(_selectedCuttingGroup, AllCuttingGroups, StringComparison.OrdinalIgnoreCase))
+            {
+                groups = groups
+                    .Where(g => string.Equals(g.Composition, _selectedCuttingGroup, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                if (groups.Count == 0)
+                {
+                    RunMessage = "The selected cutting group has no valid pieces.";
+                    return;
+                }
+            }
+
+            IsRunning = true;
+            RunStageLabel = stage == "OPTIMIZE"
+                ? $"Optimizing {groups.Count.ToString(CultureInfo.InvariantCulture)} cutting group(s) · level {effort.ToString(CultureInfo.InvariantCulture)}…"
+                : $"Quick packing {groups.Count.ToString(CultureInfo.InvariantCulture)} cutting group(s)…";
+            RunMessage = "";
+
+            AsyncUtility.SafeFireAndForget(
+                () => RunCoreAsync(stage, groups, stocks, margins, rotation, effort),
+                "Optimization run");
+        }
+
+        /// <summary>Groups the piece list by glass composition — one pack run each.</summary>
+        private static List<(string Composition, List<CutPiece> Pieces)> BuildCuttingGroups(List<CutPiece> pieces)
+        {
+            return pieces
+                .GroupBy(p => string.IsNullOrWhiteSpace(p.GlassRef)
+                        ? "(unlabelled glass)" : p.GlassRef,
+                    StringComparer.OrdinalIgnoreCase)
+                .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase)
+                .Select(g => (g.Key, g.ToList()))
+                .ToList();
+        }
+
+        /// <summary>
+        /// Thickness-aware margins: when a cutting group's glass thickness
+        /// differs from the MARGINS tab, the group is cut with that
+        /// thickness's house defaults and the note surfaces on the result.
+        /// </summary>
+        private static (MarginProfile Margins, string Note) ResolveGroupMargins(
+            string composition, MarginProfile userMargins)
+        {
+            int thickness = ParseThicknessMm(composition);
+            if (thickness <= 0 || thickness == userMargins.ThicknessMm)
+                return (userMargins, string.Empty);
+            return (MarginProfile.DefaultFor(thickness),
+                "cut with " + thickness.ToString(CultureInfo.InvariantCulture) + "mm house margins");
+        }
+
+        private async Task RunCoreAsync(
+            string stage, List<(string Composition, List<CutPiece> Pieces)> groups,
+            List<StockSize> stocks, MarginProfile margins, RotationPolicy rotation, int effort)
+        {
+            try
+            {
+                var runs = new List<GroupRun>();
+                foreach (var (composition, groupPieces) in groups)
+                {
+                    var (groupMargins, marginNote) = ResolveGroupMargins(composition, margins);
+
+                    var result = await Task.Run(() => stage == "OPTIMIZE"
+                        ? GuillotinePacker.PackOptimize(groupPieces, stocks, groupMargins, rotation, effort)
+                        : GuillotinePacker.PackQuick(groupPieces, stocks, groupMargins, rotation))
+                        .ConfigureAwait(true);
+
+                    double glass = result.Sheets.Sum(s => s.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm));
+                    double stockArea = result.Sheets.Sum(s => (long)s.Stock.WidthMm * s.Stock.HeightMm);
+                    int problems = GuillotinePacker.Verify(result, groupMargins).Count;
+
+                    runs.Add(new GroupRun
+                    {
+                        Composition = composition,
+                        Thickness = ParseThicknessLabel(composition),
+                        PieceCount = groupPieces.Count,
+                        Margins = groupMargins,
+                        Result = result,
+                        UtilizationPct = stockArea == 0 ? 0 : glass / stockArea * 100.0,
+                        WasteM2 = Math.Max(0, (stockArea - glass) / 1_000_000.0),
+                        UnplacedLabel = result.Unplaced.Count.ToString(CultureInfo.InvariantCulture),
+                        OracleLabel = problems == 0 ? "Verified" : problems.ToString(CultureInfo.InvariantCulture) + " issue(s)",
+                        SheetsLabel = result.SheetsUsed.ToString(CultureInfo.InvariantCulture),
+                        MarginNote = marginNote
+                    });
+                }
+
+                ApplyResults(stage, runs, rotation);
+            }
+            finally
+            {
+                IsRunning = false;
+            }
+        }
+
+        private void ApplyResults(string stage, List<GroupRun> runs, RotationPolicy rotation)
+        {
+            _groupRuns.Clear();
+            _groupRuns.AddRange(runs);
+
+            double glass = runs.Sum(r => r.Result.Sheets.Sum(s => s.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm)));
+            double stockArea = runs.Sum(r => r.Result.Sheets.Sum(s => (long)s.Stock.WidthMm * s.Stock.HeightMm));
+            double util = stockArea == 0 ? 0 : glass / stockArea * 100.0;
+            int totalSheets = runs.Sum(r => r.Result.SheetsUsed);
+            int totalUnplaced = runs.Sum(r => r.Result.Unplaced.Count);
+            int totalProblems = runs.Sum(r => GuillotinePacker.Verify(r.Result, r.Margins).Count);
+
+            string rotationLabel = rotation == RotationPolicy.Free90 ? "rotation ON" : "rotation LOCKED";
+            ResultStage = stage == "OPTIMIZE"
+                ? $"OPTIMIZE · level {SelectedEffortLevel} · {rotationLabel} · {runs.Count} cutting group(s)"
+                : $"QUICK · {rotationLabel} · {runs.Count} cutting group(s)";
+            ResultSheets = totalSheets.ToString(CultureInfo.InvariantCulture);
+            ResultUtilization = util.ToString("0.00", CultureInfo.InvariantCulture) + "%";
+            ResultUnplaced = totalUnplaced.ToString(CultureInfo.InvariantCulture);
+            OraclePassed = totalProblems == 0;
+            ResultOracle = totalProblems == 0
+                ? "Verified — no overlaps, margins & kerf respected"
+                : string.Format(CultureInfo.InvariantCulture, "{0} layout issue(s)", totalProblems);
+
+            // Waste = consumed stock − placed glass (the offcut the saw leaves).
+            double wasteMm2 = Math.Max(0, stockArea - glass);
+            ResultWaste = (wasteMm2 / 1_000_000.0).ToString("0.00", CultureInfo.InvariantCulture) + " m²";
+            ResultWastePct = stockArea == 0 ? "0.0%"
+                : ((stockArea - glass) / stockArea * 100.0).ToString("0.0", CultureInfo.InvariantCulture) + "%";
+
+            UnplacedRows.Clear();
+            foreach (var r in runs)
+            {
+                foreach (var up in r.Result.Unplaced)
+                {
+                    string label = string.IsNullOrWhiteSpace(up.PieceLabel) ? up.GlassRef : up.PieceLabel;
+                    UnplacedRows.Add(string.Format(CultureInfo.InvariantCulture,
+                        "{0} · {1} · {2} × {3} mm",
+                        r.Composition, label, up.WidthMm, up.HeightMm));
+                }
+            }
+            HasUnplaced = UnplacedRows.Count > 0;
+
+            // Per-cutting-group breakdown (composition → sheets / util / waste).
+            GroupResults.Clear();
+            foreach (var r in runs)
+            {
+                GroupResults.Add(new CuttingGroupResultVm
+                {
+                    Composition = r.Composition,
+                    Thickness = r.Thickness,
+                    PieceCount = r.PieceCount.ToString(CultureInfo.InvariantCulture),
+                    Sheets = r.SheetsLabel,
+                    Utilization = r.UtilizationPct.ToString("0.0", CultureInfo.InvariantCulture) + "%",
+                    Waste = r.WasteM2.ToString("0.00", CultureInfo.InvariantCulture) + " m²",
+                    Unplaced = r.UnplacedLabel,
+                    Note = r.MarginNote
+                });
+            }
+
+            // Filmstrip: flatten every sheet across all cutting groups.
+            _flatSheets.Clear();
+            SheetRows.Clear();
+            int flatIndex = 0;
+            foreach (var r in runs)
+            {
+                for (int i = 0; i < r.Result.Sheets.Count; i++)
+                {
+                    var sheet = r.Result.Sheets[i];
+                    double sheetGlass = sheet.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm);
+                    double sheetStock = (long)sheet.Stock.WidthMm * sheet.Stock.HeightMm;
+                    double sheetWaste = sheetStock - sheetGlass;
+                    double sheetUtil = sheetStock == 0 ? 0 : sheetGlass / sheetStock * 100.0;
+                    _flatSheets.Add(new FlatSheet { Run = r, SheetIndex = i });
+                    SheetRows.Add(new SheetRowVm
+                    {
+                        SheetNo = (flatIndex + 1).ToString(CultureInfo.InvariantCulture),
+                        StockLabel = string.Format(CultureInfo.InvariantCulture,
+                            "{0} × {1}", sheet.Stock.WidthMm, sheet.Stock.HeightMm),
+                        PieceCount = sheet.Pieces.Count.ToString(CultureInfo.InvariantCulture),
+                        Utilization = sheetUtil.ToString("0.0", CultureInfo.InvariantCulture) + "%",
+                        WasteLabel = (sheetWaste / 1_000_000.0).ToString("0.00", CultureInfo.InvariantCulture) + " m²",
+                        Composition = r.Composition,
+                        Index = flatIndex
+                    });
+                    flatIndex++;
+                }
+            }
+
+            HasResult = true;
+            _selectedSheetIndex = -1;
+            SelectedSheetIndex = 0;
+            RebuildPreview();
+
+            RefreshStockUsage(runs);
+
+            RunMessage = string.Format(CultureInfo.InvariantCulture,
+                "{0}: {1} cutting group(s), {2} sheet(s), {3:0.00}% utilization, {4} unplaced.",
+                stage, runs.Count, totalSheets, util, totalUnplaced);
+
+            SelectedTabIndex = 4; // RESULT tab
+        }
+
+        /// <summary>
+        /// Live-connects the run to the STOCKS tab: each rack shows how many
+        /// sheets this run consumed. Availability stays unlimited by default
+        /// (99999999) — usage is tracked, not capped.
+        /// </summary>
+    }
+}

@@ -1,0 +1,86 @@
+<!-- ═══════════════════════════════════════════════════════════════
+     FILE: Views/Optimization/Tabs/SettingsTabView.xaml
+     MODULE: Optimization — Settings tab (hosted by OptimizationView).
+     DataContext = OptimizationViewModel (inherited from the shell).
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Optimization.Tabs.SettingsTabView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             FontFamily="{DynamicResource AppFontFamily}"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+                <!-- ── TAB 3 · SETTINGS ─────────────────────────────── -->
+                <Grid>
+                    <Grid.Style>
+                        <Style TargetType="Grid">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedTabIndex}" Value="3">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
+
+                    <Border Style="{StaticResource OptPanelCard}">
+                        <StackPanel MaxWidth="760" HorizontalAlignment="Left">
+                            <TextBlock Text="CUTTING SETTINGS" Style="{StaticResource OptPanelTitle}" Margin="0,0,0,14"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                                    <TextBlock Text="GLASS THICKNESS (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
+                                    <TextBox Text="{Binding ThicknessText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource OptIntInput}" Margin="0,0,0,12"/>
+                                    <TextBlock Text="LEFT MARGIN LM (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
+                                    <TextBox Text="{Binding LeftMarginText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource OptIntInput}" Margin="0,0,0,12"/>
+                                    <TextBlock Text="RIGHT MARGIN RM (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
+                                    <TextBox Text="{Binding RightMarginText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource OptIntInput}" Margin="0,0,0,12"/>
+                                    <TextBlock Text="TOP MARGIN TM (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
+                                    <TextBox Text="{Binding TopMarginText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource OptIntInput}" Margin="0,0,0,12"/>
+                                    <TextBlock Text="BOTTOM MARGIN BM (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
+                                    <TextBox Text="{Binding BottomMarginText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource OptIntInput}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="KERF / BLADE (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
+                                    <TextBox Text="{Binding KerfText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource OptIntInput}" Margin="0,0,0,12"/>
+                                    <TextBlock Text="MINIMUM BREAKOUT (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
+                                    <TextBox Text="{Binding MinBreakoutText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource OptIntInput}" Margin="0,0,0,12"/>
+
+                                    <CheckBox IsChecked="{Binding RotationEnabled}" Margin="0,10,0,6"
+                                              Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                        <TextBlock Text="Allow rotation (0° / 90° mix) — enabled by default for all pieces"
+                                                   TextWrapping="Wrap" FontSize="{StaticResource TextBody}"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    </CheckBox>
+
+                                    <TextBlock Text="OPTIMIZE EFFORT LEVEL" Style="{StaticResource OptHeader}" Margin="0,10,0,6"/>
+                                    <ComboBox ItemsSource="{Binding EffortLevels}"
+                                              SelectedItem="{Binding SelectedEffortLevel}"
+                                              Style="{StaticResource OptComboStyle}" Width="96" HorizontalAlignment="Left"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                                <Button Content="Load house defaults" Style="{StaticResource OutlinedPillButton}"
+                                        Command="{Binding LoadHouseDefaultsCommand}"/>
+                            </StackPanel>
+
+                            <TextBlock Text="House defaults (floor-confirmed): 6mm glass → LM/RM/TM/BM 15mm, minimum breakout 15mm, kerf 3mm (4mm from 10mm). Every value is editable per run."
+                                       FontSize="{StaticResource TextCaption}" TextWrapping="Wrap"
+                                       Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,14,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+</UserControl>
