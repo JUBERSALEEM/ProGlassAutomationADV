@@ -219,27 +219,36 @@
                                      ToolTip="Filter by job id, customer or summary"/>
 
                             <ListBox ItemsSource="{Binding FilteredJobs}"
-                                     SelectedItem="{Binding SelectedJob}"
                                      Style="{StaticResource ModuleReportListBoxStyle}"
-                                     MaxHeight="260" Margin="-4,0,0,8">
+                                     MaxHeight="300" Margin="-4,0,0,8"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
                                         <Border CornerRadius="10" Padding="10,8" Margin="2,4"
                                                 Background="{DynamicResource ModuleBackgroundBrush}"
                                                 BorderBrush="{DynamicResource GlassBorderGradientSoft}" BorderThickness="1">
-                                            <StackPanel>
-                                                <TextBlock Text="{Binding JobOrderId}" FontSize="{StaticResource TextBody}"
-                                                           FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                <TextBlock Text="{Binding Summary}" FontSize="{StaticResource TextCaption}"
-                                                           Foreground="{DynamicResource MutedForegroundBrush}"
-                                                           TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
-                                            </StackPanel>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}"
+                                                          VerticalAlignment="Top" Margin="0,2,10,0"
+                                                          ToolTip="Tick to include this job's panes — tick many jobs to combine (e.g. shared low-e outers merge into one cutting group)"/>
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="{Binding JobOrderId}" FontSize="{StaticResource TextBody}"
+                                                               FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                    <TextBlock Text="{Binding Summary}" FontSize="{StaticResource TextCaption}"
+                                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                                               TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                            </Grid>
                                         </Border>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
 
-                            <TextBlock Text="Select a job to see its Step 4/5 panes (outer / inner) on the right — check the panes you want to cut."
+                            <TextBlock Text="Tick one or more jobs — their Step 4/5 spec build-up (outer → ASP → inner) appears on the right."
                                        FontSize="{StaticResource TextCaption}" TextWrapping="Wrap"
                                        Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,8"/>
 
@@ -316,64 +325,98 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <!-- ── Step 4/5 pane breakdown (multi-select) ── -->
+                        <!-- ── Step 4/5 spec build-up: outer → ASP → inner ── -->
                         <Border Grid.Row="0" CornerRadius="{DynamicResource CardCornerRadius}"
                                 Background="{DynamicResource ModuleBackgroundBrush}"
                                 BorderBrush="{DynamicResource GlassBorderGradientSoft}" BorderThickness="1"
-                                Padding="12,10" Margin="0,0,0,12"
-                                Visibility="{Binding HasPaneChoices, Converter={StaticResource BoolToVisibilityConverter}}">
+                                Padding="14,12" Margin="0,0,0,12"
+                                Visibility="{Binding HasSpecBreakdown, Converter={StaticResource BoolToVisibilityConverter}}">
                             <StackPanel>
-                                <TextBlock Text="STEP 4/5 PANE BREAKDOWN — select the panes to cut"
+                                <TextBlock Text="STEP 4/5 SPEC BUILD-UP — tick the panes to cut"
                                            FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                            Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,2"/>
                                 <TextBlock Text="{Binding SelectedPaneSummary}" FontSize="{StaticResource TextCaption}"
                                            Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,8"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                    <Button Content="Select all" Style="{StaticResource OutlinedPillButton}"
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <Button Content="Select all panes" Style="{StaticResource OutlinedPillButton}"
                                             Command="{Binding SelectAllPanesCommand}" Margin="0,0,8,0"/>
                                     <Button Content="Clear" Style="{StaticResource OutlinedPillButton}"
                                             Command="{Binding ClearPaneSelectionCommand}"/>
                                 </StackPanel>
-                                <ScrollViewer MaxHeight="230" VerticalScrollBarVisibility="Auto">
-                                    <ItemsControl ItemsSource="{Binding JobPaneChoices}">
+                                <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding JobSpecBreakdown}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Padding="6,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource DividerBrush}">
-                                                    <Grid>
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="28"/>
-                                                            <ColumnDefinition Width="86"/>
-                                                            <ColumnDefinition Width="120"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="72"/>
-                                                            <ColumnDefinition Width="64"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}"
-                                                                  VerticalAlignment="Center"/>
-                                                        <TextBlock Grid.Column="1" Text="{Binding PaneLabel}" FontSize="{StaticResource TextBody}"
-                                                                   FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
-                                                        <TextBlock Grid.Column="2" Text="{Binding SpecLabel}" FontSize="{StaticResource TextCaption}"
-                                                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
-                                                        <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,6,0">
+                                                <Border CornerRadius="{DynamicResource CardCornerRadius}"
+                                                        Background="{DynamicResource SurfaceSecondaryStyle}" Padding="12,10"
+                                                        Margin="0,0,0,8" BorderThickness="1"
+                                                        BorderBrush="{DynamicResource GlassBorderGradientSoft}">
+                                                    <StackPanel>
+                                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                                            <TextBlock Text="{Binding SpecLabel}" FontSize="{StaticResource TextCaption}"
+                                                                       FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"
+                                                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
                                                             <TextBlock Text="{Binding SpecName}" FontSize="{StaticResource TextCaption}"
                                                                        Foreground="{DynamicResource MutedForegroundBrush}"
-                                                                       TextTrimming="CharacterEllipsis"/>
-                                                            <TextBlock Text="{Binding Composition}" FontSize="{StaticResource TextBody}"
-                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                                       TextTrimming="CharacterEllipsis"/>
-                                                            <TextBlock Text="{Binding SizesSummary}" FontSize="{StaticResource TextCaption}"
-                                                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                                                       TextTrimming="CharacterEllipsis"/>
+                                                                       VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                                                         </StackPanel>
-                                                        <TextBlock Grid.Column="4" Text="{Binding CountLabel}" FontSize="{StaticResource TextBody}"
-                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                                   VerticalAlignment="Center"/>
-                                                        <TextBlock Grid.Column="5" Text="{Binding AreaLabel}" FontSize="{StaticResource TextCaption}"
-                                                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                                                   VerticalAlignment="Center"/>
-                                                    </Grid>
+                                                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                                            <ItemsControl ItemsSource="{Binding Layers}">
+                                                                <ItemsControl.ItemsPanel>
+                                                                    <ItemsPanelTemplate>
+                                                                        <StackPanel Orientation="Horizontal"/>
+                                                                    </ItemsPanelTemplate>
+                                                                </ItemsControl.ItemsPanel>
+                                                                <ItemsControl.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <Border Width="176" CornerRadius="{DynamicResource CardCornerRadius}"
+                                                                                Padding="10,8" Margin="0,0,8,0"
+                                                                                BorderThickness="1" SnapsToDevicePixels="True">
+                                                                            <Border.Style>
+                                                                                <Style TargetType="Border">
+                                                                                    <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+                                                                                    <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
+                                                                                    <Style.Triggers>
+                                                                                        <DataTrigger Binding="{Binding IsPane}" Value="False">
+                                                                                            <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
+                                                                                            <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
+                                                                                        </DataTrigger>
+                                                                                    </Style.Triggers>
+                                                                                </Style>
+                                                                            </Border.Style>
+                                                                            <StackPanel>
+                                                                                <Grid Margin="0,0,0,4">
+                                                                                    <Grid.ColumnDefinitions>
+                                                                                        <ColumnDefinition Width="Auto"/>
+                                                                                        <ColumnDefinition Width="*"/>
+                                                                                    </Grid.ColumnDefinitions>
+                                                                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}"
+                                                                                              VerticalAlignment="Center" Margin="0,0,6,0"
+                                                                                              Visibility="{Binding IsPane, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                                                    <TextBlock Grid.Column="1" Text="{Binding Sub}" FontSize="{StaticResource TextXSmall}"
+                                                                                               FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"
+                                                                                               TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                                                                </Grid>
+                                                                                <TextBlock Text="{Binding Title}" FontSize="{StaticResource TextBody}"
+                                                                                           FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                                           TextWrapping="Wrap" Margin="0,0,0,2"/>
+                                                                                <TextBlock Text="{Binding Thickness}" FontSize="{StaticResource TextCaption}"
+                                                                                           Foreground="{DynamicResource AccentBrush}"
+                                                                                           Visibility="{Binding Thickness, Converter={StaticResource StringToVisibilityConverter}}"
+                                                                                           Margin="0,0,0,2"/>
+                                                                                <TextBlock Text="{Binding CountLabel}" FontSize="{StaticResource TextCaption}"
+                                                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                                           Visibility="{Binding CountLabel, Converter={StaticResource StringToVisibilityConverter}}"/>
+                                                                                <TextBlock Text="{Binding AreaLabel}" FontSize="{StaticResource TextCaption}"
+                                                                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                                                                           Visibility="{Binding AreaLabel, Converter={StaticResource StringToVisibilityConverter}}"/>
+                                                                            </StackPanel>
+                                                                        </Border>
+                                                                    </DataTemplate>
+                                                                </ItemsControl.ItemTemplate>
+                                                            </ItemsControl>
+                                                        </ScrollViewer>
+                                                    </StackPanel>
                                                 </Border>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
