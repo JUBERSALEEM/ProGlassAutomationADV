@@ -58,6 +58,16 @@ namespace ProGlassAutomation.Services.Export.Pdf
 
             // QuestPDF community license — set once, safe to set multiple times
             QuestPDF.Settings.License = LicenseType.Community;
+
+            // 2026-09-12 — Detailed layout diagnostics.
+            // When a document throws "The provided document content contains
+            // conflicting size constraints", QuestPDF only points at the whole
+            // document by default. With this flag the exception message also
+            // includes the offending element's source-code location and its
+            // measured layout subtree, so a failing export becomes
+            // self-diagnosing instead of a mystery. It only enriches the
+            // error path — it does not change successful output.
+            QuestPDF.Settings.EnableDebugging = true;
         }
 
         // ════════════════════════════════════════════════════════════════════
