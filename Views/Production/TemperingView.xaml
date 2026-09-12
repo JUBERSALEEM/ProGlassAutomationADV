@@ -399,7 +399,7 @@ Own page, not a shared body. Tempering shows the furnace queue — FT / HS / HST
                                             <StackPanel Orientation="Horizontal">
                                                 <Border CornerRadius="8" Background="{DynamicResource DashAmbientBrush}" Padding="10,4" Margin="0,0,6,0">
                                                     <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="READY " FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                        <TextBlock Text="FINISHED " FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                    Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
                                                         <TextBlock Text="{Binding SelectedDispatchReadyLabel}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                                    Foreground="{DynamicResource SuccessBrush}"/>
@@ -415,7 +415,7 @@ Own page, not a shared body. Tempering shows the furnace queue — FT / HS / HST
                                                 </Border>
                                                 <Border CornerRadius="8" Background="{DynamicResource DashAmbientBrush}" Padding="10,4">
                                                     <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="TO DELIVER " FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                        <TextBlock Text="BALANCE " FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                    Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
                                                         <TextBlock Text="{Binding SelectedDispatchBalanceLabel}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                                    Foreground="{DynamicResource AccentBrush}"/>
@@ -424,8 +424,8 @@ Own page, not a shared body. Tempering shows the furnace queue — FT / HS / HST
                                             </StackPanel>
                                             <Button Content="Create Delivery Note" Style="{StaticResource PrimaryPillButton}"
                                                     Command="{Binding CreateDeliveryNoteCommand}" Margin="0,10,0,0" HorizontalAlignment="Left"
-                                                    ToolTip="Creates the Dispatching delivery note for this Job Order with remaining balance only — capped to the pieces production has finished."/>
-                                            <TextBlock Text="Finished pieces flow into delivery notes automatically — each note delivers only the completed balance."
+                                                    ToolTip="Create the Dispatching delivery note for this Job Order — only finished (DONE) pieces can be delivered."/>
+                                            <TextBlock Text="DONE ≠ DELIVERED — pieces finished in production ship only on a delivery note."
                                                        FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}"
                                                        TextWrapping="Wrap" Margin="0,6,0,0"/>
                                         </StackPanel>

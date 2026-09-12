@@ -297,9 +297,12 @@ namespace ProGlassAutomation.ViewModels.Production
                 _ => AsyncUtility.SafeFireAndForget(CompleteUnitAsync, "Production unit complete"),
                 _ => HasSelection && SelectedStageItems.Any(i => i.CanWork && i.Done < i.Inflow));
 
+            // Always clickable for a production-managed job — the click
+            // itself explains when there is nothing ready to deliver, so
+            // the button never silently "fades out" while the floor works.
             CreateDeliveryNoteCommand = new RelayCommand(
                 _ => AsyncUtility.SafeFireAndForget(CreateDeliveryNoteAsync, "Production delivery note"),
-                _ => HasSelection && !string.IsNullOrWhiteSpace(SelectedJobNo) && _dispatchBalance > 0);
+                _ => HasSelection && !string.IsNullOrWhiteSpace(SelectedJobNo));
         }
 
         /// <summary>Marker: "complete every piece that arrived" (inflow).</summary>
@@ -1064,6 +1067,14 @@ namespace ProGlassAutomation.ViewModels.Production
         {
             string jobRef = SelectedJobNo;
             if (string.IsNullOrWhiteSpace(jobRef) || OnCreateDeliveryNote == null) return;
+
+            // DONE ≠ DELIVERED: finished pieces only leave on a delivery
+            // note. With nothing ready, explain instead of doing nothing.
+            if (DispatchBalance <= 0)
+            {
+                ActionWarning = "Nothing ready to deliver — pieces finished in production (DONE) are only marked DELIVERED once a delivery note ships them.";
+                return;
+            }
 
             string message = await OnCreateDeliveryNote(jobRef).ConfigureAwait(true);
             if (!string.IsNullOrWhiteSpace(message))

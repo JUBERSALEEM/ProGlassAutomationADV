@@ -357,6 +357,9 @@
                                                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                                                    VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
                                                         <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,6,0">
+                                                            <TextBlock Text="{Binding SpecName}" FontSize="{StaticResource TextCaption}"
+                                                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                                                       TextTrimming="CharacterEllipsis"/>
                                                             <TextBlock Text="{Binding Composition}" FontSize="{StaticResource TextBody}"
                                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                        TextTrimming="CharacterEllipsis"/>
@@ -463,19 +466,45 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0"
+                        <Border Grid.Row="0" CornerRadius="{DynamicResource CardCornerRadius}"
+                                Background="{DynamicResource ModuleBackgroundBrush}"
+                                BorderBrush="{DynamicResource GlassBorderGradientSoft}" BorderThickness="1"
+                                Padding="14,12" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="CUTTING GROUP — outer / inner, optimized separately"
+                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                           Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,6"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox Grid.Column="0" ItemsSource="{Binding CuttingGroups}"
+                                              SelectedItem="{Binding SelectedCuttingGroup}"
+                                              MinWidth="280" Margin="0,0,16,0"
+                                              Style="{StaticResource OptComboStyle}"/>
+                                    <TextBlock Grid.Column="1"
+                                               Text="Pick one pane group (e.g. the low-e outer) to optimize only it, using its Step 4 sheet. 'ALL' packs every group in its own run."
+                                               FontSize="{StaticResource TextCaption}" TextWrapping="Wrap"
+                                               Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <TextBlock Grid.Row="1"
                                    Text="Parts merge into cutting groups by glass composition (thickness + colour). Each group runs as its own optimization — different glass never mixes on a sheet."
                                    FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
                                    Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,12"/>
 
-                        <TextBlock Grid.Row="1" Text="{Binding PiecesEmptyHint}" FontSize="{StaticResource TextBody}"
+                        <TextBlock Grid.Row="2" Text="{Binding PiecesEmptyHint}" FontSize="{StaticResource TextBody}"
                                    TextWrapping="Wrap" Foreground="{DynamicResource MutedForegroundBrush}"
                                    VerticalAlignment="Top" Margin="4,8,4,0"/>
 
-                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                             <StackPanel>
                                 <TextBlock Text="MERGE GROUPS — one optimization run per composition"
                                            FontSize="{StaticResource TextCaption}" FontWeight="Bold"
@@ -590,7 +619,7 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0"
-                                   Text="Stock pool for the run. The engine always consumes the smallest stock that fits each piece — big racks stay available for the glass that needs them. Available = 0 means unlimited."
+                                   Text="Stock pool for the run — import the Step 4 sheet sizes of the selected job, or add racks manually. Availability defaults to unlimited (99999999) so the run is usage-tracked, not capped."
                                    FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
                                    Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,12"/>
 
@@ -608,10 +637,13 @@
                             <StackPanel Margin="0,0,12,0">
                                 <TextBlock Text="Available" Style="{StaticResource OptFieldLabel}"/>
                                 <TextBox Text="{Binding NewStock.AvailableText, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource OptIntInput}"/>
+                                         Style="{StaticResource OptIntInput}" Width="90"/>
                             </StackPanel>
                             <Button Content="Add stock" Style="{StaticResource PrimaryPillButton}"
-                                    Command="{Binding AddStockCommand}" VerticalAlignment="Bottom" Margin="0,0,0,8"/>
+                                    Command="{Binding AddStockCommand}" VerticalAlignment="Bottom" Margin="0,0,12,8"/>
+                            <Button Content="Import Step 4 sheets" Style="{StaticResource OutlinedPillButton}"
+                                    Command="{Binding ImportStockFromStep4Command}" VerticalAlignment="Bottom" Margin="0,0,0,8"
+                                    ToolTip="Loads the Step 4 chosen stock sheets of the selected Job Order into the pool (deduped by size)"/>
                         </StackPanel>
 
                         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
@@ -624,19 +656,33 @@
                                                 Padding="14,10" Margin="0,0,0,8">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="150"/>
+                                                    <ColumnDefinition Width="150"/>
+                                                    <ColumnDefinition Width="140"/>
                                                     <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="160"/>
-                                                    <ColumnDefinition Width="90"/>
+                                                    <ColumnDefinition Width="70"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center">
                                                     <Run Text="{Binding WidthText, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding HeightText, Mode=OneWay}"/><Run Text=" mm"/>
                                                 </TextBlock>
-                                                <TextBlock Grid.Column="1" FontSize="{StaticResource TextBody}"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center">
-                                                    <Run Text="available: "/><Run Text="{Binding AvailableText, Mode=OneWay}"/>
-                                                </TextBlock>
-                                                <Button Grid.Column="2" Content="Remove" Style="{StaticResource RowOutlinedButton}"
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="Available" Style="{StaticResource OptFieldLabel}"/>
+                                                    <TextBlock FontSize="{StaticResource TextBody}"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                                        <Run Text="{Binding AvailableText, Mode=OneWay}"/><Run Text=" sheets"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                                    <TextBlock Text="Used this run" Style="{StaticResource OptFieldLabel}"/>
+                                                    <TextBlock Text="{Binding UsedLabel}" FontSize="{StaticResource TextBody}"
+                                                               Foreground="{DynamicResource AccentBrush}"
+                                                               Visibility="{Binding HasUsed, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="3" Text="{Binding SourceLabel}" FontSize="{StaticResource TextCaption}"
+                                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,10,0"/>
+                                                <Button Grid.Column="4" Content="Remove" Style="{StaticResource RowOutlinedButton}"
                                                         Command="{Binding DataContext.RemoveStockCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding}"/>
                                             </Grid>

@@ -72,6 +72,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
             /// <summary>Flat merged cutting list (composition, label, w, h, qty)
             /// across all panes — convenience for "cut the whole job".</summary>
             public List<(string Glass, string Label, int W, int H, int Qty)> Pieces { get; } = new();
+
+            /// <summary>Stock sheet sizes picked in Step 4 (per spec × pane),
+            /// so the STOCKS tab can import the exact rack the job was quoted on.</summary>
+            public List<(int W, int H, string Source)> Step4Sheets { get; } = new();
         }
 
         /// <summary>
@@ -278,20 +282,57 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             private string _widthText;
             private string _heightText;
-            private string _availableText = "0"; // 0 = unlimited
+            private string _availableText = "99999999"; // effectively unlimited — usage is tracked, not capped
+            private string _usedLabel = string.Empty;
+            private string _sourceLabel = string.Empty;
+
             public StockEntryVm(string w, string h) { _widthText = w; _heightText = h; }
+            public StockEntryVm(string w, string h, string source) { _widthText = w; _heightText = h; _sourceLabel = source; }
 
             public string WidthText { get => _widthText; set { _widthText = value; OnPropertyChanged(); } }
             public string HeightText { get => _heightText; set { _heightText = value; OnPropertyChanged(); } }
             public string AvailableText { get => _availableText; set { _availableText = value; OnPropertyChanged(); } }
+
+            /// <summary>Sheets consumed by the last run, e.g. "17 sheets used".</summary>
+            public string UsedLabel
+            {
+                get => _usedLabel;
+                set { if (_usedLabel == value) return; _usedLabel = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasUsed)); }
+            }
+
+            public bool HasUsed => !string.IsNullOrWhiteSpace(_usedLabel);
+
+            /// <summary>Provenance, e.g. "Step 4 · Spec 1 outer".</summary>
+            public string SourceLabel { get => _sourceLabel; set { if (_sourceLabel == value) return; _sourceLabel = value; OnPropertyChanged(); } }
         }
 
         public ObservableCollection<StockEntryVm> Stocks { get; } = new();
         public ICommand AddStockCommand { get; }
         public ICommand RemoveStockCommand { get; }
+        public ICommand ImportStockFromStep4Command { get; }
 
-        private StockEntryVm _newStock = new("3210", "2250");
+        private StockEntryVm _newStock = new("3210", "2250", "manual");
         public StockEntryVm NewStock { get => _newStock; private set { _newStock = value; OnPropertyChanged(); } }
+
+        // ── SIZES/run: pick ONE cutting group (outer / inner / …) to
+        //    optimize separately — 2D + SUMMARY show only that group ────
+
+        public ObservableCollection<string> CuttingGroups { get; } = new();
+
+        private string _selectedCuttingGroup = AllCuttingGroups;
+        public string SelectedCuttingGroup
+        {
+            get => _selectedCuttingGroup;
+            set
+            {
+                if (_selectedCuttingGroup == value || value == null) return;
+                _selectedCuttingGroup = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>Sentinel: pack every cutting group (default).</summary>
+        public const string AllCuttingGroups = "ALL — every glass group";
 
         // ── MARGINS tab ────────────────────────────────────────────────
 
@@ -543,6 +584,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             AddStockCommand = new RelayCommand(_ => AddStock());
             RemoveStockCommand = new RelayCommand(p => RemoveStock(p as StockEntryVm));
+            ImportStockFromStep4Command = new RelayCommand(_ => ImportStockFromStep4());
 
             LoadHouseDefaultsCommand = new RelayCommand(_ => LoadHouseDefaults());
 
@@ -576,10 +618,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         private static IEnumerable<StockEntryVm> DefaultStockPool()
         {
-            yield return new StockEntryVm("3210", "2250");
-            yield return new StockEntryVm("2500", "1875");
-            yield return new StockEntryVm("2440", "1830");
-            yield return new StockEntryVm("3660", "2440");
+            yield return new StockEntryVm("3210", "2250", "default rack");
+            yield return new StockEntryVm("2500", "1875", "default rack");
+            yield return new StockEntryVm("2440", "1830", "default rack");
+            yield return new StockEntryVm("3660", "2440", "default rack");
         }
 
         // ── piece list ops ─────────────────────────────────────────────
@@ -734,6 +776,17 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             opt.PaneChoices.Add(pane);
                             foreach (var p in pane.Pieces) opt.Pieces.Add(p);
                         }
+                    }
+
+                    // Step 4 stock sheets (the rack the job was quoted on).
+                    foreach (var group in groups)
+                    {
+                        if (group.OuterSheetWidthMm > 0 && group.OuterSheetHeightMm > 0)
+                            opt.Step4Sheets.Add((group.OuterSheetWidthMm, group.OuterSheetHeightMm,
+                                "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture) + " outer"));
+                        if (group.InnerSheetWidthMm > 0 && group.InnerSheetHeightMm > 0)
+                            opt.Step4Sheets.Add((group.InnerSheetWidthMm, group.InnerSheetHeightMm,
+                                "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture) + " inner"));
                     }
 
                     int pcs = opt.PaneChoices.Sum(p => p.TotalPcs);
@@ -1004,7 +1057,37 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 });
             }
 
+            RebuildCuttingGroups();
             RebuildCutPlan();
+        }
+
+        /// <summary>
+        /// The SIZES dropdown: every glass composition in the list (outer /
+        /// inner / …) so the operator can optimize one pane group at a time
+        /// against its own Step 4 sheet. Selection survives edits.
+        /// </summary>
+        private void RebuildCuttingGroups()
+        {
+            string previous = _selectedCuttingGroup;
+
+            var compositions = Pieces
+                .Where(p => p.TryParse(out _, out _, out _))
+                .Select(p => (p.GlassRef ?? string.Empty).Trim())
+                .Where(c => c.Length > 0)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(c => c, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            CuttingGroups.Clear();
+            CuttingGroups.Add(AllCuttingGroups);
+            foreach (var c in compositions) CuttingGroups.Add(c);
+
+            // Keep the selection only if it still exists — and point it at
+            // the canonical list item so the ComboBox selection matches.
+            var matched = compositions.FirstOrDefault(c =>
+                string.Equals(c, previous, StringComparison.OrdinalIgnoreCase));
+            _selectedCuttingGroup = matched ?? AllCuttingGroups;
+            OnPropertyChanged(nameof(SelectedCuttingGroup));
         }
 
         /// <summary>
@@ -1063,16 +1146,54 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 RunMessage = "Stock needs positive W×H in mm.";
                 return;
             }
-            Stocks.Add(new StockEntryVm(
+            var row = new StockEntryVm(
                 w.ToString(CultureInfo.InvariantCulture),
-                h.ToString(CultureInfo.InvariantCulture))
-            { AvailableText = NewStock.AvailableText });
+                h.ToString(CultureInfo.InvariantCulture),
+                "manual")
+            { AvailableText = NewStock.AvailableText };
+            Stocks.Add(row);
             RunMessage = string.Empty;
         }
 
         private void RemoveStock(StockEntryVm entry)
         {
             if (entry != null && Stocks.Count > 1) Stocks.Remove(entry);
+        }
+
+        /// <summary>
+        /// Pulls the Step 4 chosen stock sheets of the selected Job Order
+        /// into the pool (deduped by size). The job's Step 4 sheet = the
+        /// exact rack the factory quoted on, so the optimizer packs against
+        /// it instead of a generic pool.
+        /// </summary>
+        private void ImportStockFromStep4()
+        {
+            if (SelectedJob == null || SelectedJob.Step4Sheets.Count == 0)
+            {
+                RunMessage = "Select a Job Order first — its Step 4 sheets import into the stock pool.";
+                return;
+            }
+
+            int added = 0;
+            foreach (var (w, h, source) in SelectedJob.Step4Sheets)
+            {
+                bool exists = Stocks.Any(s =>
+                    int.TryParse(s.WidthText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int ew) &&
+                    int.TryParse(s.HeightText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int eh) &&
+                    ew == w && eh == h);
+                if (exists) continue;
+
+                Stocks.Add(new StockEntryVm(
+                    w.ToString(CultureInfo.InvariantCulture),
+                    h.ToString(CultureInfo.InvariantCulture),
+                    "Step 4 · " + source));
+                added++;
+            }
+
+            RunMessage = added == 0
+                ? "Step 4 sheets are already in the stock pool."
+                : string.Format(CultureInfo.InvariantCulture,
+                    "Imported {0} Step 4 stock sheet size(s) — available = unlimited (usage-tracked).", added);
         }
 
         // ── margins ────────────────────────────────────────────────────
@@ -1203,6 +1324,20 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 CultureInfo.InvariantCulture, out int lvl) && lvl >= 1 && lvl <= 5 ? lvl : 3;
             var rotation = RotationEnabled ? RotationPolicy.Free90 : RotationPolicy.Locked;
             var groups = BuildCuttingGroups(pieces);
+
+            // SIZES dropdown: optimize ONE pane group at a time when a
+            // specific composition (outer / inner / …) is selected.
+            if (!string.Equals(_selectedCuttingGroup, AllCuttingGroups, StringComparison.OrdinalIgnoreCase))
+            {
+                groups = groups
+                    .Where(g => string.Equals(g.Composition, _selectedCuttingGroup, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                if (groups.Count == 0)
+                {
+                    RunMessage = "The selected cutting group has no valid pieces.";
+                    return;
+                }
+            }
 
             IsRunning = true;
             RunStageLabel = stage == "OPTIMIZE"
@@ -1380,11 +1515,42 @@ namespace ProGlassAutomation.ViewModels.Optimization
             SelectedSheetIndex = 0;
             RebuildPreview();
 
+            RefreshStockUsage(runs);
+
             RunMessage = string.Format(CultureInfo.InvariantCulture,
                 "{0}: {1} cutting group(s), {2} sheet(s), {3:0.00}% utilization, {4} unplaced.",
                 stage, runs.Count, totalSheets, util, totalUnplaced);
 
             SelectedTabIndex = 4; // RESULT tab
+        }
+
+        /// <summary>
+        /// Live-connects the run to the STOCKS tab: each rack shows how many
+        /// sheets this run consumed. Availability stays unlimited by default
+        /// (99999999) — usage is tracked, not capped.
+        /// </summary>
+        private void RefreshStockUsage(List<GroupRun> runs)
+        {
+            var used = new Dictionary<(int W, int H), int>();
+            foreach (var r in runs)
+            {
+                foreach (var sheet in r.Result.Sheets)
+                {
+                    var key = (sheet.Stock.WidthMm, sheet.Stock.HeightMm);
+                    used.TryGetValue(key, out int n);
+                    used[key] = n + 1;
+                }
+            }
+
+            foreach (var s in Stocks)
+            {
+                bool known = int.TryParse(s.WidthText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int w) &&
+                             int.TryParse(s.HeightText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int h) &&
+                             used.TryGetValue((w, h), out int n);
+                s.UsedLabel = known
+                    ? n.ToString(CultureInfo.InvariantCulture) + (n == 1 ? " sheet used" : " sheets used")
+                    : string.Empty;
+            }
         }
 
         // ── 2D preview ─────────────────────────────────────────────────

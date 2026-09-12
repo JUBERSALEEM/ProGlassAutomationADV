@@ -314,7 +314,36 @@ parts list mis-stated the glass. Fixes in this commit:
 - **Calibration data corrected** — the reference job now loads the true
   152 pieces (76 low-e · 64 clear · 12 ramly), matching the benchmark test.
 
-## 10. Carried recommendations (not implemented, by design)
+## 10. Shop-floor correctness pass (fourth commit)
+
+Follow-up analysis of the live-module defects the owner flagged:
+
+**Production — DONE vs DELIVERED**
+- The dispatch card now reads `FINISHED` (production-done) / `DELIVERED`
+  (on a confirmed delivery note) / `BALANCE`, with an explicit
+  "DONE ≠ DELIVERED" note — finished pieces only leave on a delivery note.
+- The *Create Delivery Note* button is no longer gated on a non-zero
+  balance: it stays clickable for any production-managed job and, when
+  nothing is ready, the click explains itself instead of silently fading.
+
+**Optimization — Step 4 stock link**
+- The STOCKS tab gained an *Import Step 4 sheets* action: it loads the
+  Step 4 chosen stock sheets (per spec × outer/inner, from
+  `SpecGroupSnapshot.OuterSheet…`/`InnerSheet…`) into the pool, deduped by
+  size — so the optimizer packs against the exact rack the job was quoted
+  on, not a generic pool.
+- Availability now defaults to **99999999 (unlimited)** and every rack
+  reports *used this run* after a pack — usage is tracked, never capped.
+
+**Optimization — cut the panes separately**
+- The SIZES tab gained a **Cutting group** selector (outer / inner / …).
+  Picking one group packs only that pane group; the 2D view and SUMMARY
+  then show only that group's sheets. 'ALL' packs every group in its own
+  run (different glass never mixes on a sheet).
+- The JOBS pane checklist now shows the full Step 5 spec name above the
+  pane composition for traceability.
+
+## 11. Carried recommendations (not implemented, by design)
 
 - **2D PNG/PDF sheet export** — house export engine hook (design phase 5).
 - **Sheet Store consumption booking** — confirming a run books `Used +=
