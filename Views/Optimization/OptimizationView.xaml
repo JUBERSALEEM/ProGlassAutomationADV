@@ -121,78 +121,94 @@
 
                 <!-- CONFIRMED JOBS -->
                 <Border Grid.Column="0" Style="{StaticResource OptKpiCard}" Margin="0,0,12,0">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintBlueBrush}">
-                            <TextBlock Text="&#xE821;" FontFamily="Segoe MDL2 Assets" FontSize="18"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="CONFIRMED JOBS" Style="{StaticResource OptHeader}"/>
-                            <TextBlock Text="{Binding KpiJobs}" Style="{StaticResource OptKpiValue}"/>
-                        </StackPanel>
-                    </Grid>
+                    <StackPanel>
+                        <Border Height="2" Background="{DynamicResource AccentBrush}"
+                                CornerRadius="{StaticResource OptCorner}" Margin="0,0,0,10"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintBlueBrush}">
+                                <TextBlock Text="&#xE821;" FontFamily="Segoe MDL2 Assets" FontSize="18"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="CONFIRMED JOBS" Style="{StaticResource OptHeader}"/>
+                                <TextBlock Text="{Binding KpiJobs}" Style="{StaticResource OptKpiValue}"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
                 </Border>
 
                 <!-- PIECES -->
                 <Border Grid.Column="1" Style="{StaticResource OptKpiCard}" Margin="0,0,12,0">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintGreenBrush}">
-                            <TextBlock Text="&#xE80A;" FontFamily="Segoe MDL2 Assets" FontSize="18"
-                                       Foreground="{DynamicResource SuccessBrush}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="PIECES" Style="{StaticResource OptHeader}"/>
-                            <TextBlock Text="{Binding KpiPieces}" Style="{StaticResource OptKpiValue}"/>
-                        </StackPanel>
-                    </Grid>
+                    <StackPanel>
+                        <Border Height="2" Background="{DynamicResource AccentBrush}"
+                                CornerRadius="{StaticResource OptCorner}" Margin="0,0,0,10"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintGreenBrush}">
+                                <TextBlock Text="&#xE80A;" FontFamily="Segoe MDL2 Assets" FontSize="18"
+                                           Foreground="{DynamicResource SuccessBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="PIECES" Style="{StaticResource OptHeader}"/>
+                                <TextBlock Text="{Binding KpiPieces}" Style="{StaticResource OptKpiValue}"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
                 </Border>
 
                 <!-- TOTAL GLASS -->
                 <Border Grid.Column="2" Style="{StaticResource OptKpiCard}" Margin="0,0,12,0">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintAmberBrush}">
-                            <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="18"
-                                       Foreground="{DynamicResource WarningBrush}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="TOTAL GLASS" Style="{StaticResource OptHeader}"/>
-                            <TextBlock Text="{Binding KpiGlass}" Style="{StaticResource OptKpiValue}"/>
-                        </StackPanel>
-                    </Grid>
+                    <StackPanel>
+                        <Border Height="2" Background="{DynamicResource AccentBrush}"
+                                CornerRadius="{StaticResource OptCorner}" Margin="0,0,0,10"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintAmberBrush}">
+                                <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="18"
+                                           Foreground="{DynamicResource WarningBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="TOTAL GLASS" Style="{StaticResource OptHeader}"/>
+                                <TextBlock Text="{Binding KpiGlass}" Style="{StaticResource OptKpiValue}"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
                 </Border>
 
                 <!-- CUTTING GROUPS -->
                 <Border Grid.Column="3" Style="{StaticResource OptKpiCard}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintTealBrush}">
-                            <TextBlock Text="&#xE8A7;" FontFamily="Segoe MDL2 Assets" FontSize="18"
-                                       Foreground="{DynamicResource InfoBrush}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="CUTTING GROUPS" Style="{StaticResource OptHeader}"/>
-                            <TextBlock Text="{Binding KpiGroups}" Style="{StaticResource OptKpiValue}"/>
-                        </StackPanel>
-                    </Grid>
+                    <StackPanel>
+                        <Border Height="2" Background="{DynamicResource AccentBrush}"
+                                CornerRadius="{StaticResource OptCorner}" Margin="0,0,0,10"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintTealBrush}">
+                                <TextBlock Text="&#xE8A7;" FontFamily="Segoe MDL2 Assets" FontSize="18"
+                                           Foreground="{DynamicResource InfoBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="CUTTING GROUPS" Style="{StaticResource OptHeader}"/>
+                                <TextBlock Text="{Binding KpiGroups}" Style="{StaticResource OptKpiValue}"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
                 </Border>
             </Grid>
 

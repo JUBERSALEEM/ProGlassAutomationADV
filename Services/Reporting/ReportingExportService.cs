@@ -452,39 +452,52 @@ namespace ProGlassAutomation.Services.Reporting
 
                 if (IsSectionedReport)
                 {
+                    // Sectioned documents: each group becomes a banner row
+                    // followed by its own table. The table is emitted as a
+                    // DIRECT item of the page column (never wrapped in a
+                    // Border/Background decoration) so QuestPDF can split a
+                    // tall table across pages at row boundaries — a decorated
+                    // block taller than one page is a hard layout conflict
+                    // ("conflicting size constraints").
                     int maxCellChars = _headers.Length <= 4 ? 260 : _headers.Length <= 8 ? 170 : 110;
                     foreach (var group in _rows.Select(r => _mapper(r))
                         .GroupBy(f => f.Length > 0 ? f[0] ?? "DETAILS" : "DETAILS"))
                     {
-                        column.Item().PaddingTop(12).Border(1).BorderColor("#BFDBFE").Background("#F8FAFC").Padding(8).Column(block =>
+                        column.Item().PaddingTop(12).Text(group.Key.ToUpperInvariant())
+                            .FontSize(12).Bold().FontColor("#1D4ED8");
+                        column.Item().PaddingTop(4).LineHorizontal(0.5f).LineColor("#DBEAFE");
+
+                        // The leading SECTION column is dropped from the table
+                        // (it is the group banner); a single-column section has
+                        // no data columns, so its banner is enough.
+                        if (_headers.Length <= 1)
+                            continue;
+
+                        int dataCols = _headers.Length - 1;
+                        column.Item().PaddingTop(6).Table(table =>
                         {
-                            block.Item().Text(group.Key.ToUpperInvariant()).FontSize(12).Bold().FontColor("#1D4ED8");
-                            block.Item().PaddingTop(5).LineHorizontal(0.5f).LineColor("#DBEAFE");
-                            block.Item().PaddingTop(6).Table(table =>
+                            table.ColumnsDefinition(c =>
                             {
-                                table.ColumnsDefinition(c =>
-                                {
-                                    for (int i = 1; i < _headers.Length; i++) c.RelativeColumn();
-                                });
-
-                                table.Header(h =>
-                                {
-                                    for (int i = 1; i < _headers.Length; i++)
-                                        h.Cell().Background("#DBEAFE").Padding(4).Text(_headers[i]).FontSize(8).Bold().FontColor("#1E3A8A").AlignCenter();
-                                });
-
-                                bool alt = false;
-                                foreach (var fields in group)
-                                {
-                                    for (int i = 1; i < fields.Length && i < _headers.Length; i++)
-                                    {
-                                        var txt = fields[i] ?? "";
-                                        if (txt.Length > maxCellChars) txt = txt.Substring(0, Math.Max(1, maxCellChars - 1)) + "…";
-                                        table.Cell().Background(alt ? "#FFFFFF" : "#F8FAFC").BorderBottom(0.5f).BorderColor("#E5E7EB").Padding(5).Text(txt).FontSize(_headers.Length <= 5 ? 8.5f : 8f).FontColor("#1F2937");
-                                    }
-                                    alt = !alt;
-                                }
+                                for (int i = 0; i < dataCols; i++) c.RelativeColumn();
                             });
+
+                            table.Header(h =>
+                            {
+                                for (int i = 1; i < _headers.Length; i++)
+                                    h.Cell().Background("#DBEAFE").Padding(4).Text(_headers[i]).FontSize(8).Bold().FontColor("#1E3A8A").AlignCenter();
+                            });
+
+                            bool alt = false;
+                            foreach (var fields in group)
+                            {
+                                for (int i = 1; i < fields.Length && i < _headers.Length; i++)
+                                {
+                                    var txt = fields[i] ?? "";
+                                    if (txt.Length > maxCellChars) txt = txt.Substring(0, Math.Max(1, maxCellChars - 1)) + "…";
+                                    table.Cell().Background(alt ? "#FFFFFF" : "#F8FAFC").BorderBottom(0.5f).BorderColor("#E5E7EB").Padding(5).Text(txt).FontSize(_headers.Length <= 5 ? 8.5f : 8f).FontColor("#1F2937");
+                                }
+                                alt = !alt;
+                            }
                         });
                     }
                     return;

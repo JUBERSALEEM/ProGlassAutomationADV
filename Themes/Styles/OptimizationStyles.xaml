@@ -35,7 +35,8 @@
         </Style>
 
         <!-- ══ KPI stat card — shared CardStyles elevation: refined
-             shadow + a 1px top accent hairline over the glass border. -->
+             shadow over the glass border (a Border has no Template, so
+             the top accent hairline is drawn by the card's own markup). -->
         <Style x:Key="OptKpiCard" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
@@ -44,27 +45,6 @@
             <Setter Property="Padding" Value="16,14"/>
             <Setter Property="Effect" Value="{DynamicResource ShadowSoft}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Border">
-                        <Grid>
-                            <!-- card surface + glass border -->
-                            <Border Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="{TemplateBinding CornerRadius}"/>
-                            <!-- 1px top accent hairline -->
-                            <Border BorderThickness="{DynamicResource Border.TopHairlineThickness}"
-                                    BorderBrush="{DynamicResource AccentBrush}"
-                                    CornerRadius="{TemplateBinding CornerRadius}"
-                                    VerticalAlignment="Top" Margin="1,0,1,0"/>
-                            <!-- Border is a Decorator: re-host its Child. -->
-                            <ContentPresenter Content="{TemplateBinding Child}"
-                                              Margin="{TemplateBinding Padding}"/>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
         </Style>
 
         <!-- Tinted square icon badge on each KPI card -->
