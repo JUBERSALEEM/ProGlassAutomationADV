@@ -646,7 +646,7 @@ namespace ProGlassAutomation.Services.Production
                 if (!flow.StageItems.TryGetValue(stageInt, out var stageItems))
                     continue; // this unit has no work allocated to this stage
 
-                var agg = flow.Stages.TryGetValue(stageInt, out var a) ? a : (0, 0);
+                var agg = flow.Stages.TryGetValue(stageInt, out var a) ? a : (Inflow: 0, Done: 0);
                 bool arrived = agg.Inflow > 0;
 
                 if (!arrived)
