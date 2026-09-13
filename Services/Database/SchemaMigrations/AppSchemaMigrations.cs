@@ -662,6 +662,137 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                         "CREATE INDEX IF NOT EXISTS IX_Replacement_EntryType ON ProductionReplacements(EntryType);");
                     SchemaMigrationSql.CreateIndexIfNotExists(connection,
                         "CREATE INDEX IF NOT EXISTS IX_Replacement_IsFoc ON ProductionReplacements(IsFoc);");
+                }),
+
+                // Phase 15: Cutting Sessions, Sheets, Placed Pieces tables
+                new(1011, "Production: CuttingSessions table", connection =>
+                {
+                    SchemaMigrationSql.CreateTableIfNotExists(connection, @"
+                        CREATE TABLE IF NOT EXISTS CuttingSessions (
+                            Id                      INTEGER NOT NULL CONSTRAINT PK_CuttingSessions PRIMARY KEY AUTOINCREMENT,
+                            CuttingSessionId        TEXT NOT NULL,
+                            JobRef                  TEXT NOT NULL,
+                            SourceProformaId        TEXT NOT NULL DEFAULT '',
+                            OptimizationSessionId   TEXT NOT NULL DEFAULT '',
+                            MaterialGroupId         TEXT NOT NULL DEFAULT '',
+                            TotalPieces             INTEGER NOT NULL DEFAULT 0,
+                            SheetsUsed              INTEGER NOT NULL DEFAULT 0,
+                            UtilizationPct          TEXT NOT NULL DEFAULT '0',
+                            WastagePct              TEXT NOT NULL DEFAULT '0',
+                            Status                  INTEGER NOT NULL DEFAULT 0,
+                            RotationPolicy          INTEGER NOT NULL DEFAULT 1,
+                            SplitMode               INTEGER NOT NULL DEFAULT 0,
+                            EffortLevel             INTEGER NOT NULL DEFAULT 3,
+                            MarginProfileJson       TEXT NOT NULL DEFAULT '',
+                            IsVerified              INTEGER NOT NULL DEFAULT 0,
+                            VerificationResult      TEXT NOT NULL DEFAULT '',
+                            CreatedBy               TEXT NOT NULL DEFAULT '',
+                            CreatedAt               TEXT NOT NULL,
+                            CompletedAt             TEXT NULL,
+                            Notes                   TEXT NOT NULL DEFAULT ''
+                        );");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_CuttingSession_SessionId_Unique ON CuttingSessions(CuttingSessionId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_CuttingSession_JobRef ON CuttingSessions(JobRef);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_CuttingSession_OptSession ON CuttingSessions(OptimizationSessionId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_CuttingSession_Status ON CuttingSessions(Status);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_CuttingSession_MaterialGroup ON CuttingSessions(MaterialGroupId);");
+                }),
+
+                new(1012, "Production: CuttingSheets table", connection =>
+                {
+                    SchemaMigrationSql.CreateTableIfNotExists(connection, @"
+                        CREATE TABLE IF NOT EXISTS CuttingSheets (
+                            Id                  INTEGER NOT NULL CONSTRAINT PK_CuttingSheets PRIMARY KEY AUTOINCREMENT,
+                            CuttingSheetId      TEXT NOT NULL,
+                            CuttingSessionId    TEXT NOT NULL,
+                            JobRef              TEXT NOT NULL,
+                            SheetNo             INTEGER NOT NULL DEFAULT 0,
+                            StockSheetId        INTEGER NOT NULL DEFAULT 0,
+                            StockSizeLabel      TEXT NOT NULL DEFAULT '',
+                            StockWidthMm        INTEGER NOT NULL DEFAULT 0,
+                            StockHeightMm       INTEGER NOT NULL DEFAULT 0,
+                            ThicknessMm         INTEGER NOT NULL DEFAULT 0,
+                            Color               TEXT NOT NULL DEFAULT '',
+                            UsableX             INTEGER NOT NULL DEFAULT 0,
+                            UsableY             INTEGER NOT NULL DEFAULT 0,
+                            UsableWidth         INTEGER NOT NULL DEFAULT 0,
+                            UsableHeight        INTEGER NOT NULL DEFAULT 0,
+                            UsedSqm             TEXT NOT NULL DEFAULT '0',
+                            StockSqm            TEXT NOT NULL DEFAULT '0',
+                            UtilizationPct      TEXT NOT NULL DEFAULT '0',
+                            WastagePct          TEXT NOT NULL DEFAULT '0',
+                            IsVerified          INTEGER NOT NULL DEFAULT 0,
+                            VerificationResult  TEXT NOT NULL DEFAULT '',
+                            PlacedPieceCount    INTEGER NOT NULL DEFAULT 0,
+                            CreatedBy           TEXT NOT NULL DEFAULT '',
+                            CreatedAt           TEXT NOT NULL
+                        );");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_CuttingSheet_SheetId_Unique ON CuttingSheets(CuttingSheetId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_CuttingSheet_SessionId ON CuttingSheets(CuttingSessionId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_CuttingSheet_JobRef ON CuttingSheets(JobRef);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_CuttingSheet_StockSheetId ON CuttingSheets(StockSheetId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_CuttingSheet_SheetNo ON CuttingSheets(SheetNo);");
+                }),
+
+                new(1013, "Production: CuttingPlacedPieces table", connection =>
+                {
+                    SchemaMigrationSql.CreateTableIfNotExists(connection, @"
+                        CREATE TABLE IF NOT EXISTS CuttingPlacedPieces (
+                            Id                  INTEGER NOT NULL CONSTRAINT PK_CuttingPlacedPieces PRIMARY KEY AUTOINCREMENT,
+                            PlacedPieceId       TEXT NOT NULL,
+                            CuttingSheetId      TEXT NOT NULL,
+                            CuttingSessionId    TEXT NOT NULL,
+                            JobRef              TEXT NOT NULL,
+                            SpecGroupNumber     INTEGER NOT NULL DEFAULT 0,
+                            SerialNumber        INTEGER NOT NULL DEFAULT 0,
+                            GlassRef            TEXT NOT NULL DEFAULT '',
+                            SpecName            TEXT NOT NULL DEFAULT '',
+                            Position            TEXT NOT NULL DEFAULT '',
+                            PieceId             TEXT NOT NULL,
+                            PieceLabel          TEXT NOT NULL DEFAULT '',
+                            WidthMm             INTEGER NOT NULL DEFAULT 0,
+                            HeightMm            INTEGER NOT NULL DEFAULT 0,
+                            X                   INTEGER NOT NULL DEFAULT 0,
+                            Y                   INTEGER NOT NULL DEFAULT 0,
+                            IsRotated           INTEGER NOT NULL DEFAULT 0,
+                            CutSequence         INTEGER NOT NULL DEFAULT 0,
+                            Status              INTEGER NOT NULL DEFAULT 0,
+                            SourceWorkItemId    INTEGER NOT NULL DEFAULT 0,
+                            ReservationId       TEXT NOT NULL DEFAULT '',
+                            AllocationId        TEXT NOT NULL DEFAULT '',
+                            IsFoc               INTEGER NOT NULL DEFAULT 0,
+                            CreatedBy           TEXT NOT NULL DEFAULT '',
+                            CreatedAt           TEXT NOT NULL,
+                            Notes               TEXT NOT NULL DEFAULT ''
+                        );");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_CuttingPlacedPiece_PieceId_Unique ON CuttingPlacedPieces(PlacedPieceId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_CuttingPlacedPiece_SheetId ON CuttingPlacedPieces(CuttingSheetId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_CuttingPlacedPiece_SessionId ON CuttingPlacedPieces(CuttingSessionId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_CuttingPlacedPiece_JobRef ON CuttingPlacedPieces(JobRef);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_CuttingPlacedPiece_PieceId ON CuttingPlacedPieces(PieceId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_CuttingPlacedPiece_SourceWorkItemId ON CuttingPlacedPieces(SourceWorkItemId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_CuttingPlacedPiece_Status ON CuttingPlacedPieces(Status);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_CuttingPlacedPiece_ReservationId ON CuttingPlacedPieces(ReservationId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_CuttingPlacedPiece_AllocationId ON CuttingPlacedPieces(AllocationId);");
                 })
             };
 

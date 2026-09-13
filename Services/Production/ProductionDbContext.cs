@@ -28,6 +28,11 @@ namespace ProGlassAutomation.Services.Production
         public DbSet<SavedActualCost> ActualCosts { get; set; }
         public DbSet<SavedProductionReplacement> Replacements { get; set; }
 
+        // Phase 15 cutting + 2D optimization workflow
+        public DbSet<SavedCuttingSession> CuttingSessions { get; set; }
+        public DbSet<SavedCuttingSheet> CuttingSheets { get; set; }
+        public DbSet<SavedCuttingPlacedPiece> CuttingPlacedPieces { get; set; }
+
         public static string DatabaseFilePath =>
             Path.Combine(
                 ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder,
@@ -157,6 +162,56 @@ namespace ProGlassAutomation.Services.Production
                 .HasDatabaseName("IX_Replacement_EntryType");
             repl.HasIndex(r => r.IsFoc)
                 .HasDatabaseName("IX_Replacement_IsFoc");
+
+            // Phase 15: Cutting sessions
+            var cutSession = modelBuilder.Entity<SavedCuttingSession>();
+            cutSession.HasIndex(c => c.CuttingSessionId)
+                .IsUnique()
+                .HasDatabaseName("IX_CuttingSession_SessionId_Unique");
+            cutSession.HasIndex(c => c.JobRef)
+                .HasDatabaseName("IX_CuttingSession_JobRef");
+            cutSession.HasIndex(c => c.OptimizationSessionId)
+                .HasDatabaseName("IX_CuttingSession_OptSession");
+            cutSession.HasIndex(c => c.Status)
+                .HasDatabaseName("IX_CuttingSession_Status");
+            cutSession.HasIndex(c => c.MaterialGroupId)
+                .HasDatabaseName("IX_CuttingSession_MaterialGroup");
+
+            // Phase 15: Cutting sheets
+            var cutSheet = modelBuilder.Entity<SavedCuttingSheet>();
+            cutSheet.HasIndex(s => s.CuttingSheetId)
+                .IsUnique()
+                .HasDatabaseName("IX_CuttingSheet_SheetId_Unique");
+            cutSheet.HasIndex(s => s.CuttingSessionId)
+                .HasDatabaseName("IX_CuttingSheet_SessionId");
+            cutSheet.HasIndex(s => s.JobRef)
+                .HasDatabaseName("IX_CuttingSheet_JobRef");
+            cutSheet.HasIndex(s => s.StockSheetId)
+                .HasDatabaseName("IX_CuttingSheet_StockSheetId");
+            cutSheet.HasIndex(s => s.SheetNo)
+                .HasDatabaseName("IX_CuttingSheet_SheetNo");
+
+            // Phase 15: Cutting placed pieces
+            var cutPiece = modelBuilder.Entity<SavedCuttingPlacedPiece>();
+            cutPiece.HasIndex(p => p.PlacedPieceId)
+                .IsUnique()
+                .HasDatabaseName("IX_CuttingPlacedPiece_PieceId_Unique");
+            cutPiece.HasIndex(p => p.CuttingSheetId)
+                .HasDatabaseName("IX_CuttingPlacedPiece_SheetId");
+            cutPiece.HasIndex(p => p.CuttingSessionId)
+                .HasDatabaseName("IX_CuttingPlacedPiece_SessionId");
+            cutPiece.HasIndex(p => p.JobRef)
+                .HasDatabaseName("IX_CuttingPlacedPiece_JobRef");
+            cutPiece.HasIndex(p => p.PieceId)
+                .HasDatabaseName("IX_CuttingPlacedPiece_PieceId");
+            cutPiece.HasIndex(p => p.SourceWorkItemId)
+                .HasDatabaseName("IX_CuttingPlacedPiece_SourceWorkItemId");
+            cutPiece.HasIndex(p => p.Status)
+                .HasDatabaseName("IX_CuttingPlacedPiece_Status");
+            cutPiece.HasIndex(p => p.ReservationId)
+                .HasDatabaseName("IX_CuttingPlacedPiece_ReservationId");
+            cutPiece.HasIndex(p => p.AllocationId)
+                .HasDatabaseName("IX_CuttingPlacedPiece_AllocationId");
         }
     }
 }

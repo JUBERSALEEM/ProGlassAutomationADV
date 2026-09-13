@@ -117,8 +117,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // against the rack its spec was quoted on.
             RefreshDerived();
 
-            // Phase 14 bridge
+            // Phase 14 + 15 bridge + cutting workflow
             InitPhase14Optimization();
+            InitPhase15Optimization();
         }
     }
 }

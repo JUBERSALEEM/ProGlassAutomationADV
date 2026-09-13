@@ -222,6 +222,7 @@ namespace ProGlassAutomation.ViewModels
                 case "JobOrder": CurrentViewModel = JobOrderVM; break;
                 case "Optimization": CurrentViewModel = OptimizationVM; break;
                 case "Cutting": CurrentViewModel = CuttingVM; break;
+                case "CuttingWorkCenter": CurrentViewModel = CuttingWorkCenterVM; break;
                 case "HolesCutouts": CurrentViewModel = HolesCutoutsVM; break;
                 case "Polish": CurrentViewModel = PolishVM; break;
                 case "EdgeDeletion": CurrentViewModel = EdgeDeletionVM; break;
