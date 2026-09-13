@@ -151,7 +151,7 @@
     <!-- ═══════════════════════════════════════════════════════════════
          ROOT
     ═══════════════════════════════════════════════════════════════ -->
-    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid Background="Transparent">
 
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled"

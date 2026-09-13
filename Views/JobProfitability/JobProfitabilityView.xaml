@@ -131,7 +131,7 @@
          sidebar) and the full-screen detail page opened on double-click.
          The full page mirrors the Step 9 Profit & Loss module's
          full-screen spec report. -->
-    <Grid Background="{DynamicResource SurfacePrimaryBrush}">
+    <Grid Background="Transparent">
 
         <!-- ═══ LAYER 1 — two-column layout: main content + detail sidebar
              (hidden while the full-screen detail page is open) ═══ -->

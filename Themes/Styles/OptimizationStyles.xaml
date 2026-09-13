@@ -16,35 +16,18 @@
         <CornerRadius x:Key="OptCorner">12</CornerRadius>
 
         <!-- ══ Panel card — thin glass border, OptCorner radius ═══════ -->
-        <Style x:Key="OptPanelCard" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="{StaticResource OptCorner}"/>
+        <Style x:Key="OptPanelCard" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
             <Setter Property="Padding" Value="18,16"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
         <!-- Inner card (job cards, nested surfaces) -->
-        <Style x:Key="OptInnerCard" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource ElevatedSurfaceBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="{StaticResource OptCorner}"/>
+        <Style x:Key="OptInnerCard" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
             <Setter Property="Padding" Value="12,10"/>
         </Style>
 
-        <!-- ══ KPI stat card — shared CardStyles elevation: refined
-             shadow over the glass border (a Border has no Template, so
-             the top accent hairline is drawn by the card's own markup). -->
-        <Style x:Key="OptKpiCard" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="{StaticResource OptCorner}"/>
+        <Style x:Key="OptKpiCard" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
             <Setter Property="Padding" Value="16,14"/>
             <Setter Property="Effect" Value="{DynamicResource ShadowSoft}"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
         <!-- Tinted square icon badge on each KPI card -->

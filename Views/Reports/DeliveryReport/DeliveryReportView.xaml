@@ -20,7 +20,7 @@
          Balance = Total − Delivered. The related Delivery Notes expand
          INLINE inside each row — no split list + side panel.
     ═══════════════════════════════════════════════════════════════════ -->
-    <Grid Background="{DynamicResource SurfacePrimaryBrush}">
+    <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>

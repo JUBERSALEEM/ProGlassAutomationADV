@@ -28,7 +28,7 @@
         </DataTemplate>
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid Background="Transparent">
 
         <!-- Saved reports list -->
         <ContentControl Content="{Binding ListVM}">

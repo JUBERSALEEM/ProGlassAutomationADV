@@ -564,6 +564,65 @@
                     </Border>
 
 
+                    <!-- Module-skin frost: blur wallpaper + tinted glass cards -->
+                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE2B1;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Frosted module cards"/>
+                                <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
+                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentBrush}">
+                                    <Run Text="{Binding CardBlurIntensity, Mode=OneWay, StringFormat={}{0:0}}"/>
+                                    <Run Text="/100"/>
+                                </TextBlock>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="Blurs the module wallpaper behind every screen. Cards stay sharp. 1 = light frost, 50 = professional, 100 = max. Colour plate tints the shared card fill."/>
+                            <Slider Style="{StaticResource ModernSliderStyle}"
+                                    Minimum="1" Maximum="100"
+                                    Value="{Binding CardBlurIntensity, Mode=TwoWay}"
+                                    VerticalAlignment="Center" Margin="0,8,0,0"/>
+                            <TextBlock Margin="0,16,0,4"
+                                       Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="Frost colour plate"/>
+                            <ItemsControl ItemsSource="{Binding CardEdgePalette}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Command="{Binding DataContext.ApplyCardFrostTintCommand,
+                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding Key}"
+                                                Style="{StaticResource AccentChipStyle}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Ellipse Width="11" Height="11" Fill="{Binding Swatch}"
+                                                         VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                <Ellipse Width="14" Height="14"
+                                         Fill="{Binding CardFrostTintSwatch}"
+                                         Stroke="{DynamicResource BorderDefaultBrush}" StrokeThickness="1"
+                                         VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <TextBox Text="{Binding CardFrostTint, UpdateSourceTrigger=PropertyChanged}"
+                                         Width="110" Padding="8,6" FontSize="{StaticResource TextBody}"
+                                         FontFamily="Consolas" VerticalAlignment="Center"/>
+                                <Button Command="{Binding ApplyCardFrostTintCommand}" CommandParameter="Auto"
+                                        Style="{StaticResource AccentChipStyle}" Margin="8,0,0,0">
+                                    <TextBlock Text="Auto (theme)"/>
+                                </Button>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
                     <!-- Semantic ERP surfaces: Primary / Secondary / Detail customization -->
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>

@@ -38,7 +38,7 @@
 
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid Background="Transparent">
         <Border Style="{StaticResource ModuleListShellStyle}" Margin="0,0,0,4">
             <Grid>
                 <Grid.RowDefinitions>

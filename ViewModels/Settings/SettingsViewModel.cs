@@ -311,6 +311,8 @@ namespace ProGlassAutomation.ViewModels.Settings
             ApplyCardEdgePresetCommand = new RelayCommand(param =>
                 ApplyCardEdgePreset(param as string ?? ""));
             InitializeCardEdgePalette();
+            ApplyCardFrostTintCommand = new RelayCommand(param =>
+                ApplyCardFrostTintPreset(param as string ?? ""));
 
             // 2026-08-25 — global font colour: one user-chosen text
             // colour for the whole UI (Auto = theme/family palette).

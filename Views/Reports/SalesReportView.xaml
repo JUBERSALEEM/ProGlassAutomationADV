@@ -150,7 +150,7 @@
 
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource SurfacePrimaryBrush}">
+    <Grid Background="Transparent">
         <Grid.ColumnDefinitions>
             <!-- The 268px width lives on the rail Border and the column is
                  Auto, so the rail shrinks to 0 when collapsed (IsRailOpen

@@ -24,7 +24,7 @@
              FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Background="{DynamicResource SurfacePrimaryBrush}">
+             Background="Transparent">
 
     <UserControl.Resources>
         <conv:EmojiToGlyphConverter x:Key="EmojiToGlyph"/>

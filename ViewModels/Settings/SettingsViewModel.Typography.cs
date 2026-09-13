@@ -236,7 +236,9 @@ namespace ProGlassAutomation.ViewModels.Settings
                     ap.CardBorderThickness = 1.5;
                     ap.CardCornerRadius = 12;
                     ap.SurfaceMaterialMode = "Glass";
-                    ap.SurfacePrimaryOpacity = 1.0;
+                    ap.CardBlurIntensity = 28;
+                    ap.CardFrostTint = "";
+                    ap.SurfacePrimaryOpacity = 0.82;
                     ap.SurfaceSecondaryOpacity = 0.94;
                     ap.SurfaceDetailOpacity = 0.86;
                     ap.SurfacePrimaryRadius = null;
@@ -321,6 +323,9 @@ namespace ProGlassAutomation.ViewModels.Settings
                     OnPropertyChanged(nameof(CardBorderThickness));
                     OnPropertyChanged(nameof(CardCornerRadius));
                     OnPropertyChanged(nameof(SurfaceMaterialMode));
+                    OnPropertyChanged(nameof(CardBlurIntensity));
+                    OnPropertyChanged(nameof(CardFrostTint));
+                    OnPropertyChanged(nameof(CardFrostTintSwatch));
                     OnPropertyChanged(nameof(SurfacePrimaryOpacity));
                     OnPropertyChanged(nameof(SurfaceSecondaryOpacity));
                     OnPropertyChanged(nameof(SurfaceDetailOpacity));

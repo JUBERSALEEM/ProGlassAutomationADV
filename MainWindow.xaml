@@ -584,6 +584,7 @@
                 <Grid>
                     <Border CornerRadius="{DynamicResource CardCornerRadius}"
                             Background="{DynamicResource ModuleWallpaperBrush}"
+                            Effect="{DynamicResource ModuleSkinBlurEffect}"
                             IsHitTestVisible="False"/>
                     <!-- Phase 4: Smooth fade-in transition on module navigation.
                          ContentTransitionBehavior fades the new view in with a

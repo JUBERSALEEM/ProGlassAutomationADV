@@ -17,7 +17,7 @@
              SnapsToDevicePixels="True">
 
     <!-- Full-width module: hamburger owns the app menu; tabs sit in the header. -->
-    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid Background="Transparent">
         <Grid Margin="12,8,12,12">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>

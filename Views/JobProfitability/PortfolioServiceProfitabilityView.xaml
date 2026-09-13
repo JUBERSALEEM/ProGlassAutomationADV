@@ -43,7 +43,7 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource SurfacePrimaryBrush}">
+    <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>

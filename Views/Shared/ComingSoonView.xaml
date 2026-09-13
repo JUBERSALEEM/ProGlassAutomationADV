@@ -27,7 +27,7 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid Background="Transparent">
 
         <!-- Ambient accent wash behind the hero, so the placeholder sits
              on the same soft tinted stage as the dashboards (theme-aware). -->

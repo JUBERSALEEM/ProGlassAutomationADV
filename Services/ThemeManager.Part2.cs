@@ -343,7 +343,79 @@ namespace ProGlassAutomation.Services
                 resources["Surface.Primary.Effect"] = null;
             }
 
+            ApplyModuleSkinBlur(resources, appearance);
+            ApplyCardFrostTint(resources, appearance);
+
             PublishProGlassDesignSystem();
+        }
+
+        /// <summary>
+        /// Blurs the module wallpaper layer (not card text). Intensity 1–100.
+        /// Reduced motion or Solid material → no blur.
+        /// </summary>
+        private static void ApplyModuleSkinBlur(
+            ResourceDictionary resources, AppearanceSettings? appearance)
+        {
+            double intensity = Clamp01(
+                (appearance?.CardBlurIntensity ?? 28) / 100.0, 0.01, 1.0);
+            bool reduced = appearance?.ReducedMotion == true;
+            var material = ProGlassThemeEngine.ParseMaterial(appearance?.SurfaceMaterialMode);
+            if (reduced || material == ProGlassMaterial.Solid)
+            {
+                resources["ModuleSkinBlurEffect"] = null;
+                return;
+            }
+
+            var blur = new System.Windows.Media.Effects.BlurEffect
+            {
+                Radius = intensity * 36.0,
+                KernelType = System.Windows.Media.Effects.KernelType.Gaussian,
+                RenderingBias = System.Windows.Media.Effects.RenderingBias.Quality
+            };
+            resources["ModuleSkinBlurEffect"] = blur;
+        }
+
+        /// <summary>
+        /// Mixes the operator-chosen frost plate into semantic surfaces.
+        /// Empty tint leaves the theme fill (opacity already applied).
+        /// </summary>
+        private static void ApplyCardFrostTint(
+            ResourceDictionary resources, AppearanceSettings? appearance)
+        {
+            var tint = AccentPresets.TryParseHex(appearance?.CardFrostTint);
+            if (tint == null) return;
+
+            MixSurfaceTint(resources, "Surface.Primary.BackgroundBrush", tint.Value, 0.22);
+            MixSurfaceTint(resources, "Surface.Secondary.BackgroundBrush", tint.Value, 0.16);
+            MixSurfaceTint(resources, "Surface.Detail.BackgroundBrush", tint.Value, 0.10);
+        }
+
+        private static void MixSurfaceTint(
+            ResourceDictionary resources, string key, Color tint, double amount)
+        {
+            SolidColorBrush? surface = null;
+            try
+            {
+                if (resources.Contains(key))
+                    surface = resources[key] as SolidColorBrush;
+            }
+            catch (Exception)
+            {
+                return;
+            }
+            if (surface == null) return;
+
+            byte Mix(byte a, byte b)
+                => (byte)Math.Round(a * (1.0 - amount) + b * amount);
+
+            var mixed = new SolidColorBrush(Color.FromArgb(
+                surface.Color.A,
+                Mix(surface.Color.R, tint.R),
+                Mix(surface.Color.G, tint.G),
+                Mix(surface.Color.B, tint.B)));
+            mixed.Opacity = surface.Opacity;
+            if (mixed.CanFreeze) mixed.Freeze();
+            resources[key] = mixed;
         }
 
         /// <summary>

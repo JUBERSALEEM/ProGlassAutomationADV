@@ -207,8 +207,21 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// </summary>
         public string SurfaceMaterialMode { get; set; } = "Glass";
 
+        /// <summary>
+        /// Module-skin frost blur 1–100 (Settings → Appearance).
+        /// Applied as BlurEffect on ModuleWallpaperBrush only — never on
+        /// card children (that would blur text). 28 = professional default.
+        /// </summary>
+        public double CardBlurIntensity { get; set; } = 28;
+
+        /// <summary>
+        /// Frost tint for semantic cards (#RRGGBB). Empty = theme surface.
+        /// Mixed into Surface.Primary/Secondary/Detail fills.
+        /// </summary>
+        public string CardFrostTint { get; set; } = "";
+
         /// <summary>Opacity of the major module/page surface level.</summary>
-        public double SurfacePrimaryOpacity { get; set; } = 1.0;
+        public double SurfacePrimaryOpacity { get; set; } = 0.82;
 
         /// <summary>Opacity of nested group/filter/KPI surface level.</summary>
         public double SurfaceSecondaryOpacity { get; set; } = 0.94;

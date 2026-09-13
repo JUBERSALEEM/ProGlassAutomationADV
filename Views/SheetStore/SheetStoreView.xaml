@@ -149,7 +149,7 @@
     <!-- ══════════════════════════════════════════════════════════════
          ROOT LAYOUT — compact header + filters + main grid + slide panel
     ══════════════════════════════════════════════════════════════ -->
-    <Grid Background="{DynamicResource SurfacePrimaryBrush}">
+    <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <!-- Header + filters -->

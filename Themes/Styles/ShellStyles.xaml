@@ -461,7 +461,7 @@
 
         <!-- SUB-MENU CONTAINER — frosted rounded card -->
         <Style x:Key="SidebarSubMenuCard" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource Surface.Primary.BackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>

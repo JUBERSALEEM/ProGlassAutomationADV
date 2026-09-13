@@ -244,6 +244,62 @@ namespace ProGlassAutomation.ViewModels.Settings
             "Industrial Steel", "Minimal Ivory"
         };
 
+        public double CardBlurIntensity
+        {
+            get => _config?.Appearance?.CardBlurIntensity ?? 28;
+            set => SetSurfaceDouble(value, 1, 100,
+                v => _config!.Appearance.CardBlurIntensity = v,
+                () => _config!.Appearance.CardBlurIntensity,
+                nameof(CardBlurIntensity));
+        }
+
+        public string CardFrostTint
+        {
+            get => _config?.Appearance?.CardFrostTint ?? "";
+            set
+            {
+                if (_config?.Appearance == null) return;
+                if (_config.Appearance.CardFrostTint == value) return;
+                _config.Appearance.CardFrostTint = value ?? "";
+                ThemeManager.ApplySemanticSurfaces(_config.Appearance);
+                ScheduleDebouncedSave();
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CardFrostTintSwatch));
+            }
+        }
+
+        public Brush CardFrostTintSwatch
+        {
+            get
+            {
+                var parsed = ProGlassAutomation.Services.Theme.AccentPresets
+                    .TryParseHex(_config?.Appearance?.CardFrostTint);
+                if (parsed is Color c)
+                {
+                    var brush = new SolidColorBrush(c);
+                    brush.Freeze();
+                    return brush;
+                }
+                return Application.Current?.TryFindResource("Surface.Primary.BackgroundBrush") as Brush
+                    ?? Brushes.White;
+            }
+        }
+
+        public ICommand ApplyCardFrostTintCommand { get; private set; }
+
+        private void ApplyCardFrostTintPreset(string key)
+        {
+            if (_config?.Appearance == null) return;
+            if (string.IsNullOrWhiteSpace(key) || key == "Auto")
+            {
+                CardFrostTint = "";
+                return;
+            }
+            var color = ProGlassAutomation.Services.Theme.AccentPresets.ColorFor(key);
+            if (color == null) return;
+            CardFrostTint = $"#{color.Value.R:X2}{color.Value.G:X2}{color.Value.B:X2}";
+        }
+
         public List<string> SurfaceMaterialOptions { get; } = new()
         {
             "Glass", "Solid", "Transparent"

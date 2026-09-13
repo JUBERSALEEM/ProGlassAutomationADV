@@ -15,7 +15,7 @@
          Matches PiReport and DeliveryReport design system exactly.
          4 view modes: Detail (row-level), BySalesman, ByCompany, ByProject.
     ═══════════════════════════════════════════════════════════════════ -->
-    <Grid Background="{DynamicResource SurfacePrimaryBrush}">
+    <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>

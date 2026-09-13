@@ -32,7 +32,7 @@
         </DataTemplate>
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid Background="Transparent">
 
         <!-- Saved statements list -->
         <ContentControl Content="{Binding ListVM}">

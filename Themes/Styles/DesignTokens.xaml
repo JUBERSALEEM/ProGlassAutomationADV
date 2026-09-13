@@ -77,6 +77,7 @@
     <Thickness x:Key="Surface.Secondary.Padding">14,9</Thickness>
     <Thickness x:Key="Surface.Detail.Padding">10,6</Thickness>
     <x:Null x:Key="Surface.Primary.Effect"/>
+    <x:Null x:Key="ModuleSkinBlurEffect"/>
 
 
     <!-- Dynamic shape/border primitives for legacy XAML migration. These
