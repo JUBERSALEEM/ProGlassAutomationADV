@@ -170,8 +170,8 @@
     <Style x:Key="DbCardStyle" TargetType="Border"
            BasedOn="{StaticResource SurfacePrimaryStyle}">
         <Setter Property="Padding" Value="{StaticResource DbCardPadding}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
-        <Setter Property="Effect" Value="{DynamicResource ShadowElevated}"/>
+        <!-- Inherit Surface.Primary.CornerRadius from Appearance. Do not
+             re-set CardCornerRadius here — that froze the slider. -->
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
@@ -183,7 +183,7 @@
         <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Surface.Primary.CornerRadius}"/>
         <Setter Property="Padding" Value="{StaticResource DbTilePadding}"/>
         <Setter Property="MinHeight" Value="{StaticResource DbKpiTileMinHeight}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -194,7 +194,7 @@
         <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Surface.Primary.CornerRadius}"/>
         <Setter Property="Padding" Value="12"/>
         <Setter Property="MinHeight" Value="{StaticResource DbChartMinHeight}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -204,7 +204,7 @@
         <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Surface.Primary.CornerRadius}"/>
         <Setter Property="Padding" Value="13,11"/>
         <Setter Property="Margin" Value="0,0,0,8"/>
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -222,7 +222,7 @@
         <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Surface.Primary.CornerRadius}"/>
         <Setter Property="Padding" Value="9,4"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
@@ -230,14 +230,14 @@
     <Style x:Key="DbBadgeStyle" TargetType="Border">
         <Setter Property="Width" Value="30"/>
         <Setter Property="Height" Value="30"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Surface.Primary.CornerRadius}"/>
         <Setter Property="HorizontalAlignment" Value="Right"/>
         <Setter Property="VerticalAlignment" Value="Top"/>
     </Style>
 
     <Style x:Key="DbPillStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Surface.Primary.CornerRadius}"/>
         <Setter Property="Padding" Value="7,2"/>
         <Setter Property="HorizontalAlignment" Value="Right"/>
     </Style>
@@ -267,7 +267,7 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Root"
                             Background="{TemplateBinding Background}"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
                         <StackPanel Orientation="Horizontal"
@@ -411,7 +411,7 @@
 
                 <Border Grid.Column="0"
                         Width="32" Height="32"
-                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                        CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
                         VerticalAlignment="Top"
                         Margin="0,0,11,0"
                         Background="{Binding StatusColor,
@@ -523,7 +523,7 @@
         <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Surface.Primary.CornerRadius}"/>
         <Setter Property="Padding" Value="13,12"/>
         <Setter Property="MinHeight" Value="96"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>

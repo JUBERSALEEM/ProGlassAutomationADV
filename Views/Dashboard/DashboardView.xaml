@@ -118,7 +118,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Pill"
                                 Background="Transparent"
-                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
                                 Padding="10,7"
                                 SnapsToDevicePixels="True">
                             <TextBlock x:Name="Label"
@@ -226,7 +226,7 @@
                     Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                     BorderBrush="{DynamicResource Surface.Secondary.BorderBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
                     Padding="3"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center">
@@ -253,6 +253,7 @@
                         Margin="16,0,0,0">
 
                 <Border Style="{StaticResource DbChipStyle}"
+                        CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
                         Padding="9,5"
                         Margin="0,0,8,0"
                         VerticalAlignment="Center"
@@ -276,7 +277,7 @@
                         VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
                         <Border Width="22" Height="22"
-                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
                                 Background="{DynamicResource AccentBrush}"
                                 Margin="0,0,8,0">
                             <TextBlock Text="&#xE77B;"
@@ -299,7 +300,7 @@
             </StackPanel>
         </Grid>
 
-        <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1" Background="{DynamicResource BorderBrush}"/>
+        <Border CornerRadius="{DynamicResource Surface.Primary.CornerRadius}" Grid.Row="1" Background="{DynamicResource BorderBrush}"/>
 
         <!-- ═══════════════════════════════════════════════════════════
              ACTIVE MODULE — full window width

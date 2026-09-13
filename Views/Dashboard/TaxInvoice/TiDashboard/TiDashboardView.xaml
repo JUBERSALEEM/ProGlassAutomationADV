@@ -61,7 +61,7 @@
         <DataTemplate x:Key="TiRecentInvoiceTemplate">
             <Border Style="{StaticResource DbRowCardStyle}"
                     Margin="0,0,0,8"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
                     Padding="12,10"
                     Cursor="Hand"
                     SnapsToDevicePixels="True"
@@ -85,7 +85,7 @@
 
                     <Border Grid.Column="0"
                             Width="34" Height="34"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
                             VerticalAlignment="Center"
                             Margin="0,0,12,0"
                             SnapsToDevicePixels="True"
@@ -146,7 +146,7 @@
                                    FontWeight="Bold"
                                    HorizontalAlignment="Right"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <Border CornerRadius="{DynamicResource ControlCornerRadius}"
+                        <Border CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
                                 Padding="7,2"
                                 Margin="0,4,0,0"
                                 HorizontalAlignment="Right"
@@ -174,7 +174,7 @@
             <Border Style="{StaticResource DbRowCardStyle}"
                     Margin="0,0,0,10"
                     Padding="12,10"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
                     SnapsToDevicePixels="True"
                     Background="{Binding TintColor,
                                  Converter={StaticResource BrushKeyConverter}}">
@@ -243,7 +243,7 @@
             <Border Style="{StaticResource DbRowCardStyle}"
                     BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Margin="0,0,0,10"
                     Padding="12,10"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
                     SnapsToDevicePixels="True"
                     Background="{DynamicResource Surface.Primary.BackgroundBrush}">
                 <StackPanel>
@@ -256,7 +256,7 @@
 
                         <Border Grid.Column="0"
                                 Width="26" Height="26"
-                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
                                 Margin="0,0,10,0"
                                 VerticalAlignment="Center"
                                 SnapsToDevicePixels="True"
@@ -343,7 +343,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0" Margin="0,0,0,20">
+                <Grid Grid.Row="0" Margin="0,0,0,16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
@@ -358,10 +358,11 @@
                                 VerticalAlignment="Center">
                         <Border Style="{StaticResource DbChipStyle}" Margin="0,0,8,0">
                             <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="8" Height="8" Margin="0,0,6,0"
+                                <Ellipse Width="7" Height="7" Margin="0,0,6,0"
                                          VerticalAlignment="Center"
                                          Fill="{DynamicResource SuccessBrush}"/>
-                                <TextBlock Text="{DynamicResource Common.Live}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                <TextBlock Text="{DynamicResource Common.Live}"
+                                           FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
@@ -421,7 +422,7 @@
                     </Border>
                 </StackPanel>
 
-                <Grid Grid.Row="2" Margin="0,0,0,20">
+                <Grid Grid.Row="2" Margin="0,0,0,14">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="1.2*"/>

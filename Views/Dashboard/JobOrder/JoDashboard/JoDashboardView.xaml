@@ -2,6 +2,7 @@
      JOB ORDER DASHBOARD — on the shared dashboard grammar.
 
      Grammar: Styles/DashboardKit.xaml (Db* keys only).
+     Cards use Surface.Primary.CornerRadius (Appearance slider).
      Contract: hero → states → KPI band → primary visual → detail.
 
      Bindings unchanged: KpiCards, StatusBars, PriorityBars,

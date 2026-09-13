@@ -66,7 +66,7 @@
             <Border Style="{StaticResource DbRowCardStyle}"
                     Margin="0,0,0,8"
                     Padding="12,10"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
                     SnapsToDevicePixels="True"
                     Background="{DynamicResource Surface.Primary.BackgroundBrush}"
                     BorderBrush="{DynamicResource Surface.Primary.BorderBrush}"
@@ -81,7 +81,7 @@
                     <!-- Serial disc -->
                     <Border Grid.Column="0"
                             Width="34" Height="34"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
                             Margin="0,0,12,0"
                             VerticalAlignment="Center"
                             SnapsToDevicePixels="True"
@@ -116,7 +116,7 @@
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                             <Border Margin="10,0,0,0"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
                                     Padding="6,2"
                                     VerticalAlignment="Center"
                                     SnapsToDevicePixels="True"
@@ -228,7 +228,7 @@
                     <RowDefinition Height="*" MinHeight="260"/>
                 </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0" Margin="0,0,0,20">
+                <Grid Grid.Row="0" Margin="0,0,0,16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
@@ -243,10 +243,11 @@
                                 VerticalAlignment="Center">
                         <Border Style="{StaticResource DbChipStyle}" Margin="0,0,8,0">
                             <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="8" Height="8" Margin="0,0,6,0"
+                                <Ellipse Width="7" Height="7" Margin="0,0,6,0"
                                          VerticalAlignment="Center"
                                          Fill="{DynamicResource SuccessBrush}"/>
-                                <TextBlock Text="{DynamicResource Common.Live}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                <TextBlock Text="{DynamicResource Common.Live}"
+                                           FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
