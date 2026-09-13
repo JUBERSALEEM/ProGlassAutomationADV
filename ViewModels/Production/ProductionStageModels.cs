@@ -229,6 +229,16 @@ namespace ProGlassAutomation.ViewModels.Production
         /// <summary>"{N} units · {M} specs" caption under the job number.</summary>
         public string UnitsLabel { get; init; } = "";
 
+        /// <summary>Station envelope: first unit W×H (plus inner if present).</summary>
+        public string SizeLabel { get; init; } = "—";
+
+        /// <summary>Glass / spec names on this job (display only).</summary>
+        public string GlassLabel { get; init; } = "—";
+        public string LmLabel { get; init; } = "—";
+        public string TreatmentLabel { get; init; } = "—";
+        public string LoadLabel { get; init; } = "—";
+        public string MatchLabel { get; init; } = "—";
+
         // ── This stage's piece flow, aggregated across the whole job ────
         public string InflowLabel { get; init; } = "0";
         public string DoneLabel { get; init; } = "0";

@@ -27,7 +27,7 @@
                            Text="Release from Job Order"
                            FontSize="{StaticResource TextBody}"
                            FontWeight="SemiBold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
                            VerticalAlignment="Center"
                            Margin="0,0,12,0"/>
                 <ComboBox Grid.Column="1"
@@ -60,7 +60,7 @@
                    FontSize="{StaticResource TextBody}">
             <TextBlock.Style>
                 <Style TargetType="TextBlock">
-                    <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding ReleaseSucceeded}" Value="True">
                             <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
@@ -87,7 +87,7 @@
                 <TextBlock Text="{Binding ActionWarning}"
                            TextWrapping="Wrap"
                            FontSize="{StaticResource TextBody}"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
             </StackPanel>
         </Border>
     </StackPanel>

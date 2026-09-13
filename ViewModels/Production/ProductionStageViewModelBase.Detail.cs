@@ -147,11 +147,11 @@ namespace ProGlassAutomation.ViewModels.Production
         // ── Full-page job detail (double-click opens, back returns) ──────
 
         private bool _isDetailOpen;
-        /// <summary>True while the full-page job detail overlay is showing.</summary>
+        /// <summary>True while the right-side job panel is showing (row click).</summary>
         public bool IsDetailOpen
         {
             get => _isDetailOpen;
-            private set { if (_isDetailOpen == value) return; _isDetailOpen = value; OnPropertyChanged(); }
+            set { if (_isDetailOpen == value) return; _isDetailOpen = value; OnPropertyChanged(); }
         }
 
         private string _selectedSerialLabel = "—";
@@ -300,6 +300,7 @@ namespace ProGlassAutomation.ViewModels.Production
             // this is the real per-piece data the floor edits and saves.
             var units = row.Units;
             HasSelection = true;
+            IsDetailOpen = true;
             SelectedJobNo = row.JobRef;
             SelectedPiNo = row.PiNo;
             SelectedCustomer = row.Customer;
@@ -425,6 +426,8 @@ namespace ProGlassAutomation.ViewModels.Production
 
             OnPropertyChanged(nameof(HasInnerGrid));
             OnPropertyChanged(nameof(HasCompletedSection));
+            OnPropertyChanged(nameof(PairingBoardSummary));
+            OnPropertyChanged(nameof(TemperingLoadSummary));
         }
 
         /// <summary>

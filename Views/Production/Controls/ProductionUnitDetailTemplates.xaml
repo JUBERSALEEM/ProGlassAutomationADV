@@ -9,21 +9,21 @@
 
         <!-- Shared column layout: # · GLASS REF · W · H · TOTAL · QTY · DONE · BALANCE -->
         <DataTemplate x:Key="OuterGridTemplate">
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
+            <Border Background="{DynamicResource SurfacePrimaryBrush}"
+                    BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="12,10">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{Binding OuterGridTitle}" FontSize="{StaticResource TextSubhead}"
-                                   FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"
                                    VerticalAlignment="Center"/>
                         <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}"
                                 Padding="10,3" Margin="10,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="{Binding OuterStageItems.Count, StringFormat={}{0} rows}"
                                        FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
                         </Border>
                     </StackPanel>
 
@@ -55,7 +55,7 @@
                     <ItemsControl ItemsSource="{Binding OuterStageItems}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="0,0,0,1"
+                                <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="0,0,0,1"
                                         Padding="0,2" SnapsToDevicePixels="True">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -71,9 +71,9 @@
                                         <TextBlock Grid.Column="0" Text="{Binding RowIndex}" Style="{StaticResource LineItemsSerialStyle}"/>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="6,0" VerticalAlignment="Center">
                                             <TextBlock Text="{Binding SerialLabel}" FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                       Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                             <TextBlock Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
                                         <TextBlock Grid.Column="2" Text="{Binding WLabel}" Style="{StaticResource LineItemsReadonlyStyle}"/>
@@ -106,10 +106,10 @@
                                 <ColumnDefinition Width="0.72*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="1" Text="TOTALS" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                       Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Left"
+                                       Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Left"
                                        VerticalAlignment="Center" Margin="6,0,0,0"/>
                             <TextBlock Grid.Column="4" Text="{Binding OuterTotalSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                       FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                       FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Grid.Column="5" Text="{Binding OuterQtySum}" Style="{StaticResource LineItemsReadonlyStyle}"/>
                             <TextBlock Grid.Column="6" Text="{Binding OuterDoneSum}" Style="{StaticResource LineItemsReadonlyStyle}"
                                        FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
@@ -122,20 +122,20 @@
         </DataTemplate>
 
         <DataTemplate x:Key="InnerGridTemplate">
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
+            <Border Background="{DynamicResource SurfacePrimaryBrush}"
+                    BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="12,10">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="INNER" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                         <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}"
                                 Padding="10,3" Margin="10,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="{Binding InnerStageItems.Count, StringFormat={}{0} rows}"
                                        FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
                         </Border>
                     </StackPanel>
 
@@ -165,7 +165,7 @@
                     <ItemsControl ItemsSource="{Binding InnerStageItems}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="0,0,0,1"
+                                <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="0,0,0,1"
                                         Padding="0,2" SnapsToDevicePixels="True">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -181,9 +181,9 @@
                                         <TextBlock Grid.Column="0" Text="{Binding RowIndex}" Style="{StaticResource LineItemsSerialStyle}"/>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="6,0" VerticalAlignment="Center">
                                             <TextBlock Text="{Binding SerialLabel}" FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                       Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                                             <TextBlock Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
                                         <TextBlock Grid.Column="2" Text="{Binding WLabel}" Style="{StaticResource LineItemsReadonlyStyle}"/>
@@ -215,10 +215,10 @@
                                 <ColumnDefinition Width="0.72*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="1" Text="TOTALS" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                       Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Left"
+                                       Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Left"
                                        VerticalAlignment="Center" Margin="6,0,0,0"/>
                             <TextBlock Grid.Column="4" Text="{Binding InnerTotalSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                       FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                       FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Grid.Column="5" Text="{Binding InnerQtySum}" Style="{StaticResource LineItemsReadonlyStyle}"/>
                             <TextBlock Grid.Column="6" Text="{Binding InnerDoneSum}" Style="{StaticResource LineItemsReadonlyStyle}"
                                        FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>

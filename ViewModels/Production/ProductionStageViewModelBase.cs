@@ -114,6 +114,7 @@ namespace ProGlassAutomation.ViewModels.Production
 
             OpenUnitCommand = new RelayCommand(p => OpenUnit(p as ProductionListRow));
             CloseDetailCommand = new RelayCommand(_ => IsDetailOpen = false);
+            InitStationCommands();
 
             SaveAllDoneCommand = new RelayCommand(
                 _ => AsyncUtility.SafeFireAndForget(SaveAllDoneAsync, "Work item qty save all"),
@@ -318,7 +319,7 @@ namespace ProGlassAutomation.ViewModels.Production
         public string ActionWarning
         {
             get => _actionWarning;
-            private set { if (_actionWarning == value) return; _actionWarning = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasActionWarning)); }
+            private set { if (_actionWarning == value) return; _actionWarning = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasActionWarning)); OnPropertyChanged(nameof(HasAndon)); OnPropertyChanged(nameof(AndonLabel)); }
         }
 
         public bool HasActionWarning => !string.IsNullOrWhiteSpace(_actionWarning);
@@ -331,7 +332,7 @@ namespace ProGlassAutomation.ViewModels.Production
         public string WaitingUpstreamLabel
         {
             get => _waitingUpstreamLabel;
-            private set { if (_waitingUpstreamLabel == value) return; _waitingUpstreamLabel = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasWaitingUpstream)); }
+            private set { if (_waitingUpstreamLabel == value) return; _waitingUpstreamLabel = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasWaitingUpstream)); OnPropertyChanged(nameof(HasAndon)); OnPropertyChanged(nameof(AndonLabel)); }
         }
 
         public bool HasWaitingUpstream => !string.IsNullOrWhiteSpace(_waitingUpstreamLabel);
@@ -627,6 +628,31 @@ namespace ProGlassAutomation.ViewModels.Production
             int unitCount = group.Units.Count;
             int specCount = group.Units.Select(u => u.SpecGroupNumber).Distinct().Count();
 
+            string size = first.W1 > 0 && first.H1 > 0
+                ? $"{first.W1.ToString(CultureInfo.InvariantCulture)}×{first.H1.ToString(CultureInfo.InvariantCulture)}"
+                : "—";
+            if (first.W2 > 0 && first.H2 > 0)
+                size += $" / {first.W2.ToString(CultureInfo.InvariantCulture)}×{first.H2.ToString(CultureInfo.InvariantCulture)}";
+            if (unitCount > 1) size += " · …";
+
+            string glass = string.Join(" · ", group.Units
+                .Select(u => string.IsNullOrWhiteSpace(u.SpecName) ? u.GlassRef : u.SpecName)
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Take(3));
+            if (string.IsNullOrWhiteSpace(glass)) glass = "—";
+
+            decimal lm = group.Units.Sum(u => u.ArrivedLm);
+            decimal area = group.Units.Sum(u => u.ArrivedArea);
+            string treatment = group.Units.SelectMany(u => u.FlowItems)
+                .Select(fi => fi.Item.Treatment)
+                .FirstOrDefault(t => !string.IsNullOrWhiteSpace(t)) ?? "—";
+            int innerUnits = group.Units.Count(u => u.W2 > 0);
+            string match = innerUnits == 0
+                ? "SGU"
+                : innerUnits.ToString(CultureInfo.InvariantCulture) + " inner · " +
+                  unitCount.ToString(CultureInfo.InvariantCulture) + " units";
+
             return new ProductionListRow
             {
                 RowKey = $"J|{group.JobRef}",
@@ -639,6 +665,12 @@ namespace ProGlassAutomation.ViewModels.Production
                 IndexLabel = index.ToString(CultureInfo.InvariantCulture),
                 UnitsLabel = $"{unitCount.ToString(CultureInfo.InvariantCulture)} unit(s) · " +
                              $"{specCount.ToString(CultureInfo.InvariantCulture)} spec(s)",
+                SizeLabel = size,
+                GlassLabel = glass,
+                LmLabel = lm.ToString("0.##", CultureInfo.InvariantCulture) + " LM",
+                TreatmentLabel = treatment,
+                LoadLabel = area.ToString("0.##", CultureInfo.InvariantCulture) + " m²",
+                MatchLabel = match,
                 InflowLabel = total.ToString(CultureInfo.InvariantCulture),
                 DoneLabel = done.ToString(CultureInfo.InvariantCulture),
                 BalanceLabel = balance.ToString(CultureInfo.InvariantCulture),
@@ -740,6 +772,18 @@ namespace ProGlassAutomation.ViewModels.Production
                 .Where(i => i.CanWork && i.Done < i.Inflow)
                 .ToList();
             if (targets.Count == 0) return;
+
+            int remaining = targets.Sum(t => t.Inflow - t.Done);
+            if (remaining > 1)
+            {
+                var answer = System.Windows.MessageBox.Show(
+                    "Complete " + remaining.ToString(CultureInfo.InvariantCulture) +
+                    " remaining piece(s) at " + ModuleName + "?",
+                    "Complete all",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Question);
+                if (answer != System.Windows.MessageBoxResult.Yes) return;
+            }
 
             foreach (var row in targets)
             {

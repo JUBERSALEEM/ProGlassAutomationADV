@@ -107,9 +107,11 @@
                 </StackPanel>
             </StackPanel>
 
-            <Border Grid.Column="9" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+            <Border Grid.Column="9" Style="{StaticResource ModuleListKpiDividerStyle}"
+                    Visibility="{Binding ShowDispatchKpi, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-            <StackPanel Grid.Column="10" Orientation="Horizontal" VerticalAlignment="Center">
+            <StackPanel Grid.Column="10" Orientation="Horizontal" VerticalAlignment="Center"
+                        Visibility="{Binding ShowDispatchKpi, Converter={StaticResource BoolToVisibilityConverter}}">
                 <Border Style="{StaticResource ModuleListKpiIconStyle}"
                         Background="{DynamicResource TintGreenBrush}">
                     <TextBlock Text="&#xE7BF;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"

@@ -1,24 +1,10 @@
-<!-- ═══════════════════════════════════════════════════════════════════
-     FILE: Views/Production/HolesCutoutsView.xaml
-     PROJECT: ProGlassAutomation
-     MODULE: Production — Holes & Cutouts (Stage 2 of 8) — SEPARATE page
-
-     Own page, not a shared body. The main list is the job queue: one
-     row per Job Order — TOTAL / DONE / BALANCE are the whole job's pieces
-     summed across every unit. Double-clicking a row opens the full-page
-     job detail (shared ProductionUnitDetailControl): the job's OUTER /
-     INNER cut-list grids carry every unit's rows with a Qty Done input +
-     Save; completed pieces flow to the next stage automatically and the
-     list live-refreshes on every floor entry.
-═══════════════════════════════════════════════════════════════════ -->
 <pgp:ProductionStagePageBase x:Class="ProGlassAutomation.Views.Production.HolesCutoutsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:pgp="clr-namespace:ProGlassAutomation.Views.Production"
              xmlns:production="clr-namespace:ProGlassAutomation.Views.Production.Controls"
              FontFamily="{DynamicResource AppFontFamily}"
-             UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             UseLayoutRounding="True" SnapsToDevicePixels="True">
     <Grid Background="{DynamicResource WindowBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -26,240 +12,30 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-
-        <!-- ══ Stage identity header (this stage's own) ══════════════ -->
         <Grid Grid.Row="0" Margin="4,4,4,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-
-            <Border Grid.Column="0" Width="56" Height="56"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    Background="{DynamicResource TintRedBrush}"
-                    VerticalAlignment="Center" Margin="0,0,14,0">
-                <TextBlock Text="{Binding Icon}"
-                           FontFamily="Segoe MDL2 Assets"
-                           FontSize="{StaticResource TextDisplay}"
-                           Foreground="{DynamicResource AccentBrush}"
-                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Border Width="56" Height="56" CornerRadius="{DynamicResource CardCornerRadius}"
+                    Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center" Margin="0,0,14,0">
+                <TextBlock Text="{Binding Icon}" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplay}"
+                           Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Border>
-
             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding ModuleName}" Style="{StaticResource ModulePageTitleStyle}"/>
                     <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}"
                             Padding="10,3" Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding StageOrdinalLabel}"
-                                   FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                        <TextBlock Text="{Binding StageOrdinalLabel}" FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
                     </Border>
                 </StackPanel>
                 <TextBlock Text="{Binding Description}" Style="{StaticResource ModulePageSubtitleStyle}"/>
-                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                    <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets"
-                               FontSize="{StaticResource TextCaption}"
-                               Foreground="{DynamicResource MutedForegroundBrush}"
-                               VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <TextBlock Text="Stage 2 of 8 · receives cut pieces — every hole / cutout charge must finish before Tempering"
-                               FontSize="{StaticResource TextCaption}" TextWrapping="Wrap"
-                               Foreground="{DynamicResource MutedForegroundBrush}"/>
-                </StackPanel>
             </StackPanel>
         </Grid>
-
-        <!-- ══ Pipeline chain bar (shared chrome) ═════════════════════ -->
         <production:ProductionPipelineBar Grid.Row="1"/>
-
-        <!-- ══ Release bar (shared chrome) ═══════════════════════════ -->
         <production:ProductionReleaseBar Grid.Row="2"/>
-
-        <!-- ══ Shell: KPIs + filters + main list ═════════════════════ -->
-        <Border Grid.Row="3" Style="{StaticResource ModuleListShellStyle}" Margin="4,0,4,4">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <production:ProductionKpiStrip Grid.Row="0"/>
-                <production:ProductionFilterBar Grid.Row="1"/>
-
-                <!-- Double-click hint -->
-                <Border Grid.Row="2" Padding="10,6" Background="{DynamicResource ModuleBackgroundBrush}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
-                                   Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBlock Text="Double-click a job to open the full-page job detail — every unit of the job is listed there and DONE is recorded per row; completed pieces flow to the next stage automatically and this list live-refreshes on every save."
-                                   FontSize="{StaticResource TextCaption}" TextWrapping="Wrap"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- ── Main list: # · JOB NO · CUSTOMER · TOTAL · DONE · BALANCE · STATUS ── -->
-                <Grid Grid.Row="3">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <DataGrid Grid.Row="0" x:Name="MasterGrid" RowHeight="44"
-                              ItemsSource="{Binding ListRows}"
-                              SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
-                              Style="{StaticResource GodViewGridStyle}"
-                              ColumnHeaderStyle="{StaticResource GodViewHeaderStyle}"
-                              SelectionMode="Single" CanUserAddRows="False" IsReadOnly="True"
-                              EnableRowVirtualization="True" EnableColumnVirtualization="True"
-                              VirtualizingPanel.IsVirtualizing="True"
-                              VirtualizingPanel.VirtualizationMode="Recycling"
-                              VirtualizingPanel.ScrollUnit="Pixel"
-                              ScrollViewer.CanContentScroll="True"
-                              ScrollViewer.ScrollChanged="MasterGrid_ScrollChanged">
-                        <DataGrid.InputBindings>
-                            <MouseBinding MouseAction="LeftDoubleClick"
-                                          Command="{Binding OpenUnitCommand}"
-                                          CommandParameter="{Binding SelectedItem,
-                                              RelativeSource={RelativeSource
-                                                  AncestorType=DataGrid}}"/>
-                        </DataGrid.InputBindings>
-                        <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="#" Width="44">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding IndexLabel}" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="JOB NO" Width="130">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <StackPanel VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding JobRef}" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                            <TextBlock Text="{Binding UnitsLabel}" FontSize="{StaticResource TextCaption}"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="CUSTOMER" Binding="{Binding Customer}" Width="1.5*"/>
-                            <DataGridTemplateColumn Header="TOTAL" Width="80">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding InflowLabel}" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="DONE" Width="80">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding DoneLabel}" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource SuccessBrush}"
-                                                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="BALANCE" Width="90">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding BalanceLabel}" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource WarningBrush}"
-                                                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="STATUS" Width="150">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,3"
-                                                HorizontalAlignment="Left" VerticalAlignment="Center">
-                                            <Border.Style>
-                                                <Style TargetType="Border">
-                                                    <Setter Property="Background" Value="{DynamicResource WarningSurfaceBrush}"/>
-                                                    <Setter Property="TextElement.Foreground" Value="{DynamicResource WarningBrush}"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding StatusLabel}" Value="IN PROGRESS">
-                                                            <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
-                                                            <Setter Property="TextElement.Foreground" Value="{DynamicResource AccentBrush}"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding StatusLabel}" Value="COMPLETED">
-                                                            <Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/>
-                                                            <Setter Property="TextElement.Foreground" Value="{DynamicResource SuccessBrush}"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding StatusLabel}" Value="WAITING UPSTREAM">
-                                                            <Setter Property="Background" Value="{DynamicResource DashAmbientBrush}"/>
-                                                            <Setter Property="TextElement.Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding StatusGlyph}" FontSize="{StaticResource TextCaption}"
-                                                           FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                                <TextBlock Text="{Binding StatusLabel}" FontSize="{StaticResource TextCaption}"
-                                                           FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                            </StackPanel>
-                                        </Border>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>
-
-                    <StackPanel Grid.Row="1">
-                        <Border Padding="10,5" Background="{DynamicResource ModuleBackgroundBrush}"
-                                Visibility="{Binding HasListFooter, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <TextBlock Text="{Binding ListFooterLabel}" FontSize="{StaticResource TextCaption}"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
-                        </Border>
-                        <!-- AutoSum footer — TOTAL / DONE / BALANCE column ends -->
-                        <Border Style="{StaticResource LineItemsFooterStyle}" Padding="10,6"
-                                Visibility="{Binding IsListEmpty, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                            <Grid Margin="0,0,18,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="44"/>
-                                    <ColumnDefinition Width="130"/>
-                                    <ColumnDefinition Width="1.5*"/>
-                                    <ColumnDefinition Width="80"/>
-                                    <ColumnDefinition Width="80"/>
-                                    <ColumnDefinition Width="90"/>
-                                    <ColumnDefinition Width="150"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Text="TOTALS" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                           Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Left"
-                                           VerticalAlignment="Center" Margin="8,0,0,0"/>
-                                <TextBlock Grid.Column="3" Text="{Binding ListTotalSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                           FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                <TextBlock Grid.Column="4" Text="{Binding ListDoneSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                           FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
-                                <TextBlock Grid.Column="5" Text="{Binding ListBalanceSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                           FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
-                            </Grid>
-                        </Border>
-                    </StackPanel>
-
-                    <StackPanel Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                Visibility="{Binding IsListEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="{Binding Icon}" FontFamily="Segoe MDL2 Assets" FontSize="44"
-                                   HorizontalAlignment="Center" Foreground="{DynamicResource MutedForegroundBrush}" Opacity="0.6"/>
-                        <TextBlock Text="No drilling work yet" FontSize="{StaticResource TextSubhead}" FontWeight="SemiBold"
-                                   HorizontalAlignment="Center" Margin="0,12,0,4"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Text="Cut pieces flow here as per-pane drilling — fan holes, holes, countersinks and cutouts. Each unit shows TOTAL, DONE and BALANCE pieces."
-                                   FontSize="{StaticResource TextBody}" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="560"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
-                    </StackPanel>
-                </Grid>
-            </Grid>
-        </Border>
-
-        <!-- ══ Full-page job detail (double-click a row) ═════════════ -->
-        <production:ProductionUnitDetailControl Grid.Row="0" Grid.RowSpan="4" Panel.ZIndex="20"/>
+        <production:ProductionStationBody Grid.Row="3"/>
     </Grid>
 </pgp:ProductionStagePageBase>
