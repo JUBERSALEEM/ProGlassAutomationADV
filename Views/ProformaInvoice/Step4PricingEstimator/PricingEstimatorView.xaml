@@ -130,13 +130,9 @@
                          the "Open Sheet Store — Add Sheet" action. Shows
                          whenever the selected colour/thickness/size is not
                          stocked (SheetStoreHint from the panel VMs). -->
-                    <Border Background="{DynamicResource TintAmberBrush}"
-                            BorderBrush="{DynamicResource WarningBrush}"
-                            BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                            Padding="12,8" Margin="0,6,0,0" Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Background="{DynamicResource TintAmberBrush}" BorderBrush="{DynamicResource WarningBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,8" Margin="0,6,0,0">
                         <Border.Style>
-                            <Style TargetType="Border">
+                            <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                                 <Style.Triggers>
                                     <MultiDataTrigger>

@@ -135,9 +135,9 @@
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 Effect="{StaticResource PanelShadow}"
                 SnapsToDevicePixels="True"
-                UseLayoutRounding="True" Style="{StaticResource SurfacePrimaryStyle}">
+                UseLayoutRounding="True">
             <Border.Style>
-                <Style TargetType="Border">
+                <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                     <Setter Property="Visibility" Value="Collapsed"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding IsOpen}" Value="True">
@@ -376,9 +376,9 @@
                             CornerRadius="{DynamicResource Radius.Asymmetric.Brand}"
                             Padding="14,10"
                             Margin="16,0,0,8"
-                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                            SnapsToDevicePixels="True">
                         <Border.Style>
-                            <Style TargetType="Border">
+                            <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsBusy}"
@@ -531,9 +531,9 @@
                             Padding="14,10"
                             Margin="16,0,0,8"
                             MaxWidth="430"
-                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                            SnapsToDevicePixels="True">
                         <Border.Style>
-                            <Style TargetType="Border">
+                            <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding HasActiveStream}"

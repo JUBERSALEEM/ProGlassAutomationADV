@@ -196,7 +196,7 @@
                                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                                         CornerRadius="{DynamicResource Radius.Small}"
-                                        VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                        VerticalAlignment="Center">
                                     <Border.Style>
                                         <!-- No BasedOn here: there is no global implicit
                                              Border style, so '{StaticResource {x:Type Border}}'

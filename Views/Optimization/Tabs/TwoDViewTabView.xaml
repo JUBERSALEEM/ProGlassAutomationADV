@@ -94,7 +94,7 @@
                                                         <Border Width="{Binding Width}" Height="{Binding Height}"
                                                                 BorderThickness="0.5" BorderBrush="{DynamicResource DividerBrush}">
                                                             <Border.Style>
-                                                                <Style TargetType="Border">
+                                                                <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                                                     <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding Rotated}" Value="True">
@@ -169,11 +169,9 @@
                                                     </ItemsControl.ItemContainerStyle>
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
-                                                            <Border Width="{Binding Width}" Height="{Binding Height}"
-                                                                    BorderThickness="1" BorderBrush="{DynamicResource DividerBrush}"
-                                                                    CornerRadius="{DynamicResource Radius.XSmall}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                            <Border Width="{Binding Width}" Height="{Binding Height}" BorderThickness="1" BorderBrush="{DynamicResource DividerBrush}" CornerRadius="{DynamicResource Radius.XSmall}">
                                                                 <Border.Style>
-                                                                    <Style TargetType="Border">
+                                                                    <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                                                         <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
                                                                         <Style.Triggers>
                                                                             <DataTrigger Binding="{Binding Rotated}" Value="True">

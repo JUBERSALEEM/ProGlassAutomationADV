@@ -527,15 +527,9 @@
                                                 <ItemsControl ItemsSource="{Binding Items}">
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
-                                                            <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                                                    BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                                                                    Padding="0,2"
-                                                                    Cursor="Hand"
-                                                                    behaviors:ClickToCommandBehavior.Command="{Binding DataContext.ToggleItemSelectionCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                                    behaviors:ClickToCommandBehavior.CommandParameter="{Binding}"
-                                                                    behaviors:ClickToCommandBehavior.ExcludeAncestorTypes="TextBox" Style="{StaticResource SurfacePrimaryStyle}">
+                                                            <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.BottomHairlineThickness}" Padding="0,2" Cursor="Hand" behaviors:ClickToCommandBehavior.Command="{Binding DataContext.ToggleItemSelectionCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" behaviors:ClickToCommandBehavior.CommandParameter="{Binding}" behaviors:ClickToCommandBehavior.ExcludeAncestorTypes="TextBox">
                                                                 <Border.Style>
-                                                                    <Style TargetType="Border">
+                                                                    <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                                                         <Setter Property="Background" Value="Transparent"/>
                                                                         <Style.Triggers>
                                                                             <DataTrigger Binding="{Binding IsSelected}"

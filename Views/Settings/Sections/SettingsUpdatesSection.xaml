@@ -203,12 +203,9 @@
                            Style="{StaticResource Typography.BodySmall}"/>
 
                 <StackPanel Margin="0,0,0,6">
-                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
-                            Background="{DynamicResource SurfaceTertiaryBrush}"
-                            CornerRadius="{DynamicResource CardCornerRadius}"
-                            Padding="14,12" Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource SurfaceTertiaryBrush}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
                         <Border.Style>
-                            <Style TargetType="Border">
+                            <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding HasReleaseInfo}" Value="True">
@@ -294,7 +291,7 @@
                                                             HorizontalAlignment="Left"
                                                             VerticalAlignment="Center">
                                                         <Border.Style>
-                                                            <Style TargetType="Border">
+                                                            <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                                                 <Setter Property="Background"
                                                                         Value="{DynamicResource TintBlueBrush}"/>
                                                                 <Style.Triggers>

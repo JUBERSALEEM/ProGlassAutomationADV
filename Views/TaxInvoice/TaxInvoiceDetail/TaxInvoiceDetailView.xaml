@@ -126,11 +126,9 @@
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                     </Border>
 
-                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,3"
-                            Margin="6,0,0,0" VerticalAlignment="Center"
-                            Background="{DynamicResource TintRedBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,3" Margin="6,0,0,0" VerticalAlignment="Center" Background="{DynamicResource TintRedBrush}">
                         <Border.Style>
-                            <Style TargetType="Border">
+                            <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsTrnValid}" Value="False">

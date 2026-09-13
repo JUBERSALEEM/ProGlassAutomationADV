@@ -60,13 +60,9 @@
                     </Border>
 
                     <!-- Viewing-different-family-member warning -->
-                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="1"
-                            Padding="12,8" Margin="10,10,10,0"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                            Background="{DynamicResource TintAmberBrush}"
-                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="1" Padding="12,8" Margin="10,10,10,0" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintAmberBrush}" SnapsToDevicePixels="True">
                         <Border.Style>
-                            <Style TargetType="Border">
+                            <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsSelectedFamilyCurrent}" Value="False">
@@ -92,7 +88,7 @@
                         <StackPanel>
                             <Border Padding="16,20">
                                 <Border.Style>
-                                    <Style TargetType="Border">
+                                    <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                         <Setter Property="Visibility" Value="Collapsed"/>
                                         <Style.Triggers>
                                             <DataTrigger

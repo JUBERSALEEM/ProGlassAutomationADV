@@ -90,16 +90,9 @@
                 <ItemsControl Grid.Column="0" ItemsSource="{Binding Users}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Margin="0,0,0,10" Padding="14,12"
-                                    CornerRadius="{DynamicResource CardCornerRadius}" Cursor="Hand"
-                                    BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
-                                    Background="{DynamicResource SurfacePrimaryBrush}"
-                                    behaviors:ClickToCommandBehavior.Command="{Binding SelectUserCommand}"
-                                        behaviors:ClickToCommandBehavior.CommandParameter="{Binding Tag, RelativeSource={RelativeSource Self}}"
-                                    Tag="{Binding}"
-                                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                            <Border Margin="0,0,0,10" Padding="14,12" CornerRadius="{DynamicResource CardCornerRadius}" Cursor="Hand" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource SurfacePrimaryBrush}" behaviors:ClickToCommandBehavior.Command="{Binding SelectUserCommand}" behaviors:ClickToCommandBehavior.CommandParameter="{Binding Tag, RelativeSource={RelativeSource Self}}" Tag="{Binding}" SnapsToDevicePixels="True">
                                 <Border.Style>
-                                    <Style TargetType="Border">
+                                    <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                         <Setter Property="BorderBrush"
                                                 Value="{DynamicResource BorderDefaultBrush}"/>
                                         <Style.Triggers>
@@ -149,10 +142,9 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                        <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintIndigoBrush}"
-                                                CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3" Style="{StaticResource SurfacePrimaryStyle}">
+                                        <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintIndigoBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3">
                                             <Border.Style>
-                                                <Style TargetType="Border">
+                                                <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsCurrent}" Value="True">

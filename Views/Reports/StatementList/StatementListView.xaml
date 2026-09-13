@@ -187,7 +187,7 @@
 
             <Border Grid.Column="6" CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,14">
                 <Border.Style>
-                    <Style TargetType="Border">
+                    <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                         <Setter Property="Background"
                                 Value="{DynamicResource SideMenuBackgroundBrush}"/>
                         <Style.Triggers>
@@ -583,13 +583,9 @@
 
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="{DynamicResource SideMenuBackgroundBrush}"
-                                BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                BorderThickness="{DynamicResource CardBorderThickness}"
-                                CornerRadius="{DynamicResource CardCornerRadius}"
-                                ClipToBounds="True" Style="{StaticResource SurfacePrimaryStyle}">
+                        <Border Background="{DynamicResource SideMenuBackgroundBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}" ClipToBounds="True">
                             <Border.Style>
-                                <Style TargetType="Border">
+                                <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
                                             <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
@@ -610,7 +606,7 @@
 
                                 <Border Grid.Column="0" CornerRadius="{DynamicResource Radius.Left.Medium}">
                                     <Border.Style>
-                                        <Style TargetType="Border">
+                                        <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                             <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding HasOverdue}"
@@ -729,7 +725,7 @@
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="12,6">
                                     <Border.Style>
-                                        <Style TargetType="Border">
+                                        <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                             <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding HasOverdue}"
