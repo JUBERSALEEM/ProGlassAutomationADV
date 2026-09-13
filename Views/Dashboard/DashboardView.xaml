@@ -223,8 +223,8 @@
                  eighth module degrades into a scroll rather than
                  clipping the last segment. -->
             <Border Grid.Column="1"
-                    Background="{DynamicResource SurfaceSecondaryBrush}"
-                    BorderBrush="{DynamicResource BorderSubtleBrush}"
+                    Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                    BorderBrush="{DynamicResource Surface.Secondary.BorderBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="3"
@@ -252,10 +252,7 @@
                         VerticalAlignment="Center"
                         Margin="16,0,0,0">
 
-                <Border Background="{DynamicResource SurfaceSecondaryBrush}"
-                        BorderBrush="{DynamicResource BorderSubtleBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="{DynamicResource CardCornerRadius}"
+                <Border Style="{StaticResource DbChipStyle}"
                         Padding="9,5"
                         Margin="0,0,8,0"
                         VerticalAlignment="Center"
@@ -274,10 +271,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Background="{DynamicResource SurfaceSecondaryBrush}"
-                        BorderBrush="{DynamicResource BorderSubtleBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="{DynamicResource CardCornerRadius}"
+                <Border Style="{StaticResource DbChipStyle}"
                         Padding="7,4"
                         VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">

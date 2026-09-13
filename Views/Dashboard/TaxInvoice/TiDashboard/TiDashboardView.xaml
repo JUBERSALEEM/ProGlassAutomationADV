@@ -245,7 +245,7 @@
                     Padding="12,10"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     SnapsToDevicePixels="True"
-                    Background="{DynamicResource SurfacePrimaryBrush}">
+                    Background="{DynamicResource Surface.Primary.BackgroundBrush}">
                 <StackPanel>
                     <Grid>
                         <Grid.ColumnDefinitions>

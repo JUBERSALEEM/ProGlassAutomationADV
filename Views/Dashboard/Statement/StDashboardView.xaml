@@ -68,8 +68,8 @@
                     Padding="12,10"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     SnapsToDevicePixels="True"
-                    Background="{DynamicResource SurfacePrimaryBrush}"
-                    BorderBrush="{DynamicResource BorderSubtleBrush}"
+                    Background="{DynamicResource Surface.Primary.BackgroundBrush}"
+                    BorderBrush="{DynamicResource Surface.Primary.BorderBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}">
                 <Grid>
                     <Grid.ColumnDefinitions>

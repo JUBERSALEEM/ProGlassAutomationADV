@@ -132,71 +132,33 @@
                         <ColumnDefinition Width="0.9*"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- FACTORY PULSE — modern blue-gradient hero card (the
-                         "latest app" look). Brand-blue gradient background,
-                         white text, subtle glass circle deco, and a light
-                         sparkline. Reads as the page's hero number. -->
-                    <!-- Background MUST be the attribute form. As a property
-                         ELEMENT (<DynamicResource ResourceKey=.../>) WPF does
-                         not treat this as a deferred reference: it assigns the
-                         DynamicResourceExtension OBJECT to Background instead
-                         of resolving it, so the card rendered fully
-                         TRANSPARENT. This was the only such site in the app. -->
                     <Border Grid.Column="0"
-                            Margin="0,0,18,0"
-                            Background="{DynamicResource DashHeroBlueBrush}"
-                            CornerRadius="{DynamicResource CardCornerRadius}"
-                            ClipToBounds="True"
-                            BorderBrush="{DynamicResource BorderStrongBrush}"
-                            BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            SnapsToDevicePixels="True">
+                            Style="{StaticResource DbCardStyle}"
+                            Margin="0,0,18,0">
                         <Grid>
-                            <!-- Glass specular highlight -->
-                            <Border Height="1" VerticalAlignment="Top"
-                                    Background="{DynamicResource SurfaceElevatedBrush}"
-                                    Opacity="0.6" IsHitTestVisible="False"/>
-                            <!-- Decorative glass circles -->
-                            <Ellipse Width="200" Height="200"
-                                     HorizontalAlignment="Right"
-                                     VerticalAlignment="Top"
-                                     Margin="0,-70,-60,0"
-                                     Fill="{DynamicResource Surface.Primary.BorderBrush}" Opacity="0.06"
-                                     IsHitTestVisible="False"/>
-                            <Ellipse Width="140" Height="140"
-                                     HorizontalAlignment="Right"
-                                     VerticalAlignment="Bottom"
-                                     Margin="0,0,-30,-50"
-                                     Fill="{DynamicResource Surface.Primary.BorderBrush}" Opacity="0.04"
-                                     IsHitTestVisible="False"/>
-                            <Grid Margin="18,16">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="130"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel>
-                                    <TextBlock Text="{DynamicResource Dashboard.FactoryPulse}"
-                                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                               Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}"
-                                               IsHitTestVisible="False"/>
-                                    <Viewbox HorizontalAlignment="Left" Stretch="Uniform"
-                                             StretchDirection="DownOnly" Margin="0,8,12,4">
-                                        <TextBlock Text="{Binding PulseDisplay}"
-                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                                   FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
-                                                   Margin="0"/>
-                                    </Viewbox>
-                                    <TextBlock Text="{Binding PulseHint}"
-                                               FontSize="{StaticResource TextBody}"
-                                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                                </StackPanel>
-                                <mini:MiniBarChartControl Grid.Column="1"
-                                                          Height="72"
-                                                          VerticalAlignment="Bottom"
-                                                          Margin="0,24,0,0"
-                                                          Values="{Binding PulseSpark}"
-                                                          BarBrush="White"
-                                                          HighlightBrush="{DynamicResource OnAccentSecondaryForegroundBrush}"/>
-                            </Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="130"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource Dashboard.FactoryPulse}"
+                                           Style="{StaticResource DbSectionTitleStyle}"/>
+                                <Viewbox HorizontalAlignment="Left" Stretch="Uniform"
+                                         StretchDirection="DownOnly" Margin="0,8,12,4">
+                                    <TextBlock Text="{Binding PulseDisplay}"
+                                               Style="{StaticResource DbKpiValueStyle}"
+                                               Margin="0"/>
+                                </Viewbox>
+                                <TextBlock Text="{Binding PulseHint}"
+                                           Style="{StaticResource DbKpiFootStyle}"/>
+                            </StackPanel>
+                            <mini:MiniBarChartControl Grid.Column="1"
+                                                      Height="72"
+                                                      VerticalAlignment="Bottom"
+                                                      Margin="0,24,0,0"
+                                                      Values="{Binding PulseSpark}"
+                                                      BarBrush="{DynamicResource AccentBrush}"
+                                                      HighlightBrush="{DynamicResource AccentDarkBrush}"/>
                         </Grid>
                     </Border>
 
