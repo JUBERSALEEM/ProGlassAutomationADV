@@ -793,6 +793,145 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                         "CREATE INDEX IF NOT EXISTS IX_CuttingPlacedPiece_ReservationId ON CuttingPlacedPieces(ReservationId);");
                     SchemaMigrationSql.CreateIndexIfNotExists(connection,
                         "CREATE INDEX IF NOT EXISTS IX_CuttingPlacedPiece_AllocationId ON CuttingPlacedPieces(AllocationId);");
+                }),
+
+                // Phase 16: Core Production Process Execution — shared framework
+                new(1014, "Production: ProcessExecutions table", connection =>
+                {
+                    SchemaMigrationSql.CreateTableIfNotExists(connection, @"
+                        CREATE TABLE IF NOT EXISTS ProcessExecutions (
+                            Id                  INTEGER NOT NULL CONSTRAINT PK_ProcessExecutions PRIMARY KEY AUTOINCREMENT,
+                            ExecutionId         TEXT NOT NULL,
+                            JobRef              TEXT NOT NULL,
+                            SourceProformaId    TEXT NOT NULL DEFAULT '',
+                            JobOrderId          TEXT NOT NULL DEFAULT '',
+                            SpecGroupNumber     INTEGER NOT NULL DEFAULT 0,
+                            SpecName            TEXT NOT NULL DEFAULT '',
+                            SerialNumber        INTEGER NOT NULL DEFAULT 0,
+                            Position            TEXT NOT NULL DEFAULT '',
+                            PieceId             TEXT NOT NULL DEFAULT '',
+                            InputPieceId        TEXT NOT NULL DEFAULT '',
+                            OutputPieceId       TEXT NOT NULL DEFAULT '',
+                            ProcessType         INTEGER NOT NULL DEFAULT 1,
+                            Sequence            INTEGER NOT NULL DEFAULT 0,
+                            InputWorkItemId     INTEGER NOT NULL DEFAULT 0,
+                            OutputWorkItemId    INTEGER NOT NULL DEFAULT 0,
+                            Status              INTEGER NOT NULL DEFAULT 0,
+                            StartedBy           TEXT NOT NULL DEFAULT '',
+                            StartedAt           TEXT NULL,
+                            CompletedBy         TEXT NOT NULL DEFAULT '',
+                            CompletedAt         TEXT NULL,
+                            QtyRequired         INTEGER NOT NULL DEFAULT 0,
+                            QtyDone             INTEGER NOT NULL DEFAULT 0,
+                            EntryType           INTEGER NOT NULL DEFAULT 0,
+                            Reason              TEXT NOT NULL DEFAULT '',
+                            Notes               TEXT NOT NULL DEFAULT '',
+                            QcStatus            INTEGER NOT NULL DEFAULT 0,
+                            QcId                TEXT NOT NULL DEFAULT '',
+                            ParentExecutionId   TEXT NOT NULL DEFAULT '',
+                            ReworkSequence      INTEGER NOT NULL DEFAULT 0,
+                            IsFoc               INTEGER NOT NULL DEFAULT 0,
+                            PreviousStage       TEXT NOT NULL DEFAULT '',
+                            NextStage           TEXT NOT NULL DEFAULT '',
+                            ProcessDetailJson   TEXT NOT NULL DEFAULT '',
+                            CreatedBy           TEXT NOT NULL DEFAULT '',
+                            CreatedAt           TEXT NOT NULL,
+                            UpdatedAt           TEXT NOT NULL
+                        );");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_ProcessExecution_ExecutionId_Unique ON ProcessExecutions(ExecutionId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProcessExecution_JobRef ON ProcessExecutions(JobRef);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProcessExecution_ProcessType ON ProcessExecutions(ProcessType);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProcessExecution_Status ON ProcessExecutions(Status);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProcessExecution_PieceId ON ProcessExecutions(PieceId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProcessExecution_OutputWorkItemId ON ProcessExecutions(OutputWorkItemId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProcessExecution_InputWorkItemId ON ProcessExecutions(InputWorkItemId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProcessExecution_ParentExecutionId ON ProcessExecutions(ParentExecutionId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProcessExecution_Unit ON ProcessExecutions(JobRef, SpecGroupNumber, SerialNumber);");
+                }),
+
+                new(1015, "Production: ProcessPairings table", connection =>
+                {
+                    SchemaMigrationSql.CreateTableIfNotExists(connection, @"
+                        CREATE TABLE IF NOT EXISTS ProcessPairings (
+                            Id                  INTEGER NOT NULL CONSTRAINT PK_ProcessPairings PRIMARY KEY AUTOINCREMENT,
+                            PairingId           TEXT NOT NULL,
+                            JobRef              TEXT NOT NULL,
+                            SourceProformaId    TEXT NOT NULL DEFAULT '',
+                            SpecGroupNumber     INTEGER NOT NULL DEFAULT 0,
+                            SerialNumber        INTEGER NOT NULL DEFAULT 0,
+                            Position            TEXT NOT NULL DEFAULT '',
+                            PairId              TEXT NOT NULL DEFAULT '',
+                            OuterPieceId        TEXT NOT NULL DEFAULT '',
+                            InnerPieceId        TEXT NOT NULL DEFAULT '',
+                            OuterGlassRef       TEXT NOT NULL DEFAULT '',
+                            InnerGlassRef       TEXT NOT NULL DEFAULT '',
+                            OuterWorkItemId     INTEGER NOT NULL DEFAULT 0,
+                            InnerWorkItemId     INTEGER NOT NULL DEFAULT 0,
+                            OuterExecutionId    TEXT NOT NULL DEFAULT '',
+                            InnerExecutionId    TEXT NOT NULL DEFAULT '',
+                            Status              INTEGER NOT NULL DEFAULT 0,
+                            CreatedBy           TEXT NOT NULL DEFAULT '',
+                            CreatedAt           TEXT NOT NULL,
+                            Notes               TEXT NOT NULL DEFAULT '',
+                            IsFoc               INTEGER NOT NULL DEFAULT 0
+                        );");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_ProcessPairing_PairingId_Unique ON ProcessPairings(PairingId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProcessPairing_JobRef ON ProcessPairings(JobRef);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProcessPairing_PairId ON ProcessPairings(PairId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProcessPairing_Unit ON ProcessPairings(JobRef, SpecGroupNumber, SerialNumber);");
+                }),
+
+                new(1016, "Production: ProcessAssemblies table", connection =>
+                {
+                    SchemaMigrationSql.CreateTableIfNotExists(connection, @"
+                        CREATE TABLE IF NOT EXISTS ProcessAssemblies (
+                            Id                  INTEGER NOT NULL CONSTRAINT PK_ProcessAssemblies PRIMARY KEY AUTOINCREMENT,
+                            AssemblyId          TEXT NOT NULL,
+                            JobRef              TEXT NOT NULL,
+                            SourceProformaId    TEXT NOT NULL DEFAULT '',
+                            SpecGroupNumber     INTEGER NOT NULL DEFAULT 0,
+                            SerialNumber        INTEGER NOT NULL DEFAULT 0,
+                            Position            TEXT NOT NULL DEFAULT '',
+                            AssemblyLabel       TEXT NOT NULL DEFAULT '',
+                            AssemblyType        TEXT NOT NULL DEFAULT '',
+                            ComponentsJson      TEXT NOT NULL DEFAULT '',
+                            SpacerInfo          TEXT NOT NULL DEFAULT '',
+                            InterlayerInfo      TEXT NOT NULL DEFAULT '',
+                            SealantInfo         TEXT NOT NULL DEFAULT '',
+                            PairingId           TEXT NOT NULL DEFAULT '',
+                            Status              INTEGER NOT NULL DEFAULT 0,
+                            QtyRequired         INTEGER NOT NULL DEFAULT 0,
+                            QtyDone             INTEGER NOT NULL DEFAULT 0,
+                            CreatedBy           TEXT NOT NULL DEFAULT '',
+                            CreatedAt           TEXT NOT NULL,
+                            CompletedAt         TEXT NULL,
+                            Notes               TEXT NOT NULL DEFAULT '',
+                            IsFoc               INTEGER NOT NULL DEFAULT 0,
+                            QcId                TEXT NOT NULL DEFAULT ''
+                        );");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_ProcessAssembly_AssemblyId_Unique ON ProcessAssemblies(AssemblyId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProcessAssembly_JobRef ON ProcessAssemblies(JobRef);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProcessAssembly_AssemblyLabel ON ProcessAssemblies(AssemblyLabel);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProcessAssembly_PairingId ON ProcessAssemblies(PairingId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProcessAssembly_Unit ON ProcessAssemblies(JobRef, SpecGroupNumber, SerialNumber);");
                 })
             };
 

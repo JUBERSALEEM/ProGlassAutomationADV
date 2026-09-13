@@ -33,6 +33,11 @@ namespace ProGlassAutomation.Services.Production
         public DbSet<SavedCuttingSheet> CuttingSheets { get; set; }
         public DbSet<SavedCuttingPlacedPiece> CuttingPlacedPieces { get; set; }
 
+        // Phase 16 core production process execution
+        public DbSet<SavedProcessExecution> ProcessExecutions { get; set; }
+        public DbSet<SavedProcessPairing> ProcessPairings { get; set; }
+        public DbSet<SavedProcessAssembly> ProcessAssemblies { get; set; }
+
         public static string DatabaseFilePath =>
             Path.Combine(
                 ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder,
@@ -212,6 +217,54 @@ namespace ProGlassAutomation.Services.Production
                 .HasDatabaseName("IX_CuttingPlacedPiece_ReservationId");
             cutPiece.HasIndex(p => p.AllocationId)
                 .HasDatabaseName("IX_CuttingPlacedPiece_AllocationId");
+
+            // Phase 16: Process executions
+            var procExec = modelBuilder.Entity<SavedProcessExecution>();
+            procExec.HasIndex(e => e.ExecutionId)
+                .IsUnique()
+                .HasDatabaseName("IX_ProcessExecution_ExecutionId_Unique");
+            procExec.HasIndex(e => e.JobRef)
+                .HasDatabaseName("IX_ProcessExecution_JobRef");
+            procExec.HasIndex(e => e.ProcessType)
+                .HasDatabaseName("IX_ProcessExecution_ProcessType");
+            procExec.HasIndex(e => e.Status)
+                .HasDatabaseName("IX_ProcessExecution_Status");
+            procExec.HasIndex(e => e.PieceId)
+                .HasDatabaseName("IX_ProcessExecution_PieceId");
+            procExec.HasIndex(e => e.OutputWorkItemId)
+                .HasDatabaseName("IX_ProcessExecution_OutputWorkItemId");
+            procExec.HasIndex(e => e.InputWorkItemId)
+                .HasDatabaseName("IX_ProcessExecution_InputWorkItemId");
+            procExec.HasIndex(e => e.ParentExecutionId)
+                .HasDatabaseName("IX_ProcessExecution_ParentExecutionId");
+            procExec.HasIndex(e => new { e.JobRef, e.SpecGroupNumber, e.SerialNumber })
+                .HasDatabaseName("IX_ProcessExecution_Unit");
+
+            // Phase 16: Pairings
+            var pairing = modelBuilder.Entity<SavedProcessPairing>();
+            pairing.HasIndex(p => p.PairingId)
+                .IsUnique()
+                .HasDatabaseName("IX_ProcessPairing_PairingId_Unique");
+            pairing.HasIndex(p => p.JobRef)
+                .HasDatabaseName("IX_ProcessPairing_JobRef");
+            pairing.HasIndex(p => p.PairId)
+                .HasDatabaseName("IX_ProcessPairing_PairId");
+            pairing.HasIndex(p => new { p.JobRef, p.SpecGroupNumber, p.SerialNumber })
+                .HasDatabaseName("IX_ProcessPairing_Unit");
+
+            // Phase 16: Assemblies
+            var assembly = modelBuilder.Entity<SavedProcessAssembly>();
+            assembly.HasIndex(a => a.AssemblyId)
+                .IsUnique()
+                .HasDatabaseName("IX_ProcessAssembly_AssemblyId_Unique");
+            assembly.HasIndex(a => a.JobRef)
+                .HasDatabaseName("IX_ProcessAssembly_JobRef");
+            assembly.HasIndex(a => a.AssemblyLabel)
+                .HasDatabaseName("IX_ProcessAssembly_AssemblyLabel");
+            assembly.HasIndex(a => a.PairingId)
+                .HasDatabaseName("IX_ProcessAssembly_PairingId");
+            assembly.HasIndex(a => new { a.JobRef, a.SpecGroupNumber, a.SerialNumber })
+                .HasDatabaseName("IX_ProcessAssembly_Unit");
         }
     }
 }

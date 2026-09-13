@@ -12,8 +12,320 @@
             the muted foreground keeps it subordinate to the data, which is
             what stops a header row from competing with the rows under it.
         -->
-        <!-- Migrated SpecColumnHeaderStyle to global Typography.Label -->
-    
+        <Style x:Key="SpecColumnHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
+    </UserControl.Resources>
+
+    <!--
+        SPECIFICATIONS CENTER
+
+        A ledger of saved specifications, laid out like Sheet Store:
+        KPI cards, filters, list, and a detail pane that slides in on
+        row click showing the sheet that was matched plus every
+        proforma that used the spec.
+
+        Read-oriented by design. Step 4 is the only place a spec is
+        built and priced, so there is no add/edit dialog here; the one
+        mutation is Delete, for pruning the catalogue.
+    -->
+
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══ HEADER ══ -->
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="{DynamicResource Nav.Specifications}"
+                           FontSize="{StaticResource TextSection}"
+                           FontWeight="Bold"
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                <TextBlock Text="{DynamicResource Specifications.Subtitle}"
+                           FontSize="{StaticResource TextBody}"
+                           Foreground="{DynamicResource TextTertiaryBrush}"
+                           Margin="0,2,0,0"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Command="{Binding ImportCsvCommand}"
+                        Content="{DynamicResource Common.ImportCsv}"
+                        Height="34" Padding="16,0" Cursor="Hand" Margin="0,0,8,0"
+                        Background="{DynamicResource SurfaceElevatedBrush}"
+                        Foreground="{DynamicResource TextPrimaryBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                        BorderThickness="{DynamicResource Border.HairlineThickness}"/>
+                <Button Command="{Binding ExportCsvCommand}"
+                        Content="{DynamicResource Common.ExportCsv}"
+                        Height="34" Padding="16,0" Cursor="Hand" Margin="0,0,8,0"
+                        Background="{DynamicResource SurfaceElevatedBrush}"
+                        Foreground="{DynamicResource TextPrimaryBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                        BorderThickness="{DynamicResource Border.HairlineThickness}"/>
+                <Button Command="{Binding ExportExcelCommand}"
+                        Content="{DynamicResource Common.ExportExcel}"
+                        Height="34" Padding="16,0" Cursor="Hand" Margin="0,0,8,0"
+                        Background="{DynamicResource SurfaceElevatedBrush}"
+                        Foreground="{DynamicResource TextPrimaryBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                        BorderThickness="{DynamicResource Border.HairlineThickness}"/>
+                <Button Command="{Binding ExportPdfCommand}"
+                        Content="{DynamicResource Common.ExportPdf}"
+                        Height="34" Padding="16,0" Cursor="Hand" Margin="0,0,8,0"
+                        Background="{DynamicResource SurfaceElevatedBrush}"
+                        Foreground="{DynamicResource TextPrimaryBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                        BorderThickness="{DynamicResource Border.HairlineThickness}"/>
+                <Button Command="{Binding ShareCommand}"
+                        Content="{DynamicResource Sharing.Share}"
+                        ToolTip="{DynamicResource Sharing.Share}"
+                        Height="34" Padding="16,0" Cursor="Hand" Margin="0,0,8,0"
+                        Background="{DynamicResource SurfaceElevatedBrush}"
+                        Foreground="{DynamicResource TextPrimaryBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                        BorderThickness="{DynamicResource Border.HairlineThickness}"/>
+                <Button Command="{Binding RefreshCommand}"
+                        Content="{DynamicResource Common.Refresh}"
+                        Height="34" Padding="16,0" Cursor="Hand"
+                        Background="{DynamicResource SurfaceElevatedBrush}"
+                        Foreground="{DynamicResource TextPrimaryBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                        BorderThickness="{DynamicResource Border.HairlineThickness}"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- ══ KPI CARDS ══ -->
+        <UniformGrid Grid.Row="1" Columns="6" Margin="0,0,0,14">
+            <Border Style="{StaticResource InteractiveStatCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Specifications.TotalSpecs}"
+                               FontSize="{StaticResource TextBody}"
+                               Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="{Binding TotalSpecs, Mode=OneWay}"
+                               FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                               Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource InteractiveStatCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Specifications.TotalUses}"
+                               FontSize="{StaticResource TextBody}"
+                               Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="{Binding TotalUses, Mode=OneWay}"
+                               FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                               Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource InteractiveStatCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Specifications.AvgRate}"
+                               FontSize="{StaticResource TextBody}"
+                               Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="{Binding AveragePricePerSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
+                               FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                               Foreground="{DynamicResource SuccessBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource InteractiveStatCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Specifications.SheetLinked}"
+                               FontSize="{StaticResource TextBody}"
+                               Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="{Binding LinkedSheetCount, Mode=OneWay}"
+                               FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                               Foreground="{DynamicResource InfoBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource InteractiveStatCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Specifications.MostUsed}"
+                               FontSize="{StaticResource TextBody}"
+                               Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="{Binding MostUsedSpecName, Mode=OneWay}"
+                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                               TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <!--
+                LAST ACTIVITY. The most recent ledger-verified use: which
+                spec, on which saved invoice for which company, and when.
+                Global (not filter-scoped) — it answers "last used anywhere".
+            -->
+            <Border Style="{StaticResource InteractiveStatCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Specifications.LastActivity}"
+                               FontSize="{StaticResource TextBody}"
+                               Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="{Binding LastActivitySpec, Mode=OneWay}"
+                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                               TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding LastActivityInvoice, Mode=OneWay}"
+                               FontSize="{StaticResource TextBody}"
+                               TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource AccentBrush}"/>
+                    <TextBlock Text="{Binding LastActivityDate, Mode=OneWay}"
+                               FontSize="{StaticResource TextCaption}"
+                               Foreground="{DynamicResource TextTertiaryBrush}"/>
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <!-- ══ FILTER BAR ══ -->
+        <Border Grid.Row="2"
+                Style="{StaticResource SoftCardStyle}"
+                Padding="14,10" Margin="0,0,0,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBox Grid.Column="0"
+                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+                         Height="32" VerticalContentAlignment="Center"
+                         Margin="0,0,10,0"
+                         Background="{DynamicResource SurfaceElevatedBrush}"
+                         Foreground="{DynamicResource TextPrimaryBrush}"
+                         BorderBrush="{DynamicResource BorderDefaultBrush}"
+                         BorderThickness="{DynamicResource Border.HairlineThickness}"
+                         ToolTip="{DynamicResource Specifications.SearchHint}"/>
+
+                <ComboBox Grid.Column="1" Width="130" Height="32" Margin="0,0,10,0"
+                          ItemsSource="{Binding GlassTypeOptions}"
+                          SelectedItem="{Binding GlassTypeFilter}"
+                          ToolTip="{DynamicResource Specifications.FilterGlassType}"/>
+
+                <ComboBox Grid.Column="2" Width="130" Height="32" Margin="0,0,10,0"
+                          ItemsSource="{Binding ColorOptions}"
+                          SelectedItem="{Binding ColorFilter}"
+                          ToolTip="{DynamicResource Specifications.FilterColor}"/>
+
+                <ComboBox Grid.Column="3" Width="160" Height="32" Margin="0,0,10,0"
+                          ItemsSource="{Binding SortOptions}"
+                          SelectedItem="{Binding SortBy}"
+                          ToolTip="{DynamicResource Specifications.Sort}"/>
+
+                <Button Grid.Column="4"
+                        Command="{Binding ClearFiltersCommand}"
+                        Content="{DynamicResource Common.Clear}"
+                        Height="32" Padding="14,0" Cursor="Hand"
+                        Background="Transparent"
+                        Foreground="{DynamicResource TextTertiaryBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                        BorderThickness="{DynamicResource Border.HairlineThickness}"/>
+            </Grid>
+        </Border>
+
+        <!-- ══ LIST + DETAIL ══ -->
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="{Binding DetailColumnWidth}"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!--
+                        COLUMN HEADER.
+
+                        Widths are duplicated verbatim in the row template
+                        below. WPF has no shared-size scope across a ListBox
+                        item boundary (SharedSizeGroup does not cross the
+                        ItemsPanel), so the only way header and rows line up
+                        is identical fixed definitions in both places. If you
+                        change one, change the other.
+
+                        Spacing: the header uses the SAME 14,11 padding and
+                        10,5 margin as the row cards, so the label sits
+                        directly over its column instead of drifting.
+                    -->
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource SurfaceElevatedBrush}"
+                            BorderBrush="{DynamicResource BorderDefaultBrush}"
+                            BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
+                            Padding="24,10">
+                        <Grid>
+                            <!--
+                                Sheet size intentionally NOT a column.
+                                A specification has one size PER PANE, and a
+                                DGU's two leaves can differ (HD Grey
+                                3210x2250, Clear 3660x2440). A single cell
+                                could only ever show one of them, which is
+                                why it read "—". Per-pane sizes live in the
+                                detail sidebar where each glass has its own
+                                width and height.
+                            -->
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="72"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="40"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="{DynamicResource Specifications.ColType}"
+                                       Style="{StaticResource SpecColumnHeaderStyle}"/>
+                            <TextBlock Grid.Column="1" Text="{DynamicResource Specifications.ColSpecification}"
+                                       Style="{StaticResource SpecColumnHeaderStyle}" Margin="12,0,10,0"/>
+                            <TextBlock Grid.Column="2" Text="{DynamicResource Specifications.ColUsed}"
+                                       Style="{StaticResource SpecColumnHeaderStyle}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Text="{DynamicResource Specifications.ColRate}"
+                                       Style="{StaticResource SpecColumnHeaderStyle}"
+                                       HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="4" Text=""
+                                       Style="{StaticResource SpecColumnHeaderStyle}"/>
+                        </Grid>
+                    </Border>
+
+                    <ListBox Grid.Row="1"
+                             ItemsSource="{Binding Specifications}"
+                             Background="Transparent"
+                             BorderThickness="{DynamicResource Border.NoneThickness}"
+                             HorizontalContentAlignment="Stretch"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             VirtualizingPanel.IsVirtualizing="True"
+                             VirtualizingPanel.VirtualizationMode="Recycling"
+                             VirtualizingPanel.ScrollUnit="Pixel"
+                             VirtualizingPanel.CacheLength="400,800"
+                             VirtualizingPanel.CacheLengthUnit="Pixel"
+                             ScrollViewer.CanContentScroll="True">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="0"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            </Style>
                         </ListBox.ItemContainerStyle>
 
                         <ListBox.ItemTemplate>
@@ -37,21 +349,21 @@
                                                 Background="{DynamicResource TintIndigoBrush}"
                                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Padding="6,3" VerticalAlignment="Center"
-                                                HorizontalAlignment="Left" Style="{StaticResource SurfacePrimaryStyle}">
+                                                HorizontalAlignment="Left">
                                             <TextBlock Text="{Binding GlassType}"
-                                                       FontSize="{DynamicResource FontSize.Body}"
-                                                       FontWeight="{DynamicResource Weight.Bold}"
+                                                       FontSize="{StaticResource TextBody}"
+                                                       FontWeight="Bold"
                                                        Foreground="{DynamicResource AccentBrush}"/>
                                         </Border>
 
                                         <StackPanel Grid.Column="1" Margin="12,0,10,0" VerticalAlignment="Center">
                                             <TextBlock Text="{Binding SpecName}"
-                                                       FontSize="{DynamicResource FontSize.Body}"
-                                                       FontWeight="{DynamicResource Weight.SemiBold}"
+                                                       FontSize="{StaticResource TextBody}"
+                                                       FontWeight="SemiBold"
                                                        TextTrimming="CharacterEllipsis"
                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             <TextBlock Text="{Binding Color, Mode=OneWay}"
-                                                       FontSize="{DynamicResource FontSize.Body}"
+                                                       FontSize="{StaticResource TextBody}"
                                                        TextTrimming="CharacterEllipsis"
                                                        Foreground="{DynamicResource TextTertiaryBrush}"
                                                        Margin="0,2,0,0"/>
@@ -60,7 +372,7 @@
                                                  in the style (never a local value) so the trigger
                                                  can control it. -->
                                             <TextBlock Text="{DynamicResource Specifications.DraftOnly}"
-                                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                                       FontSize="{StaticResource TextCaption}"
                                                        FontStyle="Italic"
                                                        Foreground="{DynamicResource WarningBrush}"
                                                        Margin="0,2,0,0">
@@ -79,7 +391,7 @@
 
                                         <!-- Usage count -->
                                         <TextBlock Grid.Column="2"
-                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   FontSize="{StaticResource TextBody}"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}">
@@ -89,8 +401,8 @@
 
                                         <TextBlock Grid.Column="3"
                                                    Text="{Binding PricePerSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
-                                                   FontSize="{DynamicResource FontSize.Body}"
-                                                   FontWeight="{DynamicResource Weight.Bold}"
+                                                   FontSize="{StaticResource TextBody}"
+                                                   FontWeight="Bold"
                                                    VerticalAlignment="Center"
                                                    HorizontalAlignment="Right"
                                                    Margin="0,0,10,0"
@@ -100,14 +412,14 @@
                                                 Command="{Binding DataContext.DeleteSpecCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                 CommandParameter="{Binding}"
                                                 Content="&#xE74D;"
-                                                FontFamily="{DynamicResource FontFamily.Icon}"
+                                                FontFamily="Segoe MDL2 Assets"
                                                 Width="28" Height="28"
                                                 Cursor="Hand"
                                                 VerticalAlignment="Center"
                                                 Background="Transparent"
                                                 Foreground="{DynamicResource DangerBrush}"
                                                 BorderThickness="{DynamicResource Border.NoneThickness}"
-                                                ToolTip="{DynamicResource Common.Delete}" Style="{StaticResource SecondaryButtonStyle}"/>
+                                                ToolTip="{DynamicResource Common.Delete}"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
@@ -128,18 +440,18 @@
                             </Style>
                         </StackPanel.Style>
                         <TextBlock Text="&#xE8F1;"
-                                   FontFamily="{DynamicResource FontFamily.Icon}"
-                                   FontSize="{DynamicResource FontSize.Display}"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="{StaticResource TextDisplayLarge}"
                                    HorizontalAlignment="Center"
                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
                         <TextBlock Text="{DynamicResource Specifications.EmptyTitle}"
-                                   FontSize="{DynamicResource FontSize.Title}"
-                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                   FontSize="{StaticResource TextBodyLarge}"
+                                   FontWeight="SemiBold"
                                    HorizontalAlignment="Center"
                                    Margin="0,10,0,0"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <TextBlock Text="{DynamicResource Specifications.EmptyHint}"
-                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontSize="{StaticResource TextBody}"
                                    HorizontalAlignment="Center"
                                    Margin="0,4,0,0"
                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
@@ -166,19 +478,19 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0"
                                    Text="{Binding SelectedSpec.SpecName}"
-                                   FontSize="{DynamicResource FontSize.Title}"
-                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   FontSize="{StaticResource TextBodyLarge}"
+                                   FontWeight="Bold"
                                    TextWrapping="Wrap"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <Button Grid.Column="1"
                                 Command="{Binding CloseDetailCommand}"
                                 Content="&#xE711;"
-                                FontFamily="{DynamicResource FontFamily.Icon}"
+                                FontFamily="Segoe MDL2 Assets"
                                 Width="28" Height="28" Cursor="Hand"
                                 VerticalAlignment="Top"
                                 Background="Transparent"
                                 Foreground="{DynamicResource TextTertiaryBrush}"
-                                BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}"/>
+                                BorderThickness="{DynamicResource Border.NoneThickness}"/>
                     </Grid>
 
                     <!--
@@ -197,8 +509,8 @@
                     -->
                     <StackPanel Grid.Row="1" Margin="0,0,0,14">
                         <TextBlock Text="{DynamicResource Specifications.MatchedSheet}"
-                                   FontSize="{DynamicResource FontSize.Body}"
-                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   FontSize="{StaticResource TextBody}"
+                                   FontWeight="Bold"
                                    Margin="0,0,0,6"
                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
 
@@ -209,7 +521,7 @@
                                             BorderBrush="{DynamicResource BorderDefaultBrush}"
                                             BorderThickness="{DynamicResource Border.HairlineThickness}"
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
-                                            Padding="12,10" Margin="0,0,0,8" Style="{StaticResource SurfacePrimaryStyle}">
+                                            Padding="12,10" Margin="0,0,0,8">
                                         <StackPanel>
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
@@ -218,14 +530,14 @@
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0"
                                                            Text="{Binding GlassLabel}"
-                                                           FontSize="{DynamicResource FontSize.Body}"
-                                                           FontWeight="{DynamicResource Weight.Bold}"
+                                                           FontSize="{StaticResource TextBody}"
+                                                           FontWeight="Bold"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <TextBlock Grid.Column="1"
                                                            Text="{Binding ThicknessDisplay}"
-                                                           FontSize="{DynamicResource FontSize.Body}"
-                                                           FontWeight="{DynamicResource Weight.SemiBold}"
+                                                           FontSize="{StaticResource TextBody}"
+                                                           FontWeight="SemiBold"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                             </Grid>
 
@@ -237,28 +549,28 @@
 
                                                 <StackPanel Grid.Column="0">
                                                     <TextBlock Text="{DynamicResource Specifications.Width}"
-                                                               FontSize="{DynamicResource FontSize.Body}"
+                                                               FontSize="{StaticResource TextBody}"
                                                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                                                     <TextBlock Text="{Binding WidthDisplay}"
-                                                               FontSize="{DynamicResource FontSize.Title}"
-                                                               FontWeight="{DynamicResource Weight.Bold}"
+                                                               FontSize="{StaticResource TextBodyLarge}"
+                                                               FontWeight="Bold"
                                                                Foreground="{DynamicResource AccentBrush}"/>
                                                 </StackPanel>
 
                                                 <StackPanel Grid.Column="1">
                                                     <TextBlock Text="{DynamicResource Specifications.Height}"
-                                                               FontSize="{DynamicResource FontSize.Body}"
+                                                               FontSize="{StaticResource TextBody}"
                                                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                                                     <TextBlock Text="{Binding HeightDisplay}"
-                                                               FontSize="{DynamicResource FontSize.Title}"
-                                                               FontWeight="{DynamicResource Weight.Bold}"
+                                                               FontSize="{StaticResource TextBodyLarge}"
+                                                               FontWeight="Bold"
                                                                Foreground="{DynamicResource AccentBrush}"/>
                                                 </StackPanel>
                                             </Grid>
 
                                             <!-- Explicit miss: never invent a size. -->
                                             <TextBlock Text="{DynamicResource Specifications.NoSheetMatch}"
-                                                       FontSize="{DynamicResource FontSize.Body}"
+                                                       FontSize="{StaticResource TextBody}"
                                                        Margin="0,6,0,0"
                                                        TextWrapping="Wrap"
                                                        Foreground="{DynamicResource WarningBrush}">
@@ -281,7 +593,7 @@
 
                         <!-- Name could not be parsed into panes at all. -->
                         <TextBlock Text="{DynamicResource Specifications.NoPanes}"
-                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontSize="{StaticResource TextBody}"
                                    TextWrapping="Wrap"
                                    Foreground="{DynamicResource TextTertiaryBrush}">
                             <TextBlock.Style>
@@ -333,7 +645,7 @@
                                     <DataTemplate>
                                         <Border Padding="10,7" Margin="0,0,0,6"
                                                 Background="{DynamicResource TintIndigoBrush}"
-                                                CornerRadius="{DynamicResource ControlCornerRadius}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                CornerRadius="{DynamicResource ControlCornerRadius}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
@@ -341,13 +653,13 @@
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0"
                                                            Text="{Binding PricePerSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
-                                                           FontSize="{DynamicResource FontSize.Body}"
-                                                           FontWeight="{DynamicResource Weight.Bold}"
+                                                           FontSize="{StaticResource TextBody}"
+                                                           FontWeight="Bold"
                                                            Margin="0,0,10,0"
                                                            Foreground="{DynamicResource AccentBrush}"/>
                                                 <TextBlock Grid.Column="1"
                                                            Text="{Binding ProformaList}"
-                                                           FontSize="{DynamicResource FontSize.Body}"
+                                                           FontSize="{StaticResource TextBody}"
                                                            TextTrimming="CharacterEllipsis"
                                                            VerticalAlignment="Center"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -358,8 +670,8 @@
                             </ItemsControl>
 
                             <TextBlock Text="{Binding UsageCountDisplay}"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       FontWeight="{DynamicResource Weight.Bold}"
+                                       FontSize="{StaticResource TextBody}"
+                                       FontWeight="Bold"
                                        Margin="0,0,0,8"
                                        Foreground="{DynamicResource TextTertiaryBrush}"/>
                         </StackPanel>
@@ -381,18 +693,18 @@
                                             Background="{DynamicResource SurfacePrimaryBrush}"
                                             BorderBrush="{DynamicResource BorderSubtleBrush}"
                                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                            CornerRadius="{DynamicResource ControlCornerRadius}" Style="{StaticResource SurfacePrimaryStyle}">
+                                            CornerRadius="{DynamicResource ControlCornerRadius}">
                                         <StackPanel>
                                             <TextBlock Text="{Binding ProformaDisplay}"
-                                                       FontSize="{DynamicResource FontSize.Body}"
-                                                       FontWeight="{DynamicResource Weight.SemiBold}"
+                                                       FontSize="{StaticResource TextBody}"
+                                                       FontWeight="SemiBold"
                                                        Foreground="{DynamicResource AccentBrush}"/>
                                             <TextBlock Text="{Binding ContextDisplay}"
-                                                       FontSize="{DynamicResource FontSize.Body}"
+                                                       FontSize="{StaticResource TextBody}"
                                                        TextTrimming="CharacterEllipsis"
                                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                                        Margin="0,2,0,0"/>
-                                            <TextBlock FontSize="{DynamicResource FontSize.Body}"
+                                            <TextBlock FontSize="{StaticResource TextBody}"
                                                        Foreground="{DynamicResource TextTertiaryBrush}"
                                                        Margin="0,2,0,0">
                                                 <Run Text="{Binding UsedAtDisplay, Mode=OneWay}"/>

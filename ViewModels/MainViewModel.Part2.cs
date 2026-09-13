@@ -223,6 +223,7 @@ namespace ProGlassAutomation.ViewModels
                 case "Optimization": CurrentViewModel = OptimizationVM; break;
                 case "Cutting": CurrentViewModel = CuttingVM; break;
                 case "CuttingWorkCenter": CurrentViewModel = CuttingWorkCenterVM; break;
+                case "ProcessWorkCenter": CurrentViewModel = ProcessWorkCenterVM; break;
                 case "HolesCutouts": CurrentViewModel = HolesCutoutsVM; break;
                 case "Polish": CurrentViewModel = PolishVM; break;
                 case "EdgeDeletion": CurrentViewModel = EdgeDeletionVM; break;
@@ -292,7 +293,7 @@ namespace ProGlassAutomation.ViewModels
                 // Report Generator sits next to Statement Generator (Finance
                 // group) and shares its wallpaper until a dedicated key exists.
                 "OrderReport" => ProGlassAutomation.Services.Theme.WallpaperModules.StatementGenerator,
-                "Optimization" or "Cutting" or "HolesCutouts" or "Polish" or "EdgeDeletion" or "Mitring" or "Tempering" or "Pairing" or "DoublingLamination" => ProGlassAutomation.Services.Theme.WallpaperModules.Optimization,
+                "Optimization" or "Cutting" or "ProcessWorkCenter" or "HolesCutouts" or "Polish" or "EdgeDeletion" or "Mitring" or "Tempering" or "Pairing" or "DoublingLamination" => ProGlassAutomation.Services.Theme.WallpaperModules.Optimization,
                 "Diagnostics" => ProGlassAutomation.Services.Theme.WallpaperModules.Logs,
                 "SystemCenter" => ProGlassAutomation.Services.Theme.WallpaperModules.SystemCenter,
                 "Settings" => ProGlassAutomation.Services.Theme.WallpaperModules.Settings,

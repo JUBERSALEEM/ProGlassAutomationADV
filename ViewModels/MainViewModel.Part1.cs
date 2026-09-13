@@ -104,6 +104,8 @@ namespace ProGlassAutomation.ViewModels
         public CuttingViewModel CuttingVM => _lazyCuttingVM ??= WireProductionCrossNav(ResolveOrNew<CuttingViewModel>());
         private CuttingWorkCenterViewModel? _lazyCuttingWorkCenterVM;
         public CuttingWorkCenterViewModel CuttingWorkCenterVM => _lazyCuttingWorkCenterVM ??= ResolveOrNew<CuttingWorkCenterViewModel>();
+        private ProcessWorkCenterViewModel? _lazyProcessWorkCenterVM;
+        public ProcessWorkCenterViewModel ProcessWorkCenterVM => _lazyProcessWorkCenterVM ??= ResolveOrNew<ProcessWorkCenterViewModel>();
         private HolesCutoutsViewModel? _lazyHolesCutoutsVM;
         public HolesCutoutsViewModel HolesCutoutsVM => _lazyHolesCutoutsVM ??= WireProductionCrossNav(ResolveOrNew<HolesCutoutsViewModel>());
         private PolishViewModel? _lazyPolishVM;
