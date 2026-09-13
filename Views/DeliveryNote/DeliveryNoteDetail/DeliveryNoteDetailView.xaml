@@ -68,19 +68,19 @@
                             Margin="10,0,0,0" VerticalAlignment="Center"
                             Background="{DynamicResource TintIndigoBrush}">
                         <TextBlock Text="{Binding DeliveryType}"
-                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                     </Border>
                     <Border Style="{StaticResource Badge.Primary}">
                         <TextBlock Text="{DynamicResource DeliveryNote.FREECharge}"
-                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                     </Border>
                     <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,3"
                             Margin="6,0,0,0" VerticalAlignment="Center"
                             Background="{DynamicResource TintGreenBrush}">
                         <TextBlock Text="{Binding Status}"
-                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource SuccessBrush}"/>
                     </Border>
                 </StackPanel>
@@ -183,7 +183,7 @@
                     Style="{StaticResource ModuleErrorBannerStyle}">
                 <TextBlock Text="{Binding ErrorMessage}"
                            Foreground="{DynamicResource DangerBrush}"
-                           FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
+                           FontSize="{StaticResource TextBodyLarge}" FontWeight="{DynamicResource Weight.SemiBold}"
                            TextWrapping="Wrap"/>
             </Border>
 
@@ -202,7 +202,7 @@
                                VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <TextBlock Text="{DynamicResource Lock.PostedBodyLocked}"
                                TextWrapping="Wrap"
-                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                               FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"
                                VerticalAlignment="Center"/>
                 </StackPanel>

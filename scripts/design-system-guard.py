@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Design-System Guard — Phase 8A
+Design-System Guard — Phase 8A + Phase 9 improvements
 Detects prohibited visual patterns that would drift repository back into
 hardcoded visuals, duplicate card systems, etc.
 
@@ -22,6 +22,11 @@ Special surfaces (WARNING not BLOCKING):
 
 Known exception:
   CountryPhoneControl — Segoe UI Emoji — flag rendering
+
+Phase 9 improvements:
+- Accurately distinguish XML comments (including multi-line), quoted attribute values, actual duplicate attributes, actual resource violations
+- Strip XML comments before scanning to avoid false positives like letter-spacing inside comment
+- Improve FontWeight literal detection to avoid counting inside comments
 """
 
 import glob
@@ -63,19 +68,23 @@ PROTECTED_FILES = [
 # Canonical check
 GDS_PATH = ROOT / "Themes/Styles/GlobalDesignSystem.xaml"
 
+def _strip_xml_comments(text: str) -> str:
+    """Remove XML comments including multi-line, to avoid false positives.
+    Handles <!-- ... --> including nested? Non-greedy."""
+    return re.sub(r'<!--.*?-->', '', text, flags=re.DOTALL)
+
 def check_hardcoded_colors():
     blocking = []
     warnings = []
     files = glob.glob(str(ROOT / VIEW_GLOB), recursive=True)
     for f in files:
         rel = str(Path(f).relative_to(ROOT))
-        # Skip special surfaces? No, check all Views, but PrintTokens special is not color
         try:
             text = Path(f).read_text(encoding='utf-8', errors='ignore')
         except:
             continue
-        for m in HARDCODED_COLOR_RE.finditer(text):
-            # Check if it's in protected file
+        clean = _strip_xml_comments(text)
+        for m in HARDCODED_COLOR_RE.finditer(clean):
             if any(pf in rel for pf in PROTECTED_FILES):
                 warnings.append(f"{rel}: hardcoded color {m.group(0)} — WARNING protected file AgentChatView contains hardcoded colors #B91C1C etc. — protected pre-existing, do NOT auto-fix")
             else:
@@ -88,11 +97,10 @@ def check_hardcoded_colors():
             text = Path(f).read_text(encoding='utf-8', errors='ignore')
         except:
             continue
-        for m in HARDCODED_COLOR_RE.finditer(text):
-            # Also check hex pattern #B91C1C etc.
+        clean = _strip_xml_comments(text)
+        for m in HARDCODED_COLOR_RE.finditer(clean):
             warnings.append(f"{rel}: hardcoded color {m.group(0)} — WARNING protected file")
-        # Direct hex search for known finding
-        if "#B91C1C" in text or "#6366F1" in text or "#3730A3" in text:
+        if "#B91C1C" in clean or "#6366F1" in clean or "#3730A3" in clean:
             if rel not in [w.split(":")[0] for w in warnings]:
                 warnings.append(f"{rel}: contains #B91C1C / #6366F1 / #3730A3 — WARNING protected pre-existing user modification, do NOT overwrite")
     return blocking, warnings
@@ -107,14 +115,14 @@ def check_hardcoded_corner():
             text = Path(f).read_text(encoding='utf-8', errors='ignore')
         except:
             continue
-        for m in HARDCODED_CORNER_RE.finditer(text):
-            # Skip if DynamicResource
-            line_start = text.rfind("\n", 0, m.start()) + 1
-            line_end = text.find("\n", m.end())
-            line = text[line_start:line_end]
+        clean = _strip_xml_comments(text)
+        for m in HARDCODED_CORNER_RE.finditer(clean):
+            # Find line containing match in original clean text
+            line_start = clean.rfind("\n", 0, m.start()) + 1
+            line_end = clean.find("\n", m.end())
+            line = clean[line_start:line_end] if line_end != -1 else clean[line_start:]
             if "DynamicResource" in line or "StaticResource" in line:
                 continue
-            # Check if in PrintTokens special
             if PRINT_TOKENS_FILE in rel:
                 warnings.append(f"{rel}: CornerRadius numeric {m.group(0)} — WARNING PrintTokens special (PrintableInvoiceView allows CornerRadius=\"6\" etc. via Print.Accent) — allowed as special surface")
             elif any(ss in rel for ss in SPECIAL_SURFACES):
@@ -133,20 +141,15 @@ def check_hardcoded_fontsize():
             text = Path(f).read_text(encoding='utf-8', errors='ignore')
         except:
             continue
-        for m in HARDCODED_FONTSIZE_RE.finditer(text):
-            # Allow if contains {DynamicResource or {StaticResource or {Binding
+        clean = _strip_xml_comments(text)
+        for m in HARDCODED_FONTSIZE_RE.finditer(clean):
             if "{DynamicResource" in m.group(0) or "{StaticResource" in m.group(0) or "{Binding" in m.group(0):
                 continue
-            # Check full match — FontSize="14" etc. literal numeric
-            # The regex already matches numeric, but we need to ensure it's not like FontSize="{DynamicResource FontSize.Body}"
-            # If the value after = starts with digit and not {, it's hardcoded
             val = m.group(0)
-            # Extract value inside quotes
             q = re.search(r'"([^"]+)"', val)
             if q:
                 inner = q.group(1)
                 if inner and inner[0].isdigit() and "{" not in inner:
-                    # Check if in special surfaces? PrintTokens may have FontSize? Usually not
                     blocking.append(f"{rel}: hardcoded FontSize {val} — BUILD-BLOCKING — use FontSize.Body / Title / H1 etc. via DynamicResource")
     return blocking, warnings
 
@@ -160,17 +163,20 @@ def check_hardcoded_fontweight():
             text = Path(f).read_text(encoding='utf-8', errors='ignore')
         except:
             continue
-        for m in HARDCODED_FONTWEIGHT_LITERAL_RE.finditer(text):
-            # This is literal FontWeight="Bold" etc.
-            # Current baseline has 249 pre-existing, deferred to Phase 9
-            warnings.append(f"{rel}: hardcoded FontWeight {m.group(0)} — WARNING pre-existing deferred to Phase 9, should use Weight.Bold via DynamicResource, not BLOCKER for Phase 8A")
+        clean = _strip_xml_comments(text)
+        for m in HARDCODED_FONTWEIGHT_LITERAL_RE.finditer(clean):
+            # After Phase 9 migration, remaining should be special surface only (PrintableInvoiceView 34)
+            # Still WARNING, not BLOCKING, because special surface intentional
+            if PRINT_TOKENS_FILE in rel:
+                warnings.append(f"{rel}: hardcoded FontWeight {m.group(0)} — WARNING PrintTokens special surface, intentionally deferred, do NOT force generic token")
+            else:
+                warnings.append(f"{rel}: hardcoded FontWeight {m.group(0)} — WARNING pre-existing deferred to Phase 9, should use Weight.Bold via DynamicResource, not BLOCKER for Phase 8A")
     return blocking, warnings
 
 def check_duplicate_card_systems():
     blocking = []
     warnings = []
     files = glob.glob(str(ROOT / ALL_XAML_GLOB), recursive=True)
-    # Only check Views for new card systems, not Themes
     view_files = [f for f in files if "/Views/" in f]
     for f in view_files:
         rel = str(Path(f).relative_to(ROOT))
@@ -178,6 +184,7 @@ def check_duplicate_card_systems():
             text = Path(f).read_text(encoding='utf-8', errors='ignore')
         except:
             continue
+        clean = _strip_xml_comments(text)
         for pattern, name in [
             (NEW_CARDSTYLE_RE, "CardStyle"),
             (NEW_GLASSCARD_RE, "GlassCardStyle"),
@@ -186,12 +193,9 @@ def check_duplicate_card_systems():
             (NEW_MODULECARD_RE, "ModuleCardStyle"),
             (NEW_DASHBOARDCARD_RE, "DashboardCardStyle"),
         ]:
-            for m in pattern.finditer(text):
-                # Allow if it's in GlobalDesignSystem or legacy CardStyles.xaml (existing)
+            for m in pattern.finditer(clean):
                 if "GlobalDesignSystem.xaml" in rel or "CardStyles.xaml" in rel:
                     continue
-                # Check if it's actually duplicating Surface* — if it sets Background SurfacePrimaryBrush and CornerRadius 12, it's duplicate
-                # For simplicity, any new *CardStyle in Views is BLOCKING
                 blocking.append(f"{rel}: new duplicate card system {m.group(0)} — BUILD-BLOCKING — use SurfacePrimaryStyle / Secondary / Detail / Elevated / KPI / Glass via DynamicResource")
     return blocking, warnings
 
@@ -203,7 +207,6 @@ def check_canonical_exists():
     else:
         try:
             text = GDS_PATH.read_text(encoding='utf-8', errors='ignore')
-            # Check for 374 keys
             count = text.count('x:Key=')
             if count < 300:
                 warnings.append(f"GlobalDesignSystem key count {count} < 300 — WARNING may be incomplete, expected 374")
@@ -212,14 +215,13 @@ def check_canonical_exists():
     return blocking, warnings
 
 def main():
-    print("=== Design-System Guard — Phase 8A ===")
+    print("=== Design-System Guard — Phase 8A + Phase 9 improvements ===")
     print(f"Root: {ROOT}")
     print("")
 
     all_blocking = []
     all_warnings = []
 
-    # Run checks
     b, w = check_hardcoded_colors()
     all_blocking.extend(b)
     all_warnings.extend(w)
@@ -238,7 +240,7 @@ def main():
     b, w = check_hardcoded_fontweight()
     all_blocking.extend(b)
     all_warnings.extend(w)
-    print(f"[4] Hardcoded FontWeight literal: BLOCKING={len(b)} WARNING={len(w)} (249 pre-existing deferred)")
+    print(f"[4] Hardcoded FontWeight literal: BLOCKING={len(b)} WARNING={len(w)} (Phase 9: 249 -> 34 special deferred)")
 
     b, w = check_duplicate_card_systems()
     all_blocking.extend(b)
@@ -252,10 +254,10 @@ def main():
 
     print("")
     print("--- WARNINGS (allowed, but report) ---")
-    for warn in all_warnings[:50]:
+    for warn in all_warnings[:100]:
         print(f"  WARN: {warn}")
-    if len(all_warnings) > 50:
-        print(f"  ... and {len(all_warnings)-50} more warnings")
+    if len(all_warnings) > 100:
+        print(f"  ... and {len(all_warnings)-100} more warnings")
 
     print("")
     print("--- BLOCKING (must fix) ---")
@@ -266,7 +268,6 @@ def main():
     print(f"Summary: {len(all_blocking)} BLOCKING, {len(all_warnings)} WARNING")
     print("")
 
-    # Also run existing audits for context
     print("--- Existing audits (for context) ---")
     try:
         import subprocess

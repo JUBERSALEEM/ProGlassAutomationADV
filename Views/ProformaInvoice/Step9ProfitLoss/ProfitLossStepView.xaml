@@ -156,7 +156,7 @@
                     <StackPanel Grid.Column="4" VerticalAlignment="Bottom" Margin="16,0,0,2">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                             <TextBlock Text="{Binding CalculationStateLabel}"
-                                       FontSize="{StaticResource TextCaption}" FontWeight="Bold">
+                                       FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
@@ -178,7 +178,7 @@
                         </StackPanel>
                         <TextBlock Text="{Binding Step9MaintenanceRating}"
                                    FontSize="{StaticResource TextCaption}"
-                                   FontWeight="Bold"
+                                   FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AccentBrush}"
                                    HorizontalAlignment="Right"
                                    Margin="0,2,0,0"
@@ -214,7 +214,7 @@
                         <StackPanel>
                             <TextBlock Text="REQUIRED TARGET PRICE" Style="{StaticResource TgtCaptionStyle}"/>
                             <TextBlock Text="{Binding RequiredTargetPriceDisplay}"
-                                       FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
+                                       FontSize="{StaticResource TextDisplay}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        Margin="0,2,0,10"/>
                             <Border Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,0,0,10"/>
@@ -280,7 +280,7 @@
                         <StackPanel>
                             <TextBlock Text="EXPECTED PROFIT MARGIN" Style="{StaticResource TgtCaptionStyle}"/>
                             <TextBlock Text="{Binding ExpectedProfitMarginDisplay}"
-                                       FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
+                                       FontSize="{StaticResource TextDisplay}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        Margin="0,2,0,10"/>
                             <Border Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,0,0,10"/>
@@ -348,7 +348,7 @@
                                         </Style>
                                     </Border.Style>
                                     <TextBlock Text="{Binding TargetJobStatusLabel}"
-                                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                               FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                 </Border>
                             </Grid>
@@ -362,7 +362,7 @@
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="BASE" Style="{StaticResource TgtMicroLabelStyle}"/>
                                     <TextBlock Text="{Binding BaseMarginPercentDisplay}"
-                                               FontSize="{StaticResource TextDisplay}" FontWeight="Bold" TextWrapping="Wrap">
+                                               FontSize="{StaticResource TextDisplay}" FontWeight="{DynamicResource Weight.Bold}" TextWrapping="Wrap">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
@@ -381,7 +381,7 @@
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="TARGET" Style="{StaticResource TgtMicroLabelStyle}"/>
                                     <TextBlock Text="{Binding TargetMarginPercentDisplay}"
-                                               FontSize="{StaticResource TextDisplay}" FontWeight="Bold" TextWrapping="Wrap">
+                                               FontSize="{StaticResource TextDisplay}" FontWeight="{DynamicResource Weight.Bold}" TextWrapping="Wrap">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
@@ -436,7 +436,7 @@
                                     <TextBlock Grid.Column="0" Text="Given judged for the margin" Style="{StaticResource TgtKvLabelStyle}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding GivenJudgedAverageDisplay}"
                                                Style="{StaticResource TgtKvValueStyle}"
-                                               FontWeight="SemiBold"/>
+                                               FontWeight="{DynamicResource Weight.SemiBold}"/>
                                 </Grid>
                                 <Border Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,10,0,8"/>
                                 <Grid>
@@ -446,7 +446,7 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="Margin against BASE price" Style="{StaticResource TgtKvLabelStyle}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding BaseMarginPercentDisplay}"
-                                               Style="{StaticResource TgtKvValueStyle}" FontWeight="SemiBold"/>
+                                               Style="{StaticResource TgtKvValueStyle}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                                 </Grid>
                                 <Grid Margin="0,6,0,0">
                                     <Grid.ColumnDefinitions>
@@ -485,7 +485,7 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="Margin against TARGET" Style="{StaticResource TgtKvLabelStyle}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding TargetMarginPercentDisplay}"
-                                               Style="{StaticResource TgtKvValueStyle}" FontWeight="SemiBold"/>
+                                               Style="{StaticResource TgtKvValueStyle}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                                 </Grid>
                                 <Grid Margin="0,6,0,0">
                                     <Grid.ColumnDefinitions>
@@ -559,7 +559,7 @@
                         <Border Style="{StaticResource TgtInsetStyle}" Padding="14,12" Margin="0,0,0,8">
                             <TextBlock Text="{Binding TargetFormulaAllSpecsText}"
                                        FontFamily="Consolas" FontSize="{StaticResource TextBody}"
-                                       FontWeight="SemiBold"
+                                       FontWeight="{DynamicResource Weight.SemiBold}"
                                        LineHeight="22"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        TextWrapping="Wrap"/>
@@ -656,7 +656,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding HeaderDisplay}"
-                                               FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                               FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource TextPrimaryBrush}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,10,0"/>
@@ -664,13 +664,13 @@
                                                Text="{Binding SpecName}"
                                                FontFamily="Consolas"
                                                FontSize="{StaticResource TextBody}"
-                                               FontWeight="SemiBold"
+                                               FontWeight="{DynamicResource Weight.SemiBold}"
                                                Foreground="{DynamicResource TextPrimaryBrush}"
                                                TextWrapping="Wrap"
                                                VerticalAlignment="Center"/>
                                     <TextBlock Grid.Column="2"
                                                Text="{Binding TotalCostDisplay}"
-                                               FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                               FontSize="{StaticResource TextBodyLarge}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource AccentBrush}"
                                                VerticalAlignment="Center"
                                                Margin="12,0,0,0"/>
@@ -712,7 +712,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" Text="{Binding Kind}"
                                                                Style="{StaticResource PlCellStyle}"
-                                                               FontWeight="SemiBold"
+                                                               FontWeight="{DynamicResource Weight.SemiBold}"
                                                                Foreground="{DynamicResource AccentBrush}"/>
                                                     <TextBlock Grid.Column="1" Text="{Binding Description}"
                                                                Style="{StaticResource PlCellStyle}"
@@ -728,7 +728,7 @@
                                                                HorizontalAlignment="Right"/>
                                                     <TextBlock Grid.Column="5" Text="{Binding AmountDisplay}"
                                                                Style="{StaticResource PlCellStyle}"
-                                                               FontWeight="Bold"
+                                                               FontWeight="{DynamicResource Weight.Bold}"
                                                                HorizontalAlignment="Right"/>
                                                 </Grid>
                                             </Border>
@@ -762,7 +762,7 @@
                                              ToolTip="{DynamicResource ProformaInvoice.TypeRateIntendQuoteMarkShownBeside}"/>
                                     <TextBlock Grid.Column="2"
                                                Text="{Binding RateCheckDisplay}"
-                                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                               FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                VerticalAlignment="Center"
                                                TextWrapping="Wrap"
                                                Margin="12,0,0,0">
@@ -983,7 +983,7 @@
                                                             Background="{DynamicResource AccentBrush}"
                                                             VerticalAlignment="Center" HorizontalAlignment="Left">
                                                         <TextBlock Text="{Binding SpecNumber}"
-                                                                   FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
+                                                                   FontSize="{StaticResource TextXSmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
@@ -991,7 +991,7 @@
                                                     <StackPanel Grid.Column="1" Margin="6,0,8,0">
                                                         <TextBlock Text="{Binding SpecDisplayName}"
                                                                    Style="{StaticResource PlCellStyle}"
-                                                                   FontWeight="SemiBold"
+                                                                   FontWeight="{DynamicResource Weight.SemiBold}"
                                                                    TextWrapping="Wrap"/>
                                                         <TextBlock FontSize="{StaticResource TextCaption}"
                                                                    Foreground="{DynamicResource TextTertiaryBrush}"
@@ -1022,14 +1022,14 @@
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                                     <TextBlock Grid.Column="6" Text="{Binding FinalRequiredTargetDisplay}"
                                                                Style="{StaticResource PlCellStyle}" HorizontalAlignment="Right"
-                                                               FontWeight="SemiBold"/>
+                                                               FontWeight="{DynamicResource Weight.SemiBold}"/>
                                                     <TextBlock Grid.Column="7" Text="{Binding DifferencePerSqmDisplay}"
                                                                Style="{StaticResource PlCellStyle}" HorizontalAlignment="Right"/>
                                                     <StackPanel Grid.Column="8" HorizontalAlignment="Right">
                                                         <TextBlock Text="{Binding BaseMarginDisplay}"
                                                                    Style="{StaticResource PlCellStyle}"
                                                                    HorizontalAlignment="Right"
-                                                                   FontWeight="Bold"/>
+                                                                   FontWeight="{DynamicResource Weight.Bold}"/>
                                                         <TextBlock Text="{Binding MarginAgainstTargetDisplay}"
                                                                    Style="{StaticResource PlCellStyle}"
                                                                    HorizontalAlignment="Right"
@@ -1055,7 +1055,7 @@
                                                             </Style>
                                                         </Border.Style>
                                                         <TextBlock Text="{Binding StatusLabel}"
-                                                                   FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
+                                                                   FontSize="{StaticResource TextXSmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                                    TextTrimming="CharacterEllipsis"/>
                                                     </Border>
@@ -1107,10 +1107,10 @@
                             <StackPanel Grid.Column="1" Margin="16,0" VerticalAlignment="Center"
                                         DataContext="{Binding SelectedTargetSpec}">
                                 <TextBlock Text="{Binding SpecNumberDisplay}"
-                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                           FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AccentBrush}"/>
                                 <TextBlock Text="{Binding SpecDisplayName}"
-                                           FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
+                                           FontSize="{StaticResource TextBodyLarge}" FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextWrapping="Wrap"/>
                             </StackPanel>
@@ -1135,7 +1135,7 @@
                                 <Border Grid.Row="0" Background="{DynamicResource AccentBrush}"
                                         CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="18,14">
                                     <StackPanel DataContext="{Binding SelectedTargetSpec}">
-                                        <TextBlock FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                        <TextBlock FontSize="{StaticResource TextSection}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}">
                                             <Run Text="{Binding SpecNumberDisplay, Mode=OneWay}"/>
                                         </TextBlock>
@@ -1157,7 +1157,7 @@
                                         <!-- 1 · IDENTITY -->
                                         <TextBlock Text="1 · IDENTITY" Style="{StaticResource TgtSideHeadingStyle}" Margin="0,0,0,8"/>
                                         <TextBlock Text="{Binding SpecDisplayName}"
-                                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                   FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                                    TextWrapping="Wrap"/>
                                         <Grid Margin="0,6,0,0">
@@ -1180,7 +1180,7 @@
                                             <StackPanel>
                                                 <TextBlock Text="STEP 4 PANE / SHEET SOURCE"
                                                            FontSize="{StaticResource TextXSmall}"
-                                                           FontWeight="Bold"
+                                                           FontWeight="{DynamicResource Weight.Bold}"
                                                            Foreground="{DynamicResource TextTertiaryBrush}"/>
                                                 <TextBlock Text="{Binding OuterPaneSheetDisplay}"
                                                            FontSize="{StaticResource TextCaption}"
@@ -1296,9 +1296,9 @@
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="0" Text="Specification target (before U-insert)"
-                                                       Style="{StaticResource TgtSideLabelStyle}" FontWeight="SemiBold"/>
+                                                       Style="{StaticResource TgtSideLabelStyle}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                                             <TextBlock Grid.Column="1" Text="{Binding SpecificationTargetDisplay}"
-                                                       Style="{StaticResource TgtSideValueStyle}" FontWeight="Bold"/>
+                                                       Style="{StaticResource TgtSideValueStyle}" FontWeight="{DynamicResource Weight.Bold}"/>
                                         </Grid>
 
 
@@ -1353,7 +1353,7 @@
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="0" Text="Margin against base" Style="{StaticResource TgtSideLabelStyle}"/>
                                             <TextBlock Grid.Column="1" Text="{Binding BaseMarginDisplay}"
-                                                       Style="{StaticResource TgtSideValueStyle}" FontWeight="Bold"/>
+                                                       Style="{StaticResource TgtSideValueStyle}" FontWeight="{DynamicResource Weight.Bold}"/>
                                         </Grid>
                                         <Grid Margin="0,4,0,0">
                                             <Grid.ColumnDefinitions>
@@ -1369,11 +1369,11 @@
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="0" Text="Final required target"
-                                                       FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                       FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                                        VerticalAlignment="Center"/>
                                             <TextBlock Grid.Column="1" Text="{Binding FinalRequiredTargetDisplay}"
-                                                       FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                                       FontSize="{StaticResource TextSection}" FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource AccentBrush}"/>
                                         </Grid>
                                         <Grid Margin="0,4,0,0">
@@ -1391,7 +1391,7 @@
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="0" Text="Margin against target" Style="{StaticResource TgtSideLabelStyle}"/>
                                             <TextBlock Grid.Column="1" Text="{Binding MarginAgainstTargetDisplay}"
-                                                       Style="{StaticResource TgtSideValueStyle}" FontWeight="Bold"/>
+                                                       Style="{StaticResource TgtSideValueStyle}" FontWeight="{DynamicResource Weight.Bold}"/>
                                         </Grid>
                                         <Grid Margin="0,4,0,0">
                                             <Grid.ColumnDefinitions>
@@ -1434,7 +1434,7 @@
                                                 </Style>
                                             </Border.Style>
                                             <TextBlock Text="{Binding StatusLabel}"
-                                                       FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
+                                                       FontSize="{StaticResource TextXSmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                         </Border>
                                         <TextBlock Text="{Binding WarningSummary}"

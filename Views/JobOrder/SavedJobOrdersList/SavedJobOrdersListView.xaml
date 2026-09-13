@@ -286,7 +286,7 @@
 
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,8,8,8">
                                             <TextBlock Text="{Binding JobOrderId}"
-                                                       FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                                       FontSize="{StaticResource TextBodyLarge}" FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                                                 <Border Background="{DynamicResource TintGrayBrush}"
@@ -296,7 +296,7 @@
                                                         Padding="8,2"
                                                         Margin="0,0,6,0">
                                                     <TextBlock Text="{Binding ProjectName}"
-                                                               FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                                                               FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                                Foreground="{DynamicResource TextPrimaryBrush}"
                                                                TextTrimming="CharacterEllipsis"
                                                                MaxWidth="140"/>
@@ -307,7 +307,7 @@
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="8,2"
                                                         Margin="0,0,6,0">
-                                                    <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                                                    <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                                Foreground="{DynamicResource AccentBrush}">
                                                         <Run Text="{DynamicResource Common.From}"/><Run Text="{Binding SourceProformaId, Mode=OneWay}"/>
                                                     </TextBlock>
@@ -326,7 +326,7 @@
                                                         </Style>
                                                     </Border.Style>
                                                     <TextBlock Text="{Binding OverdueDisplay}"
-                                                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                               FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}"
                                                                Foreground="{DynamicResource DangerBrush}"/>
                                                 </Border>
                                             </StackPanel>
@@ -358,7 +358,7 @@
 
                                         <TextBlock Grid.Column="5"
                                                    Text="{Binding GrandTotalDisplay}"
-                                                   FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextBodyLarge}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                                    VerticalAlignment="Center"
                                                    HorizontalAlignment="Right"
@@ -376,7 +376,7 @@
                                                                  Converter={StaticResource BrushKeyConverter}}"
                                                     ToolTip="{DynamicResource JobOrder.ProductionStatus}">
                                                 <TextBlock Text="{Binding StatusLabel}"
-                                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                           FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}"
                                                            Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                             </Border>
                                             <Border Margin="0,2,0,0"
@@ -387,7 +387,7 @@
                                                                  Converter={StaticResource BrushKeyConverter}}"
                                                     ToolTip="{DynamicResource JobOrder.DeliveryStatus}">
                                                 <TextBlock Text="{Binding DisplayStatus}"
-                                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                           FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}"
                                                            Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                             </Border>
                                         </StackPanel>
@@ -400,7 +400,7 @@
                                                 Background="{Binding PriorityBrushKey,
                                                              Converter={StaticResource BrushKeyConverter}}">
                                             <TextBlock Text="{Binding PriorityLabel}"
-                                                       FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                       FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                         </Border>
 

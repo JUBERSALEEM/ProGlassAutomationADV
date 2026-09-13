@@ -94,7 +94,7 @@
 
                                                 <StackPanel Grid.Column="0">
                                                     <TextBlock Text="{Binding DisplayName}"
-                                                               FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                                               FontSize="{StaticResource TextBodyLarge}" FontWeight="{DynamicResource Weight.Bold}"
                                                                Foreground="{DynamicResource TextPrimaryBrush}"
                                                                IsHitTestVisible="False"/>
                                                     <TextBlock FontSize="{StaticResource TextCaption}"
@@ -119,7 +119,7 @@
                                                            Text="&#xE73E;"
                                                            FontFamily="Segoe MDL2 Assets"
                                                            FontSize="{StaticResource TextSection}"
-                                                           FontWeight="Bold"
+                                                           FontWeight="{DynamicResource Weight.Bold}"
                                                            Foreground="{DynamicResource AccentBrush}"
                                                            VerticalAlignment="Center"
                                                            Margin="12,0,0,0"
@@ -167,7 +167,7 @@
                                 <Border DockPanel.Dock="Right"
                                         VerticalAlignment="Center"
                                         Style="{StaticResource SurfacePrimaryStyle}">
-                                    <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold" IsHitTestVisible="False">
+                                    <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}" IsHitTestVisible="False">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Text" Value="NOT INSTALLED"/>
@@ -237,7 +237,7 @@
                                              Style="{StaticResource DownloadProgressBarStyle}"
                                              HorizontalAlignment="Stretch"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                    <TextBlock FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource AccentBrush}"
                                                IsHitTestVisible="False">
                                         <Run Text="{Binding DownloadProgress, Mode=OneWay}"/><Run Text="%"/>
@@ -247,7 +247,7 @@
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                IsHitTestVisible="False"/>
                                     <TextBlock Text="{Binding DownloadSpeedText}"
-                                               FontSize="{StaticResource TextBody}" FontWeight="Bold" Margin="10,0,0,0"
+                                               FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.Bold}" Margin="10,0,0,0"
                                                Foreground="{DynamicResource SuccessBrush}"
                                                IsHitTestVisible="False"/>
                                     <TextBlock Text="{Binding DownloadEtaText}"
@@ -311,7 +311,7 @@
 
                             <!-- Unified status text (hidden while downloading — progress bar takes over) -->
                             <TextBlock Text="{Binding VoiceStatus}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        TextWrapping="Wrap"
                                        Margin="0,8,0,0"

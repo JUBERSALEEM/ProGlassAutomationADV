@@ -58,7 +58,7 @@
                     </Border>
                     <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding HeaderTitle}" FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                            <TextBlock Text="{Binding HeaderTitle}" FontSize="{StaticResource TextTitle}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                             <TextBlock Text="●" FontSize="{StaticResource TextBody}" Margin="8,0,0,0" VerticalAlignment="Center"
                                        Foreground="{DynamicResource WarningBrush}"
@@ -66,7 +66,7 @@
                                        Visibility="{Binding IsDirty, Converter={StaticResource BoolToVisibilityConverter}}"/>
                             <Border Margin="11,0,0,0" Padding="9,3" CornerRadius="{DynamicResource Radius.Large}"
                                     Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding Status}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                <TextBlock Text="{Binding Status}" FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AccentBrush}"/>
                             </Border>
                         </StackPanel>
@@ -558,7 +558,7 @@
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Text="{DynamicResource Inquiry.DropFilesHereClickBrowse}" FontSize="{StaticResource TextBodyLarge}"
-                                                           FontWeight="SemiBold" Margin="0,9,0,0" HorizontalAlignment="Center"
+                                                           FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,9,0,0" HorizontalAlignment="Center"
                                                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <TextBlock Text="{DynamicResource Inquiry.NewInquirySavedAutomaticallyBeforeFirstFile}"
                                                            Style="{StaticResource InqHintStyle}" Margin="0,4,0,0"
@@ -590,12 +590,12 @@
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,8,0">
-                                                    <TextBlock Text="{Binding FileName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                    <TextBlock Text="{Binding FileName}" FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                                Foreground="{DynamicResource TextPrimaryBrush}"
                                                                TextTrimming="CharacterEllipsis"/>
                                                     <StackPanel Orientation="Horizontal">
                                                         <TextBlock Text="{Binding Extension, Mode=OneWay}" FontSize="{StaticResource TextXSmall}"
-                                                                   FontWeight="Bold"
+                                                                   FontWeight="{DynamicResource Weight.Bold}"
                                                                    Foreground="{DynamicResource AccentBrush}"/>
                                                         <TextBlock Text=" · " FontSize="{StaticResource TextXSmall}"
                                                                    Foreground="{DynamicResource TextTertiaryBrush}"/>

@@ -485,7 +485,7 @@
                                          Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                          behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
-                                         FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
+                                         FontSize="{StaticResource TextDisplayLarge}" FontWeight="{DynamicResource Weight.Bold}"
                                          TextAlignment="Center" Height="54"
                                          VerticalContentAlignment="Center"
                                          Background="{DynamicResource DialogInsetBrush}"
@@ -605,7 +605,7 @@
                             Visibility="{Binding HasError,
                                         Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="{Binding ErrorMessage}" TextWrapping="Wrap"
-                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource DangerBrush}"/>
                     </Border>
 
@@ -627,7 +627,7 @@
                                          Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                          behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
-                                         FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
+                                         FontSize="{StaticResource TextDisplayLarge}" FontWeight="{DynamicResource Weight.Bold}"
                                          TextAlignment="Center" Height="54"
                                          VerticalContentAlignment="Center"
                                          Background="{DynamicResource DialogInsetBrush}"
@@ -880,7 +880,7 @@
                                    VerticalAlignment="Center" Margin="0,0,16,0"
                                    TextWrapping="Wrap" MaxWidth="520"
                                    FontSize="{StaticResource TextCaption}"
-                                   FontWeight="SemiBold"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource DangerBrush}"
                                    Visibility="{Binding HasValidationSummary,
                                                Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -1056,14 +1056,14 @@
                                                     Converter={StaticResource ColorStringConverter}}"/>
                                             </Border.Background>
                                             <TextBlock Text="{Binding Action}"
-                                                       FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                       FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                         </Border>
 
                                         <TextBlock Grid.Column="2" VerticalAlignment="Center"
                                                    HorizontalAlignment="Center"
                                                    Text="{Binding QuantityChanged}"
-                                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                                         <TextBlock Grid.Column="3" VerticalAlignment="Center"
@@ -1140,7 +1140,7 @@
                         <StackPanel>
                             <TextBlock Text="MARGIN" Style="{StaticResource StatLabel}" Margin="0,0,0,10"/>
                             <TextBlock Text="{Binding MarginDisplay}"
-                                       FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
+                                       FontSize="{StaticResource TextDisplayLarge}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource AccentBrush}"/>
                             <!-- "No cost basis" rather than a fake 0%: sheets
                                  are routinely entered before a purchase price
@@ -1167,7 +1167,7 @@
                         <StackPanel>
                             <TextBlock Text="CONSUMPTION" Style="{StaticResource StatLabel}" Margin="0,0,0,10"/>
                             <TextBlock Text="{Binding ConsumptionPercent, StringFormat={}{0:N1}% of stock used}"
-                                       FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                                       FontSize="{StaticResource TextTitle}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Text="{Binding UsedValueAtCost, StringFormat=Used stock at cost: {0:N2} AED}"
                                        FontSize="{StaticResource TextBody}" Margin="0,8,0,0"

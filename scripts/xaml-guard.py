@@ -133,9 +133,50 @@ def check_content_plus_element(path: Path, text: str, errors: list[str]) -> None
 
 
 def check_invalid_props(path: Path, text: str, errors: list[str]) -> None:
+    # Improved: handle multi-line comments properly, don't flag inside comments
+    in_comment = False
     for i, line in enumerate(text.splitlines(), 1):
+        stripped = line.strip()
+        # Handle comment start/end on same line
+        if "<!--" in line and "-->" in line:
+            # Check if prop is outside comment on same line
+            # Remove comment content for check
+            no_comment = re.sub(r'<!--.*?-->', '', line)
+            for prop in INVALID_PROPS:
+                if prop in no_comment:
+                    errors.append(
+                        f"{path.relative_to(ROOT)}:{i}: "
+                        f"invalid WPF property '{prop}' (TextBlock has no letter-spacing)"
+                    )
+            continue
+        if "<!--" in line:
+            in_comment = True
+            # Check content before comment start
+            before_comment = line.split("<!--")[0]
+            for prop in INVALID_PROPS:
+                if prop in before_comment:
+                    errors.append(
+                        f"{path.relative_to(ROOT)}:{i}: "
+                        f"invalid WPF property '{prop}' (TextBlock has no letter-spacing)"
+                    )
+            continue
+        if "-->" in line:
+            in_comment = False
+            # Check content after comment end
+            after_comment = line.split("-->")[-1]
+            for prop in INVALID_PROPS:
+                if prop in after_comment:
+                    errors.append(
+                        f"{path.relative_to(ROOT)}:{i}: "
+                        f"invalid WPF property '{prop}' (TextBlock has no letter-spacing)"
+                    )
+            continue
+        if in_comment:
+            continue
+        if stripped.startswith("<!--"):
+            continue
         for prop in INVALID_PROPS:
-            if prop in line and not line.lstrip().startswith("<!--"):
+            if prop in line:
                 errors.append(
                     f"{path.relative_to(ROOT)}:{i}: "
                     f"invalid WPF property '{prop}' (TextBlock has no letter-spacing)"
@@ -187,9 +228,16 @@ def check_undeclared_prefixes(path: Path, text: str, errors: list[str]) -> None:
 
 
 def check_duplicate_attrs(path: Path, text: str, errors: list[str]) -> None:
+    # Improved: parse attributes accurately, ignoring '=' inside quoted values
+    # Previous regex mis-parsed ToolTip="... margin = ..." as attribute
+    ATTR_PATTERN = re.compile(r'\s+([\w.:]+)\s*=\s*"[^"]*"')
     for m in OPEN_TAG.finditer(text):
         tag = m.group(1)
-        attrs = re.findall(r"([\w.:]+)\s*=", m.group(2))
+        attr_block = m.group(2)
+        # Find all properly quoted attributes
+        attrs = []
+        for am in ATTR_PATTERN.finditer(attr_block):
+            attrs.append(am.group(1))
         seen: dict[str, int] = {}
         for a in attrs:
             if a in {

@@ -76,7 +76,7 @@
                         </Border>
                         <TextBlock Grid.Column="1" Text="{Binding Title}"
                                    FontSize="{StaticResource TextTitle}"
-                                   FontWeight="Bold"
+                                   FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                    VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="2" Text="{Binding Subtitle}"
@@ -254,7 +254,7 @@
                                                 </Border.Style>
                                                 <TextBlock Text="{Binding TopTargetStatusLabel}"
                                                            FontSize="{StaticResource TextCaption}"
-                                                           FontWeight="Bold"
+                                                           FontWeight="{DynamicResource Weight.Bold}"
                                                            Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                             </Border>
                                         </Grid>
@@ -306,7 +306,7 @@
                                         </TextBlock>
                                         <TextBlock Text="{Binding TopOverallVerdict}"
                                                    FontSize="{StaticResource TextCaption}"
-                                                   FontWeight="Bold"
+                                                   FontWeight="{DynamicResource Weight.Bold}"
                                                    Margin="0,5,0,0"
                                                    TextWrapping="Wrap">
                                             <TextBlock.Style>
@@ -363,28 +363,28 @@
                                 <Border Style="{StaticResource JpChipStyle}" Margin="0,0,4,0">
                                     <StackPanel>
                                         <TextBlock Text="CONFIRMED JOBS" Style="{StaticResource Typography.Label}"/>
-                                        <TextBlock Text="{Binding ConfirmedJobCountDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                                        <TextBlock Text="{Binding ConfirmedJobCountDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>
                                 <Border Style="{StaticResource JpChipStyle}" Margin="4,0">
                                     <StackPanel>
                                         <TextBlock Text="REQUIRED TARGET" Style="{StaticResource Typography.Label}"/>
-                                        <TextBlock Text="{Binding TargetTotalRequiredValueDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                                        <TextBlock Text="{Binding TargetTotalRequiredValueDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>
                                 <Border Style="{StaticResource JpChipStyle}" Margin="4,0">
                                     <StackPanel>
                                         <TextBlock Text="STEP 5 GIVEN VALUE" Style="{StaticResource Typography.Label}"/>
-                                        <TextBlock Text="{Binding TargetTotalGivenValueDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                                        <TextBlock Text="{Binding TargetTotalGivenValueDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>
                                 <Border Style="{StaticResource JpChipStyle}" Margin="4,0">
                                     <StackPanel>
                                         <TextBlock Text="TOTAL DIFFERENCE" Style="{StaticResource Typography.Label}"/>
-                                        <TextBlock Text="{Binding TargetTotalDifferenceValueDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold">
+                                        <TextBlock Text="{Binding TargetTotalDifferenceValueDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="{DynamicResource Weight.Bold}">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
@@ -404,7 +404,7 @@
                                 <Border Style="{StaticResource JpChipStyle}" Margin="4,0,0,0">
                                     <StackPanel>
                                         <TextBlock Text="VALID · INCOMPLETE · STALE" Style="{StaticResource Typography.Label}" TextWrapping="Wrap"/>
-                                        <TextBlock FontSize="{StaticResource TextSubhead}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}">
+                                        <TextBlock FontSize="{StaticResource TextSubhead}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}">
                                             <Run Text="{Binding ValidTargetJobCountDisplay, Mode=OneWay}"/><Run Text=" · "/>
                                             <Run Text="{Binding IncompleteTargetJobCountDisplay, Mode=OneWay}"/><Run Text=" · "/>
                                             <Run Text="{Binding StaleTargetJobCountDisplay, Mode=OneWay}"/>
@@ -562,13 +562,13 @@
                                                                 <TextBlock Grid.Column="0"
                                                                            Text="{Binding ProformaId}"
                                                                            Style="{StaticResource JpCellStyle}"
-                                                                           FontWeight="SemiBold"
+                                                                           FontWeight="{DynamicResource Weight.SemiBold}"
                                                                            Foreground="{DynamicResource AccentBrush}"/>
 
                                                                 <StackPanel Grid.Column="1" Margin="0,0,8,0">
                                                                     <TextBlock Text="{Binding CustomerName}"
                                                                                Style="{StaticResource JpCellStyle}"
-                                                                               FontWeight="SemiBold"
+                                                                               FontWeight="{DynamicResource Weight.SemiBold}"
                                                                                MaxWidth="340"
                                                                                TextTrimming="CharacterEllipsis"/>
                                                                     <TextBlock Text="{Binding ProjectName}"
@@ -654,7 +654,7 @@
                                                                     </Border.Style>
                                                                     <TextBlock Text="{Binding TargetStatusLabel}"
                                                                                FontSize="{StaticResource TextCaption}"
-                                                                               FontWeight="Bold"
+                                                                               FontWeight="{DynamicResource Weight.Bold}"
                                                                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                                                 </Border>
                                                             </Grid>
@@ -679,7 +679,7 @@
                                                        Margin="0,0,0,12"/>
                                             <TextBlock Text="{DynamicResource JobProfitability.NoJobsShow}"
                                                        FontSize="{StaticResource TextSection}"
-                                                       FontWeight="SemiBold"
+                                                       FontWeight="{DynamicResource Weight.SemiBold}"
                                                        HorizontalAlignment="Center"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                             <TextBlock Text="{DynamicResource JobProfitability.NoSavedProformaMarkedPIConfirmedYetConfirm}"

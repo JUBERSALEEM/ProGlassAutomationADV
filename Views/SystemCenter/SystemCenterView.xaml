@@ -59,14 +59,14 @@
                            Margin="0,0,10,0"
                            Foreground="{DynamicResource AccentBrush}"/>
                 <TextBlock Text="{DynamicResource Module.SystemCenter}"
-                           FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
+                           FontSize="{StaticResource TextTitleLarge}" FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
             </StackPanel>
             <TextBlock FontSize="{StaticResource TextBody}" Margin="0,3,0,0"
                        Foreground="{DynamicResource SecondaryForegroundBrush}">
                 <Run Text="{DynamicResource SystemCenter.UserManagementAuditTrailSigned}"/>
                 <Run Text="{Binding CurrentUserDisplay, Mode=OneWay}"
-                     FontWeight="Bold"/>
+                     FontWeight="{DynamicResource Weight.Bold}"/>
             </TextBlock>
         </StackPanel>
 
@@ -184,7 +184,7 @@
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0"/>
                             <TextBlock Text="{DynamicResource SystemCenter.CreateUSER}"
-                                       FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                                       FontSize="{StaticResource TextSubhead}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
@@ -223,7 +223,7 @@
                                 Command="{Binding CreateUserCommand}"/>
 
                         <TextBlock Text="{Binding UserFormMessage}"
-                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Margin="0,6,0,0"
                                    TextWrapping="Wrap"
                                    Foreground="{DynamicResource AccentBrush}"/>
@@ -245,7 +245,7 @@
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0"/>
                             <TextBlock Text="{DynamicResource SystemCenter.SwitchActiveUser}"
-                                       FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                                       FontSize="{StaticResource TextSubhead}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
@@ -276,7 +276,7 @@
                                 Command="{Binding SwitchUserCommand}"/>
 
                         <TextBlock Text="{Binding SwitchMessage}"
-                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Margin="0,6,0,0"
                                    TextWrapping="Wrap"
                                    Foreground="{DynamicResource AccentBrush}"/>
@@ -299,7 +299,7 @@
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0"/>
                             <TextBlock Text="{DynamicResource SystemCenter.OnlineNetwork}"
-                                       FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                       FontSize="{StaticResource TextSection}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
@@ -343,7 +343,7 @@
                                                      Margin="0,0,9,0"/>
                                             <StackPanel Grid.Column="1">
                                                 <TextBlock Text="{Binding DisplayName}"
-                                                           FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                           FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <TextBlock FontSize="{StaticResource TextCaption}" Margin="0,1,0,0"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}">
@@ -438,7 +438,7 @@
                                                     VerticalAlignment="Center">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="{Binding DisplayName}"
-                                                           FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                                           FontSize="{StaticResource TextBodyLarge}" FontWeight="{DynamicResource Weight.Bold}"
                                                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintGreenBrush}"
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -456,7 +456,7 @@
                                                         </Style>
                                                     </Border.Style>
                                                     <TextBlock Text="{DynamicResource SystemCenter.ActiveNOW}"
-                                                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                               FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}"
                                                                Foreground="{DynamicResource SuccessBrush}"/>
                                                 </Border>
                                             </StackPanel>
@@ -474,7 +474,7 @@
 
                                         <TextBlock Grid.Column="2"
                                                    VerticalAlignment="Center"
-                                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Margin="0,0,10,0">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
@@ -783,7 +783,7 @@
                                    HorizontalAlignment="Center"
                                    Opacity="0.6"/>
                         <TextBlock Text="{DynamicResource Shared.NoActivityRecordedYet}"
-                                   FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
+                                   FontSize="{StaticResource TextSection}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    HorizontalAlignment="Center"
                                    Margin="0,10,0,3"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
@@ -832,7 +832,7 @@
                                                     HorizontalAlignment="Left"
                                                     VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Section}"
-                                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                           FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="{DynamicResource InfoBrush}"/>
                                             </Border>
@@ -840,7 +840,7 @@
                                             <TextBlock Grid.Column="2"
                                                        Margin="10,0"
                                                        Text="{Binding Action}"
-                                                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                       FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                        VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis"
                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>

@@ -37,7 +37,7 @@
     <StackPanel>
 
         <TextBlock Text="{Binding HeaderText}"
-                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                   FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.Bold}"
                    Foreground="{DynamicResource AccentBrush}"
                    TextWrapping="Wrap"
                    Margin="0,0,0,12"/>
@@ -50,7 +50,7 @@
                 CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,10" Margin="0,0,0,16"
                 SnapsToDevicePixels="True">
             <TextBlock Text="{Binding SheetLabel}"
-                       FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
+                       FontSize="{StaticResource TextBodyLarge}" FontWeight="{DynamicResource Weight.SemiBold}"
                        Foreground="{DynamicResource TextPrimaryBrush}"/>
         </Border>
 
@@ -80,7 +80,7 @@
                 <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="0" Grid.Column="0"
                         Background="{DynamicResource SurfaceTertiaryBrush}"
                         Padding="10,10" CornerRadius="{DynamicResource Radius.Medium}">
-                    <TextBlock Text="{DynamicResource SheetStore.Field}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                    <TextBlock Text="{DynamicResource SheetStore.Field}" FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource TextTertiaryBrush}"
                                HorizontalAlignment="Center"/>
                 </Border>

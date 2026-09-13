@@ -27,26 +27,26 @@
                         SnapsToDevicePixels="True">
                     <StackPanel>
                         <TextBlock Text="{Binding Item.CategoryDisplay}"
-                                   FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                                   FontSize="{StaticResource TextTitle}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <TextBlock Text="{Binding ItemLabel}" FontSize="{StaticResource TextBody}"
-                                   FontWeight="Bold" TextWrapping="Wrap" Margin="0,6,0,0"
+                                   FontWeight="{DynamicResource Weight.Bold}" TextWrapping="Wrap" Margin="0,6,0,0"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                             <TextBlock Text="Stock " FontSize="{StaticResource TextBody}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             <TextBlock Text="{Binding Item.Stock, StringFormat={}{0:N2}}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Text="  Used " FontSize="{StaticResource TextBody}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             <TextBlock Text="{Binding Item.Used, StringFormat={}{0:N2}}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource DangerBrush}"/>
                             <TextBlock Text="  Balance " FontSize="{StaticResource TextBody}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             <TextBlock Text="{Binding Item.BalanceDisplay}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource SuccessBrush}"/>
                         </StackPanel>
                     </StackPanel>
@@ -74,7 +74,7 @@
                         <TextBox Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
                                  behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                  behaviors:TextBoxBehaviors.AcceptDecimals="True"
-                                 FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
+                                 FontSize="{StaticResource TextDisplayLarge}" FontWeight="{DynamicResource Weight.Bold}"
                                  TextAlignment="Center">
                             <TextBox.Style>
                                 <Style TargetType="TextBox" BasedOn="{StaticResource ErrorAwareEntry}">
@@ -91,7 +91,7 @@
                         <TextBlock Text="{Binding QuantityError}"
                                    Foreground="{DynamicResource DangerBrush}"
                                    FontSize="{StaticResource TextCaption}"
-                                   FontWeight="SemiBold"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
                                    TextWrapping="Wrap"
                                    Margin="0,8,0,0">
                             <TextBlock.Style>
@@ -132,7 +132,7 @@
                         <TextBox Text="{Binding UnitPriceText, UpdateSourceTrigger=PropertyChanged}"
                                  behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                  behaviors:TextBoxBehaviors.AcceptDecimals="True"
-                                 FontSize="{StaticResource TextTitle}" FontWeight="Bold">
+                                 FontSize="{StaticResource TextTitle}" FontWeight="{DynamicResource Weight.Bold}">
                             <TextBox.Style>
                                 <Style TargetType="TextBox" BasedOn="{StaticResource ErrorAwareEntry}">
                                     <Style.Triggers>
@@ -147,7 +147,7 @@
                         <TextBlock Text="{Binding UnitPriceError}"
                                    Foreground="{DynamicResource DangerBrush}"
                                    FontSize="{StaticResource TextCaption}"
-                                   FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,8,0,0">
+                                   FontWeight="{DynamicResource Weight.SemiBold}" TextWrapping="Wrap" Margin="0,8,0,0">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -184,14 +184,14 @@
                             <TextBlock Text="Balance after " FontSize="{StaticResource TextBody}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             <TextBlock Text="{Binding BalanceAfterDisplay}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                             <TextBlock Text="Movement value " FontSize="{StaticResource TextBody}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             <TextBlock Text="{Binding MovementValue, StringFormat={}{0:N2} AED}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource AccentBrush}"/>
                         </StackPanel>
                     </StackPanel>
@@ -215,7 +215,7 @@
                         </Style>
                     </Border.Style>
                     <TextBlock Text="{Binding ReorderWarning}" TextWrapping="Wrap"
-                               FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                               FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource WarningBrush}"/>
                 </Border>
 

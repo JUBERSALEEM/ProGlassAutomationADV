@@ -54,7 +54,7 @@
 
         <!-- Main result first -->
         <StackPanel Grid.Row="1" Margin="0,0,0,16">
-            <TextBlock Text="MAIN RESULT — PRODUCT TYPE TOTALS" Style="{StaticResource Typography.Label}" FontWeight="Bold" Margin="0,0,0,8"/>
+            <TextBlock Text="MAIN RESULT — PRODUCT TYPE TOTALS" Style="{StaticResource Typography.Label}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,8"/>
             <StackPanel Orientation="Horizontal">
             <!-- Total Revenue -->
             <Border Style="{StaticResource SurfacePrimaryStyle}" Width="180">
@@ -182,7 +182,7 @@
                                         <TextBlock Grid.Column="0"
                                                    Text="{Binding GlassType}"
                                                    Style="{StaticResource Typography.Body}"
-                                                   FontWeight="Bold"/>
+                                                   FontWeight="{DynamicResource Weight.Bold}"/>
 
                                         <!-- Job Count -->
                                         <TextBlock Grid.Column="1"
@@ -212,7 +212,7 @@
                                         <TextBlock Grid.Column="5"
                                                    Text="{Binding TotalProfitDisplay}"
                                                    HorizontalAlignment="Right"
-                                                   FontWeight="SemiBold">
+                                                   FontWeight="{DynamicResource Weight.SemiBold}">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource TableCellStyle}">
                                                     <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
@@ -229,7 +229,7 @@
                                         <TextBlock Grid.Column="6"
                                                    Text="{Binding MarginDisplay}"
                                                    HorizontalAlignment="Right"
-                                                   FontWeight="Bold">
+                                                   FontWeight="{DynamicResource Weight.Bold}">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource TableCellStyle}">
                                                     <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
@@ -244,7 +244,7 @@
 
                                         <!-- Status -->
                                         <TextBlock Grid.Column="7"
-                                                   FontWeight="SemiBold">
+                                                   FontWeight="{DynamicResource Weight.SemiBold}">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource TableCellStyle}">
                                                     <Style.Triggers>
@@ -276,7 +276,7 @@
                     <StackPanel HorizontalAlignment="Center">
                         <TextBlock Text="No glass types found"
                                    FontSize="{StaticResource TextSection}"
-                                   FontWeight="SemiBold"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    HorizontalAlignment="Center"
                                    Margin="0,0,0,8"/>
@@ -309,17 +309,17 @@
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0" Text="TOTAL"
-                                   Style="{StaticResource Typography.Body}" FontWeight="Bold"/>
+                                   Style="{StaticResource Typography.Body}" FontWeight="{DynamicResource Weight.Bold}"/>
                         <TextBlock Grid.Column="1" Text="{Binding TotalJobCountDisplay}"
                                    Style="{StaticResource Typography.Body}" HorizontalAlignment="Right"/>
                         <TextBlock Grid.Column="2" Text="{Binding TotalAreaDisplay}"
                                    Style="{StaticResource Typography.Body}" HorizontalAlignment="Right"/>
                         <TextBlock Grid.Column="3" Text="{Binding TotalRevenueDisplay}"
-                                   Style="{StaticResource Typography.Body}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
+                                   Style="{StaticResource Typography.Body}" HorizontalAlignment="Right" FontWeight="{DynamicResource Weight.SemiBold}"/>
                         <TextBlock Grid.Column="4" Text="{Binding TotalCostDisplay}"
-                                   Style="{StaticResource Typography.Body}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
+                                   Style="{StaticResource Typography.Body}" HorizontalAlignment="Right" FontWeight="{DynamicResource Weight.SemiBold}"/>
                         <TextBlock Grid.Column="5" Text="{Binding TotalProfitDisplay}"
-                                   HorizontalAlignment="Right" FontWeight="Bold">
+                                   HorizontalAlignment="Right" FontWeight="{DynamicResource Weight.Bold}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock" BasedOn="{StaticResource TableCellStyle}">
                                     <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
@@ -332,7 +332,7 @@
                             </TextBlock.Style>
                         </TextBlock>
                         <TextBlock Grid.Column="6" Text="{Binding OverallMarginDisplay}"
-                                   Style="{StaticResource Typography.Body}" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                   Style="{StaticResource Typography.Body}" HorizontalAlignment="Right" FontWeight="{DynamicResource Weight.Bold}"/>
                         <TextBlock Grid.Column="7" Text="—"
                                    Style="{StaticResource Typography.Body}"/>
                     </Grid>
@@ -346,7 +346,7 @@
             <StackPanel>
                 <TextBlock Text="STRATEGIC RECOMMENDATION"
                            FontSize="{StaticResource TextCaption}"
-                           FontWeight="Bold"
+                           FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource AccentBrush}"
                            Margin="0,0,0,8"/>
                 <TextBlock Text="{Binding Recommendation}"
@@ -371,7 +371,7 @@
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Text="Analyzing..."
                            FontSize="{StaticResource TextSection}"
-                           FontWeight="SemiBold"
+                           FontWeight="{DynamicResource Weight.SemiBold}"
                            Foreground="{DynamicResource OnAccentForegroundBrush}"
                            HorizontalAlignment="Center"
                            Margin="0,0,0,8"/>
