@@ -420,6 +420,15 @@ namespace ProGlassAutomation.ViewModels.Optimization
             int flatIndex = 0;
             foreach (var r in runs)
             {
+                r.Result.Sheets.Sort((a, b) =>
+                {
+                    long aa = a.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm);
+                    long ba = b.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm);
+                    return ba.CompareTo(aa);
+                });
+                for (int i = 0; i < r.Result.Sheets.Count; i++)
+                    r.Result.Sheets[i].SheetNo = i + 1;
+
                 for (int i = 0; i < r.Result.Sheets.Count; i++)
                 {
                     var sheet = r.Result.Sheets[i];
