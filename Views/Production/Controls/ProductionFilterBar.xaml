@@ -7,31 +7,35 @@
         <Border Style="{StaticResource ModuleListFilterBarStyle}">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="220"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="200"/>
                     <ColumnDefinition Width="170"/>
                 </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0"
-                         Text="{Binding ScanText, UpdateSourceTrigger=PropertyChanged}"
-                         Style="{StaticResource ModuleListFilterInputStyle}"
-                         Margin="0,0,8,0" MinHeight="40" VerticalContentAlignment="Center"
-                         ToolTip="Scan job number or glass ref — Enter opens the work order">
-                    <TextBox.InputBindings>
-                        <KeyBinding Key="Return" Command="{Binding CommitScanCommand}"/>
-                    </TextBox.InputBindings>
-                </TextBox>
-                <TextBox Grid.Column="1"
-                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                         Style="{StaticResource ModuleListFilterInputStyle}"
-                         Margin="0,0,8,0" VerticalContentAlignment="Center"
-                         ToolTip="Filter Ref / customer / job / spec"/>
-                <ComboBox Grid.Column="2"
+                <Border Grid.Column="0" Margin="0,0,8,0"
+                        Background="{DynamicResource SurfaceTertiaryBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
+                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                        Padding="12,0" MinHeight="40">
+                    <DockPanel>
+                        <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets"
+                                   FontSize="{StaticResource TextSection}"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 BorderThickness="0" Background="Transparent"
+                                 FontSize="{StaticResource TextBodyLarge}"
+                                 Foreground="{DynamicResource TextPrimaryBrush}"
+                                 MinHeight="40" VerticalContentAlignment="Center"
+                                 ToolTip="Search job, customer, glass, spec"/>
+                    </DockPanel>
+                </Border>
+                <ComboBox Grid.Column="1"
                           ItemsSource="{Binding JobFilters}"
                           SelectedItem="{Binding SelectedJobFilter}"
                           Style="{StaticResource ModuleListFilterComboStyle}"
                           Margin="0,0,8,0"/>
-                <ComboBox Grid.Column="3"
+                <ComboBox Grid.Column="2"
                           ItemsSource="{Binding StatusFilters}"
                           SelectedItem="{Binding SelectedStatusFilter}"
                           Style="{StaticResource ModuleListFilterComboStyle}"/>
@@ -39,16 +43,17 @@
         </Border>
 
         <Border CornerRadius="{DynamicResource CardCornerRadius}"
-                Background="{DynamicResource TintAmberBrush}"
-                BorderBrush="{DynamicResource WarningBrush}"
-                BorderThickness="{DynamicResource Border.HairlineThickness}"
-                Padding="10,8" Margin="12,6,12,0"
-                Visibility="{Binding HasAndon, Converter={StaticResource BoolToVisibilityConverter}}">
+                Background="{DynamicResource TintIndigoBrush}"
+                Padding="10,6" Margin="12,4,12,0"
+                Visibility="{Binding HasWaitingUpstream, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="&#xE814;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
-                           Foreground="{DynamicResource WarningBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                <TextBlock Text="{Binding AndonLabel}" TextWrapping="Wrap"
-                           FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets"
+                           FontSize="{StaticResource TextBody}"
+                           Foreground="{DynamicResource AccentBrush}"
+                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock Text="{Binding WaitingUpstreamLabel}" TextWrapping="Wrap"
+                           FontSize="{StaticResource TextBody}"
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
             </StackPanel>
         </Border>
     </StackPanel>

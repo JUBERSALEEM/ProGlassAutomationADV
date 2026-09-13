@@ -79,40 +79,33 @@
                       HorizontalScrollBarVisibility="Disabled">
             <StackPanel HorizontalAlignment="Stretch">
 
-                <!-- ══ Job identity ═══════════════════════════════════ -->
-                <Border Background="{DynamicResource SurfacePrimaryBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="16,14">
-                    <StackPanel>
-                        <TextBlock Text="JOB" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                   Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,4"/>
-                        <TextBlock Text="{Binding SelectedJobNo}" FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <TextBlock Text="{Binding SelectedCustomer}" FontSize="{StaticResource TextBodyLarge}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
-                        <TextBlock Text="{Binding SelectedSpecLabel}" FontSize="{StaticResource TextCaption}"
-                                   Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="0,4,0,12"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="8"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Button Style="{StaticResource PrimaryPillButton}"
-                                    Tag="&#xE8A5;" Content="JOB ORDER"
-                                    MinHeight="40" Height="{DynamicResource DensityButtonHeight}"
-                                    Command="{Binding OpenJobOrderCommand}"
-                                    ToolTip="Open the source Job Order"/>
-                            <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
-                                    Tag="&#xE8A1;" Content="OPEN PI"
-                                    MinHeight="40" Height="{DynamicResource DensityButtonHeight}"
-                                    Command="{Binding OpenProformaCommand}"
-                                    ToolTip="Open the confirmed Proforma Invoice"/>
-                        </Grid>
-                    </StackPanel>
-                </Border>
+                <StackPanel>
+                    <TextBlock Text="JOB" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                               Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding SelectedJobNo}" FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Text="{Binding SelectedCustomer}" FontSize="{StaticResource TextBodyLarge}"
+                               Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                    <TextBlock Text="{Binding SelectedSpecLabel}" FontSize="{StaticResource TextCaption}"
+                               Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="0,4,0,12"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Style="{StaticResource PrimaryPillButton}"
+                                Tag="&#xE8A5;" Content="JOB ORDER"
+                                MinHeight="40" Height="{DynamicResource DensityButtonHeight}"
+                                Command="{Binding OpenJobOrderCommand}"
+                                ToolTip="Open the source Job Order"/>
+                        <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
+                                Tag="&#xE8A1;" Content="OPEN PI"
+                                MinHeight="40" Height="{DynamicResource DensityButtonHeight}"
+                                Command="{Binding OpenProformaCommand}"
+                                ToolTip="Open the confirmed Proforma Invoice"/>
+                    </Grid>
+                </StackPanel>
 
                 <!-- ══ Completed-KPI strip ═════════════════════════════ -->
                 <Border Background="{DynamicResource SurfacePrimaryBrush}"
@@ -130,7 +123,7 @@
                                 <TextBlock Text="TOTAL" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding SelectedUnitTotalLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                <TextBlock Text="pieces in this job" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="{Binding HeroMetricCaption}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </Border>
                         <Border Background="{DynamicResource TintGreenBrush}"
@@ -172,42 +165,12 @@
                     </UniformGrid>
                 </Border>
 
-                <Border Background="{DynamicResource TintAmberBrush}" Padding="12,10" Margin="0,14,0,0"
-                        CornerRadius="{DynamicResource CardCornerRadius}"
-                        Visibility="{Binding IsTemperingStation, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <StackPanel>
-                        <TextBlock Text="FURNACE LOAD" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
-                        <TextBlock Text="{Binding TemperingLoadSummary}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,8"/>
-                        <Button Style="{StaticResource SuccessPillButton}" Tag="&#xE728;" Content="COMPLETE LOAD"
-                                MinHeight="40" Height="{DynamicResource DensityButtonHeight}"
-                                Command="{Binding CompleteLoadCommand}" HorizontalAlignment="Left"/>
-                    </StackPanel>
-                </Border>
-
-                <Border Background="{DynamicResource TintIndigoBrush}" Padding="12,10" Margin="0,14,0,0"
-                        CornerRadius="{DynamicResource CardCornerRadius}"
-                        Visibility="{Binding IsPairingStation, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <StackPanel>
-                        <TextBlock Text="PAIRING BOARD" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
-                        <TextBlock Text="{Binding PairingBoardSummary}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- ══ Toolbar: save the whole grid ═════════════════════ -->
                 <Grid Margin="0,14,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="8"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
                     <Button Style="{StaticResource SuccessPillButton}"
                             Tag="&#xE74E;" Content="SAVE DONE"
                             MinHeight="40" Height="{DynamicResource DensityButtonHeight}"
@@ -216,17 +179,6 @@
                             Tag="&#xE73E;" Content="COMPLETE ALL"
                             MinHeight="40" Height="{DynamicResource DensityButtonHeight}"
                             Command="{Binding CompleteUnitCommand}"/>
-                    <Button Grid.Row="1" Style="{StaticResource OutlinedPillButton}"
-                            Tag="&#xE8A5;" Content="CUT PLAN"
-                            MinHeight="40" Height="{DynamicResource DensityButtonHeight}"
-                            Margin="0,8,0,0"
-                            Command="{Binding OpenCutPlanCommand}"
-                            Visibility="{Binding IsCuttingStation, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                    <Button Grid.Row="1" Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
-                            Tag="&#xE749;" Content="PRINT TICKET"
-                            MinHeight="40" Height="{DynamicResource DensityButtonHeight}"
-                            Margin="0,8,0,0"
-                            Command="{Binding PrintTicketCommand}"/>
                 </Grid>
 
                 <!-- ══ Grids: OUTER (left) · INNER (right), SGU centered ═ -->

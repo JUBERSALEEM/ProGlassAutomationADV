@@ -5,14 +5,14 @@
              xmlns:production="clr-namespace:ProGlassAutomation.Views.Production.Controls"
              FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True" SnapsToDevicePixels="True">
-    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid Background="{DynamicResource SurfacePrimaryBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Margin="4,4,4,0">
+        <Grid Grid.Row="0" Margin="24,20,24,8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>

@@ -38,15 +38,15 @@ namespace ProGlassAutomation.ViewModels.Production
 
         public string StationWorkOrderHint => Stage switch
         {
-            ProductionStage.Cutting => "Station work order — W×H, glass, qty. Scan or click a job. Open the cut plan when Optimization has a session.",
-            ProductionStage.HolesCutouts => "Drill / cutout work order — treatment + pcs remaining. Finished pieces only may temper.",
-            ProductionStage.Polish => "Polish work order — linear metres remaining are the load, not just piece count.",
-            ProductionStage.EdgeDeletion => "Edge-deletion work order — coated glass + remaining pcs.",
-            ProductionStage.Mitring => "Mitring work order — corners / LM remaining.",
-            ProductionStage.Tempering => "Furnace load — thickness mix and m². Complete the load, not forty lone rows.",
-            ProductionStage.Pairing => "Pairing board — outer vs inner remaining. Match before DONE.",
-            ProductionStage.DoublingLamination => "Assembly work order — units to seal / laminate.",
-            _ => "Click a job to open the station panel."
+            ProductionStage.Cutting => "Click a job to record cut pieces (W×H and glass on the list).",
+            ProductionStage.HolesCutouts => "Click a job to record holes and cutouts.",
+            ProductionStage.Polish => "Click a job to record polish — LM is on the list.",
+            ProductionStage.EdgeDeletion => "Click a job to record edge deletion.",
+            ProductionStage.Mitring => "Click a job to record mitring — LM is on the list.",
+            ProductionStage.Tempering => "Click a job to record tempered pieces.",
+            ProductionStage.Pairing => "Click a job to record paired units.",
+            ProductionStage.DoublingLamination => "Click a job to record assembled units.",
+            _ => "Click a job to open the detail panel."
         };
 
         public string EmptyQueueTitle => "No work at " + ModuleName.ToLowerInvariant() + " yet";
