@@ -34,7 +34,7 @@
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                 BorderBrush="{DynamicResource BorderDefaultBrush}"
-                Padding="20,12">
+                Padding="20,12" Style="{StaticResource SurfacePrimaryStyle}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -44,7 +44,7 @@
                 <!-- Optional status hint -->
                 <TextBlock Grid.Column="0"
                            Text="{DynamicResource ProformaInvoice.SelectInvoiceLoadWizardCloseCancel}"
-                           FontSize="{StaticResource TextBody}"
+                           FontSize="{DynamicResource FontSize.Body}"
                            Foreground="{DynamicResource TextTertiaryBrush}"
                            VerticalAlignment="Center"/>
 

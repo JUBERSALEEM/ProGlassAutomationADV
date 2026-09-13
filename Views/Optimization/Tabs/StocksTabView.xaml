@@ -35,11 +35,11 @@
 
                             <TextBlock Grid.Row="0"
                                        Text="Stock pool for the run — only the Step 4 sheet sizes the selected specs were quoted on (outer/inner per spec). Tick the racks each spec may use; unticked racks stay listed but are never fed to the optimizer."
-                                       FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
+                                       FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap"
                                        Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,10"/>
 
                             <TextBlock Grid.Row="1" Text="{Binding StocksStatusText}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap" Margin="0,0,0,14"/>
 
                             <!-- add-row toolbar (buttons in their own columns — no overlap) -->
@@ -115,23 +115,23 @@
                                                                   VerticalAlignment="Center"
                                                                   Style="{StaticResource LiquidGlassCheckBox}"
                                                                   ToolTip="Tick to let this rack be used by the optimizer (Step 4 sheets are auto-selected)"/>
-                                                        <TextBlock Grid.Column="1" FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                        <TextBlock Grid.Column="1" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                                    Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center">
                                                             <Run Text="{Binding WidthText, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding HeightText, Mode=OneWay}"/>
                                                         </TextBlock>
                                                         <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,10,0">
-                                                            <TextBlock Text="{Binding CompositionLabel}" FontSize="{StaticResource TextBody}"
+                                                            <TextBlock Text="{Binding CompositionLabel}" FontSize="{DynamicResource FontSize.Body}"
                                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                        TextTrimming="CharacterEllipsis"/>
                                                         </StackPanel>
-                                                        <TextBlock Grid.Column="3" FontSize="{StaticResource TextBody}"
+                                                        <TextBlock Grid.Column="3" FontSize="{DynamicResource FontSize.Body}"
                                                                    Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center">
                                                             <Run Text="{Binding AvailableText, Mode=OneWay}"/>
                                                         </TextBlock>
-                                                        <TextBlock Grid.Column="4" Text="{Binding UsedLabel}" FontSize="{StaticResource TextBody}"
+                                                        <TextBlock Grid.Column="4" Text="{Binding UsedLabel}" FontSize="{DynamicResource FontSize.Body}"
                                                                    Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"
                                                                    Visibility="{Binding HasUsed, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                                        <TextBlock Grid.Column="5" Text="{Binding SourceLabel}" FontSize="{StaticResource TextCaption}"
+                                                        <TextBlock Grid.Column="5" Text="{Binding SourceLabel}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                                    Foreground="{DynamicResource TextTertiaryBrush}"
                                                                    VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,10,0"/>
                                                         <Button Grid.Column="6" Content="Remove" Style="{StaticResource OptGhostButton}"

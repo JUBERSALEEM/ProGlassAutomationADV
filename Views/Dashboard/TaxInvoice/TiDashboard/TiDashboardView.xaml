@@ -90,8 +90,8 @@
                             Margin="0,0,12,0"
                             SnapsToDevicePixels="True"
                             Background="{Binding StatusColor,
-                                         Converter={StaticResource BrushKeyConverter}}">
-                        <TextBlock FontSize="{StaticResource TextSection}">
+                                         Converter={StaticResource BrushKeyConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                        <TextBlock FontSize="{DynamicResource FontSize.H3}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock"
                                        BasedOn="{StaticResource DbGlyphStyle}">
@@ -124,11 +124,11 @@
 
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="{Binding InvoiceNumber}"
-                                   FontSize="{StaticResource TextBody}"
-                                   FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
                                    TextTrimming="CharacterEllipsis"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <TextBlock FontSize="{StaticResource TextBody}"
+                        <TextBlock FontSize="{DynamicResource FontSize.Body}"
                                    Margin="0,2,0,0"
                                    TextTrimming="CharacterEllipsis"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}">
@@ -142,8 +142,8 @@
                                 VerticalAlignment="Center"
                                 Margin="10,0,0,0">
                         <TextBlock Text="{Binding AmountDisplay}"
-                                   FontSize="{StaticResource TextBody}"
-                                   FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
                                    HorizontalAlignment="Right"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <Border CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
@@ -152,10 +152,10 @@
                                 HorizontalAlignment="Right"
                                 SnapsToDevicePixels="True"
                                 Background="{Binding StatusColor,
-                                             Converter={StaticResource BrushKeyConverter}}">
+                                             Converter={StaticResource BrushKeyConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
                             <TextBlock Text="{Binding Status}"
-                                       FontSize="{StaticResource TextCaption}"
-                                       FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         </Border>
                     </StackPanel>
@@ -188,22 +188,22 @@
 
                         <TextBlock Grid.Column="0"
                                    Text="{Binding Label}"
-                                   FontSize="{StaticResource TextBody}"
-                                   FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
                                    VerticalAlignment="Center"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                         <TextBlock Grid.Column="1"
                                    Text="{Binding CountDisplay}"
-                                   FontSize="{StaticResource TextCaption}"
+                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                    Margin="10,0,0,0"
                                    VerticalAlignment="Center"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
                         <TextBlock Grid.Column="2"
                                    Text="{Binding AmountDisplay}"
-                                   FontSize="{StaticResource TextBody}"
-                                   FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
                                    HorizontalAlignment="Right"
                                    Foreground="{Binding SeverityColor,
                                                 Converter={StaticResource BrushKeyConverter}}"/>
@@ -213,7 +213,7 @@
                             CornerRadius="{DynamicResource Radius.XSmall}"
                             Margin="0,8,0,0"
                             SnapsToDevicePixels="True"
-                            Background="{DynamicResource BorderBrush}">
+                            Background="{DynamicResource BorderBrush}" Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition
@@ -228,7 +228,7 @@
                                     CornerRadius="{DynamicResource Radius.XSmall}"
                                     SnapsToDevicePixels="True"
                                     Background="{Binding SeverityColor,
-                                                 Converter={StaticResource BrushKeyConverter}}"/>
+                                                 Converter={StaticResource BrushKeyConverter}}" Style="{StaticResource SurfacePrimaryStyle}"/>
                         </Grid>
                     </Border>
                 </StackPanel>
@@ -261,10 +261,10 @@
                                 VerticalAlignment="Center"
                                 SnapsToDevicePixels="True"
                                 Background="{Binding BarColor,
-                                             Converter={StaticResource ColorStringConverter}}">
+                                             Converter={StaticResource ColorStringConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
                             <TextBlock Text="{Binding Rank}"
-                                       FontSize="{StaticResource TextBody}"
-                                       FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>
@@ -274,19 +274,19 @@
                                     VerticalAlignment="Center"
                                     Margin="0,0,8,0">
                             <TextBlock Text="{Binding CustomerName}"
-                                       FontSize="{StaticResource TextBody}"
-                                       FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
                                        TextTrimming="CharacterEllipsis"
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Text="{Binding InvoiceCountDisplay}"
-                                       FontSize="{StaticResource TextCaption}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         </StackPanel>
 
                         <TextBlock Grid.Column="2"
                                    Text="{Binding AmountDisplay}"
-                                   FontSize="{StaticResource TextBody}"
-                                   FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Right"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
@@ -296,7 +296,7 @@
                             CornerRadius="{DynamicResource Radius.XSmall}"
                             Margin="0,8,0,0"
                             SnapsToDevicePixels="True"
-                            Background="{DynamicResource BorderBrush}">
+                            Background="{DynamicResource BorderBrush}" Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition
@@ -311,7 +311,7 @@
                                     CornerRadius="{DynamicResource Radius.XSmall}"
                                     SnapsToDevicePixels="True"
                                     Background="{Binding BarColor,
-                                                 Converter={StaticResource ColorStringConverter}}"/>
+                                                 Converter={StaticResource ColorStringConverter}}" Style="{StaticResource SurfacePrimaryStyle}"/>
                         </Grid>
                     </Border>
                 </StackPanel>
@@ -362,7 +362,7 @@
                                          VerticalAlignment="Center"
                                          Fill="{DynamicResource SuccessBrush}"/>
                                 <TextBlock Text="{DynamicResource Common.Live}"
-                                           FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                                           FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
@@ -407,7 +407,7 @@
                             BorderBrush="{DynamicResource DangerBrush}"
                             Visibility="{Binding HasOverdueInvoices,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock FontSize="{StaticResource TextBody}" TextWrapping="Wrap" Foreground="{DynamicResource DangerBrush}">
+                        <TextBlock FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap" Foreground="{DynamicResource DangerBrush}">
                             <Run Text="{Binding OverdueCount, Mode=OneWay}"/>
                             <Run Text=" overdue invoices — "/>
                             <Run Text="{Binding OverdueAmountDisplay, Mode=OneWay}"/>

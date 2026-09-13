@@ -26,56 +26,26 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-<Style x:Key="GridNumericCenterCell" TargetType="TextBlock"
-               BasedOn="{StaticResource GridNumericCell}">
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="TextAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="4,4"/>
-        </Style>
-        <Style x:Key="InvoicePartyLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
-            <Setter Property="Margin" Value="0,0,0,6"/>
-        </Style>
-        <Style x:Key="InvoicePartyValueStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
-        </Style>
-        <Style x:Key="InvoiceMetaChipStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
-            <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Padding" Value="10,6"/>
-            <Setter Property="Margin" Value="0,0,8,8"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-        </Style>
-<Style x:Key="CardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
-            <Setter Property="Background" Value="{DynamicResource Surface.Primary.BackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Surface.Primary.BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="{DynamicResource Surface.Primary.BorderThickness}"/>
-            <Setter Property="CornerRadius" Value="{DynamicResource Surface.Primary.CornerRadius}"/>
-            <Setter Property="Effect" Value="{DynamicResource ShadowSoft}"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-        </Style>
+
+        
+        
+        
+<!-- Migrated CardStyle to global SurfacePrimaryStyle / Typography -->
 <Style x:Key="FamilyInvoiceNumberStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
+            <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsCurrentInvoice}" Value="True">
-                    <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
+                    <Setter Property="FontSize" Value="{DynamicResource FontSize.H3}"/>
                     <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
 <Style x:Key="FamilyRowContentBorderStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Padding" Value="12,10"/>
-            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource Radius.Medium}"/>
             <Setter Property="BorderThickness" Value="1.5"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>

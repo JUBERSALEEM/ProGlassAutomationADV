@@ -24,7 +24,7 @@
                         <Border x:Name="bd"
                                 Background="{TemplateBinding Background}"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Padding="{TemplateBinding Padding}">
+                                Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
                             <ContentPresenter VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -41,27 +41,9 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style x:Key="QuickSettingsGlyph" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
-            <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
-            <Setter Property="Width" Value="22"/>
-            <Setter Property="TextAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-        </Style>
-        <Style x:Key="QuickSettingsLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="Medium"/>
-            <Setter Property="Margin" Value="10,0,0,0"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-        </Style>
-        <Style x:Key="QuickSettingsGroup" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Margin" Value="10,10,10,4"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
-        </Style>
+        
+        
+        
     </UserControl.Resources>
 
     <Grid Margin="10,8,10,16">
@@ -74,7 +56,7 @@
                     Background="{DynamicResource ShellLiquidBrush}"
                     BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
                     BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    ClipToBounds="True">
+                    ClipToBounds="True" Style="{StaticResource SurfacePrimaryStyle}">
 
                 <Grid>
                     <Grid.RowDefinitions>
@@ -85,13 +67,13 @@
                     <Border Grid.Row="0"
                             Background="{DynamicResource AccentBrush}"
                             CornerRadius="{DynamicResource Radius.Top.Medium}"
-                            Padding="18,12">
+                            Padding="18,12" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Shell.NavSettings}"
-                                       FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                             <TextBlock Text="{DynamicResource Settings.HintEveryPage}"
-                                       FontSize="{StaticResource TextCaption}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        Opacity="0.85" Margin="0,2,0,0"/>
                         </StackPanel>
@@ -104,69 +86,69 @@
                                   Padding="8,4,8,10">
                         <StackPanel>
 
-                            <TextBlock Style="{StaticResource QuickSettingsGroup}" Text="{DynamicResource Settings.GrpLook}"/>
-                            <Button Style="{StaticResource QuickSettingsRow}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Appearance">
+                            <TextBlock Style="{StaticResource Typography.Label}" Text="{DynamicResource Settings.GrpLook}"/>
+                            <Button Style="{StaticResource SurfaceDetailStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Appearance">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE790;"/>
-                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecAppearance}"/>
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
+                                    <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecAppearance}"/>
                                 </StackPanel>
                             </Button>
 
-                            <TextBlock Style="{StaticResource QuickSettingsGroup}" Text="{DynamicResource Settings.GrpIntelligence}"/>
-                            <Button Style="{StaticResource QuickSettingsRow}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="AI">
+                            <TextBlock Style="{StaticResource Typography.Label}" Text="{DynamicResource Settings.GrpIntelligence}"/>
+                            <Button Style="{StaticResource SurfaceDetailStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="AI">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE8F2;"/>
-                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecAi}"/>
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F2;"/>
+                                    <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecAi}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource QuickSettingsRow}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Agent">
+                            <Button Style="{StaticResource SurfaceDetailStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Agent">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE99A;"/>
-                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecAgent}"/>
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE99A;"/>
+                                    <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecAgent}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource QuickSettingsRow}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Voice">
+                            <Button Style="{StaticResource SurfaceDetailStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Voice">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE720;"/>
-                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecVoice}"/>
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE720;"/>
+                                    <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecVoice}"/>
                                 </StackPanel>
                             </Button>
 
-                            <TextBlock Style="{StaticResource QuickSettingsGroup}" Text="{DynamicResource Nav.GroupSystem}"/>
-                            <Button Style="{StaticResource QuickSettingsRow}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Data">
+                            <TextBlock Style="{StaticResource Typography.Label}" Text="{DynamicResource Nav.GroupSystem}"/>
+                            <Button Style="{StaticResource SurfaceDetailStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Data">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE74E;"/>
-                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecData}"/>
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE74E;"/>
+                                    <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecData}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource QuickSettingsRow}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Updates">
+                            <Button Style="{StaticResource SurfaceDetailStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Updates">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE72C;"/>
-                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecUpdates}"/>
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72C;"/>
+                                    <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecUpdates}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource QuickSettingsRow}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Demo">
+                            <Button Style="{StaticResource SurfaceDetailStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Demo">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE714;"/>
-                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecDemo}"/>
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE714;"/>
+                                    <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecDemo}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource QuickSettingsRow}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Features">
+                            <Button Style="{StaticResource SurfaceDetailStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Features">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE762;"/>
-                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecFeatures}"/>
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE762;"/>
+                                    <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecFeatures}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource QuickSettingsRow}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="License">
+                            <Button Style="{StaticResource SurfaceDetailStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="License">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE192;"/>
-                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecLicense}"/>
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE192;"/>
+                                    <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecLicense}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource QuickSettingsRow}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="About">
+                            <Button Style="{StaticResource SurfaceDetailStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="About">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE946;"/>
-                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecAbout}"/>
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE946;"/>
+                                    <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecAbout}"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>

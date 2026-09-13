@@ -134,8 +134,8 @@
         ══════════════════════════════════════════════════════════ -->
         <Style x:Key="LiquidComboBoxStyle" TargetType="ComboBox">
             <Setter Property="Height" Value="44"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
+            <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
             <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -155,7 +155,7 @@
                                     BorderThickness="{DynamicResource CardBorderThickness}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                     SnapsToDevicePixels="True"
-                                    Effect="{StaticResource InputShadow}">
+                                    Effect="{StaticResource InputShadow}" Style="{StaticResource SurfacePrimaryStyle}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -173,7 +173,7 @@
                                              VerticalContentAlignment="Center"
                                              CaretBrush="{DynamicResource IndigoPrimary}"
                                              SelectionBrush="{DynamicResource TintIndigoBrush}"
-                                             Focusable="True"/>
+                                             Focusable="True" Style="{StaticResource TextBoxStyle}"/>
 
                                     <ToggleButton Grid.Column="1"
                                                   x:Name="ToggleButton"
@@ -201,7 +201,7 @@
                                         MaxHeight="280"
                                         Padding="4"
                                         SnapsToDevicePixels="True"
-                                        Effect="{StaticResource PopupShadow}">
+                                        Effect="{StaticResource PopupShadow}" Style="{StaticResource SurfacePrimaryStyle}">
                                     <ScrollViewer VerticalScrollBarVisibility="Auto"
                                                   CanContentScroll="True">
                                         <VirtualizingStackPanel IsItemsHost="True"
@@ -227,7 +227,7 @@
         <!-- ComboBox items -->
         <Style TargetType="ComboBoxItem">
             <Setter Property="Padding" Value="12,10"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="Template">
@@ -238,7 +238,7 @@
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="{TemplateBinding Padding}"
                                 Margin="0,1"
-                                SnapsToDevicePixels="True">
+                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                             <ContentPresenter/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -250,7 +250,7 @@
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
                                 <Setter TargetName="itemBd" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
-                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -263,8 +263,8 @@
         ══════════════════════════════════════════════════════════ -->
         <Style x:Key="LiquidDatePickerStyle" TargetType="DatePicker">
             <Setter Property="Height" Value="44"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
+            <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
             <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -281,7 +281,7 @@
                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                 SnapsToDevicePixels="True"
-                                Effect="{StaticResource InputShadow}">
+                                Effect="{StaticResource InputShadow}" Style="{StaticResource SurfacePrimaryStyle}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -306,13 +306,13 @@
                                         Margin="0,0,4,0"
                                         Background="Transparent"
                                         BorderThickness="{DynamicResource Border.NoneThickness}"
-                                        Cursor="Hand">
-                                    <Button.Template>
+                                        Cursor="Hand" Style="{StaticResource SecondaryButtonStyle}">
+                                    <Button.Template Style="{StaticResource SecondaryButtonStyle}">
                                         <ControlTemplate TargetType="Button">
                                             <Border x:Name="btnBd"
                                                     Background="Transparent"
                                                     CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                    SnapsToDevicePixels="True">
+                                                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                                 <Path Data="M19,3H18V1H16V3H8V1H6V3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M19,19H5V8H19V19Z"
                                                       Fill="{DynamicResource ChevronBrush}"
                                                       Stretch="Uniform"
@@ -354,32 +354,12 @@
         <!-- ══════════════════════════════════════════════════════════
              FIELD LABEL
         ══════════════════════════════════════════════════════════ -->
-        <Style x:Key="LiquidFieldLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
-            <Setter Property="Margin" Value="2,0,0,8"/>
-        </Style>
+        
 
         <!-- ══════════════════════════════════════════════════════════
              SHARED PDF OPTION CARD STYLE (was inline × 6)
         ══════════════════════════════════════════════════════════ -->
-        <Style x:Key="PdfOptionCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-            <Setter Property="Margin" Value="8"/>
-            <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
-            <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
-            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
-                    <Setter Property="BorderBrush" Value="{DynamicResource IndigoPrimary}"/>
-                    <Setter Property="Effect" Value="{StaticResource OptionCardHoverShadow}"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+        
 
         <!-- ══════════════════════════════════════════════════════════
              SHARED STATUS CHIP TEMPLATE (was cloned per chip × 7)
@@ -391,7 +371,7 @@
                     Padding="14,8"
                     Background="{DynamicResource PopupSurfaceBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}"
-                    SnapsToDevicePixels="True">
+                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel Orientation="Horizontal"
                             VerticalAlignment="Center">
                     <Border x:Name="tick"
@@ -402,7 +382,7 @@
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             Margin="0,0,10,0"
                             VerticalAlignment="Center"
-                            SnapsToDevicePixels="True">
+                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                         <Path x:Name="tickGlyph"
                               Data="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z"
                               Fill="{DynamicResource OnAccentForegroundBrush}"
@@ -414,8 +394,8 @@
                     </Border>
 
                     <TextBlock Text="{Binding StatusLabel}"
-                               FontSize="{StaticResource TextBodyLarge}"
-                               FontWeight="SemiBold"
+                               FontSize="{DynamicResource FontSize.Title}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource TextPrimary}"
                                VerticalAlignment="Center"/>
 
@@ -428,11 +408,11 @@
                             VerticalAlignment="Center"
                             SnapsToDevicePixels="True"
                             Visibility="{Binding HasCount,
-                                Converter={StaticResource BoolToVisibilityConverter}}">
+                                Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
                         <TextBlock x:Name="countText"
                                    Text="{Binding CountDisplay}"
-                                   FontSize="{StaticResource TextBody}"
-                                   FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource CountBadgeText}"
                                    HorizontalAlignment="Center"/>
                     </Border>
@@ -496,19 +476,19 @@
                                     Background="{DynamicResource IndigoPrimary}"
                                     CornerRadius="{DynamicResource Radius.XSmall}"
                                     VerticalAlignment="Center"
-                                    Margin="0,0,10,0"/>
+                                    Margin="0,0,10,0" Style="{StaticResource SurfacePrimaryStyle}"/>
                             <TextBlock Text="{DynamicResource Reports.StatementGenerator.STEP14}"
-                                       FontSize="{StaticResource TextBody}"
-                                       FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource IndigoPrimary}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.FilterCriteria}"
-                                   FontSize="{StaticResource TextDisplay}"
-                                   FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Kpi}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimary}"/>
                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.NarrowInvoicesCompanySalesmanCustomerProject}"
-                                   FontSize="{StaticResource TextSection}"
+                                   FontSize="{DynamicResource FontSize.H3}"
                                    Foreground="{DynamicResource TextSecondary}"
                                    TextWrapping="Wrap"
                                    Margin="0,8,0,0"/>
@@ -524,7 +504,7 @@
                             MinWidth="240"
                             Effect="{StaticResource MatchCountShadow}"
                             CacheMode="BitmapCache"
-                            SnapsToDevicePixels="True">
+                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <Border Width="10" Height="10"
@@ -532,16 +512,16 @@
                                         VerticalAlignment="Center"
                                         Margin="0,0,10,0"
                                         Background="{DynamicResource GreenLed}"
-                                        Effect="{StaticResource GreenLedGlow}"/>
+                                        Effect="{StaticResource GreenLedGlow}" Style="{StaticResource SurfacePrimaryStyle}"/>
                                 <TextBlock Text="{DynamicResource Reports.StatementGenerator.LIVEMatchCount}"
-                                           FontSize="{StaticResource TextCaption}"
-                                           FontWeight="Bold"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource TextMuted}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                             <TextBlock Text="{Binding MatchCountDisplay}"
-                                       FontSize="{StaticResource TextSubhead}"
-                                       FontWeight="SemiBold"
+                                       FontSize="{DynamicResource FontSize.H3}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextPrimary}"
                                        Margin="0,8,0,0"
                                        TextWrapping="Wrap"/>
@@ -559,7 +539,7 @@
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                         Padding="0"
                         CacheMode="BitmapCache"
-                        SnapsToDevicePixels="True">
+                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -581,7 +561,7 @@
                                     Margin="0,0,16,0"
                                     Background="{DynamicResource IndigoIconGradient}"
                                     Effect="{StaticResource IndigoIconShadow}"
-                                    SnapsToDevicePixels="True">
+                                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                 <Path Data="M15.5,14L20.5,19L19,20.5L14,15.5V14.71L13.73,14.43C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.43,13.73L14.71,14H15.5M9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14Z"
                                       Fill="{DynamicResource OnAccentForegroundBrush}"
                                       Stretch="Uniform"
@@ -592,11 +572,11 @@
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                 <TextBlock Text="{DynamicResource Reports.StatementGenerator.StatementFilters}"
-                                           FontSize="{StaticResource TextTitle}"
-                                           FontWeight="Bold"
+                                           FontSize="{DynamicResource FontSize.H2}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource TextPrimary}"/>
                                 <TextBlock Text="{DynamicResource Reports.StatementGenerator.ConfigureBusinessDimensionsInvoiceStatus}"
-                                           FontSize="{StaticResource TextBodyLarge}"
+                                           FontSize="{DynamicResource FontSize.Title}"
                                            Foreground="{DynamicResource TextSecondary}"
                                            Margin="0,4,0,0"/>
                             </StackPanel>
@@ -611,7 +591,7 @@
                                     VerticalAlignment="Center"
                                     ToolTip="{DynamicResource Reports.StatementGenerator.ResetFilterValues}"
                                     FocusVisualStyle="{x:Null}">
-                                <Button.Template>
+                                <Button.Template Style="{StaticResource SecondaryButtonStyle}">
                                     <ControlTemplate TargetType="Button">
                                         <Border x:Name="bd"
                                                 Background="{DynamicResource SurfacePrimaryBrush}"
@@ -619,7 +599,7 @@
                                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Padding="{TemplateBinding Padding}"
-                                                SnapsToDevicePixels="True">
+                                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                             <StackPanel Orientation="Horizontal"
                                                         VerticalAlignment="Center">
                                                 <Path x:Name="ic"
@@ -631,8 +611,8 @@
                                                       Margin="0,0,12,0"/>
                                                 <TextBlock x:Name="tx"
                                                            Text="{DynamicResource Action.ClearFilters}"
-                                                           FontSize="{StaticResource TextBodyLarge}"
-                                                           FontWeight="SemiBold"
+                                                           FontSize="{DynamicResource FontSize.Title}"
+                                                           FontWeight="{DynamicResource Weight.SemiBold}"
                                                            Foreground="{DynamicResource TextPrimary}"
                                                            VerticalAlignment="Center"/>
                                             </StackPanel>
@@ -682,23 +662,23 @@
                                             CornerRadius="{DynamicResource Radius.XSmall}"
                                             VerticalAlignment="Center"
                                             Margin="0,0,12,0"
-                                            Background="{DynamicResource IndigoAccentBar}"/>
+                                            Background="{DynamicResource IndigoAccentBar}" Style="{StaticResource SurfacePrimaryStyle}"/>
                                     <TextBlock Text="{DynamicResource Reports.StatementGenerator.BusinessDimensions}"
-                                               FontSize="{StaticResource TextBody}"
-                                               FontWeight="Bold"
+                                               FontSize="{DynamicResource FontSize.Body}"
+                                               FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource IndigoPrimary}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Row="2" Grid.Column="0">
-                                    <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource LiquidFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource Typography.Label}"/>
                                     <ComboBox Style="{StaticResource LiquidComboBoxStyle}"
                                               ItemsSource="{Binding Companies}"
                                               Text="{Binding FilterCompany, UpdateSourceTrigger=PropertyChanged}"
                                               ToolTip="{DynamicResource Reports.StatementGenerator.SelectSupplierFactoryCompany}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Row="2" Grid.Column="2">
-                                    <TextBlock Text="{DynamicResource Common.Salesman}" Style="{StaticResource LiquidFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Common.Salesman}" Style="{StaticResource Typography.Label}"/>
                                     <ComboBox Style="{StaticResource LiquidComboBoxStyle}"
                                               ItemsSource="{Binding Salesmen}"
                                               Text="{Binding FilterSalesman, UpdateSourceTrigger=PropertyChanged}"
@@ -706,14 +686,14 @@
                                 </StackPanel>
 
                                 <StackPanel Grid.Row="4" Grid.Column="0">
-                                    <TextBlock Text="{DynamicResource Common.Customer}" Style="{StaticResource LiquidFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Common.Customer}" Style="{StaticResource Typography.Label}"/>
                                     <ComboBox Style="{StaticResource LiquidComboBoxStyle}"
                                               ItemsSource="{Binding Customers}"
                                               Text="{Binding FilterCustomer, UpdateSourceTrigger=PropertyChanged}"
                                               ToolTip="{DynamicResource Reports.StatementGenerator.SelectBillingCustomer}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Row="4" Grid.Column="2">
-                                    <TextBlock Text="{DynamicResource Common.Project}" Style="{StaticResource LiquidFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Common.Project}" Style="{StaticResource Typography.Label}"/>
                                     <ComboBox Style="{StaticResource LiquidComboBoxStyle}"
                                               ItemsSource="{Binding Projects}"
                                               Text="{Binding FilterProject, UpdateSourceTrigger=PropertyChanged}"
@@ -721,13 +701,13 @@
                                 </StackPanel>
 
                                 <StackPanel Grid.Row="6" Grid.Column="0">
-                                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.Date2}" Style="{StaticResource LiquidFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.Date2}" Style="{StaticResource Typography.Label}"/>
                                     <DatePicker Style="{StaticResource LiquidDatePickerStyle}"
                                                 SelectedDate="{Binding DateFrom}"
                                                 ToolTip="{DynamicResource Reports.StatementGenerator.InvoicesIssuedAfterDate}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Row="6" Grid.Column="2">
-                                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.Date}" Style="{StaticResource LiquidFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.Date}" Style="{StaticResource Typography.Label}"/>
                                     <DatePicker Style="{StaticResource LiquidDatePickerStyle}"
                                                 SelectedDate="{Binding DateTo}"
                                                 ToolTip="{DynamicResource Reports.StatementGenerator.InvoicesIssuedBeforeDate}"/>
@@ -748,16 +728,16 @@
                                             CornerRadius="{DynamicResource Radius.XSmall}"
                                             VerticalAlignment="Center"
                                             Margin="0,0,12,0"
-                                            Background="{DynamicResource CyanAccentBar}"/>
+                                            Background="{DynamicResource CyanAccentBar}" Style="{StaticResource SurfacePrimaryStyle}"/>
                                     <TextBlock Text="{DynamicResource Reports.StatementGenerator.InvoiceStatus}"
-                                               FontSize="{StaticResource TextBody}"
-                                               FontWeight="Bold"
+                                               FontSize="{DynamicResource FontSize.Body}"
+                                               FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource CyanAccent}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
 
                                 <TextBlock Text="{DynamicResource Reports.StatementGenerator.SelectStatusesInclude}"
-                                           FontSize="{StaticResource TextBodyLarge}"
+                                           FontSize="{DynamicResource FontSize.Title}"
                                            Foreground="{DynamicResource TextSecondary}"
                                            Margin="0,6,0,16"/>
 
@@ -778,12 +758,12 @@
                                                     <ToolTip>
                                                         <StackPanel MaxWidth="240">
                                                             <TextBlock Text="{Binding StatusLabel}"
-                                                                       FontWeight="Bold"
-                                                                       FontSize="{StaticResource TextBody}"
+                                                                       FontWeight="{DynamicResource Weight.Bold}"
+                                                                       FontSize="{DynamicResource FontSize.Body}"
                                                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                                        TextWrapping="Wrap"/>
                                                             <TextBlock Text="{DynamicResource Reports.StatementGenerator.ClickToggleNumberShowsCurrentMatchCount}"
-                                                                       FontSize="{StaticResource TextBody}"
+                                                                       FontSize="{DynamicResource FontSize.Body}"
                                                                        Foreground="{DynamicResource BorderDefaultBrush}"
                                                                        TextWrapping="Wrap"
                                                                        Margin="0,4,0,0"/>
@@ -809,7 +789,7 @@
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                         Padding="0"
                         CacheMode="BitmapCache"
-                        SnapsToDevicePixels="True">
+                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -824,7 +804,7 @@
                                     Margin="0,0,16,0"
                                     Background="{DynamicResource VioletPinkGradient}"
                                     Effect="{StaticResource VioletIconShadow}"
-                                    SnapsToDevicePixels="True">
+                                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                 <Path Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"
                                       Fill="{DynamicResource OnAccentForegroundBrush}"
                                       Stretch="Uniform"
@@ -835,11 +815,11 @@
 
                             <StackPanel VerticalAlignment="Center">
                                 <TextBlock Text="{DynamicResource Reports.StatementGenerator.PDFGenerationOptions}"
-                                           FontSize="{StaticResource TextTitle}"
-                                           FontWeight="Bold"
+                                           FontSize="{DynamicResource FontSize.H2}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource TextPrimary}"/>
                                 <TextBlock Text="{DynamicResource Reports.StatementGenerator.ChooseWhatIncludeFinalMergedReport}"
-                                           FontSize="{StaticResource TextBodyLarge}"
+                                           FontSize="{DynamicResource FontSize.Title}"
                                            Foreground="{DynamicResource TextSecondary}"
                                            Margin="0,4,0,0"/>
                             </StackPanel>
@@ -847,7 +827,7 @@
 
                         <UniformGrid Grid.Row="1" Rows="2" Columns="3"
                                      Margin="20,0,20,20">
-                            <Border Style="{StaticResource PdfOptionCardStyle}"
+                            <Border Style="{StaticResource SurfacePrimaryStyle}"
                                     ToolTip="{DynamicResource Reports.StatementGenerator.MergeTaxInvoicesDeliveryNotesProforma}">
                                 <CheckBox IsChecked="{Binding IncludeAttachments}"
                                           Cursor="Hand"
@@ -855,17 +835,17 @@
                                           VerticalContentAlignment="Top">
                                     <StackPanel Margin="10,0,0,0">
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.IncludeAttachments}"
-                                                   FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimary}"/>
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.MergeTaxInvoicesDeliveryNotes}"
-                                                   FontSize="{StaticResource TextBody}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </CheckBox>
                             </Border>
 
-                            <Border Style="{StaticResource PdfOptionCardStyle}"
+                            <Border Style="{StaticResource SurfacePrimaryStyle}"
                                     ToolTip="{DynamicResource Reports.StatementGenerator.ShowDeliveryNoteLineItemDetails}">
                                 <CheckBox IsChecked="{Binding IncludeDnDetails}"
                                           Cursor="Hand"
@@ -873,17 +853,17 @@
                                           VerticalContentAlignment="Top">
                                     <StackPanel Margin="10,0,0,0">
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.DNLineItems}"
-                                                   FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimary}"/>
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.ShowDeliveryNoteDetailsBody}"
-                                                   FontSize="{StaticResource TextBody}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </CheckBox>
                             </Border>
 
-                            <Border Style="{StaticResource PdfOptionCardStyle}"
+                            <Border Style="{StaticResource SurfacePrimaryStyle}"
                                     ToolTip="{DynamicResource Reports.StatementGenerator.AddOrderedVsDeliveredComparisonTable}">
                                 <CheckBox IsChecked="{Binding IncludeBalanceAnalysis}"
                                           Cursor="Hand"
@@ -891,17 +871,17 @@
                                           VerticalContentAlignment="Top">
                                     <StackPanel Margin="10,0,0,0">
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.BalanceAnalysis}"
-                                                   FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimary}"/>
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.OrderedVsDeliveredComparison}"
-                                                   FontSize="{StaticResource TextBody}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </CheckBox>
                             </Border>
 
-                            <Border Style="{StaticResource PdfOptionCardStyle}"
+                            <Border Style="{StaticResource SurfacePrimaryStyle}"
                                     ToolTip="{DynamicResource Reports.StatementGenerator.VisualBreakdown0303160619090Days}">
                                 <CheckBox IsChecked="{Binding IncludeAgingChart}"
                                           Cursor="Hand"
@@ -909,17 +889,17 @@
                                           VerticalContentAlignment="Top">
                                     <StackPanel Margin="10,0,0,0">
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.AgingChart}"
-                                                   FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimary}"/>
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.VisualAgingBucketBreakdown}"
-                                                   FontSize="{StaticResource TextBody}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </CheckBox>
                             </Border>
 
-                            <Border Style="{StaticResource PdfOptionCardStyle}"
+                            <Border Style="{StaticResource SurfacePrimaryStyle}"
                                     ToolTip="{DynamicResource Reports.StatementGenerator.AddPlaceholderPagesFailedRegenerations}">
                                 <CheckBox IsChecked="{Binding IncludeInsertPlaceholders}"
                                           Cursor="Hand"
@@ -927,17 +907,17 @@
                                           VerticalContentAlignment="Top">
                                     <StackPanel Margin="10,0,0,0">
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.InsertPlaceholders}"
-                                                   FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimary}"/>
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.PagesFailedInvoiceRegenerations}"
-                                                   FontSize="{StaticResource TextBody}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </CheckBox>
                             </Border>
 
-                            <Border Style="{StaticResource PdfOptionCardStyle}"
+                            <Border Style="{StaticResource SurfacePrimaryStyle}"
                                     ToolTip="{DynamicResource Reports.StatementGenerator.IncludeWarningsAlertsSummarySection}">
                                 <CheckBox IsChecked="{Binding IncludeWarningsSummary}"
                                           Cursor="Hand"
@@ -945,10 +925,10 @@
                                           VerticalContentAlignment="Top">
                                     <StackPanel Margin="10,0,0,0">
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.WarningsSummary}"
-                                                   FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimary}"/>
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.AlertsWarningsReport}"
-                                                   FontSize="{StaticResource TextBody}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
                                     </StackPanel>

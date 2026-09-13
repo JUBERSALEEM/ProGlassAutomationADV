@@ -26,11 +26,10 @@
 
         <!-- Label style centralized in Themes/Styles/DialogStyles.xaml
              (DialogFieldLabelStyle) — the 2026-09 dialog audit. -->
-        <Style x:Key="ApprovalFieldLabel" TargetType="TextBlock"
-               BasedOn="{StaticResource DialogFieldLabelStyle}"/>
+        
 
         <Style x:Key="ApprovalTextBox" TargetType="TextBox">
-            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="CaretBrush" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="Template">
@@ -41,7 +40,7 @@
                                 Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
-                                SnapsToDevicePixels="True">
+                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           Margin="14,0"
                                           VerticalAlignment="Center"/>
@@ -65,8 +64,8 @@
         <Style x:Key="ApprovalRadioStyle" TargetType="RadioButton">
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
+            <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -113,8 +112,8 @@
         <!-- Bounded + wrapping so the runtime note can never overflow the
              card edge (kept from the previous header block). -->
         <TextBlock Text="{Binding AttachmentNote}"
-                   FontSize="{StaticResource TextCaption}"
-                   FontWeight="SemiBold"
+                   FontSize="{DynamicResource FontSize.BodySmall}"
+                   FontWeight="{DynamicResource Weight.SemiBold}"
                    TextWrapping="Wrap"
                    Foreground="{DynamicResource AccentBrush}"/>
 
@@ -145,7 +144,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <TextBlock Grid.Row="0" Text="{Binding LpoLabelText}"
-                       Style="{StaticResource ApprovalFieldLabel}"/>
+                       Style="{StaticResource DialogFieldLabelStyle}"/>
             <TextBox x:Name="LpoBox" Grid.Row="1"
                      Height="40"
                      Style="{StaticResource ApprovalTextBox}"
@@ -163,9 +162,9 @@
                 BorderBrush="{DynamicResource DangerBrush}"
                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                 VerticalAlignment="Top"
-                Visibility="{Binding ValidationVisibility}">
+                Visibility="{Binding ValidationVisibility}" Style="{StaticResource SurfacePrimaryStyle}">
             <TextBlock Text="{Binding ValidationMessage}"
-                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                        TextWrapping="Wrap"
                        Foreground="{DynamicResource DangerBrush}"/>
         </Border>

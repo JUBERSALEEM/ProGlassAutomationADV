@@ -18,22 +18,12 @@
              FontFamily="{DynamicResource AppFontFamily}">
 
     <UserControl.Resources>
-        <Style x:Key="SummaryLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-        <Style x:Key="SummaryValueStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
+        
+        
         <Style x:Key="DiscountKindChip" TargetType="RadioButton">
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
+            <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
             <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Template">
@@ -45,7 +35,7 @@
                                 BorderThickness="1"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="10,4"
-                                SnapsToDevicePixels="True">
+                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
                         </Border>
@@ -62,20 +52,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style x:Key="NumericInputStyle" TargetType="TextBox">
-            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Padding" Value="8,4"/>
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="MinWidth" Value="72"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
+        
     </UserControl.Resources>
 
     <StackPanel>
@@ -86,30 +63,30 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="{DynamicResource ProformaInvoice.GlassSubtotal}" Style="{StaticResource SummaryLabelStyle}"/>
+            <TextBlock Text="{DynamicResource ProformaInvoice.GlassSubtotal}" Style="{StaticResource Typography.Label}"/>
             <TextBlock Grid.Column="1"
                        Text="{Binding GlassMaterialsSubtotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
-                       Style="{StaticResource SummaryValueStyle}"/>
+                       Style="{StaticResource Typography.Body}"/>
         </Grid>
         <Grid Margin="0,0,0,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="{DynamicResource ProformaInvoice.OtherCharges}" Style="{StaticResource SummaryLabelStyle}"/>
+            <TextBlock Text="{DynamicResource ProformaInvoice.OtherCharges}" Style="{StaticResource Typography.Label}"/>
             <TextBlock Grid.Column="1"
                        Text="{Binding OtherChargesSubtotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
-                       Style="{StaticResource SummaryValueStyle}"/>
+                       Style="{StaticResource Typography.Body}"/>
         </Grid>
         <Grid Margin="0,0,0,12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="{DynamicResource ProformaInvoice.NetSubtotal}" Style="{StaticResource SummaryLabelStyle}" FontWeight="SemiBold"/>
+            <TextBlock Text="{DynamicResource ProformaInvoice.NetSubtotal}" Style="{StaticResource Typography.Label}" FontWeight="{DynamicResource Weight.SemiBold}"/>
             <TextBlock Grid.Column="1"
                        Text="{Binding NetSubtotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
-                       Style="{StaticResource SummaryValueStyle}"/>
+                       Style="{StaticResource Typography.Body}"/>
         </Grid>
 
         <Grid Margin="0,0,0,8">
@@ -143,20 +120,20 @@
             </StackPanel>
             <TextBox Grid.Column="2"
                      Text="{Binding DiscountValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:0.00}}"
-                     Style="{StaticResource NumericInputStyle}"
+                     Style="{StaticResource SurfacePrimaryStyle}"
                      behaviors:TextBoxBehaviors.AcceptDecimals="True"
                      HorizontalAlignment="Left"
                      MinWidth="96"
                      ToolTip="{DynamicResource ProformaInvoice.TypeDiscountAEDIfPill}"/>
             <TextBlock Grid.Column="3"
                        Text="{Binding DiscountUnitLabel}"
-                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                        VerticalAlignment="Center"
                        Margin="6,0,12,0"/>
             <TextBlock Grid.Column="4"
                        Text="{Binding DiscountAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=minus}"
-                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                        Foreground="{DynamicResource DangerBrush}"
                        VerticalAlignment="Center"/>
         </Grid>
@@ -173,12 +150,12 @@
                        Margin="0,0,10,0"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="AED"
-                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            VerticalAlignment="Center"
                            Margin="0,0,8,0"/>
                 <TextBox Text="{Binding RoundToGrandTotal, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:0.00}}"
-                         Style="{StaticResource NumericInputStyle}"
+                         Style="{StaticResource SurfacePrimaryStyle}"
                          behaviors:TextBoxBehaviors.AcceptDecimals="True"
                          MinWidth="110"
                          ToolTip="{DynamicResource ProformaInvoice.CustomerEvenFigureEG1550000ApplyWritesAED}"/>
@@ -192,7 +169,7 @@
             </StackPanel>
             <TextBlock Grid.Column="2"
                        Text="{Binding RoundToHint}"
-                       FontSize="{StaticResource TextCaption}"
+                       FontSize="{DynamicResource FontSize.BodySmall}"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                        VerticalAlignment="Center"
                        TextWrapping="Wrap"
@@ -205,10 +182,10 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="{DynamicResource ProformaInvoice.SubtotalBeforeVAT}" Style="{StaticResource SummaryLabelStyle}"/>
+            <TextBlock Text="{DynamicResource ProformaInvoice.SubtotalBeforeVAT}" Style="{StaticResource Typography.Label}"/>
             <TextBlock Grid.Column="1"
                        Text="{Binding SubtotalBeforeVat, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
-                       Style="{StaticResource SummaryValueStyle}"/>
+                       Style="{StaticResource Typography.Body}"/>
         </Grid>
 
         <Grid Margin="0,0,0,16">
@@ -228,23 +205,23 @@
                           AutomationProperties.Name="VAT applicable"/>
             <TextBlock Grid.Column="1"
                        Text="VAT"
-                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                        Foreground="{DynamicResource TextPrimaryBrush}"
                        VerticalAlignment="Center"
                        Margin="0,0,10,0"/>
             <TextBox Grid.Column="3"
                      Text="{Binding VatPercent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
-                     Style="{StaticResource NumericInputStyle}"
+                     Style="{StaticResource SurfacePrimaryStyle}"
                      IsEnabled="{Binding IsVatApplicable}"/>
             <TextBlock Grid.Column="4"
                        Text="%"
-                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                        VerticalAlignment="Center"
                        Margin="6,0,12,0"/>
             <TextBlock Grid.Column="5"
                        Text="{Binding VatAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=plus}"
-                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                        Foreground="{DynamicResource SuccessBrush}"
                        VerticalAlignment="Center"/>
         </Grid>
@@ -255,12 +232,12 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="{DynamicResource ProformaInvoice.GrandTotalAED}"
-                       FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                       FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                        Foreground="{DynamicResource TextPrimaryBrush}"
                        VerticalAlignment="Center"/>
             <TextBlock Grid.Column="1"
                        Text="{Binding GrandTotalVatInclusive, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
-                       FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
+                       FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
                        Foreground="{DynamicResource TextPrimaryBrush}"/>
         </Grid>
     </StackPanel>

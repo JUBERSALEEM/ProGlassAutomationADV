@@ -75,12 +75,12 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,14">
                 <Border Background="{DynamicResource TintIndigoBrush}"
                         CornerRadius="{DynamicResource ControlCornerRadius}"
-                        Padding="10,4">
+                        Padding="10,4" Style="{StaticResource SurfacePrimaryStyle}">
                     <TextBlock Text="{Binding OperationId}"
                                MaxWidth="220"
                                TextWrapping="Wrap"
-                               FontSize="{StaticResource TextCaption}"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource AccentBrush}"/>
                 </Border>
             </StackPanel>
@@ -97,7 +97,7 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="18,16">
+                        Padding="18,16" Style="{StaticResource SurfacePrimaryStyle}">
                     <Grid>
                         <Grid.Resources>
                             <Style TargetType="TextBlock">
@@ -109,25 +109,9 @@
                               visually identical without repeating six
                               attributes eight times.
                             -->
-                            <Style x:Key="DefLabel" TargetType="TextBlock"
-                                   BasedOn="{StaticResource {x:Type TextBlock}}">
-                                <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-                                <Setter Property="FontWeight" Value="Bold"/>
-                                <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
-                                <Setter Property="Margin" Value="0,0,0,10"/>
-                            </Style>
-                            <Style x:Key="DefValue" TargetType="TextBlock"
-                                   BasedOn="{StaticResource {x:Type TextBlock}}">
-                                <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-                                <Setter Property="Margin" Value="0,0,0,10"/>
-                            </Style>
-                            <Style x:Key="DefSub" TargetType="TextBlock"
-                                   BasedOn="{StaticResource {x:Type TextBlock}}">
-                                <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-                                <Setter Property="Margin" Value="0,2,0,10"/>
-                            </Style>
+                            
+                            
+                            
                         </Grid.Resources>
 
                         <Grid.ColumnDefinitions>
@@ -144,60 +128,60 @@
                         </Grid.RowDefinitions>
 
                         <!-- WHO -->
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="WHO" Style="{StaticResource DefLabel}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="WHO" Style="{StaticResource Typography.Label}"/>
                         <StackPanel Grid.Row="0" Grid.Column="1">
                             <TextBlock Text="{Binding ActorDisplay}"
-                                       FontSize="{StaticResource TextBodyLarge}"
-                                       FontWeight="SemiBold"
+                                       FontSize="{DynamicResource FontSize.Title}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        TextWrapping="Wrap"/>
-                            <TextBlock Text="{Binding UserLine}" Style="{StaticResource DefSub}"/>
+                            <TextBlock Text="{Binding UserLine}" Style="{StaticResource Typography.BodySmall}"/>
                             <TextBlock Text="{Binding OtherUserNotice}"
-                                       Style="{StaticResource DefSub}"
+                                       Style="{StaticResource Typography.BodySmall}"
                                        Foreground="{DynamicResource WarningBrush}"/>
                         </StackPanel>
 
                         <!-- WHEN -->
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="WHEN" Style="{StaticResource DefLabel}"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="WHEN" Style="{StaticResource Typography.Label}"/>
                         <StackPanel Grid.Row="1" Grid.Column="1">
                             <TextBlock Text="{Binding TimeDisplay}"
-                                       FontSize="{StaticResource TextBodyLarge}"
-                                       FontWeight="SemiBold"
+                                       FontSize="{DynamicResource FontSize.Title}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        TextWrapping="Wrap"/>
-                            <TextBlock Text="{Binding UtcTimeDisplay}" Style="{StaticResource DefSub}"/>
+                            <TextBlock Text="{Binding UtcTimeDisplay}" Style="{StaticResource Typography.BodySmall}"/>
                         </StackPanel>
 
                         <!-- WHAT -->
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="WHAT" Style="{StaticResource DefLabel}"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="WHAT" Style="{StaticResource Typography.Label}"/>
                         <StackPanel Grid.Row="2" Grid.Column="1">
                             <TextBlock Text="{Binding Action}"
-                                       FontSize="{StaticResource TextBodyLarge}"
-                                       FontWeight="SemiBold"
+                                       FontSize="{DynamicResource FontSize.Title}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        TextWrapping="Wrap"/>
-                            <TextBlock Text="{Binding EntityLine}" Style="{StaticResource DefSub}"/>
-                            <TextBlock Text="{Binding WhatSummary}" Style="{StaticResource DefValue}"/>
+                            <TextBlock Text="{Binding EntityLine}" Style="{StaticResource Typography.BodySmall}"/>
+                            <TextBlock Text="{Binding WhatSummary}" Style="{StaticResource Typography.Body}"/>
                         </StackPanel>
 
                         <!-- WHY -->
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="WHY" Style="{StaticResource DefLabel}"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="WHY" Style="{StaticResource Typography.Label}"/>
                         <TextBlock Grid.Row="3" Grid.Column="1"
                                    Text="{Binding WhySummary}"
-                                   Style="{StaticResource DefValue}"/>
+                                   Style="{StaticResource Typography.Body}"/>
 
                         <!-- WHERE / CONTEXT -->
-                        <TextBlock Grid.Row="4" Grid.Column="0" Text="WHERE" Style="{StaticResource DefLabel}"/>
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="WHERE" Style="{StaticResource Typography.Label}"/>
                         <TextBlock Grid.Row="4" Grid.Column="1"
                                    Text="{Binding TechnicalLine}"
-                                   Style="{StaticResource DefValue}"/>
+                                   Style="{StaticResource Typography.Body}"/>
 
                         <!-- CHANGE COUNT -->
-                        <TextBlock Grid.Row="5" Grid.Column="0" Text="CHANGES" Style="{StaticResource DefLabel}"/>
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="CHANGES" Style="{StaticResource Typography.Label}"/>
                         <TextBlock Grid.Row="5" Grid.Column="1"
                                    Text="{Binding ChangeSummary}"
-                                   Style="{StaticResource DefValue}"
-                                   FontWeight="SemiBold"/>
+                                   Style="{StaticResource Typography.Body}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"/>
                     </Grid>
                 </Border>
 
@@ -222,11 +206,11 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="18,16">
+                        Padding="18,16" Style="{StaticResource SurfacePrimaryStyle}">
                     <StackPanel>
                         <TextBlock Text="BEFORE / AFTER FIELD CHANGES"
-                                   FontSize="{StaticResource TextSection}"
-                                   FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.H3}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                         <!-- Empty state — shown only when nothing is attached -->
@@ -236,10 +220,10 @@
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Visibility="{Binding HasChanges, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                Visibility="{Binding HasChanges, Converter={StaticResource InverseBoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
                             <TextBlock TextWrapping="Wrap"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       FontSize="{StaticResource TextBody}">
+                                       FontSize="{DynamicResource FontSize.Body}">
                                 No field-level before/after details were attached to this audit row.
                                 Older and simple flows record only a summary line; structured save
                                 flows record exact old and new values, which appear here.
@@ -257,15 +241,15 @@
                                             BorderThickness="{DynamicResource CardBorderThickness}"
                                             CornerRadius="{DynamicResource CardCornerRadius}"
                                             Margin="0,0,0,10"
-                                            Padding="0">
+                                            Padding="0" Style="{StaticResource SurfacePrimaryStyle}">
                                         <StackPanel>
                                             <!-- Field name — its own header band -->
                                             <Border Padding="12,9"
                                                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                     BorderThickness="0,0,0,1">
                                                 <TextBlock Text="{Binding Field}"
-                                                           FontWeight="Bold"
-                                                           FontSize="{StaticResource TextBody}"
+                                                           FontWeight="{DynamicResource Weight.Bold}"
+                                                           FontSize="{DynamicResource FontSize.Body}"
                                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                                            TextWrapping="Wrap"/>
                                             </Border>
@@ -278,19 +262,19 @@
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0"
                                                            Text="−"
-                                                           FontWeight="Bold"
-                                                           FontSize="{StaticResource TextBodyLarge}"
+                                                           FontWeight="{DynamicResource Weight.Bold}"
+                                                           FontSize="{DynamicResource FontSize.Title}"
                                                            Foreground="{DynamicResource DangerBrush}"
                                                            Margin="0,0,8,0"
                                                            VerticalAlignment="Top"/>
                                                 <StackPanel Grid.Column="1">
                                                     <TextBlock Text="BEFORE"
-                                                               FontSize="{StaticResource TextCaption}"
-                                                               FontWeight="Bold"
+                                                               FontSize="{DynamicResource FontSize.BodySmall}"
+                                                               FontWeight="{DynamicResource Weight.Bold}"
                                                                Foreground="{DynamicResource DangerBrush}"/>
                                                     <TextBlock Text="{Binding Before}"
                                                                TextWrapping="Wrap"
-                                                               FontSize="{StaticResource TextBody}"
+                                                               FontSize="{DynamicResource FontSize.Body}"
                                                                Foreground="{DynamicResource DangerBrush}"
                                                                Margin="0,2,0,0"/>
                                                 </StackPanel>
@@ -304,19 +288,19 @@
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0"
                                                            Text="+"
-                                                           FontWeight="Bold"
-                                                           FontSize="{StaticResource TextBodyLarge}"
+                                                           FontWeight="{DynamicResource Weight.Bold}"
+                                                           FontSize="{DynamicResource FontSize.Title}"
                                                            Foreground="{DynamicResource SuccessBrush}"
                                                            Margin="0,0,8,0"
                                                            VerticalAlignment="Top"/>
                                                 <StackPanel Grid.Column="1">
                                                     <TextBlock Text="AFTER"
-                                                               FontSize="{StaticResource TextCaption}"
-                                                               FontWeight="Bold"
+                                                               FontSize="{DynamicResource FontSize.BodySmall}"
+                                                               FontWeight="{DynamicResource Weight.Bold}"
                                                                Foreground="{DynamicResource SuccessBrush}"/>
                                                     <TextBlock Text="{Binding After}"
                                                                TextWrapping="Wrap"
-                                                               FontSize="{StaticResource TextBody}"
+                                                               FontSize="{DynamicResource FontSize.Body}"
                                                                Foreground="{DynamicResource SuccessBrush}"
                                                                Margin="0,2,0,0"/>
                                                 </StackPanel>
@@ -339,11 +323,11 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="18,16">
+                        Padding="18,16" Style="{StaticResource SurfacePrimaryStyle}">
                     <StackPanel>
                         <TextBlock Text="AUDIT NARRATIVE"
-                                   FontSize="{StaticResource TextSection}"
-                                   FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.H3}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                         <!--
@@ -401,7 +385,7 @@
                                    Text="{Binding AuditReportText}"
                                    TextWrapping="Wrap"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
-                                   FontSize="{StaticResource TextBody}"/>
+                                   FontSize="{DynamicResource FontSize.Body}"/>
                     </StackPanel>
                 </Border>
     </StackPanel>

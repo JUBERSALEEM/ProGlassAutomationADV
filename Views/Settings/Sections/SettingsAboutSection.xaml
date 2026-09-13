@@ -40,9 +40,9 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="{DynamicResource Settings.SecAbout}" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="{DynamicResource Settings.SecAbout}" Style="{StaticResource Typography.H1}"/>
             <TextBlock Text="{DynamicResource Settings.HowProglassWorksHood}"
-                       Style="{StaticResource PageSubtitleStyle}"/>
+                       Style="{StaticResource Typography.Subtitle}"/>
         </StackPanel>
 
         <ScrollViewer Grid.Row="1"
@@ -59,22 +59,22 @@
                 <TextBlock Text="{DynamicResource Settings.Application}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.ProductVersionRunningMachine}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                           Style="{StaticResource Typography.BodySmall}"/>
 
                 <StackPanel Margin="0,0,0,6">
                     <!-- Version card -->
-                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <DockPanel>
                             <Border Style="{StaticResource InfoGlyphBadgeStyle}" DockPanel.Dock="Left">
                                 <TextBlock Text="&#xE946;" Style="{StaticResource InfoGlyphTextStyle}"/>
                             </Border>
                             <StackPanel VerticalAlignment="Center">
                                 <TextBlock Text="ProGlass Automation"
-                                           Style="{StaticResource SettingsTileTitleStyle}"/>
-                                <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                           Style="{StaticResource Typography.Title}"/>
+                                <TextBlock Style="{StaticResource Typography.BodySmall}"
                                            Margin="0,2,0,0">
                                     <Run Text="{DynamicResource Settings.InstalledVersion}"/><Run Text=" "/>
-                                    <Run Text="{Binding CurrentVersionDisplay, Mode=OneWay}" FontWeight="Bold"/>
+                                    <Run Text="{Binding CurrentVersionDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.Bold}"/>
                                     <Run Text="{DynamicResource Settings.BuiltUAEGlassFabricators}"/>
                                 </TextBlock>
                             </StackPanel>
@@ -82,93 +82,93 @@
                     </Border>
                 </StackPanel>
 
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+                <Border Style="{StaticResource SurfaceDetailStyle}"/>
 
                 <!-- ═══════ GROUP: LEARN MORE ═══════ -->
                 <TextBlock Text="{DynamicResource Settings.LearnMORE}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.ShortExplainersThemeSystemAIAssistantPrivacy}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                           Style="{StaticResource Typography.BodySmall}"/>
 
                 <UniformGrid Columns="3" Margin="0,0,0,6">
 
                     <!-- About the Theme System -->
-                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
                                 <Border Style="{StaticResource InfoGlyphBadgeStyle}" Margin="0,0,10,0">
                                     <TextBlock Text="&#xE790;" Style="{StaticResource InfoGlyphTextStyle}"/>
                                 </Border>
                                 <TextBlock Text="{DynamicResource Settings.AboutThemeSystem}"
-                                           Style="{StaticResource SettingsTileTitleStyle}"
+                                           Style="{StaticResource Typography.Title}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
-                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}">
-                                <Run Text="{DynamicResource Settings.ProglassAutomationShips}"/><Run Text="{DynamicResource Settings.TwoHandCraftedThemes}" FontWeight="Bold"/><Run Text="{DynamicResource Settings.LightDefaultDark}"/>
+                            <TextBlock Style="{StaticResource Typography.BodySmall}">
+                                <Run Text="{DynamicResource Settings.ProglassAutomationShips}"/><Run Text="{DynamicResource Settings.TwoHandCraftedThemes}" FontWeight="{DynamicResource Weight.Bold}"/><Run Text="{DynamicResource Settings.LightDefaultDark}"/>
                             </TextBlock>
-                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}" Text="{DynamicResource Settings.AboutLightTheme}"/>
-                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}" Text="{DynamicResource Settings.AboutDarkTheme}"/>
-                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}" Text="{DynamicResource Settings.AboutInstantSwap}"/>
+                            <TextBlock Style="{StaticResource Typography.Caption}" Text="{DynamicResource Settings.AboutLightTheme}"/>
+                            <TextBlock Style="{StaticResource Typography.Caption}" Text="{DynamicResource Settings.AboutDarkTheme}"/>
+                            <TextBlock Style="{StaticResource Typography.Caption}" Text="{DynamicResource Settings.AboutInstantSwap}"/>
                         </StackPanel>
                     </Border>
 
                     <!-- About the AI Assistant -->
-                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
                                 <Border Style="{StaticResource InfoGlyphBadgeStyle}" Margin="0,0,10,0">
                                     <TextBlock Text="&#xE8F2;" Style="{StaticResource InfoGlyphTextStyle}"/>
                                 </Border>
                                 <TextBlock Text="{DynamicResource Settings.AboutAIAssistant}"
-                                           Style="{StaticResource SettingsTileTitleStyle}"
+                                           Style="{StaticResource Typography.Title}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
-                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}">
-                                <Run Text="{DynamicResource Settings.OptionalAIAssistantSupports}"/><Run Text="{DynamicResource Settings.GoogleGeminiGroqCohere}" FontWeight="Bold"/><Run Text="{DynamicResource Settings.FreeTiersTailoredUAEGlassManufacturing}"/>
+                            <TextBlock Style="{StaticResource Typography.BodySmall}">
+                                <Run Text="{DynamicResource Settings.OptionalAIAssistantSupports}"/><Run Text="{DynamicResource Settings.GoogleGeminiGroqCohere}" FontWeight="{DynamicResource Weight.Bold}"/><Run Text="{DynamicResource Settings.FreeTiersTailoredUAEGlassManufacturing}"/>
                             </TextBlock>
-                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}" Text="{DynamicResource Settings.AboutOptIn}"/>
-                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}" Text="{DynamicResource Settings.AboutContextAware}"/>
-                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}" Text="{DynamicResource Settings.AboutVoiceInput}"/>
+                            <TextBlock Style="{StaticResource Typography.Caption}" Text="{DynamicResource Settings.AboutOptIn}"/>
+                            <TextBlock Style="{StaticResource Typography.Caption}" Text="{DynamicResource Settings.AboutContextAware}"/>
+                            <TextBlock Style="{StaticResource Typography.Caption}" Text="{DynamicResource Settings.AboutVoiceInput}"/>
                         </StackPanel>
                     </Border>
 
                     <!-- About Your API Key & Privacy -->
-                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
                                 <Border Style="{StaticResource InfoGlyphBadgeStyle}" Margin="0,0,10,0">
                                     <TextBlock Text="&#xE72E;" Style="{StaticResource InfoGlyphTextStyle}"/>
                                 </Border>
                                 <TextBlock Text="{DynamicResource Settings.AboutAPIKeyPrivacy}"
-                                           Style="{StaticResource SettingsTileTitleStyle}"
+                                           Style="{StaticResource Typography.Title}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
-                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}">
-                                <Run Text="{DynamicResource Settings.APIKeyStored}"/><Run Text="{DynamicResource Settings.LocalMachine}" FontWeight="Bold"/><Run Text="{DynamicResource Settings.AppdataNeverLeavesPCExceptDirectHttps}"/>
+                            <TextBlock Style="{StaticResource Typography.BodySmall}">
+                                <Run Text="{DynamicResource Settings.APIKeyStored}"/><Run Text="{DynamicResource Settings.LocalMachine}" FontWeight="{DynamicResource Weight.Bold}"/><Run Text="{DynamicResource Settings.AppdataNeverLeavesPCExceptDirectHttps}"/>
                             </TextBlock>
-                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}" Text="{DynamicResource Settings.AboutStoredAt}"/>
-                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}" Text="{DynamicResource Settings.AboutNoTelemetry}"/>
+                            <TextBlock Style="{StaticResource Typography.Caption}" Text="{DynamicResource Settings.AboutStoredAt}"/>
+                            <TextBlock Style="{StaticResource Typography.Caption}" Text="{DynamicResource Settings.AboutNoTelemetry}"/>
                         </StackPanel>
                     </Border>
 
                     <!-- About Voice Models -->
-                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
                                 <Border Style="{StaticResource InfoGlyphBadgeStyle}" Margin="0,0,10,0">
                                     <TextBlock Text="&#xE720;" Style="{StaticResource InfoGlyphTextStyle}"/>
                                 </Border>
                                 <TextBlock Text="{DynamicResource Settings.AboutVoiceModels}"
-                                           Style="{StaticResource SettingsTileTitleStyle}"
+                                           Style="{StaticResource Typography.Title}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
-                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}">
-                                <Run Text="{DynamicResource Settings.ThreeWhisperModelSizesAvailable}"/><Run Text="{DynamicResource Settings.BaseRecommended}" FontWeight="Bold"/><Run Text="{DynamicResource Settings.MostUsersFastAccurate142MB}"/>
+                            <TextBlock Style="{StaticResource Typography.BodySmall}">
+                                <Run Text="{DynamicResource Settings.ThreeWhisperModelSizesAvailable}"/><Run Text="{DynamicResource Settings.BaseRecommended}" FontWeight="{DynamicResource Weight.Bold}"/><Run Text="{DynamicResource Settings.MostUsersFastAccurate142MB}"/>
                             </TextBlock>
-                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}" Text="{DynamicResource Settings.AboutModelBase}"/>
-                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}" Text="{DynamicResource Settings.AboutModelMedium}"/>
-                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}" Text="{DynamicResource Settings.AboutModelLarge}"/>
-                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}" Text="{DynamicResource Settings.AboutModelsOffline}"/>
+                            <TextBlock Style="{StaticResource Typography.Caption}" Text="{DynamicResource Settings.AboutModelBase}"/>
+                            <TextBlock Style="{StaticResource Typography.Caption}" Text="{DynamicResource Settings.AboutModelMedium}"/>
+                            <TextBlock Style="{StaticResource Typography.Caption}" Text="{DynamicResource Settings.AboutModelLarge}"/>
+                            <TextBlock Style="{StaticResource Typography.Caption}" Text="{DynamicResource Settings.AboutModelsOffline}"/>
                         </StackPanel>
                     </Border>
 

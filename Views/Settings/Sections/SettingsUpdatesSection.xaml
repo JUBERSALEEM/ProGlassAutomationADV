@@ -44,9 +44,9 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="{DynamicResource Settings.SecUpdates}" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="{DynamicResource Settings.SecUpdates}" Style="{StaticResource Typography.H1}"/>
             <TextBlock Text="{DynamicResource Settings.KeepProglassLatestReleaseSafely}"
-                       Style="{StaticResource PageSubtitleStyle}"/>
+                       Style="{StaticResource Typography.Subtitle}"/>
         </StackPanel>
 
         <ScrollViewer Grid.Row="1"
@@ -63,10 +63,10 @@
                 <TextBlock Text="{DynamicResource Nav.Overview}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.RunningVersionAgainstLatestPublishedRelease}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                           Style="{StaticResource Typography.BodySmall}"/>
 
                 <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <!-- Version row: current vs latest -->
                             <Grid>
@@ -77,12 +77,12 @@
                                 <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="0"
                                         Background="{DynamicResource SurfaceTertiaryBrush}"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
-                                        Padding="14,10" Margin="0,0,6,0">
+                                        Padding="14,10" Margin="0,0,6,0" Style="{StaticResource SurfacePrimaryStyle}">
                                     <StackPanel>
                                         <TextBlock Text="{DynamicResource Settings.CurrentVersion}"
-                                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
-                                        <TextBlock FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                                        <TextBlock FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Margin="0,3,0,0"
                                                    Foreground="{DynamicResource TextPrimaryBrush}">
                                             <Run Text="{DynamicResource Settings.V}"/>
@@ -93,12 +93,12 @@
                                 <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="1"
                                         Background="{DynamicResource TintBlueBrush}"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
-                                        Padding="14,10" Margin="6,0,0,0">
+                                        Padding="14,10" Margin="6,0,0,0" Style="{StaticResource SurfacePrimaryStyle}">
                                     <StackPanel>
                                         <TextBlock Text="{DynamicResource Settings.LatestRelease}"
-                                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
-                                        <TextBlock FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                                        <TextBlock FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Margin="0,3,0,0"
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    Text="{Binding LatestVersionDisplay}"/>
@@ -107,10 +107,10 @@
                             </Grid>
 
                             <TextBlock Text="{Binding UpdateStatus}"
-                                       Style="{StaticResource SettingsTileCaptionStyle}"
-                                       FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"/>
+                                       Style="{StaticResource Typography.BodySmall}"
+                                       FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                             <TextBlock Text="{Binding LastCheckedDisplay}"
-                                       Style="{StaticResource SettingsTileFooterHintStyle}"/>
+                                       Style="{StaticResource Typography.Caption}"/>
 
                             <!-- Full-width action row. CHECK takes the free space
                                  (star) so it always spans the card; DOWNLOAD is an
@@ -130,8 +130,8 @@
                                         Tag="&#xE896;" Content="{DynamicResource Settings.DownloadUpdate}"
                                         Command="{Binding DownloadUpdateCommand}"
                                         Margin="10,0,0,0"
-                                        HorizontalAlignment="Stretch">
-                                    <Button.Style>
+                                        HorizontalAlignment="Stretch" Style="{StaticResource SecondaryButtonStyle}">
+                                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
                                         <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>
@@ -165,7 +165,7 @@
                                         Tag="&#xE74E;" Content="{DynamicResource Settings.InstallRestart}"
                                         Command="{Binding InstallUpdateCommand}"/>
                                 <TextBlock Text="{DynamicResource Settings.InstallLaterFileStaysDownloadsFolder}"
-                                           FontSize="{StaticResource TextCaption}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
                                            Margin="12,0,0,0"
                                            VerticalAlignment="Center"
                                            TextWrapping="Wrap"
@@ -194,19 +194,19 @@
                     </Border>
                 </StackPanel>
 
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+                <Border Style="{StaticResource SurfaceDetailStyle}"/>
 
                 <!-- ═══════ GROUP: RELEASE NOTES ═══════ -->
                 <TextBlock Text="{DynamicResource Settings.ReleaseNotes}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.WhatReleaseChangesStraightPublisher}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                           Style="{StaticResource Typography.BodySmall}"/>
 
                 <StackPanel Margin="0,0,0,6">
                     <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
                             Background="{DynamicResource SurfaceTertiaryBrush}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
-                            Padding="14,12">
+                            Padding="14,12" Style="{StaticResource SurfacePrimaryStyle}">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -220,15 +220,15 @@
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="&#xE7B8;"
-                                           FontFamily="Segoe MDL2 Assets"
-                                           FontSize="{StaticResource TextSection}"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.H3}"
                                            VerticalAlignment="Center"
                                            Margin="0,0,8,0"/>
                                 <TextBlock Text="{Binding ReleaseNameDisplay}"
-                                           FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                           FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                <TextBlock FontSize="{StaticResource TextBody}"
+                                <TextBlock FontSize="{DynamicResource FontSize.Body}"
                                            Margin="10,0,0,0"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource TextTertiaryBrush}">
@@ -237,7 +237,7 @@
                                 </TextBlock>
                             </StackPanel>
                             <TextBlock Text="{Binding ReleaseNotesPreview}"
-                                       FontSize="{StaticResource TextBody}"
+                                       FontSize="{DynamicResource FontSize.Body}"
                                        Margin="0,8,0,0"
                                        TextWrapping="Wrap"
                                        MaxHeight="90"
@@ -246,16 +246,16 @@
                     </Border>
                 </StackPanel>
 
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+                <Border Style="{StaticResource SurfaceDetailStyle}"/>
 
                 <!-- ═══════ GROUP: UPDATE HISTORY ═══════ -->
                 <TextBlock Text="{DynamicResource Settings.UpdateHistory}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.CheckDownloadFailureRecordedMachine}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                           Style="{StaticResource Typography.BodySmall}"/>
 
                 <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <StackPanel>
                                 <StackPanel.Style>
@@ -274,7 +274,7 @@
                                         <DataTemplate>
                                             <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                     BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                                                    Padding="2,7">
+                                                    Padding="2,7" Style="{StaticResource SurfacePrimaryStyle}">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="150"/>
@@ -282,7 +282,7 @@
                                                         <ColumnDefinition Width="*"/>
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0"
-                                                               FontSize="{StaticResource TextBody}"
+                                                               FontSize="{DynamicResource FontSize.Body}"
                                                                VerticalAlignment="Center"
                                                                Foreground="{DynamicResource TextTertiaryBrush}">
                                                         <Run Text="{Binding TimestampUtc, Mode=OneWay,
@@ -310,11 +310,11 @@
                                                             </Style>
                                                         </Border.Style>
                                                         <TextBlock Text="{Binding EventType}"
-                                                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                     </Border>
                                                     <TextBlock Grid.Column="2"
-                                                               FontSize="{StaticResource TextBody}"
+                                                               FontSize="{DynamicResource FontSize.Body}"
                                                                Margin="10,0,0,0"
                                                                VerticalAlignment="Center"
                                                                TextTrimming="CharacterEllipsis"
@@ -333,12 +333,12 @@
                             </StackPanel>
 
                             <TextBlock Text="{DynamicResource Settings.NoUpdateHistoryYetCheckUpdatesRecordFirst}"
-                                       Style="{StaticResource SettingsTileFooterHintStyle}"
+                                       Style="{StaticResource Typography.Caption}"
                                        Visibility="{Binding HasUpdateHistory,
                                            Converter={StaticResource InverseBoolToVisibilityConverter},
                                            FallbackValue=Collapsed}"/>
 
-                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
+                            <TextBlock Style="{StaticResource Typography.Caption}"
                                        Margin="0,10,0,0"
                                        TextWrapping="Wrap"
                                        Text="{DynamicResource Settings.InstalledBuildsUpdatePlaceVelopackRestart}"/>

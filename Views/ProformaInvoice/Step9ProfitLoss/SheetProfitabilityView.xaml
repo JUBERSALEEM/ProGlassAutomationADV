@@ -39,96 +39,38 @@
 
     <UserControl.Resources>
         <!-- Card: matches the TgtCardStyle used across Step 9. -->
-        <Style x:Key="SheetCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-            <Setter Property="Background" Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Surface.Secondary.BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="{DynamicResource Surface.Secondary.BorderThickness}"/>
-            <Setter Property="CornerRadius" Value="{DynamicResource Surface.Secondary.CornerRadius}"/>
-            <Setter Property="Padding" Value="18,14"/>
-        </Style>
+        
 
         <!-- Caption over a card (label of the metric). -->
-        <Style x:Key="SheetCaptionStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
-        </Style>
+        
 
         <!-- Big KPI value. -->
-        <Style x:Key="SheetKpiValueStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="24"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="Margin" Value="0,2,0,4"/>
-        </Style>
+        
 
         <!-- Muted sub-caption under a KPI value. -->
-        <Style x:Key="SheetSubCaptionStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
-        </Style>
+        
 
         <!-- Section label between blocks. -->
-        <Style x:Key="SheetSectionLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
-            <Setter Property="Margin" Value="0,16,0,8"/>
-        </Style>
+        
 
         <!-- Numbered heading inside the detail screen. -->
-        <Style x:Key="SheetHeadingStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="Margin" Value="0,0,0,8"/>
-        </Style>
+        
 
         <!-- Label in a label/value row (fixed 150px column). -->
-        <Style x:Key="SheetKvLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
-            <Setter Property="Margin" Value="0,3"/>
-        </Style>
+        
 
         <!-- Value in a label/value row (fixed 200px column, right aligned so
              every value shares one right edge, right next to its label). -->
-        <Style x:Key="SheetKvValueStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="TextAlignment" Value="Right"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
-            <Setter Property="Margin" Value="10,3,0,3"/>
-        </Style>
+        
 
         <!-- Table body cell. -->
-        <Style x:Key="SheetTableCellStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="Padding" Value="6,6"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
+        
 
         <!-- Status badge text. -->
-        <Style x:Key="SheetBadgeTextStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-        </Style>
+        
 
         <!-- Compact export toolbar button (CSV / Excel / PDF) -->
-        <Style x:Key="SheetExportButton" TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
-            <Setter Property="Padding" Value="12,5"/>
-            <Setter Property="Margin" Value="4,0,0,0"/>
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-        </Style>
+        
     </UserControl.Resources>
 
     <Grid Margin="16">
@@ -143,25 +85,25 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel>
                     <TextBlock Text="SHEET PROFITABILITY ANALYSIS"
-                               FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock Text="Simple order: alerts first, sheet totals second, detailed pane/sheet rows after. Buy sheet = used sheet + wastage."
-                               FontSize="{StaticResource TextCaption}"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                TextWrapping="Wrap" Margin="0,2,0,0"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
                     <Button Content="CSV" Command="{Binding ExportCsvCommand}"
-                            Style="{StaticResource SheetExportButton}"
+                            Style="{StaticResource SurfacePrimaryStyle}"
                             ToolTip="Export this analysis as CSV."/>
                     <Button Content="EXCEL" Command="{Binding ExportExcelCommand}"
-                            Style="{StaticResource SheetExportButton}"
+                            Style="{StaticResource SurfacePrimaryStyle}"
                             ToolTip="Export this analysis as Excel."/>
                     <Button Content="PDF" Command="{Binding ExportPdfCommand}"
-                            Style="{StaticResource SheetExportButton}"
+                            Style="{StaticResource SurfacePrimaryStyle}"
                             ToolTip="Export this analysis as PDF."/>
                     <Button Content="{DynamicResource Sharing.Share}" Command="{Binding ShareCommand}"
-                            Style="{StaticResource SheetExportButton}"
+                            Style="{StaticResource SurfacePrimaryStyle}"
                             ToolTip="Share this analysis via the Sharing Center."/>
                     <Button Content="REFRESH"
                             Command="{Binding RefreshCommand}"
@@ -176,15 +118,15 @@
             <Border Background="{DynamicResource TintRedBrush}"
                     BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                     CornerRadius="{DynamicResource Radius.Medium}" Padding="14,10" Margin="0,0,0,10"
-                    Visibility="{Binding HasShortfalls, Converter={StaticResource BoolToVisibilityConverter}}">
+                    Visibility="{Binding HasShortfalls, Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
                     <TextBlock Text="⚠ STEP 6 SHORTFALL — BOUGHT SHEETS ARE LESS THAN THE SHEETS NEEDED"
-                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap"/>
                     <ItemsControl ItemsSource="{Binding ShortfallMessages}" Margin="0,6,0,0">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding}" FontSize="{StaticResource TextCaption}"
+                                <TextBlock Text="{Binding}" FontSize="{DynamicResource FontSize.BodySmall}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextWrapping="Wrap" Margin="0,1"/>
                             </DataTemplate>
@@ -197,15 +139,15 @@
             <Border Background="{DynamicResource TintAmberBrush}"
                     BorderBrush="{DynamicResource WarningBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                     CornerRadius="{DynamicResource Radius.Medium}" Padding="14,10" Margin="0,0,0,10"
-                    Visibility="{Binding HasReviewItems, Converter={StaticResource BoolToVisibilityConverter}}">
+                    Visibility="{Binding HasReviewItems, Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
                     <TextBlock Text="⚠ REVIEW AGAINST THE STEP 6 WASTAGE SETUP"
-                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap"/>
                     <ItemsControl ItemsSource="{Binding ReviewMessages}" Margin="0,6,0,0">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding}" FontSize="{StaticResource TextCaption}"
+                                <TextBlock Text="{Binding}" FontSize="{DynamicResource FontSize.BodySmall}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextWrapping="Wrap" Margin="0,1"/>
                             </DataTemplate>
@@ -215,7 +157,7 @@
             </Border>
 
             <TextBlock Text="MAIN RESULT — SHEET QUANTITY, WASTAGE AND EFFICIENCY"
-                       Style="{StaticResource SheetSectionLabel}" Margin="0,8,0,8"/>
+                       Style="{StaticResource Typography.Label}" Margin="0,8,0,8"/>
             <!-- ═══ KPI STRIP (4 × 2, uniform cards) ═══ -->
             <Grid>
                 <Grid.RowDefinitions>
@@ -230,43 +172,43 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- ROW 1 -->
-                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource SheetCardStyle}" Margin="0,0,8,8">
+                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,8,8">
                     <StackPanel>
-                        <TextBlock Text="BUY SHEET" Style="{StaticResource SheetCaptionStyle}"/>
-                        <TextBlock Text="{Binding TotalBuySheetsDisplay}" Style="{StaticResource SheetKpiValueStyle}"/>
-                        <TextBlock Text="sheets bought" Style="{StaticResource SheetSubCaptionStyle}"/>
+                        <TextBlock Text="BUY SHEET" Style="{StaticResource SurfacePrimaryStyle}"/>
+                        <TextBlock Text="{Binding TotalBuySheetsDisplay}" Style="{StaticResource Typography.Body}"/>
+                        <TextBlock Text="sheets bought" Style="{StaticResource SurfacePrimaryStyle}"/>
                     </StackPanel>
                 </Border>
-                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource SheetCardStyle}" Margin="0,0,8,8">
+                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,8,8">
                     <StackPanel>
-                        <TextBlock Text="USED SHEET" Style="{StaticResource SheetCaptionStyle}"/>
-                        <TextBlock Text="{Binding TotalUsedSheetsDisplay}" Style="{StaticResource SheetKpiValueStyle}"/>
-                        <TextBlock Text="sheets required" Style="{StaticResource SheetSubCaptionStyle}"/>
+                        <TextBlock Text="USED SHEET" Style="{StaticResource SurfacePrimaryStyle}"/>
+                        <TextBlock Text="{Binding TotalUsedSheetsDisplay}" Style="{StaticResource Typography.Body}"/>
+                        <TextBlock Text="sheets required" Style="{StaticResource SurfacePrimaryStyle}"/>
                     </StackPanel>
                 </Border>
-                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource SheetCardStyle}" Margin="0,0,8,8">
+                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,8,8">
                     <StackPanel>
-                        <TextBlock Text="WASTAGE (LEFTOVER)" Style="{StaticResource SheetCaptionStyle}"/>
-                        <TextBlock Text="{Binding TotalWastageSheetsDisplay}" Style="{StaticResource SheetKpiValueStyle}"
+                        <TextBlock Text="WASTAGE (LEFTOVER)" Style="{StaticResource SurfacePrimaryStyle}"/>
+                        <TextBlock Text="{Binding TotalWastageSheetsDisplay}" Style="{StaticResource Typography.Body}"
                                    Foreground="{DynamicResource WarningBrush}"/>
-                        <TextBlock Text="buy − used sheets" Style="{StaticResource SheetSubCaptionStyle}"/>
+                        <TextBlock Text="buy − used sheets" Style="{StaticResource SurfacePrimaryStyle}"/>
                     </StackPanel>
                 </Border>
-                <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource SheetCardStyle}" Margin="0,0,0,8">
+                <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,8">
                     <StackPanel>
-                        <TextBlock Text="BOUGHT AREA" Style="{StaticResource SheetCaptionStyle}"/>
-                        <TextBlock Text="{Binding TotalBuySheetAreaDisplay}" Style="{StaticResource SheetKpiValueStyle}"/>
-                        <TextBlock Text="total sheet SQM" Style="{StaticResource SheetSubCaptionStyle}"/>
+                        <TextBlock Text="BOUGHT AREA" Style="{StaticResource SurfacePrimaryStyle}"/>
+                        <TextBlock Text="{Binding TotalBuySheetAreaDisplay}" Style="{StaticResource Typography.Body}"/>
+                        <TextBlock Text="total sheet SQM" Style="{StaticResource SurfacePrimaryStyle}"/>
                     </StackPanel>
                 </Border>
 
                 <!-- ROW 2 -->
-                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource SheetCardStyle}" Margin="0,0,8,0">
+                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,8,0">
                     <StackPanel>
-                        <TextBlock Text="EFFICIENCY" Style="{StaticResource SheetCaptionStyle}"/>
+                        <TextBlock Text="EFFICIENCY" Style="{StaticResource SurfacePrimaryStyle}"/>
                         <TextBlock Text="{Binding UsageEfficiencyDisplay}">
                             <TextBlock.Style>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource SheetKpiValueStyle}">
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding UsageEfficiencyPercent, Converter={StaticResource DecimalComparisonConverter}, ConverterParameter=70}" Value="LessThan">
                                             <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
@@ -275,40 +217,40 @@
                                 </Style>
                             </TextBlock.Style>
                         </TextBlock>
-                        <TextBlock Text="charged used ÷ bought" Style="{StaticResource SheetSubCaptionStyle}"/>
+                        <TextBlock Text="charged used ÷ bought" Style="{StaticResource SurfacePrimaryStyle}"/>
                     </StackPanel>
                 </Border>
-                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource SheetCardStyle}" Margin="0,0,8,0">
+                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,8,0">
                     <StackPanel>
-                        <TextBlock Text="BUY SHEET PRICE" Style="{StaticResource SheetCaptionStyle}"/>
-                        <TextBlock Text="{Binding TotalBuyPriceDisplay}" Style="{StaticResource SheetKpiValueStyle}"/>
-                        <TextBlock Text="total sheet price" Style="{StaticResource SheetSubCaptionStyle}"/>
+                        <TextBlock Text="BUY SHEET PRICE" Style="{StaticResource SurfacePrimaryStyle}"/>
+                        <TextBlock Text="{Binding TotalBuyPriceDisplay}" Style="{StaticResource Typography.Body}"/>
+                        <TextBlock Text="total sheet price" Style="{StaticResource SurfacePrimaryStyle}"/>
                     </StackPanel>
                 </Border>
-                <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource SheetCardStyle}" Margin="0,0,8,0">
+                <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,8,0">
                     <StackPanel>
-                        <TextBlock Text="USED SHEET PRICE" Style="{StaticResource SheetCaptionStyle}"/>
-                        <TextBlock Text="{Binding TotalUsedPriceDisplay}" Style="{StaticResource SheetKpiValueStyle}"
+                        <TextBlock Text="USED SHEET PRICE" Style="{StaticResource SurfacePrimaryStyle}"/>
+                        <TextBlock Text="{Binding TotalUsedPriceDisplay}" Style="{StaticResource Typography.Body}"
                                    Foreground="{DynamicResource SuccessBrush}"/>
-                        <TextBlock Text="used SQM × rate" Style="{StaticResource SheetSubCaptionStyle}"/>
+                        <TextBlock Text="used SQM × rate" Style="{StaticResource SurfacePrimaryStyle}"/>
                     </StackPanel>
                 </Border>
-                <Border Grid.Row="1" Grid.Column="3" Style="{StaticResource SheetCardStyle}" Margin="0,0,0,0">
+                <Border Grid.Row="1" Grid.Column="3" Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,0">
                     <StackPanel>
-                        <TextBlock Text="STEP 6 WASTAGE CHARGE" Style="{StaticResource SheetCaptionStyle}"/>
-                        <TextBlock Text="{Binding TotalStep6ChargeDisplay}" Style="{StaticResource SheetKpiValueStyle}"
+                        <TextBlock Text="STEP 6 WASTAGE CHARGE" Style="{StaticResource SurfacePrimaryStyle}"/>
+                        <TextBlock Text="{Binding TotalStep6ChargeDisplay}" Style="{StaticResource Typography.Body}"
                                    Foreground="{DynamicResource DangerBrush}"/>
-                        <TextBlock Text="per-pane Step 6 charge" Style="{StaticResource SheetSubCaptionStyle}"/>
+                        <TextBlock Text="per-pane Step 6 charge" Style="{StaticResource SurfacePrimaryStyle}"/>
                     </StackPanel>
                 </Border>
             </Grid>
 
             <TextBlock Text="SECONDARY CHECK — MONEY RECONCILIATION"
-                       Style="{StaticResource SheetSectionLabel}" Margin="0,16,0,8"/>
+                       Style="{StaticResource Typography.Label}" Margin="0,16,0,8"/>
             <!-- ═══ SHEET PRICE RECONCILIATION — OVERALL REPORT ═══ -->
-            <Border Style="{StaticResource SheetCardStyle}" Margin="0,0,0,0">
+            <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,0">
                 <StackPanel>
-                    <TextBlock Text="SHEET PRICE RECONCILIATION — OVERALL REPORT" Style="{StaticResource SheetCaptionStyle}"/>
+                    <TextBlock Text="SHEET PRICE RECONCILIATION — OVERALL REPORT" Style="{StaticResource SurfacePrimaryStyle}"/>
                     <Grid Margin="0,10,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -318,56 +260,56 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel>
-                            <TextBlock Text="BUY SHEET PRICE" Style="{StaticResource SheetCaptionStyle}"/>
-                            <TextBlock Text="{Binding TotalBuyPriceDisplay}" Style="{StaticResource SheetKpiValueStyle}"/>
+                            <TextBlock Text="BUY SHEET PRICE" Style="{StaticResource SurfacePrimaryStyle}"/>
+                            <TextBlock Text="{Binding TotalBuyPriceDisplay}" Style="{StaticResource Typography.Body}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Margin="16,0,0,0">
-                            <TextBlock Text="USED SHEET PRICE" Style="{StaticResource SheetCaptionStyle}"/>
-                            <TextBlock Text="{Binding TotalUsedPriceDisplay}" Style="{StaticResource SheetKpiValueStyle}"
+                            <TextBlock Text="USED SHEET PRICE" Style="{StaticResource SurfacePrimaryStyle}"/>
+                            <TextBlock Text="{Binding TotalUsedPriceDisplay}" Style="{StaticResource Typography.Body}"
                                        Foreground="{DynamicResource SuccessBrush}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2" Margin="16,0,0,0">
-                            <TextBlock Text="WASTAGE VALUE" Style="{StaticResource SheetCaptionStyle}"/>
-                            <TextBlock Text="{Binding TotalWastageValueDisplay}" Style="{StaticResource SheetKpiValueStyle}"
+                            <TextBlock Text="WASTAGE VALUE" Style="{StaticResource SurfacePrimaryStyle}"/>
+                            <TextBlock Text="{Binding TotalWastageValueDisplay}" Style="{StaticResource Typography.Body}"
                                        Foreground="{DynamicResource WarningBrush}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="3" Margin="16,0,0,0">
-                            <TextBlock Text="STEP 6 CHARGE" Style="{StaticResource SheetCaptionStyle}"/>
-                            <TextBlock Text="{Binding TotalStep6ChargeDisplay}" Style="{StaticResource SheetKpiValueStyle}"
+                            <TextBlock Text="STEP 6 CHARGE" Style="{StaticResource SurfacePrimaryStyle}"/>
+                            <TextBlock Text="{Binding TotalStep6ChargeDisplay}" Style="{StaticResource Typography.Body}"
                                        Foreground="{DynamicResource DangerBrush}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="4" Margin="16,0,0,0">
-                            <TextBlock Text="NET WASTAGE (AFTER STEP 6)" Style="{StaticResource SheetCaptionStyle}"/>
-                            <TextBlock Text="{Binding TotalNetWastageLossDisplay}" Style="{StaticResource SheetKpiValueStyle}"
+                            <TextBlock Text="NET WASTAGE (AFTER STEP 6)" Style="{StaticResource SurfacePrimaryStyle}"/>
+                            <TextBlock Text="{Binding TotalNetWastageLossDisplay}" Style="{StaticResource Typography.Body}"
                                        Foreground="{DynamicResource WarningBrush}"/>
                         </StackPanel>
                     </Grid>
                     <Border Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,12,0,10"/>
-                    <TextBlock FontSize="{StaticResource TextCaption}"
+                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                TextWrapping="Wrap">
                         <Run Text="BUY − USED − WASTAGE = "/>
-                        <Run Text="{Binding ReconciliationBalanceDisplay, Mode=OneWay}" FontWeight="SemiBold"
+                        <Run Text="{Binding ReconciliationBalanceDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.SemiBold}"
                              Foreground="{DynamicResource SuccessBrush}"/>
                         <Run Text=" (should be 0.00 — a negative balance means bought sheets are short)"/>
                     </TextBlock>
-                    <TextBlock FontSize="{StaticResource TextCaption}"
+                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                TextWrapping="Wrap" Margin="0,4,0,0">
                         <Run Text="WASTAGE − STEP 6 RECOVERY = "/>
-                        <Run Text="{Binding TotalNetWastageLossDisplay, Mode=OneWay}" FontWeight="SemiBold"
+                        <Run Text="{Binding TotalNetWastageLossDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.SemiBold}"
                              Foreground="{DynamicResource WarningBrush}"/>
                         <Run Text=" (net wastage absorbed after billing recovery)"/>
                     </TextBlock>
-                    <TextBlock FontSize="{StaticResource TextCaption}"
+                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                TextWrapping="Wrap" Margin="0,6,0,0">
-                        <Run Text="Used "/><Run Text="{Binding UsedPriceShareDisplay, Mode=OneWay}" FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}"/>
-                        <Run Text=" · wastage value "/><Run Text="{Binding WastageValueShareDisplay, Mode=OneWay}" FontWeight="SemiBold" Foreground="{DynamicResource WarningBrush}"/>
-                        <Run Text=" · Step 6 charge "/><Run Text="{Binding Step6ChargeShareDisplay, Mode=OneWay}" FontWeight="SemiBold" Foreground="{DynamicResource DangerBrush}"/>
+                        <Run Text="Used "/><Run Text="{Binding UsedPriceShareDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SuccessBrush}"/>
+                        <Run Text=" · wastage value "/><Run Text="{Binding WastageValueShareDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource WarningBrush}"/>
+                        <Run Text=" · Step 6 charge "/><Run Text="{Binding Step6ChargeShareDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource DangerBrush}"/>
                         <Run Text=" of the total sheet price."/>
                     </TextBlock>
-                        <TextBlock Text="{Binding LandedRateSummaryDisplay}" FontSize="{StaticResource TextCaption}"
+                        <TextBlock Text="{Binding LandedRateSummaryDisplay}" FontSize="{DynamicResource FontSize.BodySmall}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,4,0,0" TextWrapping="Wrap" IsHitTestVisible="False"/>
 
                         <!-- ═══ 5-SECTION SHEET PRICE RECONCILIATION (2026-09-11):
@@ -376,17 +318,17 @@
                         <Border Margin="0,12,0,0" Padding="14,10"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                BorderThickness="{DynamicResource Border.HairlineThickness}">
+                                BorderThickness="{DynamicResource Border.HairlineThickness}" Style="{StaticResource SurfacePrimaryStyle}">
                             <StackPanel>
                                 <TextBlock Text="SHEET PRICE RECONCILIATION — BUY = USED + WASTAGE · STEP 6 RECOVERY · NET WASTAGE"
-                                           Style="{StaticResource SheetCaptionStyle}"/>
+                                           Style="{StaticResource SurfacePrimaryStyle}"/>
                                 <TextBlock Text="{Binding ReconciliationSummaryDisplay}"
-                                           FontSize="{StaticResource TextCaption}"
-                                           FontWeight="SemiBold"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                           FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextWrapping="Wrap" Margin="0,6,0,0"/>
                                 <TextBlock Text="{Binding NetWastageNotice}"
-                                           FontSize="{StaticResource TextCaption}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
                                            Foreground="{DynamicResource WarningBrush}"
                                            TextWrapping="Wrap" Margin="0,6,0,0">
                                     <TextBlock.Style>
@@ -401,7 +343,7 @@
                                     </TextBlock.Style>
                                 </TextBlock>
                                 <TextBlock Text="{Binding EfficiencyBasisNote}"
-                                           FontSize="{StaticResource TextCaption}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            TextWrapping="Wrap" Margin="0,3,0,0">
                                     <TextBlock.Style>
@@ -421,8 +363,8 @@
             </Border>
 
             <!-- ═══ SHEET BREAKDOWN TABLE ═══ -->
-            <TextBlock Text="SHEET BREAKDOWN — CLICK A ROW FOR ITS DETAIL AND STEP 6 CROSS-CHECK" Style="{StaticResource SheetSectionLabel}"/>
-            <Border Style="{StaticResource SheetCardStyle}" Padding="0"
+            <TextBlock Text="SHEET BREAKDOWN — CLICK A ROW FOR ITS DETAIL AND STEP 6 CROSS-CHECK" Style="{StaticResource Typography.Label}"/>
+            <Border Style="{StaticResource SurfacePrimaryStyle}" Padding="0"
                     Visibility="{Binding SheetBreakdown.Count, Converter={StaticResource CountToVisibilityConverter}, ConverterParameter=Inverted}">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -501,31 +443,31 @@
 
                                         <!-- Glass type: build family only -->
                                         <TextBlock Grid.Column="0" Text="{Binding GlassTypeLabel}"
-                                                   Style="{StaticResource SheetTableCellStyle}"
-                                                   FontWeight="Bold"
+                                                   Style="{StaticResource SurfacePrimaryStyle}"
+                                                   FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource AccentBrush}"/>
 
                                         <!-- Specification + sheet size -->
                                         <StackPanel Grid.Column="1" Margin="0,0,8,0" VerticalAlignment="Center">
                                             <TextBlock Text="{Binding SpecPaneGlassDisplay}"
-                                                       Style="{StaticResource SheetTableCellStyle}"
-                                                       FontWeight="SemiBold"
+                                                       Style="{StaticResource SurfacePrimaryStyle}"
+                                                       FontWeight="{DynamicResource Weight.SemiBold}"
                                                        TextWrapping="Wrap"/>
                                             <TextBlock Text="{Binding SheetSize}"
-                                                       FontSize="{StaticResource TextXSmall}"
+                                                       FontSize="{DynamicResource FontSize.Caption}"
                                                        Foreground="{DynamicResource TextTertiaryBrush}"
                                                        TextTrimming="CharacterEllipsis"
                                                        Margin="6,-3,6,2"/>
                                         </StackPanel>
 
                                         <TextBlock Grid.Column="2" Text="{Binding BuySheetsDisplay}"
-                                                   Style="{StaticResource SheetTableCellStyle}" HorizontalAlignment="Right"/>
+                                                   Style="{StaticResource SurfacePrimaryStyle}" HorizontalAlignment="Right"/>
                                         <TextBlock Grid.Column="3" Text="{Binding UsedSheetsDisplay}"
-                                                   Style="{StaticResource SheetTableCellStyle}" HorizontalAlignment="Right"/>
+                                                   Style="{StaticResource SurfacePrimaryStyle}" HorizontalAlignment="Right"/>
                                         <TextBlock Grid.Column="4" Text="{Binding WastageSheetsDisplay}"
                                                    HorizontalAlignment="Right">
                                             <TextBlock.Style>
-                                                <Style TargetType="TextBlock" BasedOn="{StaticResource SheetTableCellStyle}">
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                                     <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding HasShortfall}" Value="True">
@@ -536,26 +478,26 @@
                                             </TextBlock.Style>
                                         </TextBlock>
                                         <TextBlock Grid.Column="5" Text="{Binding BuySheetPriceDisplay}"
-                                                   Style="{StaticResource SheetTableCellStyle}" HorizontalAlignment="Right"/>
+                                                   Style="{StaticResource SurfacePrimaryStyle}" HorizontalAlignment="Right"/>
                                         <TextBlock Grid.Column="6" Text="{Binding UsedSheetPriceDisplay}"
-                                                   Style="{StaticResource SheetTableCellStyle}" HorizontalAlignment="Right"
+                                                   Style="{StaticResource SurfacePrimaryStyle}" HorizontalAlignment="Right"
                                                    Foreground="{DynamicResource SuccessBrush}"/>
                                         <!-- GIVEN rate: per-SQM sheet price as given -->
                                         <TextBlock Grid.Column="7" Text="{Binding PricePerSqmDisplay}"
-                                                   Style="{StaticResource SheetTableCellStyle}" HorizontalAlignment="Right"/>
+                                                   Style="{StaticResource SurfacePrimaryStyle}" HorizontalAlignment="Right"/>
                                         <!-- EFFECTIVE rate: buy ÷ used = given ÷ yield —
                                              the wastage premium already inside the price -->
                                         <StackPanel Grid.Column="8" HorizontalAlignment="Right" VerticalAlignment="Center">
                                             <TextBlock Text="{Binding EffectivePricePerSqmDisplay}"
-                                                       Style="{StaticResource SheetTableCellStyle}" HorizontalAlignment="Right"
-                                                       FontWeight="SemiBold"/>
+                                                       Style="{StaticResource SurfacePrimaryStyle}" HorizontalAlignment="Right"
+                                                       FontWeight="{DynamicResource Weight.SemiBold}"/>
                                             <TextBlock Text="{Binding YieldPremiumDisplay}"
-                                                       FontSize="{StaticResource TextXSmall}"
+                                                       FontSize="{DynamicResource FontSize.Caption}"
                                                        Foreground="{DynamicResource TextTertiaryBrush}"
                                                        HorizontalAlignment="Right" Margin="0,-2,0,0"/>
                                         </StackPanel>
                                         <TextBlock Grid.Column="9" Text="{Binding Step6ChargeDisplay}"
-                                                   Style="{StaticResource SheetTableCellStyle}" HorizontalAlignment="Right"
+                                                   Style="{StaticResource SurfacePrimaryStyle}" HorizontalAlignment="Right"
                                                    Foreground="{DynamicResource DangerBrush}"/>
 
                                         <!-- Status badge -->
@@ -578,7 +520,7 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Border.Style>
-                                            <TextBlock Text="{Binding StatusLabel}" Style="{StaticResource SheetBadgeTextStyle}"/>
+                                            <TextBlock Text="{Binding StatusLabel}" Style="{StaticResource SurfacePrimaryStyle}"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -592,18 +534,18 @@
             <StackPanel HorizontalAlignment="Center" Margin="0,24,0,0"
                         Visibility="{Binding SheetBreakdown.Count, Converter={StaticResource CountToVisibilityConverter}}">
                 <TextBlock Text="No sheet data found"
-                           FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
+                           FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.SemiBold}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            HorizontalAlignment="Center" Margin="0,0,0,8"/>
                 <TextBlock Text="Add specifications in Step 5 and press REFRESH to analyze sheet profitability."
-                           FontSize="{StaticResource TextCaption}"
+                           FontSize="{DynamicResource FontSize.BodySmall}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
             </StackPanel>
 
             <!-- Status -->
             <TextBlock Text="{Binding StatusMessage}"
-                       FontSize="{StaticResource TextCaption}"
+                       FontSize="{DynamicResource FontSize.BodySmall}"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                        TextWrapping="Wrap" Margin="0,8,0,0"/>
         </StackPanel>
@@ -628,17 +570,17 @@
                 <StackPanel Grid.Column="1" Margin="16,0" VerticalAlignment="Center"
                             DataContext="{Binding SelectedRow}">
                     <TextBlock Text="{Binding GlassTypeLabel}"
-                               FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource AccentBrush}"/>
                     <TextBlock Text="{Binding SpecPaneGlassDisplay}"
-                               FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
+                               FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"
                                TextWrapping="Wrap"/>
                 </StackPanel>
             </Grid>
 
             <!-- Detail card: accent header + two columns -->
-            <Border Style="{StaticResource SheetCardStyle}" Padding="0">
+            <Border Style="{StaticResource SurfacePrimaryStyle}" Padding="0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -646,20 +588,20 @@
                     </Grid.RowDefinitions>
 
                     <Border Grid.Row="0" Background="{DynamicResource AccentBrush}"
-                            CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="18,14">
+                            CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="18,14" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel DataContext="{Binding SelectedRow}">
                             <TextBlock Text="{Binding GlassTypeLabel}"
-                                       FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                             <TextBlock Text="{Binding SpecPaneGlassDisplay}"
-                                       FontSize="{StaticResource TextCaption}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        Opacity="0.95" TextWrapping="Wrap" Margin="0,2,0,0"/>
                             <TextBlock Text="{Binding SpecName}"
-                                       FontSize="{StaticResource TextCaption}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        Opacity="0.75" TextWrapping="Wrap" Margin="0,2,0,0"/>
-                            <TextBlock FontSize="{StaticResource TextCaption}"
+                            <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        Opacity="0.9" Margin="0,2,0,0">
                                 <Run Text="{Binding PaneGlassDisplay, Mode=OneWay}"/>
@@ -678,15 +620,15 @@
 
                         <!-- Column A: sheet usage -->
                         <StackPanel Grid.Column="0" DataContext="{Binding SelectedRow}">
-                            <TextBlock Text="1 · SHEET USAGE" Style="{StaticResource SheetHeadingStyle}"/>
+                            <TextBlock Text="1 · SHEET USAGE" Style="{StaticResource SurfacePrimaryStyle}"/>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="150"/>
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Pane / glass" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding PaneGlassDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Pane / glass" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding PaneGlassDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -694,8 +636,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Sheet size" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding SheetSize}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Sheet size" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding SheetSize}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -703,8 +645,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Sheet SQM" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding SheetSqmDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Sheet SQM" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding SheetSqmDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -712,8 +654,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Price per SQM" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding PricePerSqmDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Price per SQM" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding PricePerSqmDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -721,8 +663,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Effective rate (incl. yield)" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding EffectivePricePerSqmDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Effective rate (incl. yield)" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding EffectivePricePerSqmDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -730,8 +672,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Yield premium" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding YieldPremiumDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Yield premium" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding YieldPremiumDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -739,8 +681,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Wastage — recovered via Step 6" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding WastageValueRecoveredDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Wastage — recovered via Step 6" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding WastageValueRecoveredDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -748,8 +690,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Wastage — net loss after recovery" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding WastageValueNetLossDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Wastage — net loss after recovery" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding WastageValueNetLossDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -757,8 +699,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Buy sheets" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding BuySheetsDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Buy sheets" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding BuySheetsDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -766,8 +708,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Used sheets" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding UsedSheetsDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Used sheets" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding UsedSheetsDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -775,10 +717,10 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Wastage (leftover)" Style="{StaticResource SheetKvLabelStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Wastage (leftover)" Style="{StaticResource Typography.Label}"/>
                                 <TextBlock Grid.Column="1" Text="{Binding WastageSheetsDisplay}">
                                     <TextBlock.Style>
-                                        <Style TargetType="TextBlock" BasedOn="{StaticResource SheetKvValueStyle}">
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}">
                                             <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding HasShortfall}" Value="True">
@@ -795,8 +737,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Bought area" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding BuySheetAreaDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Bought area" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding BuySheetAreaDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -804,8 +746,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Used area" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding UsedAreaDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Used area" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding UsedAreaDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -813,8 +755,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Wastage area" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding WastageAreaDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Wastage area" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding WastageAreaDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -822,22 +764,22 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Usage efficiency" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding UsageEfficiencyDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Usage efficiency" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding UsageEfficiencyDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                         </StackPanel>
 
                         <!-- Column B: sheet price reconciliation -->
                         <StackPanel Grid.Column="2" DataContext="{Binding SelectedRow}">
-                            <TextBlock Text="2 · SHEET PRICE RECONCILIATION" Style="{StaticResource SheetHeadingStyle}"/>
+                            <TextBlock Text="2 · SHEET PRICE RECONCILIATION" Style="{StaticResource SurfacePrimaryStyle}"/>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="150"/>
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Buy sheet price" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding BuySheetPriceDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Buy sheet price" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding BuySheetPriceDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -845,8 +787,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Used sheet price" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding UsedSheetPriceDisplay}" Style="{StaticResource SheetKvValueStyle}"
+                                <TextBlock Grid.Column="0" Text="Used sheet price" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding UsedSheetPriceDisplay}" Style="{StaticResource Typography.Body}"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </Grid>
                             <Grid>
@@ -855,25 +797,25 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Wastage value" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding WastageValueDisplay}" Style="{StaticResource SheetKvValueStyle}"
+                                <TextBlock Grid.Column="0" Text="Wastage value" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding WastageValueDisplay}" Style="{StaticResource Typography.Body}"
                                            Foreground="{DynamicResource WarningBrush}"/>
                             </Grid>
 
                             <!-- Comparison box -->
                             <Border Background="{DynamicResource SurfacePrimaryBrush}"
                                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                    CornerRadius="{DynamicResource Radius.Small}" Padding="12,10" Margin="0,10,0,0">
+                                    CornerRadius="{DynamicResource Radius.Small}" Padding="12,10" Margin="0,10,0,0" Style="{StaticResource SurfacePrimaryStyle}">
                                 <StackPanel>
-                                    <TextBlock Text="COMPARISON" Style="{StaticResource SheetCaptionStyle}" Margin="0,0,0,6"/>
-                                    <TextBlock FontSize="{StaticResource TextCaption}"
+                                    <TextBlock Text="COMPARISON" Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,6"/>
+                                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                TextWrapping="Wrap">
-                                        <Run Text="Used "/><Run Text="{Binding UsedPriceShareDisplay, Mode=OneWay}" FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}"/>
-                                        <Run Text=" · wastage "/><Run Text="{Binding WastageValueShareDisplay, Mode=OneWay}" FontWeight="SemiBold" Foreground="{DynamicResource WarningBrush}"/>
+                                        <Run Text="Used "/><Run Text="{Binding UsedPriceShareDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SuccessBrush}"/>
+                                        <Run Text=" · wastage "/><Run Text="{Binding WastageValueShareDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource WarningBrush}"/>
                                         <Run Text=" of the sheet price."/>
                                     </TextBlock>
-                                    <TextBlock FontSize="{StaticResource TextCaption}"
+                                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource TextTertiaryBrush}"
                                                TextWrapping="Wrap" Margin="0,6,0,0"
                                                Text="BUY = USED + WASTAGE. The wastage value is the material value of the leftover glass."/>
@@ -885,9 +827,9 @@
             </Border>
 
             <!-- ═══ STEP 6 WASTAGE CROSS-CHECK ═══ -->
-            <Border Style="{StaticResource SheetCardStyle}" Margin="0,14,0,0">
+            <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,14,0,0">
                 <StackPanel DataContext="{Binding SelectedRow}">
-                    <TextBlock Text="3 · STEP 6 WASTAGE CROSS-CHECK" Style="{StaticResource SheetHeadingStyle}"/>
+                    <TextBlock Text="3 · STEP 6 WASTAGE CROSS-CHECK" Style="{StaticResource SurfacePrimaryStyle}"/>
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -902,8 +844,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Step 6 source" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding Step6SourceLabel}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Step 6 source" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Step6SourceLabel}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -911,8 +853,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Source SQM" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding Step6SourceSqmDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Source SQM" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Step6SourceSqmDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -920,8 +862,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Step 6 rate" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding Step6RateDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Step 6 rate" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Step6RateDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
@@ -931,8 +873,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Step 6 SHEET QTY" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding Step6SheetQuantityDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Step 6 SHEET QTY" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Step6SheetQuantityDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -940,8 +882,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Wastage charge" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding Step6ChargeDisplay}" Style="{StaticResource SheetKvValueStyle}"
+                                <TextBlock Grid.Column="0" Text="Wastage charge" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Step6ChargeDisplay}" Style="{StaticResource Typography.Body}"
                                            Foreground="{DynamicResource DangerBrush}"/>
                             </Grid>
                             <Grid>
@@ -950,8 +892,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Charge share" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding Step6ChargeShareDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Charge share" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Step6ChargeShareDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                         </StackPanel>
                     </Grid>
@@ -961,25 +903,25 @@
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
-                                <Setter Property="Background" Value="#1A22C55E"/>
+                                <Setter Property="Background" Value="{DynamicResource Chart.IndigoBrush.Alpha1A.5E}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding HasShortfall}" Value="True">
                                         <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
-                                        <Setter Property="Background" Value="#1AFF3B30"/>
+                                        <Setter Property="Background" Value="{DynamicResource Chart.LimeBrush.Alpha1A.30}"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding HasChargeWithoutWastage}" Value="True">
                                         <Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}"/>
-                                        <Setter Property="Background" Value="#1AFFA500"/>
+                                        <Setter Property="Background" Value="{DynamicResource Chart.MintBrush.Alpha1A}"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding HasWastageWithoutCharge}" Value="True">
                                         <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                                        <Setter Property="Background" Value="#1A3B82F6"/>
+                                        <Setter Property="Background" Value="{DynamicResource Chart.NavyBrush.Alpha1A.F6}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
                         <StackPanel>
-                            <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                            <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
@@ -1003,7 +945,7 @@
                                 </TextBlock.Style>
                             </TextBlock>
                             <TextBlock Text="{Binding DiagnosticMessage}"
-                                       FontSize="{StaticResource TextCaption}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        TextWrapping="Wrap" Margin="0,4,0,0"/>
                         </StackPanel>
@@ -1012,9 +954,9 @@
             </Border>
 
             <!-- ═══ OVERALL REPORT — JOB-LEVEL TOTALS ═══ -->
-            <Border Style="{StaticResource SheetCardStyle}" Margin="0,14,0,0">
+            <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,14,0,0">
                 <StackPanel>
-                    <TextBlock Text="4 · OVERALL REPORT — ALL SHEETS" Style="{StaticResource SheetHeadingStyle}"/>
+                    <TextBlock Text="4 · OVERALL REPORT — ALL SHEETS" Style="{StaticResource SurfacePrimaryStyle}"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -1023,22 +965,22 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel>
-                            <TextBlock Text="BUY SHEET PRICE" Style="{StaticResource SheetCaptionStyle}"/>
-                            <TextBlock Text="{Binding TotalBuyPriceDisplay}" Style="{StaticResource SheetKpiValueStyle}"/>
+                            <TextBlock Text="BUY SHEET PRICE" Style="{StaticResource SurfacePrimaryStyle}"/>
+                            <TextBlock Text="{Binding TotalBuyPriceDisplay}" Style="{StaticResource Typography.Body}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Margin="16,0,0,0">
-                            <TextBlock Text="USED SHEET PRICE" Style="{StaticResource SheetCaptionStyle}"/>
-                            <TextBlock Text="{Binding TotalUsedPriceDisplay}" Style="{StaticResource SheetKpiValueStyle}"
+                            <TextBlock Text="USED SHEET PRICE" Style="{StaticResource SurfacePrimaryStyle}"/>
+                            <TextBlock Text="{Binding TotalUsedPriceDisplay}" Style="{StaticResource Typography.Body}"
                                        Foreground="{DynamicResource SuccessBrush}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2" Margin="16,0,0,0">
-                            <TextBlock Text="WASTAGE VALUE" Style="{StaticResource SheetCaptionStyle}"/>
-                            <TextBlock Text="{Binding TotalWastageValueDisplay}" Style="{StaticResource SheetKpiValueStyle}"
+                            <TextBlock Text="WASTAGE VALUE" Style="{StaticResource SurfacePrimaryStyle}"/>
+                            <TextBlock Text="{Binding TotalWastageValueDisplay}" Style="{StaticResource Typography.Body}"
                                        Foreground="{DynamicResource WarningBrush}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="3" Margin="16,0,0,0">
-                            <TextBlock Text="STEP 6 CHARGE" Style="{StaticResource SheetCaptionStyle}"/>
-                            <TextBlock Text="{Binding TotalStep6ChargeDisplay}" Style="{StaticResource SheetKpiValueStyle}"
+                            <TextBlock Text="STEP 6 CHARGE" Style="{StaticResource SurfacePrimaryStyle}"/>
+                            <TextBlock Text="{Binding TotalStep6ChargeDisplay}" Style="{StaticResource Typography.Body}"
                                        Foreground="{DynamicResource DangerBrush}"/>
                         </StackPanel>
                     </Grid>
@@ -1052,30 +994,30 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel>
-                            <TextBlock Text="BUY SHEETS" Style="{StaticResource SheetCaptionStyle}"/>
-                            <TextBlock Text="{Binding TotalBuySheetsDisplay}" Style="{StaticResource SheetKpiValueStyle}"/>
+                            <TextBlock Text="BUY SHEETS" Style="{StaticResource SurfacePrimaryStyle}"/>
+                            <TextBlock Text="{Binding TotalBuySheetsDisplay}" Style="{StaticResource Typography.Body}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Margin="16,0,0,0">
-                            <TextBlock Text="USED SHEETS" Style="{StaticResource SheetCaptionStyle}"/>
-                            <TextBlock Text="{Binding TotalUsedSheetsDisplay}" Style="{StaticResource SheetKpiValueStyle}"/>
+                            <TextBlock Text="USED SHEETS" Style="{StaticResource SurfacePrimaryStyle}"/>
+                            <TextBlock Text="{Binding TotalUsedSheetsDisplay}" Style="{StaticResource Typography.Body}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2" Margin="16,0,0,0">
-                            <TextBlock Text="WASTAGE (LEFTOVER)" Style="{StaticResource SheetCaptionStyle}"/>
-                            <TextBlock Text="{Binding TotalWastageSheetsDisplay}" Style="{StaticResource SheetKpiValueStyle}"
+                            <TextBlock Text="WASTAGE (LEFTOVER)" Style="{StaticResource SurfacePrimaryStyle}"/>
+                            <TextBlock Text="{Binding TotalWastageSheetsDisplay}" Style="{StaticResource Typography.Body}"
                                        Foreground="{DynamicResource WarningBrush}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="3" Margin="16,0,0,0">
-                            <TextBlock Text="EFFICIENCY" Style="{StaticResource SheetCaptionStyle}"/>
-                            <TextBlock Text="{Binding UsageEfficiencyDisplay}" Style="{StaticResource SheetKpiValueStyle}"/>
+                            <TextBlock Text="EFFICIENCY" Style="{StaticResource SurfacePrimaryStyle}"/>
+                            <TextBlock Text="{Binding UsageEfficiencyDisplay}" Style="{StaticResource Typography.Body}"/>
                         </StackPanel>
                     </Grid>
 
-                    <TextBlock FontSize="{StaticResource TextCaption}"
+                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                TextWrapping="Wrap" Margin="0,10,0,0">
-                        <Run Text="Used "/><Run Text="{Binding UsedPriceShareDisplay, Mode=OneWay}" FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}"/>
-                        <Run Text=" · wastage "/><Run Text="{Binding WastageValueShareDisplay, Mode=OneWay}" FontWeight="SemiBold" Foreground="{DynamicResource WarningBrush}"/>
-                        <Run Text=" · Step 6 charge "/><Run Text="{Binding Step6ChargeShareDisplay, Mode=OneWay}" FontWeight="SemiBold" Foreground="{DynamicResource DangerBrush}"/>
+                        <Run Text="Used "/><Run Text="{Binding UsedPriceShareDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SuccessBrush}"/>
+                        <Run Text=" · wastage "/><Run Text="{Binding WastageValueShareDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource WarningBrush}"/>
+                        <Run Text=" · Step 6 charge "/><Run Text="{Binding Step6ChargeShareDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource DangerBrush}"/>
                         <Run Text=" of the total sheet price."/>
                     </TextBlock>
                 </StackPanel>
@@ -1087,7 +1029,7 @@
                 Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Text="Analyzing..."
-                           FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
+                           FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.SemiBold}"
                            Foreground="{DynamicResource OnAccentForegroundBrush}"
                            HorizontalAlignment="Center"
                            Margin="0,0,0,8"/>

@@ -57,232 +57,73 @@
          that uses AboutCardStyle / AboutSectionPanelStyle inherits the glass
          look without per-file edits. No DropShadowEffect (software-render
          freeze guard from 2026-08-25 still applies). -->
-    <Style x:Key="AboutCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
-        <Setter Property="Background"          Value="{DynamicResource AboutGlassSlabBrush}"/>
-        <Setter Property="BorderBrush"         Value="{DynamicResource AboutGlassSlabStroke}"/>
-        <Setter Property="BorderThickness"     Value="1"/>
-        <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
-        <Setter Property="CornerRadius"        Value="{DynamicResource AboutCardCornerRadius}"/>
-        <Setter Property="Effect"              Value="{DynamicResource AboutCardEffect}"/>
-        <Setter Property="Padding"             Value="26,22"/>
-        <Setter Property="Margin"              Value="0,0,0,16"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="UseLayoutRounding"   Value="True"/>
-    </Style>
-
-    <Style x:Key="HeroCardStyle" TargetType="Border"
-           BasedOn="{StaticResource AboutCardStyle}">
-        <Setter Property="BorderBrush" Value="{DynamicResource AboutGlassSlabStroke}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-    </Style>
-
-    <Style x:Key="AboutSectionPanelStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="Background" Value="{DynamicResource AboutGlassPanelBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource AboutGlassHairlineStroke}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource AboutPanelCornerRadius}"/>
-        <Setter Property="Effect" Value="{DynamicResource AboutCardEffect}"/>
-        <Setter Property="Padding" Value="16,14"/>
-        <Setter Property="Margin" Value="0,0,0,14"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-    </Style>
-
-    <Style x:Key="AboutHeaderBadgeStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
-        <Setter Property="Background" Value="{DynamicResource Surface.Detail.BackgroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource Surface.Detail.BorderBrush}"/>
-        <Setter Property="BorderThickness" Value="{DynamicResource Surface.Detail.BorderThickness}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource Surface.Detail.CornerRadius}"/>
-        <Setter Property="Padding" Value="12,6"/>
-        <Setter Property="VerticalAlignment" Value="Top"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-    </Style>
-
-    <Style x:Key="AboutHeaderBadgeTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource LiquidAccent}"/>
-        <Setter Property="IsHitTestVisible" Value="False"/>
-    </Style>
-
-    <Style x:Key="AboutPanelKickerStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource LiquidAccent}"/>
-        <Setter Property="Margin" Value="0,0,0,8"/>
-        <Setter Property="TextWrapping" Value="Wrap"/>
-        <Setter Property="IsHitTestVisible" Value="False"/>
-    </Style>
-
-    <Style x:Key="AboutPanelTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="Foreground" Value="{DynamicResource LiquidIce}"/>
-        <Setter Property="TextWrapping" Value="Wrap"/>
-        <Setter Property="LineHeight" Value="22"/>
-        <Setter Property="IsHitTestVisible" Value="False"/>
-    </Style>
-
-    <Style x:Key="AboutCodeStripStyle" TargetType="Border" BasedOn="{StaticResource AboutSectionPanelStyle}">
-        <Setter Property="Padding" Value="16,12"/>
-        <Setter Property="Margin" Value="0,0,0,12"/>
-    </Style>
-
-    <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextTitleLarge}"/>
-        <Setter Property="FontWeight"        Value="Bold"/>
-        <Setter Property="Foreground"        Value="{DynamicResource LiquidSnow}"/>
-        <Setter Property="Margin"            Value="0,0,0,4"/>
-        <Setter Property="IsHitTestVisible"  Value="False"/>
-    </Style>
-
-    <Style x:Key="SectionSubtitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="Foreground"        Value="{DynamicResource LiquidCerulean}"/>
-        <Setter Property="Margin"            Value="0,0,0,18"/>
-        <Setter Property="IsHitTestVisible"  Value="False"/>
-    </Style>
+    <!-- Migrated AboutCardStyle to global SurfacePrimaryStyle -->
+    
 
     
 
     
 
-    <Style x:Key="WorkflowGroupLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-        <Setter Property="FontWeight"        Value="Bold"/>
-        <Setter Property="Foreground"        Value="{DynamicResource LiquidMuted}"/>
-        <Setter Property="Margin"            Value="0,0,0,8"/>
-        <Setter Property="IsHitTestVisible"  Value="False"/>
-    </Style>
+    <!-- Migrated SectionTitleStyle to global SurfacePrimaryStyle / Typography -->
 
-    <Style x:Key="InfoLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextXSmall}"/>
-        <Setter Property="FontWeight"        Value="Bold"/>
-        <Setter Property="Foreground"        Value="{DynamicResource LiquidMuted}"/>
-        <Setter Property="IsHitTestVisible"  Value="False"/>
-    </Style>
+    <!-- Migrated SectionSubtitleStyle to global SurfacePrimaryStyle / Typography -->
 
-    <Style x:Key="InfoValueStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="FontWeight"        Value="SemiBold"/>
-        <Setter Property="Foreground"        Value="{DynamicResource LiquidSnow}"/>
-        <Setter Property="IsHitTestVisible"  Value="False"/>
-    </Style>
+    
 
-    <Style x:Key="ChipStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
-        <Setter Property="Background"        Value="{DynamicResource AboutGlassPanelBrush}"/>
-        <Setter Property="BorderBrush"       Value="{DynamicResource AboutGlassSlabStroke}"/>
-        <Setter Property="BorderThickness"   Value="1"/>
-        <Setter Property="CornerRadius"      Value="{DynamicResource AboutPanelCornerRadius}"/>
-        <Setter Property="Padding"           Value="12,6"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-    </Style>
+    
+
+    
+
+    
+
+    
+
+    
 
     <!-- ═══ iOS-26 GLASS PRIMITIVES (2026-09-10) ═══
          Module icon squircle: 46px, rounded 14, per-module vivid gradient
          (AboutIcon.* keyed by module name — icons stay vivid in dark),
          white specular gloss strip across the top half. -->
-    <Style x:Key="AboutModuleIconBorderStyle" TargetType="Border">
-        <Setter Property="Width" Value="54"/>
-        <Setter Property="Height" Value="54"/>
-        <Setter Property="CornerRadius" Value="16"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource AboutGlassSlabStroke}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="Background" Value="{DynamicResource LiquidAccentGradient}"/>
-        <Style.Triggers>
-            <DataTrigger Binding="{Binding Name}" Value="Sheet Store">
-                <Setter Property="Background" Value="{DynamicResource AboutIcon.SheetStore}"/>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding Name}" Value="Proforma Invoice">
-                <Setter Property="Background" Value="{DynamicResource AboutIcon.Proforma}"/>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding Name}" Value="Job Order">
-                <Setter Property="Background" Value="{DynamicResource AboutIcon.JobOrder}"/>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding Name}" Value="Delivery Note">
-                <Setter Property="Background" Value="{DynamicResource AboutIcon.Delivery}"/>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding Name}" Value="Tax Invoice">
-                <Setter Property="Background" Value="{DynamicResource AboutIcon.Tax}"/>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding Name}" Value="Statements &amp; Reports">
-                <Setter Property="Background" Value="{DynamicResource AboutIcon.Statements}"/>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding Name}" Value="Settings">
-                <Setter Property="Background" Value="{DynamicResource AboutIcon.Settings}"/>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding Name}" Value="Users · Audit · Activity">
-                <Setter Property="Background" Value="{DynamicResource AboutIcon.Users}"/>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding Name}" Value="Multi-page Dashboard">
-                <Setter Property="Background" Value="{DynamicResource AboutIcon.Dashboard}"/>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding Name}" Value="Shared Export Engine">
-                <Setter Property="Background" Value="{DynamicResource AboutIcon.Export}"/>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding Name}" Value="AI Assistant">
-                <Setter Property="Background" Value="{DynamicResource AboutIcon.Ai}"/>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding Name}" Value="Light + Dark Themes">
-                <Setter Property="Background" Value="{DynamicResource AboutIcon.Themes}"/>
-            </DataTrigger>
-        </Style.Triggers>
-    </Style>
+    
 
     <!-- Icon tile — glossy accent-gradient badge (mirrors the splash module
          tile badges) with a soft accent glow, so every About glyph reads as
          a raised brand badge instead of a flat panel. -->
-    <Style x:Key="IconTileStyle" TargetType="Border">
-        <Setter Property="Background"        Value="{DynamicResource LiquidAccentGradient}"/>
-        <Setter Property="CornerRadius"      Value="{DynamicResource ControlCornerRadius}"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect Color="{DynamicResource AccentColor}"
-                                  BlurRadius="16" ShadowDepth="0" Opacity="0.4"/>
-            </Setter.Value>
-        </Setter>
-    </Style>
+    
 
-    <Style x:Key="GlyphStyle" TargetType="TextBlock">
-        <Setter Property="FontFamily"        Value="Segoe MDL2 Assets"/>
-        <Setter Property="Foreground"        Value="{DynamicResource OnAccentForegroundBrush}"/>
-        <Setter Property="HorizontalAlignment" Value="Center"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="IsHitTestVisible"  Value="False"/>
-    </Style>
+    
 
     <!-- ═══ TEMPLATES (glass) ═══ -->
 
     <DataTemplate x:Key="HeroPillarTemplate">
         <!-- 2026-09-10: compact glass chip (mockup "12 MODULES / 5 DATABASES
              / AI READY" pills) instead of the 148×118 stat box. -->
-        <Border CornerRadius="12"
+        <Border CornerRadius="{DynamicResource Radius.Card}"
                 Padding="12,7"
                 Margin="0,0,8,8"
                 BorderThickness="1"
                 Background="{DynamicResource AboutGlassPanelBrush}"
                 BorderBrush="{DynamicResource AboutGlassSlabStroke}"
-                SnapsToDevicePixels="True">
+                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <Border Width="22" Height="22"
-                        CornerRadius="7"
+                        CornerRadius="{DynamicResource Radius.Control}"
                         Background="{DynamicResource LiquidAccentGradient}"
-                        VerticalAlignment="Center">
+                        VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
                     <TextBlock Text="{Binding Icon}"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="{StaticResource TextCaption}"
-                               Style="{StaticResource GlyphStyle}"/>
+                               FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
+                               Style="{StaticResource Typography.Icon}"/>
                 </Border>
                 <StackPanel Margin="8,0,0,0" VerticalAlignment="Center">
                     <TextBlock Text="{Binding Value}"
-                               FontSize="{StaticResource TextBody}"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.Body}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource LiquidSnow}"
                                IsHitTestVisible="False"/>
                     <TextBlock Text="{Binding Label}"
-                               FontSize="{StaticResource TextXSmall}"
-                               FontWeight="SemiBold"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource AboutGlassCaptionBrush}"
                                IsHitTestVisible="False"/>
                 </StackPanel>
@@ -307,7 +148,7 @@
                 Background="{DynamicResource AboutGlassSlabBrush}"
                 SnapsToDevicePixels="True"
                 CacheMode="BitmapCache"
-                RenderTransformOrigin="0.5,0.5">
+                RenderTransformOrigin="0.5,0.5" Style="{StaticResource SurfacePrimaryStyle}">
             <Border.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform x:Name="ModuleChipScale" ScaleX="1" ScaleY="1"/>
@@ -380,20 +221,20 @@
 
                 <!-- Vivid gradient squircle + white gloss strip -->
                 <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
-                        Style="{StaticResource AboutModuleIconBorderStyle}">
+                        Style="{StaticResource SurfacePrimaryStyle}">
                     <Grid>
                         <TextBlock Text="{Binding Icon}"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="{StaticResource TextTitleLarge}"
-                                   Style="{StaticResource GlyphStyle}"/>
+                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource FontSize.H1}"
+                                   Style="{StaticResource Typography.Icon}"/>
                         <!-- specular gloss: top-half white fade -->
-                        <Border Height="22" CornerRadius="16,16,0,0"
+                        <Border Height="22" CornerRadius="{DynamicResource Radius.Top.XLarge}"
                                 VerticalAlignment="Top"
                                 IsHitTestVisible="False">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-                                    <GradientStop Color="#59FFFFFF" Offset="0"/>
-                                    <GradientStop Color="#00FFFFFF" Offset="1"/>
+                                    <GradientStop Color="{DynamicResource About.GlowBrush1.Alpha59}" Offset="0"/>
+                                    <GradientStop Color="{DynamicResource TransparentWhite}" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
                         </Border>
@@ -402,13 +243,13 @@
 
                 <StackPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Center">
                     <TextBlock Text="{Binding Name}"
-                               FontSize="{StaticResource TextBodyLarge}"
-                               FontWeight="SemiBold"
+                               FontSize="{DynamicResource FontSize.Title}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource LiquidSnow}"
                                TextTrimming="CharacterEllipsis"
                                IsHitTestVisible="False"/>
                     <TextBlock Text="{Binding Description}"
-                               FontSize="{StaticResource TextCaption}"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
                                Foreground="{DynamicResource AboutGlassCaptionBrush}"
                                TextWrapping="Wrap"
                                Margin="0,3,0,0"
@@ -421,24 +262,24 @@
                         Background="{DynamicResource AboutGlassPanelBrush}"
                         BorderBrush="{DynamicResource AboutGlassSlabStroke}"
                         BorderThickness="1"
-                        CornerRadius="10"
+                        CornerRadius="{DynamicResource Radius.Medium}"
                         Padding="8,3"
                         HorizontalAlignment="Left"
                         Margin="0,12,0,2"
                         VerticalAlignment="Center"
                         Visibility="{DynamicResource AboutGlassChromeVisibility}"
-                        SnapsToDevicePixels="True">
+                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                     <TextBlock Text="{Binding StatChip}"
-                               FontSize="{StaticResource TextXSmall}"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource LiquidAccent}"
                                IsHitTestVisible="False"/>
                 </Border>
 
                 <!-- iOS-chrome chevron (iOS 26 family only), bottom-right -->
                 <TextBlock Grid.Row="1" Grid.Column="3" Text="&#xE76C;"
-                           FontFamily="Segoe MDL2 Assets"
-                           FontSize="{StaticResource TextBody}"
+                           FontFamily="{DynamicResource FontFamily.Icon}"
+                           FontSize="{DynamicResource FontSize.Body}"
                            Foreground="{DynamicResource AboutGlassCaptionBrush}"
                            Visibility="{DynamicResource AboutGlassChromeVisibility}"
                            VerticalAlignment="Center"
@@ -456,7 +297,7 @@
                 BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"
                 Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                 BorderBrush="{DynamicResource Surface.Secondary.BorderBrush}"
-                SnapsToDevicePixels="True">
+                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -465,21 +306,21 @@
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0"
-                        Style="{StaticResource IconTileStyle}"
+                        Style="{StaticResource SurfacePrimaryStyle}"
                         Width="42"
                         Height="42"
                         VerticalAlignment="Center">
                     <TextBlock Text="{Binding Icon}"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="{StaticResource TextTitle}"
-                               Style="{StaticResource GlyphStyle}"/>
+                               FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="{DynamicResource FontSize.H2}"
+                               Style="{StaticResource Typography.Icon}"/>
                 </Border>
 
                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
                     <TextBlock Text="{Binding Label}"
-                               Style="{StaticResource InfoLabelStyle}"/>
+                               Style="{StaticResource Typography.Label}"/>
                     <TextBlock Text="{Binding Value}"
-                               Style="{StaticResource InfoValueStyle}"
+                               Style="{StaticResource Typography.Body}"
                                TextWrapping="Wrap"/>
                 </StackPanel>
             </Grid>
@@ -495,20 +336,20 @@
                 BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"
                 Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                 BorderBrush="{DynamicResource Surface.Secondary.BorderBrush}"
-                SnapsToDevicePixels="True">
+                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Border Style="{StaticResource IconTileStyle}"
+                <Border Style="{StaticResource SurfacePrimaryStyle}"
                         Width="52"
                         Height="52"
                         HorizontalAlignment="Center">
                     <TextBlock Text="{Binding Icon}"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="{StaticResource TextHeadline}"
-                               Style="{StaticResource GlyphStyle}"/>
+                               FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="{DynamicResource FontSize.H1}"
+                               Style="{StaticResource Typography.Icon}"/>
                 </Border>
                 <TextBlock Text="{Binding Title}"
-                           FontSize="{StaticResource TextSection}"
-                           FontWeight="Bold"
+                           FontSize="{DynamicResource FontSize.H3}"
+                           FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource LiquidSnow}"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
@@ -516,7 +357,7 @@
                            Margin="0,12,0,6"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Description}"
-                           FontSize="{StaticResource TextBody}"
+                           FontSize="{DynamicResource FontSize.Body}"
                            Foreground="{DynamicResource LiquidFrost}"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
@@ -536,7 +377,7 @@
                 BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"
                 Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                 BorderBrush="{DynamicResource Surface.Secondary.BorderBrush}"
-                SnapsToDevicePixels="True">
+                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -545,8 +386,8 @@
 
                 <TextBlock Grid.Row="0"
                            Text="{DynamicResource About.WorkflowStage}"
-                           FontSize="{StaticResource TextCaption}"
-                           FontWeight="Bold"
+                           FontSize="{DynamicResource FontSize.BodySmall}"
+                           FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource LiquidMuted}"
                            HorizontalAlignment="Center"
                            IsHitTestVisible="False"/>
@@ -555,18 +396,18 @@
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             Margin="0,12,0,0">
-                    <Border Style="{StaticResource IconTileStyle}"
+                    <Border Style="{StaticResource SurfacePrimaryStyle}"
                             Width="50"
                             Height="50"
                             HorizontalAlignment="Center">
                         <TextBlock Text="{Binding Icon}"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="{StaticResource TextHeadline}"
-                                   Style="{StaticResource GlyphStyle}"/>
+                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource FontSize.H1}"
+                                   Style="{StaticResource Typography.Icon}"/>
                     </Border>
                     <TextBlock Text="{Binding Name}"
-                               FontSize="{StaticResource TextBodyLarge}"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.Title}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource LiquidSnow}"
                                HorizontalAlignment="Center"
                                TextAlignment="Center"
@@ -574,7 +415,7 @@
                                Margin="0,12,0,6"
                                IsHitTestVisible="False"/>
                     <TextBlock Text="{Binding Description}"
-                               FontSize="{StaticResource TextBody}"
+                               FontSize="{DynamicResource FontSize.Body}"
                                Foreground="{DynamicResource LiquidFrost}"
                                HorizontalAlignment="Center"
                                TextAlignment="Center"
@@ -597,20 +438,9 @@
       About license card is self-contained.
       ═══════════════════════════════════════════════════════
     -->
-    <Style x:Key="LicenseFieldLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="FontWeight"   Value="Bold"/>
-        <Setter Property="Foreground"   Value="{DynamicResource LiquidCerulean}"/>
-        <Setter Property="Margin"       Value="0,0,0,4"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
-    </Style>
+    
 
-    <Style x:Key="LicenseFieldValueStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="Foreground"   Value="{DynamicResource LiquidSnow}"/>
-        <Setter Property="Margin"       Value="0,0,12,4"/>
-        <Setter Property="TextWrapping" Value="Wrap"/>
-    </Style>
+    
 
     <!--
       Pill button used on the license card for the
@@ -620,8 +450,8 @@
     -->
     <Style x:Key="AboutPillButtonStyle" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="FontWeight"   Value="Bold"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
+        <Setter Property="FontWeight"   Value="{DynamicResource Weight.Bold}"/>
         <Setter Property="Foreground"   Value="{DynamicResource LiquidAccent}"/>
         <Setter Property="Background"   Value="Transparent"/>
         <Setter Property="BorderBrush"   Value="{DynamicResource Surface.Primary.BorderBrush}"/>
@@ -639,7 +469,7 @@
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
                             CornerRadius="{DynamicResource Surface.Secondary.CornerRadius}"
-                            Padding="{TemplateBinding Padding}">
+                            Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"/>
                     </Border>

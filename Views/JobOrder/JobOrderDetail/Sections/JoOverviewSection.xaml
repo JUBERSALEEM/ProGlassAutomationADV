@@ -57,14 +57,14 @@
             <!-- ══════════ 1. PRODUCTION FORM (compact tiles) ══════════ -->
             <sections:JoProductionSection/>
 
-            <Border Style="{StaticResource JoFormCardStyle}"
+            <Border Style="{StaticResource SurfacePrimaryStyle}"
                     Margin="0,4,0,14"
                     Padding="0,0,0,0">
                 <StackPanel>
 
                     <!-- ══════════ 2. IDENTITY STRIP ══════════ -->
                     <TextBlock Text="{DynamicResource JobOrder.SourceInvoice}"
-                               Style="{StaticResource CardLabelStyle}"
+                               Style="{StaticResource Typography.Label}"
                                Margin="0,0,0,8"/>
                     <Border Style="{StaticResource ModuleListKpiStripStyle}"
                             BorderBrush="{DynamicResource BorderDefaultBrush}"
@@ -83,12 +83,12 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource CardLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource Typography.Label}"/>
                                 <TextBlock Text="{Binding InvoiceSnapshot.Company.CompanyName, FallbackValue=—}"
-                                           FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
+                                           FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextTrimming="CharacterEllipsis"/>
-                                <TextBlock FontSize="{StaticResource TextBody}"
+                                <TextBlock FontSize="{DynamicResource FontSize.Body}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            TextTrimming="CharacterEllipsis">
                                     <Run Text="TRN "/><Run Text="{Binding InvoiceSnapshot.Company.CompanyTrn, Mode=OneWay, FallbackValue=—}"/>
@@ -98,12 +98,12 @@
                             <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
                             <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource JobOrder.Client}" Style="{StaticResource CardLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource JobOrder.Client}" Style="{StaticResource Typography.Label}"/>
                                 <TextBlock Text="{Binding InvoiceSnapshot.Client.CustomerName, FallbackValue=—}"
-                                           FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
+                                           FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextTrimming="CharacterEllipsis"/>
-                                <TextBlock FontSize="{StaticResource TextBody}"
+                                <TextBlock FontSize="{DynamicResource FontSize.Body}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            TextTrimming="CharacterEllipsis">
                                     <Run Text="TRN "/><Run Text="{Binding InvoiceSnapshot.Client.CustomerTrn, Mode=OneWay, FallbackValue=—}"/>
@@ -113,13 +113,13 @@
                             <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
                             <StackPanel Grid.Column="4" VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Common.Project}" Style="{StaticResource CardLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Common.Project}" Style="{StaticResource Typography.Label}"/>
                                 <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectIdentifierName, FallbackValue=—}"
-                                           FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
+                                           FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextTrimming="CharacterEllipsis"/>
                                 <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectReference, FallbackValue=—}"
-                                           FontSize="{StaticResource TextBody}"
+                                           FontSize="{DynamicResource FontSize.Body}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
@@ -127,10 +127,10 @@
                             <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
                             <StackPanel Grid.Column="6" VerticalAlignment="Center" MinWidth="120">
-                                <TextBlock Text="{DynamicResource JobOrder.InvoiceValue}" Style="{StaticResource CardLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource JobOrder.InvoiceValue}" Style="{StaticResource Typography.Label}"/>
                                 <TextBlock Text="{Binding GrandTotalDisplay}"
                                            FontSize="{DynamicResource DensityKpiValueFontSize}"
-                                           FontWeight="Bold"
+                                           FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Grid>
@@ -138,10 +138,10 @@
 
                     <!-- ══════════ 3. GLASS PANELS TABLE ══════════ -->
                     <TextBlock Text="{DynamicResource JobOrder.GlassPanels}"
-                               Style="{StaticResource CardLabelStyle}"
+                               Style="{StaticResource Typography.Label}"
                                Margin="0,0,0,4"/>
                     <TextBlock Text="{DynamicResource JobOrder.ProductionTicketSizesQtySQMTotalSQM}"
-                               FontSize="{StaticResource TextCaption}"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
                                Foreground="{DynamicResource TextTertiaryBrush}"
                                Margin="0,0,0,8"/>
 
@@ -159,15 +159,15 @@
                                                 <Border Width="22" Height="22"
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Background="{DynamicResource AccentBrush}"
-                                                        Margin="0,0,8,0">
+                                                        Margin="0,0,8,0" Style="{StaticResource SurfacePrimaryStyle}">
                                                     <TextBlock Text="{Binding GroupNumber}"
-                                                               FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                                HorizontalAlignment="Center"
                                                                VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Text="{Binding SelectedSpecName, FallbackValue=—}"
-                                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                                            VerticalAlignment="Center"
                                                            TextTrimming="CharacterEllipsis"/>
@@ -256,11 +256,11 @@
                                         </ItemsControl>
 
                                         <Border Style="{StaticResource LineItemsFooterStyle}">
-                                            <TextBlock FontSize="{StaticResource TextBody}"
+                                            <TextBlock FontSize="{DynamicResource FontSize.Body}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                                <Run Text="{DynamicResource JobOrder.GlassType}" FontWeight="SemiBold"/>
+                                                <Run Text="{DynamicResource JobOrder.GlassType}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                                                 <Run Text="{Binding SelectedGlassType, FallbackValue=SGU, Mode=OneWay}"
-                                                     FontWeight="Bold"
+                                                     FontWeight="{DynamicResource Weight.Bold}"
                                                      Foreground="{DynamicResource AccentBrush}"/>
                                             </TextBlock>
                                         </Border>

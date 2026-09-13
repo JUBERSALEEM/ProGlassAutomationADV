@@ -33,39 +33,16 @@
     <UserControl.Resources>
 
         <!-- Small uppercase section label -->
-        <Style x:Key="IndustrialEyebrow" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-        </Style>
+        
 
         <!-- Field label (uppercase, muted, engineering feel) -->
-        <Style x:Key="IndustrialFieldLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
-            <Setter Property="Margin" Value="2,0,0,6"/>
-        </Style>
+        
 
         <!-- Helper caption under a field -->
-        <Style x:Key="IndustrialHint" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextXSmall}"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
-            <Setter Property="Margin" Value="2,6,0,0"/>
-        </Style>
+        
 
         <!-- Numbered stage badge (01…04) -->
-        <Style x:Key="IndustrialStageBadge" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
-            <Setter Property="Width" Value="30"/>
-            <Setter Property="Height" Value="30"/>
-            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
-            <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
+        
 
         <!-- Status gate chip: LED dot + label, filled when active -->
         <Style x:Key="IndustrialStatusChip" TargetType="CheckBox">
@@ -81,13 +58,13 @@
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Padding="14,8">
+                                Padding="14,8" Style="{StaticResource SurfacePrimaryStyle}">
                             <StackPanel Orientation="Horizontal">
                                 <Border x:Name="Led" Width="8" Height="8" CornerRadius="{DynamicResource Radius.XSmall}"
                                         Background="{DynamicResource TintGrayBrush}"
-                                        VerticalAlignment="Center" Margin="0,0,9,0"/>
+                                        VerticalAlignment="Center" Margin="0,0,9,0" Style="{StaticResource SurfacePrimaryStyle}"/>
                                 <TextBlock Text="{TemplateBinding Content}"
-                                           FontSize="{StaticResource TextBody}"
+                                           FontSize="{DynamicResource FontSize.Body}"
                                            Foreground="{TemplateBinding Foreground}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
@@ -142,13 +119,13 @@
 
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="REPORT SCOPE · STEP 01"
-                                   Style="{StaticResource IndustrialEyebrow}"/>
+                                   Style="{StaticResource SurfacePrimaryStyle}"/>
                         <TextBlock Text="Filter Criteria"
-                                   FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                    Margin="0,4,0,0"/>
                         <TextBlock Text="Define which proforma invoices feed this report. Each stage narrows the scope to related records only."
-                                   FontSize="{StaticResource TextBody}"
+                                   FontSize="{DynamicResource FontSize.Body}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    TextWrapping="Wrap" Margin="0,6,0,0" MaxWidth="640"/>
                     </StackPanel>
@@ -160,13 +137,13 @@
                             BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
-                            Padding="16,12" Margin="24,0,0,0">
+                            Padding="16,12" Margin="24,0,0,0" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel Orientation="Horizontal">
                             <Border Width="10" Height="10" CornerRadius="{DynamicResource Radius.Small}"
                                     Background="{DynamicResource SuccessBrush}"
-                                    VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    VerticalAlignment="Center" Margin="0,0,10,0" Style="{StaticResource SurfacePrimaryStyle}"/>
                             <TextBlock Text="{Binding MatchCountDisplay}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
@@ -181,7 +158,7 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                        Padding="22,20">
+                        Padding="22,20" Style="{StaticResource SurfacePrimaryStyle}">
 
                     <StackPanel>
                         <!-- Section header -->
@@ -193,8 +170,8 @@
                             <StackPanel Orientation="Horizontal">
                                 <Border Width="4" Height="14" CornerRadius="{DynamicResource Radius.XSmall}"
                                         Background="{DynamicResource AccentBrush}"
-                                        VerticalAlignment="Center" Margin="0,0,9,0"/>
-                                <TextBlock Text="SOURCE SEQUENCE" Style="{StaticResource IndustrialEyebrow}"
+                                        VerticalAlignment="Center" Margin="0,0,9,0" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                <TextBlock Text="SOURCE SEQUENCE" Style="{StaticResource SurfacePrimaryStyle}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                             <Border Grid.Column="1" Height="1" Background="{DynamicResource BorderDefaultBrush}"
@@ -216,16 +193,16 @@
                             <!-- 01 · COMPANY -->
                             <StackPanel Grid.Column="0">
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                    <Border Style="{StaticResource IndustrialStageBadge}">
-                                        <TextBlock Text="01" FontWeight="Bold"
-                                                   FontSize="{StaticResource TextCaption}"
+                                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                                        <TextBlock Text="01" FontWeight="{DynamicResource Weight.Bold}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                     <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock Text="COMPANY" Style="{StaticResource IndustrialFieldLabel}" Margin="0"/>
-                                        <TextBlock Text="OUR COMPANY" FontSize="{StaticResource TextXSmall}"
-                                                   FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                        <TextBlock Text="COMPANY" Style="{StaticResource Typography.Label}" Margin="0"/>
+                                        <TextBlock Text="OUR COMPANY" FontSize="{DynamicResource FontSize.Caption}"
+                                                   FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
                                     </StackPanel>
                                 </StackPanel>
                                 <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
@@ -234,25 +211,25 @@
                                           Text="{Binding FilterCompany, UpdateSourceTrigger=PropertyChanged}"
                                           IsTextSearchEnabled="True"/>
                                 <TextBlock Text="Issuing entity — pre-selected from the Company module."
-                                           Style="{StaticResource IndustrialHint}"/>
+                                           Style="{StaticResource SurfacePrimaryStyle}"/>
                             </StackPanel>
 
                             <!-- connector -->
-                            <TextBlock Grid.Column="1" Text="→" FontSize="{StaticResource TextSection}"
-                                       FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}"
+                            <TextBlock Grid.Column="1" Text="→" FontSize="{DynamicResource FontSize.H3}"
+                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"
                                        HorizontalAlignment="Center" VerticalAlignment="Top"
                                        Margin="12,40,12,0"/>
 
                             <!-- 02 · SALESMAN -->
                             <StackPanel Grid.Column="2">
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                    <Border Style="{StaticResource IndustrialStageBadge}">
-                                        <TextBlock Text="02" FontWeight="Bold"
-                                                   FontSize="{StaticResource TextCaption}"
+                                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                                        <TextBlock Text="02" FontWeight="{DynamicResource Weight.Bold}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="SALESMAN" Style="{StaticResource IndustrialFieldLabel}"
+                                    <TextBlock Text="SALESMAN" Style="{StaticResource Typography.Label}"
                                                VerticalAlignment="Center" Margin="10,0,0,0"/>
                                 </StackPanel>
                                 <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
@@ -261,25 +238,25 @@
                                           Text="{Binding FilterSalesman, UpdateSourceTrigger=PropertyChanged}"
                                           IsTextSearchEnabled="True"/>
                                 <TextBlock Text="Scopes the customer list to this sales representative."
-                                           Style="{StaticResource IndustrialHint}"/>
+                                           Style="{StaticResource SurfacePrimaryStyle}"/>
                             </StackPanel>
 
                             <!-- connector -->
-                            <TextBlock Grid.Column="3" Text="→" FontSize="{StaticResource TextSection}"
-                                       FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}"
+                            <TextBlock Grid.Column="3" Text="→" FontSize="{DynamicResource FontSize.H3}"
+                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"
                                        HorizontalAlignment="Center" VerticalAlignment="Top"
                                        Margin="12,40,12,0"/>
 
                             <!-- 03 · CUSTOMER -->
                             <StackPanel Grid.Column="4">
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                    <Border Style="{StaticResource IndustrialStageBadge}">
-                                        <TextBlock Text="03" FontWeight="Bold"
-                                                   FontSize="{StaticResource TextCaption}"
+                                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                                        <TextBlock Text="03" FontWeight="{DynamicResource Weight.Bold}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="CUSTOMER" Style="{StaticResource IndustrialFieldLabel}"
+                                    <TextBlock Text="CUSTOMER" Style="{StaticResource Typography.Label}"
                                                VerticalAlignment="Center" Margin="10,0,0,0"/>
                                 </StackPanel>
                                 <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
@@ -288,25 +265,25 @@
                                           Text="{Binding FilterCustomer, UpdateSourceTrigger=PropertyChanged}"
                                           IsTextSearchEnabled="True"/>
                                 <TextBlock Text="Scopes the project list to this customer."
-                                           Style="{StaticResource IndustrialHint}"/>
+                                           Style="{StaticResource SurfacePrimaryStyle}"/>
                             </StackPanel>
 
                             <!-- connector -->
-                            <TextBlock Grid.Column="5" Text="→" FontSize="{StaticResource TextSection}"
-                                       FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}"
+                            <TextBlock Grid.Column="5" Text="→" FontSize="{DynamicResource FontSize.H3}"
+                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"
                                        HorizontalAlignment="Center" VerticalAlignment="Top"
                                        Margin="12,40,12,0"/>
 
                             <!-- 04 · PROJECT -->
                             <StackPanel Grid.Column="6">
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                    <Border Style="{StaticResource IndustrialStageBadge}">
-                                        <TextBlock Text="04" FontWeight="Bold"
-                                                   FontSize="{StaticResource TextCaption}"
+                                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                                        <TextBlock Text="04" FontWeight="{DynamicResource Weight.Bold}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="PROJECT" Style="{StaticResource IndustrialFieldLabel}"
+                                    <TextBlock Text="PROJECT" Style="{StaticResource Typography.Label}"
                                                VerticalAlignment="Center" Margin="10,0,0,0"/>
                                 </StackPanel>
                                 <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
@@ -315,7 +292,7 @@
                                           Text="{Binding FilterProject, UpdateSourceTrigger=PropertyChanged}"
                                           IsTextSearchEnabled="True"/>
                                 <TextBlock Text="Specific project — leave empty to include all."
-                                           Style="{StaticResource IndustrialHint}"/>
+                                           Style="{StaticResource SurfacePrimaryStyle}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
@@ -329,7 +306,7 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                        Padding="22,20">
+                        Padding="22,20" Style="{StaticResource SurfacePrimaryStyle}">
                     <StackPanel>
                         <Grid Margin="0,0,0,18">
                             <Grid.ColumnDefinitions>
@@ -339,8 +316,8 @@
                             <StackPanel Orientation="Horizontal">
                                 <Border Width="4" Height="14" CornerRadius="{DynamicResource Radius.XSmall}"
                                         Background="{DynamicResource AccentBrush}"
-                                        VerticalAlignment="Center" Margin="0,0,9,0"/>
-                                <TextBlock Text="DATE WINDOW" Style="{StaticResource IndustrialEyebrow}"
+                                        VerticalAlignment="Center" Margin="0,0,9,0" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                <TextBlock Text="DATE WINDOW" Style="{StaticResource SurfacePrimaryStyle}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                             <Border Grid.Column="1" Height="1" Background="{DynamicResource BorderDefaultBrush}"
@@ -355,19 +332,19 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="DATE FROM" Style="{StaticResource IndustrialFieldLabel}"/>
+                                <TextBlock Text="DATE FROM" Style="{StaticResource Typography.Label}"/>
                                 <DatePicker SelectedDate="{Binding DateFrom}"
-                                            Height="40" FontSize="{StaticResource TextBodyLarge}"/>
+                                            Height="40" FontSize="{DynamicResource FontSize.Title}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="DATE TO" Style="{StaticResource IndustrialFieldLabel}"/>
+                                <TextBlock Text="DATE TO" Style="{StaticResource Typography.Label}"/>
                                 <DatePicker SelectedDate="{Binding DateTo}"
-                                            Height="40" FontSize="{StaticResource TextBodyLarge}"/>
+                                            Height="40" FontSize="{DynamicResource FontSize.Title}"/>
                             </StackPanel>
                         </Grid>
 
                         <TextBlock Text="Filters on the proforma issue date. Leave blank for an open-ended window."
-                                   Style="{StaticResource IndustrialHint}"/>
+                                   Style="{StaticResource SurfacePrimaryStyle}"/>
                     </StackPanel>
                 </Border>
 
@@ -379,7 +356,7 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                        Padding="22,20">
+                        Padding="22,20" Style="{StaticResource SurfacePrimaryStyle}">
                     <StackPanel>
                         <Grid Margin="0,0,0,16">
                             <Grid.ColumnDefinitions>
@@ -389,8 +366,8 @@
                             <StackPanel Orientation="Horizontal">
                                 <Border Width="4" Height="14" CornerRadius="{DynamicResource Radius.XSmall}"
                                         Background="{DynamicResource AccentBrush}"
-                                        VerticalAlignment="Center" Margin="0,0,9,0"/>
-                                <TextBlock Text="STATUS GATE" Style="{StaticResource IndustrialEyebrow}"
+                                        VerticalAlignment="Center" Margin="0,0,9,0" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                <TextBlock Text="STATUS GATE" Style="{StaticResource SurfacePrimaryStyle}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                             <Border Grid.Column="1" Height="1" Background="{DynamicResource BorderDefaultBrush}"
@@ -413,7 +390,7 @@
                         </ItemsControl>
 
                         <TextBlock Text="Checked statuses are included. Leave all unchecked to ignore status."
-                                   Style="{StaticResource IndustrialHint}" Margin="2,2,0,0"/>
+                                   Style="{StaticResource SurfacePrimaryStyle}" Margin="2,2,0,0"/>
                     </StackPanel>
                 </Border>
 
@@ -432,7 +409,7 @@
                             HorizontalAlignment="Left"/>
                     <Button Grid.Column="1" Content="Preview Matches"
                             Command="{Binding PreviewCommand}"
-                            Style="{StaticResource NavButtonPrimaryStyle}"/>
+                            Style="{StaticResource Button.Primary}"/>
                 </Grid>
 
                 <TextBlock Text="{Binding StatusMessage}"

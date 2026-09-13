@@ -8,20 +8,9 @@
       state, so it has its own minimal palette.
     -->
 
-    <Style x:Key="CrashFieldLabel" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
-        <Setter Property="VerticalAlignment" Value="Top"/>
-        <Setter Property="Margin"     Value="0,0,0,4"/>
-    </Style>
+    
 
-    <Style x:Key="CrashFieldValue" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="VerticalAlignment" Value="Top"/>
-        <Setter Property="Margin"     Value="0,0,0,4"/>
-    </Style>
+    
 
     <Style x:Key="CrashPrimaryButton" TargetType="Button"
            BasedOn="{StaticResource {x:Type Button}}">
@@ -29,14 +18,14 @@
         <Setter Property="Foreground"   Value="White"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding"      Value="14,8"/>
-        <Setter Property="FontWeight"   Value="SemiBold"/>
+        <Setter Property="FontWeight"   Value="{DynamicResource Weight.SemiBold}"/>
         <Setter Property="Cursor"       Value="Hand"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border Background="{TemplateBinding Background}"
                             CornerRadius="{DynamicResource Radius.XSmall}"
-                            Padding="{TemplateBinding Padding}">
+                            Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"/>
                     </Border>
@@ -52,7 +41,7 @@
         <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding"        Value="14,8"/>
-        <Setter Property="FontWeight"     Value="SemiBold"/>
+        <Setter Property="FontWeight"     Value="{DynamicResource Weight.SemiBold}"/>
         <Setter Property="Cursor"         Value="Hand"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -61,7 +50,7 @@
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
                             CornerRadius="{DynamicResource Radius.XSmall}"
-                            Padding="{TemplateBinding Padding}">
+                            Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"/>
                     </Border>
@@ -70,13 +59,6 @@
         </Setter>
     </Style>
 
-    <Style x:Key="CrashGhostButton" TargetType="Button"
-           BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Padding"    Value="14,8"/>
-        <Setter Property="Cursor"     Value="Hand"/>
-    </Style>
+    
 
 </ResourceDictionary>

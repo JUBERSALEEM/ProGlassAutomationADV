@@ -20,25 +20,13 @@
 
             <!-- LG4 scope capsule (2026-09-10): All / Operations / Finance /
                  Platform, iOS segmented style — selected segment = accent pill. -->
-            <Style x:Key="ScopeCapsuleStyle" TargetType="ListBox">
-                <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
-                <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Disabled"/>
-                <Setter Property="ItemsPanel">
-                    <Setter.Value>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
+            
             <Style x:Key="ScopePillItemStyle" TargetType="ListBoxItem">
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
                 <Setter Property="Foreground" Value="{DynamicResource LiquidFrost}"/>
-                <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
+                <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
                 <Setter Property="Margin" Value="0,0,3,0"/>
                 <Setter Property="Template">
                     <Setter.Value>
@@ -47,9 +35,9 @@
                                     Background="Transparent"
                                     BorderBrush="Transparent"
                                     BorderThickness="1"
-                                    CornerRadius="14"
+                                    CornerRadius="{DynamicResource Radius.XLarge}"
                                     Padding="13,5"
-                                    SnapsToDevicePixels="True">
+                                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                 <ContentPresenter HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                             </Border>
@@ -84,11 +72,11 @@
 
             <StackPanel Grid.Column="0">
                 <TextBlock Text="{DynamicResource About.ActiveModules}"
-                           FontSize="{StaticResource TextDisplay}"
-                           FontWeight="Bold"
+                           FontSize="{DynamicResource FontSize.Kpi}"
+                           FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource LiquidIce}"/>
                 <TextBlock Text="{DynamicResource About.OperationalSurfacesAlreadyDeployedBuild}"
-                           FontSize="{StaticResource TextBody}"
+                           FontSize="{DynamicResource FontSize.Body}"
                            Foreground="{DynamicResource LiquidFrost}"
                            Margin="0,2,0,0"/>
             </StackPanel>
@@ -97,16 +85,16 @@
                     Background="{DynamicResource AboutGlassCapsuleBrush}"
                     BorderBrush="{DynamicResource AboutGlassSlabStroke}"
                     BorderThickness="1"
-                    CornerRadius="20"
+                    CornerRadius="{DynamicResource Radius.2XLarge}"
                     Padding="6,4"
                     VerticalAlignment="Top"
                     Visibility="{DynamicResource AboutGlassChromeVisibility}"
-                    SnapsToDevicePixels="True">
+                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                 <ListBox ItemsSource="{Binding ModuleScopes}"
                          SelectedItem="{Binding SelectedScopeItem, Mode=TwoWay}"
                          DisplayMemberPath="Label"
-                         Style="{StaticResource ScopeCapsuleStyle}"
-                         ItemContainerStyle="{StaticResource ScopePillItemStyle}"/>
+                         Style="{StaticResource Chip.Primary}"
+                         ItemContainerStyle="{StaticResource Badge.Primary}"/>
             </Border>
         </Grid>
 
@@ -121,7 +109,7 @@
             </ItemsControl.ItemsPanel>
         </ItemsControl>
 
-        <Border Style="{StaticResource AboutCardStyle}">
+        <Border Style="{StaticResource SurfacePrimaryStyle}">
             <StackPanel>
                 <Grid Margin="0,0,0,18">
                     <Grid.ColumnDefinitions>
@@ -131,19 +119,19 @@
 
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="{DynamicResource About.EndEndProductionWorkflow}"
-                                   Style="{StaticResource SectionTitleStyle}"/>
+                                   Style="{StaticResource Typography.H2}"/>
                         <TextBlock Text="{DynamicResource About.CommercialIntakeProductionPreparation}"
-                                   Style="{StaticResource SectionSubtitleStyle}"
+                                   Style="{StaticResource Typography.BodySmall}"
                                    Margin="0,0,0,0"/>
                     </StackPanel>
 
                     <Border Grid.Column="1"
-                            Style="{StaticResource AboutHeaderBadgeStyle}">
-                        <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}" Text="{DynamicResource About.14Stages}"/>
+                            Style="{StaticResource Badge.Primary}">
+                        <TextBlock Style="{StaticResource Typography.Caption}" Text="{DynamicResource About.14Stages}"/>
                     </Border>
                 </Grid>
 
-                <Border Style="{StaticResource AboutSectionPanelStyle}">
+                <Border Style="{StaticResource SurfaceSecondaryStyle}">
                     <StackPanel>
                         <Grid Margin="0,0,0,16">
                             <Grid.ColumnDefinitions>
@@ -153,16 +141,16 @@
 
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="{DynamicResource About.SalesCycle}"
-                                           Style="{StaticResource WorkflowGroupLabelStyle}"/>
+                                           Style="{StaticResource Typography.Label}"/>
                                 <TextBlock Text="{DynamicResource About.SheetAvailabilityReleasedProductionPaperwork}"
-                                           FontSize="{StaticResource TextBody}"
+                                           FontSize="{DynamicResource FontSize.Body}"
                                            Foreground="{DynamicResource LiquidFrost}"
                                            TextWrapping="Wrap"/>
                             </StackPanel>
 
                             <Border Grid.Column="1"
-                                    Style="{StaticResource AboutHeaderBadgeStyle}">
-                                <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}" Text="{DynamicResource About.3Stages}"/>
+                                    Style="{StaticResource Badge.Primary}">
+                                <TextBlock Style="{StaticResource Typography.Caption}" Text="{DynamicResource About.3Stages}"/>
                             </Border>
                         </Grid>
 
@@ -177,7 +165,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource AboutSectionPanelStyle}">
+                <Border Style="{StaticResource SurfaceSecondaryStyle}">
                     <StackPanel>
                         <Grid Margin="0,0,0,16">
                             <Grid.ColumnDefinitions>
@@ -187,16 +175,16 @@
 
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="{DynamicResource About.ProductionStagesUpcoming}"
-                                           Style="{StaticResource WorkflowGroupLabelStyle}"/>
+                                           Style="{StaticResource Typography.Label}"/>
                                 <TextBlock Text="{DynamicResource About.PlannedFactoryExecutionStagesSlotControlled}"
-                                           FontSize="{StaticResource TextBody}"
+                                           FontSize="{DynamicResource FontSize.Body}"
                                            Foreground="{DynamicResource LiquidFrost}"
                                            TextWrapping="Wrap"/>
                             </StackPanel>
 
                             <Border Grid.Column="1"
-                                    Style="{StaticResource AboutHeaderBadgeStyle}">
-                                <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}" Text="{DynamicResource About.8Stages}"/>
+                                    Style="{StaticResource Badge.Primary}">
+                                <TextBlock Style="{StaticResource Typography.Caption}" Text="{DynamicResource About.8Stages}"/>
                             </Border>
                         </Grid>
 
@@ -211,7 +199,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource AboutSectionPanelStyle}" Margin="0,0,0,0">
+                <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="0,0,0,0">
                     <StackPanel>
                         <Grid Margin="0,0,0,16">
                             <Grid.ColumnDefinitions>
@@ -221,16 +209,16 @@
 
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="{DynamicResource About.DispatchBilling}"
-                                           Style="{StaticResource WorkflowGroupLabelStyle}"/>
+                                           Style="{StaticResource Typography.Label}"/>
                                 <TextBlock Text="{DynamicResource About.DeliveryEvidenceInvoicingReportingClosedOne}"
-                                           FontSize="{StaticResource TextBody}"
+                                           FontSize="{DynamicResource FontSize.Body}"
                                            Foreground="{DynamicResource LiquidFrost}"
                                            TextWrapping="Wrap"/>
                             </StackPanel>
 
                             <Border Grid.Column="1"
-                                    Style="{StaticResource AboutHeaderBadgeStyle}">
-                                <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}" Text="{DynamicResource About.3Stages}"/>
+                                    Style="{StaticResource Badge.Primary}">
+                                <TextBlock Style="{StaticResource Typography.Caption}" Text="{DynamicResource About.3Stages}"/>
                             </Border>
                         </Grid>
 

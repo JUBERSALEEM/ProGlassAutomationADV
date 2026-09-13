@@ -33,7 +33,7 @@
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                 <Border Style="{StaticResource ModuleListKpiIconStyle}"
                         Background="{DynamicResource TintBlueBrush}">
-                    <TextBlock Text="&#xE8C6;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
+                    <TextBlock Text="&#xE8C6;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                Foreground="{DynamicResource AccentBrush}"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
@@ -48,7 +48,7 @@
             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                 <Border Style="{StaticResource ModuleListKpiIconStyle}"
                         Background="{DynamicResource TintAmberBrush}">
-                    <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
+                    <TextBlock Text="&#xE823;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                Foreground="{DynamicResource WarningBrush}"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
@@ -64,7 +64,7 @@
             <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
                 <Border Style="{StaticResource ModuleListKpiIconStyle}"
                         Background="{DynamicResource TintIndigoBrush}">
-                    <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
+                    <TextBlock Text="&#xE9D9;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                Foreground="{DynamicResource AccentBrush}"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
@@ -80,7 +80,7 @@
             <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center">
                 <Border Style="{StaticResource ModuleListKpiIconStyle}"
                         Background="{DynamicResource TintGreenBrush}">
-                    <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
+                    <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                Foreground="{DynamicResource SuccessBrush}"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
@@ -96,7 +96,7 @@
             <StackPanel Grid.Column="8" Orientation="Horizontal" VerticalAlignment="Center">
                 <Border Style="{StaticResource ModuleListKpiIconStyle}"
                         Background="{DynamicResource TintPurpleBrush}">
-                    <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
+                    <TextBlock Text="&#xE9D2;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                Foreground="{DynamicResource AccentBrush}"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
@@ -114,7 +114,7 @@
                         Visibility="{Binding ShowDispatchKpi, Converter={StaticResource BoolToVisibilityConverter}}">
                 <Border Style="{StaticResource ModuleListKpiIconStyle}"
                         Background="{DynamicResource TintGreenBrush}">
-                    <TextBlock Text="&#xE7BF;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
+                    <TextBlock Text="&#xE7BF;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                Foreground="{DynamicResource SuccessBrush}"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>

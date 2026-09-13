@@ -35,12 +35,12 @@
                     <Border CornerRadius="{DynamicResource CardCornerRadius}"
                             BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                            Padding="2,10">
+                            Padding="2,10" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <!-- Field + change kind -->
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding Field}"
-                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
                                         BorderThickness="{DynamicResource Border.HairlineThickness}"
@@ -48,9 +48,9 @@
                                         CornerRadius="{DynamicResource CardCornerRadius}"
                                         Padding="6,1"
                                         VerticalAlignment="Center"
-                                        Background="{DynamicResource TintBlueBrush}">
+                                        Background="{DynamicResource TintBlueBrush}" Style="{StaticResource SurfacePrimaryStyle}">
                                     <TextBlock Text="{Binding Kind}"
-                                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource InfoBrush}"/>
                                 </Border>
                             </StackPanel>
@@ -61,16 +61,16 @@
                                     Margin="0,6,0,0"
                                     Background="{DynamicResource TintRedBrush}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Padding="10,6">
+                                    Padding="10,6" Style="{StaticResource SurfacePrimaryStyle}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE7BA;"
-                                               FontFamily="Segoe MDL2 Assets"
-                                               FontSize="{StaticResource TextBody}"
+                                               FontFamily="{DynamicResource FontFamily.Icon}"
+                                               FontSize="{DynamicResource FontSize.Body}"
                                                Foreground="{DynamicResource DangerBrush}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,7,0"/>
                                     <TextBlock Text="{Binding Before}"
-                                               FontSize="{StaticResource TextBody}"
+                                               FontSize="{DynamicResource FontSize.Body}"
                                                TextWrapping="Wrap"
                                                Foreground="{DynamicResource DangerBrush}"/>
                                 </StackPanel>
@@ -82,16 +82,16 @@
                                     Margin="0,4,0,0"
                                     Background="{DynamicResource TintGreenBrush}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Padding="10,6">
+                                    Padding="10,6" Style="{StaticResource SurfacePrimaryStyle}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE73E;"
-                                               FontFamily="Segoe MDL2 Assets"
-                                               FontSize="{StaticResource TextBody}"
+                                               FontFamily="{DynamicResource FontFamily.Icon}"
+                                               FontSize="{DynamicResource FontSize.Body}"
                                                Foreground="{DynamicResource SuccessBrush}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,7,0"/>
                                     <TextBlock Text="{Binding After}"
-                                               FontSize="{StaticResource TextBody}"
+                                               FontSize="{DynamicResource FontSize.Body}"
                                                TextWrapping="Wrap"
                                                Foreground="{DynamicResource SuccessBrush}"/>
                                 </StackPanel>

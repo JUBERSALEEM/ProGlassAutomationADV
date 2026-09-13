@@ -74,13 +74,13 @@
                 BorderBrush="{DynamicResource BorderSubtleBrush}"
                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                 Effect="{StaticResource CardShadow}"
-                SnapsToDevicePixels="True">
+                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
 
             <Grid>
                 <!-- Diagonal glass sheen (top-left highlight). -->
                 <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                         Background="{DynamicResource CardSheen}"
-                        IsHitTestVisible="False"/>
+                        IsHitTestVisible="False" Style="{StaticResource SurfacePrimaryStyle}"/>
 
                 <Border Padding="28,24"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}">
@@ -109,12 +109,12 @@
                                     </Border.Effect>
                                 </Border>
                                 <TextBlock Text="ProGlass Automation"
-                                           FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
+                                           FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource NameGradient}"
                                            HorizontalAlignment="Center"
                                            Margin="0,12,0,0"/>
                                 <TextBlock Text="{DynamicResource Login.MadeIndiaUAEGlassIndustry}"
-                                           FontSize="{StaticResource TextBody}"
+                                           FontSize="{DynamicResource FontSize.Body}"
                                            Foreground="{DynamicResource Cerulean}"
                                            HorizontalAlignment="Center"
                                            Margin="0,4,0,0"/>
@@ -128,19 +128,19 @@
                                     Background="{DynamicResource WarningSurfaceBrush}"
                                     BorderBrush="{DynamicResource WarningOnLiquid}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                    Visibility="{Binding DefaultCredWarningVisibility}">
+                                    Visibility="{Binding DefaultCredWarningVisibility}" Style="{StaticResource SurfacePrimaryStyle}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE7BA;"
-                                               FontFamily="Segoe MDL2 Assets"
-                                               FontSize="{StaticResource TextSection}"
+                                               FontFamily="{DynamicResource FontFamily.Icon}"
+                                               FontSize="{DynamicResource FontSize.H3}"
                                                VerticalAlignment="Top"
                                                Margin="0,1,10,0"
                                                Foreground="{DynamicResource WarningOnLiquid}"/>
-                                    <TextBlock TextWrapping="Wrap" FontSize="{StaticResource TextBodyLarge}"
+                                    <TextBlock TextWrapping="Wrap" FontSize="{DynamicResource FontSize.Title}"
                                                Foreground="{DynamicResource Ice}">
-                                        <Run Text="{DynamicResource Login.FirstRun}" FontWeight="Bold"/>
+                                        <Run Text="{DynamicResource Login.FirstRun}" FontWeight="{DynamicResource Weight.Bold}"/>
                                         <Run Text="{DynamicResource Login.Use}"/>
-                                        <Run Text="{DynamicResource Login.AdminAdmin}" FontWeight="Bold"/>
+                                        <Run Text="{DynamicResource Login.AdminAdmin}" FontWeight="{DynamicResource Weight.Bold}"/>
                                         <Run Text="{DynamicResource Login.ThenChangePasswordUserCenter}"/>
                                     </TextBlock>
                                 </StackPanel>
@@ -196,7 +196,7 @@
                                     CornerRadius="{DynamicResource Radius.Large}"
                                     Background="{DynamicResource SurfacePrimaryBrush}"
                                     BorderBrush="{DynamicResource BorderSubtleBrush}"
-                                    BorderThickness="{DynamicResource Border.HairlineThickness}">
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}" Style="{StaticResource SurfacePrimaryStyle}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -205,11 +205,11 @@
                                     <StackPanel Grid.Column="0"
                                                 VerticalAlignment="Center">
                                         <TextBlock Text="{DynamicResource Login.SkipLoginUntilUpdate}"
-                                                   FontSize="{StaticResource TextBodyLarge}"
-                                                   FontWeight="SemiBold"
+                                                   FontSize="{DynamicResource FontSize.Title}"
+                                                   FontWeight="{DynamicResource Weight.SemiBold}"
                                                    Foreground="{DynamicResource Ice}"/>
                                         <TextBlock Text="{DynamicResource Login.AutoSignDeviceResetsNextAppUpdate}"
-                                                   FontSize="{StaticResource TextCaption}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                                    Foreground="{DynamicResource Frost}"
                                                    Opacity="0.75"
                                                    TextWrapping="Wrap"
@@ -233,15 +233,15 @@
                                     Background="{DynamicResource DangerSurfaceBrush}"
                                     BorderBrush="{DynamicResource DangerOnLiquid}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                    Visibility="{Binding ErrorVisibility}">
+                                    Visibility="{Binding ErrorVisibility}" Style="{StaticResource SurfacePrimaryStyle}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xEA39;"
-                                               FontFamily="Segoe MDL2 Assets"
-                                               FontSize="{StaticResource TextSection}"
+                                               FontFamily="{DynamicResource FontFamily.Icon}"
+                                               FontSize="{DynamicResource FontSize.H3}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,10,0"
                                                Foreground="{DynamicResource DangerOnLiquid}"/>
-                                    <TextBlock FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
+                                    <TextBlock FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                Text="{Binding ErrorText}"
                                                TextWrapping="Wrap"
                                                VerticalAlignment="Center"
@@ -275,7 +275,7 @@
                                          VerticalAlignment="Center"
                                          Visibility="{Binding BusyDotVisibility}"/>
                                 <TextBlock Text="{Binding StatusText}"
-                                           FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource Ice}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
@@ -293,7 +293,7 @@
                                     HorizontalAlignment="Center"/>
 
                             <TextBlock HorizontalAlignment="Center"
-                                       FontSize="{StaticResource TextBody}"
+                                       FontSize="{DynamicResource FontSize.Body}"
                                        Foreground="{DynamicResource Frost}"
                                        Opacity="0.75"
                                        Margin="0,8,0,0">

@@ -18,16 +18,16 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Border Width="56" Height="56" CornerRadius="{DynamicResource CardCornerRadius}"
-                    Background="{DynamicResource TintPurpleBrush}" VerticalAlignment="Center" Margin="0,0,14,0">
-                <TextBlock Text="{Binding Icon}" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplay}"
+                    Background="{DynamicResource TintPurpleBrush}" VerticalAlignment="Center" Margin="0,0,14,0" Style="{StaticResource SurfacePrimaryStyle}">
+                <TextBlock Text="{Binding Icon}" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Kpi}"
                            Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Border>
             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding ModuleName}" Style="{StaticResource ModulePageTitleStyle}"/>
                     <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}"
-                            Padding="10,3" Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding StageOrdinalLabel}" FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                            Padding="10,3" Margin="12,0,0,0" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                        <TextBlock Text="{Binding StageOrdinalLabel}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
                     </Border>
                 </StackPanel>

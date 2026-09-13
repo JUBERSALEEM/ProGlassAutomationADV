@@ -27,8 +27,8 @@
                   AutomationProperties.AutomationId="Locale.PhoneCountry"
                   Height="34"
                   VerticalContentAlignment="Center"
-                  ScrollViewer.CanContentScroll="True">
-            <ComboBox.ItemTemplate>
+                  ScrollViewer.CanContentScroll="True" Style="{StaticResource ComboBoxStyle}">
+            <ComboBox.ItemTemplate Style="{StaticResource ComboBoxStyle}">
                 <DataTemplate DataType="{x:Type loc:CountryInfo}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{Binding Flag}" FontFamily="Segoe UI Emoji"
@@ -47,6 +47,6 @@
                  Grid.Column="2"
                  Height="34"
                  VerticalContentAlignment="Center"
-                 AutomationProperties.AutomationId="Locale.PhoneNumber"/>
+                 AutomationProperties.AutomationId="Locale.PhoneNumber" Style="{StaticResource TextBoxStyle}"/>
     </Grid>
 </UserControl>

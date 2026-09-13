@@ -19,7 +19,7 @@
             Padding="0"
             HorizontalContentAlignment="Stretch"
             ToolTip="{DynamicResource Storage.TapForDetails}">
-        <Button.Template>
+        <Button.Template Style="{StaticResource SecondaryButtonStyle}">
             <ControlTemplate TargetType="Button">
                 <Border x:Name="Card"
                         CornerRadius="{DynamicResource CardCornerRadius}"
@@ -27,7 +27,7 @@
                         BorderBrush="{DynamicResource BorderBrush}"
                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                         Padding="14,12"
-                        SnapsToDevicePixels="True">
+                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                     <ContentPresenter/>
                 </Border>
                 <ControlTemplate.Triggers>
@@ -49,31 +49,31 @@
             <Grid Margin="0,0,0,6">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE8B7;"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="{StaticResource TextXSmall}"
+                               FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="{DynamicResource FontSize.Caption}"
                                Foreground="{DynamicResource AccentBrush}"
                                VerticalAlignment="Center"
                                Margin="0,0,6,0"/>
                     <TextBlock Text="{DynamicResource Nav.GroupStorage}"
-                               FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextTertiaryBrush}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
                 <TextBlock Text="{Binding StorageDisplay, FallbackValue='—'}"
                            HorizontalAlignment="Right"
-                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                           FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
             </Grid>
             <Border Height="6"
                     Background="{DynamicResource BorderBrush}"
-                    CornerRadius="{DynamicResource Radius.XSmall}">
+                    CornerRadius="{DynamicResource Radius.XSmall}" Style="{StaticResource SurfacePrimaryStyle}">
                 <Border Width="180"
                         HorizontalAlignment="Left"
                         CornerRadius="{DynamicResource Radius.XSmall}"
-                        Background="{DynamicResource StorageBarGradient}"/>
+                        Background="{DynamicResource StorageBarGradient}" Style="{StaticResource SurfacePrimaryStyle}"/>
             </Border>
             <TextBlock Text="{Binding StorageSubtitle, FallbackValue='Storage unavailable'}"
-                       FontSize="{StaticResource TextCaption}"
+                       FontSize="{DynamicResource FontSize.BodySmall}"
                        Foreground="{DynamicResource TextTertiaryBrush}"
                        Margin="0,6,0,0"
                        TextWrapping="Wrap"/>

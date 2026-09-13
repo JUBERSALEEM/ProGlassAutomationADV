@@ -60,10 +60,10 @@
 
             <StackPanel Grid.Column="0" VerticalAlignment="Center">
                 <TextBlock Text="{DynamicResource God.DnTitle}"
-                           FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                           FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock Text="{DynamicResource God.DnSubtitle}"
-                           FontSize="{StaticResource TextBody}" Margin="0,2,0,0"
+                           FontSize="{DynamicResource FontSize.Body}" Margin="0,2,0,0"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </StackPanel>
 
@@ -76,13 +76,13 @@
                     Padding="14,0"
                     Height="38"
                     HorizontalAlignment="Stretch"
-                    VerticalAlignment="Center">
+                    VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
                 <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
                          BorderThickness="{DynamicResource Border.NoneThickness}"
                          Background="Transparent"
-                         FontSize="{StaticResource TextBodyLarge}"
+                         FontSize="{DynamicResource FontSize.Title}"
                          VerticalAlignment="Center"
-                         ToolTip="{DynamicResource God.DnSearch}"/>
+                         ToolTip="{DynamicResource God.DnSearch}" Style="{StaticResource TextBoxStyle}"/>
             </Border>
 
             <!-- LAYOUT FIX: Grid.Column="2" was missing, so this button
@@ -112,7 +112,7 @@
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
-                ClipToBounds="True">
+                ClipToBounds="True" Style="{StaticResource SurfacePrimaryStyle}">
                 <Grid>
             <DataGrid Style="{StaticResource GodViewGridStyle}"
                       ColumnHeaderStyle="{StaticResource GodViewHeaderStyle}"
@@ -124,14 +124,14 @@
                       VirtualizingPanel.CacheLength="400,800"
                       VirtualizingPanel.CacheLengthUnit="Pixel"
                       ScrollViewer.CanContentScroll="True">
-                <DataGrid.InputBindings>
+                <DataGrid.InputBindings Style="{StaticResource DataGridStyle}">
                     <MouseBinding MouseAction="LeftDoubleClick"
                                   Command="{Binding OpenCommand}"
                                   CommandParameter="{Binding SelectedItem,
                                       RelativeSource={RelativeSource
                                           AncestorType=DataGrid}}"/>
                 </DataGrid.InputBindings>
-                <DataGrid.Columns>
+                <DataGrid.Columns Style="{StaticResource DataGridStyle}">
                     <DataGridTextColumn Header="{DynamicResource God.DnNumber}"
                                         Binding="{Binding DeliveryNoteId}"
                                         Width="150"/>
@@ -170,7 +170,7 @@
                             <DataTemplate>
                                 <Button Content="{DynamicResource God.Open}"
                                         Cursor="Hand"
-                                        FontSize="{StaticResource TextBody}"
+                                        FontSize="{DynamicResource FontSize.Body}"
                                         Padding="10,3"
                                         BorderThickness="{DynamicResource Border.NoneThickness}"
                                         Background="{DynamicResource AccentBrush}"
@@ -178,7 +178,7 @@
                                         Command="{Binding DataContext.OpenCommand,
                                                     RelativeSource={RelativeSource
                                                         AncestorType=DataGrid}}"
-                                        CommandParameter="{Binding}"/>
+                                        CommandParameter="{Binding}" Style="{StaticResource SecondaryButtonStyle}"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>

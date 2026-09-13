@@ -25,8 +25,8 @@
         <!-- ── FILENAME TEXTBOX — rounded, indigo focus glow ───────────── -->
         <Style x:Key="FileNameTextBoxStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.H3}"/>
+            <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
             <Setter Property="Padding" Value="14,10"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
@@ -39,7 +39,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
-                                CornerRadius="{DynamicResource Radius.Left.Medium}">
+                                CornerRadius="{DynamicResource Radius.Left.Medium}" Style="{StaticResource SurfacePrimaryStyle}">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           Margin="{TemplateBinding Padding}"
                                           VerticalAlignment="Center"/>
@@ -72,7 +72,7 @@
 
             <TextBox Grid.Column="0"
                      x:Name="FileNameTextBox"
-                     Style="{StaticResource FileNameTextBoxStyle}"
+                     Style="{StaticResource Input.TextBox}"
                      Text="{Binding FileName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
             <!-- Extension pill — right-attached to textbox -->
@@ -82,10 +82,10 @@
                     BorderThickness="{DynamicResource Border.BoxNoLeftThickness}"
                     CornerRadius="{DynamicResource Radius.Right.Medium}"
                     Padding="16,10"
-                    VerticalAlignment="Stretch">
+                    VerticalAlignment="Stretch" Style="{StaticResource SurfacePrimaryStyle}">
                 <TextBlock Text="{Binding Extension}"
-                           FontSize="{StaticResource TextSection}"
-                           FontWeight="Bold"
+                           FontSize="{DynamicResource FontSize.H3}"
+                           FontWeight="{DynamicResource Weight.Bold}"
                            VerticalAlignment="Center"
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
             </Border>
@@ -102,9 +102,9 @@
                 CornerRadius="{DynamicResource ControlCornerRadius}"
                 Background="{DynamicResource TintRedBrush}"
                 VerticalAlignment="Top"
-                Visibility="{Binding ValidationVisibility}">
+                Visibility="{Binding ValidationVisibility}" Style="{StaticResource SurfacePrimaryStyle}">
             <TextBlock Text="{Binding ValidationMessage}"
-                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                        TextWrapping="Wrap"
                        Foreground="{DynamicResource DangerBrush}"/>
         </Border>

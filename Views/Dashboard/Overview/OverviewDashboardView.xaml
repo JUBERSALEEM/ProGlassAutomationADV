@@ -56,7 +56,7 @@
                                          VerticalAlignment="Center"
                                          Fill="{DynamicResource SuccessBrush}"/>
                                 <TextBlock Text="{DynamicResource Common.Live}"
-                                           FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                                           FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
@@ -101,7 +101,7 @@
                         Visibility="{Binding HasError,
                             Converter={StaticResource BoolToVisibilityConverter}}">
                     <TextBlock Text="{Binding ErrorMessage}"
-                               FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
+                               FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap"
                                Foreground="{DynamicResource DangerBrush}"/>
                 </Border>
 

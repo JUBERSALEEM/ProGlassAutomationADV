@@ -40,9 +40,9 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="{DynamicResource Settings.SecData}" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="{DynamicResource Settings.SecData}" Style="{StaticResource Typography.H1}"/>
             <TextBlock Text="{DynamicResource Settings.ProtectProductionDataExploreSampleData}"
-                       Style="{StaticResource PageSubtitleStyle}"/>
+                       Style="{StaticResource Typography.Subtitle}"/>
         </StackPanel>
 
         <ScrollViewer Grid.Row="1"
@@ -59,9 +59,9 @@
                 <TextBlock Text="Company LAN / Wi-Fi Database"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="Connect all office workstations to one shared ProGlass data folder on the same network. Use a stable Windows/SMB shared folder, not a cloud-sync folder. Restart is required after changing this."
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                           Style="{StaticResource Typography.BodySmall}"/>
 
-                <Border Style="{StaticResource SettingsFullRowTileStyle}" Margin="0,0,0,10">
+                <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,10">
                     <StackPanel>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -71,13 +71,13 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
-                                <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                    <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE968;"/>
-                                    <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{Binding DataRootModeDisplay}"/>
+                                <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE968;"/>
+                                    <TextBlock Style="{StaticResource Typography.Title}" Text="{Binding DataRootModeDisplay}"/>
                                 </StackPanel>
                                 <CheckBox Content="Use shared company database folder"
                                           IsChecked="{Binding UseSharedDataRoot, Mode=TwoWay}"
-                                          FontWeight="SemiBold"
+                                          FontWeight="{DynamicResource Weight.SemiBold}"
                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                           Margin="0,8,0,0"/>
                                 <CheckBox Content="Copy current local data if shared folder is empty"
@@ -85,27 +85,27 @@
                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
                                           Margin="0,8,0,0"/>
                                 <TextBlock Text="Current live root:"
-                                           Style="{StaticResource SettingsTileFooterHintStyle}"
+                                           Style="{StaticResource Typography.Caption}"
                                            Margin="0,10,0,0"/>
                                 <TextBlock Text="{Binding CurrentDataRootDisplay}"
-                                           FontSize="{StaticResource TextCaption}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
                                            Foreground="{DynamicResource AccentBrush}"
                                            TextWrapping="Wrap"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="Shared folder path (UNC recommended: \\SERVER\ProGlassData)"
-                                           Style="{StaticResource SettingsTileCaptionStyle}"/>
+                                           Style="{StaticResource Typography.BodySmall}"/>
                                 <TextBox Text="{Binding SharedDataRootPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          Padding="10,7"
-                                         FontSize="{StaticResource TextBody}"
-                                         ToolTip="Example: \\Office-PC\ProGlassData or Z:\ProGlassData"/>
+                                         FontSize="{DynamicResource FontSize.Body}"
+                                         ToolTip="Example: \\Office-PC\ProGlassData or Z:\ProGlassData" Style="{StaticResource TextBoxStyle}"/>
                                 <TextBlock Text="Workstation name for support/audit"
-                                           Style="{StaticResource SettingsTileCaptionStyle}"
+                                           Style="{StaticResource Typography.BodySmall}"
                                            Margin="0,8,0,0"/>
                                 <TextBox Text="{Binding WorkstationName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          Padding="10,7"
-                                         FontSize="{StaticResource TextBody}"/>
+                                         FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
 
                                 <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}" Margin="0,10,0,0">
                                     <Button Style="{StaticResource SettingsActionButtonStyle}"
@@ -129,34 +129,34 @@
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                 Padding="10,8"
-                                Margin="0,12,0,0">
+                                Margin="0,12,0,0" Style="{StaticResource SurfacePrimaryStyle}">
                             <TextBlock Text="{Binding NetworkDataRootStatus}"
                                        TextWrapping="Wrap"
-                                       FontSize="{StaticResource TextBody}"
-                                       FontWeight="SemiBold"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource WarningBrush}"/>
                         </Border>
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+                <Border Style="{StaticResource SurfaceDetailStyle}"/>
 
                 <!-- ═══════ GROUP: BACKUP & RESTORE ═══════ -->
                 <TextBlock Text="{DynamicResource Settings.BackupRestore}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.BackupSetCopiesDatabaseSettingsOne}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                           Style="{StaticResource Typography.BodySmall}"/>
 
                 <UniformGrid Columns="3" Margin="0,0,0,6">
 
                     <!-- Backup actions tile -->
-                    <Border Style="{StaticResource SettingsTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE74E;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.BackupActions}"/>
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE74E;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.BackupActions}"/>
                             </StackPanel>
-                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                            <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.CreateBackupSetNowRefreshListOpenFolderWhere}"/>
                             <StackPanel>
                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
@@ -178,33 +178,33 @@
                     </Border>
 
                     <!-- Restore tile -->
-                    <Border Style="{StaticResource SettingsTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE895;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource ProformaInvoice.Restore}"/>
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE895;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource ProformaInvoice.Restore}"/>
                             </StackPanel>
-                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                            <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.RestoreAlwaysSnapshotsCurrentDataFirstBad}"/>
                             <Button Style="{StaticResource SuccessPillButton}"
                                     Tag="&#xE895;" Content="{DynamicResource Settings.RestoreSelectedBackup}"
                                     Command="{Binding RestoreSelectedBackupCommand}"
                                     HorizontalAlignment="Stretch"/>
                             <TextBlock Text="{Binding BackupStatus}"
-                                       Style="{StaticResource SettingsTileFooterHintStyle}"
-                                       FontWeight="SemiBold"
+                                       Style="{StaticResource Typography.Caption}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Backup sets list (wide tile) -->
-                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8F7;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.BackupSets}"/>
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F7;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.BackupSets}"/>
                             </StackPanel>
-                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                            <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.PickSetRestoreSelectingEnoughRestoreButton}"/>
                             <ListBox ItemsSource="{Binding BackupSets}"
                                      SelectedItem="{Binding SelectedBackup}"
@@ -216,13 +216,13 @@
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal" Margin="2">
                                             <TextBlock Text="&#xE968;"
-                                                       FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="{StaticResource TextBody}"
+                                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                                       FontSize="{DynamicResource FontSize.Body}"
                                                        Margin="0,0,8,0"
                                                        VerticalAlignment="Center"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                        IsHitTestVisible="False"/>
-                                            <TextBlock VerticalAlignment="Center" FontSize="{StaticResource TextBody}"
+                                            <TextBlock VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
                                                        IsHitTestVisible="False">
                                                 <Run Text="{Binding CreatedAt, Mode=OneWay,
                                                              StringFormat='dd MMM yyyy  HH:mm'}"/>
@@ -240,22 +240,22 @@
 
                 </UniformGrid>
 
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+                <Border Style="{StaticResource SurfaceDetailStyle}"/>
 
                 <!-- ═══════ GROUP: SAMPLE DATA ═══════ -->
                 <TextBlock Text="{DynamicResource Settings.SampleDATA}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.NewHereLoadSmallLinkedDemoDatasetExplore}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                           Style="{StaticResource Typography.BodySmall}"/>
 
                 <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8A5;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.ExploreSampleData}"/>
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A5;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.ExploreSampleData}"/>
                             </StackPanel>
-                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                            <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.6Sheets3Proformas2JobOrders2DeliveryNotes3}"/>
                             <!-- Full-width action row: buttons stretch evenly
                                  across the whole card. -->
@@ -272,13 +272,13 @@
                                         Margin="0"
                                         ToolTip="{DynamicResource Settings.PermanentlyDeleteRecordModulesEGAfterTesting}"/>
                             </UniformGrid>
-                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
+                            <TextBlock Style="{StaticResource Typography.Caption}"
                                        Text="{DynamicResource Settings.DoneTestingUseClearDATAWipeDemoDatasetOne}"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
 
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+                <Border Style="{StaticResource SurfaceDetailStyle}"/>
 
                 <!-- ═══════ GROUP: DATABASE HEALTH ═══════
                      Diagnostics + emergency rebuild. Probes every
@@ -288,17 +288,17 @@
                 <TextBlock Text="{DynamicResource Settings.DatabaseHealth}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.ProbesProglassAutomationDatabaseFileAuto}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                           Style="{StaticResource Typography.BodySmall}"/>
 
                 <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
 
                             <!-- License status strip (compact — full card lives on the About page) -->
                             <Border Padding="10,8"
                                     CornerRadius="{DynamicResource CardCornerRadius}"
                                     Background="{DynamicResource SurfaceTertiaryBrush}"
-                                    Margin="0,0,0,10">
+                                    Margin="0,0,0,10" Style="{StaticResource SurfacePrimaryStyle}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
@@ -306,18 +306,18 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0"
                                                Text="&#xE73E;"
-                                               FontFamily="Segoe MDL2 Assets"
-                                               FontSize="{StaticResource TextBodyLarge}"
+                                               FontFamily="{DynamicResource FontFamily.Icon}"
+                                               FontSize="{DynamicResource FontSize.Title}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,8,0"
                                                Foreground="{DynamicResource AccentBrush}"/>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold">
+                                        <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}">
                                             <Run Text="{DynamicResource About.License}"/>
                                             <Run Text="{Binding LicenseStatus.StatusBadge, Mode=OneWay}"/>
                                         </TextBlock>
                                         <TextBlock Text="{Binding LicenseStatus.StatusDescription}"
-                                                   FontSize="{StaticResource TextCaption}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                                    TextWrapping="Wrap"
                                                    Margin="0,2,0,0"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -357,20 +357,20 @@
                                                 <ColumnDefinition Width="80"/>
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="{StaticResource TextBody}"
+                                            <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
                                                        Text="{Binding DisplayName}"
                                                        TextTrimming="CharacterEllipsis"/>
-                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="{StaticResource TextBody}"
+                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                        Text="{Binding Status}"/>
-                                            <TextBlock Grid.Column="2" VerticalAlignment="Center" FontSize="{StaticResource TextBody}"
+                                            <TextBlock Grid.Column="2" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
                                                        Text="{Binding TotalRowsDisplay}"
                                                        TextAlignment="Right"/>
-                                            <TextBlock Grid.Column="3" VerticalAlignment="Center" FontSize="{StaticResource TextBody}"
+                                            <TextBlock Grid.Column="3" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                        Text="{Binding FileSizeDisplay}"
                                                        TextAlignment="Right"/>
-                                            <TextBlock Grid.Column="4" VerticalAlignment="Center" FontSize="{StaticResource TextCaption}"
+                                            <TextBlock Grid.Column="4" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.BodySmall}"
                                                        TextWrapping="Wrap"
                                                        Margin="8,0,0,0"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -381,8 +381,8 @@
                             </ListBox>
 
                             <TextBlock Text="{Binding DatabaseHealthStatus}"
-                                       Style="{StaticResource SettingsTileFooterHintStyle}"
-                                       FontWeight="SemiBold"
+                                       Style="{StaticResource Typography.Caption}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource AccentBrush}"/>
                         </StackPanel>
                     </Border>

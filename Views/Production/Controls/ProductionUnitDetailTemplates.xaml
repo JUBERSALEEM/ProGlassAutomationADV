@@ -13,16 +13,16 @@
                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
-                    Padding="12,10">
+                    Padding="12,10" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding OuterGridTitle}" FontSize="{StaticResource TextSubhead}"
-                                   FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"
+                        <TextBlock Text="{Binding OuterGridTitle}" FontSize="{DynamicResource FontSize.H3}"
+                                   FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"
                                    VerticalAlignment="Center"/>
                         <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}"
-                                Padding="10,3" Margin="10,0,0,0" VerticalAlignment="Center">
+                                Padding="10,3" Margin="10,0,0,0" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
                             <TextBlock Text="{Binding OuterStageItems.Count, StringFormat={}{0} rows}"
-                                       FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextTertiaryBrush}"/>
                         </Border>
                     </StackPanel>
@@ -70,9 +70,9 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="{Binding RowIndex}" Style="{StaticResource LineItemsSerialStyle}"/>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="6,0" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding SerialLabel}" FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                                            <TextBlock Text="{Binding SerialLabel}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                        Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                            <TextBlock Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}"
+                                            <TextBlock Text="{Binding GlassRef}" FontSize="{DynamicResource FontSize.Body}"
                                                        Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
@@ -85,7 +85,7 @@
                                                  IsEnabled="{Binding CanWork}"
                                                  ToolTip="Done pieces (cannot exceed TOTAL)"/>
                                         <TextBlock Grid.Column="7" Text="{Binding BalanceLabel}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                                   Foreground="{DynamicResource WarningBrush}" FontWeight="SemiBold"/>
+                                                   Foreground="{DynamicResource WarningBrush}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
@@ -105,16 +105,16 @@
                                 <ColumnDefinition Width="0.78*"/>
                                 <ColumnDefinition Width="0.72*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="1" Text="TOTALS" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                            <TextBlock Grid.Column="1" Text="TOTALS" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Left"
                                        VerticalAlignment="Center" Margin="6,0,0,0"/>
                             <TextBlock Grid.Column="4" Text="{Binding OuterTotalSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                       FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Grid.Column="5" Text="{Binding OuterQtySum}" Style="{StaticResource LineItemsReadonlyStyle}"/>
                             <TextBlock Grid.Column="6" Text="{Binding OuterDoneSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                       FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
                             <TextBlock Grid.Column="7" Text="{Binding OuterBalanceSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                       FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
                         </Grid>
                     </Border>
                 </StackPanel>
@@ -126,15 +126,15 @@
                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
-                    Padding="12,10">
+                    Padding="12,10" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="INNER" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                        <TextBlock Text="INNER" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                         <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}"
-                                Padding="10,3" Margin="10,0,0,0" VerticalAlignment="Center">
+                                Padding="10,3" Margin="10,0,0,0" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
                             <TextBlock Text="{Binding InnerStageItems.Count, StringFormat={}{0} rows}"
-                                       FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextTertiaryBrush}"/>
                         </Border>
                     </StackPanel>
@@ -180,9 +180,9 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="{Binding RowIndex}" Style="{StaticResource LineItemsSerialStyle}"/>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="6,0" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding SerialLabel}" FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                                            <TextBlock Text="{Binding SerialLabel}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                        Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                            <TextBlock Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}"
+                                            <TextBlock Text="{Binding GlassRef}" FontSize="{DynamicResource FontSize.Body}"
                                                        Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
@@ -195,7 +195,7 @@
                                                  IsEnabled="{Binding CanWork}"
                                                  ToolTip="Done pieces (cannot exceed TOTAL)"/>
                                         <TextBlock Grid.Column="7" Text="{Binding BalanceLabel}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                                   Foreground="{DynamicResource WarningBrush}" FontWeight="SemiBold"/>
+                                                   Foreground="{DynamicResource WarningBrush}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
@@ -214,16 +214,16 @@
                                 <ColumnDefinition Width="0.78*"/>
                                 <ColumnDefinition Width="0.72*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="1" Text="TOTALS" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                            <TextBlock Grid.Column="1" Text="TOTALS" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Left"
                                        VerticalAlignment="Center" Margin="6,0,0,0"/>
                             <TextBlock Grid.Column="4" Text="{Binding InnerTotalSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                       FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Grid.Column="5" Text="{Binding InnerQtySum}" Style="{StaticResource LineItemsReadonlyStyle}"/>
                             <TextBlock Grid.Column="6" Text="{Binding InnerDoneSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                       FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
                             <TextBlock Grid.Column="7" Text="{Binding InnerBalanceSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                       FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
                         </Grid>
                     </Border>
                 </StackPanel>

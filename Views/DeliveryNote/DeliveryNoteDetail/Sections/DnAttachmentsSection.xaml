@@ -20,7 +20,7 @@
                     Background="Transparent"
                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}"
-                    SnapsToDevicePixels="True">
+                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -43,11 +43,11 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="{Binding SelectedDnHeaderText}"
-                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource OnAccentForegroundBrush}"
                                            TextTrimming="CharacterEllipsis"/>
                                 <TextBlock Text="{DynamicResource DeliveryNote.PhotosSignedCopies}"
-                                           FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
+                                           FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
                                            Margin="0,2,0,0"/>
                             </StackPanel>
                             <Button Grid.Column="1"
@@ -65,8 +65,8 @@
                     </Border>
 
                     <Border Grid.Row="1"
-                            Style="{StaticResource DifferentDnWarningStyle}">
-                        <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                            Style="{StaticResource SurfaceSecondaryStyle}">
+                        <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                    TextWrapping="Wrap">
                             <Run Text="{DynamicResource DeliveryNote.ViewingAttachmentsDifferentDN}"/>
@@ -85,16 +85,16 @@
                                     Visibility="{Binding HasNoAttachments,
                                                  Converter={StaticResource BoolToVisibilityConverter}}">
                                 <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="&#xE723;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplay}"
+                                    <TextBlock Text="&#xE723;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Kpi}"
                                                HorizontalAlignment="Center"
                                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                                     <TextBlock Text="{DynamicResource DeliveryNote.NoAttachmentsYet}"
-                                               FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
+                                               FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                HorizontalAlignment="Center"
                                                Margin="0,8,0,4"
                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{DynamicResource DeliveryNote.UploadPhotosSignedDeliveryCopies}"
-                                               FontSize="{StaticResource TextBody}" HorizontalAlignment="Center"
+                                               FontSize="{DynamicResource FontSize.Body}" HorizontalAlignment="Center"
                                                TextAlignment="Center" TextWrapping="Wrap"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 </StackPanel>
@@ -107,7 +107,7 @@
                                         <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Margin="0,4" Padding="12,10"
                                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Background="{DynamicResource SurfaceTertiaryBrush}"
-                                                SnapsToDevicePixels="True">
+                                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="48"/>
@@ -120,14 +120,14 @@
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Background="{DynamicResource SurfacePrimaryBrush}"
                                                         ClipToBounds="True"
-                                                        VerticalAlignment="Center">
+                                                        VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
                                                     <Grid>
                                                         <Image Source="{Binding Preview}"
                                                                Stretch="UniformToFill"
                                                                Visibility="{Binding IsImage,
                                                                    Converter={StaticResource BoolToVisibilityConverter}}"/>
                                                         <TextBlock Text="{Binding TypeIcon}"
-                                                                   FontSize="{StaticResource TextHeadline}"
+                                                                   FontSize="{DynamicResource FontSize.H1}"
                                                                    HorizontalAlignment="Center"
                                                                    VerticalAlignment="Center"
                                                                    Visibility="{Binding IsPdf,
@@ -138,10 +138,10 @@
                                                             VerticalAlignment="Center"
                                                             Margin="10,0,10,0">
                                                     <TextBlock Text="{Binding FileName}"
-                                                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                                TextTrimming="CharacterEllipsis"
                                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                                    <TextBlock FontSize="{StaticResource TextBody}" Margin="0,2,0,0"
+                                                    <TextBlock FontSize="{DynamicResource FontSize.Body}" Margin="0,2,0,0"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}">
                                                         <Run Text="{Binding FileSizeDisplay, Mode=OneWay}"/>
                                                         <Run Text="  ·  "/>

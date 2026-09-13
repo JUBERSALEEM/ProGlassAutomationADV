@@ -32,7 +32,7 @@
         <TextBlock x:Name="EmptyText"
                    Visibility="Collapsed"
                    Text="{DynamicResource ProformaInvoice.NoVersionsRecordedYet}"
-                   FontSize="{StaticResource TextBody}" FontStyle="Italic"
+                   FontSize="{DynamicResource FontSize.Body}" FontStyle="Italic"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
                    Foreground="{DynamicResource TextTertiaryBrush}"/>
@@ -45,7 +45,7 @@
                         <Border CornerRadius="{DynamicResource CardCornerRadius}"
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                                Padding="2,10">
+                                Padding="2,10" Style="{StaticResource SurfacePrimaryStyle}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -57,9 +57,9 @@
                                         Width="40" Height="40"
                                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                                         Background="{DynamicResource TintIndigoBrush}"
-                                        VerticalAlignment="Center">
+                                        VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
                                     <TextBlock Text="{Binding VersionNo}"
-                                               FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                               FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource AccentBrush}"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center"/>
@@ -68,7 +68,7 @@
                                 <StackPanel Grid.Column="1"
                                             Margin="12,0"
                                             VerticalAlignment="Center">
-                                    <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                    <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                TextWrapping="Wrap"
                                                Foreground="{DynamicResource TextPrimaryBrush}">
                                         <Run Text="{DynamicResource About.Version}"/>
@@ -76,7 +76,7 @@
                                         <Run Text=" — "/>
                                         <Run Text="{Binding Summary, Mode=OneWay}"/>
                                     </TextBlock>
-                                    <TextBlock FontSize="{StaticResource TextBody}" Margin="0,2,0,0"
+                                    <TextBlock FontSize="{DynamicResource FontSize.Body}" Margin="0,2,0,0"
                                                TextWrapping="Wrap"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}">
                                         <Run Text="{Binding TimestampLocal, Mode=OneWay}"/>
@@ -87,7 +87,7 @@
 
                                 <Button Grid.Column="2"
                                         Content="{DynamicResource ProformaInvoice.Restore}"
-                                        FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                         Padding="14,6"
                                         Cursor="Hand"
                                         BorderThickness="{DynamicResource Border.NoneThickness}"
@@ -95,7 +95,7 @@
                                         Foreground="{DynamicResource OnAccentForegroundBrush}"
                                         VerticalAlignment="Center"
                                         Click="OnRestoreClick"
-                                        Tag="{Binding}"/>
+                                        Tag="{Binding}" Style="{StaticResource SecondaryButtonStyle}"/>
                             </Grid>
                         </Border>
                     </DataTemplate>

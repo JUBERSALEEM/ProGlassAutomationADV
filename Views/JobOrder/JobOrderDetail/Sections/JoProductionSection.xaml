@@ -51,11 +51,11 @@
         <!-- Section header -->
         <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
             <TextBlock Text="{DynamicResource JobOrder.ProductionDetails}"
-                       Style="{StaticResource SectionTitleStyle}"
+                       Style="{StaticResource Typography.H2}"
                        VerticalAlignment="Center"
                        Margin="0,0,10,0"/>
             <TextBlock Text="{DynamicResource JobOrder.StatusPriorityDeliveryShopFloorInstructions}"
-                       FontSize="{StaticResource TextBody}"
+                       FontSize="{DynamicResource FontSize.Body}"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                        TextWrapping="Wrap"
                        VerticalAlignment="Center"/>
@@ -69,15 +69,15 @@
                 Background="{DynamicResource TintAmberBrush}"
                 CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,10"
                 Margin="0,0,0,10"
-                Visibility="{Binding BodyLockBannerVisibility}">
+                Visibility="{Binding BodyLockBannerVisibility}" Style="{StaticResource SurfacePrimaryStyle}">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="&#xE72E;" FontFamily="Segoe MDL2 Assets"
-                           FontSize="{StaticResource TextBodyLarge}"
+                <TextBlock Text="&#xE72E;" FontFamily="{DynamicResource FontFamily.Icon}"
+                           FontSize="{DynamicResource FontSize.Title}"
                            Foreground="{DynamicResource WarningBrush}"
                            VerticalAlignment="Center" Margin="0,0,10,0"/>
                 <TextBlock Text="{DynamicResource Lock.PostedBodyLocked}"
                            TextWrapping="Wrap"
-                           FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                            Foreground="{DynamicResource TextPrimaryBrush}"
                            VerticalAlignment="Center"/>
             </StackPanel>
@@ -88,7 +88,7 @@
         <WrapPanel>
 
             <!-- Status (workflow control — always visible) -->
-            <Border Style="{StaticResource JoFieldTileStyle}">
+            <Border Style="{StaticResource SurfaceDetailStyle}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Common.Status}" Style="{StaticResource JoCompactLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding StatusOptions}"
@@ -98,7 +98,7 @@
             </Border>
 
             <!-- Priority -->
-            <Border Style="{StaticResource JoFieldTileStyle}"
+            <Border Style="{StaticResource SurfaceDetailStyle}"
                     IsEnabled="{Binding IsBodyEditable}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Common.Priority}" Style="{StaticResource JoCompactLabelStyle}"/>
@@ -109,7 +109,7 @@
             </Border>
 
             <!-- Delivery date -->
-            <Border Style="{StaticResource JoFieldTileStyle}"
+            <Border Style="{StaticResource SurfaceDetailStyle}"
                     IsEnabled="{Binding IsBodyEditable}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource JobOrder.DeliveryDATE}" Style="{StaticResource JoCompactLabelStyle}"/>
@@ -119,7 +119,7 @@
             </Border>
 
             <!-- Assigned to (optional) -->
-            <Border Style="{StaticResource JoFieldTileStyle}"
+            <Border Style="{StaticResource SurfaceDetailStyle}"
                     IsEnabled="{Binding IsBodyEditable}"
                     Visibility="{Binding Path=ShowAssignedTo,
                         Source={x:Static features:JobOrderFieldVisibility.Instance},
@@ -132,7 +132,7 @@
             </Border>
 
             <!-- Site delivery contact (optional) -->
-            <Border Style="{StaticResource JoFieldTileStyle}"
+            <Border Style="{StaticResource SurfaceDetailStyle}"
                     IsEnabled="{Binding IsBodyEditable}"
                     Visibility="{Binding Path=ShowSiteDeliveryContact,
                         Source={x:Static features:JobOrderFieldVisibility.Instance},
@@ -145,7 +145,7 @@
             </Border>
 
             <!-- Site delivery phone (optional) -->
-            <Border Style="{StaticResource JoFieldTileStyle}"
+            <Border Style="{StaticResource SurfaceDetailStyle}"
                     IsEnabled="{Binding IsBodyEditable}"
                     Visibility="{Binding Path=ShowSiteDeliveryPhone,
                         Source={x:Static features:JobOrderFieldVisibility.Instance},
@@ -160,7 +160,7 @@
             </Border>
 
             <!-- Drawing reference (optional) -->
-            <Border Style="{StaticResource JoFieldTileStyle}"
+            <Border Style="{StaticResource SurfaceDetailStyle}"
                     IsEnabled="{Binding IsBodyEditable}"
                     Visibility="{Binding Path=ShowDrawingReference,
                         Source={x:Static features:JobOrderFieldVisibility.Instance},
@@ -173,7 +173,7 @@
             </Border>
 
             <!-- Site delivery address (optional, wide) -->
-            <Border Style="{StaticResource JoFieldTileStyle}"
+            <Border Style="{StaticResource SurfaceDetailStyle}"
                     MinWidth="300" MaxWidth="460"
                     IsEnabled="{Binding IsBodyEditable}"
                     Visibility="{Binding Path=ShowSiteDeliveryAddress,
@@ -187,7 +187,7 @@
             </Border>
 
             <!-- Cutting instructions (optional, wide) -->
-            <Border Style="{StaticResource JoFieldTileStyle}"
+            <Border Style="{StaticResource SurfaceDetailStyle}"
                     MinWidth="300" MaxWidth="460"
                     IsEnabled="{Binding IsBodyEditable}"
                     Visibility="{Binding Path=ShowCuttingInstructions,
@@ -201,7 +201,7 @@
             </Border>
 
             <!-- Internal notes (optional, wide) -->
-            <Border Style="{StaticResource JoFieldTileStyle}"
+            <Border Style="{StaticResource SurfaceDetailStyle}"
                     MinWidth="300" MaxWidth="460"
                     IsEnabled="{Binding IsBodyEditable}"
                     Visibility="{Binding Path=ShowInternalNotes,
@@ -218,7 +218,7 @@
 
         <!-- Last edited / audit hint -->
         <TextBlock Text="{Binding LastEditedDisplay}"
-                   FontSize="{StaticResource TextCaption}" FontStyle="Italic"
+                   FontSize="{DynamicResource FontSize.BodySmall}" FontStyle="Italic"
                    Foreground="{DynamicResource TextTertiaryBrush}"
                    Margin="2,0,0,0"
                    IsHitTestVisible="False"/>

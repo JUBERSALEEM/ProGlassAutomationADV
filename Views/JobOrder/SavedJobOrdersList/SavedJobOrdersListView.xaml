@@ -14,149 +14,7 @@
              Loaded="OnLoaded">
 
     <UserControl.Resources>
-        <Style x:Key="JobListBoxItemStyle" TargetType="ListBoxItem"
-               BasedOn="{StaticResource ModuleListBoxItemStyle}"/>
-    </UserControl.Resources>
-
-    <Grid Background="Transparent">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-
-        <StackPanel Grid.Row="0" Margin="4,4,4,12">
-            <Grid Margin="4,0,4,12">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="{DynamicResource Dashboard.JobOrders}"
-                               Style="{StaticResource ModulePageTitleStyle}"/>
-                    <TextBlock Text="{DynamicResource JobOrder.TrackProductionApprovedInvoicesShopFloor}"
-                               Style="{StaticResource ModulePageSubtitleStyle}"/>
-                </StackPanel>
-                <Button Grid.Column="1"
-                        Style="{StaticResource PrimaryPillButton}"
-                        Command="{Binding CreateJobOrderCommand}"
-                        Tag="&#xE710;"
-                        Content="{DynamicResource JobOrder.CreateJOBOrder}"
-                        MinWidth="190"
-                        VerticalAlignment="Center"
-                        ToolTip="{DynamicResource JobOrder.RaiseJobOrderApprovedProformaInvoice}"/>
-            </Grid>
-
-            <loading:LoadingStateControl
-                    Visibility="{Binding IsLoading,
-                                 Converter={StaticResource BoolToVisibilityConverter}}"
-                    Message="Loading job orders…"
-                    Margin="4,0,4,12"/>
-
-            <Border Visibility="{Binding HasError,
-                                 Converter={StaticResource BoolToVisibilityConverter}}"
-                    Style="{StaticResource ModuleErrorBannerStyle}"
-                    Margin="4,0,4,12">
-                <TextBlock Text="{Binding ErrorMessage}"
-                           Foreground="{DynamicResource DangerBrush}"
-                           FontSize="{StaticResource TextBody}" TextWrapping="Wrap"/>
-            </Border>
-        </StackPanel>
-
-        <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="4,0,4,4">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <Border Grid.Row="0" Style="{StaticResource ModuleListKpiStripStyle}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Style="{StaticResource ModuleListKpiIconStyle}"
-                                    Background="{DynamicResource TintBlueBrush}">
-                                <TextBlock Text="&#xE8C8;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
-                                           Foreground="{DynamicResource AccentBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Common.Total}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding TotalCount}"
-                                           Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="{DynamicResource JobOrder.JobOrders}"
-                                           Style="{StaticResource ModuleListKpiHintStyle}"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
-
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Style="{StaticResource ModuleListKpiIconStyle}"
-                                    Background="{DynamicResource TintIndigoBrush}">
-                                <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
-                                           Foreground="{DynamicResource AccentBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Dashboard.Production}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding InProductionCount}"
-                                           Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="{DynamicResource JobOrder.ShopFloor}"
-                                           Style="{StaticResource ModuleListKpiHintStyle}"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
-
-                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Style="{StaticResource ModuleListKpiIconStyle}"
-                                    Background="{DynamicResource TintGreenBrush}">
-                                <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
-                                           Foreground="{DynamicResource SuccessBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource JobOrder.Completed}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding CompletedCount}"
-                                           Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="{DynamicResource JobOrder.FinishedJobs}"
-                                           Style="{StaticResource ModuleListKpiHintStyle}"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
-
-                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Style="{StaticResource ModuleListKpiIconStyle}"
-                                    Background="{DynamicResource TintRedBrush}">
-                                <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
-                                           Foreground="{DynamicResource DangerBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Common.Overdue}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding OverdueCount}">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock" BasedOn="{StaticResource ModuleListKpiValueStyle}">
-                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding OverdueCount}" Value="0">
-                                                    <Setter Property="Foreground"
-                                                            Value="{DynamicResource TextTertiaryBrush}"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
+        
                                     </TextBlock.Style>
                                 </TextBlock>
                                 <TextBlock Text="{DynamicResource JobOrder.PastDeliveryDate}"
@@ -243,7 +101,7 @@
 
                 <Grid Grid.Row="3">
                     <ListBox ItemsSource="{Binding DisplayedJobs}"
-                             ItemContainerStyle="{StaticResource JobListBoxItemStyle}"
+                             ItemContainerStyle="{StaticResource SurfacePrimaryStyle}"
                              BorderThickness="{DynamicResource Border.NoneThickness}"
                              Background="Transparent"
                              Focusable="False"
@@ -287,7 +145,7 @@
 
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,8,8,8">
                                             <TextBlock Text="{Binding JobOrderId}"
-                                                       FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                                       FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                                                 <Border Background="{DynamicResource TintGrayBrush}"
@@ -295,9 +153,9 @@
                                                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="8,2"
-                                                        Margin="0,0,6,0">
+                                                        Margin="0,0,6,0" Style="{StaticResource SurfacePrimaryStyle}">
                                                     <TextBlock Text="{Binding ProjectName}"
-                                                               FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                                                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                                Foreground="{DynamicResource TextPrimaryBrush}"
                                                                TextTrimming="CharacterEllipsis"
                                                                MaxWidth="140"/>
@@ -307,8 +165,8 @@
                                                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="8,2"
-                                                        Margin="0,0,6,0">
-                                                    <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                                                        Margin="0,0,6,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                                Foreground="{DynamicResource AccentBrush}">
                                                         <Run Text="{DynamicResource Common.From}"/><Run Text="{Binding SourceProformaId, Mode=OneWay}"/>
                                                     </TextBlock>
@@ -327,7 +185,7 @@
                                                         </Style>
                                                     </Border.Style>
                                                     <TextBlock Text="{Binding OverdueDisplay}"
-                                                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                                Foreground="{DynamicResource DangerBrush}"/>
                                                 </Border>
                                             </StackPanel>
@@ -335,7 +193,7 @@
 
                                         <TextBlock Grid.Column="2"
                                                    Text="{Binding CustomerName}"
-                                                   FontSize="{StaticResource TextBody}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                                    VerticalAlignment="Center"
@@ -344,13 +202,13 @@
 
                                         <TextBlock Grid.Column="3"
                                                    Text="{Binding DeliveryDisplay}"
-                                                   FontSize="{StaticResource TextBody}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    VerticalAlignment="Center"/>
 
                                         <TextBlock Grid.Column="4"
                                                    Text="{Binding ProjectName}"
-                                                   FontSize="{StaticResource TextBody}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    VerticalAlignment="Center"
@@ -359,7 +217,7 @@
 
                                         <TextBlock Grid.Column="5"
                                                    Text="{Binding GrandTotalDisplay}"
-                                                   FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                                    VerticalAlignment="Center"
                                                    HorizontalAlignment="Right"
@@ -375,9 +233,9 @@
                                                     HorizontalAlignment="Center"
                                                     Background="{Binding StatusBrushKey,
                                                                  Converter={StaticResource BrushKeyConverter}}"
-                                                    ToolTip="{DynamicResource JobOrder.ProductionStatus}">
+                                                    ToolTip="{DynamicResource JobOrder.ProductionStatus}" Style="{StaticResource SurfacePrimaryStyle}">
                                                 <TextBlock Text="{Binding StatusLabel}"
-                                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                           FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                            Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                             </Border>
                                             <Border Margin="0,2,0,0"
@@ -386,9 +244,9 @@
                                                     HorizontalAlignment="Center"
                                                     Background="{Binding DisplayStatusBrushKey,
                                                                  Converter={StaticResource BrushKeyConverter}}"
-                                                    ToolTip="{DynamicResource JobOrder.DeliveryStatus}">
+                                                    ToolTip="{DynamicResource JobOrder.DeliveryStatus}" Style="{StaticResource SurfacePrimaryStyle}">
                                                 <TextBlock Text="{Binding DisplayStatus}"
-                                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                           FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                            Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                             </Border>
                                         </StackPanel>
@@ -399,9 +257,9 @@
                                                 VerticalAlignment="Center"
                                                 HorizontalAlignment="Center"
                                                 Background="{Binding PriorityBrushKey,
-                                                             Converter={StaticResource BrushKeyConverter}}">
+                                                             Converter={StaticResource BrushKeyConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
                                             <TextBlock Text="{Binding PriorityLabel}"
-                                                       FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                         </Border>
 

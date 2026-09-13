@@ -61,7 +61,7 @@
                                     <CheckBox IsChecked="{Binding RotationEnabled}" Margin="0,10,0,6"
                                               Foreground="{DynamicResource TextPrimaryBrush}">
                                         <TextBlock Text="Allow rotation (0° / 90° mix) — enabled by default for all pieces"
-                                                   TextWrapping="Wrap" FontSize="{StaticResource TextBody}"
+                                                   TextWrapping="Wrap" FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     </CheckBox>
 
@@ -78,7 +78,7 @@
                             </StackPanel>
 
                             <TextBlock Text="House defaults (floor-confirmed): 6mm glass → LM/RM/TM/BM 15mm, minimum breakout 15mm, kerf 3mm (4mm from 10mm). Every value is editable per run."
-                                       FontSize="{StaticResource TextCaption}" TextWrapping="Wrap"
+                                       FontSize="{DynamicResource FontSize.BodySmall}" TextWrapping="Wrap"
                                        Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,14,0,0"/>
                         </StackPanel>
                     </Border>

@@ -141,7 +141,7 @@
                                         Cursor="Hand"
                                         FocusVisualStyle="{x:Null}"
                                         ToolTip="{Binding Subtitle}">
-                                    <Button.Template>
+                                    <Button.Template Style="{StaticResource SecondaryButtonStyle}">
                                         <ControlTemplate TargetType="Button">
                                             <Border x:Name="Chip"
                                                     Background="Transparent"
@@ -154,17 +154,17 @@
                                                             Width="20" Height="20"
                                                             CornerRadius="{DynamicResource Radius.Medium}"
                                                             Background="{DynamicResource SurfaceTertiaryBrush}"
-                                                            Margin="0,0,6,0">
+                                                            Margin="0,0,6,0" Style="{StaticResource SurfacePrimaryStyle}">
                                                         <TextBlock x:Name="Num"
                                                                    Text="{Binding StationCode}"
-                                                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                    HorizontalAlignment="Center"
                                                                    VerticalAlignment="Center"/>
                                                     </Border>
                                                     <TextBlock x:Name="Lbl"
                                                                Text="{Binding RailLabel}"
-                                                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                VerticalAlignment="Center"/>
                                                 </StackPanel>
@@ -182,7 +182,7 @@
                                                     <Setter TargetName="Dot" Property="Background" Value="{DynamicResource AccentBrush}"/>
                                                     <Setter TargetName="Num" Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                                     <Setter TargetName="Lbl" Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-                                                    <Setter TargetName="Lbl" Property="FontWeight" Value="Bold"/>
+                                                    <Setter TargetName="Lbl" Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
                                                 </DataTrigger>
                                                 <Trigger Property="IsMouseOver" Value="True">
                                                     <Setter TargetName="Chip" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
@@ -197,7 +197,7 @@
 
                     <TextBlock Grid.Column="4"
                                Text="{Binding StepProgressText}"
-                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                VerticalAlignment="Center"/>
                 </Grid>

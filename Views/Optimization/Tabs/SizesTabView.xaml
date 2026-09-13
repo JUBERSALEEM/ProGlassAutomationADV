@@ -40,8 +40,8 @@
                                               SelectedItem="{Binding SelectedCuttingGroup}"
                                               Style="{StaticResource OptComboStyle}"
                                               ToolTip="Optimize one pane group at a time (outer / inner / …) against its own Step 4 sheet"/>
-                                    <TextBlock Grid.Column="2" Text="{Binding PieceSummary}" FontSize="{StaticResource TextBody}"
-                                               FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                    <TextBlock Grid.Column="2" Text="{Binding PieceSummary}" FontSize="{DynamicResource FontSize.Body}"
+                                               FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                 </Grid>
 
@@ -59,24 +59,24 @@
                                                         <ColumnDefinition Width="110"/>
                                                     </Grid.ColumnDefinitions>
                                                     <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                                        <TextBlock Text="{Binding Composition}" FontSize="{StaticResource TextBody}"
-                                                                   FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
-                                                        <TextBlock Text="{Binding Thickness}" FontSize="{StaticResource TextCaption}"
+                                                        <TextBlock Text="{Binding Composition}" FontSize="{DynamicResource FontSize.Body}"
+                                                                   FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
+                                                        <TextBlock Text="{Binding Thickness}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                                    Foreground="{DynamicResource AccentBrush}"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1">
                                                         <TextBlock Text="PIECES" Style="{StaticResource OptHeader}"/>
-                                                        <TextBlock Text="{Binding PieceCount}" FontSize="{StaticResource TextBody}"
+                                                        <TextBlock Text="{Binding PieceCount}" FontSize="{DynamicResource FontSize.Body}"
                                                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="2">
                                                         <TextBlock Text="SIZE ROWS" Style="{StaticResource OptHeader}"/>
-                                                        <TextBlock Text="{Binding SizeRows}" FontSize="{StaticResource TextBody}"
+                                                        <TextBlock Text="{Binding SizeRows}" FontSize="{DynamicResource FontSize.Body}"
                                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="3">
                                                         <TextBlock Text="AREA (M²)" Style="{StaticResource OptHeader}"/>
-                                                        <TextBlock Text="{Binding AreaM2}" FontSize="{StaticResource TextBody}"
+                                                        <TextBlock Text="{Binding AreaM2}" FontSize="{DynamicResource FontSize.Body}"
                                                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                     </StackPanel>
                                                 </Grid>
@@ -88,7 +88,7 @@
                                 <!-- cut plan -->
                                 <StackPanel Margin="0,14,0,0" Visibility="{Binding HasCutPlan, Converter={StaticResource BoolToVisibilityConverter}}">
                                     <TextBlock Text="CUT PLAN — PIECES AS THE SAW CUTS THEM" Style="{StaticResource OptHeader}" Margin="0,0,0,8"/>
-                                    <TextBlock Text="{Binding CutPlanNote}" FontSize="{StaticResource TextCaption}"
+                                    <TextBlock Text="{Binding CutPlanNote}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap" Margin="0,0,0,6"
                                                Visibility="{Binding HasCutPlanNote, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     <Grid Margin="0,0,0,6">
@@ -114,13 +114,13 @@
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="140"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <TextBlock Grid.Column="0" Text="{Binding Number}" FontSize="{StaticResource TextBody}"
+                                                        <TextBlock Grid.Column="0" Text="{Binding Number}" FontSize="{DynamicResource FontSize.Body}"
                                                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
-                                                        <TextBlock Grid.Column="1" Text="{Binding Ref}" FontSize="{StaticResource TextBody}"
+                                                        <TextBlock Grid.Column="1" Text="{Binding Ref}" FontSize="{DynamicResource FontSize.Body}"
                                                                    Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
-                                                        <TextBlock Grid.Column="2" Text="{Binding Composition}" FontSize="{StaticResource TextBody}"
+                                                        <TextBlock Grid.Column="2" Text="{Binding Composition}" FontSize="{DynamicResource FontSize.Body}"
                                                                    Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
-                                                        <TextBlock Grid.Column="3" Text="{Binding Size}" FontSize="{StaticResource TextBody}"
+                                                        <TextBlock Grid.Column="3" Text="{Binding Size}" FontSize="{DynamicResource FontSize.Body}"
                                                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                     </Grid>
                                                 </Border>

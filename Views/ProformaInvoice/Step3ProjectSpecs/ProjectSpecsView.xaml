@@ -45,7 +45,7 @@
                     <TextBox Text="{Binding ProjectIdentifierName, UpdateSourceTrigger=PropertyChanged}"
                              ToolTip="{DynamicResource ProformaInvoice.EGIMADHabib}" Margin="0,0,0,12"
                              AutomationProperties.AutomationId="ProformaInvoice.ProjectName"
-                             AutomationProperties.Name="Project name"/>
+                             AutomationProperties.Name="Project name" Style="{StaticResource TextBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Visibility="{Binding Path=ShowProjectReference,
@@ -56,7 +56,7 @@
                     <TextBox Text="{Binding ProjectReference, UpdateSourceTrigger=PropertyChanged}"
                              ToolTip="{DynamicResource ProformaInvoice.EGHouseIMADHabib}" Margin="0,0,0,12"
                              AutomationProperties.AutomationId="ProformaInvoice.ProjectReference"
-                             AutomationProperties.Name="Project reference"/>
+                             AutomationProperties.Name="Project reference" Style="{StaticResource TextBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Visibility="{Binding Path=ShowContractNo,
@@ -66,7 +66,7 @@
                     <TextBox Text="{Binding ProjectContractNo, UpdateSourceTrigger=PropertyChanged}"
                              ToolTip="{DynamicResource ProformaInvoice.EG428IMADHabib}" Margin="0,0,0,12"
                              AutomationProperties.AutomationId="ProformaInvoice.ContractNo"
-                             AutomationProperties.Name="Contract number"/>
+                             AutomationProperties.Name="Contract number" Style="{StaticResource TextBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Visibility="{Binding Path=ShowLpoNumber,
@@ -76,7 +76,7 @@
                     <TextBox Text="{Binding LpoNumber, UpdateSourceTrigger=PropertyChanged}"
                              ToolTip="{DynamicResource ProformaInvoice.EG2680}" Margin="0,0,0,12"
                              AutomationProperties.AutomationId="ProformaInvoice.LpoNumber"
-                             AutomationProperties.Name="LPO / PO number"/>
+                             AutomationProperties.Name="LPO / PO number" Style="{StaticResource TextBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Visibility="{Binding Path=ShowSiteDeliveryLocation,
@@ -86,7 +86,7 @@
                     <TextBox Text="{Binding SiteDeliveryLocation, UpdateSourceTrigger=PropertyChanged}"
                              ToolTip="{DynamicResource ProformaInvoice.EGAjman}" Margin="0,0,0,12"
                              AutomationProperties.AutomationId="ProformaInvoice.SiteDeliveryLocation"
-                             AutomationProperties.Name="Site / delivery location"/>
+                             AutomationProperties.Name="Site / delivery location" Style="{StaticResource TextBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
@@ -100,7 +100,7 @@
                             </Style.Triggers>
                         </Style>
                     </StackPanel.Style>
-                    <TextBlock Text="{Binding FilterBannerText}" FontSize="{StaticResource TextBody}"
+                    <TextBlock Text="{Binding FilterBannerText}" FontSize="{DynamicResource FontSize.Body}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
                     <Button Margin="12,0,0,0" Command="{Binding ClearClientFilterCommand}"
                             Style="{StaticResource PiViewAllLinkStyle}">
@@ -108,7 +108,7 @@
                     </Button>
                 </StackPanel>
 
-                <TextBlock Margin="0,12,0,0" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SuccessBrush}">
+                <TextBlock Margin="0,12,0,0" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SuccessBrush}">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -119,7 +119,7 @@
                             </Style.Triggers>
                         </Style>
                     </TextBlock.Style>
-                    <Run Text="{DynamicResource ProformaInvoice.Loaded}"/><Run Text="{Binding LoadedProfileName, Mode=OneWay}" FontWeight="Bold"/>
+                    <Run Text="{DynamicResource ProformaInvoice.Loaded}"/><Run Text="{Binding LoadedProfileName, Mode=OneWay}" FontWeight="{DynamicResource Weight.Bold}"/>
                 </TextBlock>
             </StackPanel>
         </ScrollViewer>
@@ -134,11 +134,11 @@
                 </StackPanel>
                 <Button HorizontalAlignment="Right" Command="{Binding RefreshCardsCommand}"
                         Style="{StaticResource PiIconButtonStyle}" ToolTip="{DynamicResource ProformaInvoice.RefreshSavedProjectsDatabase}">
-                    <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBodyLarge}"
+                    <TextBlock Text="&#xE72C;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Title}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </Button>
             </Grid>
-            <TextBlock DockPanel.Dock="Top" Text="{DynamicResource Common.Loading}" FontSize="{StaticResource TextBody}"
+            <TextBlock DockPanel.Dock="Top" Text="{DynamicResource Common.Loading}" FontSize="{DynamicResource FontSize.Body}"
                        Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,8">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
@@ -151,7 +151,7 @@
                     </Style>
                 </TextBlock.Style>
             </TextBlock>
-            <TextBlock DockPanel.Dock="Top" Text="{Binding CardsErrorMessage}" FontSize="{StaticResource TextBody}"
+            <TextBlock DockPanel.Dock="Top" Text="{Binding CardsErrorMessage}" FontSize="{DynamicResource FontSize.Body}"
                        Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap" Margin="0,0,0,8">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
@@ -165,7 +165,7 @@
                 </TextBlock.Style>
             </TextBlock>
             <TextBlock DockPanel.Dock="Top" Text="{DynamicResource ProformaInvoice.NoSavedProjectsYet}"
-                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap">
+                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -178,8 +178,8 @@
                 </TextBlock.Style>
             </TextBlock>
             <Button DockPanel.Dock="Bottom" HorizontalAlignment="Left" Margin="0,8,0,0"
-                    Command="{Binding ShowAllProjectsCommand}">
-                <Button.Style>
+                    Command="{Binding ShowAllProjectsCommand}" Style="{StaticResource SecondaryButtonStyle}">
+                <Button.Style Style="{StaticResource SecondaryButtonStyle}">
                     <Style TargetType="Button" BasedOn="{StaticResource PiViewAllLinkStyle}">
                         <Setter Property="Visibility" Value="Collapsed"/>
                         <Style.Triggers>
@@ -189,7 +189,7 @@
                         </Style.Triggers>
                     </Style>
                 </Button.Style>
-                <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" TextDecorations="Underline">
+                <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource AccentBrush}" TextDecorations="Underline">
                     <Run Text="{DynamicResource ProformaInvoice.View}"/><Run Text="{Binding TotalProjectCount, Mode=OneWay}"/><Run Text=")"/>
                 </TextBlock>
             </Button>
@@ -221,15 +221,15 @@
                                         <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="{Binding DisplayProjectName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                        <TextBlock Text="{Binding DisplayProjectName}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis">
+                                        <TextBlock FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis">
                                             <Run Text="{Binding ReferencePreview, Mode=OneWay}"/>
                                             <Run Text="  ·  "/>
                                             <Run Text="{Binding ProjectContractNo, Mode=OneWay}"/>
                                         </TextBlock>
                                     </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="{Binding UsageBadgeText}" FontSize="{StaticResource TextCaption}"
+                                    <TextBlock Grid.Column="1" Text="{Binding UsageBadgeText}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
                                 </Grid>
                             </Border>

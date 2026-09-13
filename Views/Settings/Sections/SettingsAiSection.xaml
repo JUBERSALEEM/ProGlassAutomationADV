@@ -41,9 +41,9 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="{DynamicResource Settings.SecAi}" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="{DynamicResource Settings.SecAi}" Style="{StaticResource Typography.H1}"/>
             <TextBlock Text="{DynamicResource Settings.ProvidersAPIKeysModelTuningDataAccess}"
-                       Style="{StaticResource PageSubtitleStyle}"/>
+                       Style="{StaticResource Typography.Subtitle}"/>
         </StackPanel>
 
         <ScrollViewer Grid.Row="1"
@@ -60,12 +60,12 @@
                 <TextBlock Text="{DynamicResource Settings.Assistant}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.MasterSwitchesTuningValuesUsedRequest}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                           Style="{StaticResource Typography.BodySmall}"/>
 
                 <UniformGrid Columns="3" Margin="0,0,0,6">
 
                     <!-- Master toggle -->
-                    <Border Style="{StaticResource SettingsTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -73,12 +73,12 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8F2;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.EnableAIAssistant}"/>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F2;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.EnableAIAssistant}"/>
                             </StackPanel>
                             <TextBlock Grid.Row="1"
-                                       Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.MasterSwitchWhenChatButtonHiddenNoAPICalls}"/>
                             <ToggleButton Grid.Row="3"
                                           HorizontalAlignment="Left"
@@ -88,7 +88,7 @@
                     </Border>
 
                     <!-- Real business data -->
-                    <Border Style="{StaticResource SettingsTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -96,12 +96,12 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE9F9;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.UseRealBusinessData}"/>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F9;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.UseRealBusinessData}"/>
                             </StackPanel>
                             <TextBlock Grid.Row="1"
-                                       Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.WhenLiveInvoiceJobDeliveryBalanceDataSent}"/>
                             <ToggleButton Grid.Row="3"
                                           HorizontalAlignment="Left"
@@ -111,64 +111,64 @@
                     </Border>
 
                     <!-- Model readout -->
-                    <Border Style="{StaticResource SettingsTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE9F5;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.ActiveModel}"/>
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.ActiveModel}"/>
                             </StackPanel>
                             <TextBlock Text="{Binding AiModel}"
-                                       Style="{StaticResource SettingsTileHeroStyle}"
+                                       Style="{StaticResource SurfaceKpiStyle}"
                                        TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
-                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
+                            <TextBlock Style="{StaticResource Typography.Caption}"
                                        Text="{DynamicResource Settings.ModelIdentifierCurrentlySelectedProvider}"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Max tokens -->
-                    <Border Style="{StaticResource SettingsTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE762;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.MaxTokens}"/>
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE762;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.MaxTokens}"/>
                             </StackPanel>
                             <TextBlock Text="{Binding AiMaxTokens}"
-                                       Style="{StaticResource SettingsTileHeroStyle}" TextWrapping="Wrap"/>
-                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
+                                       Style="{StaticResource SurfaceKpiStyle}" TextWrapping="Wrap"/>
+                            <TextBlock Style="{StaticResource Typography.Caption}"
                                        Text="{DynamicResource Settings.ResponseLengthCeilingCallAdjustConfigJsonNow}"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Temperature -->
-                    <Border Style="{StaticResource SettingsTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE706;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.Temperature}"/>
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE706;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.Temperature}"/>
                             </StackPanel>
                             <TextBlock Text="{Binding AiTemperature}"
-                                       Style="{StaticResource SettingsTileHeroStyle}" TextWrapping="Wrap"/>
-                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
+                                       Style="{StaticResource SurfaceKpiStyle}" TextWrapping="Wrap"/>
+                            <TextBlock Style="{StaticResource Typography.Caption}"
                                        Text="{DynamicResource Settings.HigherMoreCreativeLowerMoreDeterministicRead}"/>
                         </StackPanel>
                     </Border>
 
                 </UniformGrid>
 
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+                <Border Style="{StaticResource SurfaceDetailStyle}"/>
 
                 <!-- ═════════ GROUP: PROVIDERS ═════════ -->
                 <TextBlock Text="{DynamicResource Settings.Providers}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.ActiveProviderProcessesRequestsKeysEncrypted}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                           Style="{StaticResource Typography.BodySmall}"/>
 
                 <StackPanel Margin="0,0,0,6">
 
                     <!-- ── Gemini tile ─────────────────────────── -->
                     <Border>
                         <Border.Style>
-                            <Style TargetType="Border" BasedOn="{StaticResource SettingsTileStyle}">
+                            <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsGeminiActive}" Value="True">
                                         <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
@@ -188,17 +188,17 @@
                                              IsHitTestVisible="False"/>
                                     <StackPanel>
                                         <TextBlock Text="{DynamicResource Settings.GoogleGemini}"
-                                                   Style="{StaticResource SettingsTileTitleStyle}"/>
+                                                   Style="{StaticResource Typography.Title}"/>
                                         <TextBlock Text="{DynamicResource Settings.15ReqMin1500DayBestQuality}"
-                                                   FontSize="{StaticResource TextCaption}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    IsHitTestVisible="False"/>
                                     </StackPanel>
                                 </StackPanel>
                                 <Button DockPanel.Dock="Right"
                                         HorizontalAlignment="Right"
-                                        Command="{Binding SelectGeminiCommand}">
-                                    <Button.Style>
+                                        Command="{Binding SelectGeminiCommand}" Style="{StaticResource SecondaryButtonStyle}">
+                                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
                                         <Style TargetType="Button" BasedOn="{StaticResource ProviderSelectButtonStyle}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsGeminiActive}" Value="True">
@@ -212,22 +212,22 @@
                             </DockPanel>
 
                             <TextBlock Text="{DynamicResource Settings.APIKEY}"
-                                       Style="{StaticResource LabelStyle}"
+                                       Style="{StaticResource Typography.Label}"
                                        Margin="0,14,0,4"/>
                             <PasswordBox x:Name="GeminiKeyBox"
                                          Style="{StaticResource RoundedPasswordBoxStyle}"
                                          PasswordChanged="GeminiKeyBox_PasswordChanged"/>
                             <TextBlock Text="{DynamicResource Settings.GetKeyAistudioGoogleCom}"
-                                       Style="{StaticResource HintTextStyle}"
+                                       Style="{StaticResource Typography.BodySmall}"
                                        Margin="0,4,0,10"/>
                             <Button Style="{StaticResource PrimaryPillButton}"
                                     Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
                                     Command="{Binding TestGeminiCommand}"
                                     HorizontalAlignment="Stretch"
                                     Height="32"
-                                    FontSize="{StaticResource TextBody}"/>
+                                    FontSize="{DynamicResource FontSize.Body}"/>
                             <TextBlock Text="{Binding GeminiTestStatus}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        Margin="0,8,0,0"
                                        TextWrapping="Wrap"
@@ -238,7 +238,7 @@
                     <!-- ── Groq tile ───────────────────────────── -->
                     <Border>
                         <Border.Style>
-                            <Style TargetType="Border" BasedOn="{StaticResource SettingsTileStyle}">
+                            <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsGroqActive}" Value="True">
                                         <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
@@ -258,17 +258,17 @@
                                              IsHitTestVisible="False"/>
                                     <StackPanel>
                                         <TextBlock Text="{DynamicResource Settings.Groq}"
-                                                   Style="{StaticResource SettingsTileTitleStyle}"/>
+                                                   Style="{StaticResource Typography.Title}"/>
                                         <TextBlock Text="{DynamicResource Settings.FastLlamaGenerousFreeTier}"
-                                                   FontSize="{StaticResource TextCaption}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    IsHitTestVisible="False"/>
                                     </StackPanel>
                                 </StackPanel>
                                 <Button DockPanel.Dock="Right"
                                         HorizontalAlignment="Right"
-                                        Command="{Binding SelectGroqCommand}">
-                                    <Button.Style>
+                                        Command="{Binding SelectGroqCommand}" Style="{StaticResource SecondaryButtonStyle}">
+                                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
                                         <Style TargetType="Button" BasedOn="{StaticResource ProviderSelectButtonStyle}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsGroqActive}" Value="True">
@@ -282,22 +282,22 @@
                             </DockPanel>
 
                             <TextBlock Text="{DynamicResource Settings.APIKEY}"
-                                       Style="{StaticResource LabelStyle}"
+                                       Style="{StaticResource Typography.Label}"
                                        Margin="0,14,0,4"/>
                             <PasswordBox x:Name="GroqKeyBox"
                                          Style="{StaticResource RoundedPasswordBoxStyle}"
                                          PasswordChanged="GroqKeyBox_PasswordChanged"/>
                             <TextBlock Text="{DynamicResource Settings.GetKeyConsoleGroqCom}"
-                                       Style="{StaticResource HintTextStyle}"
+                                       Style="{StaticResource Typography.BodySmall}"
                                        Margin="0,4,0,10"/>
                             <Button Style="{StaticResource PrimaryPillButton}"
                                     Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
                                     Command="{Binding TestGroqCommand}"
                                     HorizontalAlignment="Stretch"
                                     Height="32"
-                                    FontSize="{StaticResource TextBody}"/>
+                                    FontSize="{DynamicResource FontSize.Body}"/>
                             <TextBlock Text="{Binding GroqTestStatus}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        Margin="0,8,0,0"
                                        TextWrapping="Wrap"
@@ -308,7 +308,7 @@
                     <!-- ── Cohere tile ─────────────────────────── -->
                     <Border>
                         <Border.Style>
-                            <Style TargetType="Border" BasedOn="{StaticResource SettingsTileStyle}">
+                            <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsCohereActive}" Value="True">
                                         <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
@@ -328,17 +328,17 @@
                                              IsHitTestVisible="False"/>
                                     <StackPanel>
                                         <TextBlock Text="{DynamicResource Settings.Cohere}"
-                                                   Style="{StaticResource SettingsTileTitleStyle}"/>
+                                                   Style="{StaticResource Typography.Title}"/>
                                         <TextBlock Text="{DynamicResource Settings.EnterpriseGradeCommandFamily}"
-                                                   FontSize="{StaticResource TextCaption}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    IsHitTestVisible="False"/>
                                     </StackPanel>
                                 </StackPanel>
                                 <Button DockPanel.Dock="Right"
                                         HorizontalAlignment="Right"
-                                        Command="{Binding SelectCohereCommand}">
-                                    <Button.Style>
+                                        Command="{Binding SelectCohereCommand}" Style="{StaticResource SecondaryButtonStyle}">
+                                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
                                         <Style TargetType="Button" BasedOn="{StaticResource ProviderSelectButtonStyle}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsCohereActive}" Value="True">
@@ -352,22 +352,22 @@
                             </DockPanel>
 
                             <TextBlock Text="{DynamicResource Settings.APIKEY}"
-                                       Style="{StaticResource LabelStyle}"
+                                       Style="{StaticResource Typography.Label}"
                                        Margin="0,14,0,4"/>
                             <PasswordBox x:Name="CohereKeyBox"
                                          Style="{StaticResource RoundedPasswordBoxStyle}"
                                          PasswordChanged="CohereKeyBox_PasswordChanged"/>
                             <TextBlock Text="{DynamicResource Settings.GetKeyDashboardCohereCom}"
-                                       Style="{StaticResource HintTextStyle}"
+                                       Style="{StaticResource Typography.BodySmall}"
                                        Margin="0,4,0,10"/>
                             <Button Style="{StaticResource PrimaryPillButton}"
                                     Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
                                     Command="{Binding TestCohereCommand}"
                                     HorizontalAlignment="Stretch"
                                     Height="32"
-                                    FontSize="{StaticResource TextBody}"/>
+                                    FontSize="{DynamicResource FontSize.Body}"/>
                             <TextBlock Text="{Binding CohereTestStatus}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        Margin="0,8,0,0"
                                        TextWrapping="Wrap"
@@ -376,17 +376,17 @@
                     </Border>
 
                     <!-- Config path (full-row tile) -->
-                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8B7;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.KeysFile}"/>
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.KeysFile}"/>
                             </StackPanel>
                             <TextBlock Text="{DynamicResource Settings.ProviderKeysEncryptedRestWindowsDpapiStored}"
-                                       Style="{StaticResource SettingsTileCaptionStyle}"/>
+                                       Style="{StaticResource Typography.BodySmall}"/>
                             <TextBlock Text="{Binding ConfigFilePath}"
-                                       FontSize="{StaticResource TextBody}"
-                                       FontFamily="Consolas, Courier New, monospace"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       FontFamily="{DynamicResource FontFamily.Code}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        TextTrimming="CharacterEllipsis"
                                        IsHitTestVisible="False"/>
@@ -395,18 +395,18 @@
 
                 </StackPanel>
 
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+                <Border Style="{StaticResource SurfaceDetailStyle}"/>
 
                 <!-- ═════════ GROUP: SECURITY ═════════ -->
                 <TextBlock Text="{DynamicResource Settings.Security}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.ControlKeyPersistenceWipeStoredConversation}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                           Style="{StaticResource Typography.BodySmall}"/>
 
                 <UniformGrid Columns="3" Margin="0,0,0,6">
 
                     <!-- Keep API keys saved -->
-                    <Border Style="{StaticResource SettingsTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -414,12 +414,12 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE72E;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.KeepKeysSaved}"/>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72E;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.KeepKeysSaved}"/>
                             </StackPanel>
                             <TextBlock Grid.Row="1"
-                                       Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.KeysHeldSessionKeysAlwaysEncryptedWindows}"/>
                             <ToggleButton Grid.Row="3"
                                           HorizontalAlignment="Left"
@@ -429,13 +429,13 @@
                     </Border>
 
                     <!-- Remove saved keys -->
-                    <Border Style="{StaticResource SettingsTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE74D;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.RemoveSavedKeys}"/>
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE74D;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.RemoveSavedKeys}"/>
                             </StackPanel>
-                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                            <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.DeleteProviderKeyDiskAssistantAskReEnterNext}"/>
                             <Button Style="{StaticResource DangerButton}"
                                     Tag="&#xE74D;" Content="{DynamicResource Settings.RemoveKEYS}"
@@ -445,13 +445,13 @@
                     </Border>
 
                     <!-- Clear AI memory -->
-                    <Border Style="{StaticResource SettingsTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE81C;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.ClearAIMemory}"/>
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE81C;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.ClearAIMemory}"/>
                             </StackPanel>
-                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                            <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.WipeStoredConversationHistoryAssistantUses}"/>
                             <Button Style="{StaticResource DangerButton}"
                                     Tag="&#xE74D;" Content="{DynamicResource Settings.ClearMemory}"

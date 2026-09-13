@@ -42,9 +42,9 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="{DynamicResource Settings.SecDemo}" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="{DynamicResource Settings.SecDemo}" Style="{StaticResource Typography.H1}"/>
             <TextBlock Text="{DynamicResource Settings.ModuleRecordsLiveWalkProductionStagesReports}"
-                       Style="{StaticResource PageSubtitleStyle}"
+                       Style="{StaticResource Typography.Subtitle}"
                        TextWrapping="Wrap"/>
         </StackPanel>
 
@@ -54,27 +54,27 @@
             <StackPanel Margin="32,0,32,32">
 
                 <!-- ═══════ GROUP: FFMPEG (conditional) ═══════ -->
-                <Border Style="{StaticResource SettingsFullRowTileStyle}"
+                <Border Style="{StaticResource SurfacePrimaryStyle}"
                         Visibility="{Binding IsFfmpegMissing,
                             Converter={StaticResource BoolToVisibilityConverter},
                             FallbackValue=Collapsed}">
                     <StackPanel>
-                        <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                            <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE7B8;"/>
-                            <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.Ffmpeg}"/>
+                        <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7B8;"/>
+                            <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.Ffmpeg}"/>
                         </StackPanel>
                         <TextBlock Text="{Binding FfmpegStatus}"
-                                   Style="{StaticResource SettingsTileCaptionStyle}"
-                                   FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                   Style="{StaticResource Typography.BodySmall}"
+                                   FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AccentBrush}"/>
-                        <TextBlock Style="{StaticResource SettingsTileCaptionStyle}">
+                        <TextBlock Style="{StaticResource Typography.BodySmall}">
                             <Run Text="{DynamicResource Settings.GenerateStartUntilFfmpegInstalledClick}"/>
                             <Run Text="{DynamicResource Settings.AppFetchesWindowsEssentialsZipChecksExtracts}"/>
                             <Run Text="{DynamicResource Settings.FfmpegExe}"/><Run Text="{DynamicResource Settings.And}"/><Run Text="{DynamicResource Settings.FfprobeExe}"/><Run Text="{DynamicResource Settings.ToolsFolderAutomaticallyThenRecheck}"/>
                         </TextBlock>
                         <TextBlock Text="{Binding FfmpegDownloadUrl}"
-                                   FontSize="{StaticResource TextBody}"
-                                   FontFamily="Consolas"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontFamily="{DynamicResource FontFamily.Code}"
                                    Foreground="{DynamicResource AccentBrush}"
                                    TextWrapping="Wrap"
                                    Margin="0,0,0,8"/>
@@ -96,14 +96,14 @@
                                          VerticalAlignment="Center"/>
                             <TextBlock Grid.Column="1"
                                        Margin="10,0,0,0"
-                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
                                        Text="{Binding FfmpegDownloadPercent, Mode=OneWay,
                                            StringFormat={}{0:0}%}"/>
                         </Grid>
                         <TextBlock Text="{Binding FfmpegInstallHint}"
-                                   Style="{StaticResource SettingsTileFooterHintStyle}"/>
+                                   Style="{StaticResource Typography.Caption}"/>
                         <!-- Full-width action row: buttons stretch evenly. -->
                         <UniformGrid Columns="5" Style="{StaticResource SettingsActionRowStyle}" Margin="0,12,0,0">
                             <Button Style="{StaticResource SettingsActionButtonStyle}"
@@ -132,32 +132,32 @@
                                     Margin="0"/>
                         </UniformGrid>
                         <TextBlock Text="{DynamicResource Settings.FfmpegReadyGenerateSelectedRecordModuleWrite}"
-                                   Style="{StaticResource SettingsTileFooterHintStyle}"
+                                   Style="{StaticResource Typography.Caption}"
                                    Visibility="{Binding IsFfmpegReady,
                                        Converter={StaticResource BoolToVisibilityConverter},
                                        FallbackValue=Collapsed}"/>
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+                <Border Style="{StaticResource SurfaceDetailStyle}"/>
 
                 <!-- ═══════ GROUP: RECORD THIS SESSION ═══════ -->
                 <TextBlock Text="{DynamicResource Settings.RecordSession2}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.RecordRunningAppWindowWithoutModuleWorkflow}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                           Style="{StaticResource Typography.BodySmall}"/>
 
                 <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE714;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.RecordSession}"/>
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE714;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.RecordSession}"/>
                             </StackPanel>
                             <TextBlock Text="{Binding SessionRecordHint}"
-                                       Style="{StaticResource SettingsTileCaptionStyle}"/>
+                                       Style="{StaticResource Typography.BodySmall}"/>
                             <TextBlock Text="{Binding SessionRecordStatus}"
-                                       Style="{StaticResource SettingsTileFooterHintStyle}"/>
+                                       Style="{StaticResource Typography.Caption}"/>
                             <!-- Full-width primary action row. The two conditional
                                  buttons are auto columns that collapse to 0 when
                                  hidden, so the visible button(s) fill the row. -->
@@ -195,22 +195,22 @@
                     </Border>
                 </StackPanel>
 
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+                <Border Style="{StaticResource SurfaceDetailStyle}"/>
 
                 <!-- ═══════ GROUP: RECORDING SETTINGS ═══════ -->
                 <TextBlock Text="{DynamicResource Settings.RecordingSettings}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.CapturesRunningAppWindowDesktopOtherPrograms}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                           Style="{StaticResource Typography.BodySmall}"/>
 
                 <UniformGrid Columns="3" Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE7F8;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.Quality}"/>
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7F8;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.Quality}"/>
                             </StackPanel>
-                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                            <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.OutputResolutionRecordedVideo}"/>
                             <ComboBox ItemsSource="{Binding Qualities}"
                                       SelectedItem="{Binding SelectedQuality, Mode=TwoWay}"
@@ -218,17 +218,17 @@
                                       IsSynchronizedWithCurrentItem="False"
                                       MinWidth="200"
                                       Padding="10,7"
-                                      FontSize="{StaticResource TextBodyLarge}"/>
+                                      FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource SettingsTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE823;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.FrameRate}"/>
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE823;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.FrameRate}"/>
                             </StackPanel>
-                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                            <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.HowManyFramesSecondCaptured}"/>
                             <ComboBox ItemsSource="{Binding FpsChoices}"
                                       SelectedItem="{Binding SelectedFps, Mode=TwoWay}"
@@ -236,11 +236,11 @@
                                       IsSynchronizedWithCurrentItem="False"
                                       MinWidth="160"
                                       Padding="10,7"
-                                      FontSize="{StaticResource TextBodyLarge}"/>
+                                      FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource SettingsTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -248,12 +248,12 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE767;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.InternalAudio}"/>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE767;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.InternalAudio}"/>
                             </StackPanel>
                             <TextBlock Grid.Row="1"
-                                       Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.CaptureAppNarrationSoundRunningApp}"/>
                             <ToggleButton Grid.Row="3"
                                           HorizontalAlignment="Left"
@@ -263,7 +263,7 @@
                         </Grid>
                     </Border>
 
-                    <Border Style="{StaticResource SettingsTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -271,12 +271,12 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE77B;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.Microphone}"/>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE77B;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.Microphone}"/>
                             </StackPanel>
                             <TextBlock Grid.Row="1"
-                                       Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.CaptureLiveSpokenNarrationMicrophone}"/>
                             <ToggleButton Grid.Row="3"
                                           HorizontalAlignment="Left"
@@ -288,23 +288,23 @@
                 </UniformGrid>
 
                 <TextBlock Text="{Binding RecordHint}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"
+                           Style="{StaticResource Typography.BodySmall}"
                            Margin="0,0,0,6"/>
 
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+                <Border Style="{StaticResource SurfaceDetailStyle}"/>
 
                 <!-- ═══════ GROUP: WORKFLOW ═══════ -->
                 <TextBlock Text="{DynamicResource Inquiry.Workflow}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.PickModuleGenerateLandsWorkspaceFirstVoice}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                           Style="{StaticResource Typography.BodySmall}"/>
 
                 <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE896;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.Module}"/>
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE896;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.Module}"/>
                             </StackPanel>
                             <!-- 2026-08-25 senior fix: the dropdown showed
                                  "ProGlassAutomation.Agent.Demo.DemoWorkflow"
@@ -320,8 +320,8 @@
                                       IsSynchronizedWithCurrentItem="False"
                                       MinWidth="260"
                                       Padding="10,7"
-                                      FontSize="{StaticResource TextBodyLarge}">
-                                <ComboBox.ItemTemplate>
+                                      FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}">
+                                <ComboBox.ItemTemplate Style="{StaticResource ComboBoxStyle}">
                                     <DataTemplate>
                                         <TextBlock Text="{Binding Title}"
                                                    TextTrimming="CharacterEllipsis"/>
@@ -329,9 +329,9 @@
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
                             <TextBlock Text="{Binding SelectedPurpose}"
-                                       Style="{StaticResource SettingsTileFooterHintStyle}"/>
+                                       Style="{StaticResource Typography.Caption}"/>
                             <TextBlock Text="{Binding WorkflowHint}"
-                                       Style="{StaticResource SettingsTileFooterHintStyle}"/>
+                                       Style="{StaticResource Typography.Caption}"/>
                             <!-- Full-width action row: buttons stretch evenly. -->
                             <UniformGrid Columns="5" Style="{StaticResource SettingsActionRowStyle}" Margin="0,12,0,0">
                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
@@ -362,23 +362,23 @@
                     </Border>
                 </StackPanel>
 
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+                <Border Style="{StaticResource SurfaceDetailStyle}"/>
 
                 <!-- ═══════ GROUP: ISOLATION ═══════ -->
                 <TextBlock Text="{DynamicResource Settings.Isolation}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.DemoModeKeepsProductionDataUntouchedWhile}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                           Style="{StaticResource Typography.BodySmall}"/>
 
                 <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE7EB;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.DemoMode}"/>
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7EB;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.DemoMode}"/>
                             </StackPanel>
                             <TextBlock Text="{Binding IsolationText}"
-                                       Style="{StaticResource SettingsTileCaptionStyle}"/>
+                                       Style="{StaticResource Typography.BodySmall}"/>
                             <!-- Full-width action row: buttons stretch evenly. -->
                             <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}" Margin="0,10,0,0">
                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
@@ -395,64 +395,64 @@
                                         HorizontalAlignment="Stretch"
                                         Margin="0"/>
                             </UniformGrid>
-                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
+                            <TextBlock Style="{StaticResource Typography.Caption}"
                                        Text="{DynamicResource Settings.ResetDeletesAppdataProglassautomationDemo}"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
 
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+                <Border Style="{StaticResource SurfaceDetailStyle}"/>
 
                 <!-- ═══════ GROUP: STATUS ═══════ -->
                 <TextBlock Text="{DynamicResource Common.Status}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.WhatLastRunDidWhereOutput}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                           Style="{StaticResource Typography.BodySmall}"/>
 
                 <UniformGrid Columns="2" Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE9D2;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.State}"/>
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9D2;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.State}"/>
                             </StackPanel>
                             <TextBlock Text="{Binding StateText}"
-                                       Style="{StaticResource SettingsTileHeroStyle}"
+                                       Style="{StaticResource SurfaceKpiStyle}"
                                        TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
                             <TextBlock Text="{Binding StatusText}"
-                                       Style="{StaticResource SettingsTileCaptionStyle}" TextWrapping="Wrap"/>
+                                       Style="{StaticResource Typography.BodySmall}" TextWrapping="Wrap"/>
                             <TextBlock Text="{Binding VerifiedText}"
-                                       Style="{StaticResource SettingsTileFooterHintStyle}" TextWrapping="Wrap"/>
+                                       Style="{StaticResource Typography.Caption}" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource SettingsTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE7C1;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.LastOutput}"/>
+                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7C1;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.LastOutput}"/>
                             </StackPanel>
                             <TextBlock Text="{Binding LastMp4Text}"
-                                       Style="{StaticResource SettingsTileCaptionStyle}" TextWrapping="Wrap"/>
+                                       Style="{StaticResource Typography.BodySmall}" TextWrapping="Wrap"/>
                             <TextBlock Text="{Binding FfmpegStatus}"
-                                       Style="{StaticResource SettingsTileFooterHintStyle}" TextWrapping="Wrap"/>
+                                       Style="{StaticResource Typography.Caption}" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
                 </UniformGrid>
 
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+                <Border Style="{StaticResource SurfaceDetailStyle}"/>
 
                 <!-- ═══════ GROUP: HISTORY ═══════ -->
                 <TextBlock Text="{DynamicResource DeliveryNote.History}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.LedgerRecordingJobRunMachine}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                           Style="{StaticResource Typography.BodySmall}"/>
 
                 <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Settings.NoJobsYetGenerateSelectedGenerateStart}"
-                                       Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Style="{StaticResource Typography.BodySmall}"
                                        Visibility="{Binding HasHistory,
                                            Converter={StaticResource InverseBoolToVisibilityConverter},
                                            FallbackValue=Visible}"/>
@@ -460,7 +460,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel Margin="0,0,0,10">
-                                            <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                            <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                        Foreground="{DynamicResource TextPrimaryBrush}">
                                                 <Run Text="{Binding Module, Mode=OneWay}"/>
                                                 <Run Text=" · "/>
@@ -468,7 +468,7 @@
                                             </TextBlock>
                                             <TextBlock Text="{Binding Status}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       FontSize="{StaticResource TextBody}"
+                                                       FontSize="{DynamicResource FontSize.Body}"
                                                        TextWrapping="Wrap"/>
                                         </StackPanel>
                                     </DataTemplate>

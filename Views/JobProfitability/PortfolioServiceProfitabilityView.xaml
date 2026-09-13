@@ -28,19 +28,9 @@
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-        <Style x:Key="HeaderCellStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
+        
 
-        <Style x:Key="TableCellStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-        </Style>
+        
     </UserControl.Resources>
 
     <Grid Background="Transparent">
@@ -55,14 +45,14 @@
         <Border Grid.Row="0" Margin="16,16,16,0" Padding="16"
                 Background="{DynamicResource SurfacePrimaryBrush}"
                 BorderBrush="{DynamicResource BorderDefaultBrush}"
-                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}">
+                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Style="{StaticResource SurfacePrimaryStyle}">
             <StackPanel>
                 <TextBlock Text="Service Profitability — All Confirmed Jobs"
-                           FontSize="{StaticResource TextTitle}"
-                           FontWeight="Bold"
+                           FontSize="{DynamicResource FontSize.H2}"
+                           FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock Text="Which services are making money? Breaks down revenue by service type across all confirmed PIs."
-                           FontSize="{StaticResource TextBody}"
+                           FontSize="{DynamicResource FontSize.Body}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            Margin="0,4,0,0"/>
             </StackPanel>
@@ -84,12 +74,12 @@
 
             <Border Grid.Column="0" Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
-                    <TextBlock Text="JOBS ANALYZED" FontSize="{StaticResource TextCaption}"
-                               FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="JOBS ANALYZED" FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                     <TextBlock Text="{Binding TotalJobsAnalyzed}"
-                               FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"
                                Margin="0,4,0,0"/>
                 </StackPanel>
@@ -97,12 +87,12 @@
 
             <Border Grid.Column="2" Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
-                    <TextBlock Text="TOTAL SERVICE CHARGE" FontSize="{StaticResource TextCaption}"
-                               FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="TOTAL SERVICE CHARGE" FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                     <TextBlock Text="{Binding TotalServiceChargeDisplay}"
-                               FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"
                                Margin="0,4,0,0"/>
                 </StackPanel>
@@ -110,12 +100,12 @@
 
             <Border Grid.Column="4" Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
-                    <TextBlock Text="TOTAL SERVICE PROFIT" FontSize="{StaticResource TextCaption}"
-                               FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="TOTAL SERVICE PROFIT" FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                     <TextBlock Text="{Binding TotalServiceProfitDisplay}"
-                               FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"
                                Margin="0,4,0,0"/>
                 </StackPanel>
@@ -123,12 +113,12 @@
 
             <Border Grid.Column="6" Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
-                    <TextBlock Text="OVERALL MARGIN" FontSize="{StaticResource TextCaption}"
-                               FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="OVERALL MARGIN" FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                     <TextBlock Text="{Binding OverallServiceMarginDisplay}"
-                               FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"
                                Margin="0,4,0,0"/>
                 </StackPanel>
@@ -136,12 +126,12 @@
 
             <Border Grid.Column="8" Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
-                    <TextBlock Text="BEST PERFORMER" FontSize="{StaticResource TextCaption}"
-                               FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="BEST PERFORMER" FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                     <TextBlock Text="{Binding BestPerformingService}"
-                               FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource SuccessBrush}"
                                TextTrimming="CharacterEllipsis"
                                Margin="0,4,0,0"/>
@@ -153,7 +143,7 @@
         <Border Grid.Row="2" Margin="16,12,16,0"
                 Background="{DynamicResource SurfacePrimaryBrush}"
                 BorderBrush="{DynamicResource BorderDefaultBrush}"
-                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}">
+                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Style="{StaticResource SurfacePrimaryStyle}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -162,7 +152,7 @@
 
                 <!-- Table Header -->
                 <Border Grid.Row="0" Background="{DynamicResource AccentBrush}"
-                        CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="16,10">
+                        CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="16,10" Style="{StaticResource SurfacePrimaryStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
@@ -173,12 +163,12 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="SERVICE" Style="{StaticResource HeaderCellStyle}"/>
-                        <TextBlock Grid.Column="1" Text="JOBS" Style="{StaticResource HeaderCellStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="2" Text="CHARGE" Style="{StaticResource HeaderCellStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="3" Text="COST" Style="{StaticResource HeaderCellStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="4" Text="PROFIT" Style="{StaticResource HeaderCellStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="5" Text="MARGIN %" Style="{StaticResource HeaderCellStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="0" Text="SERVICE" Style="{StaticResource Typography.Title}"/>
+                        <TextBlock Grid.Column="1" Text="JOBS" Style="{StaticResource Typography.Title}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="2" Text="CHARGE" Style="{StaticResource Typography.Title}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="3" Text="COST" Style="{StaticResource Typography.Title}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="4" Text="PROFIT" Style="{StaticResource Typography.Title}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="5" Text="MARGIN %" Style="{StaticResource Typography.Title}" HorizontalAlignment="Right"/>
                     </Grid>
                 </Border>
 
@@ -201,23 +191,23 @@
                                         </Grid.ColumnDefinitions>
 
                                         <TextBlock Grid.Column="0" Text="{Binding ServiceName}"
-                                                   Style="{StaticResource TableCellStyle}" FontWeight="SemiBold"/>
+                                                   Style="{StaticResource Typography.DataGrid}" FontWeight="{DynamicResource Weight.SemiBold}"/>
 
                                         <TextBlock Grid.Column="1" Text="{Binding JobCount}"
-                                                   Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
+                                                   Style="{StaticResource Typography.DataGrid}" HorizontalAlignment="Right"/>
 
                                         <TextBlock Grid.Column="2" Text="{Binding TotalChargeDisplay}"
-                                                   Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
+                                                   Style="{StaticResource Typography.DataGrid}" HorizontalAlignment="Right"/>
 
                                         <TextBlock Grid.Column="3" Text="{Binding TotalCostDisplay}"
-                                                   Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"
+                                                   Style="{StaticResource Typography.DataGrid}" HorizontalAlignment="Right"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
                                         <TextBlock Grid.Column="4" Text="{Binding TotalProfitDisplay}"
                                                    HorizontalAlignment="Right">
                                             <TextBlock.Style>
-                                                <Style TargetType="TextBlock" BasedOn="{StaticResource TableCellStyle}">
-                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource Typography.DataGrid}">
+                                                    <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsProfitable}" Value="False">
                                                             <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
@@ -230,7 +220,7 @@
                                         <TextBlock Grid.Column="5" Text="{Binding MarginDisplay}"
                                                    HorizontalAlignment="Right">
                                             <TextBlock.Style>
-                                                <Style TargetType="TextBlock" BasedOn="{StaticResource TableCellStyle}">
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource Typography.DataGrid}">
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsProfitable}" Value="False">
                                                             <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
@@ -259,13 +249,13 @@
                         </Style>
                     </Border.Style>
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <TextBlock Text="&#xE71D;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplay}"
+                        <TextBlock Text="&#xE71D;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Kpi}"
                                    HorizontalAlignment="Center" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,12"/>
                         <TextBlock Text="No service data available"
-                                   FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
+                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBlock Text="Service profitability appears after confirming PIs with service charges."
-                                   FontSize="{StaticResource TextBody}" HorizontalAlignment="Center"
+                                   FontSize="{DynamicResource FontSize.Body}" HorizontalAlignment="Center"
                                    Margin="0,4,0,0" Foreground="{DynamicResource TextTertiaryBrush}"/>
                     </StackPanel>
                 </Border>
@@ -275,7 +265,7 @@
         <!-- ═══════ STATUS LINE ═══════ -->
         <Border Grid.Row="3" Margin="16,12,16,16" Padding="4,0">
             <TextBlock Text="{Binding StatusMessage}"
-                       FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
+                       FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap"
                        Foreground="{DynamicResource TextTertiaryBrush}"/>
         </Border>
 
@@ -294,12 +284,12 @@
                 <Border Background="{DynamicResource SurfacePrimaryBrush}"
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}"
-                        Padding="28,16">
+                        Padding="28,16" Style="{StaticResource SurfacePrimaryStyle}">
                     <StackPanel Orientation="Horizontal">
                         <ProgressBar IsIndeterminate="True" Width="20" Height="20"
                                      VerticalAlignment="Center" Margin="0,0,12,0"/>
                         <TextBlock Text="Analyzing..."
-                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                    VerticalAlignment="Center"/>
                     </StackPanel>

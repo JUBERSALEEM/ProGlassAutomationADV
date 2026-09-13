@@ -58,8 +58,8 @@
                                       Color="{DynamicResource LiquidShadowColor}"/>
                 </Border.Effect>
                 <TextBlock Text="{Binding Icon}"
-                           FontFamily="Segoe MDL2 Assets"
-                           FontSize="{StaticResource TextDisplayLarge}"
+                           FontFamily="{DynamicResource FontFamily.Icon}"
+                           FontSize="{DynamicResource FontSize.Display}"
                            Foreground="{DynamicResource OnAccentForegroundBrush}"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"
@@ -74,15 +74,15 @@
                     Padding="14,6"
                     HorizontalAlignment="Center"
                     Margin="0,24,0,0"
-                    SnapsToDevicePixels="True">
+                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel Orientation="Horizontal">
                     <Ellipse Width="7" Height="7"
                              Fill="{DynamicResource AccentBrush}"
                              VerticalAlignment="Center"
                              IsHitTestVisible="False"/>
                     <TextBlock Text="{DynamicResource Shared.ComingSOON}"
-                               FontSize="{StaticResource TextCaption}"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource AccentBrush}"
                                Margin="8,0,0,0"
                                VerticalAlignment="Center"
@@ -92,8 +92,8 @@
 
             <!-- ══ Module name ════════════════════════════════════════ -->
             <TextBlock Text="{Binding ModuleName}"
-                       FontSize="{StaticResource TextDisplayLarge}"
-                       FontWeight="Bold"
+                       FontSize="{DynamicResource FontSize.Display}"
+                       FontWeight="{DynamicResource Weight.Bold}"
                        HorizontalAlignment="Center"
                        TextAlignment="Center"
                        Margin="0,18,0,0"
@@ -101,7 +101,7 @@
 
             <!-- ══ Description ════════════════════════════════════════ -->
             <TextBlock Text="{Binding Description}"
-                       FontSize="{StaticResource TextBodyLarge}"
+                       FontSize="{DynamicResource FontSize.Title}"
                        HorizontalAlignment="Center"
                        TextAlignment="Center"
                        TextWrapping="Wrap"
@@ -112,7 +112,7 @@
 
             <!-- ══ Roadmap hint ═══════════════════════════════════════ -->
             <TextBlock Text="{DynamicResource Shared.ModuleDevelopmentAvailableUpcomingRelease}"
-                       FontSize="{StaticResource TextBody}"
+                       FontSize="{DynamicResource FontSize.Body}"
                        FontStyle="Italic"
                        HorizontalAlignment="Center"
                        TextAlignment="Center"

@@ -42,12 +42,12 @@
         
 
         <Style x:Key="ChatIconBtn" TargetType="Button">
-            <Setter Property="FontFamily"      Value="Segoe MDL2 Assets"/>
+            <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Icon}"/>
             <Setter Property="Width"           Value="32"/>
             <Setter Property="Height"          Value="32"/>
             <Setter Property="Background"      Value="Transparent"/>
             <Setter Property="Foreground"      Value="White"/>
-            <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.H3}"/>
             <Setter Property="Cursor"          Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
@@ -56,7 +56,7 @@
                         <Border x:Name="bd"
                                 Background="{TemplateBinding Background}"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
-                                SnapsToDevicePixels="True">
+                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
                         </Border>
@@ -85,11 +85,11 @@
                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                 Background="{DynamicResource ChatBrand}"
                                 SnapsToDevicePixels="True"
-                                UseLayoutRounding="True">
+                                UseLayoutRounding="True" Style="{StaticResource SurfacePrimaryStyle}">
                             <TextBlock Text="&#xE724;"
-                                       FontFamily="Segoe MDL2 Assets"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                       FontSize="{StaticResource TextTitle}"
+                                       FontSize="{DynamicResource FontSize.H2}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False"/>
@@ -109,92 +109,9 @@
             </Setter>
         </Style>
 
-        <Style x:Key="UserBubble" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-            <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="MaxWidth"            Value="380"/>
-            <Setter Property="CornerRadius"        Value="16,16,4,16"/>
-            <Setter Property="Padding"             Value="14,10"/>
-            <Setter Property="Margin"              Value="60,4,0,4"/>
-            <Setter Property="Background"          Value="{StaticResource ChatBrand}"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding"   Value="True"/>
-            <Setter Property="Visibility"          Value="Collapsed"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsUser}" Value="True">
-                    <Setter Property="Visibility" Value="Visible"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="AiBubble" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="BorderBrush"     Value="{DynamicResource BorderDefaultBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="MaxWidth"            Value="380"/>
-            <Setter Property="CornerRadius"        Value="16,16,16,4"/>
-            <Setter Property="Padding"             Value="14,10"/>
-            <Setter Property="Margin"              Value="0,4,60,4"/>
-            <Setter Property="Background"
-                    Value="{DynamicResource SurfaceTertiaryBrush}"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding"   Value="True"/>
-            <Setter Property="Visibility"          Value="Collapsed"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsAiResponse}" Value="True">
-                    <Setter Property="Visibility" Value="Visible"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="ErrBubble" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="MaxWidth"            Value="380"/>
-            <Setter Property="CornerRadius"        Value="16,16,16,4"/>
-            <Setter Property="Padding"             Value="14,10"/>
-            <Setter Property="Margin"              Value="0,4,60,4"/>
-            <Setter Property="Background"          Value="{DynamicResource TintRedBrush}"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding"   Value="True"/>
-            <Setter Property="Visibility"          Value="Collapsed"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsError}" Value="True">
-                    <Setter Property="Visibility" Value="Visible"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="SuggChip" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
-            <Setter Property="Background"
-                    Value="{DynamicResource SurfaceTertiaryBrush}"/>
-            <Setter Property="CornerRadius"        Value="12"/>
-            <Setter Property="Padding"             Value="14,9"/>
-            <Setter Property="Margin"              Value="0,3"/>
-            <Setter Property="Cursor"              Value="Hand"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding"   Value="True"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background"
-                            Value="{DynamicResource BorderDefaultBrush}"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-    </UserControl.Resources>
-
-    <Grid>
-
-        <Rectangle Fill="{DynamicResource SurfaceOverlayBrush}" Opacity="0.3"
-                   behaviors:ClickToCommandBehavior.Command="{Binding CloseChatCommand}">
-            <Rectangle.Style>
-                <Style TargetType="Rectangle">
-                    <Setter Property="Visibility" Value="Collapsed"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsOpen}" Value="True">
-                            <Setter Property="Visibility" Value="Visible"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
+        <!-- Migrated UserBubble to global SurfacePrimaryStyle -->
+    <!-- Migrated UserBubble to global SurfacePrimaryStyle -->
+    
             </Rectangle.Style>
         </Rectangle>
 
@@ -220,7 +137,7 @@
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 Effect="{StaticResource PanelShadow}"
                 SnapsToDevicePixels="True"
-                UseLayoutRounding="True">
+                UseLayoutRounding="True" Style="{StaticResource SurfacePrimaryStyle}">
             <Border.Style>
                 <Style TargetType="Border">
                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -250,7 +167,7 @@
                         SnapsToDevicePixels="True"
                         behaviors:CanvasDragBehavior.Panel="{Binding ElementName=ChatPanelRef}"
                         behaviors:CanvasDragBehavior.Canvas="{Binding ElementName=ChatCanvasRef}"
-                        behaviors:CanvasDragBehavior.ShadowResourceKey="PanelShadow">
+                        behaviors:CanvasDragBehavior.ShadowResourceKey="PanelShadow" Style="{StaticResource SurfacePrimaryStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -264,8 +181,8 @@
                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                 Background="{DynamicResource SurfaceSecondaryBrush}"
                                 VerticalAlignment="Center"
-                                SnapsToDevicePixels="True">
-                            <TextBlock Text="&#xE99A;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitleLarge}"
+                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                            <TextBlock Text="&#xE99A;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H1}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False"/>
@@ -275,24 +192,24 @@
                                     Margin="12,0,0,0"
                                     VerticalAlignment="Center">
                             <TextBlock Text="{DynamicResource AI.ProglassAI}"
-                                       FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        IsHitTestVisible="False"/>
                             <TextBlock Text="{Binding ActiveProviderSubtitle}"
-                                       FontSize="{StaticResource TextCaption}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        Opacity="0.9"
                                        IsHitTestVisible="False"/>
                         </StackPanel>
 
                         <Button Grid.Column="2"
-                                Style="{StaticResource ChatIconBtn}"
+                                Style="{StaticResource Button.Ghost}"
                                 Content="&#xE74D;"
                                 ToolTip="{DynamicResource AI.ClearChat}"
                                 Command="{Binding ClearChatCommand}"/>
 
                         <Button Grid.Column="3"
-                                Style="{StaticResource ChatIconBtn}"
+                                Style="{StaticResource Button.Ghost}"
                                 Content="&#xE711;"
                                 ToolTip="{DynamicResource Action.Close}"
                                 Margin="6,0,0,0"
@@ -324,8 +241,8 @@
                                 HorizontalAlignment="Center"
                                 Background="{DynamicResource ChatBrand}"
                                 SnapsToDevicePixels="True"
-                                UseLayoutRounding="True">
-                            <TextBlock Text="&#xE8BD;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}"
+                                UseLayoutRounding="True" Style="{StaticResource SurfacePrimaryStyle}">
+                            <TextBlock Text="&#xE8BD;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Display}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
@@ -333,14 +250,14 @@
                         </Border>
 
                         <TextBlock Text="{DynamicResource AI.HelloIMProglassAI}"
-                                   FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                                    HorizontalAlignment="Center"
                                    Margin="0,16,0,4"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                    IsHitTestVisible="False"/>
 
                         <TextBlock Text="{DynamicResource AI.AskAboutGlassProductionInvoicesJobOrders}"
-                                   FontSize="{StaticResource TextBody}"
+                                   FontSize="{DynamicResource FontSize.Body}"
                                    TextAlignment="Center"
                                    TextWrapping="Wrap"
                                    MaxWidth="300"
@@ -348,7 +265,7 @@
                                    IsHitTestVisible="False"/>
 
                         <TextBlock Text="{DynamicResource AI.TRYAsking}"
-                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    HorizontalAlignment="Center"
                                    Margin="0,20,0,8"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -363,7 +280,7 @@
                                             behaviors:ClickToCommandBehavior.Command="{Binding SuggestionCommand}"
                                             behaviors:ClickToCommandBehavior.CommandParameter="{Binding Tag, RelativeSource={RelativeSource Self}}">
                                         <TextBlock Text="{Binding}"
-                                                   FontSize="{StaticResource TextBody}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                                    IsHitTestVisible="False"/>
                                     </Border>
@@ -398,30 +315,30 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Grid>
-                                        <Border Style="{StaticResource UserBubble}">
+                                        <Border Style="{StaticResource SurfacePrimaryStyle}">
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Text}"
                                                            Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                                           FontSize="{StaticResource TextBodyLarge}"
+                                                           FontSize="{DynamicResource FontSize.Title}"
                                                            TextWrapping="Wrap"/>
                                                 <TextBlock Text="{Binding TimeLabel}"
                                                            Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}"
-                                                           FontSize="{StaticResource TextCaption}"
+                                                           FontSize="{DynamicResource FontSize.BodySmall}"
                                                            HorizontalAlignment="Right"
                                                            Margin="0,4,0,0"
                                                            IsHitTestVisible="False"/>
                                             </StackPanel>
                                         </Border>
 
-                                        <Border Style="{StaticResource AiBubble}">
+                                        <Border Style="{StaticResource SurfaceSecondaryStyle}">
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Text}"
                                                            Foreground="{DynamicResource TextPrimaryBrush}"
-                                                           FontSize="{StaticResource TextBodyLarge}"
+                                                           FontSize="{DynamicResource FontSize.Title}"
                                                            TextWrapping="Wrap"/>
                                                 <StackPanel Orientation="Horizontal"
                                                             Margin="0,6,0,0">
-                                                    <TextBlock FontSize="{StaticResource TextCaption}"
+                                                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                IsHitTestVisible="False">
                                                         <Run Text="{Binding ProviderIcon, Mode=OneWay}"/>
@@ -434,10 +351,10 @@
                                             </StackPanel>
                                         </Border>
 
-                                        <Border Style="{StaticResource ErrBubble}">
+                                        <Border Style="{StaticResource SurfaceDetailStyle}">
                                             <TextBlock Text="{Binding Text}"
                                                        Foreground="{DynamicResource DangerBrush}"
-                                                       FontSize="{StaticResource TextBody}"
+                                                       FontSize="{DynamicResource FontSize.Body}"
                                                        TextWrapping="Wrap"/>
                                         </Border>
                                     </Grid>
@@ -461,7 +378,7 @@
                             CornerRadius="{DynamicResource Radius.Asymmetric.Brand}"
                             Padding="14,10"
                             Margin="16,0,0,8"
-                            SnapsToDevicePixels="True">
+                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -595,12 +512,12 @@
                             <Button Command="{Binding StopGenerationCommand}"
                                     Width="18" Height="18"
                                     Margin="10,0,0,0"
-                                    Content="&#xE711;" FontSize="{StaticResource TextXSmall}"
+                                    Content="&#xE711;" FontSize="{DynamicResource FontSize.Caption}"
                                     Background="Transparent"
                                     BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand"
                                     Foreground="{DynamicResource TextTertiaryBrush}"
                                     ToolTip="{DynamicResource AI.StopGenerating}"
-                                    VerticalAlignment="Center"/>
+                                    VerticalAlignment="Center" Style="{StaticResource SecondaryButtonStyle}"/>
                         </StackPanel>
                     </Border>
 
@@ -616,7 +533,7 @@
                             Padding="14,10"
                             Margin="16,0,0,8"
                             MaxWidth="430"
-                            SnapsToDevicePixels="True">
+                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -631,7 +548,7 @@
                         </Border.Style>
                         <TextBlock Text="{Binding ActiveStream.Text}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
-                                   FontSize="{StaticResource TextBodyLarge}"
+                                   FontSize="{DynamicResource FontSize.Title}"
                                    TextWrapping="Wrap"/>
                     </Border>
                 </Grid>
@@ -675,8 +592,8 @@
                         </Style>
                     </Border.Style>
                     <TextBlock Text="{Binding StatusMessage}"
-                               FontSize="{StaticResource TextCaption}"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource AccentBrush}"
                                TextWrapping="Wrap"
                                IsHitTestVisible="False"/>
@@ -687,7 +604,7 @@
                         Background="{DynamicResource SideMenuBackgroundBrush}"
                         CornerRadius="{DynamicResource Radius.Bottom.Medium}"
                         Padding="12"
-                        SnapsToDevicePixels="True">
+                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -704,8 +621,8 @@
                                 Cursor="Hand"
                                 BorderThickness="{DynamicResource Border.NoneThickness}"
                                 Margin="0,0,4,0"
-                                SnapsToDevicePixels="True">
-                            <Button.Template>
+                                SnapsToDevicePixels="True" Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="bd"
                                             CornerRadius="{DynamicResource CardCornerRadius}"
@@ -724,8 +641,8 @@
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
-                                        <TextBlock FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="{StaticResource TextTitle}"
+                                        <TextBlock FontFamily="{DynamicResource FontFamily.Icon}"
+                                                   FontSize="{DynamicResource FontSize.H2}"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"
                                                    IsHitTestVisible="False">
@@ -837,8 +754,8 @@
                                     Width="36" Height="36"
                                     Cursor="Hand"
                                     BorderThickness="{DynamicResource Border.NoneThickness}"
-                                    SnapsToDevicePixels="True">
-                                <Button.Template>
+                                    SnapsToDevicePixels="True" Style="{StaticResource SecondaryButtonStyle}">
+                                <Button.Template Style="{StaticResource SecondaryButtonStyle}">
                                     <ControlTemplate TargetType="Button">
                                         <Border x:Name="bd"
                                                 CornerRadius="{DynamicResource CardCornerRadius}"
@@ -862,8 +779,8 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Border.Style>
-                                            <TextBlock FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="{StaticResource TextTitle}"
+                                            <TextBlock FontFamily="{DynamicResource FontFamily.Icon}"
+                                                       FontSize="{DynamicResource FontSize.H2}"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
                                                        IsHitTestVisible="False">
@@ -908,23 +825,23 @@
                                 VerticalAlignment="Center"
                                 Margin="0,0,8,0"
                                 SnapsToDevicePixels="True"
-                                UseLayoutRounding="True">
+                                UseLayoutRounding="True" Style="{StaticResource SurfacePrimaryStyle}">
                             <TextBox x:Name="InputBox"
                                      Text="{Binding CurrentInput,
                                          UpdateSourceTrigger=PropertyChanged}"
                                      BorderThickness="{DynamicResource Border.NoneThickness}"
                                      Background="Transparent"
-                                     FontSize="{StaticResource TextBodyLarge}"
+                                     FontSize="{DynamicResource FontSize.Title}"
                                      Foreground="{DynamicResource TextPrimaryBrush}"
-                                     VerticalAlignment="Center">
-                                <TextBox.InputBindings>
+                                     VerticalAlignment="Center" Style="{StaticResource TextBoxStyle}">
+                                <TextBox.InputBindings Style="{StaticResource TextBoxStyle}">
                                     <KeyBinding Key="Enter" Command="{Binding SendCommand}"/>
                                 </TextBox.InputBindings>
                             </TextBox>
                         </Border>
 
                         <Button Grid.Column="3"
-                                Style="{StaticResource SendBtn}"
+                                Style="{StaticResource Button.Primary}"
                                 Command="{Binding SendCommand}"
                                 ToolTip="{DynamicResource AI.SendEnter}"/>
                     </Grid>

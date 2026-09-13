@@ -41,25 +41,25 @@
                 Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
-                CornerRadius="{DynamicResource ControlCornerRadius}">
+                CornerRadius="{DynamicResource ControlCornerRadius}" Style="{StaticResource SurfacePrimaryStyle}">
             <TextBox x:Name="ReasonTextBox"
                      MinHeight="120"
                      Background="Transparent"
                      BorderThickness="0"
                      Padding="12,10"
-                     FontSize="{StaticResource TextSection}"
+                     FontSize="{DynamicResource FontSize.H3}"
                      Foreground="{DynamicResource TextPrimaryBrush}"
                      TextWrapping="Wrap"
                      AcceptsReturn="True"
                      VerticalScrollBarVisibility="Auto"
                      VerticalContentAlignment="Top"
-                     Text="{Binding Reason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                     Text="{Binding Reason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxStyle}"/>
         </Border>
 
         <!-- Validation hint -->
         <TextBlock Grid.Row="2"
                    Text="{DynamicResource Void.ReasonRequired}"
-                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                    Margin="2,8,0,0"
                    Foreground="{DynamicResource DangerBrush}"
                    Visibility="{Binding ValidationVisibility}"/>

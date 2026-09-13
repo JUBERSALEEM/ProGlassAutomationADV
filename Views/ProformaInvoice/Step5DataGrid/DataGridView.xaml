@@ -29,24 +29,9 @@
     </UserControl.InputBindings>
 
     <UserControl.Resources>
-        <Style x:Key="GridCellStyle" TargetType="TextBox" BasedOn="{StaticResource LineItemsIntCellStyle}">
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="MinHeight" Value="36"/>
-            <Setter Property="MaxHeight" Value="36"/>
-            <Setter Property="Padding" Value="8,0"/>
-        </Style>
-        <Style x:Key="GridDecStyle" TargetType="TextBox" BasedOn="{StaticResource LineItemsDecimalCellStyle}">
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="MinHeight" Value="36"/>
-            <Setter Property="MaxHeight" Value="36"/>
-            <Setter Property="Padding" Value="8,0"/>
-        </Style>
-        <Style x:Key="GridTextStyle" TargetType="TextBox" BasedOn="{StaticResource LineItemsTextCellStyle}">
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="MinHeight" Value="36"/>
-            <Setter Property="MaxHeight" Value="36"/>
-            <Setter Property="Padding" Value="8,0"/>
-        </Style>
+        
+        
+        
         <Style x:Key="GridRowStyle" TargetType="ListViewItem">
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -137,7 +122,7 @@
                             behaviors:ContextMenuButtonBehavior.Menu="{Binding ContextMenu, RelativeSource={RelativeSource Self}}"
                             ToolTip="{DynamicResource Dg.ExportCutList}"
                             Content="{DynamicResource Dg.Export}">
-                        <Button.ContextMenu>
+                        <Button.ContextMenu Style="{StaticResource SecondaryButtonStyle}">
                             <ContextMenu Style="{StaticResource ModernContextMenuStyle}"
                                          DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
                                 <MenuItem Header="{DynamicResource Dg.Excel}"
@@ -159,8 +144,8 @@
 
                     <TextBlock Grid.Column="2"
                                Text="{Binding IoStatus}"
-                               FontSize="{StaticResource TextBody}"
-                               FontWeight="SemiBold"
+                               FontSize="{DynamicResource FontSize.Body}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource AccentBrush}"
                                VerticalAlignment="Center"
                                Margin="0,0,12,0"
@@ -182,8 +167,8 @@
                                 Orientation="Horizontal"
                                 VerticalAlignment="Center">
                         <TextBlock Text="{DynamicResource Dg.Specs}"
-                                   FontSize="{StaticResource TextBody}"
-                                   FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    VerticalAlignment="Center"
                                    Margin="0,0,8,0"/>
@@ -191,10 +176,10 @@
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="10,4"
                                 MinWidth="36"
-                                Margin="0,0,10,0">
+                                Margin="0,0,10,0" Style="{StaticResource SurfacePrimaryStyle}">
                             <TextBlock Text="{Binding TotalSpecGroups}"
-                                       FontSize="{StaticResource TextBodyLarge}"
-                                       FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.Title}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        HorizontalAlignment="Center"/>
                         </Border>
@@ -216,7 +201,7 @@
                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="12,10"
                                 Margin="0,0,0,10"
-                                SnapsToDevicePixels="True">
+                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                             <Border.InputBindings>
                                 <KeyBinding Modifiers="Control" Key="N" Command="{Binding AddRowCommand}"/>
                             </Border.InputBindings>
@@ -240,10 +225,10 @@
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Background="{DynamicResource AccentBrush}"
                                             VerticalAlignment="Bottom"
-                                            Margin="0,0,0,1">
+                                            Margin="0,0,0,1" Style="{StaticResource SurfacePrimaryStyle}">
                                         <TextBlock Text="{Binding GroupNumber}"
-                                                   FontSize="{StaticResource TextBodyLarge}"
-                                                   FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.Title}"
+                                                   FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"/>
@@ -269,14 +254,14 @@
                                         <TextBlock Text="{DynamicResource Dg.Base}" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,2"
                                                    ToolTip="{Binding ImportedPrice, Converter={StaticResource CurrencyConverter}, ConverterParameter=imported}"/>
                                         <TextBox Text="{Binding BaseRate, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}"
-                                                 Style="{StaticResource GridDecStyle}"
+                                                 Style="{StaticResource SurfacePrimaryStyle}"
                                                  Width="80"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="8" VerticalAlignment="Bottom">
                                         <TextBlock Text="{DynamicResource Dg.SurchargePct}" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,2"
                                                    ToolTip="{Binding SurchargeRate, Converter={StaticResource CurrencyConverter}, ConverterParameter=surcharge}"/>
                                         <TextBox Text="{Binding SurchargePercent, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}"
-                                                 Style="{StaticResource GridDecStyle}"
+                                                 Style="{StaticResource SurfacePrimaryStyle}"
                                                  Width="64"/>
                                     </StackPanel>
                                     <Button Grid.Column="10"
@@ -287,19 +272,19 @@
                                             VerticalAlignment="Bottom"
                                             ToolTip="{DynamicResource Dg.RemoveSpec}">
                                         <TextBlock Text="&#xE74D;"
-                                                   FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="{StaticResource TextBodyLarge}"
+                                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                                   FontSize="{DynamicResource FontSize.Title}"
                                                    Foreground="{DynamicResource DangerBrush}"/>
                                     </Button>
                                 </Grid>
 
                                 <StackPanel Margin="0,0,0,8">
                                     <TextBlock Text="{Binding SpecDisplayName}"
-                                               FontSize="{StaticResource TextBodyLarge}"
-                                               FontWeight="Bold"
+                                               FontSize="{DynamicResource FontSize.Title}"
+                                               FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{Binding SheetSelectionSummary}"
-                                               FontSize="{StaticResource TextCaption}"
+                                               FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                TextWrapping="Wrap"
                                                Margin="0,4,0,0">
@@ -402,22 +387,22 @@
                                                     <ColumnDefinition Width="26"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0" Text="{Binding SerialNumber}" Style="{StaticResource LineItemsSerialStyle}"/>
-                                                <TextBox Grid.Column="1" Text="{Binding GlassRef, UpdateSourceTrigger=LostFocus}" Style="{StaticResource GridTextStyle}" Margin="2,0"/>
-                                                <TextBox Grid.Column="2" Text="{Binding W1, UpdateSourceTrigger=LostFocus}" Style="{StaticResource GridCellStyle}" Margin="2,0"/>
-                                                <TextBox Grid.Column="3" Text="{Binding H1, UpdateSourceTrigger=LostFocus}" Style="{StaticResource GridCellStyle}" Margin="2,0"/>
-                                                <TextBox Grid.Column="4" Text="{Binding W2, UpdateSourceTrigger=LostFocus}" Style="{StaticResource GridCellStyle}" Margin="2,0"/>
-                                                <TextBox Grid.Column="5" Text="{Binding H2, UpdateSourceTrigger=LostFocus}" Style="{StaticResource GridCellStyle}" Margin="2,0"/>
-                                                <TextBox Grid.Column="6" Text="{Binding Qty, UpdateSourceTrigger=LostFocus}" Style="{StaticResource GridCellStyle}" Margin="2,0"/>
+                                                <TextBox Grid.Column="1" Text="{Binding GlassRef, UpdateSourceTrigger=LostFocus}" Style="{StaticResource SurfacePrimaryStyle}" Margin="2,0"/>
+                                                <TextBox Grid.Column="2" Text="{Binding W1, UpdateSourceTrigger=LostFocus}" Style="{StaticResource SurfacePrimaryStyle}" Margin="2,0"/>
+                                                <TextBox Grid.Column="3" Text="{Binding H1, UpdateSourceTrigger=LostFocus}" Style="{StaticResource SurfacePrimaryStyle}" Margin="2,0"/>
+                                                <TextBox Grid.Column="4" Text="{Binding W2, UpdateSourceTrigger=LostFocus}" Style="{StaticResource SurfacePrimaryStyle}" Margin="2,0"/>
+                                                <TextBox Grid.Column="5" Text="{Binding H2, UpdateSourceTrigger=LostFocus}" Style="{StaticResource SurfacePrimaryStyle}" Margin="2,0"/>
+                                                <TextBox Grid.Column="6" Text="{Binding Qty, UpdateSourceTrigger=LostFocus}" Style="{StaticResource SurfacePrimaryStyle}" Margin="2,0"/>
                                                 <TextBlock Grid.Column="7" Text="{Binding Sqm1, StringFormat={}{0:0.000}}" Style="{StaticResource LineItemsReadonlyStyle}"/>
                                                 <TextBlock Grid.Column="8" Text="{Binding TotalSqm, StringFormat={}{0:0.000}}" Style="{StaticResource LineItemsReadonlyStyle}"/>
-                                                <TextBox Grid.Column="9" Text="{Binding Rate, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}" Style="{StaticResource GridDecStyle}" Margin="1,0"/>
+                                                <TextBox Grid.Column="9" Text="{Binding Rate, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}" Style="{StaticResource SurfacePrimaryStyle}" Margin="1,0"/>
                                                 <TextBlock Grid.Column="10" Text="{Binding Value, StringFormat=AED {0:N2}}" Style="{StaticResource LineItemsMoneyStyle}"/>
                                                 <Button Grid.Column="11"
                                                         Command="{Binding DataContext.RemoveRowCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                                         CommandParameter="{Binding}"
                                                         Style="{StaticResource PiIconButtonStyle}"
                                                         ToolTip="{DynamicResource Dg.DeleteRow}">
-                                                    <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                    <TextBlock Text="&#xE711;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                                Foreground="{DynamicResource DangerBrush}"/>
                                                 </Button>
                                             </Grid>
@@ -444,7 +429,7 @@
 
                                         <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" VerticalAlignment="Center">
                                             <TextBox Width="64" Text="{Binding BulkRowCountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                     Style="{StaticResource GridCellStyle}"
+                                                     Style="{StaticResource SurfacePrimaryStyle}"
                                                      ToolTip="{DynamicResource Dg.GenerateRows}"/>
                                             <Button Command="{Binding GenerateRowsCommand}"
                                                     Style="{StaticResource PiGhostChipButton}"
@@ -460,20 +445,20 @@
                                         <!-- Total QTY under QTY column -->
                                         <TextBlock Grid.Column="6"
                                                    Text="{Binding FooterTotalQty, Mode=OneWay}"
-                                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
                                         <!-- Total SQM under TOTAL SQM column -->
                                         <TextBlock Grid.Column="8"
                                                    Text="{Binding FooterTotalSqm, StringFormat={}{0:0.00}, Mode=OneWay}"
-                                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
                                         <!-- Total value under VALUE column -->
                                         <TextBlock Grid.Column="10"
-                                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource SuccessBrush}"
                                                    HorizontalAlignment="Right" VerticalAlignment="Center"
                                                    Margin="0,0,4,0">

@@ -46,98 +46,22 @@
          A previous edit swapped this for the neutral OutlineBrush, which
          erased the coloured card edges the user relies on - do not repeat
          that. Neutral hairlines belong on plain surfaces, not on these. -->
-    <Style x:Key="SectionCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
-        <Setter Property="Background"          Value="{DynamicResource Surface.Primary.BackgroundBrush}"/>
-        <Setter Property="BorderBrush"         Value="{DynamicResource Surface.Primary.BorderBrush}"/>
-        <Setter Property="BorderThickness"     Value="{DynamicResource Surface.Primary.BorderThickness}"/>
-        <Setter Property="CornerRadius"        Value="{DynamicResource Surface.Primary.CornerRadius}"/>
-        <Setter Property="Padding"             Value="24,20"/>
-        <Setter Property="Margin"              Value="0,0,0,20"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="UseLayoutRounding"   Value="True"/>
-    </Style>
+    <!-- Migrated SectionCardStyle to global SurfacePrimaryStyle / Typography -->
 
     
 
     <!-- Base setters for the AI provider cards. Each card extends this
          with BasedOn + its own IsXxxActive DataTrigger. -->
-    <Style x:Key="ProviderCardBaseStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="Padding"             Value="16,14"/>
-        <Setter Property="Margin"              Value="0,0,0,12"/>
-    </Style>
-
-    <!-- ═══════════════════════════════════════════════════════════════
-         3. TYPOGRAPHY
-    ═══════════════════════════════════════════════════════════════ -->
-    <Style x:Key="InfoCardTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
-        <Setter Property="FontWeight"        Value="Bold"/>
-        <!-- 2026-09-01: was GlassBorderSoft (a BORDER token — white at
-             18-40% alpha) so every info-card heading rendered nearly
-             invisible. TextPrimaryBrush is the real ink token. -->
-        <Setter Property="Foreground"        Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="IsHitTestVisible"  Value="False"/>
-    </Style>
-
+    <!-- Migrated ProviderCardBaseStyle to global SurfaceSecondaryStyle -->
     
 
+    <!-- Migrated LabelStyle to global Typography.Label -->
     
-
-    <Style x:Key="SectionLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="FontWeight"       Value="Bold"/>
-        <Setter Property="Foreground"       Value="{DynamicResource TextSecondaryBrush}"/>
-        <Setter Property="Margin"           Value="0,0,0,10"/>
-        <Setter Property="IsHitTestVisible" Value="False"/>
-    </Style>
-
-    <Style x:Key="RowTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
-        <Setter Property="FontWeight"        Value="Bold"/>
-        <Setter Property="Foreground"        Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
-    </Style>
-
-    <Style x:Key="HintTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="Foreground"       Value="{DynamicResource TextSecondaryBrush}"/>
-        <Setter Property="TextWrapping"     Value="Wrap"/>
-        <Setter Property="IsHitTestVisible" Value="False"/>
-    </Style>
-
-    <Style x:Key="LabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-        <Setter Property="FontWeight"       Value="Bold"/>
-        <Setter Property="Foreground"       Value="{DynamicResource TextSecondaryBrush}"/>
-        <Setter Property="IsHitTestVisible" Value="False"/>
-    </Style>
-
-    <Style x:Key="ValueStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-    </Style>
 
     <!-- Page header used at the top of every section. -->
-    <Style x:Key="PageTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextDisplay}"/>
-        <Setter Property="FontWeight"       Value="Bold"/>
-        <Setter Property="Foreground"       Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="IsHitTestVisible" Value="False"/>
-    </Style>
+    <!-- Migrated PageTitleStyle to global SurfacePrimaryStyle / Typography -->
 
-    <Style x:Key="PageSubtitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="Margin"           Value="0,4,0,0"/>
-        <Setter Property="Foreground"       Value="{DynamicResource TextSecondaryBrush}"/>
-        <Setter Property="IsHitTestVisible" Value="False"/>
-        <!-- LAYOUT FIX: was missing, unlike HintTextStyle. Without it a
-             long subtitle (the AI & Agent page has the longest in the app
-             at 71 chars) renders as one unbroken line, widening the header
-             row and pushing content past the right edge on narrow windows. -->
-        <Setter Property="TextWrapping"     Value="Wrap"/>
-    </Style>
+    <!-- Migrated PageSubtitleStyle to global SurfacePrimaryStyle / Typography -->
 
     <!-- ═══════════════════════════════════════════════════════════════
          4. CONTROLS
@@ -146,16 +70,12 @@
     <!-- iOS-style animated toggle switch — uses the canonical Liquid
          Glass switch template with proper dimensions for the thumb
          track, spring animation, and layered glass composition. -->
-    <Style x:Key="ModernToggleSwitch" TargetType="ToggleButton"
-           BasedOn="{StaticResource LiquidGlassToggleSwitch}">
-        <Setter Property="Width"  Value="62"/>
-        <Setter Property="Height" Value="36"/>
-    </Style>
+    
 
     <!-- Rounded password box (API keys). -->
     <Style x:Key="RoundedPasswordBoxStyle" TargetType="PasswordBox">
         <Setter Property="Height"                   Value="42"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
         <Setter Property="Padding"                  Value="14,0"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Background"               Value="{DynamicResource Surface.Primary.BackgroundBrush}"/>
@@ -206,8 +126,8 @@
         <Setter Property="Height"              Value="34"/>
         <Setter Property="Padding"             Value="12,0"/>
         <Setter Property="Margin"              Value="0,0,8,8"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="FontWeight"          Value="SemiBold"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
+        <Setter Property="FontWeight"          Value="{DynamicResource Weight.SemiBold}"/>
         <Setter Property="Foreground"          Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding"   Value="True"/>
@@ -258,8 +178,8 @@
         <Setter Property="Foreground"          Value="{DynamicResource AccentBrush}"/>
         <Setter Property="Height"              Value="28"/>
         <Setter Property="Padding"             Value="12,0"/>
-        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-        <Setter Property="FontWeight"          Value="Bold"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
+        <Setter Property="FontWeight"          Value="{DynamicResource Weight.Bold}"/>
         <Setter Property="BorderThickness"     Value="0"/>
         <Setter Property="Cursor"              Value="Hand"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -327,11 +247,7 @@
     <!-- Base style for Whisper model option cards. Used exclusively via
          BasedOn inside Border.Style child elements — never as a Style=
          attribute (XLS0501 prevention). -->
-    <Style x:Key="ModelOptionCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="Padding"             Value="12,10"/>
-        <Setter Property="Margin"              Value="0,0,0,8"/>
-        <Setter Property="Cursor"              Value="Hand"/>
-    </Style>
+    
 
     <!-- ═══════════════════════════════════════════════════════════════
          5. SHELL — NAVIGATION RAIL
@@ -433,61 +349,15 @@
          2026-09-01 touch pass: the glyph also lights up accent when its
          parent nav button is Tag=Active (set by the per-page DataTrigger
          in SettingsView), so the current page reads at a glance. -->
-    <Style x:Key="NavGlyphStyle" TargetType="TextBlock">
-        <Setter Property="FontFamily"        Value="Segoe MDL2 Assets"/>
-        <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
-        <Setter Property="Width"             Value="22"/>
-        <Setter Property="TextAlignment"     Value="Center"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="Foreground"        Value="{DynamicResource TextSecondaryBrush}"/>
-        <Setter Property="IsHitTestVisible"  Value="False"/>
-        <Style.Triggers>
-            <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=Button}}"
-                         Value="Active">
-                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-            </DataTrigger>
-        </Style.Triggers>
-    </Style>
+    
 
     <!-- Label slot in a nav item. -->
-    <Style x:Key="NavLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-        <Setter Property="FontWeight"        Value="SemiBold"/>
-        <Setter Property="Margin"            Value="10,0,0,0"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="Foreground"        Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="IsHitTestVisible"  Value="False"/>
-        <Style.Triggers>
-            <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=Button}}"
-                         Value="Active">
-                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-                <Setter Property="FontWeight" Value="Bold"/>
-            </DataTrigger>
-        </Style.Triggers>
-    </Style>
+    
 
     <!-- Circular glyph badge for info cards. -->
-    <Style x:Key="InfoGlyphBadgeStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
-        <Setter Property="Width"               Value="34"/>
-        <Setter Property="Height"              Value="34"/>
-        <Setter Property="CornerRadius"        Value="17"/>
-        <Setter Property="Background"          Value="{DynamicResource TintBlueBrush}"/>
-        <Setter Property="Margin"              Value="0,0,12,0"/>
-        <Setter Property="VerticalAlignment"   Value="Center"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="UseLayoutRounding"   Value="True"/>
-    </Style>
+    
 
-    <Style x:Key="InfoGlyphTextStyle" TargetType="TextBlock">
-        <Setter Property="FontFamily"             Value="Segoe MDL2 Assets"/>
-        <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
-        <!-- 2026-09-01: was GlassBorderSoft → glyph invisible on the
-             tinted badge. Text ink token instead. -->
-        <Setter Property="Foreground"             Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="HorizontalAlignment"    Value="Center"/>
-        <Setter Property="VerticalAlignment"      Value="Center"/>
-        <Setter Property="IsHitTestVisible"       Value="False"/>
-    </Style>
+    
 
     <!-- ═══════════════════════════════════════════════════════════════
          6. TILE-GRID DESIGN SYSTEM (Settings redesign — Aug 2026)
@@ -533,121 +403,35 @@
              calm cards, not neon. Matches SectionCardStyle intent.
     ═══════════════════════════════════════════════════════════════ -->
 
-    <Style x:Key="SettingsGroupHeaderTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="FontWeight"       Value="Bold"/>
-        <!-- 2026-09-01: was GlassBorderSoft → group headings rendered
-             white-on-white. Real ink token now. -->
-        <Setter Property="Foreground"       Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="Margin"           Value="0,4,0,0"/>
-        <Setter Property="IsHitTestVisible" Value="False"/>
-    </Style>
+    
 
-    <Style x:Key="SettingsGroupCaptionStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="Foreground"       Value="{DynamicResource TextSecondaryBrush}"/>
-        <Setter Property="Margin"           Value="0,4,0,14"/>
-        <Setter Property="TextWrapping"     Value="Wrap"/>
-        <Setter Property="IsHitTestVisible" Value="False"/>
-    </Style>
+    
 
-    <Style x:Key="SettingsTileStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="MinWidth"            Value="0"/>
-        <Setter Property="MinHeight"           Value="128"/>
-        <Setter Property="Margin"              Value="0,0,14,14"/>
-        <Setter Property="Padding"             Value="18,16"/>
-        <Setter Property="HorizontalAlignment" Value="Stretch"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="UseLayoutRounding"   Value="True"/>
-        <Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect BlurRadius="12" ShadowDepth="1.5"
-                                  Direction="270" Opacity="0.08"
-                                  Color="{DynamicResource LiquidShadowColor}"/>
-            </Setter.Value>
-        </Setter>
-    </Style>
+    
 
-    <Style x:Key="SettingsWideTileStyle" TargetType="Border"
-           BasedOn="{StaticResource SettingsTileStyle}">
-        <Setter Property="MinHeight" Value="128"/>
-    </Style>
+    
 
-    <Style x:Key="SettingsFullRowTileStyle" TargetType="Border"
-           BasedOn="{StaticResource SettingsTileStyle}">
-        <Setter Property="MinHeight" Value="120"/>
-    </Style>
+    
 
-    <Style x:Key="SettingsTileHeaderPanelStyle" TargetType="StackPanel">
-        <Setter Property="Orientation"       Value="Horizontal"/>
-        <Setter Property="Margin"            Value="0,0,0,6"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
-    </Style>
+    
 
-    <Style x:Key="SettingsTileIconStyle" TargetType="TextBlock">
-        <Setter Property="FontFamily"        Value="Segoe MDL2 Assets"/>
-        <Setter Property="FontSize" Value="{StaticResource TextTitle}"/>
-        <Setter Property="Width"             Value="20"/>
-        <Setter Property="TextAlignment"     Value="Center"/>
-        <Setter Property="Margin"            Value="0,0,10,0"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
-        <!-- 2026-09-01: was GlassBorderSoft → tile icons were white-on-
-             white. Real ink token now. -->
-        <Setter Property="Foreground"        Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="IsHitTestVisible"  Value="False"/>
-    </Style>
+    
 
-    <Style x:Key="SettingsTileTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
-        <Setter Property="FontWeight"        Value="Bold"/>
-        <Setter Property="Foreground"        Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="IsHitTestVisible"  Value="False"/>
-    </Style>
+    
 
-    <Style x:Key="SettingsTileCaptionStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="Foreground"       Value="{DynamicResource TextSecondaryBrush}"/>
-        <Setter Property="Margin"           Value="0,0,0,12"/>
-        <Setter Property="LineHeight"       Value="16"/>
-        <Setter Property="TextWrapping"     Value="Wrap"/>
-        <Setter Property="IsHitTestVisible" Value="False"/>
-    </Style>
+    
 
-    <Style x:Key="SettingsTileFooterHintStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="Foreground"       Value="{DynamicResource TextSecondaryBrush}"/>
-        <Setter Property="Margin"           Value="0,10,0,0"/>
-        <Setter Property="LineHeight"       Value="15"/>
-        <Setter Property="TextWrapping"     Value="Wrap"/>
-        <Setter Property="IsHitTestVisible" Value="False"/>
-    </Style>
+    
 
-    <Style x:Key="SettingsTileHeroStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextHeadline}"/>
-        <Setter Property="FontWeight"          Value="Bold"/>
-        <!-- 2026-09-01: was GlassBorderSoft → hero values (theme mode,
-             version) were white-on-white. Real ink token now. -->
-        <Setter Property="Foreground"          Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="HorizontalAlignment" Value="Left"/>
-        <Setter Property="Margin"              Value="0,4,0,0"/>
-        <Setter Property="IsHitTestVisible"    Value="False"/>
-    </Style>
+    
 
-    <Style x:Key="SettingsGroupSeparatorStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
-        <Setter Property="Height"     Value="1"/>
-        <Setter Property="Margin"     Value="0,6,0,18"/>
-        <Setter Property="Background" Value="{DynamicResource DividerBrush}"/>
-    </Style>
+    
 
     <!-- Full-width action row — an even row of buttons that STRETCH so they
          span the whole card. Each Button in the UniformGrid gets an equal
          share of the width (set Columns per row). This fixes the "buttons
          left-aligned leaving a big empty gap on the right" complaint. -->
-    <Style x:Key="SettingsActionRowStyle" TargetType="UniformGrid">
-        <Setter Property="Rows"    Value="1"/>
-        <Setter Property="Margin"  Value="0,10,0,0"/>
-    </Style>
+    
 
     <!-- A single button used inside SettingsActionRowStyle: stretch to fill
          its cell so the grouped buttons never appear left-cramped. -->
@@ -664,8 +448,8 @@
         <Setter Property="MinWidth" Value="{DynamicResource DensityButtonMinWidth}"/>
         <Setter Property="Padding" Value="14,0"/>
         <Setter Property="Margin" Value="0,0,8,0"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -803,7 +587,7 @@
                         <!-- Centered value label -->
                         <TextBlock HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
-                                   FontSize="{StaticResource TextSubhead}" FontWeight="SemiBold"
+                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    IsHitTestVisible="False">
                             <TextBlock.Text>

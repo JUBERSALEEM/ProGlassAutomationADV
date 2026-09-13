@@ -28,11 +28,11 @@
 
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding CurrentCalculationSectionLabel}"
-                               FontSize="{StaticResource TextBody}"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.Body}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource AccentBrush}"
                                Margin="0,0,0,4"/>
-                    <TextBlock FontFamily="Consolas" FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
+                    <TextBlock FontFamily="{DynamicResource FontFamily.Code}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"
                                TextWrapping="Wrap">
                         <TextBlock.Style>
@@ -69,14 +69,14 @@
                                                               RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"
                                             Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Padding="0"
-                                            Margin="0,0,8,4" Cursor="Hand">
-                                        <Button.Template>
+                                            Margin="0,0,8,4" Cursor="Hand" Style="{StaticResource SecondaryButtonStyle}">
+                                        <Button.Template Style="{StaticResource SecondaryButtonStyle}">
                                             <ControlTemplate TargetType="Button">
                                                 <Border x:Name="ChipBorder"
                                                         CornerRadius="{DynamicResource CardCornerRadius}"
                                                         Padding="12,6" BorderThickness="{DynamicResource Border.HairlineThickness}">
                                                     <TextBlock x:Name="NameText" Text="{Binding Name}"
-                                                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"/>
+                                                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <DataTrigger Binding="{Binding IsSelected}" Value="True">
@@ -98,8 +98,8 @@
                         </ItemsControl>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="16,0,0,0">
                             <TextBlock Text="{DynamicResource ProformaInvoice.Sections}"
-                                       FontSize="{StaticResource TextBody}"
-                                       FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,8,0"/>
@@ -108,10 +108,10 @@
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="10,4"
-                                    Margin="0,0,8,0">
+                                    Margin="0,0,8,0" Style="{StaticResource SurfacePrimaryStyle}">
                                 <TextBlock Text="{Binding CalculationSectionCount}"
-                                           FontSize="{StaticResource TextBody}"
-                                           FontWeight="Bold"
+                                           FontSize="{DynamicResource FontSize.Body}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                             </Border>
                             <Button Command="{Binding AddCalculationSectionCommand}"
@@ -134,7 +134,7 @@
                             BorderBrush="{DynamicResource WarningBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
-                            Padding="12,8" Margin="0,6,0,0">
+                            Padding="12,8" Margin="0,6,0,0" Style="{StaticResource SurfacePrimaryStyle}">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -177,16 +177,16 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="&#xE7BA;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextSection}"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource FontSize.H3}"
                                        Foreground="{DynamicResource WarningBrush}"
                                        VerticalAlignment="Top" Margin="0,1,10,0"/>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                 <TextBlock Text="{DynamicResource ProformaInvoice.NotInSheetStore}"
-                                           FontSize="{StaticResource TextCaption}"
-                                           FontWeight="Bold"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource WarningBrush}"/>
-                                <TextBlock FontSize="{StaticResource TextBody}"
+                                <TextBlock FontSize="{DynamicResource FontSize.Body}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextWrapping="Wrap" Margin="0,2,0,0">
                                     <TextBlock.Style>
@@ -215,7 +215,7 @@
                                     Content="{DynamicResource ProformaInvoice.OpenSheetStoreAddSheet}"/>
                         </Grid>
                     </Border>
-<TextBlock Text="{Binding ApplyStatusMessage}" FontSize="{StaticResource TextBody}"
+<TextBlock Text="{Binding ApplyStatusMessage}" FontSize="{DynamicResource FontSize.Body}"
                                Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap" Margin="0,4,0,0">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
@@ -228,7 +228,7 @@
                             </Style>
                         </TextBlock.Style>
                     </TextBlock>
-                    <TextBlock Text="{Binding YieldFactorWarning}" FontSize="{StaticResource TextBody}"
+                    <TextBlock Text="{Binding YieldFactorWarning}" FontSize="{DynamicResource FontSize.Body}"
                                Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
@@ -245,18 +245,18 @@
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="24,0">
                     <TextBlock Text="{DynamicResource ProformaInvoice.EstimatedRATE}"
-                               FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                VerticalAlignment="Bottom" Margin="0,0,10,6"/>
                     <TextBlock Text="AED"
-                               FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"
                                VerticalAlignment="Bottom" Margin="0,0,6,4"/>
                     <TextBlock Text="{Binding EstimatedRatePerSqm, Converter={StaticResource CurrencyConverter}}"
-                               FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock Text="{DynamicResource ProformaInvoice.Sqm}"
-                               FontSize="{StaticResource TextBodyLarge}"
+                               FontSize="{DynamicResource FontSize.Title}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                VerticalAlignment="Bottom" Margin="4,0,0,6"/>
                 </StackPanel>
@@ -284,7 +284,7 @@
                                 Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Padding="0"
                                 Margin="0,0,8,0" Cursor="Hand" FocusVisualStyle="{x:Null}"
                                 ToolTip="{Binding Description}">
-                            <Button.Template>
+                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card"
                                             Background="{DynamicResource SurfacePrimaryBrush}"
@@ -292,13 +292,13 @@
                                             BorderThickness="{DynamicResource Border.HairlineThickness}"
                                             CornerRadius="{DynamicResource CardCornerRadius}"
                                             Padding="12,8"
-                                            Height="40">
+                                            Height="40" Style="{StaticResource SurfacePrimaryStyle}">
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                             <TextBlock x:Name="CodeText" Text="{Binding Code}"
-                                                       FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                                       FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             <TextBlock x:Name="TitleText" Text="{Binding Title}"
-                                                       FontSize="{StaticResource TextBody}"
+                                                       FontSize="{DynamicResource FontSize.Body}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                        Margin="8,0,0,0"
                                                        TextTrimming="CharacterEllipsis"/>

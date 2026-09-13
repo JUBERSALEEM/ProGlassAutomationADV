@@ -19,7 +19,7 @@
 <!-- ══════════════════════════════════════════════════════════
                  RIGHT: INVOICE FAMILY SIDEBAR (Chat 16 — like DN History)
             ══════════════════════════════════════════════════════════ -->
-            <Border Grid.Column="2" Style="{StaticResource CardStyle}">
+            <Border Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -45,10 +45,10 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                           Foreground="{DynamicResource OnAccentForegroundBrush}"><Run Text="&#xE8C8;" FontFamily="Segoe MDL2 Assets"/><Run Text="{DynamicResource TaxInvoice.InvoiceFamily}"/></TextBlock>
+                                <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"><Run Text="&#xE8C8;" FontFamily="{DynamicResource FontFamily.Icon}"/><Run Text="{DynamicResource TaxInvoice.InvoiceFamily}"/></TextBlock>
                                 <TextBlock Text="{DynamicResource TaxInvoice.ClickInvoiceLoadGreenEditing}"
-                                           FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
+                                           FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
                                            Margin="0,2,0,0"
                                            TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
@@ -64,8 +64,8 @@
                                             Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
                                         Background="{DynamicResource SurfaceTertiaryBrush}"
-                                        VerticalAlignment="Center">
-                                    <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}">
+                                        VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}">
                                         <Run Text="{Binding FamilyMemberCount, Mode=OneWay}"/>
                                         <Run Text="{DynamicResource TaxInvoice.InvoiceS}"/>
                                     </TextBlock>
@@ -88,7 +88,7 @@
                                       Margin="0,8,0,8">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Button Style="{StaticResource FamilyRowButtonStyle}"
+                                    <Button Style="{StaticResource Button.Ghost}"
                                             Command="{Binding DataContext.SelectFamilyMemberCommand,
                                                       RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}">
@@ -103,7 +103,7 @@
 
                                                     <StackPanel Grid.Column="0"
                                                                 Orientation="Horizontal">
-                                                        <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}"
+                                                        <TextBlock Text="&#xE8A5;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                                                    VerticalAlignment="Center"/>
                                                         <TextBlock Text="{Binding InvoiceNumber}"
                                                                    Style="{StaticResource FamilyInvoiceNumberStyle}"/>
@@ -114,9 +114,9 @@
                                                                 Background="{DynamicResource SuccessBrush}"
                                                                 VerticalAlignment="Center"
                                                                 Visibility="{Binding IsCurrentInvoice,
-                                                                    Converter={StaticResource BoolToVisibilityConverter}}">
-                                                            <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"><Run Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets"/><Run Text="{DynamicResource DeliveryNote.Editing}"/></TextBlock>
+                                                                    Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                            <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"><Run Text="&#xE8E5;" FontFamily="{DynamicResource FontFamily.Icon}"/><Run Text="{DynamicResource DeliveryNote.Editing}"/></TextBlock>
                                                         </Border>
 
                                                         <!-- Attachment count badge -->
@@ -125,10 +125,10 @@
                                                                 Background="{DynamicResource TintIndigoBrush}"
                                                                 VerticalAlignment="Center"
                                                                 Visibility="{Binding HasAttachments,
-                                                                    Converter={StaticResource BoolToVisibilityConverter}}">
-                                                            <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                                    Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                            <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                                        Foreground="{DynamicResource TextPrimaryBrush}">
-                                                                <Run Text="&#xE723;" FontFamily="Segoe MDL2 Assets"/><Run Text=" "/>
+                                                                <Run Text="&#xE723;" FontFamily="{DynamicResource FontFamily.Icon}"/><Run Text=" "/>
                                                                 <Run Text="{Binding AttachmentCount, Mode=OneWay}"/>
                                                             </TextBlock>
                                                         </Border>
@@ -143,7 +143,7 @@
                                                                      Converter="{StaticResource BrushKeyConverter}"/>
                                                         </Border.Background>
                                                         <TextBlock Text="{Binding StatusLabel}"
-                                                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                     </Border>
                                                 </Grid>
@@ -157,12 +157,12 @@
                                                                      Converter="{StaticResource BrushKeyConverter}"/>
                                                         </Border.Background>
                                                         <TextBlock Text="{Binding InvoiceTypeLabel}"
-                                                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                     </Border>
 
                                                     <TextBlock Text="{Binding IssueDateDisplay}"
-                                                               FontSize="{StaticResource TextCaption}"
+                                                               FontSize="{DynamicResource FontSize.BodySmall}"
                                                                VerticalAlignment="Center"
                                                                Margin="8,0,0,0"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -178,10 +178,10 @@
                                                     <StackPanel Grid.Column="0"
                                                                 Orientation="Horizontal">
                                                         <TextBlock Text="{DynamicResource TaxInvoice.Due}"
-                                                                   FontSize="{StaticResource TextCaption}"
+                                                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
                                                         <TextBlock Text="{Binding DueDateDisplay}"
-                                                                   FontSize="{StaticResource TextCaption}" FontWeight="SemiBold">
+                                                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}">
                                                             <TextBlock.Style>
                                                                 <Style TargetType="TextBlock">
                                                                     <Setter Property="Foreground"
@@ -199,7 +199,7 @@
 
                                                     <TextBlock Grid.Column="1"
                                                                Text="{Binding GrandTotalDisplay}"
-                                                               FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                                Foreground="{DynamicResource SuccessBrush}"/>
                                                 </Grid>
                                             </StackPanel>
@@ -215,42 +215,42 @@
                             Margin="12,0,12,12"
                             Padding="14,12"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
-                            Background="{DynamicResource TintIndigoBrush}">
+                            Background="{DynamicResource TintIndigoBrush}" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource TaxInvoice.FamilyTotals}"
-                                       FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        Margin="0,0,0,8"/>
 
                             <Grid Margin="0,0,0,6">
                                 <TextBlock Text="{DynamicResource TaxInvoice.PITotal}"
-                                           FontSize="{StaticResource TextBody}"
+                                           FontSize="{DynamicResource FontSize.Body}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <TextBlock Text="{Binding FamilyProformaTotalDisplay}"
-                                           FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                            HorizontalAlignment="Right"
                                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                             </Grid>
 
                             <Grid Margin="0,0,0,6">
                                 <TextBlock Text="{DynamicResource Common.Invoiced}"
-                                           FontSize="{StaticResource TextBody}"
+                                           FontSize="{DynamicResource FontSize.Body}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <TextBlock Text="{Binding FamilyInvoicedTotalDisplay}"
-                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                            HorizontalAlignment="Right"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </Grid>
 
                             <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource BorderDefaultBrush}"
                                     BorderThickness="{DynamicResource Border.TopHairlineThickness}"
-                                    Padding="0,6,0,0">
+                                    Padding="0,6,0,0" Style="{StaticResource SurfacePrimaryStyle}">
                                 <Grid>
                                     <TextBlock Text="{DynamicResource Common.Balance}"
-                                               FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{Binding FamilyBalanceTotalDisplay}"
-                                               FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                               FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                                HorizontalAlignment="Right"
                                                Foreground="{DynamicResource WarningBrush}"/>
                                 </Grid>

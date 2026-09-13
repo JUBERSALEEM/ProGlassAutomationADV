@@ -34,11 +34,11 @@
                             Background="{DynamicResource AboutGlassPanelBrush}"
                             BorderBrush="{DynamicResource AboutGlassSlabStroke}"
                             BorderThickness="1"
-                            CornerRadius="10"
-                            SnapsToDevicePixels="True">
+                            CornerRadius="{DynamicResource Radius.Medium}"
+                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                         <TextBlock Text="{Binding Name}"
-                                   FontSize="{StaticResource TextCaption}"
-                                   FontWeight="SemiBold"
+                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                    IsHitTestVisible="False"/>
                     </Border>
@@ -47,14 +47,14 @@
                 <DataTemplate x:Key="DevCapabilityRowTemplate">
                     <StackPanel Orientation="Horizontal" Margin="0,5">
                         <TextBlock Text="&#xE73E;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="{StaticResource TextBody}"
+                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource FontSize.Body}"
                                    Foreground="{DynamicResource SuccessBrush}"
                                    VerticalAlignment="Center"
                                    IsHitTestVisible="False"/>
                         <TextBlock Text="{Binding Title}"
-                                   FontSize="{StaticResource TextBody}"
-                                   FontWeight="Medium"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontWeight="{DynamicResource Weight.Medium}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                    Margin="9,0,0,0"
                                    VerticalAlignment="Center"
@@ -77,7 +77,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- IDENTITY — every element of the original hero, glassified -->
-            <Border Grid.Column="0" Style="{StaticResource AboutCardStyle}">
+            <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
                     <Grid Margin="0,0,0,14">
                         <Grid.ColumnDefinitions>
@@ -86,25 +86,25 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
                             <TextBlock Text="{DynamicResource About.Developer}"
-                                       Style="{StaticResource SectionTitleStyle}"/>
+                                       Style="{StaticResource Typography.H2}"/>
                             <TextBlock Text="{DynamicResource About.CraftsmanshipWorkflowEngineeringProduct}"
-                                       Style="{StaticResource SectionSubtitleStyle}"/>
+                                       Style="{StaticResource Typography.BodySmall}"/>
                         </StackPanel>
-                        <Border Grid.Column="1" Style="{StaticResource AboutHeaderBadgeStyle}">
-                            <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}"
+                        <Border Grid.Column="1" Style="{StaticResource Badge.Primary}">
+                            <TextBlock Style="{StaticResource Typography.Caption}"
                                        Text="{DynamicResource About.CraftedGlassERP}"/>
                         </Border>
                     </Grid>
 
-                    <Border Style="{StaticResource AboutSectionPanelStyle}" Padding="16,14">
+                    <Border Style="{StaticResource SurfaceSecondaryStyle}" Padding="16,14">
                         <StackPanel Orientation="Horizontal">
                             <!-- 84px vivid gradient squircle + the REAL product icon -->
-                            <Border Width="84" Height="84" CornerRadius="20"
+                            <Border Width="84" Height="84" CornerRadius="{DynamicResource Radius.2XLarge}"
                                     Background="{DynamicResource LiquidAccentGradient}"
                                     BorderBrush="{DynamicResource AboutGlassSlabStroke}"
                                     BorderThickness="1"
-                                    SnapsToDevicePixels="True">
-                                <Border Width="76" Height="76" CornerRadius="16" ClipToBounds="True">
+                                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                <Border Width="76" Height="76" CornerRadius="{DynamicResource Radius.XLarge}" ClipToBounds="True">
                                     <Border.Background>
                                         <ImageBrush ImageSource="{x:Static viewsAbout:AppIconResource.Icon}"
                                                     Stretch="UniformToFill"
@@ -114,19 +114,19 @@
                             </Border>
                             <StackPanel Margin="18,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding DeveloperName}"
-                                           FontSize="{StaticResource TextHeadline}"
-                                           FontWeight="Bold"
+                                           FontSize="{DynamicResource FontSize.H1}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextWrapping="Wrap"
                                            IsHitTestVisible="False"/>
                                 <TextBlock Text="{DynamicResource About.PrincipalDeveloperProductDesignWorkflow}"
-                                           FontSize="{StaticResource TextBody}"
+                                           FontSize="{DynamicResource FontSize.Body}"
                                            Foreground="{DynamicResource AboutGlassCaptionBrush}"
                                            Margin="0,6,0,0"
                                            TextWrapping="Wrap"
                                            IsHitTestVisible="False"/>
                                 <!-- Owner directive 2026-09-10: country branding run only -->
-                                <TextBlock FontSize="{StaticResource TextBody}"
+                                <TextBlock FontSize="{DynamicResource FontSize.Body}"
                                            Foreground="{DynamicResource LiquidCerulean}"
                                            Margin="0,6,0,0"
                                            TextWrapping="Wrap"
@@ -145,18 +145,18 @@
                             Background="{DynamicResource AboutGlassPanelBrush}"
                             BorderBrush="{DynamicResource AboutGlassSlabStroke}"
                             BorderThickness="1"
-                            CornerRadius="12"
-                            MouseLeftButtonDown="Email_MouseLeftButtonDown">
+                            CornerRadius="{DynamicResource Radius.Card}"
+                            MouseLeftButtonDown="Email_MouseLeftButtonDown" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xE715;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextBody}"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource FontSize.Body}"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource LiquidAccent}"
                                        Margin="0,0,8,0"/>
                             <TextBlock Text="{Binding Email}"
-                                       FontSize="{StaticResource TextBody}"
-                                       FontWeight="SemiBold"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource LiquidAccent}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
@@ -165,41 +165,41 @@
             </Border>
 
             <!-- PRODUCT FACTS — the original 2×2, stat-tile styled -->
-            <Border Grid.Column="2" Style="{StaticResource AboutCardStyle}">
+            <Border Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource About.ProductFacts}"
-                               Style="{StaticResource SectionTitleStyle}"
+                               Style="{StaticResource Typography.H2}"
                                Margin="0,0,0,14"/>
                     <UniformGrid Columns="2" Rows="2">
-                        <Border Style="{StaticResource AboutSectionPanelStyle}" Margin="0,0,10,10" Padding="14,12">
+                        <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="0,0,10,10" Padding="14,12">
                             <StackPanel>
-                                <TextBlock Text="{DynamicResource About.Version}" FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
+                                <TextBlock Text="{DynamicResource About.Version}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
-                                <TextBlock Text="{Binding Version}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                <TextBlock Text="{Binding Version}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource AboutSectionPanelStyle}" Margin="0,0,0,10" Padding="14,12">
+                        <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="0,0,0,10" Padding="14,12">
                             <StackPanel>
-                                <TextBlock Text="{DynamicResource About.Build}" FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
+                                <TextBlock Text="{DynamicResource About.Build}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
-                                <TextBlock Text="{Binding Build}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                <TextBlock Text="{Binding Build}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource AboutSectionPanelStyle}" Margin="0,10,10,0" Padding="14,12">
+                        <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="0,10,10,0" Padding="14,12">
                             <StackPanel>
-                                <TextBlock Text="{DynamicResource About.Edition}" FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
+                                <TextBlock Text="{DynamicResource About.Edition}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
-                                <TextBlock Text="{Binding LicenseStatus.EditionDisplay}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                <TextBlock Text="{Binding LicenseStatus.EditionDisplay}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource AboutSectionPanelStyle}" Margin="0,10,0,0" Padding="14,12">
+                        <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="0,10,0,0" Padding="14,12">
                             <StackPanel>
-                                <TextBlock Text="{DynamicResource Common.Status}" FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
+                                <TextBlock Text="{DynamicResource Common.Status}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
-                                <TextBlock Text="{Binding LicenseStatus.StatusBadge}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                <TextBlock Text="{Binding LicenseStatus.StatusBadge}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                         </Border>
@@ -216,7 +216,7 @@
                 <ColumnDefinition Width="0.9*"/>
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" Style="{StaticResource AboutCardStyle}">
+            <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
                     <Grid Margin="0,0,0,14">
                         <Grid.ColumnDefinitions>
@@ -225,18 +225,18 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
                             <TextBlock Text="{DynamicResource About.TechnologyStack}"
-                                       Style="{StaticResource SectionTitleStyle}"/>
+                                       Style="{StaticResource Typography.H2}"/>
                             <TextBlock Text="{DynamicResource About.BattleTestedMicrosoftOpenSourceFoundation}"
-                                       Style="{StaticResource SectionSubtitleStyle}"/>
+                                       Style="{StaticResource Typography.BodySmall}"/>
                         </StackPanel>
-                        <Border Grid.Column="1" Style="{StaticResource AboutHeaderBadgeStyle}">
-                            <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}">
+                        <Border Grid.Column="1" Style="{StaticResource Badge.Primary}">
+                            <TextBlock Style="{StaticResource Typography.Caption}">
                                 <Run Text="{DynamicResource About.StackItems}"/>
                                 <Run Text="{Binding TechStack.Count, Mode=OneWay}"/>
                             </TextBlock>
                         </Border>
                     </Grid>
-                    <Border Style="{StaticResource AboutSectionPanelStyle}" Padding="14,14">
+                    <Border Style="{StaticResource SurfaceSecondaryStyle}" Padding="14,14">
                         <ItemsControl ItemsSource="{Binding TechStack}"
                                       ItemTemplate="{StaticResource TechItemTemplate}">
                             <ItemsControl.ItemsPanel>
@@ -249,44 +249,44 @@
                 </StackPanel>
             </Border>
 
-            <Border Grid.Column="2" Style="{StaticResource AboutCardStyle}">
+            <Border Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
                     <TextBlock Text="PRINCIPLES"
-                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource AboutGlassCaptionBrush}"
                                Margin="0,0,0,8"/>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                        <TextBlock Text="01" FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
+                        <TextBlock Text="01" FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AboutGlassCaptionBrush}" VerticalAlignment="Center"/>
                         <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Clean Code" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                            <TextBlock Text="Clean Code" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
-                            <TextBlock Text="Readable and maintainable" FontSize="{StaticResource TextCaption}"
+                            <TextBlock Text="Readable and maintainable" FontSize="{DynamicResource FontSize.BodySmall}"
                                        Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
                         </StackPanel>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                        <TextBlock Text="02" FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
+                        <TextBlock Text="02" FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AboutGlassCaptionBrush}" VerticalAlignment="Center"/>
                         <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Test Driven" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                            <TextBlock Text="Test Driven" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
-                            <TextBlock Text="Unit tests always" FontSize="{StaticResource TextCaption}"
+                            <TextBlock Text="Unit tests always" FontSize="{DynamicResource FontSize.BodySmall}"
                                        Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
                         </StackPanel>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <TextBlock Text="03" FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
+                        <TextBlock Text="03" FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AboutGlassCaptionBrush}" VerticalAlignment="Center"/>
                         <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Continuous" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                            <TextBlock Text="Continuous" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
-                            <TextBlock Text="Deployment automated" FontSize="{StaticResource TextCaption}"
+                            <TextBlock Text="Deployment automated" FontSize="{DynamicResource FontSize.BodySmall}"
                                        Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
                         </StackPanel>
                     </StackPanel>
                     <TextBlock Text="CAPABILITIES"
-                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource AboutGlassCaptionBrush}"
                                Margin="0,0,0,4"/>
                     <ItemsControl ItemsSource="{Binding CapabilitiesTop}"
@@ -298,17 +298,17 @@
         </Grid>
 
         <!-- ═══ ROW 3 · footer strip (original product line + copyright) ═══ -->
-        <Border Style="{StaticResource AboutCardStyle}" Padding="22,14">
+        <Border Style="{StaticResource SurfacePrimaryStyle}" Padding="22,14">
             <StackPanel HorizontalAlignment="Center">
                 <TextBlock Text="{DynamicResource About.ProglassAutomationEnterpriseERPUAEGlass}"
-                           FontSize="{StaticResource TextBodyLarge}"
-                           FontWeight="Bold"
+                           FontSize="{DynamicResource FontSize.Title}"
+                           FontWeight="{DynamicResource Weight.Bold}"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
                            Foreground="{DynamicResource TextPrimaryBrush}"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Copyright}"
-                           FontSize="{StaticResource TextCaption}"
+                           FontSize="{DynamicResource FontSize.BodySmall}"
                            Foreground="{DynamicResource AboutGlassCaptionBrush}"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"

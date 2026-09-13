@@ -45,7 +45,7 @@
             <StackPanel>
                 <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12" Margin="0,0,0,10">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource ProformaInvoice.1OuterPane}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                        <TextBlock Text="{DynamicResource ProformaInvoice.1OuterPane}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -81,7 +81,7 @@
                 <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12" Margin="0,0,0,10"
                         BorderBrush="{DynamicResource AccentBrush}">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource ProformaInvoice.2AirSpacer}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                        <TextBlock Text="{DynamicResource ProformaInvoice.2AirSpacer}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -111,7 +111,7 @@
 
                 <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12" Margin="0,0,0,10">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource ProformaInvoice.3LamOuter}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                        <TextBlock Text="{DynamicResource ProformaInvoice.3LamOuter}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -147,7 +147,7 @@
                 <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12" Margin="0,0,0,10"
                         BorderBrush="{DynamicResource WarningBrush}">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource ProformaInvoice.4Interlayer}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                        <TextBlock Text="{DynamicResource ProformaInvoice.4Interlayer}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource WarningBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -184,7 +184,7 @@
                             </StackPanel>
                         </Grid>
                         <TextBlock Text="{Binding InterlayerMarginDisplay}"
-                                   FontSize="{StaticResource TextBody}"
+                                   FontSize="{DynamicResource FontSize.Body}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    TextWrapping="Wrap"
                                    Margin="0,8,0,0"/>
@@ -193,7 +193,7 @@
 
                 <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12" Margin="0,0,0,10">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource ProformaInvoice.5LamInner}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                        <TextBlock Text="{DynamicResource ProformaInvoice.5LamInner}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -228,7 +228,7 @@
 
                 <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource ProformaInvoice.Costing}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                        <TextBlock Text="{DynamicResource ProformaInvoice.Costing}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,10"/>
                         <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
@@ -253,8 +253,8 @@
                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <TextBox Margin="0,4,0,0"
                                          Text="{Binding CustomPanelExtra, UpdateSourceTrigger=PropertyChanged}"
-                                         ToolTip="Example: With Fanhole and Argon Gas As Per DWG">
-                                    <TextBox.Style>
+                                         ToolTip="Example: With Fanhole and Argon Gas As Per DWG" Style="{StaticResource TextBoxStyle}">
+                                    <TextBox.Style Style="{StaticResource TextBoxStyle}">
                                         <Style TargetType="TextBox" BasedOn="{StaticResource Step4InputStyle}">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>
@@ -304,11 +304,11 @@
                                 <ComboBox ItemsSource="{Binding EdgePolishOptions}" SelectedItem="{Binding EdgePolish}" Style="{StaticResource Step4ComboStyle}"/>
                             </StackPanel>
                             <TextBlock Grid.Column="2" VerticalAlignment="Bottom" Margin="0,0,0,8"
-                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap">
+                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap">
                                 <Run Text="{DynamicResource Inquiry.Cut}"/>
-                                <Run Text="{Binding TotalCuttingCost, StringFormat={}{0:0.##}, Mode=OneWay}" FontWeight="Bold"/>
+                                <Run Text="{Binding TotalCuttingCost, StringFormat={}{0:0.##}, Mode=OneWay}" FontWeight="{DynamicResource Weight.Bold}"/>
                                 <Run Text="{DynamicResource ProformaInvoice.Temper}"/>
-                                <Run Text="{Binding TotalTemperingCost, StringFormat={}{0:0.##}, Mode=OneWay}" FontWeight="Bold"/>
+                                <Run Text="{Binding TotalTemperingCost, StringFormat={}{0:0.##}, Mode=OneWay}" FontWeight="{DynamicResource Weight.Bold}"/>
                             </TextBlock>
                         </Grid>
                     </StackPanel>

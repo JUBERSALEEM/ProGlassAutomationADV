@@ -3,131 +3,17 @@
                     xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
     <!-- Shared styles for Job Order detail sections (also merged by the
          detail view itself - single source, no duplication). -->
-        <Style x:Key="CardLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-        </Style>
+        <!-- Migrated CardLabelStyle to global Typography.Label -->
+    
+
+        
+
         
 
         
+
         
-        <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextTitle}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-        </Style>
+
         
-        
-        
-<!-- Production form card — a light surface that groups related
-             fields (Status & Delivery / Site Delivery / Assignment /
-             Factory Floor) so the production panel reads as labelled
-             sections instead of one endless column of full-width inputs.
-             Sits on the page background (ModuleBackgroundBrush inherited)
-             with a subtle outline and the app's rounded corner. -->
-        <Style x:Key="JoFormCardStyle" TargetType="Border" BasedOn="{StaticResource SpecGroupCardStyle}">
-            <Setter Property="Padding" Value="16,14"/>
-            <Setter Property="Margin" Value="0,0,0,14"/>
-        </Style>
-
-        <!-- Action-bar chip for the compact export / save action row.
-             The row is docked right, so these stay small and tight. -->
-        <Style x:Key="JoActionBarStyle" TargetType="Border" BasedOn="{StaticResource SpecGroupCardStyle}">
-            <Setter Property="Padding" Value="14,10"/>
-            <Setter Property="Margin" Value="0,2,0,0"/>
-            <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
-        </Style>
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             COMPACT FORM TILES (Job Order production — Aug 2026)
-
-             Originally these tiles lived in a WrapPanel with a hard
-             MinWidth/MaxWidth, so on a wide window they clustered on the
-             left and left a big empty gap on the right. Each field is now
-             placed in a responsive star-column Grid and the tiles are
-             stretched to FILL the full available width, so the whole form
-             spans edge to edge and the column widths grow/shrink with the
-             window. The MinWidth below is only a floor so the inputs never
-             collapse on a very narrow window.
-
-             JoFieldTileStyle  - the rounded surface around one field.
-             JoFieldTitleStyle - a big tile label (used for the section).
-             JoCompactLabelStyle - the small field label above the input.
-             JoCompactInputStyle - TextBox with tight, even spacing.
-             JoCompactMultiInputStyle - multiline variant for notes.
-             JoCompactComboStyle - ComboBox matching the compact input.
-             JoCompactDateStyle - DatePicker matching the compact input.
-        ═══════════════════════════════════════════════════════════════ -->
-
-        <Style x:Key="JoFieldTileStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
-            <Setter Property="Background"          Value="{DynamicResource Surface.Detail.BackgroundBrush}"/>
-            <Setter Property="BorderBrush"         Value="{DynamicResource Surface.Detail.BorderBrush}"/>
-            <Setter Property="BorderThickness"     Value="{DynamicResource Surface.Detail.BorderThickness}"/>
-            <Setter Property="CornerRadius"        Value="{DynamicResource Surface.Detail.CornerRadius}"/>
-            <Setter Property="Padding"             Value="12,10"/>
-            <Setter Property="Margin"              Value="0,0,12,12"/>
-            <!-- Auto-compact: tiles live in a WrapPanel so a hidden field
-                 COLLAPSES and the remaining tiles re-flow to fill the row.
-                 Min/Max width keep them even and readable on narrow panes. -->
-            <Setter Property="MinWidth"            Value="240"/>
-            <Setter Property="MaxWidth"            Value="380"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding"   Value="True"/>
-        </Style>
-
-        <Style x:Key="JoFieldTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
-            <Setter Property="FontWeight"        Value="Bold"/>
-            <Setter Property="Foreground"        Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="IsHitTestVisible"  Value="False"/>
-        </Style>
-
-        <Style x:Key="JoCompactLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="Margin"     Value="0,0,0,3"/>
-            <Setter Property="IsHitTestVisible" Value="False"/>
-        </Style>
-
-        <Style x:Key="JoCompactInputStyle" TargetType="TextBox">
-            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-            <Setter Property="Padding"     Value="8,6"/>
-            <Setter Property="Margin"      Value="0,0,0,0"/>
-            <Setter Property="Background"  Value="{DynamicResource SurfaceTertiaryBrush}"/>
-            <Setter Property="Foreground"  Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-
-        <Style x:Key="JoCompactMultiInputStyle" TargetType="TextBox"
-               BasedOn="{StaticResource JoCompactInputStyle}">
-            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="False"/>
-            <Setter Property="AcceptsReturn" Value="True"/>
-            <Setter Property="TextWrapping"  Value="Wrap"/>
-            <Setter Property="MinHeight"     Value="52"/>
-            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
-        </Style>
-
-        <Style x:Key="JoCompactComboStyle" TargetType="ComboBox">
-            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-            <Setter Property="Padding"     Value="6,4"/>
-            <Setter Property="Margin"      Value="0,0,0,0"/>
-            <Setter Property="Height"      Value="30"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Background"  Value="{DynamicResource SurfaceTertiaryBrush}"/>
-        </Style>
-
-        <Style x:Key="JoCompactDateStyle" TargetType="DatePicker">
-            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-            <Setter Property="Padding"     Value="6,4"/>
-            <Setter Property="Margin"      Value="0,0,0,0"/>
-            <Setter Property="Height"      Value="30"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Background"  Value="{DynamicResource SurfaceTertiaryBrush}"/>
-        </Style>
 
 </ResourceDictionary>

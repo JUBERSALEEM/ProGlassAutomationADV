@@ -21,40 +21,11 @@
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-        <Style x:Key="UcFieldLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
-            <Setter Property="Margin" Value="0,0,0,4"/>
-        </Style>
-        <Style x:Key="UcTextBox" TargetType="TextBox">
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-        <Style x:Key="UcPasswordBox" TargetType="PasswordBox">
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
+        
+        
+        
         <!-- Strength-meter segment: 4 per meter, lit left-to-right by score. -->
-        <Style x:Key="UcMeterSegment" TargetType="Border">
-            <Setter Property="Height" Value="5"/>
-            <Setter Property="Width" Value="44"/>
-            <Setter Property="CornerRadius" Value="2.5"/>
-            <Setter Property="Margin" Value="0,0,6,0"/>
-            <Setter Property="Background" Value="{DynamicResource BorderDefaultBrush}"/>
-        </Style>
+        
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -69,19 +40,19 @@
                     BorderBrush="{DynamicResource WarningBrush}"
                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                     Visibility="{Binding IsDefaultPasswordInUse,
-                                 Converter={StaticResource BoolToVisibilityConverter}}">
+                                 Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE7BA;"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="{StaticResource TextTitle}" VerticalAlignment="Center"
+                               FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="{DynamicResource FontSize.H2}" VerticalAlignment="Center"
                                Margin="0,0,12,0"
                                Foreground="{DynamicResource WarningBrush}"/>
                     <StackPanel>
                         <TextBlock Text="{DynamicResource UserCenter.DefaultAdministratorPasswordStillUse}"
-                                   FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource WarningBrush}"/>
                         <TextBlock Text="{DynamicResource UserCenter.SeededAdminAccountStillUsesDefaultPassword}"
-                                   FontSize="{StaticResource TextBody}" Margin="0,3,0,0"
+                                   FontSize="{DynamicResource FontSize.Body}" Margin="0,3,0,0"
                                    TextWrapping="Wrap"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>
@@ -92,12 +63,12 @@
             <DockPanel Margin="0,0,0,18">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Module.UserCenter}"
-                               FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"/>
-                    <TextBlock FontSize="{StaticResource TextBody}" Margin="0,4,0,0"
+                    <TextBlock FontSize="{DynamicResource FontSize.Body}" Margin="0,4,0,0"
                                Foreground="{DynamicResource SecondaryForegroundBrush}">
                         <Run Text="{DynamicResource Shell.UserHint}"/>
-                        <Run Text="{Binding CurrentUserName, Mode=OneWay}" FontWeight="Bold"/>
+                        <Run Text="{Binding CurrentUserName, Mode=OneWay}" FontWeight="{DynamicResource Weight.Bold}"/>
                         <Run Text="{DynamicResource UserCenter.ActiveUserSignsAuditEntriesFillsDocument}"/>
                     </TextBlock>
                 </StackPanel>
@@ -126,7 +97,7 @@
                                     behaviors:ClickToCommandBehavior.Command="{Binding SelectUserCommand}"
                                         behaviors:ClickToCommandBehavior.CommandParameter="{Binding Tag, RelativeSource={RelativeSource Self}}"
                                     Tag="{Binding}"
-                                    SnapsToDevicePixels="True">
+                                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="BorderBrush"
@@ -149,10 +120,10 @@
                                     <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Width="44" Height="44"
                                             CornerRadius="{DynamicResource CardCornerRadius}"
                                             VerticalAlignment="Center"
-                                            Background="{DynamicResource TintIndigoBrush}">
+                                            Background="{DynamicResource TintIndigoBrush}" Style="{StaticResource SurfacePrimaryStyle}">
                                         <TextBlock Text="&#xE77B;"
-                                                   FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="{StaticResource TextTitle}"
+                                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                                   FontSize="{DynamicResource FontSize.H2}"
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"/>
@@ -161,10 +132,10 @@
                                     <StackPanel Grid.Column="1" Margin="12,0,8,0"
                                                 VerticalAlignment="Center">
                                         <TextBlock Text="{Binding DisplayName}"
-                                                   FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                                    TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock FontSize="{StaticResource TextCaption}" Margin="0,2,0,0"
+                                        <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" Margin="0,2,0,0"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}">
                                             <Run Text="{Binding Username, Mode=OneWay}"/>
                                             <Run Text="  ·  "/>
@@ -172,14 +143,14 @@
                                         </TextBlock>
                                         <!-- Sharing Center contact (blank when none on file). -->
                                         <TextBlock Text="{Binding ContactLine}"
-                                                   FontSize="{StaticResource TextCaption}" Margin="0,2,0,0"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}" Margin="0,2,0,0"
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    TextTrimming="CharacterEllipsis"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
                                         <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintIndigoBrush}"
-                                                CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3">
+                                                CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3" Style="{StaticResource SurfacePrimaryStyle}">
                                             <Border.Style>
                                                 <Style TargetType="Border">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -190,8 +161,8 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Border.Style>
-                                            <TextBlock Text="{DynamicResource UserCenter.Signed}" FontSize="{StaticResource TextCaption}"
-                                                       FontWeight="Bold"
+                                            <TextBlock Text="{DynamicResource UserCenter.Signed}" FontSize="{DynamicResource FontSize.BodySmall}"
+                                                       FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource AccentBrush}"/>
                                         </Border>
                                         <Button Style="{StaticResource RowOutlinedButton}"
@@ -213,11 +184,11 @@
                         Background="{DynamicResource SurfacePrimaryBrush}"
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="24,20">
+                        Padding="24,20" Style="{StaticResource SurfacePrimaryStyle}">
                     <StackPanel>
 
                         <TextBlock Text="{DynamicResource SystemCenter.CreateUSER}"
-                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AccentBrush}"
                                    Margin="0,0,0,14"/>
 
@@ -244,70 +215,70 @@
                             </Grid.RowDefinitions>
 
                             <StackPanel Grid.Row="0" Grid.Column="0">
-                                <TextBlock Text="{DynamicResource UserCenter.Username}" Style="{StaticResource UcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource UserCenter.Username}" Style="{StaticResource Typography.Label}"/>
                                 <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource UcTextBox}"/>
+                                         Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
                             <StackPanel Grid.Row="0" Grid.Column="2">
-                                <TextBlock Text="{DynamicResource UserCenter.DisplayNAME}" Style="{StaticResource UcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource UserCenter.DisplayNAME}" Style="{StaticResource Typography.Label}"/>
                                 <TextBox Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource UcTextBox}"/>
+                                         Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Row="2" Grid.Column="0">
-                                <TextBlock Text="{DynamicResource SystemCenter.ROLE}" Style="{StaticResource UcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource SystemCenter.ROLE}" Style="{StaticResource Typography.Label}"/>
                                 <ComboBox ItemsSource="{Binding RoleOptions}"
                                           SelectedItem="{Binding SelectedRole}"
-                                          Height="38" FontSize="{StaticResource TextBodyLarge}"
-                                          VerticalContentAlignment="Center"/>
+                                          Height="38" FontSize="{DynamicResource FontSize.Title}"
+                                          VerticalContentAlignment="Center" Style="{StaticResource ComboBoxStyle}"/>
                             </StackPanel>
                             <StackPanel Grid.Row="2" Grid.Column="2">
-                                <TextBlock Text="{DynamicResource UserCenter.Password}" Style="{StaticResource UcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource UserCenter.Password}" Style="{StaticResource Typography.Label}"/>
                                 <PasswordBox x:Name="NewPasswordBox"
-                                             Style="{StaticResource UcPasswordBox}"
+                                             Style="{StaticResource Input.TextBox}"
                                              PasswordChanged="NewPasswordBox_PasswordChanged"/>
                                 <!-- Strength meter: lit by PasswordMeterHelper. -->
                                 <StackPanel x:Name="NewPasswordMeter" Orientation="Horizontal" Margin="0,6,0,0">
-                                    <Border Style="{StaticResource UcMeterSegment}"/>
-                                    <Border Style="{StaticResource UcMeterSegment}"/>
-                                    <Border Style="{StaticResource UcMeterSegment}"/>
-                                    <Border Style="{StaticResource UcMeterSegment}"/>
+                                    <Border Style="{StaticResource SurfaceDetailStyle}"/>
+                                    <Border Style="{StaticResource SurfaceDetailStyle}"/>
+                                    <Border Style="{StaticResource SurfaceDetailStyle}"/>
+                                    <Border Style="{StaticResource SurfaceDetailStyle}"/>
                                     <TextBlock x:Name="NewPasswordMeterLabel"
-                                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
                                 <TextBlock x:Name="NewPasswordGuidance"
-                                           FontSize="{StaticResource TextCaption}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
                                            Foreground="{DynamicResource TextTertiaryBrush}"
                                            TextWrapping="Wrap" Margin="0,2,0,0"
                                            Visibility="Collapsed"/>
                             </StackPanel>
 
                             <StackPanel Grid.Row="4" Grid.ColumnSpan="3">
-                                <TextBlock Text="{DynamicResource UserCenter.ConfirmPassword}" Style="{StaticResource UcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource UserCenter.ConfirmPassword}" Style="{StaticResource Typography.Label}"/>
                                 <PasswordBox x:Name="ConfirmPasswordBox"
-                                             Style="{StaticResource UcPasswordBox}"/>
+                                             Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
 
                             <!-- PHASE D — WHY note recorded with the audit entry -->
                             <StackPanel Grid.Row="6" Grid.ColumnSpan="3">
                                 <TextBlock Text="{DynamicResource CompanyCenter.WHYNOTEOptionalRecordedAuditTrail}"
-                                           Style="{StaticResource UcFieldLabel}"/>
+                                           Style="{StaticResource Typography.Label}"/>
                                 <TextBox Text="{Binding ReasonNote, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource UcTextBox}"
+                                         Style="{StaticResource Input.TextBox}"
                                          ToolTip="{DynamicResource UserCenter.ReasonCreatingUserEGNewEstimatorJoinedDubai}"/>
                             </StackPanel>
 
                             <!-- Sharing Center FROM contact (optional). -->
                             <StackPanel Grid.Row="8" Grid.Column="0">
-                                <TextBlock Text="{DynamicResource UserCenter.Mobile}" Style="{StaticResource UcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource UserCenter.Mobile}" Style="{StaticResource Typography.Label}"/>
                                 <TextBox Text="{Binding Mobile, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource UcTextBox}"/>
+                                         Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
                             <StackPanel Grid.Row="8" Grid.Column="2">
-                                <TextBlock Text="{DynamicResource UserCenter.Email}" Style="{StaticResource UcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource UserCenter.Email}" Style="{StaticResource Typography.Label}"/>
                                 <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource UcTextBox}"/>
+                                         Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Row="10" Grid.ColumnSpan="3"
@@ -322,16 +293,16 @@
                                 Background="{DynamicResource DividerBrush}"/>
 
                         <TextBlock Text="{DynamicResource SystemCenter.SwitchActiveUser}"
-                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AccentBrush}"
                                    Margin="0,0,0,6"/>
                         <TextBlock Text="{DynamicResource UserCenter.SelectUserCardEnterPasswordSignPrepared}"
-                                   Style="{StaticResource UcFieldLabel}"
+                                   Style="{StaticResource Typography.Label}"
                                    TextWrapping="Wrap" Margin="0,0,0,10"/>
                         <StackPanel Orientation="Horizontal">
                             <PasswordBox x:Name="SwitchPasswordBox"
                                          Width="240"
-                                         Style="{StaticResource UcPasswordBox}"/>
+                                         Style="{StaticResource Input.TextBox}"/>
                             <Button Style="{StaticResource PrimaryPillButton}"
                                     Tag="&#xE895;" Content="{DynamicResource UserCenter.SIGNSelected}"
                                     Click="SwitchUser_Click"
@@ -343,51 +314,51 @@
 
                         <!-- A-3 — CHANGE PASSWORD -->
                         <TextBlock Text="{DynamicResource UserCenter.ChangePassword}"
-                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AccentBrush}"
                                    Margin="0,0,0,6"/>
                         <TextBlock Text="{DynamicResource UserCenter.SelectUserCardProveCurrentPasswordThenSetNew}"
-                                   Style="{StaticResource UcFieldLabel}"
+                                   Style="{StaticResource Typography.Label}"
                                    TextWrapping="Wrap" Margin="0,0,0,10"/>
 
                         <StackPanel Orientation="Horizontal">
                             <StackPanel Margin="0,0,12,0">
                                 <TextBlock Text="{DynamicResource Login.CurrentPassword}"
-                                           Style="{StaticResource UcFieldLabel}"/>
+                                           Style="{StaticResource Typography.Label}"/>
                                 <PasswordBox x:Name="CurrentPasswordBox"
                                              Width="200"
-                                             Style="{StaticResource UcPasswordBox}"/>
+                                             Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
                             <StackPanel Margin="0,0,12,0">
                                 <TextBlock Text="{DynamicResource Login.NEWPassword}"
-                                           Style="{StaticResource UcFieldLabel}"/>
+                                           Style="{StaticResource Typography.Label}"/>
                                 <PasswordBox x:Name="ChangeNewPasswordBox"
                                              Width="200"
-                                             Style="{StaticResource UcPasswordBox}"
+                                             Style="{StaticResource Input.TextBox}"
                                              PasswordChanged="ChangeNewPasswordBox_PasswordChanged"/>
                                 <!-- Strength meter: lit by PasswordMeterHelper. -->
                                 <StackPanel x:Name="ChangePasswordMeter" Orientation="Horizontal" Margin="0,6,0,0">
-                                    <Border Style="{StaticResource UcMeterSegment}"/>
-                                    <Border Style="{StaticResource UcMeterSegment}"/>
-                                    <Border Style="{StaticResource UcMeterSegment}"/>
-                                    <Border Style="{StaticResource UcMeterSegment}"/>
+                                    <Border Style="{StaticResource SurfaceDetailStyle}"/>
+                                    <Border Style="{StaticResource SurfaceDetailStyle}"/>
+                                    <Border Style="{StaticResource SurfaceDetailStyle}"/>
+                                    <Border Style="{StaticResource SurfaceDetailStyle}"/>
                                     <TextBlock x:Name="ChangePasswordMeterLabel"
-                                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
                                 <TextBlock x:Name="ChangePasswordGuidance"
                                            Width="200"
-                                           FontSize="{StaticResource TextCaption}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
                                            Foreground="{DynamicResource TextTertiaryBrush}"
                                            TextWrapping="Wrap" Margin="0,2,0,0"
                                            Visibility="Collapsed"/>
                             </StackPanel>
                             <StackPanel Margin="0,0,12,0">
                                 <TextBlock Text="{DynamicResource UserCenter.ConfirmNEW}"
-                                           Style="{StaticResource UcFieldLabel}"/>
+                                           Style="{StaticResource Typography.Label}"/>
                                 <PasswordBox x:Name="ChangeConfirmPasswordBox"
                                              Width="200"
-                                             Style="{StaticResource UcPasswordBox}"/>
+                                             Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
                             <Button Style="{StaticResource PrimaryPillButton}"
                                     Tag="&#xE72E;" Content="{DynamicResource UserCenter.ChangePassword}"
@@ -400,23 +371,23 @@
 
                         <!-- Sharing Center contact for the SELECTED card. -->
                         <TextBlock Text="{DynamicResource Sharing.Title}"
-                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AccentBrush}"
                                    Margin="0,0,0,10"/>
                         <StackPanel Orientation="Horizontal">
                             <StackPanel Margin="0,0,12,0">
                                 <TextBlock Text="{DynamicResource UserCenter.Mobile}"
-                                           Style="{StaticResource UcFieldLabel}"/>
+                                           Style="{StaticResource Typography.Label}"/>
                                 <TextBox Text="{Binding SelectedMobile, UpdateSourceTrigger=PropertyChanged}"
                                          Width="200"
-                                         Style="{StaticResource UcTextBox}"/>
+                                         Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
                             <StackPanel Margin="0,0,12,0">
                                 <TextBlock Text="{DynamicResource UserCenter.Email}"
-                                           Style="{StaticResource UcFieldLabel}"/>
+                                           Style="{StaticResource Typography.Label}"/>
                                 <TextBox Text="{Binding SelectedEmail, UpdateSourceTrigger=PropertyChanged}"
                                          Width="240"
-                                         Style="{StaticResource UcTextBox}"/>
+                                         Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
                             <Button Style="{StaticResource PrimaryPillButton}"
                                     Tag="&#xE74E;" Content="{DynamicResource UserCenter.SaveContact}"
@@ -425,7 +396,7 @@
                         </StackPanel>
 
                         <TextBlock Text="{Binding Status}"
-                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Margin="0,14,0,0"
                                    Foreground="{DynamicResource AccentBrush}"
                                    TextWrapping="Wrap"/>

@@ -39,7 +39,7 @@
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
-                                SnapsToDevicePixels="True">
+                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
                         </Border>
@@ -81,7 +81,7 @@
             BorderBrush="{DynamicResource BorderSubtleBrush}"
             Cursor="SizeAll"
             ToolTip="{DynamicResource Shared.DragMoveRecorder}"
-            MouseLeftButtonDown="HudDrag_MouseLeftButtonDown">
+            MouseLeftButtonDown="HudDrag_MouseLeftButtonDown" Style="{StaticResource SurfacePrimaryStyle}">
         <Border.Background>
             <SolidColorBrush Color="{DynamicResource LiquidOverlayColor}"/>
         </Border.Background>
@@ -93,12 +93,12 @@
                          VerticalAlignment="Center" Fill="{Binding DotBrush}"/>
 
                 <TextBlock DockPanel.Dock="Left"
-                           Text="{Binding BadgeText}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                           Text="{Binding BadgeText}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{Binding BadgeBrush}" VerticalAlignment="Center"
                            Margin="0,0,8,0"/>
 
                 <TextBlock DockPanel.Dock="Left"
-                           Text="{Binding TimeText}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                           Text="{Binding TimeText}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource OnAccentForegroundBrush}" VerticalAlignment="Center"
                            MinWidth="52" TextAlignment="Right"/>
 
@@ -106,51 +106,51 @@
                             VerticalAlignment="Center" Margin="10,0,0,0">
                     <!-- Pause / Resume — ⏸ ▶ (Segoe MDL2) -->
                     <Button
-                            Style="{StaticResource HudButtonStyle}"
+                            Style="{StaticResource Button.Ghost}"
                             Command="{Binding PauseCommand}"
                             Margin="0,0,4,0"
                             Visibility="{Binding PauseVisibility}"
                             Background="{DynamicResource SurfaceElevatedBrush}"
                             AutomationProperties.Name="Pause or resume recording">
-                        <TextBlock Text="{Binding PauseGlyph}" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="{StaticResource TextBody}" VerticalAlignment="Center"
+                        <TextBlock Text="{Binding PauseGlyph}" FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
                                    HorizontalAlignment="Center"/>
                     </Button>
                     <!-- Stop — ⏹ (Segoe MDL2) -->
                     <Button
-                            Style="{StaticResource HudButtonStyle}"
+                            Style="{StaticResource Button.Ghost}"
                             Command="{Binding StopCommand}"
                             Margin="0,0,4,0"
                             Visibility="{Binding StopVisibility}"
                             IsEnabled="{Binding IsStopEnabled}"
                             Background="{DynamicResource DangerBrush}"
                             AutomationProperties.Name="Stop and save recording">
-                        <TextBlock Text="&#xE71A;" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="{StaticResource TextBody}" VerticalAlignment="Center"
+                        <TextBlock Text="&#xE71A;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
                                    HorizontalAlignment="Center"/>
                     </Button>
                     <!-- Open folder — visible after SAVED (Aug 2026 fix) -->
                     <Button
-                            Style="{StaticResource HudButtonStyle}"
+                            Style="{StaticResource Button.Ghost}"
                             Command="{Binding OpenFolderCommand}"
                             Margin="0,0,4,0"
                             Background="{DynamicResource AccentBrush}"
                             Visibility="{Binding OpenFolderVisibility}"
                             ToolTip="{DynamicResource Shared.OpenFolderWhereVideoSaved}"
                             AutomationProperties.Name="Open recording folder">
-                        <TextBlock Text="&#xE8DA;" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="{StaticResource TextBody}" VerticalAlignment="Center"
+                        <TextBlock Text="&#xE8DA;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
                                    HorizontalAlignment="Center"/>
                     </Button>
                     <!-- Dismiss after SAVED / FAILED -->
                     <Button
-                            Style="{StaticResource HudButtonStyle}"
+                            Style="{StaticResource Button.Ghost}"
                             Command="{Binding CloseCommand}"
                             Background="{DynamicResource SurfacePrimaryBrush}"
                             Visibility="{Binding CloseVisibility}"
                             AutomationProperties.Name="Close">
-                        <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="{StaticResource TextBody}" VerticalAlignment="Center"
+                        <TextBlock Text="&#xE711;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
                                    HorizontalAlignment="Center"/>
                     </Button>
                 </StackPanel>
@@ -159,7 +159,7 @@
             <!-- Only visible while finalizing / finished -->
             <TextBlock
                        Text="{Binding StageText}"
-                       FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource TextTertiaryBrush}"
+                       FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}"
                        Margin="16,4,0,0" TextWrapping="Wrap"
                        MaxWidth="260"
                        Visibility="{Binding StageVisibility}"/>

@@ -35,7 +35,7 @@
         <!-- ══ ROW 0 — HEADER ══ -->
         <Border Grid.Row="0" Margin="24,16,24,0"
                 CornerRadius="{DynamicResource CardCornerRadius}" ClipToBounds="True">
-            <Border CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource AccentBrush}" Padding="24,20">
+            <Border CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource AccentBrush}" Padding="24,20" Style="{StaticResource SurfacePrimaryStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -45,37 +45,37 @@
 
                     <Border Grid.Column="0" Width="56" Height="56"
                             Background="{DynamicResource SurfacePrimaryBrush}"
-                            CornerRadius="{DynamicResource CardCornerRadius}" Margin="0,0,18,0">
-                        <TextBlock Text="≡" FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
+                            CornerRadius="{DynamicResource CardCornerRadius}" Margin="0,0,18,0" Style="{StaticResource SurfacePrimaryStyle}">
+                        <TextBlock Text="≡" FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AccentBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
 
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="Report Generator" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                        <TextBlock Text="Report Generator" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,0,0,4"/>
-                        <TextBlock Text="Overall Order Reports" FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                        <TextBlock Text="Overall Order Reports" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Text="{Binding StatusMessage}" FontSize="{StaticResource TextBody}"
+                        <TextBlock Text="{Binding StatusMessage}" FontSize="{DynamicResource FontSize.Body}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.9" Margin="0,4,0,0"/>
                     </StackPanel>
 
                     <Button Grid.Column="2" Command="{Binding NewReportCommand}"
                             VerticalAlignment="Center" Height="40" Padding="20,0"
-                            FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
-                            Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
-                        <Button.Template>
+                            FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
+                            Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
+                        <Button.Template Style="{StaticResource SecondaryButtonStyle}">
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="bd" Background="{DynamicResource SurfacePrimaryBrush}"
                                         BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
-                                        Padding="{TemplateBinding Padding}">
+                                        Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="+" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                                        <TextBlock Text="+" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"
                                                    Margin="0,0,8,0"/>
-                                        <TextBlock Text="New Report" FontSize="{StaticResource TextBodyLarge}"
-                                                   FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"
+                                        <TextBlock Text="New Report" FontSize="{DynamicResource FontSize.Title}"
+                                                   FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource AccentBrush}"
                                                    VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
@@ -105,22 +105,22 @@
             </Grid.ColumnDefinitions>
 
             <Border Grid.Column="0" Background="{DynamicResource AccentBrush}"
-                    CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,14">
+                    CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,14" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
-                    <TextBlock Text="Reports" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                    <TextBlock Text="{Binding TotalReportsDisplay}" FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                    <TextBlock Text="Reports" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                    <TextBlock Text="{Binding TotalReportsDisplay}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,6,0,2"/>
-                    <TextBlock Text="Total saved" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.85"/>
+                    <TextBlock Text="Total saved" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.85"/>
                 </StackPanel>
             </Border>
 
             <Border Grid.Column="2" Background="{DynamicResource SuccessBrush}"
-                    CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,14">
+                    CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,14" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
-                    <TextBlock Text="Invoiced Value" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                    <TextBlock Text="{Binding TotalInvoicedValueDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                    <TextBlock Text="Invoiced Value" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                    <TextBlock Text="{Binding TotalInvoicedValueDisplay}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,6,0,2"/>
-                    <TextBlock Text="Across all reports" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.85"/>
+                    <TextBlock Text="Across all reports" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.85"/>
                 </StackPanel>
             </Border>
 
@@ -142,8 +142,8 @@
                     <TextBlock Text="Missing Documents">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
-                                <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
+                                <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
                                 <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding HasMissingDocuments}" Value="True">
@@ -153,7 +153,7 @@
                             </Style>
                         </TextBlock.Style>
                     </TextBlock>
-                    <TextBlock Text="{Binding TotalMissingDocumentsDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                    <TextBlock Text="{Binding TotalMissingDocumentsDisplay}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                Margin="0,6,0,2">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
@@ -166,7 +166,7 @@
                             </Style>
                         </TextBlock.Style>
                     </TextBlock>
-                    <TextBlock Text="Delivery notes without attachments" FontSize="{StaticResource TextBody}">
+                    <TextBlock Text="Delivery notes without attachments" FontSize="{DynamicResource FontSize.Body}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
@@ -188,7 +188,7 @@
                 Background="{DynamicResource SurfacePrimaryBrush}"
                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
-                CornerRadius="{DynamicResource CardCornerRadius}" Padding="12,10">
+                CornerRadius="{DynamicResource CardCornerRadius}" Padding="12,10" Style="{StaticResource SurfacePrimaryStyle}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -198,40 +198,40 @@
 
                 <Border Grid.Column="0" Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                         BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                        CornerRadius="{DynamicResource ControlCornerRadius}" Height="38">
+                        CornerRadius="{DynamicResource ControlCornerRadius}" Height="38" Style="{StaticResource SurfacePrimaryStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="40"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Background="{DynamicResource AccentBrush}" CornerRadius="{DynamicResource Radius.Left.Medium}">
-                            <TextBlock Text="⌕" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource OnAccentForegroundBrush}"
+                        <Border Grid.Column="0" Background="{DynamicResource AccentBrush}" CornerRadius="{DynamicResource Radius.Left.Medium}" Style="{StaticResource SurfacePrimaryStyle}">
+                            <TextBlock Text="⌕" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <Grid Grid.Column="1" Margin="10,0,0,0">
                             <TextBlock Text="Search report number, customer, project or company…"
-                                       FontSize="{StaticResource TextBody}"
+                                       FontSize="{DynamicResource FontSize.Body}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        VerticalAlignment="Center" IsHitTestVisible="False"
                                        Visibility="{Binding HasSearchText, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
                             <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                                     FontSize="{StaticResource TextBodyLarge}" Background="Transparent"
+                                     FontSize="{DynamicResource FontSize.Title}" Background="Transparent"
                                      BorderThickness="{DynamicResource Border.NoneThickness}" Foreground="{DynamicResource TextPrimaryBrush}"
-                                     VerticalContentAlignment="Center" CaretBrush="{DynamicResource AccentBrush}"/>
+                                     VerticalContentAlignment="Center" CaretBrush="{DynamicResource AccentBrush}" Style="{StaticResource TextBoxStyle}"/>
                         </Grid>
                     </Grid>
                 </Border>
 
                 <Button Grid.Column="2" Command="{Binding ClearSearchCommand}"
                         Visibility="{Binding HasSearchText, Converter={StaticResource BoolToVisibilityConverter}}"
-                        Height="38" Width="38" FontSize="{StaticResource TextBody}" Cursor="Hand"
-                        BorderThickness="{DynamicResource Border.NoneThickness}" ToolTip="Clear search">
-                    <Button.Template>
+                        Height="38" Width="38" FontSize="{DynamicResource FontSize.Body}" Cursor="Hand"
+                        BorderThickness="{DynamicResource Border.NoneThickness}" ToolTip="Clear search" Style="{StaticResource SecondaryButtonStyle}">
+                    <Button.Template Style="{StaticResource SecondaryButtonStyle}">
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="bd" Background="{DynamicResource SurfacePrimaryBrush}"
                                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}">
-                                <TextBlock Text="✕" FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}" Style="{StaticResource SurfacePrimaryStyle}">
+                                <TextBlock Text="✕" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
@@ -247,16 +247,16 @@
 
                 <Button Grid.Column="2" Command="{Binding RefreshCommand}"
                         Visibility="{Binding HasSearchText, Converter={StaticResource InverseBoolToVisibilityConverter}}"
-                        Height="38" Padding="16,0" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                        Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
-                    <Button.Template>
+                        Height="38" Padding="16,0" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                        Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
+                    <Button.Template Style="{StaticResource SecondaryButtonStyle}">
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="bd" Background="{DynamicResource AccentBrush}"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}" Padding="{TemplateBinding Padding}">
+                                    CornerRadius="{DynamicResource ControlCornerRadius}" Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="↻" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                    <TextBlock Text="↻" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                    <TextBlock Text="Refresh" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                    <TextBlock Text="Refresh" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                Foreground="{DynamicResource OnAccentForegroundBrush}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
@@ -277,7 +277,7 @@
                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 CornerRadius="{DynamicResource ControlCornerRadius}" Padding="16,8"
-                Visibility="{Binding IsListVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                Visibility="{Binding IsListVisible, Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="6"/>
@@ -287,15 +287,15 @@
                     <ColumnDefinition Width="120"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="1" Text="Report" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                <TextBlock Grid.Column="1" Text="Report" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="14,0,0,0"/>
-                <TextBlock Grid.Column="2" Text="Quantities" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                <TextBlock Grid.Column="2" Text="Quantities" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                <TextBlock Grid.Column="3" Text="Invoiced Value" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                <TextBlock Grid.Column="3" Text="Invoiced Value" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                <TextBlock Grid.Column="4" Text="Missing Docs" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                <TextBlock Grid.Column="4" Text="Missing Docs" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                <TextBlock Grid.Column="5" Text="Actions" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                <TextBlock Grid.Column="5" Text="Actions" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Right"/>
             </Grid>
         </Border>
@@ -307,10 +307,10 @@
                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
-                    Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+                    Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,48,0,48">
-                    <TextBlock Text="↻" FontSize="{StaticResource TextDisplay}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"/>
-                    <TextBlock Text="Loading order reports…" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                    <TextBlock Text="↻" FontSize="{DynamicResource FontSize.Kpi}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Loading order reports…" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center"
                                Margin="0,18,0,0"/>
                 </StackPanel>
@@ -320,22 +320,22 @@
                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
-                    Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
+                    Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="420" Margin="0,48,0,48">
-                    <TextBlock Text="No reports yet" FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                    <TextBlock Text="No reports yet" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center"
                                Margin="0,0,0,8"/>
                     <TextBlock Text="Generate an Overall Report to track a proforma invoice through job order, delivery and invoicing."
-                               FontSize="{StaticResource TextBodyLarge}" TextWrapping="Wrap" TextAlignment="Center"
+                               FontSize="{DynamicResource FontSize.Title}" TextWrapping="Wrap" TextAlignment="Center"
                                Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,24"/>
                     <Button Content="+ New Report" Command="{Binding NewReportCommand}"
-                            Height="40" Padding="28,0" FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
+                            Height="40" Padding="28,0" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
                             Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" HorizontalAlignment="Center"
-                            Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource OnAccentForegroundBrush}">
-                        <Button.Template>
+                            Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource OnAccentForegroundBrush}" Style="{StaticResource SecondaryButtonStyle}">
+                        <Button.Template Style="{StaticResource SecondaryButtonStyle}">
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="bd" Background="{DynamicResource AccentBrush}"
-                                        CornerRadius="{DynamicResource ControlCornerRadius}" Padding="{TemplateBinding Padding}">
+                                        CornerRadius="{DynamicResource ControlCornerRadius}" Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
                                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
@@ -384,7 +384,7 @@
                         <Border Background="{DynamicResource SurfacePrimaryBrush}"
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
-                                CornerRadius="{DynamicResource CardCornerRadius}" ClipToBounds="True">
+                                CornerRadius="{DynamicResource CardCornerRadius}" ClipToBounds="True" Style="{StaticResource SurfacePrimaryStyle}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="6"/>
@@ -412,24 +412,24 @@
                                 <Border Grid.Column="1" Padding="16,14,12,14">
                                     <StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,7">
-                                            <TextBlock Text="{Binding ReportNumber, Mode=OneWay}" FontSize="{StaticResource TextBodyLarge}"
-                                                       FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
-                                            <TextBlock Text="  /  " FontSize="{StaticResource TextBodyLarge}"
+                                            <TextBlock Text="{Binding ReportNumber, Mode=OneWay}" FontSize="{DynamicResource FontSize.Title}"
+                                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}"/>
+                                            <TextBlock Text="  /  " FontSize="{DynamicResource FontSize.Title}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                            <TextBlock Text="{Binding Title, Mode=OneWay}" FontSize="{StaticResource TextBodyLarge}"
-                                                       FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                            <TextBlock Text="{Binding Title, Mode=OneWay}" FontSize="{DynamicResource FontSize.Title}"
+                                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal">
                                             <Border Background="{DynamicResource TintIndigoBrush}"
                                                     CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
-                                                    Margin="0,0,8,0">
-                                                <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                    Margin="0,0,8,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                                <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                            Foreground="{DynamicResource AccentBrush}">
                                                     <Run Text="{Binding PiCount, Mode=OneWay}"/>
                                                     <Run Text=" PI(s)"/>
                                                 </TextBlock>
                                             </Border>
-                                            <TextBlock Text="{Binding CreatedAtDisplay, Mode=OneWay}" FontSize="{StaticResource TextBody}"
+                                            <TextBlock Text="{Binding CreatedAtDisplay, Mode=OneWay}" FontSize="{DynamicResource FontSize.Body}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                        VerticalAlignment="Center" Margin="0,0,8,0"/>
                                         </StackPanel>
@@ -438,17 +438,17 @@
 
                                 <!-- Quantities -->
                                 <Border Grid.Column="2" Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
-                                        Margin="0,10,8,10" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,10">
-                                    <TextBlock Text="{Binding QuantitiesDisplay, Mode=OneWay}" FontSize="{StaticResource TextBody}"
+                                        Margin="0,10,8,10" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,10" Style="{StaticResource SurfacePrimaryStyle}">
+                                    <TextBlock Text="{Binding QuantitiesDisplay, Mode=OneWay}" FontSize="{DynamicResource FontSize.Body}"
                                                Foreground="{DynamicResource TextPrimaryBrush}"
                                                VerticalAlignment="Center" TextWrapping="Wrap"/>
                                 </Border>
 
                                 <!-- Invoiced value -->
                                 <Border Grid.Column="3" Background="{DynamicResource SuccessBrush}"
-                                        Margin="0,10,8,10" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,10">
+                                        Margin="0,10,8,10" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,10" Style="{StaticResource SurfacePrimaryStyle}">
                                     <TextBlock Text="{Binding TotalInvoicedValueDisplay, Mode=OneWay}"
-                                               FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                               FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource OnAccentForegroundBrush}" VerticalAlignment="Center"/>
                                 </Border>
 
@@ -465,7 +465,7 @@
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
-                                    <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}">
+                                    <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Text" Value="Complete"/>
@@ -486,14 +486,14 @@
                                                 CommandParameter="{Binding}"
                                                 IsEnabled="{Binding HasPdf}"
                                                 Height="34" Padding="12,0" Margin="0,0,6,0"
-                                                FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
-                                            <Button.Template>
+                                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
+                                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="bd" Background="{DynamicResource AccentBrush}"
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                            Padding="{TemplateBinding Padding}">
-                                                        <TextBlock Text="PDF" FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                            Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                        <TextBlock Text="PDF" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                                    Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                     <ControlTemplate.Triggers>
@@ -513,14 +513,14 @@
                                                 IsEnabled="{Binding HasPdf}"
                                                 ToolTip="{DynamicResource Sharing.Share}"
                                                 Height="34" Padding="12,0" Margin="0,0,6,0"
-                                                FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
-                                            <Button.Template>
+                                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
+                                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="bd" Background="{DynamicResource SuccessBrush}"
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                            Padding="{TemplateBinding Padding}">
-                                                        <TextBlock Text="&#xE72D;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
+                                                            Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                        <TextBlock Text="&#xE72D;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
                                                                    Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                     <ControlTemplate.Triggers>
@@ -538,14 +538,14 @@
                                         <Button Command="{Binding DataContext.OpenReportCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                                 CommandParameter="{Binding}"
                                                 Height="34" Padding="12,0" Margin="0,0,6,0"
-                                                FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
-                                            <Button.Template>
+                                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
+                                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="bd" Background="{DynamicResource WarningBrush}"
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                            Padding="{TemplateBinding Padding}">
-                                                        <TextBlock Text="Open" FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                            Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                        <TextBlock Text="Open" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                                    Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                     <ControlTemplate.Triggers>
@@ -559,13 +559,13 @@
 
                                         <Button Command="{Binding DataContext.DeleteReportCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                                 CommandParameter="{Binding}"
-                                                Width="34" Height="34" FontSize="{StaticResource TextBodyLarge}"
-                                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
-                                            <Button.Template>
+                                                Width="34" Height="34" FontSize="{DynamicResource FontSize.Title}"
+                                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
+                                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="bd" Background="{DynamicResource DangerBrush}"
-                                                            CornerRadius="{DynamicResource ControlCornerRadius}">
-                                                        <TextBlock Text="✕" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                                            CornerRadius="{DynamicResource ControlCornerRadius}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                        <TextBlock Text="✕" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                                                    Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                     <ControlTemplate.Triggers>

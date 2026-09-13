@@ -59,28 +59,28 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0"
                                        Text="{Binding GroupNumber}"
-                                       FontSize="{StaticResource TextBody}"
+                                       FontSize="{DynamicResource FontSize.Body}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             <TextBlock Grid.Column="1"
                                        Text="{Binding DisplayLabel}"
-                                       FontSize="{StaticResource TextBody}"
-                                       FontWeight="SemiBold"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        TextTrimming="CharacterEllipsis"/>
                             <TextBlock Grid.Column="2"
                                        Text="{Binding TotalQty, StringFormat={}{0} pcs}"
-                                       FontSize="{StaticResource TextBody}"
+                                       FontSize="{DynamicResource FontSize.Body}"
                                        HorizontalAlignment="Right"
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Grid.Column="3"
                                        Text="{Binding TotalSqm, StringFormat={}{0:0.000}}"
-                                       FontSize="{StaticResource TextBody}"
+                                       FontSize="{DynamicResource FontSize.Body}"
                                        HorizontalAlignment="Right"
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Grid.Column="4"
                                        Text="{Binding TotalValue, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
-                                       FontSize="{StaticResource TextBody}"
-                                       FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
                                        HorizontalAlignment="Right"
                                        Foreground="{DynamicResource SuccessBrush}"/>
                         </Grid>
@@ -111,27 +111,27 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="1"
                            Text="{DynamicResource ProformaInvoice.GrandTotal}"
-                           FontSize="{StaticResource TextBody}"
-                           FontWeight="Bold"
+                           FontSize="{DynamicResource FontSize.Body}"
+                           FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock Grid.Column="2"
                            Text="{Binding GrandTotalQty, StringFormat={}{0} pcs}"
-                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                            HorizontalAlignment="Right"
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock Grid.Column="3"
                            Text="{Binding GrandTotalSqm, StringFormat={}{0:0.000}}"
-                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                            HorizontalAlignment="Right"
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock Grid.Column="4"
                            Text="{Binding GrandTotalLm, StringFormat={}{0:0.00}}"
-                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                            HorizontalAlignment="Right"
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock Grid.Column="5"
                            Text="{Binding GrandTotalValue, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
-                           FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                           FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                            HorizontalAlignment="Right"
                            Foreground="{DynamicResource SuccessBrush}"/>
             </Grid>

@@ -75,7 +75,7 @@
                 BorderBrush="{DynamicResource BorderStrongBrush}"
                 BorderThickness="{DynamicResource Border.StrongThickness}"
                 RenderOptions.EdgeMode="Aliased"
-                SnapsToDevicePixels="True">
+                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="20" ShadowDepth="3"
                                   Direction="270" Opacity="0.20"
@@ -93,7 +93,7 @@
                         CornerRadius="{DynamicResource Radius.Medium}"
                         Background="{DynamicResource SurfaceElevatedBrush}"
                         Opacity="0.55"
-                        IsHitTestVisible="False"/>
+                        IsHitTestVisible="False" Style="{StaticResource SurfacePrimaryStyle}"/>
             <DockPanel Margin="10,20,10,16">
 
                 <!-- Brand header — 2026-09-05 restyled to the REPORTS-module
@@ -103,7 +103,7 @@
                 <Border DockPanel.Dock="Top" Margin="4,2,4,10"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Background="{DynamicResource AccentBrush}"
-                        Padding="12,12">
+                        Padding="12,12" Style="{StaticResource SurfacePrimaryStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="38"/>
@@ -112,10 +112,10 @@
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="38" Height="38"
                                 CornerRadius="{DynamicResource Radius.Medium}"
-                                Background="{DynamicResource SurfaceElevatedBrush}">
+                                Background="{DynamicResource SurfaceElevatedBrush}" Style="{StaticResource SurfacePrimaryStyle}">
                             <TextBlock Text="&#xE713;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextTitle}"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource FontSize.H2}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
@@ -123,10 +123,10 @@
                         <StackPanel Grid.Column="1" Margin="10,0,0,0"
                                     VerticalAlignment="Center">
                             <TextBlock Text="{DynamicResource Settings.Title}"
-                                       FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                             <TextBlock Text="{DynamicResource Settings.Subtitle}"
-                                       FontSize="{StaticResource TextBody}"
+                                       FontSize="{DynamicResource FontSize.Body}"
                                        Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}"/>
                         </StackPanel>
                         <!-- Collapse rail button (single click — the rail
@@ -139,9 +139,9 @@
                                 BorderThickness="{DynamicResource Border.NoneThickness}"
                                 Cursor="Hand"
                                 ToolTip="{DynamicResource ToolTip.ToggleMenu}"
-                                Command="{Binding ToggleSettingsRailCommand}">
-                            <TextBlock Text="&#xE76B;" FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextBodyLarge}"
+                                Command="{Binding ToggleSettingsRailCommand}" Style="{StaticResource SecondaryButtonStyle}">
+                            <TextBlock Text="&#xE76B;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource FontSize.Title}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
@@ -168,8 +168,8 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Button Command="{Binding DataContext.SwitchSettingsPageCommand, ElementName=SettingsRoot}"
-                                    CommandParameter="{Binding Key}">
-                                <Button.Style>
+                                    CommandParameter="{Binding Key}" Style="{StaticResource SecondaryButtonStyle}">
+                                <Button.Style Style="{StaticResource SecondaryButtonStyle}">
                                     <Style TargetType="Button"
                                            BasedOn="{StaticResource SettingsNavButtonStyle}">
                                         <Setter Property="FocusVisualStyle"
@@ -227,13 +227,13 @@
                 BorderBrush="{DynamicResource BorderSubtleBrush}"
                 BorderThickness="{DynamicResource Border.BoxNoLeftThickness}"
                 CornerRadius="{DynamicResource Radius.Right.Medium}"
-                SnapsToDevicePixels="True">
+                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
             <Button Command="{Binding ToggleSettingsRailCommand}"
                     ToolTip="{DynamicResource ToolTip.ToggleMenu}"
                     Cursor="Hand"
                     Background="Transparent"
-                    BorderThickness="{DynamicResource Border.NoneThickness}">
-                <TextBlock FontFamily="Segoe MDL2 Assets"
+                    BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
+                <TextBlock FontFamily="{DynamicResource FontFamily.Icon}"
                            Foreground="{DynamicResource TextPrimaryBrush}"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center">
@@ -266,7 +266,7 @@
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Background="{DynamicResource SurfaceSecondaryBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="{DynamicResource Border.HairlineThickness}">
+                    BorderThickness="{DynamicResource Border.HairlineThickness}" Style="{StaticResource SurfacePrimaryStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -279,27 +279,27 @@
                             Background="Transparent"
                             BorderThickness="{DynamicResource Border.NoneThickness}"
                             ToolTip="{DynamicResource ToolTip.ToggleMenu}"
-                            Command="{Binding ToggleSettingsRailCommand}">
-                        <Button.Template>
+                            Command="{Binding ToggleSettingsRailCommand}" Style="{StaticResource SecondaryButtonStyle}">
+                        <Button.Template Style="{StaticResource SecondaryButtonStyle}">
                             <ControlTemplate TargetType="Button">
                                 <StackPanel VerticalAlignment="Center"
                                             HorizontalAlignment="Center">
                                     <Border Width="20" Height="2.5" CornerRadius="{DynamicResource Radius.XSmall}"
                                             Background="{DynamicResource TextPrimaryBrush}"
-                                            Margin="0,0,0,4"/>
+                                            Margin="0,0,0,4" Style="{StaticResource SurfacePrimaryStyle}"/>
                                     <Border Width="20" Height="2.5" CornerRadius="{DynamicResource Radius.XSmall}"
                                             Background="{DynamicResource TextPrimaryBrush}"
-                                            Margin="0,0,0,4"/>
+                                            Margin="0,0,0,4" Style="{StaticResource SurfacePrimaryStyle}"/>
                                     <Border Width="20" Height="2.5" CornerRadius="{DynamicResource Radius.XSmall}"
-                                            Background="{DynamicResource TextPrimaryBrush}"/>
+                                            Background="{DynamicResource TextPrimaryBrush}" Style="{StaticResource SurfacePrimaryStyle}"/>
                                 </StackPanel>
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
                     <TextBlock Grid.Column="1" VerticalAlignment="Center"
                                Margin="12,0,0,0"
-                               FontSize="{StaticResource TextSection}"
-                               FontWeight="SemiBold"
+                               FontSize="{DynamicResource FontSize.H3}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"
                                Text="{Binding ActivePageLabel}"/>
                 </Grid>

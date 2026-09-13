@@ -18,7 +18,7 @@
                 Background="{DynamicResource ShellLiquidBrush}"
                 BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
                 BorderThickness="{DynamicResource Border.HairlineThickness}"
-                ClipToBounds="True">
+                ClipToBounds="True" Style="{StaticResource SurfacePrimaryStyle}">
 
         <Grid>
             <Grid.RowDefinitions>
@@ -29,13 +29,13 @@
             <Border Grid.Row="0"
                     Background="{DynamicResource AccentBrush}"
                     CornerRadius="{DynamicResource Radius.Top.Medium}"
-                    Padding="16,12">
+                    Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource ToolTip.Screenshot}"
-                               FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     <TextBlock Text="{DynamicResource Shared.ChooseResolutionCapture}"
-                               FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource OnAccentForegroundBrush}"
+                               FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                Opacity="0.85" Margin="0,2,0,0"/>
                 </StackPanel>
             </Border>
@@ -43,14 +43,14 @@
             <StackPanel Grid.Row="1" Margin="12,12,12,14">
                 <CheckBox x:Name="FullPageCheck"
                           Content="{DynamicResource Shared.FullModuleCaptureEntireScrollablePage}"
-                          FontSize="{StaticResource TextBody}"
+                          FontSize="{DynamicResource FontSize.Body}"
                           Foreground="{DynamicResource TextPrimaryBrush}"
                           Margin="0,0,0,10"
                           IsChecked="False"
                           ToolTip="{DynamicResource Shared.ScrollsActiveModuleTopBottomStitchesSection}"/>
                 <StackPanel x:Name="QualityList"/>
                 <TextBlock x:Name="CaptureStatus"
-                           FontSize="{StaticResource TextCaption}"
+                           FontSize="{DynamicResource FontSize.BodySmall}"
                            Foreground="{DynamicResource TextTertiaryBrush}"
                            Margin="0,8,0,0"
                            TextWrapping="Wrap"/>

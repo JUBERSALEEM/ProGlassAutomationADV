@@ -85,10 +85,10 @@
                             Margin="0,0,12,0"
                             VerticalAlignment="Center"
                             SnapsToDevicePixels="True"
-                            Background="{DynamicResource AccentBrush}">
+                            Background="{DynamicResource AccentBrush}" Style="{StaticResource SurfacePrimaryStyle}">
                         <TextBlock Text="{Binding Index, Mode=OneWay}"
-                                   FontSize="{StaticResource TextBodyLarge}"
-                                   FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Title}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
@@ -97,19 +97,19 @@
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding StatementNumber, Mode=OneWay}"
-                                       FontSize="{StaticResource TextBody}"
-                                       FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
                                        MaxWidth="150"
                                        TextTrimming="CharacterEllipsis"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource AccentBrush}"/>
                             <TextBlock Text=" · "
-                                       FontSize="{StaticResource TextBody}"
+                                       FontSize="{DynamicResource FontSize.Body}"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource TextTertiaryBrush}"/>
                             <TextBlock Text="{Binding SubTitle, Mode=OneWay}"
-                                       FontSize="{StaticResource TextBody}"
-                                       FontWeight="SemiBold"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}"
                                        MaxWidth="260"
                                        TextTrimming="CharacterEllipsis"
                                        VerticalAlignment="Center"
@@ -123,53 +123,53 @@
                                     Background="{DynamicResource InfoBrush}"
                                     ToolTip="{DynamicResource Dashboard.Attachments}"
                                     Visibility="{Binding HasAttachments,
-                                        Converter={StaticResource BoolToVisibilityConverter}}">
+                                        Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
                                 <TextBlock Text="&#xE723;"
-                                           FontFamily="Segoe MDL2 Assets"
-                                           FontSize="{StaticResource TextCaption}"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
                                            Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                             </Border>
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                            <TextBlock FontSize="{StaticResource TextBody}"
+                            <TextBlock FontSize="{DynamicResource FontSize.Body}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}">
                                 <Run Text="{DynamicResource Common.Invoiced}"/>
                                 <Run Text="{Binding TotalInvoicedDisplay, Mode=OneWay}"
-                                     FontWeight="Bold"
+                                     FontWeight="{DynamicResource Weight.Bold}"
                                      Foreground="{DynamicResource TextPrimaryBrush}"/>
                             </TextBlock>
 
                             <TextBlock Text=" · "
-                                       FontSize="{StaticResource TextBody}"
+                                       FontSize="{DynamicResource FontSize.Body}"
                                        Foreground="{DynamicResource TextTertiaryBrush}"/>
 
-                            <TextBlock FontSize="{StaticResource TextBody}"
+                            <TextBlock FontSize="{DynamicResource FontSize.Body}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}">
                                 <Run Text="{DynamicResource Common.Outstanding}"/>
                                 <Run Text="{Binding OutstandingDisplay, Mode=OneWay}"
-                                     FontWeight="Bold"
+                                     FontWeight="{DynamicResource Weight.Bold}"
                                      Foreground="{DynamicResource WarningBrush}"/>
                             </TextBlock>
 
                             <TextBlock Text=" · "
-                                       FontSize="{StaticResource TextBody}"
+                                       FontSize="{DynamicResource FontSize.Body}"
                                        Foreground="{DynamicResource TextTertiaryBrush}"
                                        Visibility="{Binding HasOverdue,
                                            Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-                            <TextBlock FontSize="{StaticResource TextBody}"
+                            <TextBlock FontSize="{DynamicResource FontSize.Body}"
                                        Visibility="{Binding HasOverdue,
                                            Converter={StaticResource BoolToVisibilityConverter}}">
                                 <Run Text="{DynamicResource Common.Overdue}"
                                      Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <Run Text="{Binding OverdueDisplay, Mode=OneWay}"
-                                     FontWeight="Bold"
+                                     FontWeight="{DynamicResource Weight.Bold}"
                                      Foreground="{DynamicResource DangerBrush}"/>
                             </TextBlock>
                         </StackPanel>
 
-                        <TextBlock FontSize="{StaticResource TextCaption}"
+                        <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
                                    Margin="0,4,0,0"
                                    Foreground="{DynamicResource TextTertiaryBrush}">
                             <Run Text="{Binding InvoiceCount, Mode=OneWay}"/>
@@ -193,7 +193,7 @@
                                 CommandParameter="{Binding}"
                                 IsEnabled="{Binding HasPdf}"/>
                         <Button Content="&#xE72D;"
-                                FontFamily="Segoe MDL2 Assets"
+                                FontFamily="{DynamicResource FontFamily.Icon}"
                                 Margin="8,0,0,0"
                                 VerticalAlignment="Center"
                                 Style="{StaticResource DbActionButtonStyle}"
@@ -247,7 +247,7 @@
                                          VerticalAlignment="Center"
                                          Fill="{DynamicResource SuccessBrush}"/>
                                 <TextBlock Text="{DynamicResource Common.Live}"
-                                           FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                                           FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>

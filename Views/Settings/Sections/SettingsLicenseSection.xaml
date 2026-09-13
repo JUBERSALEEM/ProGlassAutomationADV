@@ -46,9 +46,9 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="{DynamicResource About.License}" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="{DynamicResource About.License}" Style="{StaticResource Typography.H1}"/>
             <TextBlock Text="{DynamicResource Settings.ChoosePlanRequestKeyPasteVendorSignedKey}"
-                       Style="{StaticResource PageSubtitleStyle}"/>
+                       Style="{StaticResource Typography.Subtitle}"/>
         </StackPanel>
 
         <ScrollViewer Grid.Row="1"
@@ -66,10 +66,10 @@
                 <TextBlock Text="{DynamicResource Settings.LicenseStatus}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.AutoUpdatesLicenseserviceStatuschanged}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                           Style="{StaticResource Typography.BodySmall}"/>
 
                 <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -82,19 +82,19 @@
                                     Padding="12,6"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Background="{DynamicResource AccentBrush}"
-                                    VerticalAlignment="Center">
+                                    VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
                                 <TextBlock Text="{Binding StatusBadge}"
-                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                             </Border>
 
                             <StackPanel Grid.Column="1" Margin="16,0,0,0"
                                         VerticalAlignment="Center">
                                 <TextBlock Text="{Binding EditionDisplay}"
-                                           FontSize="{StaticResource TextTitle}" FontWeight="SemiBold"
+                                           FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 <TextBlock Text="{Binding StatusDescription}"
-                                           FontSize="{StaticResource TextBody}"
+                                           FontSize="{DynamicResource FontSize.Body}"
                                            Foreground="{DynamicResource TextTertiaryBrush}"
                                            TextWrapping="Wrap"
                                            Margin="0,2,0,0"/>
@@ -104,11 +104,11 @@
                                         HorizontalAlignment="Right"
                                         VerticalAlignment="Center">
                                 <TextBlock Text="{Binding DaysRemainingDisplay}"
-                                           FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
+                                           FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AccentBrush}"
                                            HorizontalAlignment="Right"/>
                                 <TextBlock Text="{DynamicResource Settings.Remaining}"
-                                           FontSize="{StaticResource TextBody}"
+                                           FontSize="{DynamicResource FontSize.Body}"
                                            Foreground="{DynamicResource TextTertiaryBrush}"
                                            HorizontalAlignment="Right"/>
                             </StackPanel>
@@ -116,13 +116,13 @@
                     </Border>
                 </StackPanel>
 
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+                <Border Style="{StaticResource SurfaceDetailStyle}"/>
 
                 <!-- ═══════ GROUP: ACTIVATION ═══════ -->
                 <TextBlock Text="{DynamicResource Settings.Activation}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.PickPlanPressGETLicenseKEYPasteVendorKey}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                           Style="{StaticResource Typography.BodySmall}"/>
 
                 <!-- Reuses the same UserControl the main window used to show
                      as a full-screen overlay. Because it lives inside a

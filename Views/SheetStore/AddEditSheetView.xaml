@@ -41,49 +41,21 @@
     <Window.Resources>
 
         <!-- Field label — 11 SemiBold UPPERCASE per spec -->
-        <Style x:Key="LabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
-            <Setter Property="Margin" Value="0,14,0,8"/>
-        </Style>
+        
 
         <!-- Base text input — industrial chrome. Height 40 so glyphs
              are not clipped the way 38 + Padding 10,6 was. -->
-        <Style x:Key="InputStyle" TargetType="TextBox"
-               BasedOn="{StaticResource ModernTextBoxStyle}">
-            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="MinHeight" Value="40"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
+        
 
         <!-- Integer-only input (Width, Height, Stock) -->
-        <Style x:Key="IntInputStyle" TargetType="TextBox"
-               BasedOn="{StaticResource InputStyle}">
-            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="behaviors:TextBoxBehaviors.AcceptIntegersOnly" Value="True"/>
-        </Style>
+        <!-- Migrated IntInputStyle to global SurfacePrimaryStyle / Typography -->
 
         <!-- Decimal input (prices) -->
-        <Style x:Key="DecimalInputStyle" TargetType="TextBox"
-               BasedOn="{StaticResource InputStyle}">
-            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="behaviors:TextBoxBehaviors.AcceptDecimals" Value="True"/>
-        </Style>
+        <!-- Migrated DecimalInputStyle to global SurfacePrimaryStyle / Typography -->
 
         <!-- Editable combo. Without BasedOn this keyed style dropped the
              industrial template and SizeToContent+* made the form collapse. -->
-        <Style x:Key="ComboStyle" TargetType="ComboBox"
-               BasedOn="{StaticResource ModernEditableComboBoxStyle}">
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="MinHeight" Value="40"/>
-            <Setter Property="Padding" Value="12,0"/>
-            <Setter Property="IsEditable" Value="True"/>
-            <Setter Property="MaxDropDownHeight" Value="320"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="behaviors:EditableComboBoxTypingBehavior.IsEnabled" Value="True"/>
-        </Style>
+        <!-- Migrated ComboStyle to global SurfacePrimaryStyle / Typography -->
 
         <!-- Cancel button — subtle secondary -->
 
@@ -102,10 +74,10 @@
         <!-- Header -->
         <StackPanel Grid.Row="0" Margin="0,0,0,16">
             <TextBlock Text="{Binding DialogTitle}"
-                       FontSize="{StaticResource TextHeadline}" FontWeight="Bold"
+                       FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
                        Foreground="{DynamicResource TextPrimaryBrush}"/>
             <TextBlock Text="{DynamicResource SheetStore.EnterGlassSheetInventoryDetails}"
-                       FontSize="{StaticResource TextBody}" Margin="0,4,0,0"
+                       FontSize="{DynamicResource FontSize.Body}" Margin="0,4,0,0"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
         </StackPanel>
 
@@ -122,8 +94,8 @@
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
             <StackPanel>
 
-                <TextBlock Text="{DynamicResource SheetStore.Category}" Style="{StaticResource LabelStyle}"/>
-                <ComboBox Style="{StaticResource ComboStyle}"
+                <TextBlock Text="{DynamicResource SheetStore.Category}" Style="{StaticResource Typography.Label}"/>
+                <ComboBox Style="{StaticResource Input.ComboBox}"
                           ItemsSource="{Binding CategoryOptions}"
                           Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
                           ToolTip="{DynamicResource SheetStore.EGClearFloatGuardianClimaguard70}"/>
@@ -135,14 +107,14 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="{DynamicResource SheetStore.ThicknessMm}" Style="{StaticResource LabelStyle}"/>
-                        <ComboBox Style="{StaticResource ComboStyle}"
+                        <TextBlock Text="{DynamicResource SheetStore.ThicknessMm}" Style="{StaticResource Typography.Label}"/>
+                        <ComboBox Style="{StaticResource Input.ComboBox}"
                                   ItemsSource="{Binding ThicknessOptions}"
                                   Text="{Binding ThicknessText, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="{DynamicResource ProformaInvoice.Color}" Style="{StaticResource LabelStyle}"/>
-                        <ComboBox Style="{StaticResource ComboStyle}"
+                        <TextBlock Text="{DynamicResource ProformaInvoice.Color}" Style="{StaticResource Typography.Label}"/>
+                        <ComboBox Style="{StaticResource Input.ComboBox}"
                                   ItemsSource="{Binding ColorOptions}"
                                   Text="{Binding Color, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
@@ -155,21 +127,21 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="{DynamicResource SheetStore.WidthMm}" Style="{StaticResource LabelStyle}"/>
-                        <ComboBox Style="{StaticResource ComboStyle}"
+                        <TextBlock Text="{DynamicResource SheetStore.WidthMm}" Style="{StaticResource Typography.Label}"/>
+                        <ComboBox Style="{StaticResource Input.ComboBox}"
                                   ItemsSource="{Binding WidthOptions}"
                                   Text="{Binding WidthText, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="{DynamicResource SheetStore.HeightMm}" Style="{StaticResource LabelStyle}"/>
-                        <ComboBox Style="{StaticResource ComboStyle}"
+                        <TextBlock Text="{DynamicResource SheetStore.HeightMm}" Style="{StaticResource Typography.Label}"/>
+                        <ComboBox Style="{StaticResource Input.ComboBox}"
                                   ItemsSource="{Binding HeightOptions}"
                                   Text="{Binding HeightText, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                 </Grid>
 
-                <TextBlock Text="{DynamicResource SheetStore.Supplier}" Style="{StaticResource LabelStyle}"/>
-                <ComboBox Style="{StaticResource ComboStyle}"
+                <TextBlock Text="{DynamicResource SheetStore.Supplier}" Style="{StaticResource Typography.Label}"/>
+                <ComboBox Style="{StaticResource Input.ComboBox}"
                           ItemsSource="{Binding SupplierOptions}"
                           Text="{Binding Supplier, UpdateSourceTrigger=PropertyChanged}"/>
 
@@ -180,19 +152,19 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="{DynamicResource SheetStore.PurchasePriceSQM}" Style="{StaticResource LabelStyle}"/>
-                        <TextBox Style="{StaticResource DecimalInputStyle}"
+                        <TextBlock Text="{DynamicResource SheetStore.PurchasePriceSQM}" Style="{StaticResource Typography.Label}"/>
+                        <TextBox Style="{StaticResource Input.TextBox}"
                                  Text="{Binding PurchasePriceText, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="{DynamicResource SheetStore.SELLPriceSQM}" Style="{StaticResource LabelStyle}"/>
-                        <TextBox Style="{StaticResource DecimalInputStyle}"
+                        <TextBlock Text="{DynamicResource SheetStore.SELLPriceSQM}" Style="{StaticResource Typography.Label}"/>
+                        <TextBox Style="{StaticResource Input.TextBox}"
                                  Text="{Binding SellPriceText, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                 </Grid>
 
-                <TextBlock Text="{DynamicResource SheetStore.StockQuantity}" Style="{StaticResource LabelStyle}"/>
-                <TextBox Style="{StaticResource IntInputStyle}"
+                <TextBlock Text="{DynamicResource SheetStore.StockQuantity}" Style="{StaticResource Typography.Label}"/>
+                <TextBox Style="{StaticResource Input.TextBox}"
                          Text="{Binding StockText, UpdateSourceTrigger=PropertyChanged}"/>
 
             </StackPanel>
@@ -207,18 +179,18 @@
                 Padding="14,12"
                 Margin="0,16,0,0"
                 SnapsToDevicePixels="True"
-                Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
+                Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets"
-                           FontSize="{StaticResource TextSection}"
-                           FontWeight="Bold"
+                <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}"
+                           FontSize="{DynamicResource FontSize.H3}"
+                           FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource DangerBrush}"
                            VerticalAlignment="Top"
                            Margin="0,0,10,0"/>
                 <TextBlock Text="{Binding ErrorMessage}"
                            Foreground="{DynamicResource DangerBrush}"
-                           FontSize="{StaticResource TextBody}"
-                           FontWeight="SemiBold"
+                           FontSize="{DynamicResource FontSize.Body}"
+                           FontWeight="{DynamicResource Weight.SemiBold}"
                            TextWrapping="Wrap"/>
             </StackPanel>
         </Border>

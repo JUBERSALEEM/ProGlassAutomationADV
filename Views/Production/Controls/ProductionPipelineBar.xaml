@@ -18,25 +18,25 @@
     <Border CornerRadius="{DynamicResource CardCornerRadius}"
             Background="{DynamicResource DashAmbientBrush}"
             Padding="12,10"
-            Margin="4,0,4,10">
+            Margin="4,0,4,10" Style="{StaticResource SurfacePrimaryStyle}">
         <StackPanel>
             <Grid>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="PRODUCTION PIPELINE"
-                               FontSize="{StaticResource TextCaption}"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                     <TextBlock Text="·"
-                               FontSize="{StaticResource TextCaption}"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
                                Foreground="{DynamicResource TextTertiaryBrush}"
                                Margin="8,0"/>
                     <TextBlock Text="{Binding ChainProgressLabel}"
-                               FontSize="{StaticResource TextCaption}"
-                               FontWeight="SemiBold"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource AccentBrush}"/>
                 </StackPanel>
                 <TextBlock Text="Click a stage to follow the work"
-                           FontSize="{StaticResource TextCaption}"
+                           FontSize="{DynamicResource FontSize.BodySmall}"
                            Foreground="{DynamicResource TextTertiaryBrush}"
                            HorizontalAlignment="Right"/>
             </Grid>
@@ -54,8 +54,8 @@
                                 Command="{Binding DataContext.OpenStageCommand,
                                           RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                 CommandParameter="{Binding NavKey}"
-                                ToolTip="{Binding CountLabel}">
-                            <Button.Template>
+                                ToolTip="{Binding CountLabel}" Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="ChipBorder"
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -63,27 +63,27 @@
                                             Background="{DynamicResource SurfacePrimaryBrush}"
                                             BorderBrush="{DynamicResource BorderSubtleBrush}"
                                             BorderThickness="1"
-                                            SnapsToDevicePixels="True">
+                                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{Binding Ordinal}"
-                                                       FontSize="{StaticResource TextCaption}"
-                                                       FontWeight="Bold"
+                                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                                       FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource TextTertiaryBrush}"
                                                        VerticalAlignment="Center"
                                                        Margin="0,0,8,0"/>
                                             <TextBlock Text="{Binding Icon}"
-                                                       FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="{StaticResource TextSection}"
+                                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                                       FontSize="{DynamicResource FontSize.H3}"
                                                        Foreground="{DynamicResource AccentBrush}"
                                                        VerticalAlignment="Center"
                                                        Margin="0,0,8,0"/>
                                             <StackPanel VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Name}"
-                                                           FontSize="{StaticResource TextCaption}"
-                                                           FontWeight="SemiBold"
+                                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                                           FontWeight="{DynamicResource Weight.SemiBold}"
                                                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <TextBlock Text="{Binding CountLabel}"
-                                                           FontSize="{StaticResource TextXSmall}"
+                                                           FontSize="{DynamicResource FontSize.Caption}"
                                                            Foreground="{DynamicResource TextTertiaryBrush}"/>
                                             </StackPanel>
                                         </StackPanel>

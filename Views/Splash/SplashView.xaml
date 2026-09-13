@@ -87,16 +87,16 @@
         <SolidColorBrush x:Key="SplashCeruleanDeep"  Color="{DynamicResource AccentDarkColor}"/>
         <SolidColorBrush x:Key="SplashOutline"       Color="{DynamicResource BorderColor}"/>
         <!-- Translucent glass surfaces so the stage shows through -->
-        <SolidColorBrush x:Key="SplashPillBg"        Color="#22808080"/>
-        <SolidColorBrush x:Key="SplashTrackBg"       Color="#22808080"/>
+        <SolidColorBrush x:Key="SplashPillBg"        Color="{DynamicResource Splash.TealBrush.Alpha22.80}"/>
+        <SolidColorBrush x:Key="SplashTrackBg"       Color="{DynamicResource Splash.TealBrush.Alpha22.80}"/>
 
         <!-- ═══ MODULE-TILE GLASS ═══ frosted, theme-aware, with a soft
              top sheen so each chip reads as a raised glass tile (matches
              the approved mockup's chunky frosted modules). ═══ -->
         <LinearGradientBrush x:Key="TileGlassBg" StartPoint="0,0" EndPoint="0.4,1">
-            <GradientStop Color="#33FFFFFF" Offset="0.0"/>
-            <GradientStop Color="#14808080" Offset="0.45"/>
-            <GradientStop Color="#0D000000" Offset="1.0"/>
+            <GradientStop Color="{DynamicResource White.Alpha33}" Offset="0.0"/>
+            <GradientStop Color="{DynamicResource Splash.DarkTealBrush.Alpha14.80}" Offset="0.45"/>
+            <GradientStop Color="{DynamicResource Black.Alpha0D}" Offset="1.0"/>
         </LinearGradientBrush>
         <!-- Icon-badge fill: accent-tinted frosted square behind each glyph -->
         <LinearGradientBrush x:Key="TileIconBadgeBg" StartPoint="0,0" EndPoint="1,1">
@@ -105,7 +105,7 @@
         </LinearGradientBrush>
         <SolidColorBrush x:Key="SplashTextPrimary"   Color="{DynamicResource PrimaryForegroundColor}"/>
         <SolidColorBrush x:Key="SplashTextSecondary" Color="{DynamicResource SecondaryForegroundColor}"/>
-        <SolidColorBrush x:Key="SplashOnAccent"      Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="SplashOnAccent"      Color="{DynamicResource PaperBrush}"/>
 
         <!-- ═══ STAGE — a rich theme-aware diagonal mesh built from the
              theme's own background + accent Color tokens ═══ -->
@@ -122,13 +122,13 @@
                              Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
             <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0.0"/>
             <GradientStop Color="{DynamicResource AccentColor}"      Offset="0.55"/>
-            <GradientStop Color="#00000000"                          Offset="1.0"/>
+            <GradientStop Color="{DynamicResource Transparent}"                          Offset="1.0"/>
         </RadialGradientBrush>
         <RadialGradientBrush x:Key="OrbLeft"
                              Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
             <GradientStop Color="{DynamicResource AccentColor}"     Offset="0.0"/>
             <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="0.55"/>
-            <GradientStop Color="#00000000"                          Offset="1.0"/>
+            <GradientStop Color="{DynamicResource Transparent}"                          Offset="1.0"/>
         </RadialGradientBrush>
 
         <!-- Soft spotlight behind the hero brand block (theme-aware, alpha
@@ -137,7 +137,7 @@
                              Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
             <GradientStop Color="{DynamicResource AccentColor}"     Offset="0.0"/>
             <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="0.5"/>
-            <GradientStop Color="#00000000"                          Offset="1.0"/>
+            <GradientStop Color="{DynamicResource Transparent}"                          Offset="1.0"/>
         </RadialGradientBrush>
 
         <!-- ═══ BRAND NAME — metallic gradient built from theme inks ═══ -->
@@ -155,9 +155,9 @@
              so the app icon stays fully visible (the old version was OPAQUE
              on both stops and painted a solid slab over the logo). -->
         <LinearGradientBrush x:Key="TileSheen" StartPoint="0,0" EndPoint="0.35,1">
-            <GradientStop Color="#4CFFFFFF" Offset="0.0"/>
-            <GradientStop Color="#12FFFFFF" Offset="0.30"/>
-            <GradientStop Color="#00FFFFFF" Offset="0.55"/>
+            <GradientStop Color="{DynamicResource White.Alpha4C}" Offset="0.0"/>
+            <GradientStop Color="{DynamicResource White.Alpha12}" Offset="0.30"/>
+            <GradientStop Color="{DynamicResource TransparentWhite}" Offset="0.55"/>
         </LinearGradientBrush>
 
         <!-- ═══ PROGRESS — luminous accent sweep (theme-aware) ═══ -->
@@ -217,38 +217,11 @@
                           BlurRadius="18" ShadowDepth="0" Opacity="0.35"/>
 
         <!-- ═══ TRUST CHIP (top badges) — slim glass ═══ -->
-        <Style x:Key="TrustChipStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
-            <Setter Property="Background">
-                <Setter.Value>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                        <GradientStop Color="#28808080" Offset="0.0"/>
-                        <GradientStop Color="#18808080" Offset="1.0"/>
-                    </LinearGradientBrush>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="BorderBrush" Value="{StaticResource SplashOutline}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="17"/>
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="Padding" Value="16,0"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding" Value="True"/>
-        </Style>
+        
 
-        <Style x:Key="ChipGlyphStyle" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="Foreground" Value="{StaticResource SplashCerulean}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,0,9,0"/>
-        </Style>
+        
 
-        <Style x:Key="ChipTextStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{StaticResource SplashTextPrimary}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
+        
 
         <!-- ═══ MODULE CHIP (feature strip) — quiet 6-wide grid ═══ -->
         <!-- Module GLASS TILE — taller frosted card with an accent icon
@@ -258,37 +231,37 @@
         <DataTemplate x:Key="FeatureBadgeTemplate">
             <Border Width="132" Height="88"
                     Margin="8"
-                    CornerRadius="16"
+                    CornerRadius="{DynamicResource Radius.XLarge}"
                     BorderBrush="{DynamicResource SplashOutline}"
                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                     Background="{DynamicResource TileGlassBg}"
                     Effect="{StaticResource SplashGlow}"
                     SnapsToDevicePixels="True"
                     UseLayoutRounding="True"
-                    IsHitTestVisible="False">
+                    IsHitTestVisible="False" Style="{StaticResource SurfacePrimaryStyle}">
                 <Grid>
                     <!-- top-edge crystal sheen -->
-                    <Border CornerRadius="16"
+                    <Border CornerRadius="{DynamicResource Radius.XLarge}"
                             Background="{DynamicResource TileSheen}"
-                            IsHitTestVisible="False"/>
+                            IsHitTestVisible="False" Style="{StaticResource SurfacePrimaryStyle}"/>
                     <StackPanel VerticalAlignment="Center"
                                 HorizontalAlignment="Center">
                         <!-- accent icon badge -->
                         <Border Width="40" Height="40"
-                                CornerRadius="12"
+                                CornerRadius="{DynamicResource Radius.Card}"
                                 HorizontalAlignment="Center"
                                 Background="{DynamicResource TileIconBadgeBg}"
-                                SnapsToDevicePixels="True">
+                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                             <TextBlock Text="{Binding Icon}"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextBodyLarge}"
-                                       Foreground="#FFFFFF"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource FontSize.Title}"
+                                       Foreground="{DynamicResource PaperBrush}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
                         </Border>
                         <TextBlock Text="{Binding Label}"
-                                   FontSize="{StaticResource TextBody}"
-                                   FontWeight="SemiBold"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource SplashTextPrimary}"
                                    HorizontalAlignment="Center"
                                    Margin="0,9,0,0"
@@ -303,7 +276,7 @@
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Foreground" Value="{StaticResource SplashTextSecondary}"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -312,7 +285,7 @@
                                 BorderBrush="{DynamicResource SplashOutline}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 CornerRadius="{StaticResource SplashCorner}"
-                                SnapsToDevicePixels="True">
+                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
                         </Border>
@@ -331,8 +304,8 @@
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Foreground" Value="{StaticResource SplashOnAccent}"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
+            <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -340,7 +313,7 @@
                                 Background="{DynamicResource SplashCerulean}"
                                 BorderThickness="{DynamicResource Border.NoneThickness}"
                                 CornerRadius="{StaticResource SplashCorner}"
-                                SnapsToDevicePixels="True">
+                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
                         </Border>
@@ -538,29 +511,29 @@
 
             <!-- ── TOP TRUST CHIPS ──────────────────────────────────── -->
             <Grid Grid.Row="0">
-                <Border x:Name="TopLeftBadge" Style="{StaticResource TrustChipStyle}"
+                <Border x:Name="TopLeftBadge" Style="{StaticResource Chip.Primary}"
                         HorizontalAlignment="Left" Opacity="0">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE774;" Style="{StaticResource ChipGlyphStyle}"/>
-                        <TextBlock Text="{DynamicResource Splash.MadeInIndia}" Style="{StaticResource ChipTextStyle}"/>
+                        <TextBlock Text="&#xE774;" Style="{StaticResource Typography.Icon}"/>
+                        <TextBlock Text="{DynamicResource Splash.MadeInIndia}" Style="{StaticResource Typography.Caption}"/>
                     </StackPanel>
                 </Border>
-                <Border x:Name="TopCenterPill" Style="{StaticResource TrustChipStyle}"
+                <Border x:Name="TopCenterPill" Style="{StaticResource Chip.Primary}"
                         HorizontalAlignment="Center" Opacity="0">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE735;" Style="{StaticResource ChipGlyphStyle}"/>
-                        <TextBlock Style="{StaticResource ChipTextStyle}">
+                        <TextBlock Text="&#xE735;" Style="{StaticResource Typography.Icon}"/>
+                        <TextBlock Style="{StaticResource Typography.Caption}">
                             <Run Text="{DynamicResource Splash.Enterprise}"/>
                             <Run Text="{DynamicResource Splash.V}"/>
                             <Run Text="{x:Static updates:AppInfo.Version}"/>
                         </TextBlock>
                     </StackPanel>
                 </Border>
-                <Border x:Name="TopRightBadge" Style="{StaticResource TrustChipStyle}"
+                <Border x:Name="TopRightBadge" Style="{StaticResource Chip.Primary}"
                         HorizontalAlignment="Right" Opacity="0">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE72E;" Style="{StaticResource ChipGlyphStyle}"/>
-                        <TextBlock Text="{DynamicResource Splash.OfflineSecure}" Style="{StaticResource ChipTextStyle}"/>
+                        <TextBlock Text="&#xE72E;" Style="{StaticResource Typography.Icon}"/>
+                        <TextBlock Text="{DynamicResource Splash.OfflineSecure}" Style="{StaticResource Typography.Caption}"/>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -602,12 +575,12 @@
                         </Ellipse>
 
                         <!-- Crystal glass tile -->
-                        <Border Width="112" Height="112" CornerRadius="26"
+                        <Border Width="112" Height="112" CornerRadius="{DynamicResource Radius.Full}"
                                 Effect="{StaticResource IconShadow}"
                                 Background="{DynamicResource SplashPlate}"
                                 BorderBrush="{DynamicResource SplashCerulean}"
                                 BorderThickness="1"
-                                SnapsToDevicePixels="True">
+                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                             <Grid>
                                 <!-- Vector PGA hexagon monogram -->
                                 <Viewbox Width="66" Height="66">
@@ -621,15 +594,15 @@
                                         <TextBlock Text="PGA"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"
-                                                   FontSize="22" FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource SplashCeruleanLite}"/>
                                     </Grid>
                                 </Viewbox>
 
                                 <!-- Top-edge crystal sheen on the tile -->
-                                <Border Width="112" Height="112" CornerRadius="26"
+                                <Border Width="112" Height="112" CornerRadius="{DynamicResource Radius.Full}"
                                         Background="{DynamicResource TileSheen}"
-                                        IsHitTestVisible="False"/>
+                                        IsHitTestVisible="False" Style="{StaticResource SurfacePrimaryStyle}"/>
                             </Grid>
                         </Border>
                     </Grid>
@@ -641,7 +614,7 @@
                      the latin two-tone mark on the splash; every other
                      surface still uses the localized Shell.AppTitle. -->
                 <TextBlock x:Name="AppNameText"
-                           FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
+                           FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}"
                            HorizontalAlignment="Center"
                            Margin="0,22,0,0"
                            Opacity="0">
@@ -652,7 +625,7 @@
 
                 <TextBlock x:Name="TaglineText"
                            Text="{DynamicResource Splash.MadeInIndiaDesc}"
-                           FontSize="{StaticResource TextBodyLarge}"
+                           FontSize="{DynamicResource FontSize.Title}"
                            HorizontalAlignment="Center"
                            Margin="0,8,0,0"
                            Foreground="{DynamicResource SplashCerulean}"
@@ -679,12 +652,12 @@
                 <Grid x:Name="ProgressTrack"
                       MaxWidth="320" Height="3"
                       Margin="0,26,0,0" HorizontalAlignment="Stretch">
-                    <Border Height="3" CornerRadius="{DynamicResource Radius.XSmall}" Background="{DynamicResource SplashTrackBg}"/>
+                    <Border Height="3" CornerRadius="{DynamicResource Radius.XSmall}" Background="{DynamicResource SplashTrackBg}" Style="{StaticResource SurfacePrimaryStyle}"/>
                     <Border x:Name="ProgressFill"
                             Height="3" Width="0"
                             HorizontalAlignment="Left"
                             CornerRadius="{DynamicResource Radius.XSmall}"
-                            Background="{DynamicResource ProgressGradient}"/>
+                            Background="{DynamicResource ProgressGradient}" Style="{StaticResource SurfacePrimaryStyle}"/>
                 </Grid>
 
                 <!-- Status — quiet line (dots animated by code-behind) -->
@@ -692,11 +665,11 @@
                     <StackPanel x:Name="LoadingStrip" Orientation="Horizontal">
                         <TextBlock x:Name="LoadingText"
                                    Text="{DynamicResource Splash.Starting}"
-                                   FontSize="{StaticResource TextBody}"
+                                   FontSize="{DynamicResource FontSize.Body}"
                                    Foreground="{DynamicResource SplashTextSecondary}"/>
                         <TextBlock x:Name="LoadingDots"
                                    Text=""
-                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource SplashCerulean}"/>
                     </StackPanel>
                 </Grid>
@@ -710,8 +683,8 @@
                     CornerRadius="{DynamicResource Radius.Medium}"
                     BorderBrush="{DynamicResource SplashOutline}"
                     BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    Background="{DynamicResource SplashPillBg}">
-                <TextBlock FontSize="{StaticResource TextBody}"
+                    Background="{DynamicResource SplashPillBg}" Style="{StaticResource SurfacePrimaryStyle}">
+                <TextBlock FontSize="{DynamicResource FontSize.Body}"
                            Foreground="{DynamicResource SplashTextSecondary}"
                            Opacity="0.75"
                            HorizontalAlignment="Center">
@@ -756,7 +729,7 @@
                         HorizontalAlignment="Center"
                         Margin="0,46,0,0">
                 <TextBlock Text="{DynamicResource Splash.TermsTitle}"
-                           FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
+                           FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}"
                            HorizontalAlignment="Center"
                            Foreground="{DynamicResource SplashTextPrimary}">
                     <TextBlock.Effect>
@@ -765,7 +738,7 @@
                     </TextBlock.Effect>
                 </TextBlock>
                 <TextBlock Text="{DynamicResource Splash.UaeIntro}"
-                           FontSize="{StaticResource TextBodyLarge}"
+                           FontSize="{DynamicResource FontSize.Title}"
                            HorizontalAlignment="Center"
                            Margin="0,6,0,0"
                            Foreground="{DynamicResource SplashTextSecondary}"/>
@@ -781,47 +754,47 @@
                     CornerRadius="{StaticResource SplashCornerLarge}"
                     BorderBrush="{DynamicResource SplashOutline}"
                     BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    Background="{DynamicResource SplashPillBg}">
+                    Background="{DynamicResource SplashPillBg}" Style="{StaticResource SurfacePrimaryStyle}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               PanningMode="VerticalOnly">
                     <TextBlock Foreground="{DynamicResource SplashTextSecondary}"
-                               FontSize="{StaticResource TextBodyLarge}"
+                               FontSize="{DynamicResource FontSize.Title}"
                                LineHeight="25"
                                TextWrapping="Wrap">
-                        <Run Text="{DynamicResource Splash.Term1}" FontWeight="Bold" Foreground="{DynamicResource SplashTextPrimary}"/>
+                        <Run Text="{DynamicResource Splash.Term1}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SplashTextPrimary}"/>
                         <LineBreak/>
                         <Run Text="{DynamicResource Splash.SoftwareAssistsPreparingTaxInvoicesRecords}"/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="{DynamicResource Splash.Term2}" FontWeight="Bold" Foreground="{DynamicResource SplashTextPrimary}"/>
+                        <Run Text="{DynamicResource Splash.Term2}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SplashTextPrimary}"/>
                         <LineBreak/>
                         <Run Text="{DynamicResource Splash.UAETaxLawRequiresAccountingRecordsTax}"/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="{DynamicResource Splash.Term3}" FontWeight="Bold" Foreground="{DynamicResource SplashTextPrimary}"/>
+                        <Run Text="{DynamicResource Splash.Term3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SplashTextPrimary}"/>
                         <LineBreak/>
                         <Run Text="{DynamicResource Splash.FederalDecreeLawNo462021Electronic}"/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="{DynamicResource Splash.Term4}" FontWeight="Bold" Foreground="{DynamicResource SplashTextPrimary}"/>
+                        <Run Text="{DynamicResource Splash.Term4}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SplashTextPrimary}"/>
                         <LineBreak/>
                         <Run Text="{DynamicResource Splash.FederalDecreeLawNo452021ProtectionPersonal}"/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="{DynamicResource Splash.Term5}" FontWeight="Bold" Foreground="{DynamicResource SplashTextPrimary}"/>
+                        <Run Text="{DynamicResource Splash.Term5}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SplashTextPrimary}"/>
                         <LineBreak/>
                         <Run Text="{DynamicResource Splash.GrantedNonTransferableLicenceUseSoftware}"/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="{DynamicResource Splash.Term6}" FontWeight="Bold" Foreground="{DynamicResource SplashTextPrimary}"/>
+                        <Run Text="{DynamicResource Splash.Term6}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SplashTextPrimary}"/>
                         <LineBreak/>
                         <Run Text="{DynamicResource Splash.AgreeUseSoftwareProduceFalseMisleading}"/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="{DynamicResource Splash.Term7}" FontWeight="Bold" Foreground="{DynamicResource SplashTextPrimary}"/>
+                        <Run Text="{DynamicResource Splash.Term7}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SplashTextPrimary}"/>
                         <LineBreak/>
                         <Run Text="{DynamicResource Splash.SoftwareProvidedWithoutWarrantyKindExpress}"/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="{DynamicResource Splash.Term8}" FontWeight="Bold" Foreground="{DynamicResource SplashTextPrimary}"/>
+                        <Run Text="{DynamicResource Splash.Term8}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SplashTextPrimary}"/>
                         <LineBreak/>
                         <Run Text="{DynamicResource Splash.UpdatesMayOfferedTimeTimeInstallingChoice}"/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="{DynamicResource Splash.Term9}" FontWeight="Bold" Foreground="{DynamicResource SplashTextPrimary}"/>
+                        <Run Text="{DynamicResource Splash.Term9}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SplashTextPrimary}"/>
                         <LineBreak/>
                         <Run Text="{DynamicResource Splash.TermsGovernedLawsUnitedArabEmiratesEmirate}"/>
                     </TextBlock>
@@ -834,7 +807,7 @@
                     BorderBrush="{DynamicResource SplashOutline}"
                     BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                     Padding="60,20"
-                    Background="{DynamicResource SplashPillBg}">
+                    Background="{DynamicResource SplashPillBg}" Style="{StaticResource SurfacePrimaryStyle}">
                 <DockPanel LastChildFill="True" MaxWidth="980">
                     <StackPanel DockPanel.Dock="Right"
                                 Orientation="Horizontal"
@@ -844,19 +817,19 @@
                                 Content="{DynamicResource Splash.DeclineExit}"
                                 MinWidth="150" Height="42"
                                 Margin="0,0,12,0"
-                                Style="{StaticResource TermsDeclineButtonStyle}"
+                                Style="{StaticResource Button.Secondary}"
                                 Command="{Binding DeclineCommand}"/>
                         <Button x:Name="ContinueButton"
                                 Content="{DynamicResource Splash.AcceptContinue}"
                                 MinWidth="190" Height="42"
                                 IsEnabled="{Binding IsContinueEnabled}"
-                                Style="{StaticResource TermsContinueButtonStyle}"
+                                Style="{StaticResource Button.Primary}"
                                 Command="{Binding ContinueCommand}"/>
                     </StackPanel>
                     <CheckBox x:Name="AcceptTermsCheck"
                               VerticalAlignment="Center"
                               Foreground="{DynamicResource SplashTextSecondary}"
-                              FontSize="{StaticResource TextBodyLarge}"
+                              FontSize="{DynamicResource FontSize.Title}"
                               Cursor="Hand"
                               Margin="0,8,0,0"
                               IsChecked="{Binding AcceptTerms, Mode=TwoWay}">

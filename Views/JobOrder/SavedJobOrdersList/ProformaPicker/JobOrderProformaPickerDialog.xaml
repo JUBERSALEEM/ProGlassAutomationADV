@@ -40,13 +40,13 @@
                      Height="38"
                      VerticalContentAlignment="Center"
                      Padding="12,0"
-                     FontSize="{StaticResource TextBodyLarge}"
+                     FontSize="{DynamicResource FontSize.Title}"
                      Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=200}"
                      Background="{DynamicResource SurfacePrimaryBrush}"
                      Foreground="{DynamicResource TextPrimaryBrush}"
                      BorderBrush="{DynamicResource BorderBrush}"
                      BorderThickness="{DynamicResource Border.HairlineThickness}"
-                     ToolTip="{DynamicResource JobOrder.SearchPINumberCustomerProject}"/>
+                     ToolTip="{DynamicResource JobOrder.SearchPINumberCustomerProject}" Style="{StaticResource TextBoxStyle}"/>
 
             <!-- Off by default: production should normally only start from an
                  approved quote. The toggle exists because the status
@@ -56,7 +56,7 @@
                       Margin="14,0,0,0"
                       VerticalAlignment="Center"
                       Content="{DynamicResource JobOrder.ShowStatuses}"
-                      FontSize="{StaticResource TextBody}"
+                      FontSize="{DynamicResource FontSize.Body}"
                       Foreground="{DynamicResource SecondaryForegroundBrush}"
                       IsChecked="{Binding ShowAll, Mode=TwoWay}"
                       ToolTip="{DynamicResource JobOrder.IncludeDraftSentRejectedExpiredQuotes}"/>
@@ -65,7 +65,7 @@
         <!-- ── COUNT LINE ──────────────────────────────────────────── -->
         <TextBlock Grid.Row="1"
                    Margin="0,0,0,10"
-                   FontSize="{StaticResource TextBody}"
+                   FontSize="{DynamicResource FontSize.Body}"
                    Foreground="{DynamicResource TextTertiaryBrush}"
                    Text="{Binding CountText}"/>
 
@@ -84,15 +84,15 @@
                 Visibility="{Binding WarningVisibility}"
                 Background="{DynamicResource TintAmberBrush}"
                 BorderBrush="{DynamicResource WarningBrush}"
-                BorderThickness="{DynamicResource CardBorderThickness}">
+                BorderThickness="{DynamicResource CardBorderThickness}" Style="{StaticResource SurfacePrimaryStyle}">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="&#xE7BA;"
-                           FontFamily="Segoe MDL2 Assets"
-                           FontSize="{StaticResource TextTitle}"
+                           FontFamily="{DynamicResource FontFamily.Icon}"
+                           FontSize="{DynamicResource FontSize.H2}"
                            VerticalAlignment="Top"
                            Margin="0,1,10,0"
                            Foreground="{DynamicResource WarningBrush}"/>
-                <TextBlock FontSize="{StaticResource TextBody}"
+                <TextBlock FontSize="{DynamicResource FontSize.Body}"
                            Text="{Binding WarningText}"
                            TextWrapping="Wrap"
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
@@ -109,7 +109,7 @@
 
             <TextBlock Grid.Column="0"
                        Text="{Binding SelectedLabelText}"
-                       FontSize="{StaticResource TextBody}"
+                       FontSize="{DynamicResource FontSize.Body}"
                        VerticalAlignment="Center"
                        Margin="0,0,12,0"
                        TextWrapping="Wrap"

@@ -5,14 +5,7 @@
          BASE styles are declared first. BasedOn StaticResource cannot
          forward-reference a key later in this same dictionary — that
          throws StaticResourceHolder (line 6 / 41 crash). -->
-<Style x:Key="CompactStatLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,4,0,0"/>
-            <Setter Property="Foreground"
-                    Value="{DynamicResource TextTertiaryBrush}"/>
-        </Style>
+
         <Style x:Key="HistoryRowButtonStyle" TargetType="Button">
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -33,57 +26,16 @@
             </Setter>
         </Style>
 
-        <Style x:Key="BalanceCellStyle" TargetType="TextBlock"
-               BasedOn="{StaticResource GridNumericCell}">
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding HasBalance}" Value="True">
-                    <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-<Style x:Key="CompactStatNumberStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{DynamicResource DensityKpiValueFontSize}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Foreground"
-                    Value="{DynamicResource TextPrimaryBrush}"/>
-        </Style>
-<Style x:Key="CompactStatUnitStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="VerticalAlignment" Value="Bottom"/>
-            <Setter Property="Margin" Value="3,0,0,3"/>
-            <Setter Property="Foreground"
-                    Value="{DynamicResource SecondaryForegroundBrush}"/>
-        </Style>
-        <Style x:Key="CumulativeLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextXSmall}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground"
-                    Value="{DynamicResource TextTertiaryBrush}"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="TextAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,5,0,2"/>
-        </Style>
-        <Style x:Key="CumulativeSeparatorStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
-            <Setter Property="Width" Value="1"/>
-            <Setter Property="Background" Value="{DynamicResource BorderDefaultBrush}"/>
-            <Setter Property="Opacity" Value="0.5"/>
-            <Setter Property="Margin" Value="0,4"/>
-        </Style>
-        <Style x:Key="CumulativeValueStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="TextAlignment" Value="Center"/>
-            <Setter Property="Foreground"
-                    Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="Margin" Value="0,0,0,5"/>
-        </Style>
+        
+
+
+        
+        
+        
         <Style x:Key="DeliveredQtyReadOnlyStyle" TargetType="TextBlock"
                BasedOn="{StaticResource GridNumericCell}">
             <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
             <Setter Property="Visibility" Value="Collapsed"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding DataContext.IsMasterDn,
@@ -95,8 +47,8 @@
         </Style>
         <Style x:Key="DeliveredQtyTextBoxStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
+            <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
             <Setter Property="TextAlignment" Value="Right"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Padding" Value="8,4,10,4"/>
@@ -115,77 +67,13 @@
             </Style.Triggers>
         </Style>
         
-        <Style x:Key="DifferentDnWarningStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
-            <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="Padding" Value="12,8"/>
-            <Setter Property="Margin" Value="10,10,10,0"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="Visibility" Value="Collapsed"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsSelectedDnCurrent}" Value="False">
-                    <Setter Property="Visibility" Value="Visible"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-<Style x:Key="HeroStripLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-            <Setter Property="Opacity" Value="0.80"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Text" Value="DELIVERY NOTE  ·  "/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsMasterDn}" Value="True">
-                    <Setter Property="Text" Value="MASTER DELIVERY NOTE  ·  "/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-        <Style x:Key="HistoryContextMenuItemStyle" TargetType="MenuItem">
-            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Padding" Value="8,6"/>
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-        <Style x:Key="HistoryRowContentBorderStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
-            <Setter Property="Padding" Value="12,10"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                    <Setter Property="BorderThickness" Value="2"/>
-                    <Setter Property="Background"
-                            Value="{DynamicResource TintIndigoBrush}"/>
-                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding IsCurrentDn}" Value="True">
-                    <Setter Property="BorderThickness" Value="4,2,2,2"/>
-                    <Setter Property="Background"
-                            Value="{DynamicResource TintGreenBrush}"/>
-                    <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-        <Style x:Key="HistoryRowDnIdStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground"
-                    Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsCurrentDn}" Value="True">
-                    <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
-                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
+        
+
+        
+        
+        
         <Style x:Key="HistoryRowOuterButtonStyle" TargetType="Button"
-               BasedOn="{StaticResource HistoryRowButtonStyle}">
+               BasedOn="{StaticResource Button.Ghost}">
             <Setter Property="Opacity" Value="0.90"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
@@ -197,7 +85,7 @@
             </Style.Triggers>
         </Style>
         <Style x:Key="ItemsSectionSubtitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
             <Setter Property="Foreground"
                     Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Setter Property="Margin" Value="0,2,0,0"/>
@@ -219,8 +107,8 @@
             </Style.Triggers>
         </Style>
         <Style x:Key="ItemsSectionTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
+            <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
             <Setter Property="Foreground"
                     Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="Text" Value="DELIVERY ITEMS"/>
@@ -238,60 +126,15 @@
             </Style.Triggers>
         </Style>
         
-        <Style x:Key="MasterHeroDividerStyle" TargetType="TextBlock">
-            <Setter Property="Text" Value="  ·  "/>
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-            <Setter Property="Opacity" Value="0.47"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-        <Style x:Key="MasterHeroMetaLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-            <Setter Property="Opacity" Value="0.80"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,0,3,0"/>
-        </Style>
-        <Style x:Key="MasterHeroMetaValueStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-        <Style x:Key="MasterHeroStripStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-            <Setter Property="Background" Value="{DynamicResource SurfaceElevatedBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="16,16,0,0"/>
-            <Setter Property="Padding" Value="12,8"/>
-        </Style>
-        <Style x:Key="MasterHeroSubtitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-            <Setter Property="Opacity" Value="0.92"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-        <Style x:Key="MasterHeroTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextTitle}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-        </Style>
-        <Style x:Key="OptionalDimStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="TextAlignment" Value="Right"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="6,4,10,4"/>
-        </Style>
+        
+        
+        
+        
+        
+        
+        
         <Style x:Key="PrevDeliveredLabelStyle" TargetType="TextBlock"
-               BasedOn="{StaticResource CompactStatLabelStyle}">
+               BasedOn="{StaticResource Typography.Label}">
             <Setter Property="Text" Value="PREV DELIVERED"/>
             <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
             <Style.Triggers>
@@ -300,15 +143,12 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-<Style x:Key="SpecGroupHeaderStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-            <Setter Property="CornerRadius" Value="12,12,0,0"/>
-            <Setter Property="Padding" Value="16,10"/>
-        </Style>
+
         <Style x:Key="TaxInvoiceRowButtonStyle" TargetType="Button">
             <Setter Property="MinHeight" Value="24"/>
             <Setter Property="Padding" Value="8,3"/>
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
+            <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Background" Value="{DynamicResource AccentDarkBrush}"/>
@@ -345,7 +185,7 @@
         </Style>
         
         <Style x:Key="ThisDnLabelStyle" TargetType="TextBlock"
-               BasedOn="{StaticResource CompactStatLabelStyle}">
+               BasedOn="{StaticResource Typography.Label}">
             <Setter Property="Text" Value="THIS DN"/>
             <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
             <Style.Triggers>

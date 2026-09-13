@@ -34,13 +34,13 @@
         <!-- Header + selection summary -->
         <StackPanel Grid.Row="0" Margin="40,24,40,16">
             <TextBlock Text="Step 2 — Select Proforma Invoices"
-                       FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                       FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                        Foreground="{DynamicResource TextPrimaryBrush}"/>
             <TextBlock Text="{Binding PreviewVM.SelectionSummaryDisplay}"
-                       FontSize="{StaticResource TextSection}"
+                       FontSize="{DynamicResource FontSize.H3}"
                        Foreground="{DynamicResource AccentBrush}" Margin="0,6,0,0"/>
             <TextBlock Text="{Binding PreviewVM.SelectedValueDisplay}"
-                       FontSize="{StaticResource TextBody}"
+                       FontSize="{DynamicResource FontSize.Body}"
                        Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,2,0,0"/>
         </StackPanel>
 
@@ -49,7 +49,7 @@
                 Background="{DynamicResource SurfacePrimaryBrush}"
                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
-                CornerRadius="{DynamicResource CardCornerRadiusLarge}">
+                CornerRadius="{DynamicResource CardCornerRadiusLarge}" Style="{StaticResource SurfacePrimaryStyle}">
             <Grid>
                 <ListBox ItemsSource="{Binding PreviewVM.Rows}"
                          BorderThickness="0"
@@ -92,17 +92,17 @@
                                     <StackPanel Grid.Column="1" Margin="14,0,12,0">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{Binding ProformaId}"
-                                                       FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                                       FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             <Border Background="{DynamicResource TintIndigoBrush}"
                                                     CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,1" Margin="10,0,0,0"
-                                                    VerticalAlignment="Center">
+                                                    VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
                                                 <TextBlock Text="{Binding Status}"
-                                                           FontSize="{StaticResource TextCaption}"
+                                                           FontSize="{DynamicResource FontSize.BodySmall}"
                                                            Foreground="{DynamicResource AccentBrush}"/>
                                             </Border>
                                         </StackPanel>
-                                        <TextBlock FontSize="{StaticResource TextBody}"
+                                        <TextBlock FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    Margin="0,3,0,0">
                                             <Run Text="{Binding CompanyName, Mode=OneWay}"/>
@@ -115,11 +115,11 @@
 
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
                                         <TextBlock Text="{Binding GrandTotalDisplay}"
-                                                   FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                                    HorizontalAlignment="Right"/>
                                         <TextBlock Text="{Binding CreatedAtDisplay}"
-                                                   FontSize="{StaticResource TextCaption}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    HorizontalAlignment="Right" Margin="0,2,0,0"/>
                                     </StackPanel>

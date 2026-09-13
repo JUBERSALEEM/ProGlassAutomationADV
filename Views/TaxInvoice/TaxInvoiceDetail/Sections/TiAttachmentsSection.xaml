@@ -18,7 +18,7 @@
     <Grid>
 <!-- ── ATTACHMENTS CARD (right) — auto-switches per family entry ── -->
             <Border Grid.Column="2"
-                    Style="{StaticResource CardStyle}"
+                    Style="{StaticResource SurfacePrimaryStyle}"
                     >
                 <Grid>
                     <Grid.RowDefinitions>
@@ -43,11 +43,11 @@
                             <StackPanel Grid.Column="0">
                                 <!-- Chat 16: SelectedFamilyHeaderText updates when family entry clicked -->
                                 <TextBlock Text="{Binding SelectedFamilyHeaderText}"
-                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource OnAccentForegroundBrush}"
                                            TextTrimming="CharacterEllipsis"/>
                                 <TextBlock Text="{DynamicResource TaxInvoice.PhotosSignedDocsClickFamilyEntrySwitchView}"
-                                           FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
+                                           FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
                                            Margin="0,2,0,0"
                                            TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
@@ -64,7 +64,7 @@
                             Padding="12,8" Margin="10,10,10,0"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Background="{DynamicResource TintAmberBrush}"
-                            SnapsToDevicePixels="True">
+                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -75,10 +75,10 @@
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
-                        <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                        <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                    TextWrapping="Wrap">
-                            <Run Text="&#xE7B3;" FontFamily="Segoe MDL2 Assets"/><Run Text="{DynamicResource TaxInvoice.AttachmentsShownSelectedFamilyMember}"/>
+                            <Run Text="&#xE7B3;" FontFamily="{DynamicResource FontFamily.Icon}"/><Run Text="{DynamicResource TaxInvoice.AttachmentsShownSelectedFamilyMember}"/>
                         </TextBlock>
                     </Border>
 
@@ -104,16 +104,16 @@
                                     </Style>
                                 </Border.Style>
                                 <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="&#xE723;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplay}"
+                                    <TextBlock Text="&#xE723;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Kpi}"
                                                HorizontalAlignment="Center"
                                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                                     <TextBlock Text="{DynamicResource DeliveryNote.NoAttachmentsYet}"
-                                               FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
+                                               FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                HorizontalAlignment="Center"
                                                Margin="0,8,0,4"
                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{DynamicResource TaxInvoice.AddSignedPIDNPdfsHere}"
-                                               FontSize="{StaticResource TextBody}"
+                                               FontSize="{DynamicResource FontSize.Body}"
                                                HorizontalAlignment="Center"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 </StackPanel>
@@ -126,7 +126,7 @@
                                         <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Margin="0,4" Padding="12,10"
                                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Background="{DynamicResource SurfaceTertiaryBrush}"
-                                                SnapsToDevicePixels="True">
+                                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="36"/>
@@ -137,7 +137,7 @@
 
                                                 <TextBlock Grid.Column="0"
                                                            Text="{Binding TypeIcon}"
-                                                           FontSize="{StaticResource TextHeadline}"
+                                                           FontSize="{DynamicResource FontSize.H1}"
                                                            HorizontalAlignment="Center"
                                                            VerticalAlignment="Center"/>
 
@@ -145,10 +145,10 @@
                                                             VerticalAlignment="Center"
                                                             Margin="10,0,8,0">
                                                     <TextBlock Text="{Binding FileName}"
-                                                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                                TextTrimming="CharacterEllipsis"
                                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                                    <TextBlock FontSize="{StaticResource TextCaption}" Margin="0,2,0,0"
+                                                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" Margin="0,2,0,0"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}">
                                                         <Run Text="{Binding TypeLabel, Mode=OneWay}"/>
                                                         <Run Text="  ·  "/>
@@ -158,10 +158,10 @@
 
                                                 <ComboBox Grid.Column="2"
                                                           SelectedItem="{Binding AttachmentType}"
-                                                          FontSize="{StaticResource TextCaption}"
+                                                          FontSize="{DynamicResource FontSize.BodySmall}"
                                                           Height="28"
                                                           Margin="0,0,6,0"
-                                                          VerticalContentAlignment="Center">
+                                                          VerticalContentAlignment="Center" Style="{StaticResource ComboBoxStyle}">
                                                     <ComboBoxItem Content="{DynamicResource TaxInvoice.Signedpi}"/>
                                                     <ComboBoxItem Content="{DynamicResource TaxInvoice.Signeddn}"/>
                                                     <ComboBoxItem Content="{DynamicResource TaxInvoice.Other}"/>

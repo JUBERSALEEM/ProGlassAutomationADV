@@ -66,7 +66,7 @@
                                 BorderThickness="1"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="6"
-                                MinWidth="200">
+                                MinWidth="200" Style="{StaticResource SurfacePrimaryStyle}">
                             <StackPanel>
                                 <Button Style="{StaticResource PiInvoiceMenuActionItem}"
                                         Tag="&#xE749;" Content="{DynamicResource Action.Print}"
@@ -119,7 +119,7 @@
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 CornerRadius="{DynamicResource CardCornerRadius}"
                 Padding="16"
-                SnapsToDevicePixels="True">
+                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
             <DockPanel>
 
                 <!--
@@ -138,7 +138,7 @@
                         BorderThickness="1"
                         CornerRadius="{DynamicResource ControlCornerRadius}"
                         Padding="10,8"
-                        Margin="0,0,0,12">
+                        Margin="0,0,0,12" Style="{StaticResource SurfacePrimaryStyle}">
                     <StackPanel>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -151,7 +151,7 @@
                                        Text="PDF LAYOUT"
                                        VerticalAlignment="Center"
                                        FontSize="{DynamicResource TextXSmall}"
-                                       FontWeight="Bold"
+                                       FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        Margin="0,0,10,0"/>
 
@@ -162,7 +162,7 @@
                                       DisplayMemberPath="Name"
                                       SelectedValuePath="Id"
                                       SelectedValue="{Binding PrintLayout.SelectedId, Mode=TwoWay}"
-                                      ToolTip="{Binding PrintLayout.SelectedDescription}"/>
+                                      ToolTip="{Binding PrintLayout.SelectedDescription}" Style="{StaticResource ComboBoxStyle}"/>
 
                             <!-- Style family badge. Binds the CURATED label
                                  (EXECUTIVE / MODERN / EDITORIAL / INDUSTRIAL /
@@ -173,11 +173,11 @@
                                     CornerRadius="{DynamicResource Radius.XSmall}"
                                     Padding="7,3"
                                     Margin="10,0,0,0"
-                                    VerticalAlignment="Center">
+                                    VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
                                 <TextBlock Text="{Binding PrintLayout.SelectedStyleLabel}"
                                            FontSize="{DynamicResource TextXSmall}"
-                                           FontWeight="Bold"
-                                           Foreground="White"/>
+                                           FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                             </Border>
                         </Grid>
 

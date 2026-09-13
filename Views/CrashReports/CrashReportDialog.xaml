@@ -36,14 +36,14 @@
     <!-- ── Headline + detail block ───────────────────────────────────── -->
     <StackPanel>
         <TextBlock Text="{DynamicResource CrashReports.SomethingWentWrong}"
-                   FontSize="{StaticResource TextTitleLarge}" FontWeight="SemiBold"
+                   FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.SemiBold}"
                    Foreground="{DynamicResource DangerBrush}"
                    TextWrapping="Wrap"/>
         <Border Margin="0,14,0,0" Padding="16,14"
             Background="{DynamicResource SurfaceSecondaryBrush}"
             BorderBrush="{DynamicResource BorderBrush}"
             BorderThickness="{DynamicResource Border.HairlineThickness}"
-            CornerRadius="{DynamicResource Radius.Small}">
+            CornerRadius="{DynamicResource Radius.Small}" Style="{StaticResource SurfacePrimaryStyle}">
         <StackPanel>
             <Grid Margin="0,0,0,10">
                 <Grid.ColumnDefinitions>
@@ -57,31 +57,31 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource CrashReports.ErrorID}"
-                           Style="{StaticResource CrashFieldLabel}"/>
+                           Style="{StaticResource Typography.Label}"/>
                 <TextBlock Grid.Row="0" Grid.Column="1"
                            Text="{Binding ErrorId}"
-                           Style="{StaticResource CrashFieldValue}"/>
+                           Style="{StaticResource Typography.Body}"/>
 
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource Common.Type}"
-                           Style="{StaticResource CrashFieldLabel}"/>
+                           Style="{StaticResource Typography.Label}"/>
                 <TextBlock Grid.Row="1" Grid.Column="1"
                            Text="{Binding ExceptionType}"
-                           Style="{StaticResource CrashFieldValue}"/>
+                           Style="{StaticResource Typography.Body}"/>
 
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource CrashReports.Message}"
-                           Style="{StaticResource CrashFieldLabel}"/>
+                           Style="{StaticResource Typography.Label}"/>
                 <TextBlock Grid.Row="2" Grid.Column="1"
                            Text="{Binding ExceptionMessage}"
                            TextWrapping="Wrap"
-                           Style="{StaticResource CrashFieldValue}"/>
+                           Style="{StaticResource Typography.Body}"/>
             </Grid>
 
             <TextBlock Text="{DynamicResource CrashReports.CrashReportSaved}"
-                       Style="{StaticResource CrashFieldLabel}"
+                       Style="{StaticResource Typography.Label}"
                        Margin="0,4,0,4"/>
             <TextBlock Text="{Binding ReportPath}"
-                       FontFamily="Consolas, Cascadia Mono, Courier New"
-                       FontSize="{StaticResource TextBody}"
+                       FontFamily="{DynamicResource FontFamily.Code}"
+                       FontSize="{DynamicResource FontSize.Body}"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                        TextWrapping="Wrap"/>
         </StackPanel>
@@ -90,19 +90,19 @@
 
     <dialogs:ThemedDialogWindow.FooterContent>
         <StackPanel Orientation="Horizontal">
-            <Button Style="{StaticResource CrashPrimaryButton}"
+            <Button Style="{StaticResource Button.Primary}"
                     Content="{DynamicResource CrashReports.RestartAPP}"
                     Command="{Binding RestartCommand}"
                     Margin="0,0,8,0"/>
-            <Button Style="{StaticResource CrashOutlinedButton}"
+            <Button Style="{StaticResource Button.Secondary}"
                     Content="{DynamicResource CrashReports.COPYErrorID}"
                     Command="{Binding CopyErrorIdCommand}"
                     Margin="0,0,8,0"/>
-            <Button Style="{StaticResource CrashOutlinedButton}"
+            <Button Style="{StaticResource Button.Secondary}"
                     Content="{DynamicResource CrashReports.OPENCrashFolder}"
                     Command="{Binding OpenFolderCommand}"
                     Margin="0,0,8,0"/>
-            <Button Style="{StaticResource CrashGhostButton}"
+            <Button Style="{StaticResource Button.Ghost}"
                     Content="{DynamicResource Action.Close}"
                     Command="{Binding CloseCommand}"
                     IsCancel="True"/>

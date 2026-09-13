@@ -25,8 +25,8 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0"
                            Text="Release from Job Order"
-                           FontSize="{StaticResource TextBody}"
-                           FontWeight="SemiBold"
+                           FontSize="{DynamicResource FontSize.Body}"
+                           FontWeight="{DynamicResource Weight.SemiBold}"
                            Foreground="{DynamicResource TextPrimaryBrush}"
                            VerticalAlignment="Center"
                            Margin="0,0,12,0"/>
@@ -57,7 +57,7 @@
         <TextBlock Text="{Binding ReleaseMessage}"
                    Margin="8,8,8,0"
                    TextWrapping="Wrap"
-                   FontSize="{StaticResource TextBody}">
+                   FontSize="{DynamicResource FontSize.Body}">
             <TextBlock.Style>
                 <Style TargetType="TextBlock">
                     <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
@@ -76,17 +76,17 @@
                 Background="{DynamicResource TintAmberBrush}"
                 Padding="12,8"
                 Visibility="{Binding HasActionWarning,
-                             Converter={StaticResource BoolToVisibilityConverter}}">
+                             Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="&#xE7BA;"
-                           FontFamily="Segoe MDL2 Assets"
-                           FontSize="{StaticResource TextBody}"
+                           FontFamily="{DynamicResource FontFamily.Icon}"
+                           FontSize="{DynamicResource FontSize.Body}"
                            Foreground="{DynamicResource WarningBrush}"
                            VerticalAlignment="Center"
                            Margin="0,0,8,0"/>
                 <TextBlock Text="{Binding ActionWarning}"
                            TextWrapping="Wrap"
-                           FontSize="{StaticResource TextBody}"
+                           FontSize="{DynamicResource FontSize.Body}"
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
             </StackPanel>
         </Border>

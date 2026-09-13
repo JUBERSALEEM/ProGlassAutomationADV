@@ -28,7 +28,7 @@
         <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="20,18">
                 <StackPanel>
-                    <TextBlock Text="{DynamicResource ProformaInvoice.SingleLite}" FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                    <TextBlock Text="{DynamicResource ProformaInvoice.SingleLite}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock Text="{DynamicResource ProformaInvoice.OnePaneThicknessColourTreatmentDrive3DBuild}"
                                Style="{StaticResource ModulePageSubtitleStyle}" Margin="0,2,0,16"/>

@@ -59,17 +59,12 @@
     <SolidColorBrush x:Key="WarningOnLiquid" Color="{DynamicResource WarningColor}"/>
 
     <!-- ═══ FIELD LABEL ═══ -->
-    <Style x:Key="FieldLabel" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{StaticResource Frost}"/>
-        <Setter Property="Margin" Value="2,0,0,6"/>
-    </Style>
+    
 
     <!-- ═══ TEXT INPUT — frosted surface, icon chip, rounded ═══ -->
     <Style x:Key="RoundedTextBox" TargetType="TextBox">
         <Setter Property="Height" Value="42"/>
-        <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.H3}"/>
         <Setter Property="Foreground" Value="{StaticResource Snow}"/>
         <Setter Property="CaretBrush" Value="{DynamicResource Ice}"/>
         <Setter Property="Template">
@@ -80,7 +75,7 @@
                             Background="{DynamicResource SurfacePrimaryBrush}"
                             BorderBrush="{DynamicResource BorderSubtleBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            SnapsToDevicePixels="True">
+                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -88,8 +83,8 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0"
                                        Text="{TemplateBinding Tag}"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextSubhead}"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource FontSize.H3}"
                                        Margin="16,0,0,0"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource Cerulean}"/>
@@ -122,7 +117,7 @@
     <!-- ═══ PASSWORD INPUT — frosted surface ═══ -->
     <Style x:Key="RoundedPasswordBox" TargetType="PasswordBox">
         <Setter Property="Height" Value="42"/>
-        <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.H3}"/>
         <Setter Property="Foreground" Value="{StaticResource Snow}"/>
         <Setter Property="CaretBrush" Value="{DynamicResource Ice}"/>
         <Setter Property="Template">
@@ -133,7 +128,7 @@
                             Background="{DynamicResource SurfacePrimaryBrush}"
                             BorderBrush="{DynamicResource BorderSubtleBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            SnapsToDevicePixels="True">
+                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -141,8 +136,8 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0"
                                        Text="{TemplateBinding Tag}"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextSubhead}"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource FontSize.H3}"
                                        Margin="16,0,0,0"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource Cerulean}"/>
@@ -177,7 +172,7 @@
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Foreground" Value="{StaticResource Frost}"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -190,11 +185,11 @@
                                 BorderBrush="{DynamicResource BorderSubtleBrush}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 VerticalAlignment="Center"
-                                SnapsToDevicePixels="True">
+                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                             <TextBlock x:Name="Glyph"
                                        Text="&#xE73E;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextBody}"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource FontSize.Body}"
                                        Foreground="{DynamicResource Ice}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
@@ -223,8 +218,8 @@
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Foreground" Value="White"/>
-        <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
-        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.H3}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -267,7 +262,7 @@
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Foreground" Value="{StaticResource Cerulean}"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -284,10 +279,6 @@
     </Style>
 
     <!-- ═══ STATUS / DIVIDER ═══ -->
-    <Style x:Key="HairlineStyle" TargetType="Rectangle">
-        <Setter Property="Height" Value="1"/>
-        <Setter Property="Fill" Value="#2EFFFFFF"/>
-        <Setter Property="Margin" Value="0,0,0,0"/>
-    </Style>
+    
 
 </ResourceDictionary>

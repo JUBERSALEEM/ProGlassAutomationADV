@@ -14,21 +14,8 @@
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-        <Style x:Key="FormInputStyle" TargetType="TextBox">
-            <Setter Property="beh:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="Padding" Value="8,0"/>
-            <Setter Property="Height" Value="28"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
-        <Style x:Key="FormNumericInputStyle" TargetType="TextBox" BasedOn="{StaticResource FormInputStyle}">
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-        </Style>
+        
+        
     </UserControl.Resources>
 
     <StackPanel>
@@ -78,31 +65,31 @@
                                           AutomationProperties.Name="Custom charge on"/>
                             <TextBlock Grid.Column="1"
                                        Text="{Binding ChargeName}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis"/>
                             <TextBlock Grid.Column="2"
                                        Text="{Binding Qty, StringFormat={}{0:0.###}}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Grid.Column="3"
                                        Text="{Binding Unit}"
-                                       FontSize="{StaticResource TextBody}"
+                                       FontSize="{DynamicResource FontSize.Body}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             <TextBlock Grid.Column="4"
                                        Text="{Binding Rate, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
-                                       FontSize="{StaticResource TextBody}"
+                                       FontSize="{DynamicResource FontSize.Body}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Grid.Column="5"
                                        Text="{Binding FormulaDisplay}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                        TextAlignment="Right"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource SuccessBrush}"/>
@@ -113,8 +100,8 @@
                                     Style="{StaticResource PiIconButtonStyle}"
                                     ToolTip="{DynamicResource ProformaInvoice.RemoveCharge}">
                                 <TextBlock Text="&#xE711;"
-                                           FontFamily="Segoe MDL2 Assets"
-                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource DangerBrush}"/>
                             </Button>
                         </Grid>
@@ -138,13 +125,13 @@
             <StackPanel>
                 <TextBlock Text="{DynamicResource ProformaInvoice.ChargeNAME}" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding InputName, UpdateSourceTrigger=PropertyChanged}"
-                         Style="{StaticResource FormInputStyle}"/>
+                         Style="{StaticResource SurfacePrimaryStyle}"/>
             </StackPanel>
             <StackPanel Grid.Column="2">
                 <TextBlock Text="QTY" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,3"/>
                 <TextBox beh:TextBoxBehaviors.AcceptDecimals="True"
-                         Style="{StaticResource FormNumericInputStyle}">
-                    <TextBox.Text>
+                         Style="{StaticResource SurfacePrimaryStyle}">
+                    <TextBox.Text Style="{StaticResource TextBoxStyle}">
                         <Binding Path="InputQty" Mode="TwoWay"
                                  UpdateSourceTrigger="LostFocus"
                                  ConverterCulture="en-US"/>
@@ -161,8 +148,8 @@
             <StackPanel Grid.Column="6">
                 <TextBlock Text="{DynamicResource Common.Rate}" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,3"/>
                 <TextBox beh:TextBoxBehaviors.AcceptDecimals="True"
-                         Style="{StaticResource FormNumericInputStyle}">
-                    <TextBox.Text>
+                         Style="{StaticResource SurfacePrimaryStyle}">
+                    <TextBox.Text Style="{StaticResource TextBoxStyle}">
                         <Binding Path="InputRate" Mode="TwoWay"
                                  UpdateSourceTrigger="LostFocus"
                                  ConverterCulture="en-US"/>

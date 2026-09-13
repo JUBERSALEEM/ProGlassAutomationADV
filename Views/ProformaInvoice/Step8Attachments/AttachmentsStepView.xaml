@@ -48,8 +48,8 @@
                                 Command="{Binding RefreshCommand}"
                                 ToolTip="{DynamicResource ProformaInvoice.ReloadAttachmentsDisk}">
                             <TextBlock Text="&#xE72C;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextBodyLarge}"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource FontSize.Title}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         </Button>
                     </StackPanel>
@@ -57,14 +57,14 @@
 
             <TextBlock DockPanel.Dock="Bottom"
                        Text="{Binding StatusMessage}"
-                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                        Margin="16,6,16,12"
                        Foreground="{DynamicResource AccentBrush}"
                        TextWrapping="Wrap"/>
 
             <TextBlock DockPanel.Dock="Top"
                        Text="{DynamicResource ProformaInvoice.NoAttachmentsAddSitePhotosDrawingsSigned}"
-                       FontSize="{StaticResource TextBody}"
+                       FontSize="{DynamicResource FontSize.Body}"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                        Margin="16,12,16,8"
                        TextWrapping="Wrap">
@@ -126,23 +126,23 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0"
                                                    Text="{Binding AttachmentType}"
-                                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="1"
                                                    Text="{Binding FileName}"
-                                                   FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
+                                                   FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                                    TextTrimming="CharacterEllipsis"
                                                    VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="2"
                                                    Text="{Binding FileSizeDisplay}"
-                                                   FontSize="{StaticResource TextBody}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="3"
                                                    Text="{Binding UploadedAtDisplay}"
-                                                   FontSize="{StaticResource TextBody}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    VerticalAlignment="Center"/>
                                         <StackPanel Grid.Column="4"

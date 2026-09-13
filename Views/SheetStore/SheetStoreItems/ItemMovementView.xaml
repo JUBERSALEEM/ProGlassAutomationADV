@@ -10,101 +10,19 @@
              FontFamily="{DynamicResource AppFontFamily}">
 
     <Window.Resources>
-        <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
-        </Style>
+        <!-- Migrated FieldLabelStyle to global SurfacePrimaryStyle / Typography -->
 
         <!-- Shared entry chrome: red outline while the field is rejected.
              The inline message alone is easy to miss on a dense form. -->
-        <Style x:Key="ErrorAwareEntry" TargetType="TextBox">
-            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Height" Value="44"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="{DynamicResource DialogInsetBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-        </Style>
-    </Window.Resources>
-
-    <!-- 2026-09 dialog audit: chrome (card/header/footer) comes from
-         ThemedDialogWindow; this file keeps only the form body. -->
-    <StackPanel>
-
-                <!-- Item info card -->
-                <Border Background="{DynamicResource DialogInsetBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,14" Margin="0,0,0,16"
-                        SnapsToDevicePixels="True">
-                    <StackPanel>
-                        <TextBlock Text="{Binding Item.CategoryDisplay}"
-                                   FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                                   Foreground="{DynamicResource AccentBrush}"/>
-                        <TextBlock Text="{Binding ItemLabel}" FontSize="{StaticResource TextBody}"
-                                   FontWeight="Bold" TextWrapping="Wrap" Margin="0,6,0,0"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                            <TextBlock Text="Stock " FontSize="{StaticResource TextBody}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            <TextBlock Text="{Binding Item.Stock, StringFormat={}{0:N2}}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
-                            <TextBlock Text="  Used " FontSize="{StaticResource TextBody}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            <TextBlock Text="{Binding Item.Used, StringFormat={}{0:N2}}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                       Foreground="{DynamicResource DangerBrush}"/>
-                            <TextBlock Text="  Balance " FontSize="{StaticResource TextBody}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            <TextBlock Text="{Binding Item.BalanceDisplay}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                       Foreground="{DynamicResource SuccessBrush}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
-                <!-- Quantity — DECIMAL, unlike the glass dialogs: you
-                     genuinely receive 45.55 LM of spacer bar. -->
-                <Border Background="{DynamicResource SurfacePrimaryBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16"
-                        SnapsToDevicePixels="True">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <TextBlock Text="QUANTITY" Style="{StaticResource FieldLabelStyle}"/>
-                            <TextBlock Text="{Binding UomLabel}" Margin="6,0,0,0"
-                                       Style="{StaticResource FieldLabelStyle}"
-                                       Foreground="{DynamicResource AccentBrush}"/>
-                        </StackPanel>
-
-                        <!-- Bound to RAW TEXT, not the decimal. A decimal
-                             binding cannot observe an empty box: conversion
-                             fails, the setter never runs, and the stale
-                             value survives behind an empty control. -->
-                        <TextBox Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
-                                 behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
-                                 behaviors:TextBoxBehaviors.AcceptDecimals="True"
-                                 FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
-                                 TextAlignment="Center">
-                            <TextBox.Style>
-                                <Style TargetType="TextBox" BasedOn="{StaticResource ErrorAwareEntry}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding HasQuantityError}" Value="True">
-                                            <Setter Property="BorderThickness" Value="2"/>
-                                            <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
+        <!-- Migrated ErrorAwareEntry to global Input.TextBox -->
+    
                             </TextBox.Style>
                         </TextBox>
 
                         <TextBlock Text="{Binding QuantityError}"
                                    Foreground="{DynamicResource DangerBrush}"
-                                   FontSize="{StaticResource TextCaption}"
-                                   FontWeight="SemiBold"
+                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
                                    TextWrapping="Wrap"
                                    Margin="0,8,0,0">
                             <TextBlock.Style>
@@ -128,7 +46,7 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16"
-                        SnapsToDevicePixels="True">
+                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                     <Border.Style>
                         <Style TargetType="Border">
                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -140,14 +58,14 @@
                         </Style>
                     </Border.Style>
                     <StackPanel>
-                        <TextBlock Text="UNIT PRICE (AED)" Style="{StaticResource FieldLabelStyle}"
+                        <TextBlock Text="UNIT PRICE (AED)" Style="{StaticResource Typography.Label}"
                                    Margin="0,0,0,8"/>
                         <TextBox Text="{Binding UnitPriceText, UpdateSourceTrigger=PropertyChanged}"
                                  behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                  behaviors:TextBoxBehaviors.AcceptDecimals="True"
-                                 FontSize="{StaticResource TextTitle}" FontWeight="Bold">
-                            <TextBox.Style>
-                                <Style TargetType="TextBox" BasedOn="{StaticResource ErrorAwareEntry}">
+                                 FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}" Style="{StaticResource TextBoxStyle}">
+                            <TextBox.Style Style="{StaticResource TextBoxStyle}">
+                                <Style TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding HasUnitPriceError}" Value="True">
                                             <Setter Property="BorderThickness" Value="2"/>
@@ -159,8 +77,8 @@
                         </TextBox>
                         <TextBlock Text="{Binding UnitPriceError}"
                                    Foreground="{DynamicResource DangerBrush}"
-                                   FontSize="{StaticResource TextCaption}"
-                                   FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,8,0,0">
+                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}" TextWrapping="Wrap" Margin="0,8,0,0">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -181,7 +99,7 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,12" Margin="0,0,0,12"
-                        SnapsToDevicePixels="True">
+                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                     <Border.Style>
                         <Style TargetType="Border">
                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -194,17 +112,17 @@
                     </Border.Style>
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Balance after " FontSize="{StaticResource TextBody}"
+                            <TextBlock Text="Balance after " FontSize="{DynamicResource FontSize.Body}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             <TextBlock Text="{Binding BalanceAfterDisplay}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                            <TextBlock Text="Movement value " FontSize="{StaticResource TextBody}"
+                            <TextBlock Text="Movement value " FontSize="{DynamicResource FontSize.Body}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             <TextBlock Text="{Binding MovementValue, StringFormat={}{0:N2} AED}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource AccentBrush}"/>
                         </StackPanel>
                     </StackPanel>
@@ -216,7 +134,7 @@
                         BorderBrush="{DynamicResource WarningBrush}"
                         BorderThickness="1"
                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,10" Margin="0,0,0,12"
-                        SnapsToDevicePixels="True">
+                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                     <Border.Style>
                         <Style TargetType="Border">
                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -228,7 +146,7 @@
                         </Style>
                     </Border.Style>
                     <TextBlock Text="{Binding ReorderWarning}" TextWrapping="Wrap"
-                               FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource WarningBrush}"/>
                 </Border>
 

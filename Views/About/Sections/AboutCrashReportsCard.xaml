@@ -21,45 +21,17 @@
                 <ResourceDictionary Source="../AboutStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <Style x:Key="CrashReportRowStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
-                <Setter Property="Margin" Value="0,0,0,10"/>
-                <Setter Property="Padding" Value="16,14"/>
-                <Setter Property="Background" Value="{DynamicResource AboutInteractiveHoverBrush}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource AboutDividerBrush}"/>
-                <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
-                <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
-                <Setter Property="SnapsToDevicePixels" Value="True"/>
-            </Style>
+            
 
-            <Style x:Key="CrashMetaLabelStyle" TargetType="TextBlock">
-                <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-                <Setter Property="FontWeight" Value="Bold"/>
-                <Setter Property="Foreground" Value="{DynamicResource LiquidMuted}"/>
-                <Setter Property="TextWrapping" Value="Wrap"/>
-                <Setter Property="IsHitTestVisible" Value="False"/>
-            </Style>
+            
 
-            <Style x:Key="CrashMetaValueStyle" TargetType="TextBlock">
-                <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-                <Setter Property="FontWeight" Value="SemiBold"/>
-                <Setter Property="Foreground" Value="{DynamicResource LiquidSnow}"/>
-                <Setter Property="TextWrapping" Value="Wrap"/>
-                <Setter Property="Margin" Value="0,5,0,0"/>
-                <Setter Property="IsHitTestVisible" Value="False"/>
-            </Style>
+            
 
-            <Style x:Key="CrashCodeStripTextStyle" TargetType="TextBlock">
-                <Setter Property="FontFamily" Value="Consolas, Cascadia Mono, Courier New"/>
-                <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-                <Setter Property="FontWeight" Value="Bold"/>
-                <Setter Property="Foreground" Value="{DynamicResource LiquidSnow}"/>
-                <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-                <Setter Property="IsHitTestVisible" Value="False"/>
-            </Style>
+            
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border Style="{StaticResource AboutCardStyle}">
+    <Border Style="{StaticResource SurfacePrimaryStyle}">
         <StackPanel>
             <Grid Margin="0,0,0,18">
                 <Grid.ColumnDefinitions>
@@ -69,18 +41,18 @@
 
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="{DynamicResource About.Crash}"
-                               Style="{StaticResource SectionTitleStyle}"/>
+                               Style="{StaticResource Typography.H2}"/>
                     <TextBlock Text="{DynamicResource About.Last10LocallyStoredCrashFilesShareErrorID}"
-                               Style="{StaticResource SectionSubtitleStyle}"
+                               Style="{StaticResource Typography.BodySmall}"
                                Margin="0,0,0,0"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1"
                             HorizontalAlignment="Right">
-                    <Border Style="{StaticResource AboutHeaderBadgeStyle}"
+                    <Border Style="{StaticResource Badge.Primary}"
                             HorizontalAlignment="Right"
                             Margin="0,0,0,10">
-                        <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}">
+                        <TextBlock Style="{StaticResource Typography.Caption}">
                             <Run Text="{DynamicResource Module.Reports}"/>
                             <Run Text="{Binding Reports.Count, Mode=OneWay}"/>
                         </TextBlock>
@@ -103,7 +75,7 @@
                 </StackPanel>
             </Grid>
 
-            <Border Style="{StaticResource AboutSectionPanelStyle}" Margin="0,0,0,18">
+            <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="0,0,0,18">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1.3*"/>
@@ -115,17 +87,17 @@
                         <TextBlock Text="{DynamicResource About.WHATCARDShows}"
                                    Style="{StaticResource AboutPanelKickerStyle}"/>
                         <TextBlock Text="{DynamicResource About.MostRecentCrashFilesSurfacedHereOpenReport}"
-                                   Style="{StaticResource AboutPanelTextStyle}"/>
+                                   Style="{StaticResource Typography.Body}"/>
                     </StackPanel>
 
                     <Border Grid.Column="2"
-                            Style="{StaticResource AboutCodeStripStyle}"
+                            Style="{StaticResource SurfaceDetailStyle}"
                             Margin="0,0,0,0">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource About.SupportAction}"
-                                       Style="{StaticResource InfoLabelStyle}"/>
+                                       Style="{StaticResource Typography.Label}"/>
                             <TextBlock Text="{DynamicResource About.ShareErrorIDFirstThenSendReportFileWhen}"
-                                       Style="{StaticResource InfoValueStyle}"
+                                       Style="{StaticResource Typography.Body}"
                                        Margin="0,8,0,0"
                                        TextWrapping="Wrap"/>
                         </StackPanel>
@@ -133,12 +105,12 @@
                 </Grid>
             </Border>
 
-            <Border Style="{StaticResource AboutSectionPanelStyle}" Margin="0,0,0,0">
+            <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="0,0,0,0">
                 <StackPanel>
                     <ItemsControl ItemsSource="{Binding Reports}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource CrashReportRowStyle}">
+                                <Border Style="{StaticResource SurfaceDetailStyle}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="180"/>
@@ -154,34 +126,34 @@
 
                                         <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="0">
                                             <TextBlock Text="{DynamicResource About.Recorded}"
-                                                       Style="{StaticResource CrashMetaLabelStyle}"/>
+                                                       Style="{StaticResource Typography.Label}"/>
                                             <TextBlock Text="{Binding TimestampDisplay}"
-                                                       Style="{StaticResource CrashMetaValueStyle}"/>
+                                                       Style="{StaticResource Typography.Body}"/>
                                             <TextBlock Text="{DynamicResource About.FILESIZE}"
-                                                       Style="{StaticResource CrashMetaLabelStyle}"
+                                                       Style="{StaticResource Typography.Label}"
                                                        Margin="0,14,0,0"/>
                                             <TextBlock Text="{Binding SizeDisplay}"
-                                                       FontSize="{StaticResource TextBody}"
+                                                       FontSize="{DynamicResource FontSize.Body}"
                                                        Foreground="{DynamicResource LiquidFrost}"
                                                        Margin="0,5,0,0"/>
                                         </StackPanel>
 
                                         <Border Grid.Row="0" Grid.Column="2"
-                                                Style="{StaticResource AboutCodeStripStyle}"
+                                                Style="{StaticResource SurfaceDetailStyle}"
                                                 Margin="0,0,0,10">
                                             <TextBlock Text="{Binding ErrorId, Mode=OneWay, FallbackValue='(no id)'}"
-                                                       Style="{StaticResource CrashCodeStripTextStyle}"/>
+                                                       Style="{StaticResource Typography.Caption}"/>
                                         </Border>
 
                                         <StackPanel Grid.Row="1" Grid.Column="2">
                                             <TextBlock Text="{Binding TopExceptionType, Mode=OneWay, FallbackValue=''}"
-                                                       FontSize="{StaticResource TextBody}"
-                                                       FontWeight="Bold"
+                                                       FontSize="{DynamicResource FontSize.Body}"
+                                                       FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource LiquidMuted}"
                                                        TextWrapping="Wrap"
                                                        IsHitTestVisible="False"/>
                                             <TextBlock Text="{Binding TopExceptionMessage, FallbackValue='(no message)'}"
-                                                       FontSize="{StaticResource TextBody}"
+                                                       FontSize="{DynamicResource FontSize.Body}"
                                                        Foreground="{DynamicResource LiquidIce}"
                                                        TextWrapping="Wrap"
                                                        TextTrimming="CharacterEllipsis"
@@ -198,7 +170,7 @@
                                                     CommandParameter="{Binding FilePath}"
                                                     VerticalAlignment="Center"/>
                                             <TextBlock Text="{DynamicResource About.TEXTFILE}"
-                                                       Style="{StaticResource CrashMetaLabelStyle}"
+                                                       Style="{StaticResource Typography.Label}"
                                                        HorizontalAlignment="Center"
                                                        Margin="0,8,0,0"/>
                                         </StackPanel>
@@ -208,15 +180,15 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-                    <Border Style="{StaticResource AboutCodeStripStyle}"
+                    <Border Style="{StaticResource SurfaceDetailStyle}"
                             Margin="0,2,0,0"
                             Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Text="{DynamicResource About.NOCrashReportsDISK}"
-                                       Style="{StaticResource InfoLabelStyle}"
+                                       Style="{StaticResource Typography.Label}"
                                        HorizontalAlignment="Center"/>
                             <TextBlock Text="{DynamicResource About.SupportLogAreaCurrentlyCleanNewCrashFiles}"
-                                       Style="{StaticResource InfoValueStyle}"
+                                       Style="{StaticResource Typography.Body}"
                                        TextAlignment="Center"
                                        TextWrapping="Wrap"
                                        Margin="0,8,0,0"/>

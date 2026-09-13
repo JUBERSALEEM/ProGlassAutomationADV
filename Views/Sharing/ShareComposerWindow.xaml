@@ -21,57 +21,57 @@
          780px height clipped on 1366×768 laptops). -->
     <StackPanel>
         <TextBlock Text="{Binding CustomerLine, Mode=OneWay}"
-                   FontSize="{StaticResource TextCaption}"
+                   FontSize="{DynamicResource FontSize.BodySmall}"
                    Foreground="{DynamicResource TextTertiaryBrush}"
                    TextWrapping="Wrap"
                    Margin="0,0,0,12"/>
 
                     <!-- FROM -->
                     <TextBlock Text="{DynamicResource Sharing.From}"
-                               FontSize="{StaticResource TextCaption}"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextTertiaryBrush}"
                                Margin="2,0,0,6"/>
                     <Border CornerRadius="{DynamicResource CardCornerRadius}"
                             Background="{DynamicResource SurfaceSecondaryBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            Padding="14,10">
+                            Padding="14,10" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <TextBlock Text="{Binding SenderLine, Mode=OneWay}"
-                                       FontSize="{StaticResource TextBody}"
-                                       FontWeight="SemiBold"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        TextTrimming="CharacterEllipsis"/>
                             <TextBlock Text="{Binding SenderContactLine, Mode=OneWay}"
-                                       FontSize="{StaticResource TextCaption}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         </StackPanel>
                     </Border>
 
                     <!-- TO -->
                     <TextBlock Text="{DynamicResource Sharing.To}"
-                               FontSize="{StaticResource TextCaption}"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextTertiaryBrush}"
                                Margin="2,14,0,6"/>
                     <Border CornerRadius="{DynamicResource CardCornerRadius}"
                             Background="{DynamicResource SurfaceSecondaryBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            Padding="14,10">
+                            Padding="14,10" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <ComboBox ItemsSource="{Binding RecipientOptions}"
                                       SelectedItem="{Binding SelectedRecipient, Mode=TwoWay}"
-                                      IsEnabled="{Binding IsNotBusy}">
-                                <ComboBox.ItemTemplate>
+                                      IsEnabled="{Binding IsNotBusy}" Style="{StaticResource ComboBoxStyle}">
+                                <ComboBox.ItemTemplate Style="{StaticResource ComboBoxStyle}">
                                     <DataTemplate>
                                         <StackPanel>
                                             <TextBlock Text="{Binding DisplayLine}"
-                                                       FontSize="{StaticResource TextBody}"
+                                                       FontSize="{DynamicResource FontSize.Body}"
                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             <TextBlock Text="{Binding ContactLine}"
-                                                       FontSize="{StaticResource TextCaption}"
+                                                       FontSize="{DynamicResource FontSize.BodySmall}"
                                                        Foreground="{DynamicResource TextTertiaryBrush}"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -82,52 +82,52 @@
                             <StackPanel Margin="0,10,0,0"
                                         Visibility="{Binding IsManualRecipient, Converter={StaticResource BoolToVis}}">
                                 <TextBlock Text="{DynamicResource Sharing.ManualName}"
-                                           FontSize="{StaticResource TextCaption}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
                                            Foreground="{DynamicResource TextTertiaryBrush}"
                                            Margin="2,0,0,4"/>
                                 <TextBox Text="{Binding ManualName, UpdateSourceTrigger=PropertyChanged}"
-                                         FontSize="{StaticResource TextBody}"
-                                         Margin="0,0,0,8"/>
+                                         FontSize="{DynamicResource FontSize.Body}"
+                                         Margin="0,0,0,8" Style="{StaticResource TextBoxStyle}"/>
                                 <TextBlock Text="{DynamicResource Sharing.ManualPhone}"
-                                           FontSize="{StaticResource TextCaption}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
                                            Foreground="{DynamicResource TextTertiaryBrush}"
                                            Margin="2,0,0,4"/>
                                 <TextBox Text="{Binding ManualPhone, UpdateSourceTrigger=PropertyChanged}"
-                                         FontSize="{StaticResource TextBody}"
-                                         Margin="0,0,0,8"/>
+                                         FontSize="{DynamicResource FontSize.Body}"
+                                         Margin="0,0,0,8" Style="{StaticResource TextBoxStyle}"/>
                                 <TextBlock Text="{DynamicResource Sharing.ManualEmail}"
-                                           FontSize="{StaticResource TextCaption}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
                                            Foreground="{DynamicResource TextTertiaryBrush}"
                                            Margin="2,0,0,4"/>
                                 <TextBox Text="{Binding ManualEmail, UpdateSourceTrigger=PropertyChanged}"
-                                         FontSize="{StaticResource TextBody}"/>
+                                         FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
 
                     <!-- ATTACHMENTS -->
                     <TextBlock Text="{DynamicResource Sharing.Attachments}"
-                               FontSize="{StaticResource TextCaption}"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextTertiaryBrush}"
                                Margin="2,14,0,6"/>
                     <Border CornerRadius="{DynamicResource CardCornerRadius}"
                             Background="{DynamicResource SurfaceSecondaryBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            Padding="14,10">
+                            Padding="14,10" Style="{StaticResource SurfacePrimaryStyle}">
                         <ItemsControl ItemsSource="{Binding Artifacts}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" Margin="0,2">
                                         <TextBlock Text="&#xE7B8;"
-                                                   FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="{StaticResource TextBody}"
+                                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource SuccessBrush}"
                                                    VerticalAlignment="Center"
                                                    Margin="0,0,8,0"/>
                                         <TextBlock Text="{Binding FileName}"
-                                                   FontSize="{StaticResource TextBody}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                                    TextTrimming="CharacterEllipsis"
                                                    MaxWidth="340"/>
@@ -139,36 +139,36 @@
 
                     <!-- MESSAGE -->
                     <TextBlock Text="{DynamicResource Sharing.Message}"
-                               FontSize="{StaticResource TextCaption}"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextTertiaryBrush}"
                                Margin="2,14,0,6"/>
                     <Border CornerRadius="{DynamicResource CardCornerRadius}"
                             Background="{DynamicResource SurfaceSecondaryBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            Padding="14,10">
+                            Padding="14,10" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <TextBox Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}"
-                                     FontSize="{StaticResource TextBody}"
-                                     FontWeight="SemiBold"
+                                     FontSize="{DynamicResource FontSize.Body}"
+                                     FontWeight="{DynamicResource Weight.SemiBold}"
                                      Margin="0,0,0,8"
-                                     Visibility="{Binding SubjectVisible, Converter={StaticResource BoolToVis}}"/>
+                                     Visibility="{Binding SubjectVisible, Converter={StaticResource BoolToVis}}" Style="{StaticResource TextBoxStyle}"/>
                             <TextBox Text="{Binding Message, UpdateSourceTrigger=PropertyChanged}"
-                                     FontSize="{StaticResource TextBody}"
+                                     FontSize="{DynamicResource FontSize.Body}"
                                      TextWrapping="Wrap"
                                      AcceptsReturn="True"
                                      MinHeight="110"
                                      MaxHeight="180"
                                      VerticalScrollBarVisibility="Auto"
-                                     IsEnabled="{Binding AllowMessageEdit}"/>
+                                     IsEnabled="{Binding AllowMessageEdit}" Style="{StaticResource TextBoxStyle}"/>
                         </StackPanel>
                     </Border>
 
                     <!-- PROVIDERS -->
                     <TextBlock Text="{DynamicResource Sharing.ShareVia}"
-                               FontSize="{StaticResource TextCaption}"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextTertiaryBrush}"
                                Margin="2,14,0,6"/>
                     <ItemsControl ItemsSource="{Binding ProviderOptions}">
@@ -185,8 +185,8 @@
                                         IsEnabled="{Binding IsAvailable}"
                                         ToolTip="{Binding DisabledReason}"
                                         Margin="0,0,8,0"
-                                        Cursor="Hand">
-                                    <Button.Style>
+                                        Cursor="Hand" Style="{StaticResource SecondaryButtonStyle}">
+                                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
                                         <Style TargetType="Button"
                                                BasedOn="{StaticResource OutlinedPillButton}">
                                             <Style.Triggers>
@@ -207,7 +207,7 @@
 
                     <!-- Honesty note -->
                     <TextBlock Text="{DynamicResource Sharing.HonestyNote}"
-                               FontSize="{StaticResource TextCaption}"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
                                FontStyle="Italic"
                                Foreground="{DynamicResource TextTertiaryBrush}"
                                TextWrapping="Wrap"
@@ -239,12 +239,12 @@
                         </Border.Style>
                         <StackPanel>
                             <TextBlock Text="{Binding LastOutcome.Message}"
-                                       FontSize="{StaticResource TextBody}"
-                                       FontWeight="SemiBold"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        TextWrapping="Wrap"/>
                             <TextBlock Text="{Binding LastOutcome.FollowUp}"
-                                       FontSize="{StaticResource TextCaption}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        TextWrapping="Wrap"
                                        Margin="0,4,0,0"/>
@@ -253,7 +253,7 @@
 
                     <!-- Status line -->
                     <TextBlock Text="{Binding StatusMessage}"
-                               FontSize="{StaticResource TextCaption}"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
                                Foreground="{DynamicResource WarningBrush}"
                                TextWrapping="Wrap"
                                Margin="2,10,0,0"/>
@@ -272,7 +272,7 @@
 
                 <TextBlock Grid.Column="0"
                            Text="{DynamicResource Sharing.NothingSendsAutomatically}"
-                           FontSize="{StaticResource TextCaption}"
+                           FontSize="{DynamicResource FontSize.BodySmall}"
                            FontStyle="Italic"
                            Foreground="{DynamicResource TextTertiaryBrush}"
                            VerticalAlignment="Center"

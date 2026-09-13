@@ -18,7 +18,7 @@
                 Background="{DynamicResource ShellLiquidBrush}"
                 BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
                 BorderThickness="{DynamicResource Border.HairlineThickness}"
-                ClipToBounds="True">
+                ClipToBounds="True" Style="{StaticResource SurfacePrimaryStyle}">
 
         <Grid>
             <Grid.RowDefinitions>
@@ -31,13 +31,13 @@
             <Border Grid.Row="0"
                     Background="{DynamicResource AccentBrush}"
                     CornerRadius="{DynamicResource Radius.Top.Medium}"
-                    Padding="18,12">
+                    Padding="18,12" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Login.SwitchUser}"
-                               FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     <TextBlock Text="{DynamicResource Shared.PickUserEnterPasswordContinue}"
-                               FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource OnAccentForegroundBrush}"
+                               FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                Opacity="0.85" Margin="0,2,0,0"
                                TextWrapping="Wrap"/>
                 </StackPanel>
@@ -60,21 +60,21 @@
                 <StackPanel Grid.Row="1" Margin="0,12,0,0">
                     <TextBlock x:Name="PasswordLabel"
                                Text="{DynamicResource Shared.PasswordSelectedUser}"
-                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     <PasswordBox x:Name="PasswordBox"
                                  Height="34"
                                  Margin="0,6,0,0"
                                  Padding="8,0"
                                  VerticalContentAlignment="Center"
-                                 FontSize="{StaticResource TextBody}"
+                                 FontSize="{DynamicResource FontSize.Body}"
                                  Background="{DynamicResource SurfacePrimaryBrush}"
                                  Foreground="{DynamicResource TextPrimaryBrush}"
                                  BorderBrush="{DynamicResource BorderBrush}"
                                  BorderThickness="{DynamicResource Border.HairlineThickness}"
                                  KeyDown="PasswordBox_KeyDown"/>
                     <TextBlock x:Name="ErrorText"
-                               FontSize="{StaticResource TextCaption}"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
                                Foreground="{DynamicResource DangerBrush}"
                                Margin="0,6,0,0"
                                TextWrapping="Wrap"
@@ -89,7 +89,7 @@
                     CornerRadius="{DynamicResource Radius.Bottom.Medium}"
                     Background="{DynamicResource SurfaceTertiaryBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="{DynamicResource Border.TopHairlineThickness}">
+                    BorderThickness="{DynamicResource Border.TopHairlineThickness}" Style="{StaticResource SurfacePrimaryStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -97,7 +97,7 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0"
                                Text="{DynamicResource Shared.DoubleClickAnywhereClose}"
-                               FontSize="{StaticResource TextCaption}"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
                                Foreground="{DynamicResource TextTertiaryBrush}"
                                VerticalAlignment="Center"
                                TextWrapping="Wrap"/>

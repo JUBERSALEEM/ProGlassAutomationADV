@@ -47,7 +47,7 @@
             <StackPanel>
                 <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12" Margin="0,0,0,10">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource ProformaInvoice.1OuterGlass}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                        <TextBlock Text="{DynamicResource ProformaInvoice.1OuterGlass}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -93,7 +93,7 @@
                 <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12" Margin="0,0,0,10"
                         BorderBrush="{DynamicResource WarningBrush}">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource ProformaInvoice.2Interlayer}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                        <TextBlock Text="{DynamicResource ProformaInvoice.2Interlayer}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource WarningBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -128,7 +128,7 @@
 
                 <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource ProformaInvoice.3InnerGlass}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                        <TextBlock Text="{DynamicResource ProformaInvoice.3InnerGlass}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>

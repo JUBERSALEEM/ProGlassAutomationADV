@@ -14,11 +14,9 @@
 
     <UserControl.Resources>
 
-        <Style x:Key="InvListBoxItemStyle" TargetType="ListBoxItem"
-               BasedOn="{StaticResource ModuleListBoxItemStyle}"/>
+        
 
-        <Style x:Key="InvTabInactiveStyle" TargetType="RadioButton"
-               BasedOn="{StaticResource ModuleListTabInactiveStyle}"/>
+        
 
         <DataTemplate x:Key="FamilyRowTemplate">
             <Border Cursor="Hand"
@@ -71,9 +69,9 @@
 
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,8,8,8">
                         <TextBlock Text="{Binding ProformaId}"
-                                   FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <TextBlock FontSize="{StaticResource TextCaption}" Margin="0,3,0,0"
+                        <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" Margin="0,3,0,0"
                                    Foreground="{DynamicResource TextTertiaryBrush}"
                                    TextTrimming="CharacterEllipsis">
                             <Run Text="{DynamicResource DeliveryNote.Latest}"/><Run Text="{Binding LatestIssueDateDisplay, Mode=OneWay}"/>
@@ -84,11 +82,11 @@
 
                     <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="8,0">
                         <TextBlock Text="{Binding CustomerName}"
-                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                    TextTrimming="CharacterEllipsis"/>
                         <TextBlock Text="{Binding ProjectName}"
-                                   FontSize="{StaticResource TextBody}" Margin="0,2,0,0"
+                                   FontSize="{DynamicResource FontSize.Body}" Margin="0,2,0,0"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
@@ -100,8 +98,8 @@
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="8,3"
                             VerticalAlignment="Center"
-                            HorizontalAlignment="Center">
-                        <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                            HorizontalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                        <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}">
                             <Run Text="{Binding InvoiceCount, Mode=OneWay}"/>
                             <Run Text="{DynamicResource Reports.Inv}"/>
@@ -109,7 +107,7 @@
                     </Border>
 
                     <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="8,0">
-                        <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                        <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                    Margin="0,0,0,4">
                             <Run Text="{Binding ProgressPercent, Mode=OneWay, StringFormat={}{0:0.#}}"/>
@@ -117,7 +115,7 @@
                         </TextBlock>
                         <Border x:Name="ProgressTrack"
                                 CornerRadius="{DynamicResource Radius.XSmall}" Height="6"
-                                Background="{DynamicResource BorderBrush}">
+                                Background="{DynamicResource BorderBrush}" Style="{StaticResource SurfacePrimaryStyle}">
                             <Border CornerRadius="{DynamicResource Radius.XSmall}" HorizontalAlignment="Left">
                                 <Border.Style>
                                     <Style TargetType="Border">
@@ -144,7 +142,7 @@
 
                     <TextBlock Grid.Column="5"
                                Text="{Binding InvoicedTotalDisplay}"
-                               FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource SuccessBrush}"
                                VerticalAlignment="Center"
                                HorizontalAlignment="Right"
@@ -152,7 +150,7 @@
 
                     <TextBlock Grid.Column="6"
                                Text="{Binding BalanceTotalDisplay}"
-                               FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource WarningBrush}"
                                VerticalAlignment="Center"
                                HorizontalAlignment="Right"
@@ -161,9 +159,9 @@
                     <StackPanel Grid.Column="7" VerticalAlignment="Center" HorizontalAlignment="Center">
                         <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
                                 Background="{Binding FamilyStatusBrushKey,
-                                             Converter={StaticResource BrushKeyConverter}}">
+                                             Converter={StaticResource BrushKeyConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
                             <TextBlock Text="{Binding FamilyStatus}"
-                                       FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        HorizontalAlignment="Center"/>
                         </Border>
@@ -172,8 +170,8 @@
                                 Padding="6,2" Margin="0,4,0,0"
                                 HorizontalAlignment="Center"
                                 Visibility="{Binding AnyOverdue,
-                                    Converter={StaticResource BoolToVisibilityConverter}}">
-                            <TextBlock Text="{DynamicResource Common.Overdue}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                    Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                            <TextBlock Text="{DynamicResource Common.Overdue}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource DangerBrush}"/>
                         </Border>
                     </StackPanel>
@@ -240,7 +238,7 @@
                     Style="{StaticResource ModuleErrorBannerStyle}"
                     Padding="14" Margin="4,0,4,10">
                 <TextBlock Text="{Binding ErrorMessage}"
-                           Foreground="{DynamicResource DangerBrush}" FontSize="{StaticResource TextBody}"
+                           Foreground="{DynamicResource DangerBrush}" FontSize="{DynamicResource FontSize.Body}"
                            TextWrapping="Wrap"/>
             </Border>
         </StackPanel>
@@ -271,7 +269,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintBlueBrush}">
-                                <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
+                                <TextBlock Text="&#xE8A5;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                            Foreground="{DynamicResource AccentBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
@@ -283,7 +281,7 @@
                         <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintGrayBrush}">
-                                <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
+                                <TextBlock Text="&#xE70F;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
@@ -295,7 +293,7 @@
                         <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
                         <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintIndigoBrush}">
-                                <TextBlock Text="&#xE724;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
+                                <TextBlock Text="&#xE724;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                            Foreground="{DynamicResource AccentBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
@@ -307,7 +305,7 @@
                         <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
                         <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintGreenBrush}">
-                                <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
+                                <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                            Foreground="{DynamicResource SuccessBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
@@ -319,7 +317,7 @@
                         <Border Grid.Column="7" Style="{StaticResource ModuleListKpiDividerStyle}"/>
                         <StackPanel Grid.Column="8" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintRedBrush}">
-                                <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
+                                <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                            Foreground="{DynamicResource DangerBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
@@ -345,13 +343,13 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0"
-                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                    VerticalAlignment="Center" Margin="0,0,10,0"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                    Text="{DynamicResource TaxInvoice.Selected}"/>
                         <TextBlock Grid.Column="1"
                                    Text="{Binding SelectedFamilyMetaLine}"
-                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    VerticalAlignment="Center"
                                    TextTrimming="CharacterEllipsis"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
@@ -402,19 +400,19 @@
                     <RadioButton Grid.Column="0" GroupName="TiStatusTabs" Tag="&#xE8A5;" Content="{DynamicResource TaxInvoice.Families}"
                             CommandParameter="{Binding AllCount}"
                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"
-                            Style="{StaticResource InvTabInactiveStyle}"/>
+                            Style="{StaticResource Tab.Inactive}"/>
                     <RadioButton Grid.Column="1" GroupName="TiStatusTabs" Tag="&#xE70F;" Content="{DynamicResource TaxInvoice.Draft}"
                             CommandParameter="{Binding DraftCount}"
                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=1}"
-                            Style="{StaticResource InvTabInactiveStyle}"/>
+                            Style="{StaticResource Tab.Inactive}"/>
                     <RadioButton Grid.Column="2" GroupName="TiStatusTabs" Tag="&#xE72D;" Content="{DynamicResource TaxInvoice.Issued}"
                             CommandParameter="{Binding IssuedCount}"
                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=2}"
-                            Style="{StaticResource InvTabInactiveStyle}"/>
+                            Style="{StaticResource Tab.Inactive}"/>
                     <RadioButton Grid.Column="3" GroupName="TiStatusTabs" Tag="&#xE73E;" Content="{DynamicResource TaxInvoice.FullyPAID}"
                             CommandParameter="{Binding PaidCount}"
                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}"
-                            Style="{StaticResource InvTabInactiveStyle}"/>
+                            Style="{StaticResource Tab.Inactive}"/>
                 </Grid>
 
                 <Border Grid.Row="4" Style="{StaticResource ModuleListTableHeaderStyle}">
@@ -458,7 +456,7 @@
                         </Grid.Style>
                         <ListBox ItemsSource="{Binding AllFamilies}"
                                  ItemTemplate="{StaticResource FamilyRowTemplate}"
-                                 ItemContainerStyle="{StaticResource InvListBoxItemStyle}"
+                                 ItemContainerStyle="{StaticResource SurfaceDetailStyle}"
                                  BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -514,7 +512,7 @@
                         </Grid.Style>
                         <ListBox ItemsSource="{Binding DraftFamilies}"
                                  ItemTemplate="{StaticResource FamilyRowTemplate}"
-                                 ItemContainerStyle="{StaticResource InvListBoxItemStyle}"
+                                 ItemContainerStyle="{StaticResource SurfaceDetailStyle}"
                                  BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -566,7 +564,7 @@
                         </Grid.Style>
                         <ListBox ItemsSource="{Binding IssuedFamilies}"
                                  ItemTemplate="{StaticResource FamilyRowTemplate}"
-                                 ItemContainerStyle="{StaticResource InvListBoxItemStyle}"
+                                 ItemContainerStyle="{StaticResource SurfaceDetailStyle}"
                                  BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -618,7 +616,7 @@
                         </Grid.Style>
                         <ListBox ItemsSource="{Binding PaidFamilies}"
                                  ItemTemplate="{StaticResource FamilyRowTemplate}"
-                                 ItemContainerStyle="{StaticResource InvListBoxItemStyle}"
+                                 ItemContainerStyle="{StaticResource SurfaceDetailStyle}"
                                  BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"

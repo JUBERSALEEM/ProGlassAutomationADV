@@ -22,48 +22,19 @@
                 <ResourceDictionary Source="../AboutStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <Style x:Key="LicensePanelStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-                <Setter Property="Background" Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource Surface.Secondary.BorderBrush}"/>
-                <Setter Property="BorderThickness" Value="{DynamicResource Surface.Secondary.BorderThickness}"/>
-                <Setter Property="CornerRadius" Value="{DynamicResource Surface.Secondary.CornerRadius}"/>
-                <Setter Property="Padding" Value="20,18"/>
-                <Setter Property="SnapsToDevicePixels" Value="True"/>
-            </Style>
+            
 
-            <Style x:Key="LicenseMetricCardStyle" TargetType="Border" BasedOn="{StaticResource LicensePanelStyle}">
-                <Setter Property="MinHeight" Value="96"/>
-                <Setter Property="Margin" Value="6"/>
-            </Style>
+            
 
-            <Style x:Key="LicenseMetricLabelStyle" TargetType="TextBlock">
-                <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-                <Setter Property="FontWeight" Value="Bold"/>
-                <Setter Property="Foreground" Value="{DynamicResource LiquidCerulean}"/>
-                <Setter Property="TextWrapping" Value="Wrap"/>
-                <Setter Property="IsHitTestVisible" Value="False"/>
-            </Style>
+            
 
-            <Style x:Key="LicenseMetricValueStyle" TargetType="TextBlock">
-                <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
-                <Setter Property="FontWeight" Value="Bold"/>
-                <Setter Property="Foreground" Value="{DynamicResource LiquidSnow}"/>
-                <Setter Property="TextWrapping" Value="Wrap"/>
-                <Setter Property="Margin" Value="0,8,0,0"/>
-                <Setter Property="IsHitTestVisible" Value="False"/>
-            </Style>
+            
 
-            <Style x:Key="LicenseCodeValueStyle" TargetType="TextBlock" BasedOn="{StaticResource LicenseFieldValueStyle}">
-                <Setter Property="FontFamily" Value="Consolas, Cascadia Mono, Courier New"/>
-                <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-                <Setter Property="Foreground" Value="{DynamicResource LiquidSnow}"/>
-                <Setter Property="TextWrapping" Value="Wrap"/>
-                <Setter Property="Margin" Value="0,6,0,0"/>
-            </Style>
+            
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border Style="{StaticResource AboutCardStyle}">
+    <Border Style="{StaticResource SurfacePrimaryStyle}">
         <StackPanel>
             <Grid Margin="0,0,0,18">
                 <Grid.ColumnDefinitions>
@@ -73,9 +44,9 @@
 
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="{DynamicResource About.License}"
-                               Style="{StaticResource SectionTitleStyle}"/>
+                               Style="{StaticResource Typography.H2}"/>
                     <TextBlock Text="{DynamicResource About.ActivationHealthIssuerTrustRingMachineScope}"
-                               Style="{StaticResource SectionSubtitleStyle}"
+                               Style="{StaticResource Typography.BodySmall}"
                                Margin="0,0,0,0"/>
                 </StackPanel>
 
@@ -86,16 +57,16 @@
                         Background="{DynamicResource Surface.Detail.BackgroundBrush}"
                         BorderBrush="{DynamicResource Surface.Primary.BorderBrush}"
                         BorderThickness="{DynamicResource Surface.Detail.BorderThickness}"
-                        VerticalAlignment="Top">
+                        VerticalAlignment="Top" Style="{StaticResource SurfacePrimaryStyle}">
                     <TextBlock Text="{Binding StatusBadge}"
-                               FontSize="{StaticResource TextBody}"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.Body}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                TextAlignment="Center"
                                Foreground="{DynamicResource LiquidAccent}"/>
                 </Border>
             </Grid>
 
-            <Border Style="{StaticResource LicensePanelStyle}" Margin="0,0,0,18">
+            <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,18">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1.35*"/>
@@ -107,20 +78,20 @@
                         <TextBlock Text="{DynamicResource About.LicenseHealth}"
                                    Style="{StaticResource AboutPanelKickerStyle}"/>
                         <TextBlock Text="{Binding StatusDescription}"
-                                   FontSize="{StaticResource TextBody}"
+                                   FontSize="{DynamicResource FontSize.Body}"
                                    Foreground="{DynamicResource LiquidFrost}"
                                    TextWrapping="Wrap"
                                    LineHeight="20"/>
                     </StackPanel>
 
                     <Border Grid.Column="2"
-                            Style="{StaticResource AboutCodeStripStyle}"
+                            Style="{StaticResource SurfaceDetailStyle}"
                             Margin="0,0,0,0">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource About.SupportSummary}"
-                                       Style="{StaticResource InfoLabelStyle}"/>
+                                       Style="{StaticResource Typography.Label}"/>
                             <TextBlock Text="{Binding SupportSummary}"
-                                       Style="{StaticResource InfoValueStyle}"
+                                       Style="{StaticResource Typography.Body}"
                                        Margin="0,8,0,0"
                                        TextWrapping="Wrap"/>
                         </StackPanel>
@@ -129,28 +100,28 @@
             </Border>
 
             <UniformGrid Columns="4" Margin="-6,0,-6,12">
-                <Border Style="{StaticResource LicenseMetricCardStyle}">
+                <Border Style="{StaticResource SurfaceKpiStyle}">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource About.Edition}" Style="{StaticResource LicenseMetricLabelStyle}"/>
-                        <TextBlock Text="{Binding EditionDisplay}" Style="{StaticResource LicenseMetricValueStyle}" TextWrapping="Wrap"/>
+                        <TextBlock Text="{DynamicResource About.Edition}" Style="{StaticResource Typography.Label}"/>
+                        <TextBlock Text="{Binding EditionDisplay}" Style="{StaticResource Typography.Kpi}" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
-                <Border Style="{StaticResource LicenseMetricCardStyle}">
+                <Border Style="{StaticResource SurfaceKpiStyle}">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource About.DAYSRemaining}" Style="{StaticResource LicenseMetricLabelStyle}"/>
-                        <TextBlock Text="{Binding DaysRemainingDisplay}" Style="{StaticResource LicenseMetricValueStyle}" TextWrapping="Wrap"/>
+                        <TextBlock Text="{DynamicResource About.DAYSRemaining}" Style="{StaticResource Typography.Label}"/>
+                        <TextBlock Text="{Binding DaysRemainingDisplay}" Style="{StaticResource Typography.Kpi}" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
-                <Border Style="{StaticResource LicenseMetricCardStyle}">
+                <Border Style="{StaticResource SurfaceKpiStyle}">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource About.ActivationMODE}" Style="{StaticResource LicenseMetricLabelStyle}"/>
-                        <TextBlock Text="{Binding ActivationModeDisplay}" Style="{StaticResource LicenseMetricValueStyle}" FontSize="{StaticResource TextBodyLarge}" TextWrapping="Wrap"/>
+                        <TextBlock Text="{DynamicResource About.ActivationMODE}" Style="{StaticResource Typography.Label}"/>
+                        <TextBlock Text="{Binding ActivationModeDisplay}" Style="{StaticResource Typography.Kpi}" FontSize="{DynamicResource FontSize.Title}" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
-                <Border Style="{StaticResource LicenseMetricCardStyle}">
+                <Border Style="{StaticResource SurfaceKpiStyle}">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource About.LicenseWindow}" Style="{StaticResource LicenseMetricLabelStyle}"/>
-                        <TextBlock Text="{Binding LicenseWindowDisplay}" Style="{StaticResource LicenseMetricValueStyle}" FontSize="{StaticResource TextBodyLarge}" TextWrapping="Wrap"/>
+                        <TextBlock Text="{DynamicResource About.LicenseWindow}" Style="{StaticResource Typography.Label}"/>
+                        <TextBlock Text="{Binding LicenseWindowDisplay}" Style="{StaticResource Typography.Kpi}" FontSize="{DynamicResource FontSize.Title}" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
             </UniformGrid>
@@ -163,7 +134,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Style="{StaticResource LicensePanelStyle}">
+                <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource About.AccountWindow}"
                                    Style="{StaticResource AboutPanelKickerStyle}"/>
@@ -194,7 +165,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Column="2" Style="{StaticResource LicensePanelStyle}">
+                <Border Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource About.TrustEntitlements}"
                                    Style="{StaticResource AboutPanelKickerStyle}"/>
@@ -214,7 +185,7 @@
                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding LicenseSourceDisplay}" Style="{StaticResource LicenseFieldValueStyle}" Margin="0,0,0,4"/>
 
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource About.IssuerRing}" Style="{StaticResource LicenseFieldLabelStyle}" Margin="0,12,0,0"/>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TrustedIssuerDisplay}" Style="{StaticResource LicenseCodeValueStyle}" Margin="0,12,0,0"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TrustedIssuerDisplay}" Style="{StaticResource Typography.Caption}" Margin="0,12,0,0"/>
 
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource About.FeatureScope}" Style="{StaticResource LicenseFieldLabelStyle}" Margin="0,12,0,0"/>
                             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding FeatureSummaryDisplay}" Style="{StaticResource LicenseFieldValueStyle}" Margin="0,12,0,4"/>
@@ -226,7 +197,7 @@
                 </Border>
             </Grid>
 
-            <Border Style="{StaticResource LicensePanelStyle}"
+            <Border Style="{StaticResource SurfacePrimaryStyle}"
                     Visibility="{Binding HasPayloadDetails, Converter={StaticResource BoolToVisibilityConverter}}"
                     Margin="0,0,0,18">
                 <StackPanel>
@@ -245,7 +216,7 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource About.LicenseID}" Style="{StaticResource LicenseFieldLabelStyle}"/>
-                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding LicenseIdDisplay}" Style="{StaticResource LicenseCodeValueStyle}" Margin="0,0,0,0"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding LicenseIdDisplay}" Style="{StaticResource Typography.Caption}" Margin="0,0,0,0"/>
                         <Button Grid.Row="0" Grid.Column="2"
                                 Style="{StaticResource AboutPillButtonStyle}"
                                 Click="CopyLicenseIdButton_Click"
@@ -254,10 +225,10 @@
                                 Content="{DynamicResource About.COPYID}"/>
 
                         <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource About.Licensed}" Style="{StaticResource LicenseFieldLabelStyle}" Margin="0,14,0,0"/>
-                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding MachineFingerprint}" Style="{StaticResource LicenseCodeValueStyle}" Margin="0,14,0,0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding MachineFingerprint}" Style="{StaticResource Typography.Caption}" Margin="0,14,0,0"/>
 
                         <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource About.Machine}" Style="{StaticResource LicenseFieldLabelStyle}" Margin="0,14,0,0"/>
-                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CurrentFingerprint}" Style="{StaticResource LicenseCodeValueStyle}" Margin="0,14,0,0"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CurrentFingerprint}" Style="{StaticResource Typography.Caption}" Margin="0,14,0,0"/>
                         <Button Grid.Row="2" Grid.Column="2"
                                 Style="{StaticResource AboutPillButtonStyle}"
                                 Click="CopyFingerprintButton_Click"
@@ -268,7 +239,7 @@
                 </StackPanel>
             </Border>
 
-            <Border Style="{StaticResource LicensePanelStyle}"
+            <Border Style="{StaticResource SurfacePrimaryStyle}"
                     Visibility="{Binding HasNotes, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource About.IssuerNotes}"

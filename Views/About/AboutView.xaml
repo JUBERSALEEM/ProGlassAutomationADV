@@ -40,26 +40,14 @@
             </ResourceDictionary.MergedDictionaries>
 
             <!-- ═══ SEGMENTED GLASS TAB STRIP ═══ -->
-            <Style x:Key="AboutTabListStyle" TargetType="ListBox">
-                <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
-                <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Disabled"/>
-                <Setter Property="ItemsPanel">
-                    <Setter.Value>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left"/>
-                        </ItemsPanelTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
+            
 
             <Style x:Key="AboutTabItemStyle" TargetType="ListBoxItem">
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
                 <Setter Property="Foreground" Value="{DynamicResource LiquidFrost}"/>
-                <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
+                <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
                 <Setter Property="Margin" Value="0,0,4,0"/>
                 <Setter Property="Padding" Value="0"/>
                 <Setter Property="Template">
@@ -69,9 +57,9 @@
                                     Background="Transparent"
                                     BorderBrush="Transparent"
                                     BorderThickness="1"
-                                    CornerRadius="16"
+                                    CornerRadius="{DynamicResource Radius.XLarge}"
                                     Padding="18,7"
-                                    SnapsToDevicePixels="True">
+                                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                 <ContentPresenter HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                             </Border>
@@ -180,11 +168,11 @@
             <StackPanel Margin="26,22,26,26">
 
                 <!-- ═══ HERO — frosted identity strip ═══ -->
-                <Border Style="{StaticResource HeroCardStyle}">
+                <Border Style="{StaticResource SurfaceElevatedStyle}">
                     <Grid>
                         <Border Background="{DynamicResource LiquidSheen}"
                                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                                IsHitTestVisible="False"/>
+                                IsHitTestVisible="False" Style="{StaticResource SurfacePrimaryStyle}"/>
 
                         <Grid Margin="24,18">
                             <Grid.RowDefinitions>
@@ -227,13 +215,13 @@
                                      in a 64px tile) with the rim light — matches
                                      the module slabs. -->
                                 <Border Width="64" Height="64"
-                                        CornerRadius="18"
+                                        CornerRadius="{DynamicResource Radius.2XLarge}"
                                         Background="{DynamicResource LiquidAccentGradient}"
                                         BorderBrush="{DynamicResource AboutGlassSlabStroke}"
                                         BorderThickness="1"
-                                        SnapsToDevicePixels="True">
+                                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                     <Border Width="54" Height="54"
-                                            CornerRadius="14"
+                                            CornerRadius="{DynamicResource Radius.XLarge}"
                                             ClipToBounds="True">
                                         <!--
                                           Shared frozen app icon
@@ -257,13 +245,13 @@
                                         VerticalAlignment="Center"
                                         MaxWidth="560">
                                 <TextBlock Text="{Binding AppName}"
-                                           FontSize="{StaticResource TextDisplay}"
-                                           FontWeight="Bold"
+                                           FontSize="{DynamicResource FontSize.Kpi}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource LiquidSnow}"
                                            TextWrapping="Wrap"
                                            IsHitTestVisible="False"/>
                                 <TextBlock Text="{Binding AppTagline}"
-                                           FontSize="{StaticResource TextBodyLarge}"
+                                           FontSize="{DynamicResource FontSize.Title}"
                                            Margin="0,5,0,0"
                                            Foreground="{DynamicResource LiquidCerulean}"
                                            TextWrapping="Wrap"
@@ -278,38 +266,38 @@
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Right">
                                 <Border Background="{DynamicResource LiquidAccentDeep}"
-                                        CornerRadius="12"
+                                        CornerRadius="{DynamicResource Radius.Card}"
                                         Padding="14,6"
                                         HorizontalAlignment="Right"
                                         BorderBrush="{DynamicResource AboutGlassSlabStroke}"
                                         BorderThickness="1"
-                                        SnapsToDevicePixels="True">
+                                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                     <TextBlock Text="{Binding Version}"
-                                               FontSize="{StaticResource TextBody}"
-                                               FontWeight="Bold"
+                                               FontSize="{DynamicResource FontSize.Body}"
+                                               FontWeight="{DynamicResource Weight.Bold}"
                                                TextAlignment="Center"
                                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                IsHitTestVisible="False"/>
                                 </Border>
                                 <WrapPanel HorizontalAlignment="Right" Margin="0,8,0,0">
-                                    <Border Style="{StaticResource ChipStyle}" Margin="0,0,6,6">
+                                    <Border Style="{StaticResource Chip.Primary}" Margin="0,0,6,6">
                                         <TextBlock Text="{Binding WhatsNew}"
-                                                   FontSize="{StaticResource TextCaption}"
-                                                   FontWeight="SemiBold"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   FontWeight="{DynamicResource Weight.SemiBold}"
                                                    Foreground="{DynamicResource LiquidAccent}"
                                                    IsHitTestVisible="False"/>
                                     </Border>
-                                    <Border Style="{StaticResource ChipStyle}" Margin="0,0,6,6">
+                                    <Border Style="{StaticResource Chip.Primary}" Margin="0,0,6,6">
                                         <TextBlock Text="{Binding Build}"
-                                                   FontSize="{StaticResource TextCaption}"
-                                                   FontWeight="SemiBold"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   FontWeight="{DynamicResource Weight.SemiBold}"
                                                    Foreground="{DynamicResource LiquidAccent}"
                                                    IsHitTestVisible="False"/>
                                     </Border>
-                                    <Border Style="{StaticResource ChipStyle}" Margin="0,0,0,6">
+                                    <Border Style="{StaticResource Chip.Primary}" Margin="0,0,0,6">
                                         <TextBlock Text="{Binding LicenseStatus.StatusBadge}"
-                                                   FontSize="{StaticResource TextCaption}"
-                                                   FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource LiquidSnow}"
                                                    IsHitTestVisible="False"/>
                                     </Border>
@@ -363,14 +351,14 @@
                         Background="{DynamicResource AboutGlassCapsuleBrush}"
                         BorderBrush="{DynamicResource AboutGlassSlabStroke}"
                         BorderThickness="1"
-                        CornerRadius="22"
+                        CornerRadius="{DynamicResource Radius.Full}"
                         Padding="6,5"
                         Margin="0,2,0,20"
-                        SnapsToDevicePixels="True">
+                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                     <ListBox ItemsSource="{Binding Tabs}"
                              SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
-                             Style="{StaticResource AboutTabListStyle}"
-                             ItemContainerStyle="{StaticResource AboutTabItemStyle}"/>
+                             Style="{StaticResource SurfaceSecondaryStyle}"
+                             ItemContainerStyle="{StaticResource Tab.Inactive}"/>
                 </Border>
 
                 <!-- ═══ SECTION CONTENT (switched by SelectedTabIndex) ═══

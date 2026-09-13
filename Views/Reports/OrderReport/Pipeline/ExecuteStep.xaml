@@ -26,7 +26,7 @@
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="620">
 
             <TextBlock Text="Step 3 — Execute"
-                       FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                       FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                        Foreground="{DynamicResource TextPrimaryBrush}"
                        HorizontalAlignment="Center"/>
 
@@ -47,7 +47,7 @@
                              Foreground="{DynamicResource AccentBrush}"
                              Background="{DynamicResource BorderDefaultBrush}"/>
                 <TextBlock Text="Building report — reading proforma invoices, job orders, delivery notes and tax invoices…"
-                           FontSize="{StaticResource TextBody}"
+                           FontSize="{DynamicResource FontSize.Body}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            TextWrapping="Wrap" TextAlignment="Center" Margin="0,14,0,0"/>
             </StackPanel>
@@ -66,11 +66,11 @@
                 </StackPanel.Style>
 
                 <Border Width="64" Height="64" CornerRadius="{DynamicResource Radius.Hero}"
-                        Background="{DynamicResource SuccessBrush}" HorizontalAlignment="Center">
-                    <TextBlock Text="✓" FontSize="{StaticResource TextDisplay}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"
+                        Background="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                    <TextBlock Text="✓" FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
-                <TextBlock FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                <TextBlock FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource TextPrimaryBrush}"
                            HorizontalAlignment="Center" Margin="0,16,0,0">
                     <Run Text="Report ready — "/>
@@ -78,13 +78,13 @@
                     <Run Text=" order(s) built."/>
                 </TextBlock>
                 <TextBlock Text="Advancing to Review…"
-                           FontSize="{StaticResource TextBody}"
+                           FontSize="{DynamicResource FontSize.Body}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            HorizontalAlignment="Center" Margin="0,6,0,0"/>
             </StackPanel>
 
             <TextBlock Text="{Binding StatusMessage}"
-                       FontSize="{StaticResource TextBody}"
+                       FontSize="{DynamicResource FontSize.Body}"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                        HorizontalAlignment="Center" TextWrapping="Wrap"
                        TextAlignment="Center" Margin="0,20,0,0"/>

@@ -18,7 +18,7 @@
                 Background="{DynamicResource ShellLiquidBrush}"
                 BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
                 BorderThickness="{DynamicResource Border.HairlineThickness}"
-                ClipToBounds="True">
+                ClipToBounds="True" Style="{StaticResource SurfacePrimaryStyle}">
 
         <Grid>
             <Grid.RowDefinitions>
@@ -29,13 +29,13 @@
             <Border Grid.Row="0"
                     Background="{DynamicResource AccentBrush}"
                     CornerRadius="{DynamicResource Radius.Top.Medium}"
-                    Padding="16,12">
+                    Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Shared.ScreenRecording}"
-                               FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     <TextBlock Text="{DynamicResource Shared.AppWindowDesktop}"
-                               FontSize="{StaticResource TextCaption}"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                Opacity="0.85" Margin="0,2,0,0"/>
                 </StackPanel>
@@ -43,7 +43,7 @@
 
             <StackPanel Grid.Row="1" Margin="14,12,14,14">
                 <TextBlock Text="{DynamicResource Settings.Quality}"
-                           FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            Margin="0,0,0,4"/>
                 <ComboBox ItemsSource="{Binding Qualities}"
@@ -52,10 +52,10 @@
                           IsEnabled="{Binding IsIdle}"
                           IsSynchronizedWithCurrentItem="False"
                           Padding="10,7"
-                          FontSize="{StaticResource TextBodyLarge}"/>
+                          FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
 
                 <TextBlock Text="{DynamicResource Settings.FrameRate}"
-                           FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            Margin="0,12,0,4"/>
                 <ComboBox ItemsSource="{Binding FpsChoices}"
@@ -64,11 +64,11 @@
                           IsEnabled="{Binding IsIdle}"
                           IsSynchronizedWithCurrentItem="False"
                           Padding="10,7"
-                          FontSize="{StaticResource TextBodyLarge}"/>
+                          FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
 
                 <DockPanel Margin="0,14,0,0">
                     <TextBlock Text="{DynamicResource Settings.InternalAudio}"
-                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"
                                VerticalAlignment="Center"/>
                     <CheckBox HorizontalAlignment="Right"
@@ -78,7 +78,7 @@
                 </DockPanel>
                 <DockPanel Margin="0,10,0,0">
                     <TextBlock Text="{DynamicResource Settings.Microphone}"
-                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"
                                VerticalAlignment="Center"/>
                     <CheckBox HorizontalAlignment="Right"
@@ -88,7 +88,7 @@
                 </DockPanel>
 
                 <TextBlock Text="{Binding Hint}"
-                           FontSize="{StaticResource TextBody}"
+                           FontSize="{DynamicResource FontSize.Body}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            TextWrapping="Wrap"
                            Margin="0,12,0,0"/>
@@ -99,52 +99,52 @@
                             AutomationProperties.AutomationId="ScreenRecord.Start"
                             MinWidth="96" Height="32" Padding="14,0"
                             Margin="0,0,8,8" Cursor="Hand"
-                            FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                             Foreground="{DynamicResource OnAccentForegroundBrush}"
                             Background="{DynamicResource AccentBrush}"
                             BorderThickness="{DynamicResource Border.NoneThickness}"
                             Visibility="{Binding IsIdle,
-                                Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SecondaryButtonStyle}"/>
                     <Button Content="{DynamicResource Shared.PauseResume}"
                             Command="{Binding PauseCommand}"
                             MinWidth="120" Height="32" Padding="14,0"
                             Margin="0,0,8,8" Cursor="Hand"
-                            FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                             Foreground="{DynamicResource TextPrimaryBrush}"
                             Background="{DynamicResource SurfaceTertiaryBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
                             Visibility="{Binding IsRecording,
-                                Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource PrimaryButtonStyle}"/>
                     <Button Content="{DynamicResource Shared.STOPSAVE}"
                             Command="{Binding StopCommand}"
                             AutomationProperties.AutomationId="ScreenRecord.Stop"
                             MinWidth="120" Height="32" Padding="14,0"
                             Margin="0,0,8,8" Cursor="Hand"
-                            FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                             Foreground="{DynamicResource OnAccentForegroundBrush}"
                             Background="{DynamicResource DangerBrush}"
                             BorderThickness="{DynamicResource Border.NoneThickness}"
                             Visibility="{Binding IsRecording,
-                                Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SecondaryButtonStyle}"/>
                     <Button Content="{DynamicResource About.OPENFolder}"
                             Command="{Binding OpenOutputCommand}"
                             MinWidth="110" Height="32" Padding="14,0"
                             Margin="0,0,0,8" Cursor="Hand"
-                            FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                             Foreground="{DynamicResource TextPrimaryBrush}"
                             Background="{DynamicResource SurfaceTertiaryBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
-                            BorderThickness="{DynamicResource Border.HairlineThickness}"/>
+                            BorderThickness="{DynamicResource Border.HairlineThickness}" Style="{StaticResource PrimaryButtonStyle}"/>
                 </WrapPanel>
 
                 <TextBlock Text="{Binding Status}"
-                           FontSize="{StaticResource TextBody}"
+                           FontSize="{DynamicResource FontSize.Body}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            TextWrapping="Wrap"
                            Margin="0,4,0,0"/>
                 <TextBlock Text="{Binding LastMp4Text}"
-                           FontSize="{StaticResource TextCaption}"
+                           FontSize="{DynamicResource FontSize.BodySmall}"
                            Foreground="{DynamicResource TextTertiaryBrush}"
                            TextWrapping="Wrap"
                            Margin="0,6,0,0"/>

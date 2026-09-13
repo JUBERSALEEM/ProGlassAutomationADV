@@ -40,15 +40,15 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Border Width="38" Height="38" CornerRadius="{DynamicResource Radius.Medium}"
-                        Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
-                    <TextBlock x:Name="IconGlyph" Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
+                        Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                    <TextBlock x:Name="IconGlyph" Text="&#xE7C3;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                Foreground="{DynamicResource AccentBrush}"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
-                    <TextBlock x:Name="NameText" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold" TextTrimming="CharacterEllipsis"
+                    <TextBlock x:Name="NameText" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}" TextTrimming="CharacterEllipsis"
                                Foreground="{DynamicResource TextPrimaryBrush}"/>
-                    <TextBlock x:Name="MetaText" FontSize="{StaticResource TextCaption}" Margin="0,2,0,0"
+                    <TextBlock x:Name="MetaText" FontSize="{DynamicResource FontSize.BodySmall}" Margin="0,2,0,0"
                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                 </StackPanel>
                 <Button Grid.Column="2" Content="{DynamicResource Inquiry.OpenSystemApp}" Click="OpenExternal_Click" Cursor="Hand"
@@ -67,15 +67,15 @@
                 </Border.Background>
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="470">
                     <Border Width="62" Height="62" CornerRadius="{DynamicResource Radius.Large}"
-                            Background="{DynamicResource TintRedBrush}" HorizontalAlignment="Center">
-                        <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}"
+                            Background="{DynamicResource TintRedBrush}" HorizontalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                        <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Display}"
                                    Foreground="{DynamicResource DangerBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
-                    <TextBlock Text="{DynamicResource Inquiry.FileFoundDisk}" FontSize="{StaticResource TextTitle}" FontWeight="Bold" Margin="0,16,0,0"
+                    <TextBlock Text="{DynamicResource Inquiry.FileFoundDisk}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,16,0,0"
                                HorizontalAlignment="Center" TextAlignment="Center"
                                Foreground="{DynamicResource TextPrimaryBrush}"/>
-                    <TextBlock x:Name="MissingDetail" FontSize="{StaticResource TextBody}" Margin="0,8,0,0" HorizontalAlignment="Center"
+                    <TextBlock x:Name="MissingDetail" FontSize="{DynamicResource FontSize.Body}" Margin="0,8,0,0" HorizontalAlignment="Center"
                                TextAlignment="Center" TextWrapping="Wrap"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                Text="{DynamicResource Inquiry.AttachmentMetadataExistsStoredFileCannot}"/>
@@ -85,15 +85,15 @@
             <Border x:Name="UnsupportedPanel" Background="Transparent" Visibility="Collapsed">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="470">
                     <Border Width="62" Height="62" CornerRadius="{DynamicResource Radius.Large}"
-                            Background="{DynamicResource TintGrayBrush}" HorizontalAlignment="Center">
-                        <TextBlock Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}"
+                            Background="{DynamicResource TintGrayBrush}" HorizontalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                        <TextBlock Text="&#xE7C3;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Display}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
-                    <TextBlock Text="{DynamicResource Inquiry.AppPreviewAvailableFileType}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                    <TextBlock Text="{DynamicResource Inquiry.AppPreviewAvailableFileType}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                Margin="0,16,0,0" HorizontalAlignment="Center" TextAlignment="Center"
                                Foreground="{DynamicResource TextPrimaryBrush}"/>
-                    <TextBlock FontSize="{StaticResource TextBody}" Margin="0,8,0,0" HorizontalAlignment="Center" TextAlignment="Center"
+                    <TextBlock FontSize="{DynamicResource FontSize.Body}" Margin="0,8,0,0" HorizontalAlignment="Center" TextAlignment="Center"
                                TextWrapping="Wrap" Foreground="{DynamicResource SecondaryForegroundBrush}"
                                Text="{DynamicResource Inquiry.DrawingsSpreadsheetsOpenSystemApplication}"/>
                 </StackPanel>

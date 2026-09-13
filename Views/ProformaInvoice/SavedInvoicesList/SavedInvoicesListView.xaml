@@ -20,21 +20,9 @@
 
         
 
-        <Style x:Key="EmptyStateStyle" TargetType="StackPanel">
-            <Setter Property="Visibility" Value="Collapsed"/>
-            <Style.Triggers>
-                <MultiDataTrigger>
-                    <MultiDataTrigger.Conditions>
-                        <Condition Binding="{Binding FilteredCount}" Value="0"/>
-                        <Condition Binding="{Binding IsLoading}" Value="False"/>
-                    </MultiDataTrigger.Conditions>
-                    <Setter Property="Visibility" Value="Visible"/>
-                </MultiDataTrigger>
-            </Style.Triggers>
-        </Style>
+        
 
-        <Style x:Key="InvoiceListBoxItemStyle" TargetType="ListBoxItem"
-               BasedOn="{StaticResource ModuleListBoxItemStyle}"/>
+        
 
     </UserControl.Resources>
 
@@ -63,8 +51,8 @@
                             <Border Style="{StaticResource ModuleListKpiIconStyle}"
                                     Background="{DynamicResource TintBlueBrush}">
                                 <TextBlock Text="&#xE8A5;"
-                                           FontFamily="Segoe MDL2 Assets"
-                                           FontSize="{StaticResource TextSubhead}"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.H3}"
                                            Foreground="{DynamicResource AccentBrush}"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
@@ -84,8 +72,8 @@
                             <Border Style="{StaticResource ModuleListKpiIconStyle}"
                                     Background="{DynamicResource TintGreenBrush}">
                                 <TextBlock Text="&#xE8A3;"
-                                           FontFamily="Segoe MDL2 Assets"
-                                           FontSize="{StaticResource TextSubhead}"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.H3}"
                                            Foreground="{DynamicResource AccentBrush}"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
@@ -105,8 +93,8 @@
                             <Border Style="{StaticResource ModuleListKpiIconStyle}"
                                     Background="{DynamicResource TintIndigoBrush}">
                                 <TextBlock Text="&#xE9D2;"
-                                           FontFamily="Segoe MDL2 Assets"
-                                           FontSize="{StaticResource TextSubhead}"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.H3}"
                                            Foreground="{DynamicResource AccentBrush}"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
@@ -115,7 +103,7 @@
                                 <TextBlock Text="{DynamicResource Inquiry.Value}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding TotalValueSum, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                                            Style="{StaticResource ModuleListKpiValueStyle}"
-                                           FontSize="{StaticResource TextTitleLarge}"/>
+                                           FontSize="{DynamicResource FontSize.H1}"/>
                                 <TextBlock Text="{DynamicResource ProformaInvoice.FilteredSum}"
                                            Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
@@ -238,7 +226,7 @@
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 IsHitTestVisible="False"
-                                Style="{StaticResource EmptyStateStyle}">
+                                Style="{StaticResource SurfacePrimaryStyle}">
                         <emptyState:EmptyStateControl
                             Icon="&#xE7C3;"
                             Title="{DynamicResource ProformaInvoice.NoSavedInvoicesFound}"
@@ -247,7 +235,7 @@
 
                     <ListBox Panel.ZIndex="0"
                              ItemsSource="{Binding FilteredItems}"
-                             ItemContainerStyle="{StaticResource InvoiceListBoxItemStyle}"
+                             ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}"
                              BorderThickness="{DynamicResource Border.NoneThickness}"
                              Background="Transparent"
                              Focusable="False"
@@ -318,15 +306,15 @@
 
                                         <TextBlock Grid.Column="1"
                                                    Text="{Binding ProformaId}"
-                                                   FontSize="{StaticResource TextBodyLarge}"
-                                                   FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.Title}"
+                                                   FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    Padding="14,12"
                                                    VerticalAlignment="Center"/>
 
                                         <TextBlock Grid.Column="2"
                                                    Text="{Binding CompanyName}"
-                                                   FontSize="{StaticResource TextBody}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                                    Padding="14,12"
@@ -335,7 +323,7 @@
 
                                         <TextBlock Grid.Column="3"
                                                    Text="{Binding CustomerName}"
-                                                   FontSize="{StaticResource TextBody}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                                    Padding="14,12"
@@ -344,7 +332,7 @@
 
                                         <TextBlock Grid.Column="4"
                                                    Text="{Binding ProjectName}"
-                                                   FontSize="{StaticResource TextBody}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    Padding="14,12"
@@ -358,10 +346,10 @@
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
                                                 Background="{Binding DisplayStatusBrushKey,
-                                                                     Converter={StaticResource BrushKeyConverter}}">
+                                                                     Converter={StaticResource BrushKeyConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
                                             <TextBlock Text="{Binding DisplayStatus}"
-                                                       FontSize="{StaticResource TextCaption}"
-                                                       FontWeight="Bold"
+                                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                                       FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                        HorizontalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis"/>
@@ -369,8 +357,8 @@
 
                                         <TextBlock Grid.Column="6"
                                                    Text="{Binding GrandTotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
-                                                   FontSize="{StaticResource TextBodyLarge}"
-                                                   FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.Title}"
+                                                   FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                                    Padding="14,12"
                                                    HorizontalAlignment="Right"
@@ -378,7 +366,7 @@
 
                                         <TextBlock Grid.Column="7"
                                                    Text="{Binding CreatedAt, StringFormat=dd MMM yyyy}"
-                                                   FontSize="{StaticResource TextBody}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    Padding="14,12"
                                                    VerticalAlignment="Center"/>
@@ -426,7 +414,7 @@
                                                     Margin="0,0,8,0"
                                                     MinWidth="36"
                                                     Content="&#xE9F9;"
-                                                    FontFamily="Segoe MDL2 Assets">
+                                                    FontFamily="{DynamicResource FontFamily.Icon}">
                                                 <!--
                                                     A ContextMenu is its own
                                                     visual tree, so it cannot
@@ -439,11 +427,11 @@
                                                     takes the row from
                                                     PlacementTarget.DataContext.
                                                 -->
-                                                <Button.Tag>
+                                                <Button.Tag Style="{StaticResource SecondaryButtonStyle}">
                                                     <Binding Path="DataContext"
                                                              RelativeSource="{RelativeSource AncestorType=UserControl}"/>
                                                 </Button.Tag>
-                                                <Button.ContextMenu>
+                                                <Button.ContextMenu Style="{StaticResource SecondaryButtonStyle}">
                                                     <ContextMenu>
                                                         <MenuItem Header="{DynamicResource ProformaInvoice.ExportDossier}"
                                                                   Command="{Binding PlacementTarget.Tag.ExportDossierCommand,
@@ -480,7 +468,7 @@
                                                     Margin="0,0,8,0"
                                                     MinWidth="36"
                                                     Content="&#xE72D;"
-                                                    FontFamily="Segoe MDL2 Assets"/>
+                                                    FontFamily="{DynamicResource FontFamily.Icon}"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>

@@ -17,19 +17,9 @@
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-        <Style x:Key="HeaderCellStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
+        
 
-        <Style x:Key="TableCellStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-        </Style>
+        
     </UserControl.Resources>
 
     <Grid Background="Transparent">
@@ -44,14 +34,14 @@
         <Border Grid.Row="0" Margin="16,16,16,0" Padding="16"
                 Background="{DynamicResource SurfacePrimaryBrush}"
                 BorderBrush="{DynamicResource BorderDefaultBrush}"
-                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}">
+                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Style="{StaticResource SurfacePrimaryStyle}">
             <StackPanel>
                 <TextBlock Text="Wastage Analysis — All Confirmed Jobs"
-                           FontSize="{StaticResource TextTitle}"
-                           FontWeight="Bold"
+                           FontSize="{DynamicResource FontSize.H2}"
+                           FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock Text="Actual wastage charges from Step 6, grouped by glass color. Clear glass offcuts are optional (reusable); colored/tinted/coated glass offcuts are always charged."
-                           FontSize="{StaticResource TextBody}"
+                           FontSize="{DynamicResource FontSize.Body}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            Margin="0,4,0,0"/>
             </StackPanel>
@@ -73,12 +63,12 @@
 
             <Border Grid.Column="0" Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
-                    <TextBlock Text="JOBS ANALYZED" FontSize="{StaticResource TextCaption}"
-                               FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="JOBS ANALYZED" FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                     <TextBlock Text="{Binding TotalJobsAnalyzed}"
-                               FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"
                                Margin="0,4,0,0"/>
                 </StackPanel>
@@ -86,12 +76,12 @@
 
             <Border Grid.Column="2" Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
-                    <TextBlock Text="TOTAL SHEET AREA" FontSize="{StaticResource TextCaption}"
-                               FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="TOTAL SHEET AREA" FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                     <TextBlock Text="{Binding TotalSheetAreaDisplay}"
-                               FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"
                                Margin="0,4,0,0"/>
                 </StackPanel>
@@ -99,12 +89,12 @@
 
             <Border Grid.Column="4" Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
-                    <TextBlock Text="TOTAL WASTAGE AREA" FontSize="{StaticResource TextCaption}"
-                               FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="TOTAL WASTAGE AREA" FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                     <TextBlock Text="{Binding TotalWastageAreaDisplay}"
-                               FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource WarningBrush}"
                                Margin="0,4,0,0"/>
                 </StackPanel>
@@ -112,12 +102,12 @@
 
             <Border Grid.Column="6" Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
-                    <TextBlock Text="TOTAL WASTAGE CHARGE" FontSize="{StaticResource TextCaption}"
-                               FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="TOTAL WASTAGE CHARGE" FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                     <TextBlock Text="{Binding TotalWastageChargeDisplay}"
-                               FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource DangerBrush}"
                                Margin="0,4,0,0"/>
                 </StackPanel>
@@ -125,12 +115,12 @@
 
             <Border Grid.Column="8" Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
-                    <TextBlock Text="OVERALL WASTAGE %" FontSize="{StaticResource TextCaption}"
-                               FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="OVERALL WASTAGE %" FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                     <TextBlock Text="{Binding OverallWastageDisplay}"
-                               FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"
                                Margin="0,4,0,0"/>
                 </StackPanel>
@@ -141,7 +131,7 @@
         <Border Grid.Row="2" Margin="16,12,16,0"
                 Background="{DynamicResource SurfacePrimaryBrush}"
                 BorderBrush="{DynamicResource BorderDefaultBrush}"
-                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}">
+                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Style="{StaticResource SurfacePrimaryStyle}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -150,7 +140,7 @@
 
                 <!-- Table Header -->
                 <Border Grid.Row="0" Background="{DynamicResource AccentBrush}"
-                        CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="16,10">
+                        CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="16,10" Style="{StaticResource SurfacePrimaryStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
@@ -160,11 +150,11 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="GLASS COLOR" Style="{StaticResource HeaderCellStyle}"/>
-                        <TextBlock Grid.Column="1" Text="JOBS" Style="{StaticResource HeaderCellStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="2" Text="TOTAL AREA" Style="{StaticResource HeaderCellStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="3" Text="WASTAGE CHARGE" Style="{StaticResource HeaderCellStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="4" Text="WASTAGE %" Style="{StaticResource HeaderCellStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="0" Text="GLASS COLOR" Style="{StaticResource Typography.Title}"/>
+                        <TextBlock Grid.Column="1" Text="JOBS" Style="{StaticResource Typography.Title}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="2" Text="TOTAL AREA" Style="{StaticResource Typography.Title}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="3" Text="WASTAGE CHARGE" Style="{StaticResource Typography.Title}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="4" Text="WASTAGE %" Style="{StaticResource Typography.Title}" HorizontalAlignment="Right"/>
                     </Grid>
                 </Border>
 
@@ -186,26 +176,26 @@
                                         </Grid.ColumnDefinitions>
 
                                         <TextBlock Grid.Column="0" Text="{Binding ColorName}"
-                                                   Style="{StaticResource TableCellStyle}" FontWeight="SemiBold"/>
+                                                   Style="{StaticResource Typography.DataGrid}" FontWeight="{DynamicResource Weight.SemiBold}"/>
 
                                         <TextBlock Grid.Column="1" Text="{Binding JobCount}"
-                                                   Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
+                                                   Style="{StaticResource Typography.DataGrid}" HorizontalAlignment="Right"/>
 
                                         <TextBlock Grid.Column="2" Text="{Binding TotalAreaDisplay}"
-                                                   Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
+                                                   Style="{StaticResource Typography.DataGrid}" HorizontalAlignment="Right"/>
 
                                         <TextBlock Grid.Column="3" Text="{Binding TotalChargeDisplay}"
-                                                   Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"
-                                                   Foreground="{DynamicResource DangerBrush}" FontWeight="Bold"/>
+                                                   Style="{StaticResource Typography.DataGrid}" HorizontalAlignment="Right"
+                                                   Foreground="{DynamicResource DangerBrush}" FontWeight="{DynamicResource Weight.Bold}"/>
 
                                         <TextBlock Grid.Column="4" Text="{Binding WastagePercentDisplay}"
                                                    HorizontalAlignment="Right">
                                             <TextBlock.Style>
-                                                <Style TargetType="TextBlock" BasedOn="{StaticResource TableCellStyle}">
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource Typography.DataGrid}">
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsHighWastage}" Value="True">
                                                             <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
-                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                            <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -231,13 +221,13 @@
                         </Style>
                     </Border.Style>
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplay}"
+                        <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Kpi}"
                                    HorizontalAlignment="Center" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,12"/>
                         <TextBlock Text="No wastage data available"
-                                   FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
+                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBlock Text="Wastage analysis appears after confirming PIs with wastage charges in Step 6."
-                                   FontSize="{StaticResource TextBody}" HorizontalAlignment="Center"
+                                   FontSize="{DynamicResource FontSize.Body}" HorizontalAlignment="Center"
                                    Margin="0,4,0,0" Foreground="{DynamicResource TextTertiaryBrush}"/>
                     </StackPanel>
                 </Border>
@@ -247,7 +237,7 @@
         <!-- ═══════ STATUS LINE ═══════ -->
         <Border Grid.Row="3" Margin="16,12,16,16" Padding="4,0">
             <TextBlock Text="{Binding StatusMessage}"
-                       FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
+                       FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap"
                        Foreground="{DynamicResource TextTertiaryBrush}"/>
         </Border>
 
@@ -259,12 +249,12 @@
                 <Border Background="{DynamicResource SurfacePrimaryBrush}"
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}"
-                        Padding="28,16">
+                        Padding="28,16" Style="{StaticResource SurfacePrimaryStyle}">
                     <StackPanel Orientation="Horizontal">
                         <ProgressBar IsIndeterminate="True" Width="20" Height="20"
                                      VerticalAlignment="Center" Margin="0,0,12,0"/>
                         <TextBlock Text="Analyzing..."
-                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                    VerticalAlignment="Center"/>
                     </StackPanel>

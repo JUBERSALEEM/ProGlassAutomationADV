@@ -17,7 +17,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="16,14,16,12">
-            <TextBlock Text="Company Book &amp; Receivables" Style="{StaticResource ModulePageTitleStyle}" FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"/>
+            <TextBlock Text="Company Book &amp; Receivables" Style="{StaticResource ModulePageTitleStyle}" FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"/>
             <TextBlock Text="Your issuing companies (from Company Center) merged with live proforma, invoiced and outstanding figures." Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
         </StackPanel>
 
@@ -42,8 +42,8 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Companies (Company Center roster + names on invoices)">
-                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE821;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                <TextBlock Text="&#xE821;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="COMPANIES" Style="{StaticResource ModuleListKpiLabelStyle}"/>
@@ -55,8 +55,8 @@
                         <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total balance due across companies">
-                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintAmberBrush}" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE825;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintAmberBrush}" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                <TextBlock Text="&#xE825;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="OUTSTANDING" Style="{StaticResource ModuleListKpiLabelStyle}"/>
@@ -68,8 +68,8 @@
                         <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
                         <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total invoiced value against quoted PI value">
-                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintGreenBrush}" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintGreenBrush}" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                <TextBlock Text="&#xE8C7;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="INVOICED" Style="{StaticResource ModuleListKpiLabelStyle}"/>
@@ -81,8 +81,8 @@
                         <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
                         <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Rows shown on this page">
-                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE9D5;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                <TextBlock Text="&#xE9D5;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="RECORDS" Style="{StaticResource ModuleListKpiLabelStyle}"/>
@@ -111,7 +111,7 @@
                                 <TextBlock Text="{DynamicResource Reports.Common.SortBy}" Style="{StaticResource ModuleFieldLabelStyle}" Foreground="{DynamicResource AccentBrush}"/>
                                 <StackPanel Orientation="Horizontal">
                                     <ComboBox Width="120" Style="{StaticResource ModernComboBoxStyle}" Height="40" MinHeight="40" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}" DisplayMemberPath="Display" ToolTip="{DynamicResource Reports.Common.SortByTip}"/>
-                                    <Button Command="{Binding ToggleSortDirectionCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" Margin="6,0,0,0" ToolTip="{Binding SortDirectionTooltip}" Content="{Binding SortDirectionGlyph}" FontFamily="Segoe MDL2 Assets"/>
+                                    <Button Command="{Binding ToggleSortDirectionCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" Margin="6,0,0,0" ToolTip="{Binding SortDirectionTooltip}" Content="{Binding SortDirectionGlyph}" FontFamily="{DynamicResource FontFamily.Icon}"/>
                                 </StackPanel>
                             </StackPanel>
 
@@ -126,7 +126,7 @@
                                 <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="Export filtered companies to CSV"/>
                                 <Button Content="{DynamicResource JobOrder.Excel}" Command="{Binding ExportExcelCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="Export to Excel (.xlsx)"/>
                                 <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource ReportExportPrimaryButton}" ToolTip="Export professional PDF report"/>
-                                <Button Content="&#xE72D;" FontFamily="Segoe MDL2 Assets" Command="{Binding ShareCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="{DynamicResource Sharing.Share}"/>
+                                <Button Content="&#xE72D;" FontFamily="{DynamicResource FontFamily.Icon}" Command="{Binding ShareCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="{DynamicResource Sharing.Share}"/>
                             </StackPanel>
                         </StackPanel>
                     
@@ -134,7 +134,7 @@
                              magnifier + borderless input (2026-09-10). -->
                         <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource ReportSearchBandStyle}" Margin="0,12,0,0">
                             <DockPanel>
-                                <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}"
+                                <TextBlock Text="&#xE721;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                            Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                 <TextBox Style="{StaticResource ReportSearchInputStyle}"
                                          Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
@@ -185,9 +185,9 @@
 
                     <Border Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
                             Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20" VerticalAlignment="Top">
+                            CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20" VerticalAlignment="Top" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="&#xE783;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Display}" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
                             <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap" Margin="0,8,0,0" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Border>
@@ -216,29 +216,29 @@
                                                 </Grid.ColumnDefinitions>
 
                                                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <Border Width="30" Height="30" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
-                                                        <TextBlock Text="{Binding Initials}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    <Border Width="30" Height="30" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                                        <TextBlock Text="{Binding Initials}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                     <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                                                        <TextBlock Text="{Binding CompanyName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock Text="{Binding CompanyName}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
                                                         <StackPanel Orientation="Horizontal">
-                                                            <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Visibility="{Binding IsSavedCompany, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                                <TextBlock Text="ON FILE" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                                            <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Visibility="{Binding IsSavedCompany, Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                                <TextBlock Text="ON FILE" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
                                                             </Border>
-                                                            <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Margin="4,0,0,0" Visibility="{Binding IsDefault, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                                <TextBlock Text="DEFAULT" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                                            <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Margin="4,0,0,0" Visibility="{Binding IsDefault, Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                                <TextBlock Text="DEFAULT" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}"/>
                                                             </Border>
-                                                            <TextBlock Text="{Binding CompanyLocation}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="6,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                                            <TextBlock Text="{Binding CompanyLocation}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="6,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                                                         </StackPanel>
                                                     </StackPanel>
                                                 </StackPanel>
 
-                                                <TextBlock Grid.Column="1" Text="{Binding CompanyTrn}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                                                <TextBlock Grid.Column="2" Text="{Binding PiCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                                <TextBlock Grid.Column="3" Text="{Binding TaxInvoiceCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                                <TextBlock Grid.Column="4" Text="{Binding PiValue, StringFormat={}{0:N0}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                                <TextBlock Grid.Column="5" Text="{Binding InvoicedValue, StringFormat={}{0:N0}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                                <TextBlock Grid.Column="6" FontSize="{StaticResource TextBody}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding Outstanding, StringFormat={}{0:N0}}">
+                                                <TextBlock Grid.Column="1" Text="{Binding CompanyTrn}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding PiCount}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                <TextBlock Grid.Column="3" Text="{Binding TaxInvoiceCount}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                <TextBlock Grid.Column="4" Text="{Binding PiValue, StringFormat={}{0:N0}}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                                <TextBlock Grid.Column="5" Text="{Binding InvoicedValue, StringFormat={}{0:N0}}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                                <TextBlock Grid.Column="6" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding Outstanding, StringFormat={}{0:N0}}">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
                                                             <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
@@ -258,11 +258,11 @@
                                         <Expander IsExpanded="{Binding IsExpanded, Mode=TwoWay}" Margin="0,2,0,6">
                                             <Expander.Header>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
-                                                    <TextBlock Text="Company details" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="&#xE8C7;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Company details" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                                 </StackPanel>
                                             </Expander.Header>
-                                        <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Margin="0,8,0,0">
+                                        <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Margin="0,8,0,0" Style="{StaticResource SurfacePrimaryStyle}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
@@ -271,7 +271,7 @@
                                                 </Grid.ColumnDefinitions>
 
                                                 <StackPanel Grid.Column="0">
-                                                    <TextBlock Text="COMPANY DETAILS" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                                                    <TextBlock Text="COMPANY DETAILS" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="120"/>
@@ -285,25 +285,25 @@
                                                             <RowDefinition Height="Auto"/>
                                                         </Grid.RowDefinitions>
 
-                                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Representative" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Representative}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2" TextWrapping="Wrap"/>
+                                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Representative" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Representative}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2" TextWrapping="Wrap"/>
 
-                                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Mobile" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding RepresentativeMobile}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Mobile" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding RepresentativeMobile}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
 
-                                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Email" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CompanyEmail}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Email" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CompanyEmail}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
 
-                                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Bank" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding BankName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Bank" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding BankName}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
 
-                                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Account" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding AccountNumber}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Account" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding AccountNumber}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
                                                     </Grid>
                                                 </StackPanel>
 
                                                 <StackPanel Grid.Column="2">
-                                                    <TextBlock Text="DOCUMENT ACTIVITY" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                                                    <TextBlock Text="DOCUMENT ACTIVITY" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="120"/>
@@ -317,23 +317,23 @@
                                                             <RowDefinition Height="Auto"/>
                                                         </Grid.RowDefinitions>
 
-                                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Proformas" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PiCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Proformas" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PiCount}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
 
-                                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Job Orders" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding JobOrderCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Job Orders" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding JobOrderCount}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
 
-                                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Delivery Notes" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding DnCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Delivery Notes" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding DnCount}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
 
-                                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Tax Invoices" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding TaxInvoiceCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Tax Invoices" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding TaxInvoiceCount}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
 
-                                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Invoiced" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="4" Grid.Column="1" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SuccessBrush}" Margin="0,2"><Run Text="AED "/><Run Text="{Binding InvoicedValue, Mode=OneWay, StringFormat={}{0:N2}}"/></TextBlock>
+                                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Invoiced" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="4" Grid.Column="1" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SuccessBrush}" Margin="0,2"><Run Text="AED "/><Run Text="{Binding InvoicedValue, Mode=OneWay, StringFormat={}{0:N2}}"/></TextBlock>
 
-                                                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Outstanding" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="5" Grid.Column="1" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" Margin="0,2"><Run Text="AED "/><Run Text="{Binding Outstanding, Mode=OneWay, StringFormat={}{0:N2}}"/></TextBlock>
+                                                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Outstanding" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="5" Grid.Column="1" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}" Margin="0,2"><Run Text="AED "/><Run Text="{Binding Outstanding, Mode=OneWay, StringFormat={}{0:N2}}"/></TextBlock>
                                                     </Grid>
                                                 </StackPanel>
                                             </Grid>
@@ -352,10 +352,10 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" VerticalAlignment="Center" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <Button Content="&#xE76B;" FontFamily="Segoe MDL2 Assets" Command="{Binding PrevPageCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" ToolTip="Previous page"/>
-                            <Button Content="&#xE76C;" FontFamily="Segoe MDL2 Assets" Command="{Binding NextPageCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" ToolTip="Next page"/>
+                            <Button Content="&#xE76B;" FontFamily="{DynamicResource FontFamily.Icon}" Command="{Binding PrevPageCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" ToolTip="Previous page"/>
+                            <Button Content="&#xE76C;" FontFamily="{DynamicResource FontFamily.Icon}" Command="{Binding NextPageCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" ToolTip="Next page"/>
                         </StackPanel>
                     </Grid>
                 </Border>

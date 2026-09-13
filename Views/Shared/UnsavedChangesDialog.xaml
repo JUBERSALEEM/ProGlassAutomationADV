@@ -22,7 +22,7 @@
 
     <StackPanel>
         <TextBlock x:Name="MessageText"
-                   FontSize="{StaticResource TextBodyLarge}"
+                   FontSize="{DynamicResource FontSize.Title}"
                    LineHeight="20"
                    TextWrapping="Wrap"
                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>

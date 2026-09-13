@@ -16,18 +16,18 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource ControlCornerRadius}"
-                        Padding="12,0" MinHeight="40">
+                        Padding="12,0" MinHeight="40" Style="{StaticResource SurfacePrimaryStyle}">
                     <DockPanel>
-                        <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="{StaticResource TextSection}"
+                        <TextBlock Text="&#xE721;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource FontSize.H3}"
                                    Foreground="{DynamicResource AccentBrush}"
                                    VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                  BorderThickness="0" Background="Transparent"
-                                 FontSize="{StaticResource TextBodyLarge}"
+                                 FontSize="{DynamicResource FontSize.Title}"
                                  Foreground="{DynamicResource TextPrimaryBrush}"
                                  MinHeight="40" VerticalContentAlignment="Center"
-                                 ToolTip="Search job, customer, glass, spec"/>
+                                 ToolTip="Search job, customer, glass, spec" Style="{StaticResource TextBoxStyle}"/>
                     </DockPanel>
                 </Border>
                 <ComboBox Grid.Column="1"
@@ -45,14 +45,14 @@
         <Border CornerRadius="{DynamicResource CardCornerRadius}"
                 Background="{DynamicResource TintIndigoBrush}"
                 Padding="10,6" Margin="12,4,12,0"
-                Visibility="{Binding HasWaitingUpstream, Converter={StaticResource BoolToVisibilityConverter}}">
+                Visibility="{Binding HasWaitingUpstream, Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets"
-                           FontSize="{StaticResource TextBody}"
+                <TextBlock Text="&#xE823;" FontFamily="{DynamicResource FontFamily.Icon}"
+                           FontSize="{DynamicResource FontSize.Body}"
                            Foreground="{DynamicResource AccentBrush}"
                            VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <TextBlock Text="{Binding WaitingUpstreamLabel}" TextWrapping="Wrap"
-                           FontSize="{StaticResource TextBody}"
+                           FontSize="{DynamicResource FontSize.Body}"
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
             </StackPanel>
         </Border>

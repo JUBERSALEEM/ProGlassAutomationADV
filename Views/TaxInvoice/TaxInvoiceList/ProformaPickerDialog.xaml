@@ -30,8 +30,8 @@
         <!-- ── SEARCH ──────────────────────────────────────────────── -->
         <Border Grid.Row="0" Padding="0,0,0,10">
             <TextBox x:Name="SearchBox"
-                     FontSize="{StaticResource TextBodyLarge}"
-                     TextChanged="OnSearchChanged"/>
+                     FontSize="{DynamicResource FontSize.Title}"
+                     TextChanged="OnSearchChanged" Style="{StaticResource TextBoxStyle}"/>
         </Border>
 
         <!-- ── PI LIST ─────────────────────────────────────────────── -->
@@ -53,7 +53,7 @@
             <TextBlock Grid.Column="0"
                        x:Name="SelectedLabel"
                        Text="{DynamicResource TaxInvoice.NoProformaInvoiceSelected}"
-                       FontSize="{StaticResource TextBody}" VerticalAlignment="Center"
+                       FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
                        Margin="0,0,12,0"
                        TextWrapping="Wrap"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>

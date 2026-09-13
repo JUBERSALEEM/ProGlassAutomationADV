@@ -50,20 +50,20 @@
                                 <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="{Binding InvoiceNumber}"
-                                                   FontSize="{StaticResource TextBodyLarge}"
-                                                   FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.Title}"
+                                                   FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         <Border CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Padding="6,1" Margin="8,0,0,0"
                                                 Background="{DynamicResource TintAmberBrush}"
                                                 VerticalAlignment="Center"
-                                                Visibility="{Binding IsCurrent, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                Visibility="{Binding IsCurrent, Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
                                             <TextBlock Text="{DynamicResource TaxInvoice.Invoice}"
-                                                       FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         </Border>
                                     </StackPanel>
-                                    <TextBlock FontSize="{StaticResource TextCaption}"
+                                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                Margin="0,2,0,0">
                                         <Run Text="{Binding TypeLabel, Mode=OneWay}"/>

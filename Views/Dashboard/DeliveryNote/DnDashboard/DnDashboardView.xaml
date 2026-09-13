@@ -61,8 +61,8 @@
                                          VerticalAlignment="Center"
                                          Fill="{DynamicResource SuccessBrush}"/>
                                 <TextBlock Text="{DynamicResource Common.Live}"
-                                           FontSize="{StaticResource TextCaption}"
-                                           FontWeight="SemiBold"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                           FontWeight="{DynamicResource Weight.SemiBold}"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>

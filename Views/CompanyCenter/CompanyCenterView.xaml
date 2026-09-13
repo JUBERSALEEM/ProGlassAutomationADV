@@ -19,22 +19,8 @@
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-        <Style x:Key="CcFieldLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
-            <Setter Property="Margin" Value="0,0,0,4"/>
-        </Style>
-        <Style x:Key="CcTextBox" TargetType="TextBox">
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
+        
+        
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -47,10 +33,10 @@
             <DockPanel Margin="0,0,0,18">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Module.CompanyCenter}"
-                               FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock Text="{DynamicResource CompanyCenter.CompaniesIdentityTRNBankingLogoDefault}"
-                               FontSize="{StaticResource TextBody}" Margin="0,4,0,0"
+                               FontSize="{DynamicResource FontSize.Body}" Margin="0,4,0,0"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal"
@@ -86,7 +72,7 @@
                                     Focusable="True"
                                     AutomationProperties.Name="{Binding CompanyName}"
                                     AutomationProperties.HelpText="Load saved company into editor"
-                                    SnapsToDevicePixels="True">
+                                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                 <!-- The WHOLE card is a click target: one click loads the
                                      company into the editor (same command as the Edit
                                      button). This is what "click a saved card → fill the
@@ -128,10 +114,10 @@
                                     <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Width="46" Height="46"
                                             CornerRadius="{DynamicResource CardCornerRadius}"
                                             VerticalAlignment="Center"
-                                            Background="{DynamicResource TintIndigoBrush}">
+                                            Background="{DynamicResource TintIndigoBrush}" Style="{StaticResource SurfacePrimaryStyle}">
                                         <TextBlock Text="&#xE822;"
-                                                   FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="{StaticResource TextTitle}"
+                                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                                   FontSize="{DynamicResource FontSize.H2}"
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"/>
@@ -140,10 +126,10 @@
                                     <StackPanel Grid.Column="1" Margin="12,0,8,0"
                                                 VerticalAlignment="Center">
                                         <TextBlock Text="{Binding CompanyName}"
-                                                   FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                                    TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock FontSize="{StaticResource TextCaption}" Margin="0,2,0,0"
+                                        <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" Margin="0,2,0,0"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}">
                                             <Run Text="{DynamicResource CompanyCenter.TRN}"/>
                                             <Run Text="{Binding CompanyTrn, Mode=OneWay}"/>
@@ -183,7 +169,7 @@
                         Background="{DynamicResource SurfacePrimaryBrush}"
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="24,20">
+                        Padding="24,20" Style="{StaticResource SurfacePrimaryStyle}">
                     <StackPanel>
                         <!-- ══ TOP PANEL — professional industrial masthead ══
                              Live preview of the printed letterhead: the logo
@@ -194,7 +180,7 @@
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="16,14"
-                                Margin="0,0,0,14">
+                                Margin="0,0,0,14" Style="{StaticResource SurfacePrimaryStyle}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -210,7 +196,7 @@
                                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                                         CornerRadius="{DynamicResource Radius.Small}"
-                                        VerticalAlignment="Center">
+                                        VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
                                     <Border.Style>
                                         <!-- No BasedOn here: there is no global implicit
                                              Border style, so '{StaticResource {x:Type Border}}'
@@ -234,12 +220,12 @@
 
                                 <StackPanel Grid.Column="1" Margin="14,0,12,0" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding CompanyName}"
-                                               FontSize="{StaticResource TextTitle}"
-                                               FontWeight="Bold"
+                                               FontSize="{DynamicResource FontSize.H2}"
+                                               FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource TextPrimaryBrush}"
                                                TextTrimming="CharacterEllipsis"/>
                                     <TextBlock Margin="0,3,0,0"
-                                               FontSize="{StaticResource TextBody}"
+                                               FontSize="{DynamicResource FontSize.Body}"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                TextTrimming="CharacterEllipsis">
                                         <Run Text="{Binding CompanyTrn}"/>
@@ -247,8 +233,8 @@
                                         <Run Text="{Binding CompanyLocation}"/>
                                     </TextBlock>
                                     <TextBlock Margin="0,4,0,0"
-                                               FontSize="{StaticResource TextCaption}"
-                                               FontWeight="SemiBold"
+                                               FontSize="{DynamicResource FontSize.BodySmall}"
+                                               FontWeight="{DynamicResource Weight.SemiBold}"
                                                Foreground="{DynamicResource AccentBrush}">
                                         <Run Text="LETTERHEAD  "/>
                                         <!-- ERR-21172E: Run.Text is TwoWay-by-default in WPF;
@@ -261,15 +247,15 @@
 
                                 <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
                                     <TextBlock Text="{Binding LogoLayoutLabel}"
-                                               FontSize="{StaticResource TextCaption}"
-                                               FontWeight="Bold"
+                                               FontSize="{DynamicResource FontSize.BodySmall}"
+                                               FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource AccentBrush}"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
 
                         <TextBlock Text="{Binding EditorTitle, Mode=OneWay}"
-                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AccentBrush}"
                                    Margin="0,0,0,14"/>
 
@@ -292,29 +278,29 @@
                             </Grid.RowDefinitions>
 
                             <StackPanel Grid.Row="0" Grid.ColumnSpan="3">
-                                <TextBlock Text="{DynamicResource CompanyCenter.CompanyNAME}" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource CompanyCenter.CompanyNAME}" Style="{StaticResource Typography.Label}"/>
                                 <TextBox Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource CcTextBox}"/>
+                                         Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Row="2" Grid.Column="0">
-                                <TextBlock Text="TRN" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBlock Text="TRN" Style="{StaticResource Typography.Label}"/>
                                 <TextBox Text="{Binding CompanyTrn, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource CcTextBox}"/>
+                                         Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
                             <StackPanel Grid.Row="2" Grid.Column="2">
-                                <TextBlock Text="{DynamicResource CompanyCenter.Location}" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource CompanyCenter.Location}" Style="{StaticResource Typography.Label}"/>
                                 <TextBox Text="{Binding CompanyLocation, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource CcTextBox}"/>
+                                         Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Row="4" Grid.Column="0">
-                                <TextBlock Text="{DynamicResource CompanyCenter.Representative}" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource CompanyCenter.Representative}" Style="{StaticResource Typography.Label}"/>
                                 <TextBox Text="{Binding Representative, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource CcTextBox}"/>
+                                         Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
                             <StackPanel Grid.Row="4" Grid.Column="2">
-                                <TextBlock Text="{DynamicResource Phone.Label}" Style="{StaticResource CcFieldLabel}"
+                                <TextBlock Text="{DynamicResource Phone.Label}" Style="{StaticResource Typography.Label}"
                                            TextOptions.TextFormattingMode="Display"/>
                                 <shared:CountryPhoneControl
                                          PhoneText="{Binding RepresentativeMobile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -323,27 +309,27 @@
                             </StackPanel>
 
                             <StackPanel Grid.Row="6" Grid.Column="0">
-                                <TextBlock Text="{DynamicResource CompanyCenter.CompanyEMAIL}" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource CompanyCenter.CompanyEMAIL}" Style="{StaticResource Typography.Label}"/>
                                 <TextBox Text="{Binding CompanyEmail, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource CcTextBox}"/>
+                                         Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
                             <StackPanel Grid.Row="6" Grid.Column="2">
-                                <TextBlock Text="{DynamicResource CompanyCenter.BANKNAME}" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource CompanyCenter.BANKNAME}" Style="{StaticResource Typography.Label}"/>
                                 <TextBox Text="{Binding BankName, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource CcTextBox}"/>
+                                         Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Row="8" Grid.ColumnSpan="3">
-                                <TextBlock Text="{DynamicResource CompanyCenter.AccountNumberIBAN}" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource CompanyCenter.AccountNumberIBAN}" Style="{StaticResource Typography.Label}"/>
                                 <TextBox Text="{Binding AccountNumber, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource CcTextBox}"/>
+                                         Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
                         </Grid>
 
                         <CheckBox Margin="0,14,0,0"
                                   IsChecked="{Binding IsDefaultCompany, Mode=TwoWay}"
                                   Content="Use as default company in new proforma invoices"
-                                  FontWeight="SemiBold"
+                                  FontWeight="{DynamicResource Weight.SemiBold}"
                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                         <!-- ══ LOGO & LETTERHEAD — left portrait / top panel · width/height ══
@@ -354,18 +340,18 @@
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardEdgeThickness}"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
-                                Padding="16">
+                                Padding="16" Style="{StaticResource SurfacePrimaryStyle}">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal">
                                     <Border Width="4" CornerRadius="{DynamicResource Radius.XSmall}"
                                             Background="{DynamicResource AccentBrush}"
-                                            Margin="0,3,10,3"/>
+                                            Margin="0,3,10,3" Style="{StaticResource SurfacePrimaryStyle}"/>
                                     <StackPanel>
                                         <TextBlock Text="LOGO &amp; LETTERHEAD"
-                                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         <TextBlock Text="Brands every printed document — position, size and image."
-                                                   FontSize="{StaticResource TextCaption}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                                    Foreground="{DynamicResource TextTertiaryBrush}"
                                                    Margin="0,2,0,0"/>
                                     </StackPanel>
@@ -385,7 +371,7 @@
                                             BorderBrush="{DynamicResource BorderDefaultBrush}"
                                             BorderThickness="{DynamicResource Border.HairlineThickness}"
                                             CornerRadius="{DynamicResource Radius.Small}"
-                                            VerticalAlignment="Top">
+                                            VerticalAlignment="Top" Style="{StaticResource SurfacePrimaryStyle}">
                                         <Border.Effect>
                                             <DropShadowEffect BlurRadius="10" ShadowDepth="2"
                                                               Direction="270" Opacity="0.12" Color="{DynamicResource LiquidShadowColor}"/>
@@ -401,12 +387,12 @@
                                                         </Style.Triggers>
                                                     </Style>
                                                 </StackPanel.Style>
-                                                <TextBlock Text="&#xE8B9;" FontFamily="Segoe MDL2 Assets"
-                                                           FontSize="{StaticResource TextHeadline}"
+                                                <TextBlock Text="&#xE8B9;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                                           FontSize="{DynamicResource FontSize.H1}"
                                                            Foreground="{DynamicResource TextTertiaryBrush}"
                                                            HorizontalAlignment="Center"/>
-                                                <TextBlock Text="LOGO" FontSize="{StaticResource TextCaption}"
-                                                           FontWeight="SemiBold"
+                                                <TextBlock Text="LOGO" FontSize="{DynamicResource FontSize.BodySmall}"
+                                                           FontWeight="{DynamicResource Weight.SemiBold}"
                                                            Foreground="{DynamicResource TextTertiaryBrush}"
                                                            HorizontalAlignment="Center" Margin="0,4,0,0"/>
                                             </StackPanel>
@@ -427,7 +413,7 @@
 
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="{DynamicResource CompanyCenter.ChooseLOGO}"
-                                                   Style="{StaticResource CcFieldLabel}" Margin="0,0,0,4"/>
+                                                   Style="{StaticResource Typography.Label}" Margin="0,0,0,4"/>
                                         <StackPanel Orientation="Horizontal">
                                             <Button Style="{StaticResource PrimaryPillButton}"
                                                     Tag="&#xE8B9;" Content="{DynamicResource CompanyCenter.ChooseLOGO}"
@@ -449,21 +435,21 @@
                                                 <ColumnDefinition Width="8"/>
                                                 <ColumnDefinition Width="72"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Text="WIDTH (MM)" Style="{StaticResource CcFieldLabel}"
+                                            <TextBlock Text="WIDTH (MM)" Style="{StaticResource Typography.Label}"
                                                        VerticalAlignment="Center" Margin="0"/>
                                             <TextBox Grid.Column="2"
                                                      Text="{Binding LogoWidthMm, Converter={StaticResource DoubleTypingConverter}, UpdateSourceTrigger=PropertyChanged}"
-                                                     Style="{StaticResource CcTextBox}" Height="34"
+                                                     Style="{StaticResource Input.TextBox}" Height="34"
                                                      TextAlignment="Center"/>
-                                            <TextBlock Grid.Column="4" Text="HEIGHT (MM)" Style="{StaticResource CcFieldLabel}"
+                                            <TextBlock Grid.Column="4" Text="HEIGHT (MM)" Style="{StaticResource Typography.Label}"
                                                        VerticalAlignment="Center" Margin="0"/>
                                             <TextBox Grid.Column="6"
                                                      Text="{Binding LogoHeightMm, Converter={StaticResource DoubleTypingConverter}, UpdateSourceTrigger=PropertyChanged}"
-                                                     Style="{StaticResource CcTextBox}" Height="34"
+                                                     Style="{StaticResource Input.TextBox}" Height="34"
                                                      TextAlignment="Center"/>
                                         </Grid>
                                         <TextBlock Margin="0,4,0,0"
-                                                   FontSize="{StaticResource TextCaption}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                                    Foreground="{DynamicResource TextTertiaryBrush}">
                                             <Run Text="Printed size in millimetres · "/>
                                             <Run Text="{Binding LogoWidthDisplay, Mode=OneWay}"/>
@@ -474,7 +460,7 @@
 
                                         <!-- Layout selector — both industrial logo layouts -->
                                         <TextBlock Text="LETTERHEAD LAYOUT"
-                                                   Style="{StaticResource CcFieldLabel}" Margin="0,14,0,4"/>
+                                                   Style="{StaticResource Typography.Label}" Margin="0,14,0,4"/>
                                         <StackPanel Orientation="Horizontal">
                                             <RadioButton Content="Text only"
                                                          GroupName="CompanyLogoLayout"
@@ -496,7 +482,7 @@
                                         </StackPanel>
 
                                         <TextBlock Text="{Binding LogoPath}"
-                                                   FontSize="{StaticResource TextCaption}" Margin="0,10,0,0"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}" Margin="0,10,0,0"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    TextTrimming="CharacterEllipsis"
                                                    MaxWidth="360"
@@ -509,9 +495,9 @@
                         <!-- PHASE D — WHY note recorded with the audit entry -->
                         <StackPanel Margin="0,16,0,0">
                             <TextBlock Text="{DynamicResource CompanyCenter.WHYNOTEOptionalRecordedAuditTrail}"
-                                       Style="{StaticResource CcFieldLabel}"/>
+                                       Style="{StaticResource Typography.Label}"/>
                             <TextBox Text="{Binding ReasonNote, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource CcTextBox}"
+                                     Style="{StaticResource Input.TextBox}"
                                      ToolTip="{DynamicResource CompanyCenter.ReasonChangeEGTRNCorrectedAfterTradeLicence}"/>
                         </StackPanel>
 
@@ -522,7 +508,7 @@
                         </StackPanel>
 
                         <TextBlock Text="{Binding Status}"
-                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Margin="0,10,0,0"
                                    Foreground="{DynamicResource AccentBrush}"
                                    TextWrapping="Wrap"/>

@@ -82,32 +82,11 @@
          STEPPER STYLES
     ═════════════════════════════════════════════════════════════════ -->
 
-    <Style x:Key="StepNumberBadgeStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
-        <Setter Property="Width"                Value="30"/>
-        <Setter Property="Height"               Value="30"/>
-        <Setter Property="CornerRadius"         Value="15"/>
-        <Setter Property="HorizontalAlignment"  Value="Center"/>
-        <Setter Property="VerticalAlignment"    Value="Center"/>
-        <Setter Property="BorderThickness"      Value="2"/>
-        <Setter Property="SnapsToDevicePixels"  Value="True"/>
-        <Setter Property="UseLayoutRounding"    Value="True"/>
-    </Style>
+    
 
-    <Style x:Key="StepLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="FontWeight"           Value="SemiBold"/>
-        <Setter Property="HorizontalAlignment"  Value="Center"/>
-        <Setter Property="Margin"               Value="0,6,0,0"/>
-        <Setter Property="Foreground"           Value="{DynamicResource SecondaryForegroundBrush}"/>
-    </Style>
+    
 
-    <Style x:Key="StepperConnectorStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
-        <Setter Property="Height"               Value="2"/>
-        <Setter Property="VerticalAlignment"    Value="Center"/>
-        <Setter Property="Margin"               Value="0,0,0,18"/>
-        <Setter Property="Background"           Value="{DynamicResource Surface.Primary.BorderBrush}"/>
-        <Setter Property="SnapsToDevicePixels"  Value="True"/>
-    </Style>
+    
 
     <!-- ═════════════════════════════════════════════════════════════════
          NAV BUTTONS
@@ -118,8 +97,8 @@
         <Setter Property="Padding"          Value="22,0"/>
         <Setter Property="Cursor"           Value="Hand"/>
         <Setter Property="BorderThickness"  Value="0"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-        <Setter Property="FontWeight"       Value="Bold"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
+        <Setter Property="FontWeight"       Value="{DynamicResource Weight.Bold}"/>
         <Setter Property="Foreground"       Value="White"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -129,11 +108,11 @@
                             Background="{DynamicResource PrimaryGradient}"
                             Effect="{StaticResource PrimaryButtonShadow}"
                             Padding="{TemplateBinding Padding}"
-                            CacheMode="BitmapCache">
+                            CacheMode="BitmapCache" Style="{StaticResource SurfacePrimaryStyle}">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
                                           TextElement.Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                          TextElement.FontWeight="Bold"/>
+                                          TextElement.FontWeight="{DynamicResource Weight.Bold}"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
@@ -157,8 +136,8 @@
         <Setter Property="Padding"          Value="22,0"/>
         <Setter Property="Cursor"           Value="Hand"/>
         <Setter Property="BorderThickness"  Value="0"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-        <Setter Property="FontWeight"       Value="Bold"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
+        <Setter Property="FontWeight"       Value="{DynamicResource Weight.Bold}"/>
         <Setter Property="Foreground"       Value="White"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -168,11 +147,11 @@
                             Background="{DynamicResource SuccessGradient}"
                             Effect="{StaticResource SuccessButtonShadow}"
                             Padding="{TemplateBinding Padding}"
-                            CacheMode="BitmapCache">
+                            CacheMode="BitmapCache" Style="{StaticResource SurfacePrimaryStyle}">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
                                           TextElement.Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                          TextElement.FontWeight="Bold"/>
+                                          TextElement.FontWeight="{DynamicResource Weight.Bold}"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
@@ -196,8 +175,8 @@
         <Setter Property="Padding"          Value="18,0"/>
         <Setter Property="Cursor"           Value="Hand"/>
         <Setter Property="BorderThickness"  Value="0"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-        <Setter Property="FontWeight"       Value="SemiBold"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
+        <Setter Property="FontWeight"       Value="{DynamicResource Weight.SemiBold}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -207,11 +186,11 @@
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="{TemplateBinding Padding}"
-                            SnapsToDevicePixels="True">
+                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
                                           TextElement.Foreground="{DynamicResource TextPrimaryBrush}"
-                                          TextElement.FontWeight="SemiBold"/>
+                                          TextElement.FontWeight="{DynamicResource Weight.SemiBold}"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
@@ -236,8 +215,8 @@
         <Setter Property="Padding"          Value="18,0"/>
         <Setter Property="Cursor"           Value="Hand"/>
         <Setter Property="BorderThickness"  Value="0"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-        <Setter Property="FontWeight"       Value="SemiBold"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
+        <Setter Property="FontWeight"       Value="{DynamicResource Weight.SemiBold}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -247,12 +226,12 @@
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="{TemplateBinding Padding}"
-                            SnapsToDevicePixels="True">
+                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                         <ContentPresenter x:Name="cp"
                                           HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
                                           TextElement.Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                          TextElement.FontWeight="SemiBold"/>
+                                          TextElement.FontWeight="{DynamicResource Weight.SemiBold}"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
@@ -309,14 +288,14 @@
                             Padding="12,8"
                             MaxWidth="320"
                             SnapsToDevicePixels="True"
-                            Effect="{StaticResource ToolTipShadow}">
+                            Effect="{StaticResource ToolTipShadow}" Style="{StaticResource SurfacePrimaryStyle}">
                         <!-- Use ContentPresenter so BOTH plain-string
                              tooltips AND complex-content tooltips work.
                              The default TextBlock style scoped inside
                              this template ensures wrapping applies. -->
                         <ContentPresenter x:Name="cp"
                                           TextElement.Foreground="{DynamicResource TextPrimaryBrush}"
-                                          TextElement.FontSize="{StaticResource TextBody}"
+                                          TextElement.FontSize="{DynamicResource FontSize.Body}"
                                           TextElement.FontFamily="{DynamicResource AppFontFamily}">
                             <ContentPresenter.Resources>
                                 <!-- Any TextBlock created (including the
@@ -329,7 +308,7 @@
                                          background was fixed. Must track the
                                          theme. -->
                                     <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-                                    <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+                                    <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
                                     <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
                                     <Setter Property="LineHeight" Value="17"/>
                                 </Style>
@@ -361,50 +340,20 @@
          WIZARD CARD STYLES
     ═════════════════════════════════════════════════════════════════ -->
 
-    <Style x:Key="WizardCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
-        <Setter Property="Background"           Value="{DynamicResource Surface.Primary.BackgroundBrush}"/>
-        <Setter Property="BorderBrush"          Value="{DynamicResource BorderDefaultBrush}"/>
-        <Setter Property="BorderThickness"      Value="{DynamicResource Surface.Primary.BorderThickness}"/>
-        <Setter Property="CornerRadius"         Value="{DynamicResource Surface.Primary.CornerRadius}"/>
-        <Setter Property="Padding"              Value="20"/>
-        <Setter Property="SnapsToDevicePixels"  Value="True"/>
-        <Setter Property="UseLayoutRounding"    Value="True"/>
-        <Setter Property="Effect"               Value="{StaticResource CardShadow}"/>
-    </Style>
+    
 
-    <Style x:Key="WizardCardHeaderStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="Padding"              Value="16,12"/>
-        <Setter Property="CornerRadius"         Value="12,12,0,0"/>
-        <Setter Property="Background"           Value="{StaticResource CardHeaderGradient}"/>
-        <Setter Property="SnapsToDevicePixels"  Value="True"/>
-    </Style>
+    
 
     <!-- ═════════════════════════════════════════════════════════════════
          TITLES + LABELS
     ═════════════════════════════════════════════════════════════════ -->
 
-    <Style x:Key="StepTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextTitleLarge}"/>
-        <Setter Property="FontWeight"   Value="Bold"/>
-        <Setter Property="Foreground"   Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="Margin"       Value="0,0,0,4"/>
-    </Style>
-
-    <Style x:Key="StepSubtitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="Foreground"   Value="{DynamicResource SecondaryForegroundBrush}"/>
-        <Setter Property="Margin"       Value="0,0,0,16"/>
-        <Setter Property="TextWrapping" Value="Wrap"/>
-    </Style>
+    <!-- Migrated StepTitleStyle to global Typography.Title -->
+    
 
     
 
-    <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-        <Setter Property="FontWeight"   Value="Bold"/>
-        <Setter Property="Foreground"   Value="{DynamicResource TextTertiaryBrush}"/>
-        <Setter Property="Margin"       Value="0,0,0,4"/>
-    </Style>
+    <!-- Migrated FieldLabelStyle to global SurfacePrimaryStyle / Typography -->
 
     <!-- ═════════════════════════════════════════════════════════════════
          FORM INPUTS
