@@ -118,6 +118,15 @@ namespace ProGlassAutomation.Services.Theme
                 VisualThemeEngine.ApplyModule(
                     VisualThemeEngine.LastRequestedModule, appearance);
 
+                // 2b) Radius unification (2026-09-13): families (iOS 26, Crystal,
+                // Industrial, Monet) publish their own CardCornerRadius baseline.
+                // Re-apply the user's Appearance slider immediately after the family
+                // baseline so the slider wins and Surface.Primary.CornerRadius
+                // (via ReapplySemanticSurfaces below) follows it too.
+                ThemeManager.ReapplyCardCornerRadius();
+                ThemeManager.ReapplyCardBorderThickness();
+                ThemeManager.ReapplyCardEdgeThickness();
+
                 // 3) Accent family re-derived from the NEW surfaces —
                 //    the keyline source must be the post-family surface.
                 ThemeManager.ApplyAccent(

@@ -198,6 +198,36 @@ namespace ProGlassAutomation.Services
             resources["TypographyTitleSize"] = title;
             resources["CardPadding"] = cardPad;
             resources["PagePadding"] = pageMargin;
+
+            // ── DASHBOARD DENSITY (2026-09-13): Db* tokens now follow Density
+            // so dashboards scale with Compact/Normal/Comfortable/Spacious.
+            // Previously DbPageMargin=20,16,20,20 was fixed, so Compact mode
+            // had no effect on dashboards.
+            double gutter;
+            double kpiMinH;
+            double chartMinH;
+            switch (key)
+            {
+                case "Spacious":
+                    gutter = 14; kpiMinH = 110; chartMinH = 240; break;
+                case "Comfortable":
+                    gutter = 12; kpiMinH = 100; chartMinH = 212; break;
+                case "Normal":
+                    gutter = 10; kpiMinH = 90; chartMinH = 200; break;
+                default:
+                    gutter = 8; kpiMinH = 80; chartMinH = 180; break;
+            }
+            // Dashboard cards are intentionally a touch larger than module cards
+            var dbCardPad = new Thickness(cardPad.Left + 6, cardPad.Top + 7, cardPad.Right + 6, cardPad.Bottom + 7);
+            var dbTilePad = new Thickness(stripPad.Left, stripPad.Top + 2, stripPad.Right, stripPad.Bottom + 2);
+            resources["DbPageMargin"] = pageMargin;
+            resources["DbCardPadding"] = dbCardPad;
+            resources["DbTilePadding"] = dbTilePad;
+            resources["DbGutter"] = gutter;
+            resources["DbGutterHalfMargin"] = new Thickness(gutter / 2.0);
+            resources["DbKpiTileMinHeight"] = kpiMinH;
+            resources["DbChartMinHeight"] = chartMinH;
+
             ApplySemanticSurfacePadding(resources, cardPad, stripPad);
             PublishProGlassDesignSystem();
         }

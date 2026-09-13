@@ -60,6 +60,38 @@ namespace ProGlassAutomation.Services.Theme
             return b;
         }
 
+        /// <summary>
+        /// iOS radius that respects the Appearance slider.
+        /// The iOS family has its own slightly larger continuous-corner language
+        /// (16/14/12 vs 12 baseline), but the user's slider must still drive it.
+        /// So we scale the iOS default proportionally to the current CardCornerRadius.
+        /// If rounded surfaces are OFF, return 0 — same contract as semantic surfaces.
+        /// </summary>
+        private static CornerRadius IosRadius(double iosDefault)
+        {
+            try
+            {
+                var appearance = App.Config?.Appearance;
+                if (appearance?.UseRoundedSurfaces == false)
+                    return new CornerRadius(0);
+
+                double baseR = ProGlassAutomation.Services.ThemeManager.CardCornerRadius;
+                if (baseR < 0) baseR = 0;
+                if (baseR > 28) baseR = 28;
+                // iosDefault was authored for base 12, scale proportionally
+                double scaled = baseR * (iosDefault / 12.0);
+                if (scaled < 0) scaled = 0;
+                if (scaled > 48) scaled = 48;
+                return new CornerRadius(scaled);
+            }
+            catch
+            {
+                return new CornerRadius(iosDefault);
+            }
+        }
+
+
+
         /// <summary>About-specific keys (redesign milestone).</summary>
         private static readonly string[] Ios26AboutKeys =
         {
@@ -138,8 +170,8 @@ namespace ProGlassAutomation.Services.Theme
             resources["AboutGlassHairlineStroke"] = Ios26Sol(dark, "#0F000000", "#24F2F6FF");
             resources["AboutGlassCaptionBrush"] = Ios26Sol(dark, "#6E6E73", "#AEB7C4");
             resources["AboutGlassGlowBrush"] = Ios26Sol(dark, "#66FFFFFF", "#1AFFFFFF");
-            resources["AboutCardCornerRadius"] = new CornerRadius(20);
-            resources["AboutPanelCornerRadius"] = new CornerRadius(16);
+            resources["AboutCardCornerRadius"] = IosRadius(20);
+            resources["AboutPanelCornerRadius"] = IosRadius(16);
             resources["AboutCardEffect"] = Ios26Shadow(dark, 12, 3, 0.18);
 
             // ── GLOBAL layer ──────────────────────────────────────────
@@ -173,9 +205,9 @@ namespace ProGlassAutomation.Services.Theme
                 ["Surface.Primary.BorderBrush"]       = Ios26Sol(false, "#14000000", null),
                 ["Surface.Secondary.BorderBrush"]     = Ios26Sol(false, "#10000000", null),
                 ["Surface.Detail.BorderBrush"]        = Ios26Sol(false, "#10000000", null),
-                ["Surface.Primary.CornerRadius"]      = new CornerRadius(16),
-                ["Surface.Secondary.CornerRadius"]    = new CornerRadius(14),
-                ["Surface.Detail.CornerRadius"]       = new CornerRadius(12),
+                ["Surface.Primary.CornerRadius"]      = IosRadius(16),
+                ["Surface.Secondary.CornerRadius"]    = IosRadius(14),
+                ["Surface.Detail.CornerRadius"]       = IosRadius(12),
 
                 // GLOBAL ICON LANGUAGE — fixed vivid iOS app-icon ramp
                 // (macOS rule: icons do not follow accent; they glow on white).
@@ -200,13 +232,13 @@ namespace ProGlassAutomation.Services.Theme
                 ["OutlineStrongBrush"]    = Ios26Sol(false, "#24000000", null),
 
                 // Radius scale — iOS continuous-corner language
-                ["CardCornerRadius"]      = new CornerRadius(14),
-                ["CardCornerRadiusLarge"] = new CornerRadius(20),
-                ["ControlCornerRadius"]   = new CornerRadius(10),
-                ["Radius.Small"]          = new CornerRadius(8),
-                ["Radius.Medium"]         = new CornerRadius(12),
-                ["Radius.Large"]          = new CornerRadius(16),
-                ["Radius.Hero"]           = new CornerRadius(22),
+                ["CardCornerRadius"]      = IosRadius(14),
+                ["CardCornerRadiusLarge"] = IosRadius(20),
+                ["ControlCornerRadius"]   = IosRadius(10),
+                ["Radius.Small"]          = IosRadius(8),
+                ["Radius.Medium"]         = IosRadius(12),
+                ["Radius.Large"]          = IosRadius(16),
+                ["Radius.Hero"]           = IosRadius(22),
 
                 // GLOBAL shadows — small, soft, cheap (perf guard)
                 ["ShadowSoft"]                  = Ios26Shadow(false, 10, 2, 0.10),
@@ -258,9 +290,9 @@ namespace ProGlassAutomation.Services.Theme
                 ["Surface.Primary.BorderBrush"]       = Ios26Sol(true, "#2EFFFFFF", null),
                 ["Surface.Secondary.BorderBrush"]     = Ios26Sol(true, "#22FFFFFF", null),
                 ["Surface.Detail.BorderBrush"]        = Ios26Sol(true, "#1EFFFFFF", null),
-                ["Surface.Primary.CornerRadius"]      = new CornerRadius(16),
-                ["Surface.Secondary.CornerRadius"]    = new CornerRadius(14),
-                ["Surface.Detail.CornerRadius"]       = new CornerRadius(12),
+                ["Surface.Primary.CornerRadius"]      = IosRadius(16),
+                ["Surface.Secondary.CornerRadius"]    = IosRadius(14),
+                ["Surface.Detail.CornerRadius"]       = IosRadius(12),
 
                 // icons stay VIVID in dark (iOS rule) — same fixed ramp
                 ["LiquidAccentGradient"]   = Ios26Diag3("#0A84FF", "#5E5CE6", "#BF5AF2"),
@@ -281,13 +313,13 @@ namespace ProGlassAutomation.Services.Theme
                 ["OutlineDefaultBrush"]   = Ios26Sol(true, "#1AFFFFFF", null),
                 ["OutlineStrongBrush"]    = Ios26Sol(true, "#2EFFFFFF", null),
 
-                ["CardCornerRadius"]      = new CornerRadius(14),
-                ["CardCornerRadiusLarge"] = new CornerRadius(20),
-                ["ControlCornerRadius"]   = new CornerRadius(10),
-                ["Radius.Small"]          = new CornerRadius(8),
-                ["Radius.Medium"]         = new CornerRadius(12),
-                ["Radius.Large"]          = new CornerRadius(16),
-                ["Radius.Hero"]           = new CornerRadius(22),
+                ["CardCornerRadius"]      = IosRadius(14),
+                ["CardCornerRadiusLarge"] = IosRadius(20),
+                ["ControlCornerRadius"]   = IosRadius(10),
+                ["Radius.Small"]          = IosRadius(8),
+                ["Radius.Medium"]         = IosRadius(12),
+                ["Radius.Large"]          = IosRadius(16),
+                ["Radius.Hero"]           = IosRadius(22),
 
                 ["ShadowSoft"]                  = Ios26Shadow(true, 10, 2, 0.30),
                 ["ShadowElevated"]              = Ios26Shadow(true, 14, 3, 0.36),

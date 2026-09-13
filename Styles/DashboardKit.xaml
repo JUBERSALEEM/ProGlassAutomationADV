@@ -169,7 +169,7 @@
     ═══════════════════════════════════════════════════════════════ -->
     <Style x:Key="DbCardStyle" TargetType="Border"
            BasedOn="{StaticResource SurfacePrimaryStyle}">
-        <Setter Property="Padding" Value="{StaticResource DbCardPadding}"/>
+        <Setter Property="Padding" Value="{DynamicResource DbCardPadding}"/>
         <!-- Inherit Surface.Primary.CornerRadius from Appearance. Do not
              re-set CardCornerRadius here — that froze the slider. -->
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -184,8 +184,8 @@
         <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Surface.Primary.CornerRadius}"/>
-        <Setter Property="Padding" Value="{StaticResource DbTilePadding}"/>
-        <Setter Property="MinHeight" Value="{StaticResource DbKpiTileMinHeight}"/>
+        <Setter Property="Padding" Value="{DynamicResource DbTilePadding}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource DbKpiTileMinHeight}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
     </Style>
@@ -196,7 +196,7 @@
         <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Surface.Primary.CornerRadius}"/>
         <Setter Property="Padding" Value="12"/>
-        <Setter Property="MinHeight" Value="{StaticResource DbChartMinHeight}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource DbChartMinHeight}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
@@ -385,7 +385,7 @@
         <Setter Property="ItemContainerStyle">
             <Setter.Value>
                 <Style TargetType="ContentPresenter">
-                    <Setter Property="Margin" Value="{StaticResource DbGutterHalfMargin}"/>
+                    <Setter Property="Margin" Value="{DynamicResource DbGutterHalfMargin}"/>
                     <Setter Property="HorizontalAlignment" Value="Stretch"/>
                 </Style>
             </Setter.Value>
@@ -526,6 +526,7 @@
         <Setter Property="CornerRadius" Value="{DynamicResource Surface.Primary.CornerRadius}"/>
         <Setter Property="Padding" Value="13,12"/>
         <Setter Property="MinHeight" Value="96"/>
+        <Setter Property="MinWidth" Value="140"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
@@ -582,7 +583,7 @@
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Border Width="26" Height="26"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
                                 VerticalAlignment="Center"
                                 Background="{Binding AccentKey,
                                              Converter={StaticResource BrushKeyConverter}}">
@@ -607,18 +608,199 @@
         </Grid>
     </DataTemplate>
 
+    <!-- RESPONSIVE PIPELINE (2026-09-13): WrapPanel lets 5 stage cards flow
+         to 2 rows on narrow screens. Each presenter has MinWidth 160 so
+         cards never become unreadable. The ItemsControl template wraps the
+         presenter in a horizontal ScrollViewer as fallback, so the rail
+         scrolls instead of clipping on <900px widths. -->
     <ItemsPanelTemplate x:Key="DbPipelinePanel">
+        <WrapPanel Orientation="Horizontal" IsItemsHost="True"/>
+    </ItemsPanelTemplate>
+
+    <ItemsPanelTemplate x:Key="DbPipelinePanelUniform">
         <UniformGrid Columns="5"/>
     </ItemsPanelTemplate>
 
     <Style x:Key="DbPipelineItemsStyle" TargetType="ItemsControl">
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="ItemContainerStyle">
             <Setter.Value>
                 <Style TargetType="ContentPresenter">
                     <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                    <Setter Property="MinWidth" Value="160"/>
+                    <Setter Property="Margin" Value="0,0,8,8"/>
                 </Style>
             </Setter.Value>
         </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ItemsControl">
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Disabled"
+                                  CanContentScroll="False"
+                                  PanningMode="HorizontalOnly"
+                                  Focusable="False">
+                        <ItemsPresenter/>
+                    </ScrollViewer>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         9 · SKELETON LOADING (2026-09-13)
+
+         Shimmer-free skeleton that works in Light/Dark and respects
+         Surface.Primary.CornerRadius. Used when IsLoading=true instead
+         of plain text. Each dashboard shows:
+           • KPI band skeleton (4 tiles with blocks)
+           • Chart well skeleton (bars)
+           • Feed row skeleton (avatar + lines)
+
+         Animation is a simple opacity pulse (0.35→0.75, 0.9s) — no
+         custom shader, no extra NuGet, pure WPF storyboard. Respects
+         ReducedMotion via Opacity only (no translation).
+    ═══════════════════════════════════════════════════════════════ -->
+
+    <Style x:Key="DbSkeletonBlockStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource DividerBrush}"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Opacity" Value="0.55"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Style.Triggers>
+            <EventTrigger RoutedEvent="Loaded">
+                <BeginStoryboard>
+                    <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                         From="0.35" To="0.75" Duration="0:0:0.9">
+                            <DoubleAnimation.EasingFunction>
+                                <SineEase EasingMode="EaseInOut"/>
+                            </DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="DbSkeletonCircleStyle" TargetType="Border"
+           BasedOn="{StaticResource DbSkeletonBlockStyle}">
+        <Setter Property="CornerRadius" Value="999"/>
+        <Setter Property="Width" Value="32"/>
+        <Setter Property="Height" Value="32"/>
+    </Style>
+
+    <Style x:Key="DbSkeletonCardStyle" TargetType="Border"
+           BasedOn="{StaticResource DbCardStyle}">
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="Opacity" Value="0.9"/>
+    </Style>
+
+    <!-- KPI tile skeleton -->
+    <DataTemplate x:Key="DbSkeletonKpiTileTemplate">
+        <Border Style="{StaticResource DbTileStyle}" Opacity="0.95">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="30"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="72" HorizontalAlignment="Left"/>
+                    <Border Grid.Column="1" Style="{StaticResource DbSkeletonCircleStyle}" Width="28" Height="28"/>
+                </Grid>
+                <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="22" Width="88" Margin="0,14,0,0" HorizontalAlignment="Left"/>
+                <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="120" Margin="0,10,0,0" HorizontalAlignment="Left" Opacity="0.4"/>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+
+    <ItemsPanelTemplate x:Key="DbSkeletonKpiBandPanel">
+        <UniformGrid Rows="2"/>
+    </ItemsPanelTemplate>
+
+    <Style x:Key="DbSkeletonKpiBandStyle" TargetType="ItemsControl"
+           BasedOn="{StaticResource DbKpiBandStyle}"/>
+
+    <!-- Chart well skeleton -->
+    <DataTemplate x:Key="DbSkeletonChartTemplate">
+        <Border Style="{StaticResource DbChartWellStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid VerticalAlignment="Bottom" Height="120">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Style="{StaticResource DbSkeletonBlockStyle}" Width="22" Height="40" VerticalAlignment="Bottom" Margin="0,0,6,0"/>
+                    <Border Grid.Column="1" Style="{StaticResource DbSkeletonBlockStyle}" Width="22" Height="72" VerticalAlignment="Bottom" Margin="0,0,6,0"/>
+                    <Border Grid.Column="2" Style="{StaticResource DbSkeletonBlockStyle}" Width="22" Height="56" VerticalAlignment="Bottom" Margin="0,0,6,0"/>
+                    <Border Grid.Column="3" Style="{StaticResource DbSkeletonBlockStyle}" Width="22" Height="90" VerticalAlignment="Bottom" Margin="0,0,6,0"/>
+                    <Border Grid.Column="4" Style="{StaticResource DbSkeletonBlockStyle}" Width="22" Height="64" VerticalAlignment="Bottom" Margin="0,0,6,0"/>
+                    <Border Grid.Column="5" Style="{StaticResource DbSkeletonBlockStyle}" Width="22" Height="100" VerticalAlignment="Bottom"/>
+                </Grid>
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,12,0,0">
+                    <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="8" Width="48" Margin="0,0,12,0"/>
+                    <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="8" Width="48" Margin="0,0,12,0"/>
+                    <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="8" Width="48"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+    <!-- Feed row skeleton -->
+    <DataTemplate x:Key="DbSkeletonFeedRowTemplate">
+        <Border Style="{StaticResource DbRowCardStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource DbSkeletonCircleStyle}" Margin="0,0,11,0"/>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0">
+                    <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="140" HorizontalAlignment="Left"/>
+                    <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="180" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="56" HorizontalAlignment="Right"/>
+                    <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="16" Width="48" Margin="0,6,0,0" HorizontalAlignment="Right" CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+    <!-- Pipeline stage skeleton -->
+    <DataTemplate x:Key="DbSkeletonPipelineStageTemplate">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="18"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="0" Style="{StaticResource DbPipelineConnectorStyle}" Opacity="0.3"/>
+            <Border Grid.Column="1" Style="{StaticResource DbPipelineCardStyle}" MinWidth="140">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="26" Height="26" Style="{StaticResource DbSkeletonCircleStyle}"/>
+                        <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="11" Width="64" Margin="9,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="18" Width="72" Margin="0,12,0,0" HorizontalAlignment="Left"/>
+                    <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="96" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </DataTemplate>
+
+    <!-- Full dashboard skeleton container -->
+    <Style x:Key="DbSkeletonBandStyle" TargetType="Border" BasedOn="{StaticResource DbCardStyle}">
+        <Setter Property="Margin" Value="0,0,0,14"/>
     </Style>
 
 </ResourceDictionary>

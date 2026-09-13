@@ -330,7 +330,7 @@
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
 
-            <Grid Margin="{StaticResource DbPageMargin}">
+            <Grid Margin="{DynamicResource DbPageMargin}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -375,23 +375,31 @@
                     </StackPanel>
                 </Grid>
 
-                <StackPanel Grid.Row="1">
+                                <StackPanel Grid.Row="1">
                     <Border Style="{StaticResource DbStateBandStyle}"
-                            Padding="16,12"
+                            Background="{DynamicResource TintBlueBrush}"
+                            BorderBrush="{DynamicResource InfoBrush}"
                             Visibility="{Binding IsLoading,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="{DynamicResource Dashboard.LoadingTaxInvoiceData}"
-                                   Style="{StaticResource DbKpiFootStyle}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource DbSkeletonCircleStyle}" Width="20" Height="20" Margin="0,0,12,0"/>
+                            <StackPanel Grid.Column="1">
+                                <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="180" HorizontalAlignment="Left"/>
+                                <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="8" Width="260" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/>
+                            </StackPanel>
+                        </Grid>
                     </Border>
                     <Border Style="{StaticResource DbStateBandStyle}"
-                            Padding="16,12"
                             Background="{DynamicResource TintRedBrush}"
                             BorderBrush="{DynamicResource DangerBrush}"
                             Visibility="{Binding HasError,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="{Binding ErrorMessage}"
-                                   FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
-                                   Foreground="{DynamicResource DangerBrush}"/>
+                                   Style="{StaticResource DbErrorTextStyle}"/>
                     </Border>
                     <Border Style="{StaticResource DbStateBandStyle}"
                             Padding="16,12"
@@ -399,30 +407,70 @@
                             BorderBrush="{DynamicResource DangerBrush}"
                             Visibility="{Binding HasOverdueInvoices,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                       VerticalAlignment="Center"
-                                       Foreground="{DynamicResource DangerBrush}">
-                                <Run Text="{Binding OverdueCount, Mode=OneWay}"/>
-                                <Run Text="{DynamicResource Dashboard.InvoiceSOverdue}"/>
-                                <Run Text="{Binding OverdueAmountDisplay, Mode=OneWay}"/>
-                            </TextBlock>
-                            <Button Grid.Column="1"
-                                    Content="{DynamicResource Dashboard.ViewOverdue}"
-                                    Tag="&#xE7BA;"
-                                    Style="{StaticResource DbActionButtonStyle}"
-                                    Background="{DynamicResource DangerBrush}"
-                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                    Command="{Binding ViewOverdueCommand}"/>
-                        </Grid>
+                        <TextBlock FontSize="{StaticResource TextBody}" TextWrapping="Wrap" Foreground="{DynamicResource DangerBrush}">
+                            <Run Text="{Binding OverdueCount, Mode=OneWay}"/>
+                            <Run Text=" overdue invoices — "/>
+                            <Run Text="{Binding OverdueAmountDisplay, Mode=OneWay}"/>
+                        </TextBlock>
                     </Border>
                 </StackPanel>
 
-                <Grid Grid.Row="2" Margin="0,0,0,14">
+
+                <!-- ── SKELETON (visible when loading) ─────────────── -->
+                <StackPanel Grid.Row="2" Grid.RowSpan="3"
+                            Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                    <Border Style="{StaticResource DbSkeletonBandStyle}">
+                        <StackPanel>
+                            <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="16" Width="120" HorizontalAlignment="Left" Margin="0,0,0,4"/>
+                            <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="200" HorizontalAlignment="Left" Margin="0,0,0,12" Opacity="0.5"/>
+                            <ItemsControl Style="{StaticResource DbSkeletonKpiBandStyle}" ItemsPanel="{StaticResource DbSkeletonKpiBandPanel}">
+                                <Border Style="{StaticResource DbTileStyle}" Opacity="0.95"><StackPanel><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="30"/></Grid.ColumnDefinitions><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="72" HorizontalAlignment="Left"/><Border Grid.Column="1" Style="{StaticResource DbSkeletonCircleStyle}" Width="28" Height="28"/></Grid><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="22" Width="88" Margin="0,14,0,0" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="120" Margin="0,10,0,0" HorizontalAlignment="Left" Opacity="0.4"/></StackPanel></Border>
+                                <Border Style="{StaticResource DbTileStyle}"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="72" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="22" Width="88" Margin="0,14,0,0" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="120" Margin="0,10,0,0" HorizontalAlignment="Left" Opacity="0.4"/></StackPanel></Border>
+                                <Border Style="{StaticResource DbTileStyle}"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="72" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="22" Width="88" Margin="0,14,0,0" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="120" Margin="0,10,0,0" HorizontalAlignment="Left" Opacity="0.4"/></StackPanel></Border>
+                                <Border Style="{StaticResource DbTileStyle}"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="72" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="22" Width="88" Margin="0,14,0,0" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="120" Margin="0,10,0,0" HorizontalAlignment="Left" Opacity="0.4"/></StackPanel></Border>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <Grid Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="1.2*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource DbCardStyle}" Margin="0,0,7,0">
+                            <ContentControl ContentTemplate="{StaticResource DbSkeletonChartTemplate}"/>
+                        </Border>
+                        <Border Grid.Column="1" Style="{StaticResource DbCardStyle}" Margin="7,0,0,0">
+                            <StackPanel>
+                                <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="14" Width="90" HorizontalAlignment="Left" Margin="0,0,0,6"/>
+                                <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="120" HorizontalAlignment="Left" Margin="0,0,0,16" Opacity="0.5"/>
+                                <Grid Height="158"><Border Style="{StaticResource DbSkeletonCircleStyle}" Width="110" Height="110" HorizontalAlignment="Center" VerticalAlignment="Center"/></Grid>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.2*"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource DbCardStyle}" Margin="0,0,7,0">
+                            <ContentControl ContentTemplate="{StaticResource DbSkeletonChartTemplate}"/>
+                        </Border>
+                        <Border Grid.Column="1" Style="{StaticResource DbCardStyle}" Margin="7,0,0,0">
+                            <StackPanel>
+                                <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="14" Width="120" HorizontalAlignment="Left" Margin="0,0,0,12"/>
+                                <Border Style="{StaticResource DbRowCardStyle}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Border Grid.Column="0" Style="{StaticResource DbSkeletonCircleStyle}" Margin="0,0,11,0"/><StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0"><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="140" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="180" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/></StackPanel><StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="56" HorizontalAlignment="Right"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="16" Width="48" Margin="0,6,0,0" HorizontalAlignment="Right" CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"/></StackPanel></Grid></Border>
+                                <Border Style="{StaticResource DbRowCardStyle}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Border Grid.Column="0" Style="{StaticResource DbSkeletonCircleStyle}" Margin="0,0,11,0"/><StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0"><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="140" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="180" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/></StackPanel><StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="56" HorizontalAlignment="Right"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="16" Width="48" Margin="0,6,0,0" HorizontalAlignment="Right" CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"/></StackPanel></Grid></Border>
+                                <Border Style="{StaticResource DbRowCardStyle}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Border Grid.Column="0" Style="{StaticResource DbSkeletonCircleStyle}" Margin="0,0,11,0"/><StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0"><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="140" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="180" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/></StackPanel><StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="56" HorizontalAlignment="Right"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="16" Width="48" Margin="0,6,0,0" HorizontalAlignment="Right" CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"/></StackPanel></Grid></Border>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                </StackPanel>
+
+                <Grid Grid.Row="2" Margin="0,0,0,14" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="1.2*"/>
@@ -498,7 +546,7 @@
 
                 <!-- ROW: revenue chart (wide) + recent invoices (widened
                      list column — 1.2* instead of 1*) -->
-                <Grid Grid.Row="3">
+                <Grid Grid.Row="3" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1.6*"/>
                         <ColumnDefinition Width="1.2*"/>
@@ -575,7 +623,7 @@
                 </Grid>
 
                 <!-- ROW: top customers + ageing brackets — even split -->
-                <Grid Grid.Row="4" Margin="0,20,0,0">
+                <Grid Grid.Row="4" Margin="0,20,0,0" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>

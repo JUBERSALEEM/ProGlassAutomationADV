@@ -23,7 +23,7 @@
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
 
-            <Grid Margin="{StaticResource DbPageMargin}">
+            <Grid Margin="{DynamicResource DbPageMargin}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -76,12 +76,23 @@
                     </StackPanel>
                 </Grid>
 
-                <Border Grid.Row="1" Style="{StaticResource DbStateBandStyle}"
+                                <Border Grid.Row="1" Style="{StaticResource DbStateBandStyle}"
                         Padding="16,12"
+                        Background="{DynamicResource TintBlueBrush}"
+                        BorderBrush="{DynamicResource InfoBrush}"
                         Visibility="{Binding IsLoading,
                             Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="{DynamicResource Dashboard.LoadingLiveBusinessData}"
-                               Style="{StaticResource DbKpiFootStyle}"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource DbSkeletonCircleStyle}" Width="20" Height="20" Margin="0,0,12,0"/>
+                        <StackPanel Grid.Column="1">
+                            <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="180" HorizontalAlignment="Left"/>
+                            <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="8" Width="260" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/>
+                        </StackPanel>
+                    </Grid>
                 </Border>
                 <Border Grid.Row="1" Style="{StaticResource DbStateBandStyle}"
                         Padding="16,12"
@@ -95,7 +106,55 @@
                 </Border>
 
 
-                <!-- ═════════════════════════════════════════════════════
+                
+                <!-- ── SKELETON (visible when loading) ─────────────── -->
+                <StackPanel Grid.Row="2" Grid.RowSpan="4"
+                            Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Border Style="{StaticResource DbSkeletonBandStyle}">
+                        <StackPanel>
+                            <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="14" Width="160" HorizontalAlignment="Left" Margin="0,0,0,12"/>
+                            <ItemsControl Style="{StaticResource DbPipelineItemsStyle}" ItemsPanel="{StaticResource DbPipelinePanel}">
+                                <ContentControl ContentTemplate="{StaticResource DbSkeletonPipelineStageTemplate}"/>
+                                <ContentControl ContentTemplate="{StaticResource DbSkeletonPipelineStageTemplate}"/>
+                                <ContentControl ContentTemplate="{StaticResource DbSkeletonPipelineStageTemplate}"/>
+                                <ContentControl ContentTemplate="{StaticResource DbSkeletonPipelineStageTemplate}"/>
+                                <ContentControl ContentTemplate="{StaticResource DbSkeletonPipelineStageTemplate}"/>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                    <Grid Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="1.2*"/>
+                            <ColumnDefinition Width="0.9*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource DbCardStyle}" Margin="0,0,18,0"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="14" Width="100" HorizontalAlignment="Left" Margin="0,0,0,12"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="28" Width="120" HorizontalAlignment="Left" Margin="0,0,0,8"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="160" HorizontalAlignment="Left" Opacity="0.5"/></StackPanel></Border>
+                        <Border Grid.Column="1" Style="{StaticResource DbCardStyle}" Margin="0,0,18,0"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="14" Width="100" HorizontalAlignment="Left" Margin="0,0,0,12"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="28" Width="80" HorizontalAlignment="Left" Margin="0,0,0,8"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="120" HorizontalAlignment="Left" Opacity="0.5"/></StackPanel></Border>
+                        <StackPanel Grid.Column="2"><Border Style="{StaticResource DbCardStyle}" Margin="0,0,0,18" Padding="16,12"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="60" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="18" Width="48" Margin="0,8,0,0" HorizontalAlignment="Left"/></StackPanel></Border><Border Style="{StaticResource DbCardStyle}" Margin="0,0,0,18" Padding="16,12"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="60" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="18" Width="48" Margin="0,8,0,0" HorizontalAlignment="Left"/></StackPanel></Border><Border Style="{StaticResource DbCardStyle}" Padding="16,12"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="60" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="18" Width="48" Margin="0,8,0,0" HorizontalAlignment="Left"/></StackPanel></Border></StackPanel>
+                    </Grid>
+                    <Grid Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.8*"/>
+                            <ColumnDefinition Width="1.2*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource DbCardStyle}" Margin="0,0,18,0"><ContentControl ContentTemplate="{StaticResource DbSkeletonChartTemplate}"/></Border>
+                        <Border Grid.Column="1" Style="{StaticResource DbCardStyle}"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="14" Width="120" HorizontalAlignment="Left" Margin="0,0,0,12"/><Border Style="{StaticResource DbRowCardStyle}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Border Grid.Column="0" Style="{StaticResource DbSkeletonCircleStyle}" Margin="0,0,11,0"/><StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0"><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="140" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="180" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/></StackPanel></Grid></Border></StackPanel></Border>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource DbCardStyle}" Margin="0,0,18,0"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="80" HorizontalAlignment="Left" Margin="0,0,0,8"/><Border Style="{StaticResource DbTileStyle}"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="72" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="22" Width="88" Margin="0,14,0,0" HorizontalAlignment="Left"/></StackPanel></Border></StackPanel></Border>
+                        <Border Grid.Column="1" Style="{StaticResource DbCardStyle}"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="80" HorizontalAlignment="Left" Margin="0,0,0,8"/><Border Style="{StaticResource DbTileStyle}"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="72" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="22" Width="88" Margin="0,14,0,0" HorizontalAlignment="Left"/></StackPanel></Border></StackPanel></Border>
+                        <Border Grid.Column="2" Style="{StaticResource DbCardStyle}" Margin="18,0,0,0"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="80" HorizontalAlignment="Left" Margin="0,0,0,8"/><Border Style="{StaticResource DbTileStyle}"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="72" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="22" Width="88" Margin="0,14,0,0" HorizontalAlignment="Left"/></StackPanel></Border></StackPanel></Border>
+                        <Border Grid.Column="3" Style="{StaticResource DbCardStyle}" Margin="18,0,0,0"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="80" HorizontalAlignment="Left" Margin="0,0,0,8"/><Border Style="{StaticResource DbTileStyle}"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="72" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="22" Width="88" Margin="0,14,0,0" HorizontalAlignment="Left"/></StackPanel></Border></StackPanel></Border>
+                    </Grid>
+                </StackPanel>
+
+<!-- ═════════════════════════════════════════════════════
                      ROW 2 · ORDER-TO-CASH PIPELINE
 
                      Quote → Production → Delivery → Invoice → Payment.
@@ -112,7 +171,7 @@
                      book of work, so it belongs where the whole book is
                      summarised, not repeated on seven tabs.
                 ═════════════════════════════════════════════════════ -->
-                <Border Grid.Row="2" Style="{StaticResource DbCardStyle}" Margin="0,0,0,14">
+                <Border Grid.Row="2" Style="{StaticResource DbCardStyle}" Margin="0,0,0,14" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <DockPanel>
                         <TextBlock DockPanel.Dock="Top"
                                    Text="{DynamicResource Dashboard.PipelineVolumeConfirmation}"
@@ -126,7 +185,7 @@
                 </Border>
 
                 <!-- ROW: pulse | mix | in-prod / overdue / pending -->
-                <Grid Grid.Row="3" Margin="0,0,0,14">
+                <Grid Grid.Row="3" Margin="0,0,0,14" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="1.2*"/>
@@ -219,7 +278,7 @@
 
                 <!-- ROW: trend + activity (2026-08-25 rev 2: activity
                      column widened 1* -> 1.2* so feed rows breathe) -->
-                <Grid Grid.Row="4" Margin="0,0,0,14">
+                <Grid Grid.Row="4" Margin="0,0,0,14" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1.8*"/>
                         <ColumnDefinition Width="1.2*"/>
@@ -278,7 +337,7 @@
                 </Grid>
 
                 <!-- ROW: sales / production / inventory strips -->
-                <Grid Grid.Row="5">
+                <Grid Grid.Row="5" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <!-- 4 columns since 2026-09-02: the view model computes
                          SalesTiles, ProductionTiles, InventoryTiles AND
                          DeliveryTiles, but only three were ever rendered, so
