@@ -63,7 +63,7 @@
                 Height="36"
                 Padding="14,0,8,0"
                 VerticalAlignment="Center"
-                Background="{DynamicResource SurfaceSecondaryBrush}"
+                Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 SnapsToDevicePixels="True">
             <Border.Style>

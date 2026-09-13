@@ -229,21 +229,28 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!-- Skin behind chrome + modules. Blur lives here only so logo,
+             search, and nav type stay ClearType-sharp. -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="{DynamicResource ModuleWallpaperBrush}"
+                Effect="{DynamicResource ModuleSkinBlurEffect}"
+                IsHitTestVisible="False"/>
+
         <!-- ═══════════════════════════════════════════════════════════
-             TOP PANEL — single dark bar of rounded 14px pills:
-             hamburger · logo · search · theme · AI agent · date/time ·
-             connectivity · notifications · settings · screenshot ·
-             record · user card.
+             TOP PANEL — frost plate over the blurred skin. Children
+             (logo, search, icons) have no BlurEffect.
         ═══════════════════════════════════════════════════════════════ -->
         <Border Grid.Row="0"
                 Height="48"
-                Background="{DynamicResource GlassSurfaceElevated}"
+                Background="Transparent"
                 BorderBrush="{DynamicResource GlassBorderGradientSoft}"
                 BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                 Panel.ZIndex="50"
+                ClipToBounds="True"
                 SnapsToDevicePixels="True">
-            <!-- Top bar glass composition: specular highlight at top edge -->
             <Grid>
+                <Border Background="{DynamicResource Surface.Primary.BackgroundBrush}"
+                        IsHitTestVisible="False"/>
                 <Border Height="1" VerticalAlignment="Top"
                         Background="{DynamicResource GlassSpecularHighlight}"
                         Opacity="0.5" IsHitTestVisible="False"/>
@@ -582,10 +589,8 @@
                     ClipToBounds="True"
                     SnapsToDevicePixels="True">
                 <Grid>
-                    <Border CornerRadius="{DynamicResource CardCornerRadius}"
-                            Background="{DynamicResource ModuleWallpaperBrush}"
-                            Effect="{DynamicResource ModuleSkinBlurEffect}"
-                            IsHitTestVisible="False"/>
+                    <!-- Wallpaper + blur is the window-root layer so the
+                         top bar and sidebar sit on the same frost. -->
                     <!-- Phase 4: Smooth fade-in transition on module navigation.
                          ContentTransitionBehavior fades the new view in with a
                          subtle upward drift (150ms, QuinticEase), giving
@@ -646,6 +651,10 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
+
+                    <Border Grid.RowSpan="2"
+                            Background="{DynamicResource Surface.Primary.BackgroundBrush}"
+                            IsHitTestVisible="False"/>
 
                     <!-- Top sheen (clipped by the drawer radius) -->
                     <Border Grid.RowSpan="2" Height="1" VerticalAlignment="Top"

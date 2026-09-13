@@ -100,7 +100,7 @@
         <Style x:Key="TopIconButton" TargetType="Button">
             <Setter Property="Width" Value="36"/>
             <Setter Property="Height" Value="36"/>
-            <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
