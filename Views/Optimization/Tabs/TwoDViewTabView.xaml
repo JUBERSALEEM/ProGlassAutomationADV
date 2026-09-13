@@ -126,7 +126,7 @@
                             <Grid Grid.Row="1">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
                                             Visibility="{Binding HasPreview, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                    <TextBlock Text="&#xE80A;" FontFamily="Segoe MDL2 Assets" FontSize="44"
+                                    <TextBlock Text="&#xE80A;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}"
                                                HorizontalAlignment="Center" Foreground="{DynamicResource TextTertiaryBrush}" Opacity="0.6"/>
                                     <TextBlock Text="No layout to preview yet" FontSize="{StaticResource TextSubhead}" FontWeight="SemiBold"
                                                HorizontalAlignment="Center" Margin="0,12,0,4" Foreground="{DynamicResource TextPrimaryBrush}"/>

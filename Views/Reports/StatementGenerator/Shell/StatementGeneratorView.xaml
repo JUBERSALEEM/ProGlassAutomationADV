@@ -495,7 +495,7 @@
              ROW 1 — STEP CONTENT
         ═══════════════════════════════════════════════════════════ -->
         <Grid Grid.Row="1"
-              Background="{DynamicResource WindowBackgroundBrush}"
+              Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
               UseLayoutRounding="True"
               SnapsToDevicePixels="True">
 

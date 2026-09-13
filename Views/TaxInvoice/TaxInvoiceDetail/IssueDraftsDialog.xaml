@@ -12,7 +12,8 @@
         Title="{DynamicResource TaxInvoice.IssueTaxInvoices}"
         Width="560"
         DialogIcon="&#xE8FB;"
-        DialogSubtitle="{DynamicResource TaxInvoice.FlipDraftWantIssueIssuedInvoicesStayList}">
+        DialogSubtitle="{DynamicResource TaxInvoice.FlipDraftWantIssueIssuedInvoicesStayList}"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <StackPanel>
         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">

@@ -18,7 +18,8 @@
              MinWidth="640" MinHeight="440"
              ResizeMode="CanResize"
              DialogIcon="&#xE7B8;"
-             DialogSubtitle="{DynamicResource JobOrder.ApprovedProformaInvoicesGoProduction}">
+             DialogSubtitle="{DynamicResource JobOrder.ApprovedProformaInvoicesGoProduction}"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <Grid>
         <Grid.RowDefinitions>

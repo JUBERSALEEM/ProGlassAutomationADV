@@ -22,7 +22,8 @@
         ShowInTaskbar="True"
         DialogIcon="&#xE783;"
         DialogIconBrush="{DynamicResource DangerBrush}"
-        DialogSubtitle="{DynamicResource CrashReports.ProglassAutomationRecoveredUnexpectedError}">
+        DialogSubtitle="{DynamicResource CrashReports.ProglassAutomationRecoveredUnexpectedError}"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <Window.Resources>
         <ResourceDictionary>

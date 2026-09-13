@@ -271,7 +271,7 @@
                         VerticalAlignment="Center">
                     <TextBlock Text="{Binding Icon}"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="11"
+                               FontSize="{StaticResource TextCaption}"
                                Style="{StaticResource GlyphStyle}"/>
                 </Border>
                 <StackPanel Margin="8,0,0,0" VerticalAlignment="Center">
@@ -281,7 +281,7 @@
                                Foreground="{DynamicResource LiquidSnow}"
                                IsHitTestVisible="False"/>
                     <TextBlock Text="{Binding Label}"
-                               FontSize="9"
+                               FontSize="{StaticResource TextXSmall}"
                                FontWeight="SemiBold"
                                Foreground="{DynamicResource AboutGlassCaptionBrush}"
                                IsHitTestVisible="False"/>
@@ -429,7 +429,7 @@
                         Visibility="{DynamicResource AboutGlassChromeVisibility}"
                         SnapsToDevicePixels="True">
                     <TextBlock Text="{Binding StatChip}"
-                               FontSize="9"
+                               FontSize="{StaticResource TextXSmall}"
                                FontWeight="Bold"
                                Foreground="{DynamicResource LiquidAccent}"
                                IsHitTestVisible="False"/>

@@ -52,7 +52,7 @@
     </UserControl.Resources>
 
     <Grid Margin="{DynamicResource DensityPageMargin}"
-          Background="{DynamicResource SurfacePrimaryBrush}">
+          Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>

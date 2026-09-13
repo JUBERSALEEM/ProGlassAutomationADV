@@ -22,7 +22,8 @@
         Width="560" Height="540"
         MinWidth="460" MinHeight="340"
         ResizeMode="CanResize"
-        DialogIcon="&#xE81C;">
+        DialogIcon="&#xE81C;"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <Grid>
         <!-- Collapsed by default: code-behind decides. Without this the

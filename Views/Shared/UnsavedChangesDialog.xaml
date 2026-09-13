@@ -17,7 +17,8 @@
         Title="{DynamicResource Inquiry.UnsavedChanges}"
         Width="520"
         DialogIcon="&#xE7BA;"
-        DialogIconBrush="{DynamicResource WarningBrush}">
+        DialogIconBrush="{DynamicResource WarningBrush}"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <StackPanel>
         <TextBlock x:Name="MessageText"

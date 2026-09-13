@@ -216,7 +216,7 @@
 
                                         <!-- PI grand totals -->
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Border Background="{DynamicResource WindowBackgroundBrush}"
+                                            <Border Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                                                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                     BorderThickness="{DynamicResource CardBorderThickness}"
                                                     CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -226,7 +226,7 @@
                                                     <TextBlock Text="{Binding TotalQtyDisplay}" Style="{StaticResource Td}" FontWeight="Bold"/>
                                                 </StackPanel>
                                             </Border>
-                                            <Border Background="{DynamicResource WindowBackgroundBrush}"
+                                            <Border Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                                                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                     BorderThickness="{DynamicResource CardBorderThickness}"
                                                     CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -273,7 +273,7 @@
                                                     </StackPanel>
 
                                                     <!-- ── Column header ── -->
-                                                    <Border Background="{DynamicResource WindowBackgroundBrush}"
+                                                    <Border Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                                                             BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                             BorderThickness="{DynamicResource CardBorderThickness}"
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"

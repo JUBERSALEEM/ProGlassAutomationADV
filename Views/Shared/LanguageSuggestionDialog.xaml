@@ -20,7 +20,8 @@
         Title="Language"
         Width="480"
         DialogIcon="&#xE774;"
-        ShowCloseButton="False">
+        ShowCloseButton="False"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <StackPanel>
         <TextBlock Text="Choose your language"

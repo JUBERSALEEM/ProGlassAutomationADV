@@ -19,7 +19,8 @@
              MinWidth="760" MinHeight="480"
              ResizeMode="CanResize"
              DialogIcon="&#xE81C;"
-             DialogSubtitle="{DynamicResource SheetStore.ChangeSheetStoreRecordedHere}">
+             DialogSubtitle="{DynamicResource SheetStore.ChangeSheetStoreRecordedHere}"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <!-- Standard dialog: Esc → Close -->
     <Window.InputBindings>
@@ -43,7 +44,7 @@
 
         <!-- Log entry row style with hover -->
         <Style x:Key="LogEntryStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
             <Setter Property="BorderThickness" Value="1.5"/>
             <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
@@ -201,7 +202,7 @@
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                             IsHitTestVisible="False"
                             Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="60" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
                     <TextBlock Text="{DynamicResource SheetStore.NoHistoryYet}" FontSize="{StaticResource TextTitle}" FontWeight="SemiBold"
                                Margin="0,16,0,4" HorizontalAlignment="Center"
                                Foreground="{DynamicResource TextPrimaryBrush}"/>

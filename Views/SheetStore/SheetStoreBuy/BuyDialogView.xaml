@@ -17,7 +17,8 @@
         Title="{DynamicResource SheetStore.BUYStock}"
         Width="480"
         DialogIcon="&#xE7B8;"
-        DialogSubtitle="{DynamicResource SheetStore.AddMoreSheetsInventory}">
+        DialogSubtitle="{DynamicResource SheetStore.AddMoreSheetsInventory}"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <!-- Standard dialog: Esc → Cancel · Enter → Confirm -->
     <!-- 2026-09 dialog audit: chrome (card/header/footer) comes from

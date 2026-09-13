@@ -13,7 +13,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:loc="clr-namespace:ProGlassAutomation.Services.Localization"
              mc:Ignorable="d"
-             d:DesignHeight="36" d:DesignWidth="320">
+             d:DesignHeight="36" d:DesignWidth="320"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <Grid>
         <Grid.ColumnDefinitions>

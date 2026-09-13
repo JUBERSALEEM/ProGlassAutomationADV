@@ -22,7 +22,8 @@
         Width="540"
         DialogIcon="&#xE7BA;"
         DialogIconBrush="{DynamicResource DangerBrush}"
-        DialogSubtitle="{Binding DocumentLabel}">
+        DialogSubtitle="{Binding DocumentLabel}"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <!-- Reason input -->
     <Grid>
@@ -37,7 +38,7 @@
                    Style="{StaticResource DialogFieldLabelStyle}"/>
 
         <Border Grid.Row="1"
-                Background="{DynamicResource WindowBackgroundBrush}"
+                Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 CornerRadius="{DynamicResource ControlCornerRadius}">

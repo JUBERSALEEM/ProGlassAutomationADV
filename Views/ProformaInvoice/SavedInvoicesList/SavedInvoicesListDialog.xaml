@@ -17,7 +17,7 @@
         MinWidth="1000"
         WindowStartupLocation="CenterOwner"
         FontFamily="{DynamicResource AppFontFamily}"
-        Background="{DynamicResource WindowBackgroundBrush}">
+        Background="{DynamicResource Surface.Secondary.BackgroundBrush}">
 
     <Grid>
         <Grid.RowDefinitions>

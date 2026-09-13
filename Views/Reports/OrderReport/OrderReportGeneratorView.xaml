@@ -498,7 +498,7 @@
         <!-- ═══════════════════════════════════════════════════════════
              ROW 1 — STEP CONTENT
         ═══════════════════════════════════════════════════════════ -->
-        <Grid Grid.Row="1" Background="{DynamicResource WindowBackgroundBrush}"
+        <Grid Grid.Row="1" Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
               UseLayoutRounding="True" SnapsToDevicePixels="True">
 
             <filter:FilterStep>

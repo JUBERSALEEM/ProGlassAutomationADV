@@ -34,7 +34,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             d:DesignHeight="760" d:DesignWidth="1100">
+             d:DesignHeight="760" d:DesignWidth="1100"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <UserControl.Resources>
         <!-- Card: matches the TgtCardStyle used across Step 9. -->
@@ -126,7 +127,7 @@
         <Style x:Key="SheetExportButton" TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
             <Setter Property="Padding" Value="12,5"/>
             <Setter Property="Margin" Value="4,0,0,0"/>
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         </Style>
     </UserControl.Resources>
 

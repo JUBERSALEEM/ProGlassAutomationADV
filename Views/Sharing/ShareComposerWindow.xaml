@@ -7,7 +7,8 @@
         MinWidth="600" MinHeight="440"
         ResizeMode="CanResize"
         DialogIcon="&#xE72D;"
-        DialogSubtitle="{Binding DocumentTitle, Mode=OneWay}">
+        DialogSubtitle="{Binding DocumentTitle, Mode=OneWay}"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>

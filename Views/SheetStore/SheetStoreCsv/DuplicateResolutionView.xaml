@@ -19,7 +19,8 @@
              ResizeMode="CanResize"
              DialogIcon="&#xE7BA;"
              DialogIconBrush="{DynamicResource WarningBrush}"
-             DialogSubtitle="{DynamicResource SheetStore.SheetAlreadyExistsChooseHowHandle}">
+             DialogSubtitle="{DynamicResource SheetStore.SheetAlreadyExistsChooseHowHandle}"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <!-- Standard dialog: Esc → Cancel Import (destructive escape) -->
     <Window.InputBindings>

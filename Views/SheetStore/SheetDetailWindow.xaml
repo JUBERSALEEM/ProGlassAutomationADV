@@ -427,7 +427,7 @@
         <!-- ═══ BODY ═════════════════════════════════════════════════ -->
         <!-- PiWorkDeckStyle is Padding 8,4 — too tight for field cards. -->
         <Border Grid.Row="2"
-                Background="{DynamicResource WindowBackgroundBrush}"
+                Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                 Padding="24,20">
         <Grid>
 

@@ -17,7 +17,8 @@
              Title="{DynamicResource SheetStore.USEStock}"
              Width="520"
              DialogIcon="&#xE713;"
-             DialogSubtitle="{DynamicResource SheetStore.ConsumeSheetsInventoryProduction}">
+             DialogSubtitle="{DynamicResource SheetStore.ConsumeSheetsInventoryProduction}"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <!-- 2026-09 dialog audit: chrome (card/header/footer) comes from
          ThemedDialogWindow; this file keeps only the form body. -->

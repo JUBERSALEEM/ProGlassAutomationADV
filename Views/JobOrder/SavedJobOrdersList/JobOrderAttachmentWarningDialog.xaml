@@ -27,7 +27,8 @@
         Width="560"
         DialogIcon="&#xE7BA;"
         DialogIconBrush="{DynamicResource WarningBrush}"
-        DialogSubtitle="{DynamicResource JobOrder.SourceProformaInvoiceStillStep8Attachments}">
+        DialogSubtitle="{DynamicResource JobOrder.SourceProformaInvoiceStillStep8Attachments}"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <TextBlock x:Name="MessageText"
                FontSize="{StaticResource TextBodyLarge}"

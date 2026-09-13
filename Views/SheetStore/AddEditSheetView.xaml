@@ -23,7 +23,7 @@
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResizeWithGrip"
         FontFamily="{DynamicResource AppFontFamily}"
-        Background="{DynamicResource WindowBackgroundBrush}"
+        Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="ClearType"
         UseLayoutRounding="True"

@@ -6,7 +6,8 @@
         Title="{Binding DialogTitle}"
         Width="480"
         DialogIcon="&#xE7B8;"
-        DialogSubtitle="{Binding AvailableLabel}">
+        DialogSubtitle="{Binding AvailableLabel}"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <Window.Resources>
         <Style x:Key="FieldLabelStyle" TargetType="TextBlock">

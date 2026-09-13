@@ -9,7 +9,8 @@
     ResizeMode="CanResize"
     DialogIcon="&#xE7BA;"
     DialogIconBrush="{DynamicResource WarningBrush}"
-    DialogSubtitle="{DynamicResource Reports.SomeDeliveredItemsNoMatchingTaxInvoice}">
+    DialogSubtitle="{DynamicResource Reports.SomeDeliveredItemsNoMatchingTaxInvoice}"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <StackPanel>
 

@@ -19,7 +19,8 @@
         Title="{DynamicResource ProformaInvoice.ConfirmInvoiceApproval}"
         Width="560"
         DialogIcon="&#xE73E;"
-        DialogSubtitle="{DynamicResource ProformaInvoice.HowInvoiceConfirmedCustomer}">
+        DialogSubtitle="{DynamicResource ProformaInvoice.HowInvoiceConfirmedCustomer}"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <Window.Resources>
 
@@ -37,7 +38,7 @@
                     <ControlTemplate TargetType="TextBox">
                         <Border x:Name="Chrome"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Background="{DynamicResource WindowBackgroundBrush}"
+                                Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                 SnapsToDevicePixels="True">
@@ -76,7 +77,7 @@
                                 <Ellipse x:Name="Ring"
                                          Stroke="{DynamicResource BorderDefaultBrush}"
                                          StrokeThickness="1.5"
-                                         Fill="{DynamicResource WindowBackgroundBrush}"/>
+                                         Fill="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
                                 <Ellipse x:Name="Dot"
                                          Width="8" Height="8"
                                          Fill="{DynamicResource AccentBrush}"

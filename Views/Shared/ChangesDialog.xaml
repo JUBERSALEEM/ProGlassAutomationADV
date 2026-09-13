@@ -22,7 +22,8 @@
         Width="640" Height="520"
         MinWidth="480" MinHeight="320"
         ResizeMode="CanResize"
-        DialogIcon="&#xE8FD;">
+        DialogIcon="&#xE8FD;"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <!-- One scroll surface for the whole body; the chrome clamps the
          window to the work area and this list scrolls inside it. -->

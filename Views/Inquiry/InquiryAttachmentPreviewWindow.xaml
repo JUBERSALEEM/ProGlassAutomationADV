@@ -57,7 +57,7 @@
         </Border>
 
         <!-- Surfaces -->
-        <Grid Grid.Row="1" Background="{DynamicResource SurfacePrimaryBrush}">
+        <Grid Grid.Row="1" Background="Transparent">
             <Image x:Name="ImagePreview" Stretch="Uniform" Margin="16" Visibility="Collapsed"/>
             <WebBrowser x:Name="PdfPreview" Margin="8" Visibility="Collapsed"/>
 

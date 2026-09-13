@@ -18,7 +18,8 @@
         xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
         Title="{DynamicResource DeliveryNote.SaveAttachment}"
         Width="560"
-        DialogIcon="&#xE8E5;">
+        DialogIcon="&#xE8E5;"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <Window.Resources>
         <!-- ── FILENAME TEXTBOX — rounded, indigo focus glow ───────────── -->

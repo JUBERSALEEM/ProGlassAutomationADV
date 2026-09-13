@@ -7,7 +7,8 @@
         MinWidth="680" MinHeight="480"
         ResizeMode="CanResize"
         DialogIcon="&#xE9D9;"
-        DialogSubtitle="Who changed what, when, why, from where — and the exact field values before and after.">
+        DialogSubtitle="Who changed what, when, why, from where — and the exact field values before and after."
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <!--
       ═══════════════════════════════════════════════════════════════════

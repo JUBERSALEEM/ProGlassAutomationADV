@@ -9,6 +9,7 @@ This folder is the **full UI/UX roadmap**. It does **not** add shop-floor MES ga
 | `03-MODULE-INVENTORY.md` | Every module surface that must use the shared skin. |
 | `04-BUTTONS-TYPE-COLOR.md` | Global pills, fonts, semantic colours. No per-module clones. |
 | `05-PHASES.md` | Ordered work. Landed vs next. Honest stop conditions. |
+| `06-FULL-XAML-CENSUS.md` | Every XAML on disk (264). |
 
 **Engine (authoritative):** `Themes/ProGlassDesignSystem/`, `Themes/Styles/DesignTokens.xaml` (`SurfacePrimaryStyle` / Secondary / Detail), `ThemeManager.ApplySemanticSurfaces`, Appearance in Settings.
 

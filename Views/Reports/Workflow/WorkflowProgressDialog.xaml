@@ -10,7 +10,8 @@
     ResizeMode="CanResize"
     DialogIcon="&#xE713;"
     DialogSubtitle="{Binding StatementNumber}"
-    Loaded="OnLoaded">
+    Loaded="OnLoaded"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <StackPanel>
 

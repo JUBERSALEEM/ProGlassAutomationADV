@@ -394,7 +394,7 @@
                                     <ItemsControl ItemsSource="{Binding DeliveryNotes}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Margin="0,0,0,8" Background="{DynamicResource WindowBackgroundBrush}"
+                                                <Border Margin="0,0,0,8" Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                                                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                         BorderThickness="{DynamicResource CardBorderThickness}"
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -464,7 +464,7 @@
                                     <ItemsControl ItemsSource="{Binding TaxInvoices}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Margin="0,0,0,8" Background="{DynamicResource WindowBackgroundBrush}"
+                                                <Border Margin="0,0,0,8" Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                                                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                         BorderThickness="{DynamicResource CardBorderThickness}"
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -518,7 +518,7 @@
 
                                     <!-- ── RECONCILIATION ── -->
                                     <TextBlock Text="Reconciliation" Style="{StaticResource SectionTitle}"/>
-                                    <Border Background="{DynamicResource WindowBackgroundBrush}"
+                                    <Border Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                                             BorderBrush="{DynamicResource BorderDefaultBrush}"
                                             BorderThickness="{DynamicResource CardBorderThickness}"
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -562,7 +562,7 @@
 
                                     <!-- ── ATTACHMENT COMPLETENESS ── -->
                                     <TextBlock Text="Attachment Completeness" Style="{StaticResource SectionTitle}"/>
-                                    <Border Background="{DynamicResource WindowBackgroundBrush}"
+                                    <Border Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                                             BorderBrush="{DynamicResource BorderDefaultBrush}"
                                             BorderThickness="{DynamicResource CardBorderThickness}"
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
