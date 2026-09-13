@@ -33,65 +33,100 @@
         <KeyBinding Key="Escape" Command="{Binding CloseCommand}"/>
     </Window.InputBindings>
 
-    <Window.Resources>
+        <Window.Resources>
         <!-- Migrated StatLabel to global Typography.Label -->
-    
-
-        <!-- KPI cells: PiKpiCellStyle is 12,4 and collapses captions on this page. -->
-        
-
-        <!-- Movement row — Step 5 GridRowStyle treatment: no chrome of its
-             own, a single hairline separator, hover tint from the theme. -->
-        <Style x:Key="MovementRowStyle" TargetType="ListViewItem">
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Margin" Value="0"/>
-            <Setter Property="MinHeight" Value="48"/>
-            <Setter Property="Focusable" Value="False"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ListViewItem">
-                        <Border x:Name="RowBorder"
-                                BorderThickness="0,0,0,1"
-                                BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                Padding="0,7"
-                                Background="Transparent"
-                                HorizontalAlignment="Stretch">
-                            <ContentPresenter HorizontalAlignment="Stretch"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="RowBorder" Property="Background"
-                                        Value="{DynamicResource SurfaceTertiaryBrush}"/>
-                            </Trigger>
-                            <!-- A reversal is a correction, not a failure —
-                                 tinted so a corrected row is findable without
-                                 reading every Details cell. -->
-                            <DataTrigger Binding="{Binding Action}" Value="Reversed">
-                                <Setter TargetName="RowBorder" Property="Background"
-                                        Value="{DynamicResource TintAmberBrush}"/>
-                            </DataTrigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Individual rounded spec card -->
         <!-- Migrated SpecCard to global SurfacePrimaryStyle -->
-    <!-- Migrated SpecCard to global SurfacePrimaryStyle -->
-    
+    </Window.Resources>
+
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>   <!-- station header -->
+            <RowDefinition Height="Auto"/>   <!-- tab rail -->
+            <RowDefinition Height="*"/>      <!-- work deck -->
+        </Grid.RowDefinitions>
+
+        <!-- ═══ STATION HEADER ═══════════════════════════════════════
+             Edge-to-edge Pi chrome. The old 28px padded title block
+             left the workspace looking like a dialog dropped on a
+             maximized window, not a plant-floor station.
+        ═════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="0" Style="{StaticResource PiStationHeaderBarStyle}"
+                Padding="20,14" MinHeight="64">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding HeaderTitle}"
+                               Style="{StaticResource PiStationTitleStyle}"/>
+                    <TextBlock Text="{Binding HeaderSubtitle}"
+                               Style="{StaticResource PiStationHintStyle}"
+                               Margin="0,2,0,0"/>
+                </StackPanel>
+
+                <Button Grid.Column="1"
+                        Style="{StaticResource OutlinedPillButton}"
+                        Tag="&#xE711;" Content="{DynamicResource Action.Close}" MinWidth="110"
+                        VerticalAlignment="Center"
+                        Command="{Binding CloseCommand}"/>
+            </Grid>
+        </Border>
+
+        <!-- ═══ TAB RAIL ═════════════════════════════════════════════
+             Same STEP D pair as Job Order / Delivery Note:
+             OutlinedPillButton when idle, PrimaryPillButton when
+             active. TabPillButton cannot be used here — it inherits
+             DensityButtonHeight=32 AND Padding 18,9, so the glass
+             template clips the label and the active fill never shows.
+        ═════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="1"
+                Background="{DynamicResource SurfacePrimaryBrush}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="20,10"
+                MinHeight="64"
+                SnapsToDevicePixels="True">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+
+                <!-- OVERVIEW — hidden on a brand-new sheet -->
+                <Button Command="{Binding SelectTabCommand}" CommandParameter="Overview"
+                        Tag="&#xE8A5;" Content="OVERVIEW" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsOverview}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsExisting}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Command="{Binding SelectTabCommand}" CommandParameter="Overview"
+                        Tag="&#xE8A5;" Content="OVERVIEW" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsOverview}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsExisting}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
                     </Button.Style>
                 </Button>
 
                 <!-- BUY -->
                 <Button Command="{Binding SelectTabCommand}" CommandParameter="Buy"
-                        Tag="&#xE7B8;" Content="BUY" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                        Tag="&#xE7B8;" Content="BUY" Margin="0,0,10,0">
+                    <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsBuy}" Value="True">
@@ -105,8 +140,8 @@
                     </Button.Style>
                 </Button>
                 <Button Command="{Binding SelectTabCommand}" CommandParameter="Buy"
-                        Tag="&#xE7B8;" Content="BUY" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                        Tag="&#xE7B8;" Content="BUY" Margin="0,0,10,0">
+                    <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsBuy}" Value="False">
@@ -122,8 +157,8 @@
 
                 <!-- USE -->
                 <Button Command="{Binding SelectTabCommand}" CommandParameter="Use"
-                        Tag="&#xE896;" Content="USE" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                        Tag="&#xE896;" Content="USE" Margin="0,0,10,0">
+                    <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsUse}" Value="True">
@@ -137,8 +172,8 @@
                     </Button.Style>
                 </Button>
                 <Button Command="{Binding SelectTabCommand}" CommandParameter="Use"
-                        Tag="&#xE896;" Content="USE" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                        Tag="&#xE896;" Content="USE" Margin="0,0,10,0">
+                    <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsUse}" Value="False">
@@ -154,8 +189,8 @@
 
                 <!-- EDIT — always present (new sheets land here) -->
                 <Button Command="{Binding SelectTabCommand}" CommandParameter="Edit"
-                        Tag="&#xE70F;" Content="EDIT" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                        Tag="&#xE70F;" Content="EDIT" Margin="0,0,10,0">
+                    <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsEdit}" Value="True">
@@ -166,8 +201,8 @@
                     </Button.Style>
                 </Button>
                 <Button Command="{Binding SelectTabCommand}" CommandParameter="Edit"
-                        Tag="&#xE70F;" Content="EDIT" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                        Tag="&#xE70F;" Content="EDIT" Margin="0,0,10,0">
+                    <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsEdit}" Value="False">
@@ -180,8 +215,8 @@
 
                 <!-- MOVEMENTS -->
                 <Button Command="{Binding SelectTabCommand}" CommandParameter="Movements"
-                        Tag="&#xE81C;" Content="MOVEMENTS" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                        Tag="&#xE81C;" Content="MOVEMENTS" Margin="0,0,10,0">
+                    <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsMovements}" Value="True">
@@ -195,8 +230,8 @@
                     </Button.Style>
                 </Button>
                 <Button Command="{Binding SelectTabCommand}" CommandParameter="Movements"
-                        Tag="&#xE81C;" Content="MOVEMENTS" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                        Tag="&#xE81C;" Content="MOVEMENTS" Margin="0,0,10,0">
+                    <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsMovements}" Value="False">
@@ -212,8 +247,8 @@
 
                 <!-- ANALYSIS -->
                 <Button Command="{Binding SelectTabCommand}" CommandParameter="Analysis"
-                        Tag="&#xE9F9;" Content="ANALYSIS" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                        Tag="&#xE9F9;" Content="ANALYSIS" Margin="0,0,10,0">
+                    <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsAnalysis}" Value="True">
@@ -227,8 +262,8 @@
                     </Button.Style>
                 </Button>
                 <Button Command="{Binding SelectTabCommand}" CommandParameter="Analysis"
-                        Tag="&#xE9F9;" Content="ANALYSIS" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                        Tag="&#xE9F9;" Content="ANALYSIS" Margin="0,0,10,0">
+                    <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsAnalysis}" Value="False">
@@ -272,27 +307,27 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Style="{StaticResource SurfaceKpiStyle}">
+                        <Border Grid.Column="0" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="STOCK" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding Sheet.Stock}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="1" Style="{StaticResource SurfaceKpiStyle}">
+                        <Border Grid.Column="1" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="USED" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding Sheet.Used}" Style="{StaticResource PiKpiValueStyle}"
                                            Foreground="{DynamicResource DangerBrush}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="2" Style="{StaticResource SurfaceKpiStyle}">
+                        <Border Grid.Column="2" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="BALANCE" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding Sheet.Balance}" Style="{StaticResource PiKpiValueStyle}"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="3" Style="{StaticResource SurfaceKpiStyle}" Margin="0">
+                        <Border Grid.Column="3" Style="{StaticResource InventoryKpiCell}" Margin="0">
                             <StackPanel>
                                 <TextBlock Text="SQM AVAILABLE" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding Sheet.TotalSqmBalance, StringFormat={}{0:N2}}"
@@ -301,7 +336,7 @@
                         </Border>
                     </Grid>
 
-                    <TextBlock Text="SPECIFICATION" Style="{StaticResource Typography.Label}"
+                    <TextBlock Text="SPECIFICATION" Style="{StaticResource StatLabel}"
                                Margin="2,4,0,10"/>
 
                     <!-- Each attribute gets its own rounded card rather than
@@ -401,20 +436,20 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Style="{StaticResource SurfaceKpiStyle}">
+                        <Border Grid.Column="0" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="QUANTITY" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding Quantity}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="1" Style="{StaticResource SurfaceKpiStyle}">
+                        <Border Grid.Column="1" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="TOTAL SQM" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}"
                                            Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="2" Style="{StaticResource SurfaceKpiStyle}">
+                        <Border Grid.Column="2" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="TOTAL COST" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding TotalCost, StringFormat={}{0:N2} AED}"
@@ -422,7 +457,7 @@
                                            Foreground="{DynamicResource AccentBrush}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="3" Style="{StaticResource SurfaceKpiStyle}" Margin="0">
+                        <Border Grid.Column="3" Style="{StaticResource InventoryKpiCell}" Margin="0">
                             <StackPanel>
                                 <TextBlock Text="BALANCE AFTER" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding NewBalanceAfterBuy}"
@@ -435,7 +470,7 @@
                     <!-- Quantity -->
                     <Border Style="{StaticResource SectionCard}">
                         <StackPanel>
-                            <TextBlock Text="QUANTITY TO BUY (SHEETS)" Style="{StaticResource Typography.Label}"
+                            <TextBlock Text="QUANTITY TO BUY (SHEETS)" Style="{StaticResource StatLabel}"
                                        Margin="0,0,0,14"/>
                             <Grid HorizontalAlignment="Left">
                                 <Grid.ColumnDefinitions>
@@ -450,12 +485,12 @@
                                          Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                          behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
-                                         FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}"
+                                         FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
                                          TextAlignment="Center" Height="54"
                                          VerticalContentAlignment="Center"
                                          Background="{DynamicResource DialogInsetBrush}"
-                                         Foreground="{DynamicResource TextPrimaryBrush}" Style="{StaticResource TextBoxStyle}">
-                                    <TextBox.Style Style="{StaticResource TextBoxStyle}">
+                                         Foreground="{DynamicResource TextPrimaryBrush}">
+                                    <TextBox.Style>
                                         <Style TargetType="TextBox">
                                             <Setter Property="BorderThickness" Value="0"/>
                                             <Style.Triggers>
@@ -529,20 +564,20 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Style="{StaticResource SurfaceKpiStyle}">
+                        <Border Grid.Column="0" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="QUANTITY" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding Quantity}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="1" Style="{StaticResource SurfaceKpiStyle}">
+                        <Border Grid.Column="1" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="TOTAL SQM" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}"
                                            Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="2" Style="{StaticResource SurfaceKpiStyle}">
+                        <Border Grid.Column="2" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="TOTAL VALUE" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding TotalValue, StringFormat={}{0:N2} AED}"
@@ -550,7 +585,7 @@
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="3" Style="{StaticResource SurfaceKpiStyle}" Margin="0">
+                        <Border Grid.Column="3" Style="{StaticResource InventoryKpiCell}" Margin="0">
                             <StackPanel>
                                 <TextBlock Text="BALANCE AFTER" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding RemainingBalance}"
@@ -568,16 +603,16 @@
                             BorderThickness="1" Padding="16,12" Margin="0,0,0,16"
                             CornerRadius="{DynamicResource CardCornerRadius}"
                             Visibility="{Binding HasError,
-                                        Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                                        Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="{Binding ErrorMessage}" TextWrapping="Wrap"
-                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource DangerBrush}"/>
                     </Border>
 
                     <!-- Quantity -->
                     <Border Style="{StaticResource SectionCard}">
                         <StackPanel>
-                            <TextBlock Text="QUANTITY TO USE (SHEETS)" Style="{StaticResource Typography.Label}"
+                            <TextBlock Text="QUANTITY TO USE (SHEETS)" Style="{StaticResource StatLabel}"
                                        Margin="0,0,0,14"/>
                             <Grid HorizontalAlignment="Left">
                                 <Grid.ColumnDefinitions>
@@ -592,12 +627,12 @@
                                          Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                          behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
-                                         FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}"
+                                         FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
                                          TextAlignment="Center" Height="54"
                                          VerticalContentAlignment="Center"
                                          Background="{DynamicResource DialogInsetBrush}"
-                                         Foreground="{DynamicResource TextPrimaryBrush}" Style="{StaticResource TextBoxStyle}">
-                                    <TextBox.Style Style="{StaticResource TextBoxStyle}">
+                                         Foreground="{DynamicResource TextPrimaryBrush}">
+                                    <TextBox.Style>
                                         <Style TargetType="TextBox">
                                             <Setter Property="BorderThickness" Value="0"/>
                                             <Style.Triggers>
@@ -627,7 +662,7 @@
                          tab's card rhythm. -->
                     <Border Style="{StaticResource SectionCard}">
                         <StackPanel>
-                            <TextBlock Text="TRACEABILITY" Style="{StaticResource Typography.Label}" Margin="0,0,0,14"/>
+                            <TextBlock Text="TRACEABILITY" Style="{StaticResource StatLabel}" Margin="0,0,0,14"/>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -704,7 +739,7 @@
                 <StackPanel DataContext="{Binding Editor}">
 
                     <TextBlock TextWrapping="Wrap" Margin="2,0,0,16"
-                               FontSize="{DynamicResource FontSize.Body}"
+                               FontSize="{StaticResource TextBody}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                Text="Every field is editable straight away — there is no edit mode to enter. Save stays disabled until all entries are valid."/>
 
@@ -713,7 +748,7 @@
                          room, which is what made the form look unfinished. -->
                     <Border Style="{StaticResource SectionCard}">
                         <StackPanel>
-                            <TextBlock Text="IDENTITY" Style="{StaticResource Typography.Label}" Margin="0,0,0,14"/>
+                            <TextBlock Text="IDENTITY" Style="{StaticResource StatLabel}" Margin="0,0,0,14"/>
                             <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -755,7 +790,7 @@
 
                     <Border Style="{StaticResource SectionCard}">
                         <StackPanel>
-                            <TextBlock Text="DIMENSIONS &amp; SOURCE" Style="{StaticResource Typography.Label}" Margin="0,0,0,14"/>
+                            <TextBlock Text="DIMENSIONS &amp; SOURCE" Style="{StaticResource StatLabel}" Margin="0,0,0,14"/>
                             <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -797,7 +832,7 @@
 
                     <Border Style="{StaticResource SectionCard}">
                         <StackPanel>
-                            <TextBlock Text="PRICING &amp; STOCK" Style="{StaticResource Typography.Label}" Margin="0,0,0,14"/>
+                            <TextBlock Text="PRICING &amp; STOCK" Style="{StaticResource StatLabel}" Margin="0,0,0,14"/>
                             <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -844,8 +879,8 @@
                         <TextBlock Text="{Binding ValidationSummary}"
                                    VerticalAlignment="Center" Margin="0,0,16,0"
                                    TextWrapping="Wrap" MaxWidth="520"
-                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                   FontSize="{StaticResource TextCaption}"
+                                   FontWeight="SemiBold"
                                    Foreground="{DynamicResource DangerBrush}"
                                    Visibility="{Binding HasValidationSummary,
                                                Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -874,7 +909,7 @@
 
                 <TextBlock Text="Loading movements…"
                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                           FontSize="{DynamicResource FontSize.Body}"
+                           FontSize="{StaticResource TextBody}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
@@ -890,7 +925,7 @@
 
                 <TextBlock Text="No movements recorded for this sheet yet."
                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                           FontSize="{DynamicResource FontSize.Body}"
+                           FontSize="{StaticResource TextBody}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
@@ -968,7 +1003,7 @@
                             Background="{DynamicResource DialogInsetBrush}"
                             BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="1,0,1,1"
-                            CornerRadius="{DynamicResource Radius.Bottom.Medium}" Style="{StaticResource SurfacePrimaryStyle}">
+                            CornerRadius="{DynamicResource Radius.Bottom.Medium}">
                         <ListView ItemsSource="{Binding Movements}"
                                   ItemContainerStyle="{StaticResource MovementRowStyle}"
                                   Background="Transparent"
@@ -1001,7 +1036,7 @@
 
                                         <TextBlock Grid.Column="0" VerticalAlignment="Center"
                                                    Text="{Binding Timestamp, StringFormat={}{0:dd MMM yyyy  HH:mm}}"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
                                         <!-- Action colour comes from the model's
@@ -1021,33 +1056,33 @@
                                                     Converter={StaticResource ColorStringConverter}}"/>
                                             </Border.Background>
                                             <TextBlock Text="{Binding Action}"
-                                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                                       FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                         </Border>
 
                                         <TextBlock Grid.Column="2" VerticalAlignment="Center"
                                                    HorizontalAlignment="Center"
                                                    Text="{Binding QuantityChanged}"
-                                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                                         <TextBlock Grid.Column="3" VerticalAlignment="Center"
                                                    HorizontalAlignment="Right"
                                                    Text="{Binding ValueChanged, StringFormat={}{0:N2}}"
-                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   FontSize="{StaticResource TextBody}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                                         <TextBlock Grid.Column="5" VerticalAlignment="Center"
                                                    Text="{Binding Details}"
                                                    TextTrimming="CharacterEllipsis"
                                                    ToolTip="{Binding Details}"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
                                         <TextBlock Grid.Column="6" VerticalAlignment="Center"
                                                    Text="{Binding UserName}"
                                                    TextTrimming="CharacterEllipsis"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
                                     </Grid>
                                 </DataTemplate>
@@ -1077,21 +1112,21 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Style="{StaticResource SurfaceKpiStyle}">
+                        <Border Grid.Column="0" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="BALANCE AT COST" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding BalanceValueAtCost, StringFormat={}{0:N2} AED}"
                                            Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="1" Style="{StaticResource SurfaceKpiStyle}">
+                        <Border Grid.Column="1" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="BALANCE AT SELL" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding BalanceValueAtSell, StringFormat={}{0:N2} AED}"
                                            Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="2" Style="{StaticResource SurfaceKpiStyle}" Margin="0">
+                        <Border Grid.Column="2" Style="{StaticResource InventoryKpiCell}" Margin="0">
                             <StackPanel>
                                 <TextBlock Text="POTENTIAL PROFIT" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding PotentialProfit, StringFormat={}{0:N2} AED}"
@@ -1103,15 +1138,15 @@
 
                     <Border Style="{StaticResource SectionCard}">
                         <StackPanel>
-                            <TextBlock Text="MARGIN" Style="{StaticResource Typography.Label}" Margin="0,0,0,10"/>
+                            <TextBlock Text="MARGIN" Style="{StaticResource StatLabel}" Margin="0,0,0,10"/>
                             <TextBlock Text="{Binding MarginDisplay}"
-                                       FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}"
+                                       FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
                                        Foreground="{DynamicResource AccentBrush}"/>
                             <!-- "No cost basis" rather than a fake 0%: sheets
                                  are routinely entered before a purchase price
                                  is known, and 0% would read as a real loss. -->
                             <TextBlock TextWrapping="Wrap" Margin="0,8,0,0"
-                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                       FontSize="{StaticResource TextCaption}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        Text="Margin on the remaining balance, measured against its purchase cost.">
                                 <TextBlock.Style>
@@ -1130,12 +1165,12 @@
 
                     <Border Style="{StaticResource SectionCard}">
                         <StackPanel>
-                            <TextBlock Text="CONSUMPTION" Style="{StaticResource Typography.Label}" Margin="0,0,0,10"/>
+                            <TextBlock Text="CONSUMPTION" Style="{StaticResource StatLabel}" Margin="0,0,0,10"/>
                             <TextBlock Text="{Binding ConsumptionPercent, StringFormat={}{0:N1}% of stock used}"
-                                       FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
+                                       FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Text="{Binding UsedValueAtCost, StringFormat=Used stock at cost: {0:N2} AED}"
-                                       FontSize="{DynamicResource FontSize.Body}" Margin="0,8,0,0"
+                                       FontSize="{StaticResource TextBody}" Margin="0,8,0,0"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         </StackPanel>
                     </Border>

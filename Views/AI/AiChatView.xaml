@@ -110,11 +110,9 @@
         </Style>
 
         <!-- Migrated UserBubble to global SurfacePrimaryStyle -->
-    <!-- Migrated UserBubble to global SurfacePrimaryStyle -->
-    
-            </Rectangle.Style>
-        </Rectangle>
+    </UserControl.Resources>
 
+    <Grid>
         <!--
             VOICE-FIX: The panel keeps its 600 px design height, but
             MaxHeight is clamped to (window height − 130) so on short

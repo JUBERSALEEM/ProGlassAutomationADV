@@ -26,103 +26,113 @@
         PreviewKeyDown="OnPreviewKeyDown"
         AllowDrop="True" Drop="OnFileDrop" DragOver="OnDragOver">
 
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
+        <Window.Resources>
+        <!-- Migrated SectionCardStyle to global SurfacePrimaryStyle / Typography -->
+        <!-- Migrated InqDropZoneStyle to global SurfacePrimaryStyle -->
+    </Window.Resources>
 
-            </ResourceDictionary.MergedDictionaries>
 
-            <!-- Right-click field context menu. One shared definition so the
-                 Cut / Copy / Paste / Select all pattern is consistent across
-                 every editable input. The customer-specific actions
-                 (Open in master data, View history) are always present
-                 and gated by whether the customer exists in master data.
-                 "Clear all customer info" is intentionally not "Clear
-                 <field>" because this same menu is shown on the Customer,
-                 Location, AND Salesman fields; clearing always targets
-                 the customer (name + location) regardless of which
-                 field the user right-clicked. The header was renamed from
-                 "Clear customer field" to "Clear all customer info" to
-                 make that unambiguous. -->
-            <ContextMenu x:Key="EditorFieldContextMenu" Style="{DynamicResource ModernContextMenuStyle}">
-                <MenuItem Header="{DynamicResource Inquiry.Cut}"
-                          Style="{DynamicResource ModernMenuItemStyle}"
-                          Command="ApplicationCommands.Cut"/>
-                <MenuItem Header="{DynamicResource Inquiry.Copy}"
-                          Style="{DynamicResource ModernMenuItemStyle}"
-                          Command="ApplicationCommands.Copy"/>
-                <MenuItem Header="{DynamicResource Inquiry.Paste}"
-                          Style="{DynamicResource ModernMenuItemStyle}"
-                          Command="ApplicationCommands.Paste"/>
-                <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
-                <MenuItem Header="{DynamicResource Inquiry.Select}"
-                          Style="{DynamicResource ModernMenuItemStyle}"
-                          Command="ApplicationCommands.SelectAll"/>
-                <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
-                <MenuItem Header="{DynamicResource Inquiry.CustomerActions}"
-                          IsEnabled="False"
-                          FontWeight="{DynamicResource Weight.Bold}"
-                          Style="{DynamicResource ModernMenuItemStyle}"/>
-                <MenuItem Header="{DynamicResource Inquiry.ClearCustomerInfo}"
-                          Style="{DynamicResource ModernMenuItemStyle}"
-                          Command="{Binding ClearCustomerCommand}"/>
-                <MenuItem Header="{DynamicResource Inquiry.OpenCustomerMasterData}"
-                          Style="{DynamicResource ModernMenuItemStyle}"
-                          Command="{Binding OpenCustomerInMasterDataCommand}"
-                          IsEnabled="{Binding CanOpenCustomerInMasterData}"/>
-                <MenuItem Header="{DynamicResource Inquiry.ViewCustomerHistory}"
-                          Style="{DynamicResource ModernMenuItemStyle}"
-                          Command="{Binding ViewCustomerHistoryCommand}"
-                          IsEnabled="{Binding CanViewCustomerHistory}"/>
-            </ContextMenu>
+    <Grid Margin="20,16,20,14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-            <!-- Workflow step node: dot + label + timestamp -->
-            
-
-            
-
-            
-
-            <!-- Section card heading row -->
-            <!-- Migrated SectionCardStyle to global SurfacePrimaryStyle / Typography -->
-
-            <!-- Editor-local adornments. These are small one-off
-                 styles that don't exist in the shared design system
-                 because they're only used here. -->
-            
-            <Style x:Key="InqGhostActionStyle" TargetType="Button">
-                <Setter Property="Cursor" Value="Hand"/>
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
-                <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
-                <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-                <Setter Property="Padding" Value="8,4"/>
-                <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="Bg" CornerRadius="{DynamicResource Radius.Small}" Background="Transparent"
-                                    Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <!-- ══ HEADER ═════════════════════════════════════════════════ -->
+        <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="16,12">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.09" Color="{DynamicResource LiquidShadowColor}"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <Border Width="40" Height="40" CornerRadius="{DynamicResource Radius.Medium}"
+                            Background="{DynamicResource AccentBrush}">
+                        <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitle}"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding HeaderTitle}" FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                                       Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                            <TextBlock Text="●" FontSize="{StaticResource TextBody}" Margin="8,0,0,0" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource WarningBrush}"
+                                       ToolTip="{DynamicResource Inquiry.UnsavedChanges}"
+                                       Visibility="{Binding IsDirty, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            <Border Margin="11,0,0,0" Padding="9,3" CornerRadius="{DynamicResource Radius.Large}"
+                                    Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Status}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentBrush}"/>
                             </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
-                                    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-            <!-- Migrated InqDropZoneStyle to global SurfacePrimaryStyle -->
-    
-                            </Border.Style>
-                            <TextBlock Text="2" Style="{StaticResource Typography.Caption}"/>
+                        </StackPanel>
+                        <TextBlock Text="{Binding HeaderSubtitle}" FontSize="{StaticResource TextCaption}" Margin="0,3,0,0"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+                <TextBlock Grid.Column="1" Text="{DynamicResource Inquiry.CtrlSSaveEscClose}" FontSize="{StaticResource TextCaption}" VerticalAlignment="Center"
+                           Foreground="{DynamicResource TextTertiaryBrush}"/>
+            </Grid>
+        </Border>
+
+        <!-- ══ BODY ══════════════════════════════════════════════════ -->
+        <Grid Grid.Row="1" Margin="0,14,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="252"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- LEFT · workflow rail -->
+            <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="16,14">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Inquiry.Workflow}" Style="{StaticResource ModuleColumnHeaderStyle}" Margin="2,0,0,10"/>
+
+                    <!-- Step 1 · Received (always active) -->
+                    <StackPanel Orientation="Horizontal">
+                        <Border Style="{StaticResource StepDotStyle}" Background="{DynamicResource AccentBrush}"
+                                BorderBrush="{DynamicResource AccentBrush}">
+                            <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Margin="11,3,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Inquiry.Prepared}" Style="{StaticResource Typography.Title}"/>
-                            <TextBlock Text="{Binding PreparedDateText, Mode=OneWay}" Style="{StaticResource Typography.Caption}"/>
+                            <TextBlock Text="{DynamicResource Inquiry.Received}" Style="{StaticResource StepTitleStyle}"/>
+                            <TextBlock Text="{DynamicResource Inquiry.CapturedCustomer}" Style="{StaticResource InqHintStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Border Style="{StaticResource InqTimelineLineStyle}" Height="14"/>
+
+                    <!-- Step 2 · Prepared -->
+                    <StackPanel Orientation="Horizontal">
+                        <Border>
+                            <Border.Style>
+                                <Style TargetType="Border" BasedOn="{StaticResource StepDotStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Status}" Value="Prepared">
+                                            <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Status}" Value="Sent">
+                                            <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Status}" Value="Confirmed">
+                                            <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="2" Style="{StaticResource StepNumberStyle}"/>
+                        </Border>
+                        <StackPanel Margin="11,3,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Inquiry.Prepared}" Style="{StaticResource StepTitleStyle}"/>
+                            <TextBlock Text="{Binding PreparedDateText, Mode=OneWay}" Style="{StaticResource InqHintStyle}"/>
                         </StackPanel>
                     </StackPanel>
                     <Border Style="{StaticResource InqTimelineLineStyle}" Height="14"/>
@@ -131,7 +141,7 @@
                     <StackPanel Orientation="Horizontal">
                         <Border>
                             <Border.Style>
-                                <Style TargetType="Border" BasedOn="{StaticResource Badge.Primary}">
+                                <Style TargetType="Border" BasedOn="{StaticResource StepDotStyle}">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Status}" Value="Sent">
                                             <Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/>
@@ -144,11 +154,11 @@
                                     </Style.Triggers>
                                 </Style>
                             </Border.Style>
-                            <TextBlock Text="3" Style="{StaticResource Typography.Caption}"/>
+                            <TextBlock Text="3" Style="{StaticResource StepNumberStyle}"/>
                         </Border>
                         <StackPanel Margin="11,3,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Inquiry.SentCustomer}" Style="{StaticResource Typography.Title}"/>
-                            <TextBlock Text="{Binding SentDateText, Mode=OneWay}" Style="{StaticResource Typography.Caption}"/>
+                            <TextBlock Text="{DynamicResource Inquiry.SentCustomer}" Style="{StaticResource StepTitleStyle}"/>
+                            <TextBlock Text="{Binding SentDateText, Mode=OneWay}" Style="{StaticResource InqHintStyle}"/>
                         </StackPanel>
                     </StackPanel>
                     <Border Style="{StaticResource InqTimelineLineStyle}" Height="14"/>
@@ -157,7 +167,7 @@
                     <StackPanel Orientation="Horizontal">
                         <Border>
                             <Border.Style>
-                                <Style TargetType="Border" BasedOn="{StaticResource Badge.Primary}">
+                                <Style TargetType="Border" BasedOn="{StaticResource StepDotStyle}">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Status}" Value="Confirmed">
                                             <Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/>
@@ -166,11 +176,11 @@
                                     </Style.Triggers>
                                 </Style>
                             </Border.Style>
-                            <TextBlock Text="4" Style="{StaticResource Typography.Caption}"/>
+                            <TextBlock Text="4" Style="{StaticResource StepNumberStyle}"/>
                         </Border>
                         <StackPanel Margin="11,3,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Inquiry.Confirmed}" Style="{StaticResource Typography.Title}"/>
-                            <TextBlock Text="{Binding ConfirmedDateText, Mode=OneWay}" Style="{StaticResource Typography.Caption}"/>
+                            <TextBlock Text="{DynamicResource Inquiry.Confirmed}" Style="{StaticResource StepTitleStyle}"/>
+                            <TextBlock Text="{Binding ConfirmedDateText, Mode=OneWay}" Style="{StaticResource InqHintStyle}"/>
                         </StackPanel>
                     </StackPanel>
 
@@ -193,7 +203,7 @@
                                 IsEnabled="{Binding CanCancel}"/>
                     </WrapPanel>
                     <TextBlock Text="{DynamicResource Inquiry.TransitionsNeedSavedRecordNoUnsavedEdits}"
-                               Style="{StaticResource Typography.Caption}" Margin="2,6,0,0"/>
+                               Style="{StaticResource InqHintStyle}" Margin="2,6,0,0"/>
                 </StackPanel>
             </Border>
 
@@ -202,7 +212,7 @@
                 <StackPanel>
 
                     <!-- Customer -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                                 <TextBlock Text="{DynamicResource Common.Customer}" Style="{StaticResource ModuleColumnHeaderStyle}"/>
@@ -244,7 +254,7 @@
                     </Border>
 
                     <!-- Project -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                                 <TextBlock Text="{DynamicResource Common.Project}" Style="{StaticResource ModuleColumnHeaderStyle}"/>
@@ -284,7 +294,7 @@
                     </Border>
 
                     <!-- Commercial -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                                 <TextBlock Text="{DynamicResource Inquiry.Commercial}" Style="{StaticResource ModuleColumnHeaderStyle}"/>
@@ -301,10 +311,10 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel>
                                     <TextBlock Text="{DynamicResource Inquiry.ReceivedDate}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                    <DatePicker SelectedDate="{Binding ReceivedDate}" Height="34" FontSize="{DynamicResource FontSize.Title}"
+                                    <DatePicker SelectedDate="{Binding ReceivedDate}" Height="34" FontSize="{StaticResource TextBodyLarge}"
                                                 VerticalContentAlignment="Center"/>
                                     <TextBlock Text="{Binding ReceivedHint, Mode=OneWay}"
-                                               Style="{StaticResource Typography.Caption}" Margin="2,5,0,0"/>
+                                               Style="{StaticResource InqHintStyle}" Margin="2,5,0,0"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2"
                                             Visibility="{Binding Path=ShowSalesman,
@@ -340,11 +350,11 @@
                                          ToolTip="{DynamicResource Inquiry.NumbersThousandsSeparatorsAllowed}"/>
                                 <TextBlock Text="{Binding ValueHint, Mode=OneWay}" Margin="2,5,0,0">
                                     <TextBlock.Style>
-                                        <Style TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}">
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource InqHintStyle}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding HasValueError}" Value="True">
                                                     <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                                    <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -355,7 +365,7 @@
                     </Border>
 
                     <!-- Notes -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}"
+                    <Border Style="{StaticResource SectionCardStyle}"
                             Visibility="{Binding Path=ShowNotes,
                                 Source={x:Static features:InquiryFieldVisibility.Instance},
                                 Converter={StaticResource BoolToVisibilityConverter}}">
@@ -376,14 +386,14 @@
                     <!-- Rows marked importable (spec name + W × H + qty)  -->
                     <!-- travel into the PI data grid on Convert → so the  -->
                     <!-- estimator never re-types quoted shapes.           -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                                 <TextBlock Text="SCOPE OF SUPPLY" Style="{StaticResource ModuleColumnHeaderStyle}"/>
                                 <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
                                            VerticalAlignment="Center" Margin="9,0,0,0"/>
                                 <TextBlock Text="converted into the PI data grid — nothing re-typed"
-                                           Margin="9,0,0,0" FontSize="{DynamicResource FontSize.Caption}"
+                                           Margin="9,0,0,0" FontSize="{StaticResource TextXSmall}"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource TextTertiaryBrush}"/>
                             </StackPanel>
@@ -402,14 +412,14 @@
                                       Background="Transparent"
                                       BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                                       Margin="0,8,0,6">
-                                <DataGrid.Columns Style="{StaticResource DataGridStyle}">
+                                <DataGrid.Columns>
                                     <DataGridTemplateColumn Header="Build" Width="86">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <ComboBox SelectedItem="{Binding GlassType, UpdateSourceTrigger=PropertyChanged}"
                                                           ItemsSource="{Binding DataContext.BoqGlassTypes, RelativeSource={RelativeSource AncestorType=Window}}"
                                                           IsEditable="False" BorderThickness="{DynamicResource Border.NoneThickness}"
-                                                          Background="Transparent" Padding="4,2" Style="{StaticResource ComboBoxStyle}"/>
+                                                          Background="Transparent" Padding="4,2"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -418,7 +428,7 @@
                                             <DataTemplate>
                                                 <TextBox Text="{Binding SpecName, UpdateSourceTrigger=PropertyChanged}"
                                                          BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2"
-                                                         ToolTip="Generated-style spec (e.g. 6 CL FT + 12 AS + 6 CL TPR) or the customer's own wording." Style="{StaticResource TextBoxStyle}"/>
+                                                         ToolTip="Generated-style spec (e.g. 6 CL FT + 12 AS + 6 CL TPR) or the customer's own wording."/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -426,7 +436,7 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBox Text="{Binding OuterGlassColor, UpdateSourceTrigger=PropertyChanged}"
-                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2" Style="{StaticResource TextBoxStyle}"/>
+                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -434,7 +444,7 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBox Text="{Binding InnerGlassColor, UpdateSourceTrigger=PropertyChanged}"
-                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2" Style="{StaticResource TextBoxStyle}"/>
+                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -442,7 +452,7 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBox Text="{Binding WidthMm, UpdateSourceTrigger=PropertyChanged}"
-                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2" Style="{StaticResource TextBoxStyle}"/>
+                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -450,7 +460,7 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBox Text="{Binding HeightMm, UpdateSourceTrigger=PropertyChanged}"
-                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2" Style="{StaticResource TextBoxStyle}"/>
+                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -458,7 +468,7 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBox Text="{Binding Qty, UpdateSourceTrigger=PropertyChanged}"
-                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2" Style="{StaticResource TextBoxStyle}"/>
+                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -466,7 +476,7 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBox Text="{Binding RatePerSqm, UpdateSourceTrigger=PropertyChanged}"
-                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2" Style="{StaticResource TextBoxStyle}"/>
+                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -474,7 +484,7 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
-                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2" Style="{StaticResource TextBoxStyle}"/>
+                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -486,7 +496,7 @@
                                                         CommandParameter="{Binding}"
                                                         Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}"
                                                         Foreground="{DynamicResource DangerBrush}"
-                                                        FontSize="{DynamicResource FontSize.BodySmall}" Padding="4,2" Style="{StaticResource SecondaryButtonStyle}"/>
+                                                        FontSize="{StaticResource TextCaption}" Padding="4,2"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -497,12 +507,12 @@
                                 <Button Command="{Binding AddLineItemCommand}" Padding="12,6"
                                         Style="{StaticResource ModuleToolbarSecondaryButtonStyle}">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="＋" FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"/>
+                                        <TextBlock Text="＋" FontSize="{StaticResource TextBody}" VerticalAlignment="Center"/>
                                         <TextBlock Text="Add BOQ line" Margin="6,0,0,0" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                                 <TextBlock Text="Rows with a spec name, W × H and quantity convert into the PI grid — others stay as inquiry notes."
-                                           FontSize="{DynamicResource FontSize.Caption}" VerticalAlignment="Center" Margin="12,0,0,0"
+                                           FontSize="{StaticResource TextXSmall}" VerticalAlignment="Center" Margin="12,0,0,0"
                                            TextWrapping="Wrap" MaxWidth="520"
                                            Foreground="{DynamicResource TextTertiaryBrush}"/>
                             </StackPanel>
@@ -510,14 +520,14 @@
                     </Border>
 
                     <!-- Source documents -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                                 <TextBlock Text="{DynamicResource Inquiry.SourceDocuments}" Style="{StaticResource ModuleColumnHeaderStyle}"/>
                                 <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
                                            VerticalAlignment="Center" Margin="9,0,0,0"/>
                                 <TextBlock Text="{DynamicResource Inquiry.ManifestBackedWorksDatabase}" Margin="9,0,0,0"
-                                           FontSize="{DynamicResource FontSize.Caption}" VerticalAlignment="Center"
+                                           FontSize="{StaticResource TextXSmall}" VerticalAlignment="Center"
                                            Foreground="{DynamicResource TextTertiaryBrush}"/>
                             </StackPanel>
 
@@ -525,8 +535,8 @@
                             <Grid Margin="0,8,0,4" Cursor="Hand">
                                 <Button Command="{Binding AddAttachmentCommand}" HorizontalAlignment="Stretch"
                                         VerticalAlignment="Stretch" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}"
-                                        Focusable="False" Style="{StaticResource PrimaryButtonStyle}">
-                                    <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                                        Focusable="False">
+                                    <Button.Template>
                                         <ControlTemplate TargetType="Button">
                                             <Border Background="Transparent">
                                                 <ContentPresenter/>
@@ -542,16 +552,16 @@
                                                         Margin="14,12">
                                                 <Border Width="40" Height="40" CornerRadius="{DynamicResource Radius.Medium}"
                                                         Background="{DynamicResource SurfaceSecondaryBrush}"
-                                                        HorizontalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
-                                                    <TextBlock Text="&#xE896;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H2}"
+                                                        HorizontalAlignment="Center">
+                                                    <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitle}"
                                                                Foreground="{DynamicResource AccentBrush}"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
-                                                <TextBlock Text="{DynamicResource Inquiry.DropFilesHereClickBrowse}" FontSize="{DynamicResource FontSize.Title}"
-                                                           FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,9,0,0" HorizontalAlignment="Center"
+                                                <TextBlock Text="{DynamicResource Inquiry.DropFilesHereClickBrowse}" FontSize="{StaticResource TextBodyLarge}"
+                                                           FontWeight="SemiBold" Margin="0,9,0,0" HorizontalAlignment="Center"
                                                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <TextBlock Text="{DynamicResource Inquiry.NewInquirySavedAutomaticallyBeforeFirstFile}"
-                                                           Style="{StaticResource Typography.Caption}" Margin="0,4,0,0"
+                                                           Style="{StaticResource InqHintStyle}" Margin="0,4,0,0"
                                                            HorizontalAlignment="Center" TextAlignment="Center"/>
                                             </StackPanel>
                                         </Grid>
@@ -565,7 +575,7 @@
                                         <Border CornerRadius="{DynamicResource Radius.Medium}"
                                                 Background="{DynamicResource SurfacePrimaryBrush}"
                                                 BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                                Padding="10,8" Margin="0,0,0,7" Style="{StaticResource SurfacePrimaryStyle}">
+                                                Padding="10,8" Margin="0,0,0,7">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
@@ -574,23 +584,23 @@
                                                 </Grid.ColumnDefinitions>
                                                 <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}"
                                                         Background="{DynamicResource TintBlueBrush}"
-                                                        VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
-                                                    <TextBlock Text="&#xE7C3;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Title}"
+                                                        VerticalAlignment="Center">
+                                                    <TextBlock Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBodyLarge}"
                                                                Foreground="{DynamicResource AccentBrush}"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,8,0">
-                                                    <TextBlock Text="{Binding FileName}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                    <TextBlock Text="{Binding FileName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                                Foreground="{DynamicResource TextPrimaryBrush}"
                                                                TextTrimming="CharacterEllipsis"/>
                                                     <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="{Binding Extension, Mode=OneWay}" FontSize="{DynamicResource FontSize.Caption}"
-                                                                   FontWeight="{DynamicResource Weight.Bold}"
+                                                        <TextBlock Text="{Binding Extension, Mode=OneWay}" FontSize="{StaticResource TextXSmall}"
+                                                                   FontWeight="Bold"
                                                                    Foreground="{DynamicResource AccentBrush}"/>
-                                                        <TextBlock Text=" · " FontSize="{DynamicResource FontSize.Caption}"
+                                                        <TextBlock Text=" · " FontSize="{StaticResource TextXSmall}"
                                                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
                                                         <TextBlock Text="{Binding FileSize, Mode=OneWay, StringFormat={}{0:N0} bytes}"
-                                                                   FontSize="{DynamicResource FontSize.Caption}"
+                                                                   FontSize="{StaticResource TextXSmall}"
                                                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
                                                     </StackPanel>
                                                 </StackPanel>
@@ -611,7 +621,7 @@
                             </ItemsControl>
                             <TextBlock Text="{DynamicResource Inquiry.NoFilesAttachedYet}" Margin="2,3,0,0">
                                 <TextBlock.Style>
-                                    <Style TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}">
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource InqHintStyle}">
                                         <Setter Property="Visibility" Value="Collapsed"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding HasAttachments}" Value="False">
@@ -638,7 +648,7 @@
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Ellipse Width="8" Height="8" Fill="{DynamicResource DangerBrush}" VerticalAlignment="Center"
                              Visibility="{Binding IsStatusError, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                    <TextBlock Text="{Binding StatusText}" FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center" Margin="9,0,0,0"
+                    <TextBlock Text="{Binding StatusText}" FontSize="{StaticResource TextBody}" VerticalAlignment="Center" Margin="9,0,0,0"
                                TextWrapping="Wrap" MaxWidth="640"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </StackPanel>

@@ -24,13 +24,10 @@
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
-    <UserControl.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../SettingsSectionStyles.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
+        <UserControl.Resources>
+        <!-- Migrated StatusBadgeStyle to global SurfacePrimaryStyle -->
     </UserControl.Resources>
+
 
     <Grid>
         <Grid.RowDefinitions>
@@ -39,9 +36,9 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="{DynamicResource Settings.SecVoice}" Style="{StaticResource Typography.H1}"/>
+            <TextBlock Text="{DynamicResource Settings.SecVoice}" Style="{StaticResource PageTitleStyle}"/>
             <TextBlock Text="{DynamicResource Settings.OfflineSpeechTextOpenaiWhisper95AccuracyNo}"
-                       Style="{StaticResource Typography.Subtitle}"/>
+                       Style="{StaticResource PageSubtitleStyle}"/>
         </StackPanel>
 
         <ScrollViewer Grid.Row="1"
@@ -58,18 +55,18 @@
                 <TextBlock Text="{DynamicResource Settings.WhisperModel}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.PickModelSizeDownloadOnceLargerModelsMore}"
-                           Style="{StaticResource Typography.BodySmall}"/>
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
 
                     <!-- Model picker (full row) -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE720;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.ChooseModel}"/>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE720;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.ChooseModel}"/>
                             </StackPanel>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="{DynamicResource Settings.ClickCardSelectOneModelActiveTimeSwitch}"/>
 
                             <ItemsControl ItemsSource="{Binding WhisperModelOptions}">
@@ -97,10 +94,10 @@
 
                                                 <StackPanel Grid.Column="0">
                                                     <TextBlock Text="{Binding DisplayName}"
-                                                               FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                                               FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                                                Foreground="{DynamicResource TextPrimaryBrush}"
                                                                IsHitTestVisible="False"/>
-                                                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
+                                                    <TextBlock FontSize="{StaticResource TextCaption}"
                                                                Margin="0,2,0,0"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                IsHitTestVisible="False">
@@ -111,7 +108,7 @@
                                                         <Run Text="{Binding Speed, Mode=OneWay}"/>
                                                     </TextBlock>
                                                     <TextBlock Text="{Binding Description}"
-                                                               FontSize="{DynamicResource FontSize.BodySmall}"
+                                                               FontSize="{StaticResource TextCaption}"
                                                                Margin="0,3,0,0"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                TextWrapping="Wrap"
@@ -120,9 +117,9 @@
 
                                                 <TextBlock Grid.Column="1"
                                                            Text="&#xE73E;"
-                                                           FontFamily="{DynamicResource FontFamily.Icon}"
-                                                           FontSize="{DynamicResource FontSize.H3}"
-                                                           FontWeight="{DynamicResource Weight.Bold}"
+                                                           FontFamily="Segoe MDL2 Assets"
+                                                           FontSize="{StaticResource TextSection}"
+                                                           FontWeight="Bold"
                                                            Foreground="{DynamicResource AccentBrush}"
                                                            VerticalAlignment="Center"
                                                            Margin="12,0,0,0"
@@ -138,28 +135,56 @@
 
                 </StackPanel>
 
-                <Border Style="{StaticResource SurfaceDetailStyle}"/>
+                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
                 <!-- ═════════ GROUP: STATUS ═════════ -->
                 <TextBlock Text="{DynamicResource Common.Status}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.WhereSelectedModelStandsDownloadCancelDelete}"
-                           Style="{StaticResource Typography.BodySmall}"/>
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
 
                     <!-- Model status (full row) -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <Border.Resources>
                             <!-- Local: tinted highlight when the model is ready. -->
-                            <!-- Migrated StatusBadgeStyle to global SurfacePrimaryStyle -->
-    
+                            <Style x:Key="StatusBadgeStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
+                                <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+                                <Setter Property="Padding" Value="10,4"/>
+                                <Setter Property="Background" Value="{DynamicResource TintRedBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsWhisperModelReady}" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Resources>
+                        <StackPanel>
+                            <DockPanel LastChildFill="True">
+
+                                <!-- Right-docked badge -->
+                                <Border DockPanel.Dock="Right"
+                                        VerticalAlignment="Center"
+                                        Style="{StaticResource SurfacePrimaryStyle}">
+                                    <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold" IsHitTestVisible="False">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="NOT INSTALLED"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsWhisperModelReady}" Value="True">
+                                                        <Setter Property="Text" Value="INSTALLED"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
                                         </TextBlock.Style>
                                     </TextBlock>
                                 </Border>
 
-                                <StackPanel Style="{StaticResource SurfaceDetailStyle}">
-                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE720;"/>
+                                <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                    <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE720;"/>
                                     <StackPanel>
                                         <!-- Style is set ONLY via the property-element <TextBlock.Style>.
                                              Do NOT also set Style="…" on the opening tag — WPF rejects
@@ -168,7 +193,7 @@
                                              the tile-title look; the trigger swaps the Text. -->
                                         <TextBlock>
                                             <TextBlock.Style>
-                                                <Style TargetType="TextBlock" BasedOn="{StaticResource Typography.Title}">
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource SettingsTileTitleStyle}">
                                                     <Setter Property="Text" Value="Whisper — Not Installed"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsWhisperModelReady}" Value="True">
@@ -178,15 +203,15 @@
                                                 </Style>
                                             </TextBlock.Style>
                                         </TextBlock>
-                                        <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
+                                        <TextBlock FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    Text="{Binding SelectedModelInfo.FileName}"
                                                    IsHitTestVisible="False"/>
-                                        <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
+                                        <TextBlock FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    Text="·" Margin="5,0"
                                                    IsHitTestVisible="False"/>
-                                        <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
+                                        <TextBlock FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    IsHitTestVisible="False">
                                             <TextBlock.Style>
@@ -212,21 +237,21 @@
                                              Style="{StaticResource DownloadProgressBarStyle}"
                                              HorizontalAlignment="Stretch"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                    <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                Foreground="{DynamicResource AccentBrush}"
                                                IsHitTestVisible="False">
                                         <Run Text="{Binding DownloadProgress, Mode=OneWay}"/><Run Text="%"/>
                                     </TextBlock>
                                     <TextBlock Text="{Binding DownloadSizeText}"
-                                               FontSize="{DynamicResource FontSize.Body}" Margin="10,0,0,0"
+                                               FontSize="{StaticResource TextBody}" Margin="10,0,0,0"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                IsHitTestVisible="False"/>
                                     <TextBlock Text="{Binding DownloadSpeedText}"
-                                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Margin="10,0,0,0"
+                                               FontSize="{StaticResource TextBody}" FontWeight="Bold" Margin="10,0,0,0"
                                                Foreground="{DynamicResource SuccessBrush}"
                                                IsHitTestVisible="False"/>
                                     <TextBlock Text="{Binding DownloadEtaText}"
-                                               FontSize="{DynamicResource FontSize.Body}" Margin="10,0,0,0"
+                                               FontSize="{StaticResource TextBody}" Margin="10,0,0,0"
                                                Foreground="{DynamicResource TextTertiaryBrush}"
                                                IsHitTestVisible="False"/>
                                 </StackPanel>
@@ -252,8 +277,8 @@
                                                 Converter={StaticResource InverseBoolToVisibilityConverter}}"
                                         MinWidth="180"
                                         Height="34"
-                                        FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource SecondaryButtonStyle}">
-                                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                                        FontSize="{StaticResource TextBody}">
+                                    <Button.Style>
                                         <Style TargetType="Button"
                                                BasedOn="{StaticResource PrimaryPillButton}">
                                             <Setter Property="Content" Value="DOWNLOAD MODEL"/>
@@ -286,7 +311,7 @@
 
                             <!-- Unified status text (hidden while downloading — progress bar takes over) -->
                             <TextBlock Text="{Binding VoiceStatus}"
-                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                        Foreground="{DynamicResource AccentBrush}"
                                        TextWrapping="Wrap"
                                        Margin="0,8,0,0"
@@ -305,13 +330,13 @@
 
                             <!-- File location -->
                             <TextBlock Text="{DynamicResource Settings.ModelStored}"
-                                       Style="{StaticResource Typography.Label}"
+                                       Style="{StaticResource LabelStyle}"
                                        Margin="0,12,0,4"
                                        Visibility="{Binding IsWhisperModelReady,
                                             Converter={StaticResource BoolToVisibilityConverter}}"/>
                             <TextBlock Text="{Binding ModelFilePath}"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       FontFamily="{DynamicResource FontFamily.Code}"
+                                       FontSize="{StaticResource TextBody}"
+                                       FontFamily="Consolas, Courier New, monospace"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        TextTrimming="CharacterEllipsis"
                                        IsHitTestVisible="False"

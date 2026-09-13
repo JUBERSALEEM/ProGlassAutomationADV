@@ -21,17 +21,81 @@
              SnapsToDevicePixels="True"
              Background="Transparent">
 
-    <UserControl.Resources>
-
+        <UserControl.Resources>
         <!-- Migrated ScFieldLabel to global Typography.Label -->
-    
+    </UserControl.Resources>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         MIGRATION LOG — Button Standardization (master prompt v1.0)
+         Date: 2026-08-15
+
+         Changes:
+           • Deleted legacy ScPrimaryButton style (rule 5)
+           • 3 CTA/refresh buttons -> PrimaryPillButton (glyph + UPPERCASE
+             content + ToolTip)
+           • Users/Activity tabs -> STEP D two-button visibility pattern
+           • Row toggle -> DangerButton DEACTIVATE / OutlinedPillButton
+             ACTIVATE pair with Visibility triggers
+           • Card headers: emoji badge boxes -> inline MDL2 icon + title
+           • Emojis removed: 🛠 👥 📜 ➕ 🔁  ↻ 👤 🕓
+           • ToolTips added to every migrated button
+
+         All commands, bindings, and code-behind wiring preserved.
+         No ViewModel changes required.
+    ═══════════════════════════════════════════════════════════════ -->
+    <Grid Margin="20,16,20,16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══ HEADER ═════════════════════════════════════════════════ -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,8">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="&#xE90F;" FontFamily="Segoe MDL2 Assets"
+                           FontSize="{StaticResource TextTitle}" VerticalAlignment="Center"
+                           Margin="0,0,10,0"
+                           Foreground="{DynamicResource AccentBrush}"/>
+                <TextBlock Text="{DynamicResource Module.SystemCenter}"
+                           FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+            </StackPanel>
+            <TextBlock FontSize="{StaticResource TextBody}" Margin="0,3,0,0"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}">
+                <Run Text="{DynamicResource SystemCenter.UserManagementAuditTrailSigned}"/>
+                <Run Text="{Binding CurrentUserDisplay, Mode=OneWay}"
+                     FontWeight="Bold"/>
+            </TextBlock>
+        </StackPanel>
+
+        <!-- ══ TAB STRIP ══════════════════════════════════════════════ -->
+        <Border Grid.Row="1"
+                Style="{StaticResource ModuleTabStripStyle}"
+                Margin="0,0,0,10">
+            <StackPanel Orientation="Horizontal">
+
+                <!-- TAB Users — STEP D two-button visibility pattern -->
+                <Button Command="{Binding SwitchTabCommand}"
+                        CommandParameter="Users"
+                        Tag="&#xE716;" Content="{DynamicResource SystemCenter.Users}"
+                        ToolTip="{DynamicResource SystemCenter.ManageUsers}" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsUsersTab}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
                     </Button.Style>
                 </Button>
                 <Button Command="{Binding SwitchTabCommand}"
                         CommandParameter="Users"
                         Tag="&#xE716;" Content="{DynamicResource SystemCenter.Users}"
-                        ToolTip="{DynamicResource SystemCenter.ManageUsers}" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                        ToolTip="{DynamicResource SystemCenter.ManageUsers}" Margin="0,0,10,0">
+                    <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsUsersTab}" Value="False">
@@ -47,8 +111,8 @@
                         CommandParameter="Activity"
                         Tag="&#xE81C;" Content="{DynamicResource SystemCenter.ActivityLOG}"
                         ToolTip="{DynamicResource SystemCenter.AuditTrailRecordedAction}"
-                        Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                        Margin="0,0,10,0">
+                    <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsActivityTab}" Value="True">
@@ -62,8 +126,8 @@
                         CommandParameter="Activity"
                         Tag="&#xE81C;" Content="{DynamicResource SystemCenter.ActivityLOG}"
                         ToolTip="{DynamicResource SystemCenter.AuditTrailRecordedAction}"
-                        Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                        Margin="0,0,10,0">
+                    <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsActivityTab}" Value="False">
@@ -110,28 +174,28 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="14,12" Style="{StaticResource SurfacePrimaryStyle}">
+                        Padding="14,12">
                     <StackPanel>
 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                             <TextBlock Text="&#xE710;"
-                                       FontFamily="{DynamicResource FontFamily.Icon}"
-                                       FontSize="{DynamicResource FontSize.H2}"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="{StaticResource TextTitle}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0"/>
                             <TextBlock Text="{DynamicResource SystemCenter.CreateUSER}"
-                                       FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                       FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
 
                         <TextBlock Text="{DynamicResource Login.Username}" Style="{StaticResource Typography.Label}"/>
-                        <TextBox Style="{StaticResource Input.TextBox}"
+                        <TextBox Style="{StaticResource ScTextBox}"
                                  Text="{Binding NewUsername, UpdateSourceTrigger=PropertyChanged}"/>
 
                         <TextBlock Text="{DynamicResource Login.DisplayNAME}" Style="{StaticResource Typography.Label}"
                                    Margin="0,8,0,4"/>
-                        <TextBox Style="{StaticResource Input.TextBox}"
+                        <TextBox Style="{StaticResource ScTextBox}"
                                  Text="{Binding NewDisplayName, UpdateSourceTrigger=PropertyChanged}"/>
 
                         <TextBlock Text="{DynamicResource SystemCenter.ROLE}" Style="{StaticResource Typography.Label}"
@@ -139,13 +203,13 @@
                         <ComboBox ItemsSource="{Binding RoleOptions}"
                                   SelectedItem="{Binding SelectedRole}"
                                   Padding="10,7"
-                                  FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+                                  FontSize="{StaticResource TextBodyLarge}"/>
 
                         <TextBlock Text="{DynamicResource Login.Password}" Style="{StaticResource Typography.Label}"
                                    Margin="0,8,0,4"/>
                         <PasswordBox x:Name="NewPasswordBox"
                                      Padding="10,6"
-                                     FontSize="{DynamicResource FontSize.Title}"
+                                     FontSize="{StaticResource TextBodyLarge}"
                                      Background="{DynamicResource SurfaceTertiaryBrush}"
                                      Foreground="{DynamicResource TextPrimaryBrush}"
                                      BorderThickness="{DynamicResource Border.NoneThickness}"
@@ -159,7 +223,7 @@
                                 Command="{Binding CreateUserCommand}"/>
 
                         <TextBlock Text="{Binding UserFormMessage}"
-                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                    Margin="0,6,0,0"
                                    TextWrapping="Wrap"
                                    Foreground="{DynamicResource AccentBrush}"/>
@@ -171,34 +235,34 @@
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="14,12"
-                        Margin="0,12,0,0" Style="{StaticResource SurfacePrimaryStyle}">
+                        Margin="0,12,0,0">
                     <StackPanel>
 <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                             <TextBlock Text="&#xE895;"
-                                       FontFamily="{DynamicResource FontFamily.Icon}"
-                                       FontSize="{DynamicResource FontSize.H2}"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="{StaticResource TextTitle}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0"/>
                             <TextBlock Text="{DynamicResource SystemCenter.SwitchActiveUser}"
-                                       FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                       FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Text="{DynamicResource SystemCenter.FutureActionsRecordedActiveUser}"
-                                   FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap"
+                                   FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    Margin="0,0,0,8"/>
 
                         <TextBlock Text="{DynamicResource Login.Username}" Style="{StaticResource Typography.Label}"/>
-                        <TextBox Style="{StaticResource Input.TextBox}"
+                        <TextBox Style="{StaticResource ScTextBox}"
                                  Text="{Binding SwitchUsername, UpdateSourceTrigger=PropertyChanged}"/>
 
                         <TextBlock Text="{DynamicResource Login.Password}" Style="{StaticResource Typography.Label}"
                                    Margin="0,8,0,4"/>
                         <PasswordBox x:Name="SwitchPasswordBox"
                                      Padding="10,6"
-                                     FontSize="{DynamicResource FontSize.Title}"
+                                     FontSize="{StaticResource TextBodyLarge}"
                                      Background="{DynamicResource SurfaceTertiaryBrush}"
                                      Foreground="{DynamicResource TextPrimaryBrush}"
                                      BorderThickness="{DynamicResource Border.NoneThickness}"
@@ -212,7 +276,7 @@
                                 Command="{Binding SwitchUserCommand}"/>
 
                         <TextBlock Text="{Binding SwitchMessage}"
-                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                    Margin="0,6,0,0"
                                    TextWrapping="Wrap"
                                    Foreground="{DynamicResource AccentBrush}"/>
@@ -225,28 +289,28 @@
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="14,12"
-                        Margin="0,12,0,4" Style="{StaticResource SurfacePrimaryStyle}">
+                        Margin="0,12,0,4">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                             <TextBlock Text="&#xE839;"
-                                       FontFamily="{DynamicResource FontFamily.Icon}"
-                                       FontSize="{DynamicResource FontSize.H3}"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="{StaticResource TextSubhead}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0"/>
                             <TextBlock Text="{DynamicResource SystemCenter.OnlineNetwork}"
-                                       FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                       FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Text="{DynamicResource SystemCenter.ColleaguesRunningProglassLANAppearHere}"
-                                   FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap"
+                                   FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    Margin="0,0,0,10"/>
 
                         <!-- Empty state -->
                         <TextBlock Text="{DynamicResource SystemCenter.NoOtherUsersDetectedRightNow}"
-                                   FontSize="{DynamicResource FontSize.Body}" FontStyle="Italic">
+                                   FontSize="{StaticResource TextBody}" FontStyle="Italic">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -266,7 +330,7 @@
                                 <DataTemplate>
                                     <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Padding="8,5" Margin="0,0,0,4"
                                             Background="{DynamicResource SurfaceTertiaryBrush}"
-                                            CornerRadius="{DynamicResource ControlCornerRadius}" Style="{StaticResource SurfacePrimaryStyle}">
+                                            CornerRadius="{DynamicResource ControlCornerRadius}">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
@@ -279,9 +343,9 @@
                                                      Margin="0,0,9,0"/>
                                             <StackPanel Grid.Column="1">
                                                 <TextBlock Text="{Binding DisplayName}"
-                                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                           FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                            Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                                <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" Margin="0,1,0,0"
+                                                <TextBlock FontSize="{StaticResource TextCaption}" Margin="0,1,0,0"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}">
                                                     <Run Text="{Binding Username, Mode=OneWay}"/>
                                                     <Run Text="  •  "/>
@@ -304,7 +368,7 @@
                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
-                    ClipToBounds="True" Style="{StaticResource SurfacePrimaryStyle}">
+                    ClipToBounds="True">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -313,7 +377,7 @@
                     <!-- Column heading strip (v2 table reference) -->
                     <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0"
                             Background="{DynamicResource AccentBrush}"
-                            Padding="16,8" Style="{StaticResource SurfacePrimaryStyle}">
+                            Padding="16,8">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="50"/>
@@ -347,7 +411,7 @@
                                         Background="{DynamicResource SurfaceSecondaryBrush}"
                                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                                         BorderThickness="{DynamicResource CardBorderThickness}"
-                                        CornerRadius="{DynamicResource ControlCornerRadius}" Style="{StaticResource SurfacePrimaryStyle}">
+                                        CornerRadius="{DynamicResource ControlCornerRadius}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="50"/>
@@ -360,10 +424,10 @@
                                                 Width="38" Height="38"
                                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                                 Background="{DynamicResource TintIndigoBrush}"
-                                                VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                                VerticalAlignment="Center">
                                             <TextBlock Text="&#xE77B;"
-                                                       FontFamily="{DynamicResource FontFamily.Icon}"
-                                                       FontSize="{DynamicResource FontSize.H2}"
+                                                       FontFamily="Segoe MDL2 Assets"
+                                                       FontSize="{StaticResource TextTitle}"
                                                        Foreground="{DynamicResource AccentBrush}"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"/>
@@ -374,13 +438,13 @@
                                                     VerticalAlignment="Center">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="{Binding DisplayName}"
-                                                           FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                                           FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintGreenBrush}"
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="6,1"
                                                         Margin="8,0,0,0"
-                                                        VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                                        VerticalAlignment="Center">
                                                     <Border.Style>
                                                         <Style TargetType="Border">
                                                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -392,11 +456,11 @@
                                                         </Style>
                                                     </Border.Style>
                                                     <TextBlock Text="{DynamicResource SystemCenter.ActiveNOW}"
-                                                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                Foreground="{DynamicResource SuccessBrush}"/>
                                                 </Border>
                                             </StackPanel>
-                                            <TextBlock FontSize="{DynamicResource FontSize.Body}" Margin="0,2,0,0"
+                                            <TextBlock FontSize="{StaticResource TextBody}" Margin="0,2,0,0"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}">
                                                 <Run Text="{Binding Username, Mode=OneWay}"/>
                                                 <Run Text="  •  "/>
@@ -410,7 +474,7 @@
 
                                         <TextBlock Grid.Column="2"
                                                    VerticalAlignment="Center"
-                                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                    Margin="0,0,10,0">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
@@ -437,8 +501,8 @@
                                                 Command="{Binding DataContext.ToggleActiveCommand,
                                                             RelativeSource={RelativeSource
                                                                 AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}" Style="{StaticResource SecondaryButtonStyle}">
-                                            <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                                                CommandParameter="{Binding}">
+                                            <Button.Style>
                                                 <Style TargetType="Button" BasedOn="{StaticResource DangerButton}">
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsActive}" Value="False">
@@ -457,8 +521,8 @@
                                                 Command="{Binding DataContext.ToggleActiveCommand,
                                                             RelativeSource={RelativeSource
                                                                 AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}" Style="{StaticResource SecondaryButtonStyle}">
-                                            <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                                                CommandParameter="{Binding}">
+                                            <Button.Style>
                                                 <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsActive}" Value="True">
@@ -506,8 +570,8 @@
                     <!-- Scope chips: STEP D two-button pattern -->
                     <Button Command="{Binding SetScopeCommand}" CommandParameter="All"
                             Tag="&#xE81C;" Content="{DynamicResource SystemCenter.ScopeAll}"
-                            ToolTip="{DynamicResource SystemCenter.ScopeAllTooltip}" Margin="0,0,6,0" Style="{StaticResource SecondaryButtonStyle}">
-                        <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                            ToolTip="{DynamicResource SystemCenter.ScopeAllTooltip}" Margin="0,0,6,0">
+                        <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsScopeAll}" Value="True">
@@ -519,8 +583,8 @@
                     </Button>
                     <Button IsHitTestVisible="False" Focusable="False"
                             Tag="&#xE81C;" Content="{DynamicResource SystemCenter.ScopeAll}"
-                            Margin="0,0,6,0" Style="{StaticResource SecondaryButtonStyle}">
-                        <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                            Margin="0,0,6,0">
+                        <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsScopeAll}" Value="False">
@@ -533,8 +597,8 @@
 
                     <Button Command="{Binding SetScopeCommand}" CommandParameter="Transactions"
                             Tag="&#xE8A5;" Content="{DynamicResource SystemCenter.ScopeTransactions}"
-                            ToolTip="{DynamicResource SystemCenter.ScopeTransactionsTooltip}" Margin="0,0,6,0" Style="{StaticResource SecondaryButtonStyle}">
-                        <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                            ToolTip="{DynamicResource SystemCenter.ScopeTransactionsTooltip}" Margin="0,0,6,0">
+                        <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsScopeTransactions}" Value="True">
@@ -546,8 +610,8 @@
                     </Button>
                     <Button IsHitTestVisible="False" Focusable="False"
                             Tag="&#xE8A5;" Content="{DynamicResource SystemCenter.ScopeTransactions}"
-                            Margin="0,0,6,0" Style="{StaticResource SecondaryButtonStyle}">
-                        <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                            Margin="0,0,6,0">
+                        <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsScopeTransactions}" Value="False">
@@ -560,8 +624,8 @@
 
                     <Button Command="{Binding SetScopeCommand}" CommandParameter="Inventory"
                             Tag="&#xE719;" Content="{DynamicResource SystemCenter.ScopeInventory}"
-                            ToolTip="{DynamicResource SystemCenter.ScopeInventoryTooltip}" Margin="0,0,6,0" Style="{StaticResource SecondaryButtonStyle}">
-                        <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                            ToolTip="{DynamicResource SystemCenter.ScopeInventoryTooltip}" Margin="0,0,6,0">
+                        <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsScopeInventory}" Value="True">
@@ -573,8 +637,8 @@
                     </Button>
                     <Button IsHitTestVisible="False" Focusable="False"
                             Tag="&#xE719;" Content="{DynamicResource SystemCenter.ScopeInventory}"
-                            Margin="0,0,6,0" Style="{StaticResource SecondaryButtonStyle}">
-                        <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                            Margin="0,0,6,0">
+                        <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsScopeInventory}" Value="False">
@@ -587,8 +651,8 @@
 
                     <Button Command="{Binding SetScopeCommand}" CommandParameter="UsersSecurity"
                             Tag="&#xE195;" Content="{DynamicResource SystemCenter.ScopeUsersSecurity}"
-                            ToolTip="{DynamicResource SystemCenter.ScopeUsersSecurityTooltip}" Margin="0,0,6,0" Style="{StaticResource SecondaryButtonStyle}">
-                        <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                            ToolTip="{DynamicResource SystemCenter.ScopeUsersSecurityTooltip}" Margin="0,0,6,0">
+                        <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsScopeUsersSecurity}" Value="True">
@@ -600,8 +664,8 @@
                     </Button>
                     <Button IsHitTestVisible="False" Focusable="False"
                             Tag="&#xE195;" Content="{DynamicResource SystemCenter.ScopeUsersSecurity}"
-                            Margin="0,0,6,0" Style="{StaticResource SecondaryButtonStyle}">
-                        <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                            Margin="0,0,6,0">
+                        <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsScopeUsersSecurity}" Value="False">
@@ -614,8 +678,8 @@
 
                     <Button Command="{Binding SetScopeCommand}" CommandParameter="System"
                             Tag="&#xE7F8;" Content="{DynamicResource SystemCenter.ScopeSystem}"
-                            ToolTip="{DynamicResource SystemCenter.ScopeSystemTooltip}" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                        <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                            ToolTip="{DynamicResource SystemCenter.ScopeSystemTooltip}" Margin="0,0,10,0">
+                        <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsScopeSystem}" Value="True">
@@ -627,8 +691,8 @@
                     </Button>
                     <Button IsHitTestVisible="False" Focusable="False"
                             Tag="&#xE7F8;" Content="{DynamicResource SystemCenter.ScopeSystem}"
-                            Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                        <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                            Margin="0,0,10,0">
+                        <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsScopeSystem}" Value="False">
@@ -641,7 +705,7 @@
 
                     <!-- Important-actions-only -->
                     <TextBlock Text="{DynamicResource SystemCenter.ImportantActionsOnly}"
-                               FontSize="{DynamicResource FontSize.Body}"
+                               FontSize="{StaticResource TextBody}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                VerticalAlignment="Center" Margin="6,0,8,0"/>
                     <ToggleButton Style="{StaticResource PiToggleSwitch}"
@@ -651,7 +715,7 @@
                                   ToolTip="{DynamicResource SystemCenter.ImportantActionsOnlyTooltip}"/>
 
                     <!-- Search -->
-                    <TextBox Style="{StaticResource Input.TextBox}"
+                    <TextBox Style="{StaticResource ScTextBox}"
                              Text="{Binding ActivitySearch, UpdateSourceTrigger=PropertyChanged}"
                              Width="220" VerticalAlignment="Center"
                              AutomationProperties.Name="Search activity"
@@ -665,7 +729,7 @@
                 </StackPanel>
 
                 <TextBlock Text="{Binding ActivityCountDisplay}"
-                           FontSize="{DynamicResource FontSize.BodySmall}"
+                           FontSize="{StaticResource TextCaption}"
                            Foreground="{DynamicResource TextTertiaryBrush}"
                            Margin="2,6,0,0"/>
             </StackPanel>
@@ -675,7 +739,7 @@
                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
-                    ClipToBounds="True" Style="{StaticResource SurfacePrimaryStyle}">
+                    ClipToBounds="True">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -684,7 +748,7 @@
                     <!-- Column heading strip (v2 table reference) -->
                     <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0"
                             Background="{DynamicResource AccentBrush}"
-                            Padding="16,8" Style="{StaticResource SurfacePrimaryStyle}">
+                            Padding="16,8">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="160"/>
@@ -713,18 +777,18 @@
                                 </Style.Triggers>
                             </Style>
                         </StackPanel.Style>
-                        <TextBlock Text="&#xE81C;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                   FontSize="{DynamicResource FontSize.Display}"
+                        <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets"
+                                   FontSize="{StaticResource TextDisplayLarge}"
                                    Foreground="{DynamicResource AccentBrush}"
                                    HorizontalAlignment="Center"
                                    Opacity="0.6"/>
                         <TextBlock Text="{DynamicResource Shared.NoActivityRecordedYet}"
-                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                   FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
                                    HorizontalAlignment="Center"
                                    Margin="0,10,0,3"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <TextBlock Text="{DynamicResource SystemCenter.ActionSectionRecordedHereAutomatically}"
-                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>
 
@@ -746,7 +810,7 @@
                                     <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,10"
                                             BorderBrush="{DynamicResource BorderDefaultBrush}"
                                             BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                                            ToolTip="{Binding RowTooltip}" Style="{StaticResource SurfacePrimaryStyle}">
+                                            ToolTip="{Binding RowTooltip}">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="160"/>
@@ -757,7 +821,7 @@
 
                                             <TextBlock Grid.Column="0"
                                                        Text="{Binding TimeDisplay}"
-                                                       FontSize="{DynamicResource FontSize.Body}"
+                                                       FontSize="{StaticResource TextBody}"
                                                        VerticalAlignment="Center"
                                                        Foreground="{DynamicResource TextTertiaryBrush}"/>
 
@@ -766,9 +830,9 @@
                                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="8,3"
                                                     HorizontalAlignment="Left"
-                                                    VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                                    VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Section}"
-                                                           FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="{DynamicResource InfoBrush}"/>
                                             </Border>
@@ -776,14 +840,14 @@
                                             <TextBlock Grid.Column="2"
                                                        Margin="10,0"
                                                        Text="{Binding Action}"
-                                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                        VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis"
                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                                             <TextBlock Grid.Column="3"
                                                        Text="{Binding Details}"
-                                                       FontSize="{DynamicResource FontSize.Body}"
+                                                       FontSize="{StaticResource TextBody}"
                                                        VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis"
                                                        ToolTip="{Binding Details}"

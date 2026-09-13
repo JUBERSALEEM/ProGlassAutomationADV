@@ -14,201 +14,222 @@
         <KeyBinding Key="Escape" Command="{Binding BackCommand}"/>
     </UserControl.InputBindings>
 
-    <UserControl.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Sections/DnSectionStyles.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
+        <UserControl.Resources>
+        <!-- Migrated FocBadgeStyle to global Badge.Primary -->
+    </UserControl.Resources>
 
 
+    <!-- ROOT GRID
+         Row 0: Action bar
+         Row 1: Master DN banner
+         Row 2: Loading/Error
+         Row 3: Stats + Attachments
+         Row 4: Items + History
+    -->
+    <!-- 2026-09-10: page-level scroller — Master DN (and tall detail
+         pages generally) could clip the balance stats below the fold with
+         no way to reach them. Star rows size to content under the
+         ScrollViewer's infinite measure, so nothing else changes. -->
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+    <Grid Margin="{DynamicResource DensityPageMargin}"
+          Background="{DynamicResource SurfacePrimaryBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
+        <!-- ═══ ROW 0 — ACTION BAR ═══ -->
+        <Border Grid.Row="0"
+                Style="{StaticResource ModuleDetailActionBarStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
+                <Button Grid.Column="0"
+                        Style="{StaticResource OutlinedPillButton}"
+                        Tag="&#xE72B;" Content="{DynamicResource Action.Back}"
+                        Command="{Binding BackCommand}"
+                        Margin="0,0,12,0"
+                        ToolTip="{DynamicResource DeliveryNote.BackListEsc}"/>
 
-        <Style x:Key="DnMenuActionItem" TargetType="Button">
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="12,9"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg" Background="Transparent"
-                                CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,9"
-                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{TemplateBinding Tag}"
-                                           FontFamily="{DynamicResource FontFamily.Icon}"
-                                           FontSize="{DynamicResource FontSize.H3}"
-                                           Foreground="{DynamicResource AccentBrush}"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,10,0"/>
-                                <TextBlock Text="{TemplateBinding Content}"
-                                           FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"
-                                           VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="{Binding DeliveryNoteId}"
+                               Style="{StaticResource ModuleDetailTitleStyle}"/>
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,3"
+                            Margin="10,0,0,0" VerticalAlignment="Center"
+                            Background="{DynamicResource TintIndigoBrush}">
+                        <TextBlock Text="{Binding DeliveryType}"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    </Border>
+                    <Border Style="{StaticResource Badge.Primary}">
+                        <TextBlock Text="{DynamicResource DeliveryNote.FREECharge}"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    </Border>
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,3"
+                            Margin="6,0,0,0" VerticalAlignment="Center"
+                            Background="{DynamicResource TintGreenBrush}">
+                        <TextBlock Text="{Binding Status}"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                   Foreground="{DynamicResource SuccessBrush}"/>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+
+                    <Button Style="{StaticResource PrimaryPillButton}"
+                            Tag="&#xE74E;" Content="{DynamicResource Action.Save}"
+                            Command="{Binding SaveCommand}"
+                            Margin="0,0,8,0"
+                            ToolTip="{DynamicResource DeliveryNote.SaveDispatchingDNDispatchedRemainingQtyStays}"
+                            Visibility="{Binding IsNotMasterDn,
+                                         Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                    <Button Style="{StaticResource CreateFromMasterButtonStyle}"
+                            Tag="&#xE7B8;" Content="{DynamicResource DeliveryNote.CreateBalance}"
+                            Command="{Binding CreateNewDnFromMasterCommand}"
+                            Margin="0,0,8,0"
+                            ToolTip="{DynamicResource DeliveryNote.CreateNewDispatchingDNRemainingBalance}"/>
+
+                    <Button x:Name="ActionsMenuButton"
+                            Style="{StaticResource OutlinedPillButton}"
+                            Tag="&#xE712;" Content="{DynamicResource Common.Actions}"
+                            ToolTip="{DynamicResource DeliveryNote.SaveDispatchExportMore}"
+                            behaviors:DropdownButtonBehavior.Popup="{Binding ElementName=ActionsMenuPopup}"/>
+
+                    <Popup x:Name="ActionsMenuPopup"
+                           PlacementTarget="{Binding ElementName=ActionsMenuButton}"
+                           Placement="Bottom"
+                           HorizontalAlignment="Right"
+                           VerticalOffset="4"
+                           AllowsTransparency="True"
+                           StaysOpen="True"
+                           PopupAnimation="Fade">
+                        <Border Background="{DynamicResource SurfaceOverlayBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                Padding="6"
+                                MinWidth="220"
+                                SnapsToDevicePixels="True">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="20" ShadowDepth="4"
+                                                  Direction="270" Opacity="0.25"
+                                                  Color="{DynamicResource LiquidShadowColor}"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <Button Style="{StaticResource DnMenuRealOnlyItem}"
+                                        Tag="&#xE74E;" Content="{DynamicResource DeliveryNote.SaveDispatch}"
+                                        Command="{Binding SaveCommand}"
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                <Button Style="{StaticResource DnMenuActionItem}"
+                                        Tag="&#xE81C;" Content="{DynamicResource Common.VersionHistory}"
+                                        Command="{Binding ShowVersionsCommand}"
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                <Border Height="1" Margin="10,4"
+                                        Background="{DynamicResource BorderDefaultBrush}"/>
+                                <Button Style="{StaticResource DnMenuActionItem}"
+                                        Tag="&#xE8A5;" Content="{DynamicResource DeliveryNote.ExportPDF}"
+                                        Command="{Binding ExportPdfCommand}"
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                <Button Style="{StaticResource DnMenuActionItem}"
+                                        Tag="&#xE9F9;" Content="{DynamicResource DeliveryNote.ExportExcel}"
+                                        Command="{Binding ExportExcelCommand}"
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                <Button Style="{StaticResource DnMenuActionItem}"
+                                        Tag="&#xE72D;" Content="{DynamicResource DeliveryNote.ExportCSV}"
+                                        Command="{Binding ExportCsvCommand}"
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                <Button Style="{StaticResource DnMenuActionItem}"
+                                        Tag="&#xE72D;" Content="{DynamicResource Sharing.Share}"
+                                        Command="{Binding ShareCommand}"
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                <Border Height="1" Margin="10,4"
+                                        Background="{DynamicResource BorderDefaultBrush}"/>
+                                <Button Style="{StaticResource DnMenuRealOnlyItem}"
+                                        Tag="&#xE74D;" Content="{DynamicResource DeliveryNote.DeleteDeliveryNote}"
+                                        Command="{Binding DeleteDnCommand}"
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                             </StackPanel>
                         </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.8"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.40"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+                    </Popup>
+                </StackPanel>
+            </Grid>
+        </Border>
 
+        <!-- ROW 1 removed — Master DN banner no longer needed -->
 
+        <!-- ═══ ROW 2 — LOADING / ERROR ═══ -->
+        <StackPanel Grid.Row="2">
+            <loading:LoadingStateControl
+                    Visibility="{Binding IsLoading,
+                                 Converter={StaticResource BoolToVisibilityConverter}}"
+                    Message="Loading delivery note…"
+                    Margin="0,8,0,12"/>
+            <Border Visibility="{Binding HasError,
+                                 Converter={StaticResource BoolToVisibilityConverter}}"
+                    Style="{StaticResource ModuleErrorBannerStyle}">
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Foreground="{DynamicResource DangerBrush}"
+                           FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
+                           TextWrapping="Wrap"/>
+            </Border>
 
+            <!-- ERP hardening (Phase 2): once a delivery note is Dispatched
+                 (goods have left) its body is locked. -->
+            <Border BorderBrush="{DynamicResource WarningBrush}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
+                    Background="{DynamicResource TintAmberBrush}"
+                    CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,10"
+                    Margin="0,0,0,10"
+                    Visibility="{Binding BodyLockBannerVisibility}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE72E;" FontFamily="Segoe MDL2 Assets"
+                               FontSize="{StaticResource TextBodyLarge}"
+                               Foreground="{DynamicResource WarningBrush}"
+                               VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Text="{DynamicResource Lock.PostedBodyLocked}"
+                               TextWrapping="Wrap"
+                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
 
-
-
-
-
-
-        <Style x:Key="HistoryRowButtonStyle" TargetType="Button">
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Margin="12,4,12,4"
-                                Background="Transparent"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
-                            <ContentPresenter/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <!-- ═══════════════════════════════════════════════
-             NAMED STYLES — prevent Style double-set errors
-        ═══════════════════════════════════════════════ -->
-
-        <!-- SELECT ALL REMAINING button -->
-        
-
-        <!-- RESET QTY button — muted grey, companion to FillRemaining -->
-        
-
-        <!-- Create from Master button -->
-        <Style x:Key="CreateFromMasterButtonStyle" TargetType="Button">
-            <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
-            <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
-            <Setter Property="Padding" Value="16,8"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Visibility" Value="Collapsed"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Padding="{TemplateBinding Padding}"
-                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.88"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.72"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.45"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsMasterDn}" Value="True">
-                    <Setter Property="Visibility" Value="Visible"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- Real DN actions panel -->
-        
-
-        <Style x:Key="DnMenuRealOnlyItem" TargetType="Button"
-               BasedOn="{StaticResource Button.Secondary}">
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsMasterDn}" Value="True">
-                    <Setter Property="Visibility" Value="Collapsed"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- THIS DN / DELIVERED column header -->
-
-        <!-- DeliveredQty TextBox — hidden on Master DN -->
-
-        <!-- DeliveredQty TextBlock — shown on Master DN only -->
-
-        <!-- PREV DELIVERED / TOTAL DELIVERED label -->
-
-        <!-- THIS DN / IN PROGRESS label -->
-
-        <!-- Hero strip label -->
-
-        <!-- Items section title -->
-
-        <!-- Items section subtitle -->
-
-        <!-- Details form visibility -->
-
-        <!-- Master DN banner -->
-        
-
-        <!-- Master DN badge in action bar -->
-        
-
-        <!-- FOC badge -->
-        <!-- Migrated FocBadgeStyle to global Badge.Primary -->
-    
+        <!-- ═══ ROW 3 — STATS | ATTACHMENTS ═══ -->
+        <!-- ══ DETAIL TABS — Overview / Attachments / History ════════ -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,12">
+            <Button Content="{DynamicResource Nav.Overview}" Tag="&#xE8A5;" Margin="0,0,8,0"
+                    ToolTip="{DynamicResource DeliveryNote.StatsDeliveredItems}"
+                    Command="{Binding SwitchDetailTabCommand}" CommandParameter="Overview">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsOverviewTab}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
                 </Button.Style>
             </Button>
             <Button Content="{DynamicResource DeliveryNote.Attachments}" Tag="&#xE723;" Margin="0,0,8,0"
                     ToolTip="{DynamicResource DeliveryNote.AttachedPhotosSignedCopies}"
-                    Command="{Binding SwitchDetailTabCommand}" CommandParameter="Attachments" Style="{StaticResource SecondaryButtonStyle}">
-                <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                    Command="{Binding SwitchDetailTabCommand}" CommandParameter="Attachments">
+                <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsAttachmentsTab}" Value="True">
@@ -221,8 +242,8 @@
             </Button>
             <Button Content="{DynamicResource DeliveryNote.History}" Tag="&#xE81C;"
                     ToolTip="{DynamicResource DeliveryNote.DeliveryHistoryTimeline}"
-                    Command="{Binding SwitchDetailTabCommand}" CommandParameter="History" Style="{StaticResource SecondaryButtonStyle}">
-                <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                    Command="{Binding SwitchDetailTabCommand}" CommandParameter="History">
+                <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsHistoryTab}" Value="True">

@@ -31,12 +31,93 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <UserControl.Resources>
-
-        <!-- Card surface used across the full detail. -->
+        <UserControl.Resources>
         <!-- Migrated FullCardStyle to global SurfacePrimaryStyle -->
-    <!-- Migrated FullCardStyle to global SurfacePrimaryStyle -->
-    
+    </UserControl.Resources>
+
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  CanContentScroll="False"
+                  PanningMode="VerticalOnly"
+                  behaviors:SmoothScrollBehavior.IsEnabled="True">
+        <StackPanel Margin="20,0,20,24">
+
+            <!-- ═══ ACCENT HEADER — PI identity + target status ═══ -->
+            <Border Background="{DynamicResource AccentBrush}"
+                    CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="18,14">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="{Binding ProformaId}"
+                                   FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                   TextWrapping="Wrap" Margin="0,2,0,0">
+                            <Run Text="{Binding CustomerName, Mode=OneWay}"/>
+                            <Run Text=" · "/>
+                            <Run Text="{Binding ProjectName, Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock FontSize="{StaticResource TextCaption}"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                   Opacity="0.85" TextWrapping="Wrap" Margin="0,2,0,0">
+                            <Run Text="{Binding CompanyName, Mode=OneWay}"/>
+                            <Run Text=" · "/>
+                            <Run Text="{Binding Salesman, Mode=OneWay}"/>
+                            <Run Text=" · issued "/>
+                            <Run Text="{Binding IssueDateDisplay, Mode=OneWay}"/>
+                            <Run Text=" · glass "/>
+                            <Run Text="{Binding GlassTypeSummary, Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <!-- Target status pill -->
+                    <Border Grid.Column="1" VerticalAlignment="Top"
+                            HorizontalAlignment="Right" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,5" Margin="12,0,0,0">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsAboveTarget}" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsBelowTarget}" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsTargetStale}" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="{Binding TargetStatusLabel}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource FullBadgeText}">
+                                    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsTargetIncomplete}" Value="True">
+                                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsAboveTarget}" Value="True">
+                                            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsBelowTarget}" Value="True">
+                                            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsTargetStale}" Value="True">
+                                            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
                             </TextBlock.Style>
                         </TextBlock>
                     </Border>
@@ -73,7 +154,7 @@
 
                 <Border Grid.Column="4">
                     <Border.Style>
-                        <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                        <Style TargetType="Border" BasedOn="{StaticResource FullCardStyle}">
                             <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsLoss}" Value="True">
@@ -195,13 +276,13 @@
 
                                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Spec target ×1.15" Style="{StaticResource FullKvLabel}"/>
                                 <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SpecificationTargetPerSqmDisplay}"
-                                           FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                           FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            HorizontalAlignment="Right" Margin="10,3,0,3"/>
 
                                 <TextBlock Grid.Row="2" Grid.Column="0" Text="U-insert (target)" Style="{StaticResource FullKvLabel}"/>
                                 <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding AppliedUInsertPerSqmDisplay}"
-                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                           FontSize="{StaticResource TextCaption}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            HorizontalAlignment="Right" Margin="10,3,0,3"/>
 
@@ -226,11 +307,11 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="MARGIN AGAINST TARGET"
-                                           FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            VerticalAlignment="Center"/>
                                 <TextBlock Grid.Column="1" Text="{Binding TargetMarginDisplay}"
-                                           FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}">
+                                           FontSize="{StaticResource TextSection}" FontWeight="Bold">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
@@ -251,7 +332,7 @@
                             </Grid>
 
                             <TextBlock Text="{Binding UInsertTreatmentSummary}"
-                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                       FontSize="{StaticResource TextCaption}"
                                        Foreground="{DynamicResource TextTertiaryBrush}"
                                        TextWrapping="Wrap" Margin="0,6,0,0"/>
 
@@ -269,18 +350,18 @@
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
                                                     <Border Grid.Column="0" Width="22" Height="22" CornerRadius="{DynamicResource Radius.Medium}"
-                                                            Background="{DynamicResource AccentBrush}" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
-                                                        <TextBlock Text="{Binding SpecNumber}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                                            Background="{DynamicResource AccentBrush}" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding SpecNumber}" FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
                                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                     <TextBlock Grid.Column="1" Text="{Binding SpecName}"
-                                                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                                Foreground="{DynamicResource TextPrimaryBrush}"
                                                                TextTrimming="CharacterEllipsis" Margin="8,0,8,0"
                                                                VerticalAlignment="Center"/>
                                                     <TextBlock Grid.Column="2" Text="{Binding StatusLabel}"
-                                                               FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}">
+                                                               FontSize="{StaticResource TextXSmall}" FontWeight="Bold">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
                                                                 <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
@@ -324,7 +405,7 @@
                                                 </Grid>
 
                                                 <TextBlock Text="{Binding UInsertNote}"
-                                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                                           FontSize="{StaticResource TextCaption}"
                                                            Foreground="{DynamicResource TextTertiaryBrush}"
                                                            TextWrapping="Wrap" Margin="30,4,0,0"/>
                                             </StackPanel>
@@ -338,7 +419,7 @@
                     <!-- Target note when data missing -->
                     <TextBlock Text="{Binding TargetStatusMessage}"
                                Visibility="{Binding HasTargetData, Converter={StaticResource InverseBoolToVisibilityConverter}}"
-                               FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontSize="{StaticResource TextCaption}"
                                Foreground="{DynamicResource TextTertiaryBrush}"
                                TextWrapping="Wrap" Margin="0,4,0,0"/>
                 </StackPanel>
@@ -373,11 +454,11 @@
                                     Background="{DynamicResource BorderDefaultBrush}" Margin="0,8"/>
 
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="NET REVENUE (ex-VAT)"
-                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                       FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        VerticalAlignment="Center"/>
                             <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding NetRevenueDisplay}"
-                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        HorizontalAlignment="Right" Margin="10,3,0,3"/>
                         </Grid>
@@ -408,11 +489,11 @@
                                     Background="{DynamicResource BorderDefaultBrush}" Margin="0,8"/>
 
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="TOTAL COST"
-                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                       FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        VerticalAlignment="Center"/>
                             <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding TotalCostDisplay}"
-                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        HorizontalAlignment="Right" Margin="10,3,0,3"/>
                         </Grid>
@@ -429,14 +510,14 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Cost-Based (no U-insert)"
-                                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                               FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="(Revenue − Base Cost) ÷ Base Cost"
-                                               FontSize="{DynamicResource FontSize.BodySmall}"
+                                               FontSize="{StaticResource TextCaption}"
                                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                                 </StackPanel>
                                 <TextBlock Grid.Column="1" Text="{Binding MarginDisplay}"
-                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            VerticalAlignment="Center"/>
                             </Grid>
@@ -449,16 +530,16 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                    <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                Foreground="{DynamicResource AccentBrush}">
                                         <Run Text="&#x2B50; Overall (with U-insert)"/>
                                     </TextBlock>
                                     <TextBlock Text="(Revenue − Total Cost) ÷ Total Cost"
-                                               FontSize="{DynamicResource FontSize.BodySmall}"
+                                               FontSize="{StaticResource TextCaption}"
                                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                                 </StackPanel>
                                 <TextBlock Grid.Column="1" Text="{Binding OverallMarginDisplay}"
-                                           FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}" VerticalAlignment="Center">
+                                           FontSize="{StaticResource TextTitle}" FontWeight="Bold" VerticalAlignment="Center">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
@@ -481,14 +562,14 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Net (accounting)"
-                                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                               FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="(Revenue − Total Cost) ÷ Revenue"
-                                               FontSize="{DynamicResource FontSize.BodySmall}"
+                                               FontSize="{StaticResource TextCaption}"
                                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                                 </StackPanel>
                                 <TextBlock Grid.Column="1" Text="{Binding NetMarginDisplay}"
-                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            VerticalAlignment="Center"/>
                             </Grid>
@@ -510,7 +591,7 @@
 
                     <!-- Header -->
                     <Border Grid.Row="0" Background="{DynamicResource AccentBrush}"
-                            CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="14,8" Style="{StaticResource SurfacePrimaryStyle}">
+                            CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="14,8">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2.6*"/>
@@ -544,14 +625,14 @@
 
                                         <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,8,0">
                                             <TextBlock Text="{Binding KindIcon}"
-                                                       FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Title}"
+                                                       FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBodyLarge}"
                                                        Foreground="{DynamicResource AccentBrush}"
                                                        VerticalAlignment="Center"/>
                                             <StackPanel Margin="6,0,0,0">
                                                 <TextBlock Text="{Binding Description}"
-                                                           Style="{StaticResource FullCell}" FontWeight="{DynamicResource Weight.SemiBold}"/>
+                                                           Style="{StaticResource FullCell}" FontWeight="SemiBold"/>
                                                 <TextBlock Text="{Binding CalculationNote}"
-                                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                                           FontSize="{StaticResource TextCaption}"
                                                            Foreground="{DynamicResource TextTertiaryBrush}"
                                                            TextTrimming="CharacterEllipsis"/>
                                             </StackPanel>
@@ -564,7 +645,7 @@
                                         <TextBlock Grid.Column="3" Text="{Binding UnitPriceDisplay}"
                                                    Style="{StaticResource FullCell}" HorizontalAlignment="Right"/>
                                         <TextBlock Grid.Column="4" Text="{Binding AmountDisplay}"
-                                                   Style="{StaticResource FullCell}" FontWeight="{DynamicResource Weight.Bold}"
+                                                   Style="{StaticResource FullCell}" FontWeight="Bold"
                                                    HorizontalAlignment="Right"/>
                                     </Grid>
                                 </Border>
@@ -576,7 +657,7 @@
 
             <!-- Status -->
             <TextBlock Text="{Binding StatusMessage}"
-                       FontSize="{DynamicResource FontSize.BodySmall}"
+                       FontSize="{StaticResource TextCaption}"
                        Foreground="{DynamicResource TextTertiaryBrush}"
                        TextWrapping="Wrap" Margin="0,10,0,0"/>
         </StackPanel>
