@@ -362,28 +362,36 @@ git add Views/UserCenter/UserCenterView.xaml
 fix: resolve pre-existing XAML guard violations
 ```
 
-**Commit details (to be filled after commit):**
+**Commit details — EXECUTED:**
 
-- **Commit hash:** (to be filled after git commit)
+- **Commit hash:** d6165733beb05bf878a0faad8a90182f6aaff3fe
 - **Commit message:** fix: resolve pre-existing XAML guard violations
-- **Files committed:** 10 — Phase 8A-1 repairs — 13 MC3024 fixed
-- **Diff stat:** 10 files changed, ~60 insertions, ~75 deletions
+- **Files committed:** 11 — 10 Phase 8A-1 repairs (13 MC3024 fixed) + 1 report — 514 insertions, 64 deletions
+  - Views/AI/AiChatView.xaml 12 +-
+  - Views/CompanyCenter/CompanyCenterView.xaml 2 +-
+  - Views/DeliveryNote/DeliveryNoteDetail/Sections/DnOverviewSection.xaml 10 +-
+  - Views/Optimization/Tabs/TwoDViewTabView.xaml 8 +-
+  - Views/ProformaInvoice/Step4PricingEstimator/PricingEstimatorView.xaml 8 +-
+  - Views/Reports/StatementList/StatementListView.xaml 14 +-
+  - Views/Settings/Sections/SettingsUpdatesSection.xaml 9 +-
+  - Views/TaxInvoice/TaxInvoiceDetail/Sections/TiAttachmentsSection.xaml 10 +-
+  - Views/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailView.xaml 6 +-
+  - Views/UserCenter/UserCenterView.xaml 16 +-
+  - docs/PHASE8A1_XAML_GUARD_CLEANUP_REPORT.md 483 +++++++++++++++++++++
+- **Commit verification:** git log -1 --oneline shows d616573 fix: resolve pre-existing XAML guard violations, git diff HEAD~1 HEAD --stat matches 11 files, no GlobalDesignSystem/App.xaml changes, 268/268 well-formed, guard 0 BLOCKING, xaml-guard 2 false positives deferred
 
-**Push:**
+**Push — EXECUTED:**
 
 ```
 git push origin arena/01a09a9f-proglassautomationadv
 ```
 
-**Never force push — normal push — verify:**
+- **Result:** To https://github.com/JUBERSALEEM/ProGlassAutomationADV.git — bb9b8c1..d616573 arena/01a09a9f-proglassautomationadv -> arena/01a09a9f-proglassautomationadv — SUCCESS
+- **ls-remote verification:** d6165733beb05bf878a0faad8a90182f6aaff3fe refs/heads/arena/01a09a9f-proglassautomationadv — remote contains intended commit
+- **Status after push:** ## arena/01a09a9f-proglassautomationadv, 7 M protected + 5 ?? docs — protected files remain uncommitted, not included — PASS
+- **Log after push:** d616573 fix: resolve pre-existing XAML guard violations, bb9b8c1 docs finalize Phase 8A guardrails, ed35da4 chore add guardrails, etc.
 
-```
-git ls-remote origin arena/01a09a9f-proglassautomationadv
-git status --short --branch
-git log -1 --oneline
-```
-
-**Confirm remote HEAD matches pushed commit.**
+**Never force push — normal push — verified — remote HEAD matches pushed commit**
 
 ---
 
