@@ -115,6 +115,7 @@ namespace ProGlassAutomation.ViewModels.Production
             OpenUnitCommand = new RelayCommand(p => OpenUnit(p as ProductionListRow));
             CloseDetailCommand = new RelayCommand(_ => IsDetailOpen = false);
             InitStationCommands();
+            InitPhase14Commands();
 
             SaveAllDoneCommand = new RelayCommand(
                 _ => AsyncUtility.SafeFireAndForget(SaveAllDoneAsync, "Work item qty save all"),

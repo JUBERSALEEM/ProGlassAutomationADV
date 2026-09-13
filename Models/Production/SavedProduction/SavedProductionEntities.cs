@@ -157,6 +157,42 @@ namespace ProGlassAutomation.Models.Production.SavedProduction
         /// </summary>
         [MaxLength(120)]
         public string CompletedBy { get; set; } = string.Empty;
+
+        // ── Phase 14: FOC / Replacement / Cancellation ───────────────────
+
+        /// <summary>
+        /// True = this work item is Free Of Charge (selling value zero,
+        /// commercially traceable, profitability impact preserved).
+        /// ADDITIVE Phase 14.
+        /// </summary>
+        public bool IsFoc { get; set; } = false;
+
+        /// <summary>
+        /// Replacement sequence for deterministic replacement tracking.
+        /// 0 = original piece, 1+ = replacement generation.
+        /// ADDITIVE Phase 14.
+        /// </summary>
+        public int ReplacementSequence { get; set; } = 0;
+
+        /// <summary>
+        /// Parent work item that this replacement replaces, if any.
+        /// ADDITIVE Phase 14.
+        /// </summary>
+        public int? ParentWorkItemId { get; set; }
+
+        /// <summary>
+        /// True = this item has been cancelled (historical preserved,
+        /// never physically deleted). ADDITIVE Phase 14.
+        /// </summary>
+        public bool IsCancelled { get; set; } = false;
+
+        [MaxLength(120)]
+        public string CancelledBy { get; set; } = string.Empty;
+
+        public DateTime? CancelledAt { get; set; }
+
+        [MaxLength(500)]
+        public string CancelReason { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -200,5 +236,38 @@ namespace ProGlassAutomation.Models.Production.SavedProduction
         public string DoneBy { get; set; } = string.Empty;
 
         public DateTime DoneAt { get; set; } = DateTime.Now;
+
+        // ── Phase 14: EntryType / Breakage / Rework / FOC ───────────────
+
+        /// <summary>
+        /// Entry type: Normal=0 Breakage=1 Rework=2 Foc=3 QcPassed=4 QcFailed=5 Cancelled=6.
+        /// ADDITIVE Phase 14 — default 0 Normal for backward compatibility.
+        /// </summary>
+        public int EntryType { get; set; } = 0;
+
+        /// <summary>Reason for breakage / rework / FOC / QC / cancellation.</summary>
+        [MaxLength(500)]
+        public string Reason { get; set; } = string.Empty;
+
+        /// <summary>Parent entry that this entry replaces / originates from.</summary>
+        public int? ParentEntryId { get; set; }
+
+        /// <summary>Replacement sequence deterministic.</summary>
+        public int ReplacementSequence { get; set; } = 0;
+
+        /// <summary>True = FOC (selling value zero, cost preserved).</summary>
+        public bool IsFoc { get; set; } = false;
+
+        /// <summary>Related reservation id (logical FK).</summary>
+        [MaxLength(120)]
+        public string RelatedReservationId { get; set; } = string.Empty;
+
+        /// <summary>Related QC id (logical FK).</summary>
+        [MaxLength(120)]
+        public string RelatedQcId { get; set; } = string.Empty;
+
+        /// <summary>Additional notes.</summary>
+        [MaxLength(1000)]
+        public string Notes { get; set; } = string.Empty;
     }
 }

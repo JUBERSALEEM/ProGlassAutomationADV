@@ -369,6 +369,9 @@ namespace ProGlassAutomation.ViewModels.Production
             AsyncUtility.SafeFireAndForget(
                 () => RefreshDispatchAsync(row.JobRef),
                 "Production dispatch panel");
+
+            // Phase 14: QC, Reservations, Allocations, Actual Costs, Breakage/Replacement
+            OnPhase14DetailRefreshed();
         }
 
         private static bool IsInnerPosition(string position) =>

@@ -116,6 +116,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // "full rack" is pre-seeded; the run packs each cutting group
             // against the rack its spec was quoted on.
             RefreshDerived();
+
+            // Phase 14 bridge
+            InitPhase14Optimization();
         }
     }
 }

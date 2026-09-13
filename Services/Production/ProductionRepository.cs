@@ -814,6 +814,10 @@ namespace ProGlassAutomation.Services.Production
             var row = await db.WorkItems.FindAsync(itemId).ConfigureAwait(false);
             if (row == null) return (false, 0, "Work item not found.");
 
+            // Phase 14: cancelled work items cannot be worked
+            if (row.IsCancelled)
+                return (false, 0, $"Work item cancelled: {row.CancelReason} by {row.CancelledBy} at {row.CancelledAt:yyyy-MM-dd HH:mm}.");
+
             // Flow context: how many pieces arrived at this item's stage.
             var all = await db.WorkItems.AsNoTracking().ToListAsync().ConfigureAwait(false);
             var flows = ComputeUnitFlows(all);
@@ -896,6 +900,13 @@ namespace ProGlassAutomation.Services.Production
             {
                 var row = rows.FirstOrDefault(r => r.Id == itemId);
                 if (row == null) continue;
+
+                // Phase 14: skip cancelled
+                if (row.IsCancelled)
+                {
+                    messages.Add($"Skipped cancelled {row.GlassRef} {row.SpecGroupNumber}/{row.SerialNumber}: {row.CancelReason}");
+                    continue;
+                }
 
                 int inflow = row.Qty; // fallback = the item's own quantity
                 var flowItem = flows

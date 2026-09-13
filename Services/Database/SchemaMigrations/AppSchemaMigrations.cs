@@ -434,6 +434,234 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                 new(1004, "Production: CompletedBy column", connection =>
                 {
                     SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionWorkItems", "CompletedBy", "TEXT NOT NULL DEFAULT ''");
+                }),
+
+                // Phase 14: FOC / Replacement / Cancellation columns on WorkItems
+                new(1005, "Production: FOC / Replacement / Cancellation columns", connection =>
+                {
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionWorkItems", "IsFoc", "INTEGER NOT NULL DEFAULT 0");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionWorkItems", "ReplacementSequence", "INTEGER NOT NULL DEFAULT 0");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionWorkItems", "ParentWorkItemId", "INTEGER NULL");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionWorkItems", "IsCancelled", "INTEGER NOT NULL DEFAULT 0");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionWorkItems", "CancelledBy", "TEXT NOT NULL DEFAULT ''");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionWorkItems", "CancelledAt", "TEXT NULL");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionWorkItems", "CancelReason", "TEXT NOT NULL DEFAULT ''");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProductionWorkItem_IsFoc ON ProductionWorkItems(IsFoc);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProductionWorkItem_IsCancelled ON ProductionWorkItems(IsCancelled);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProductionWorkItem_ParentWorkItemId ON ProductionWorkItems(ParentWorkItemId);");
+                }),
+
+                // Phase 14: EntryType / Breakage / Rework / FOC columns on Entries
+                new(1006, "Production: EntryType / Breakage / Rework / FOC columns", connection =>
+                {
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionEntries", "EntryType", "INTEGER NOT NULL DEFAULT 0");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionEntries", "Reason", "TEXT NOT NULL DEFAULT ''");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionEntries", "ParentEntryId", "INTEGER NULL");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionEntries", "ReplacementSequence", "INTEGER NOT NULL DEFAULT 0");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionEntries", "IsFoc", "INTEGER NOT NULL DEFAULT 0");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionEntries", "RelatedReservationId", "TEXT NOT NULL DEFAULT ''");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionEntries", "RelatedQcId", "TEXT NOT NULL DEFAULT ''");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProductionEntries", "Notes", "TEXT NOT NULL DEFAULT ''");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProductionEntry_EntryType ON ProductionEntries(EntryType);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProductionEntry_ParentEntryId ON ProductionEntries(ParentEntryId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProductionEntry_IsFoc ON ProductionEntries(IsFoc);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProductionEntry_RelatedReservationId ON ProductionEntries(RelatedReservationId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProductionEntry_RelatedQcId ON ProductionEntries(RelatedQcId);");
+                }),
+
+                // Phase 14: Material Reservations table
+                new(1007, "Production: MaterialReservations table", connection =>
+                {
+                    SchemaMigrationSql.CreateTableIfNotExists(connection, @"
+                        CREATE TABLE IF NOT EXISTS MaterialReservations (
+                            Id                      INTEGER NOT NULL CONSTRAINT PK_MaterialReservations PRIMARY KEY AUTOINCREMENT,
+                            ReservationId           TEXT NOT NULL,
+                            JobRef                  TEXT NOT NULL,
+                            SourceProformaId        TEXT NOT NULL DEFAULT '',
+                            SpecGroupNumber         INTEGER NOT NULL DEFAULT 0,
+                            SerialNumber            INTEGER NOT NULL DEFAULT 0,
+                            GlassRef                TEXT NOT NULL DEFAULT '',
+                            SpecName                TEXT NOT NULL DEFAULT '',
+                            OptimizationSessionId   TEXT NOT NULL DEFAULT '',
+                            GlassSheetId            INTEGER NOT NULL DEFAULT 0,
+                            StockSizeLabel          TEXT NOT NULL DEFAULT '',
+                            WidthMm                 INTEGER NOT NULL DEFAULT 0,
+                            HeightMm                INTEGER NOT NULL DEFAULT 0,
+                            ThicknessMm             INTEGER NOT NULL DEFAULT 0,
+                            Color                   TEXT NOT NULL DEFAULT '',
+                            Quantity                INTEGER NOT NULL DEFAULT 0,
+                            Status                  INTEGER NOT NULL DEFAULT 1,
+                            CreatedBy               TEXT NOT NULL DEFAULT '',
+                            CreatedAt               TEXT NOT NULL,
+                            ReleasedAt              TEXT NULL,
+                            ReleaseReason           TEXT NOT NULL DEFAULT '',
+                            Notes                   TEXT NOT NULL DEFAULT ''
+                        );");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_MaterialReservation_ReservationId_Unique ON MaterialReservations(ReservationId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_MaterialReservation_JobRef ON MaterialReservations(JobRef);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_MaterialReservation_GlassSheetId ON MaterialReservations(GlassSheetId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_MaterialReservation_Status ON MaterialReservations(Status);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_MaterialReservation_OptSession ON MaterialReservations(OptimizationSessionId);");
+                }),
+
+                // Phase 14: Material Allocations table
+                new(1008, "Production: MaterialAllocations table", connection =>
+                {
+                    SchemaMigrationSql.CreateTableIfNotExists(connection, @"
+                        CREATE TABLE IF NOT EXISTS MaterialAllocations (
+                            Id                      INTEGER NOT NULL CONSTRAINT PK_MaterialAllocations PRIMARY KEY AUTOINCREMENT,
+                            AllocationId            TEXT NOT NULL,
+                            ReservationId           TEXT NOT NULL,
+                            JobRef                  TEXT NOT NULL,
+                            SpecGroupNumber         INTEGER NOT NULL DEFAULT 0,
+                            SerialNumber            INTEGER NOT NULL DEFAULT 0,
+                            OptimizationSessionId   TEXT NOT NULL DEFAULT '',
+                            SheetNo                 INTEGER NOT NULL DEFAULT 0,
+                            PlacedPieceLabel        TEXT NOT NULL DEFAULT '',
+                            GlassRef                TEXT NOT NULL DEFAULT '',
+                            WidthMm                 INTEGER NOT NULL DEFAULT 0,
+                            HeightMm                INTEGER NOT NULL DEFAULT 0,
+                            Quantity                INTEGER NOT NULL DEFAULT 1,
+                            UtilizationPct          TEXT NOT NULL DEFAULT '0',
+                            WastagePct              TEXT NOT NULL DEFAULT '0',
+                            Status                  INTEGER NOT NULL DEFAULT 2,
+                            CreatedBy               TEXT NOT NULL DEFAULT '',
+                            CreatedAt               TEXT NOT NULL,
+                            ConsumedAt              TEXT NULL,
+                            Notes                   TEXT NOT NULL DEFAULT ''
+                        );");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_MaterialAllocation_AllocationId_Unique ON MaterialAllocations(AllocationId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_MaterialAllocation_ReservationId ON MaterialAllocations(ReservationId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_MaterialAllocation_JobRef ON MaterialAllocations(JobRef);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_MaterialAllocation_OptSession ON MaterialAllocations(OptimizationSessionId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_MaterialAllocation_Status ON MaterialAllocations(Status);");
+                }),
+
+                // Phase 14: Production QC Entries table
+                new(1009, "Production: ProductionQcEntries table", connection =>
+                {
+                    SchemaMigrationSql.CreateTableIfNotExists(connection, @"
+                        CREATE TABLE IF NOT EXISTS ProductionQcEntries (
+                            Id              INTEGER NOT NULL CONSTRAINT PK_ProductionQcEntries PRIMARY KEY AUTOINCREMENT,
+                            QcId            TEXT NOT NULL,
+                            WorkItemId      INTEGER NOT NULL,
+                            JobRef          TEXT NOT NULL,
+                            SourceProformaId TEXT NOT NULL DEFAULT '',
+                            SpecGroupNumber INTEGER NOT NULL DEFAULT 0,
+                            SerialNumber    INTEGER NOT NULL DEFAULT 0,
+                            GlassRef        TEXT NOT NULL DEFAULT '',
+                            SpecName        TEXT NOT NULL DEFAULT '',
+                            Position        TEXT NOT NULL DEFAULT '',
+                            Stage           INTEGER NOT NULL DEFAULT 0,
+                            QcSequence      INTEGER NOT NULL DEFAULT 1,
+                            Result          INTEGER NOT NULL DEFAULT 0,
+                            Reason          TEXT NOT NULL DEFAULT '',
+                            Inspector       TEXT NOT NULL DEFAULT '',
+                            InspectedAt     TEXT NOT NULL,
+                            Notes           TEXT NOT NULL DEFAULT '',
+                            ParentQcId      TEXT NOT NULL DEFAULT '',
+                            IsRework        INTEGER NOT NULL DEFAULT 0
+                        );");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_ProductionQc_QcId_Unique ON ProductionQcEntries(QcId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProductionQc_WorkItemId ON ProductionQcEntries(WorkItemId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProductionQc_JobRef ON ProductionQcEntries(JobRef);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProductionQc_Result ON ProductionQcEntries(Result);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProductionQc_Stage ON ProductionQcEntries(Stage);");
+                }),
+
+                // Phase 14: Actual Costs and Replacements tables
+                new(1010, "Production: ActualCosts and Replacements tables", connection =>
+                {
+                    SchemaMigrationSql.CreateTableIfNotExists(connection, @"
+                        CREATE TABLE IF NOT EXISTS ProductionActualCosts (
+                            Id                      INTEGER NOT NULL CONSTRAINT PK_ProductionActualCosts PRIMARY KEY AUTOINCREMENT,
+                            CostId                  TEXT NOT NULL,
+                            JobRef                  TEXT NOT NULL,
+                            SourceProformaId        TEXT NOT NULL DEFAULT '',
+                            SpecGroupNumber         INTEGER NOT NULL DEFAULT 0,
+                            SerialNumber            INTEGER NOT NULL DEFAULT 0,
+                            GlassRef                TEXT NOT NULL DEFAULT '',
+                            SpecName                TEXT NOT NULL DEFAULT '',
+                            CostType                INTEGER NOT NULL DEFAULT 1,
+                            StockSheetId            INTEGER NULL,
+                            MaterialAllocationId    TEXT NOT NULL DEFAULT '',
+                            Quantity                TEXT NOT NULL DEFAULT '0',
+                            UnitCost                TEXT NOT NULL DEFAULT '0',
+                            TotalCost               TEXT NOT NULL DEFAULT '0',
+                            SellingValue            TEXT NOT NULL DEFAULT '0',
+                            IsFoc                   INTEGER NOT NULL DEFAULT 0,
+                            CreatedBy               TEXT NOT NULL DEFAULT '',
+                            CreatedAt               TEXT NOT NULL,
+                            Notes                   TEXT NOT NULL DEFAULT ''
+                        );");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_ActualCost_CostId_Unique ON ProductionActualCosts(CostId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ActualCost_JobRef ON ProductionActualCosts(JobRef);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ActualCost_CostType ON ProductionActualCosts(CostType);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ActualCost_IsFoc ON ProductionActualCosts(IsFoc);");
+
+                    SchemaMigrationSql.CreateTableIfNotExists(connection, @"
+                        CREATE TABLE IF NOT EXISTS ProductionReplacements (
+                            Id                      INTEGER NOT NULL CONSTRAINT PK_ProductionReplacements PRIMARY KEY AUTOINCREMENT,
+                            ReplacementId           TEXT NOT NULL,
+                            JobRef                  TEXT NOT NULL,
+                            SourceProformaId        TEXT NOT NULL DEFAULT '',
+                            SpecGroupNumber         INTEGER NOT NULL DEFAULT 0,
+                            SerialNumber            INTEGER NOT NULL DEFAULT 0,
+                            GlassRef                TEXT NOT NULL DEFAULT '',
+                            SpecName                TEXT NOT NULL DEFAULT '',
+                            Position                TEXT NOT NULL DEFAULT '',
+                            Stage                   INTEGER NOT NULL DEFAULT 0,
+                            OriginalWorkItemId      INTEGER NOT NULL,
+                            OriginalEntryId         INTEGER NULL,
+                            ReplacementWorkItemId   INTEGER NULL,
+                            EntryType               INTEGER NOT NULL DEFAULT 2,
+                            Reason                  TEXT NOT NULL DEFAULT '',
+                            Quantity                INTEGER NOT NULL DEFAULT 1,
+                            IsFoc                   INTEGER NOT NULL DEFAULT 0,
+                            ReplacementSequence     INTEGER NOT NULL DEFAULT 1,
+                            CreatedBy               TEXT NOT NULL DEFAULT '',
+                            CreatedAt               TEXT NOT NULL,
+                            Status                  INTEGER NOT NULL DEFAULT 0
+                        );");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_Replacement_ReplacementId_Unique ON ProductionReplacements(ReplacementId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_Replacement_JobRef ON ProductionReplacements(JobRef);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_Replacement_OriginalWorkItemId ON ProductionReplacements(OriginalWorkItemId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_Replacement_ReplacementWorkItemId ON ProductionReplacements(ReplacementWorkItemId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_Replacement_EntryType ON ProductionReplacements(EntryType);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_Replacement_IsFoc ON ProductionReplacements(IsFoc);");
                 })
             };
 

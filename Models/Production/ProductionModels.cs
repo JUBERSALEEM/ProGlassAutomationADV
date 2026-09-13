@@ -40,7 +40,14 @@ namespace ProGlassAutomation.Models.Production
     {
         Pending = 0,
         InProgress = 1,
-        Completed = 2
+        Completed = 2,
+        // Phase 14 additive — existing 0..2 preserved, new values append-only
+        Paused = 3,
+        Rework = 4,
+        Rejected = 5,
+        Cancelled = 6,
+        QcPending = 7,
+        QcFailed = 8
     }
 
     /// <summary>Which Step 5 dimension pair a pane occupies.</summary>
