@@ -932,6 +932,134 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                         "CREATE INDEX IF NOT EXISTS IX_ProcessAssembly_PairingId ON ProcessAssemblies(PairingId);");
                     SchemaMigrationSql.CreateIndexIfNotExists(connection,
                         "CREATE INDEX IF NOT EXISTS IX_ProcessAssembly_Unit ON ProcessAssemblies(JobRef, SpecGroupNumber, SerialNumber);");
+                }),
+
+                // Phase 17: Production Control & Factory Readiness — Workstations master
+                new(1017, "Production: Workstations master table", connection =>
+                {
+                    SchemaMigrationSql.CreateTableIfNotExists(connection, @"
+                        CREATE TABLE IF NOT EXISTS Workstations (
+                            Id              INTEGER NOT NULL CONSTRAINT PK_Workstations PRIMARY KEY AUTOINCREMENT,
+                            WorkstationId   TEXT NOT NULL,
+                            Code            TEXT NOT NULL,
+                            Name            TEXT NOT NULL,
+                            ProcessType     INTEGER NOT NULL DEFAULT 1,
+                            ProcessName     TEXT NOT NULL DEFAULT '',
+                            IsActive        INTEGER NOT NULL DEFAULT 1,
+                            Description     TEXT NOT NULL DEFAULT '',
+                            CreatedBy       TEXT NOT NULL DEFAULT '',
+                            CreatedAt       TEXT NOT NULL,
+                            UpdatedAt       TEXT NOT NULL
+                        );");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_Workstation_WorkstationId_Unique ON Workstations(WorkstationId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_Workstation_Code ON Workstations(Code);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_Workstation_ProcessType ON Workstations(ProcessType);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_Workstation_IsActive ON Workstations(IsActive);");
+                }),
+
+                new(1018, "Production: ProductionControlHolds table", connection =>
+                {
+                    SchemaMigrationSql.CreateTableIfNotExists(connection, @"
+                        CREATE TABLE IF NOT EXISTS ProductionControlHolds (
+                            Id              INTEGER NOT NULL CONSTRAINT PK_ProductionControlHolds PRIMARY KEY AUTOINCREMENT,
+                            HoldId          TEXT NOT NULL,
+                            WorkItemId      INTEGER NOT NULL,
+                            JobRef          TEXT NOT NULL,
+                            SpecGroupNumber INTEGER NOT NULL DEFAULT 0,
+                            SerialNumber    INTEGER NOT NULL DEFAULT 0,
+                            Position        TEXT NOT NULL DEFAULT '',
+                            Stage           INTEGER NOT NULL DEFAULT 0,
+                            HoldReason      TEXT NOT NULL DEFAULT '',
+                            HeldBy          TEXT NOT NULL DEFAULT '',
+                            HeldAt          TEXT NOT NULL,
+                            ReleasedBy      TEXT NOT NULL DEFAULT '',
+                            ReleasedAt      TEXT NULL,
+                            IsReleased      INTEGER NOT NULL DEFAULT 0,
+                            Notes           TEXT NOT NULL DEFAULT '',
+                            CreatedAt       TEXT NOT NULL,
+                            UpdatedAt       TEXT NOT NULL
+                        );");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_ControlHold_HoldId_Unique ON ProductionControlHolds(HoldId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ControlHold_WorkItemId ON ProductionControlHolds(WorkItemId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ControlHold_JobRef ON ProductionControlHolds(JobRef);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ControlHold_IsReleased ON ProductionControlHolds(IsReleased);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ControlHold_Unit ON ProductionControlHolds(JobRef, SpecGroupNumber, SerialNumber);");
+                }),
+
+                new(1019, "Production: ProductionControlAssignments table", connection =>
+                {
+                    SchemaMigrationSql.CreateTableIfNotExists(connection, @"
+                        CREATE TABLE IF NOT EXISTS ProductionControlAssignments (
+                            Id              INTEGER NOT NULL CONSTRAINT PK_ProductionControlAssignments PRIMARY KEY AUTOINCREMENT,
+                            AssignmentId    TEXT NOT NULL,
+                            WorkItemId      INTEGER NOT NULL,
+                            JobRef          TEXT NOT NULL,
+                            SpecGroupNumber INTEGER NOT NULL DEFAULT 0,
+                            SerialNumber    INTEGER NOT NULL DEFAULT 0,
+                            Position        TEXT NOT NULL DEFAULT '',
+                            Stage           INTEGER NOT NULL DEFAULT 0,
+                            WorkstationId   TEXT NOT NULL DEFAULT '',
+                            Operator        TEXT NOT NULL DEFAULT '',
+                            AssignedBy      TEXT NOT NULL DEFAULT '',
+                            AssignedAt      TEXT NOT NULL,
+                            UnassignedBy    TEXT NOT NULL DEFAULT '',
+                            UnassignedAt    TEXT NULL,
+                            IsActive        INTEGER NOT NULL DEFAULT 1,
+                            Notes           TEXT NOT NULL DEFAULT '',
+                            CreatedAt       TEXT NOT NULL,
+                            UpdatedAt       TEXT NOT NULL
+                        );");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_ControlAssignment_AssignmentId_Unique ON ProductionControlAssignments(AssignmentId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ControlAssignment_WorkItemId ON ProductionControlAssignments(WorkItemId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ControlAssignment_JobRef ON ProductionControlAssignments(JobRef);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ControlAssignment_WorkstationId ON ProductionControlAssignments(WorkstationId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ControlAssignment_IsActive ON ProductionControlAssignments(IsActive);");
+                }),
+
+                new(1020, "Production: ProductionControlOverrides table", connection =>
+                {
+                    SchemaMigrationSql.CreateTableIfNotExists(connection, @"
+                        CREATE TABLE IF NOT EXISTS ProductionControlOverrides (
+                            Id              INTEGER NOT NULL CONSTRAINT PK_ProductionControlOverrides PRIMARY KEY AUTOINCREMENT,
+                            ControlId       TEXT NOT NULL,
+                            WorkItemId      INTEGER NOT NULL,
+                            JobRef          TEXT NOT NULL,
+                            SpecGroupNumber INTEGER NOT NULL DEFAULT 0,
+                            SerialNumber    INTEGER NOT NULL DEFAULT 0,
+                            Position        TEXT NOT NULL DEFAULT '',
+                            Stage           INTEGER NOT NULL DEFAULT 0,
+                            Priority        INTEGER NOT NULL DEFAULT 0,
+                            DueDate         TEXT NULL,
+                            PrioritySetBy   TEXT NOT NULL DEFAULT '',
+                            PrioritySetAt   TEXT NOT NULL,
+                            Notes           TEXT NOT NULL DEFAULT '',
+                            CreatedAt       TEXT NOT NULL,
+                            UpdatedAt       TEXT NOT NULL
+                        );");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_ControlOverride_ControlId_Unique ON ProductionControlOverrides(ControlId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ControlOverride_WorkItemId ON ProductionControlOverrides(WorkItemId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ControlOverride_JobRef ON ProductionControlOverrides(JobRef);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ControlOverride_Priority ON ProductionControlOverrides(Priority);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ControlOverride_DueDate ON ProductionControlOverrides(DueDate);");
                 })
             };
 

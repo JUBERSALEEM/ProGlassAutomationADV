@@ -38,6 +38,12 @@ namespace ProGlassAutomation.Services.Production
         public DbSet<SavedProcessPairing> ProcessPairings { get; set; }
         public DbSet<SavedProcessAssembly> ProcessAssemblies { get; set; }
 
+        // Phase 17 production control & factory readiness
+        public DbSet<SavedWorkstation> Workstations { get; set; }
+        public DbSet<SavedProductionControlHold> ControlHolds { get; set; }
+        public DbSet<SavedProductionControlAssignment> ControlAssignments { get; set; }
+        public DbSet<SavedProductionControlOverride> ControlOverrides { get; set; }
+
         public static string DatabaseFilePath =>
             Path.Combine(
                 ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder,
@@ -265,6 +271,60 @@ namespace ProGlassAutomation.Services.Production
                 .HasDatabaseName("IX_ProcessAssembly_PairingId");
             assembly.HasIndex(a => new { a.JobRef, a.SpecGroupNumber, a.SerialNumber })
                 .HasDatabaseName("IX_ProcessAssembly_Unit");
+
+            // Phase 17: Workstations
+            var ws = modelBuilder.Entity<SavedWorkstation>();
+            ws.HasIndex(w => w.WorkstationId)
+                .IsUnique()
+                .HasDatabaseName("IX_Workstation_WorkstationId_Unique");
+            ws.HasIndex(w => w.Code)
+                .HasDatabaseName("IX_Workstation_Code");
+            ws.HasIndex(w => w.ProcessType)
+                .HasDatabaseName("IX_Workstation_ProcessType");
+            ws.HasIndex(w => w.IsActive)
+                .HasDatabaseName("IX_Workstation_IsActive");
+
+            // Phase 17: Control Holds
+            var hold = modelBuilder.Entity<SavedProductionControlHold>();
+            hold.HasIndex(h => h.HoldId)
+                .IsUnique()
+                .HasDatabaseName("IX_ControlHold_HoldId_Unique");
+            hold.HasIndex(h => h.WorkItemId)
+                .HasDatabaseName("IX_ControlHold_WorkItemId");
+            hold.HasIndex(h => h.JobRef)
+                .HasDatabaseName("IX_ControlHold_JobRef");
+            hold.HasIndex(h => h.IsReleased)
+                .HasDatabaseName("IX_ControlHold_IsReleased");
+            hold.HasIndex(h => new { h.JobRef, h.SpecGroupNumber, h.SerialNumber })
+                .HasDatabaseName("IX_ControlHold_Unit");
+
+            // Phase 17: Control Assignments
+            var assign = modelBuilder.Entity<SavedProductionControlAssignment>();
+            assign.HasIndex(a => a.AssignmentId)
+                .IsUnique()
+                .HasDatabaseName("IX_ControlAssignment_AssignmentId_Unique");
+            assign.HasIndex(a => a.WorkItemId)
+                .HasDatabaseName("IX_ControlAssignment_WorkItemId");
+            assign.HasIndex(a => a.JobRef)
+                .HasDatabaseName("IX_ControlAssignment_JobRef");
+            assign.HasIndex(a => a.WorkstationId)
+                .HasDatabaseName("IX_ControlAssignment_WorkstationId");
+            assign.HasIndex(a => a.IsActive)
+                .HasDatabaseName("IX_ControlAssignment_IsActive");
+
+            // Phase 17: Control Overrides (Priority/DueDate)
+            var ctrl = modelBuilder.Entity<SavedProductionControlOverride>();
+            ctrl.HasIndex(c => c.ControlId)
+                .IsUnique()
+                .HasDatabaseName("IX_ControlOverride_ControlId_Unique");
+            ctrl.HasIndex(c => c.WorkItemId)
+                .HasDatabaseName("IX_ControlOverride_WorkItemId");
+            ctrl.HasIndex(c => c.JobRef)
+                .HasDatabaseName("IX_ControlOverride_JobRef");
+            ctrl.HasIndex(c => c.Priority)
+                .HasDatabaseName("IX_ControlOverride_Priority");
+            ctrl.HasIndex(c => c.DueDate)
+                .HasDatabaseName("IX_ControlOverride_DueDate");
         }
     }
 }

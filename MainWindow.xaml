@@ -160,6 +160,9 @@
         <DataTemplate DataType="{x:Type vmOptimization:OptimizationViewModel}">
             <viewsOptimization:OptimizationView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vmProduction:ProductionControlCenterViewModel}">
+            <viewsProduction:ProductionControlCenterView/>
+        </DataTemplate>
         <DataTemplate DataType="{x:Type vmProduction:ProcessWorkCenterViewModel}">
             <viewsProduction:ProcessWorkCenterView/>
         </DataTemplate>
@@ -813,6 +816,10 @@
                                                 Content="Process Work Center"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="ProcessWorkCenter"/>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Production Control Center"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="ProductionControlCenter"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
                                                 Content="{DynamicResource Nav.Cutting}"
                                                 Command="{Binding NavigateCommand}"

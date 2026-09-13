@@ -211,6 +211,7 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddTransient<CuttingViewModel>();
             services.AddTransient<CuttingWorkCenterViewModel>();
             services.AddTransient<ProcessWorkCenterViewModel>();
+            services.AddTransient<ProductionControlCenterViewModel>();
             services.AddTransient<HolesCutoutsViewModel>();
             services.AddTransient<PolishViewModel>();
             services.AddTransient<EdgeDeletionViewModel>();
