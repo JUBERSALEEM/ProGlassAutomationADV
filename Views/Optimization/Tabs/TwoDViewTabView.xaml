@@ -74,7 +74,7 @@
                                     <!-- Mini-map thumbnail: whole sheet at a glance, zoom-independent -->
                                     <Border Margin="20,0,0,0" VerticalAlignment="Center"
                                             BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
-                                            Background="{DynamicResource WindowBackgroundBrush}"
+                                            Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                                             ToolTip="Whole-sheet mini-map — every placed piece at a glance">
                                         <Canvas Width="{Binding MiniMapWidth}" Height="{Binding MiniMapHeight}">
                                             <ItemsControl ItemsSource="{Binding MiniMapRects}">
@@ -139,7 +139,7 @@
                                               Visibility="{Binding HasPreview, Converter={StaticResource BoolToVisibilityConverter}}">
                                     <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="12">
                                         <Border BorderBrush="{DynamicResource DividerBrush}" BorderThickness="2"
-                                                Background="{DynamicResource WindowBackgroundBrush}"
+                                                Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                                                 HorizontalAlignment="Center" VerticalAlignment="Center">
                                             <Canvas Width="{Binding RenderWidth}" Height="{Binding RenderHeight}">
 

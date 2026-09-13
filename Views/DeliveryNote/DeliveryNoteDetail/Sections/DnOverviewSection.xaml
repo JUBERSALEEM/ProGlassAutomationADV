@@ -23,7 +23,7 @@
 
         <!-- One-row KPI strip — was a 2×2 card that ate the laptop viewport -->
         <Border Grid.Row="0"
-                Background="{DynamicResource SurfacePrimaryBrush}"
+                Style="{StaticResource SurfacePrimaryStyle}"
                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 CornerRadius="{DynamicResource CardCornerRadius}"

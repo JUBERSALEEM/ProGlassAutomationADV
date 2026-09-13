@@ -267,7 +267,7 @@ namespace ProGlassAutomation.Services
 
             var material = ProGlassThemeEngine.ParseMaterial(appearance?.SurfaceMaterialMode);
 
-            double primaryOpacity = Clamp01(appearance?.SurfacePrimaryOpacity ?? 1.0, 0.30, 1.0);
+            double primaryOpacity = Clamp01(appearance?.SurfacePrimaryOpacity ?? 0.82, 0.30, 1.0);
             double secondaryOpacity = Clamp01(appearance?.SurfaceSecondaryOpacity ?? 0.94, 0.25, 1.0);
             double detailOpacity = Clamp01(appearance?.SurfaceDetailOpacity ?? 0.86, 0.15, 1.0);
 

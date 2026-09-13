@@ -32,10 +32,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border Background="{DynamicResource SurfacePrimaryBrush}"
-            BorderBrush="{DynamicResource BorderDefaultBrush}"
-            BorderThickness="{DynamicResource CardBorderThickness}"
-            CornerRadius="{DynamicResource CardCornerRadius}"
+    <Border Style="{StaticResource SurfacePrimaryStyle}"
             Padding="20"
             SnapsToDevicePixels="True">
         <Grid>

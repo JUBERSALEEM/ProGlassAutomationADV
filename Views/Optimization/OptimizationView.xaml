@@ -94,7 +94,7 @@
                 <Border Grid.Column="0" Style="{StaticResource OptKpiCard}" Margin="0,0,12,0">
                     <StackPanel>
                         <Border Height="2" Background="{DynamicResource AccentBrush}"
-                                CornerRadius="{StaticResource OptCorner}" Margin="0,0,0,10"/>
+                                CornerRadius="{DynamicResource CardCornerRadius}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -117,7 +117,7 @@
                 <Border Grid.Column="1" Style="{StaticResource OptKpiCard}" Margin="0,0,12,0">
                     <StackPanel>
                         <Border Height="2" Background="{DynamicResource AccentBrush}"
-                                CornerRadius="{StaticResource OptCorner}" Margin="0,0,0,10"/>
+                                CornerRadius="{DynamicResource CardCornerRadius}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -140,7 +140,7 @@
                 <Border Grid.Column="2" Style="{StaticResource OptKpiCard}" Margin="0,0,12,0">
                     <StackPanel>
                         <Border Height="2" Background="{DynamicResource AccentBrush}"
-                                CornerRadius="{StaticResource OptCorner}" Margin="0,0,0,10"/>
+                                CornerRadius="{DynamicResource CardCornerRadius}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -163,7 +163,7 @@
                 <Border Grid.Column="3" Style="{StaticResource OptKpiCard}">
                     <StackPanel>
                         <Border Height="2" Background="{DynamicResource AccentBrush}"
-                                CornerRadius="{StaticResource OptCorner}" Margin="0,0,0,10"/>
+                                CornerRadius="{DynamicResource CardCornerRadius}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>

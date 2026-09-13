@@ -352,7 +352,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public double SurfacePrimaryOpacity
         {
-            get => _config?.Appearance?.SurfacePrimaryOpacity ?? 1.0;
+            get => _config?.Appearance?.SurfacePrimaryOpacity ?? 0.82;
             set => SetSurfaceDouble(value, 0.30, 1.0,
                 v => _config!.Appearance.SurfacePrimaryOpacity = v,
                 () => _config!.Appearance.SurfacePrimaryOpacity,

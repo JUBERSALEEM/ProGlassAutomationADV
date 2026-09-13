@@ -15,34 +15,13 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
                 <production:ProductionKpiStrip Grid.Row="0"/>
                 <production:ProductionFilterBar Grid.Row="1"/>
 
-                <Border Grid.Row="2" Padding="10,6" Background="{DynamicResource SurfacePrimaryBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="0,0,0,1">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
-                                       Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                            <TextBlock Text="{Binding StationWorkOrderHint}" FontSize="{StaticResource TextCaption}"
-                                       TextWrapping="Wrap" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                        </StackPanel>
-                        <TextBlock Grid.Column="1" Text="{Binding FloorOperatorLabel, StringFormat=Floor · {0}}"
-                                   FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource TextTertiaryBrush}"
-                                   VerticalAlignment="Center" Margin="12,0,0,0"/>
-                    </Grid>
-                </Border>
-
-                <Grid Grid.Row="3">
+                <Grid Grid.Row="2">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>

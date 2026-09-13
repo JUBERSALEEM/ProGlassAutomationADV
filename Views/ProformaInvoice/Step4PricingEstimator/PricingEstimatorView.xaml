@@ -15,7 +15,7 @@
     <DockPanel>
 
         <Border DockPanel.Dock="Bottom"
-                Background="{DynamicResource SurfacePrimaryBrush}"
+                Background="Transparent"
                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                 Padding="18,12">

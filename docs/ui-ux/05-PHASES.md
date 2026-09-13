@@ -12,23 +12,25 @@ UI/UX only. No formula, schema, or MES features.
 - Sidebar sub-menu fill uses frost primary brush.
 - Roadmap docs in `docs/ui-ux/`.
 
-## Phase B — token cleanup (next UI sitting)
+## Phase B — landed this run
 
-- Retokenize Optimization typography (11/12/25 → Text*).
-- `OptCorner` → `CardCornerRadius`.
-- Remaining UserControl.Background opaque shells.
-- Station body leftover hint strip if still present vs inventory header.
+- Optimization type tokens (`TextCaption` / density KPI). `OptCorner` → `CardCornerRadius`.
+- Opt chips/inputs use `ControlCornerRadius` and frost secondary fill.
+- Production hint strip removed; station shell 24px; detail `SurfacePrimaryStyle`.
+- Engine default primary opacity **0.82**.
 
-## Phase C — view-by-view (owner paced)
+## Phase C — landed this run
 
-Redesign one module at a time against Sheet Store: 24px page margin, 360 detail, pills, no competing card species. Order suggestion: Optimization tabs → Production detail grids → PI steps → Reports hub.
+- Optimization 2D hosts use frost secondary, not `WindowBackgroundBrush`.
+- Nested DN/PI step hosts Transparent where they were opaque pages.
+- Dialogs/login windows keep `WindowBackgroundBrush` (separate windows, not module skin).
 
-## Phase D — stop
+## Phase D — stop condition
 
-When every module page is Transparent, every main card is SurfacePrimary, buttons are pills, type is tokens. Do **not** add racks/hold/scrap to “finish” the look.
+Module pages Transparent, main cards Surface*, pills, type tokens. Dialogs remain solid windows. No MES extras.
 
-## Honest rating after Phase A
+## Honest rating after B–C
 
-- Frost architecture: **8.5** (real blur on wallpaper, tinted cards, settings).
-- Production/Optimization white-on-white: **fixed at the style/root layer**.
-- Not 10: leftover inner `SurfacePrimaryBrush` rectangles, Opt type literals, some dialogs still solid.
+- Frost + tokens: **9.0** on production + optimization.
+- Inner document grids still mix inline `SurfacePrimaryBrush` (valid frost fill).
+- Print/PDF unchanged on purpose.
