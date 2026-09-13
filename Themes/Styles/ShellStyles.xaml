@@ -100,7 +100,7 @@
         <Style x:Key="TopIconButton" TargetType="Button">
             <Setter Property="Width" Value="36"/>
             <Setter Property="Height" Value="36"/>
-            <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -145,13 +145,13 @@
         <Style x:Key="TopPillTitleStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
         <Style x:Key="TopPillCaptionStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextXSmall}"/>
             <Setter Property="FontWeight" Value="Medium"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
@@ -250,7 +250,7 @@
         <Style x:Key="SidebarGroupLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextXSmall}"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
             <Setter Property="Margin" Value="24,18,24,6"/>
             <Setter Property="IsHitTestVisible" Value="False"/>
             <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
@@ -286,7 +286,7 @@
                                     <Border x:Name="Chip"
                                             Width="34" Height="34"
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
-                                            Background="{DynamicResource MenuHoverBrush}"
+                                            Background="{DynamicResource SurfaceTertiaryBrush}"
                                             VerticalAlignment="Center"
                                             Margin="0,0,12,0"
                                             SnapsToDevicePixels="True">
@@ -302,7 +302,7 @@
                                                Text="{TemplateBinding Content}"
                                                FontSize="{StaticResource TextBodyLarge}"
                                                FontWeight="Medium"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
                                 <!-- Active accent bar (right edge) -->
@@ -328,7 +328,7 @@
                                 <Setter TargetName="Accent" Property="Opacity" Value="0.6"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
                             </Trigger>
                             <Trigger Property="IsKeyboardFocused" Value="True">
                                 <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
@@ -347,7 +347,7 @@
                                         <Binding Path="DataContext.CurrentModuleKey" RelativeSource="{RelativeSource TemplatedParent}"/>
                                     </MultiBinding>
                                 </DataTrigger.Binding>
-                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
                                 <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
                                 <Setter TargetName="Bg" Property="BorderThickness" Value="1"/>
                                 <Setter TargetName="Chip" Property="Background" Value="{StaticResource SidebarActiveGradient}"/>
@@ -385,7 +385,7 @@
                                     <Border x:Name="Chip"
                                             Width="34" Height="34"
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
-                                            Background="{DynamicResource MenuHoverBrush}"
+                                            Background="{DynamicResource SurfaceTertiaryBrush}"
                                             VerticalAlignment="Center"
                                             Margin="0,0,12,0"
                                             SnapsToDevicePixels="True">
@@ -401,14 +401,14 @@
                                                Text="{TemplateBinding Content}"
                                                FontSize="{StaticResource TextBodyLarge}"
                                                FontWeight="Medium"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
                                 <TextBlock x:Name="Chevron"
                                            Text="&#xE76C;"
                                            FontFamily="Segoe MDL2 Assets"
                                            FontSize="{StaticResource TextBody}"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                           Foreground="{DynamicResource TextTertiaryBrush}"
                                            HorizontalAlignment="Right"
                                            VerticalAlignment="Center"
                                            RenderTransformOrigin="0.5,0.5">
@@ -461,7 +461,7 @@
 
         <!-- SUB-MENU CONTAINER — frosted rounded card -->
         <Style x:Key="SidebarSubMenuCard" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-            <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
@@ -498,7 +498,7 @@
                                     <Border x:Name="Dot"
                                             Width="6" Height="6"
                                             CornerRadius="{DynamicResource Radius.XSmall}"
-                                            Background="{DynamicResource MutedForegroundBrush}"
+                                            Background="{DynamicResource TextTertiaryBrush}"
                                             Margin="0,0,10,0"
                                             VerticalAlignment="Center"
                                             SnapsToDevicePixels="True"/>
@@ -506,7 +506,7 @@
                                                Text="{TemplateBinding Content}"
                                                FontSize="{StaticResource TextBodyLarge}"
                                                FontWeight="Medium"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
                                 <!-- Active accent bar (right edge) -->
@@ -523,7 +523,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
                                 <Setter TargetName="Dot" Property="Background" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="Label" Property="FontWeight" Value="SemiBold"/>
@@ -532,7 +532,7 @@
                                 <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
                             </Trigger>
                             <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
                             </Trigger>
                             <!-- Active module -->
                             <DataTrigger Value="True">
@@ -545,7 +545,7 @@
                                 <!-- 2026-09-01 touch pass: active sub-item
                                      gets a material pill (was transparent,
                                      only the dot/label changed). -->
-                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
                                 <Setter TargetName="Dot" Property="Background" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="Label" Property="FontWeight" Value="Bold"/>

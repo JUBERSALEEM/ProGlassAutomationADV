@@ -95,15 +95,13 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("?? VisualThemeEngine.NormalIndustrial", appCs, StringComparison.Ordinal);
             Assert.DoesNotContain("?? \"iOS Liquid Glass\"", appCs, StringComparison.Ordinal);
 
-            // The settings options list ships exactly the retained four
-            // families (Industrial = Normal Industrial, Monet, iPhone 17
-            // Pro Max = Crystal Fluid, iOS 26) and none of the removed ones.
+            // Phase 8: Settings lists exactly three families.
             string vm = Read(
                 "ViewModels/Settings/SettingsViewModel.ThemeWallpaper.cs");
             Assert.Contains("VisualThemeEngine.NormalIndustrial)", vm, StringComparison.Ordinal);
             Assert.Contains("VisualThemeEngine.Monet)", vm, StringComparison.Ordinal);
-            Assert.Contains("VisualThemeEngine.CrystalFluid)", vm, StringComparison.Ordinal);
-            Assert.Contains("VisualThemeEngine.Ios26)", vm, StringComparison.Ordinal);
+            Assert.DoesNotContain("VisualThemeEngine.CrystalFluid)", vm, StringComparison.Ordinal);
+            Assert.DoesNotContain("VisualThemeEngine.Ios26)", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Normal)", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.LiquidGlass", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Ocean", vm, StringComparison.Ordinal);
@@ -463,20 +461,11 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Theme_swap_adds_the_new_dictionary_before_removing_the_old()
+        public void Theme_swap_overlays_cached_dictionaries_without_merged_add_remove()
         {
-            // Removing the theme dictionary before adding its replacement
-            // leaves a gap where EVERY DynamicResource bound to a theme
-            // key resolves to nothing — and if the new dictionary load
-            // throws, the app stays themeless for the whole session
-            // ("all themes broken"). The add must come first.
             string tm = Read("Services/ThemeManager.cs");
-            int add = tm.IndexOf("appDicts.Add(newDict)", StringComparison.Ordinal);
-            int remove = tm.IndexOf("appDicts.Remove(existing)", StringComparison.Ordinal);
-            Assert.True(add >= 0, "ThemeManager must add the new theme dictionary");
-            Assert.True(remove >= 0, "ThemeManager must remove the old theme dictionary");
-            Assert.True(add < remove,
-                "ThemeManager must ADD the new theme dictionary BEFORE removing the old one");
+            Assert.Contains("OverlayThemeDictionary(palette)", tm, StringComparison.Ordinal);
+            Assert.DoesNotContain("appDicts.Add(newDict)", tm, StringComparison.Ordinal);
         }
 
         [Fact]

@@ -10,7 +10,7 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+    <Grid Background="{DynamicResource SurfacePrimaryBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -209,21 +209,21 @@
                                                     <TextBlock Text="{Binding Initials}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding SalesmanName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Text="{Binding SalesmanName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
                                                     <StackPanel Orientation="Horizontal">
                                                         <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Visibility="{Binding IsSavedSalesman, Converter={StaticResource BoolToVisibilityConverter}}">
                                                             <TextBlock Text="ON FILE" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                                                         </Border>
-                                                        <TextBlock Text="{Binding Department}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding Department}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="6,0,0,0" VerticalAlignment="Center"/>
                                                     </StackPanel>
                                                 </StackPanel>
                                             </StackPanel>
 
-                                            <TextBlock Grid.Column="1" Text="{Binding PiCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding PiCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                             <TextBlock Grid.Column="2" Text="{Binding ConfirmedPiCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                             <TextBlock Grid.Column="3" Text="{Binding ConversionDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                            <TextBlock Grid.Column="4" Text="{Binding CustomerCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                            <TextBlock Grid.Column="5" Text="{Binding ProjectCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            <TextBlock Grid.Column="4" Text="{Binding CustomerCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            <TextBlock Grid.Column="5" Text="{Binding ProjectCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                             <TextBlock Grid.Column="6" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"><Run Text="AED "/><Run Text="{Binding Revenue, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
                                         </Grid>
                                     </Border>
@@ -239,7 +239,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" VerticalAlignment="Center" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" VerticalAlignment="Center" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
                             <Button Content="&#xE76B;" FontFamily="Segoe MDL2 Assets" Command="{Binding PrevPageCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" ToolTip="Previous page"/>
                             <Button Content="&#xE76C;" FontFamily="Segoe MDL2 Assets" Command="{Binding NextPageCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" ToolTip="Next page"/>

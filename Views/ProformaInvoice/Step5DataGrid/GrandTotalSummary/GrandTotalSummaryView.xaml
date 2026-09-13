@@ -46,7 +46,7 @@
         <ItemsControl ItemsSource="{Binding SummaryRows}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border BorderBrush="{DynamicResource OutlineBrush}"
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                             Padding="0,6">
                         <Grid>
@@ -65,18 +65,18 @@
                                        Text="{Binding DisplayLabel}"
                                        FontSize="{StaticResource TextBody}"
                                        FontWeight="SemiBold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                        TextTrimming="CharacterEllipsis"/>
                             <TextBlock Grid.Column="2"
                                        Text="{Binding TotalQty, StringFormat={}{0} pcs}"
                                        FontSize="{StaticResource TextBody}"
                                        HorizontalAlignment="Right"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Grid.Column="3"
                                        Text="{Binding TotalSqm, StringFormat={}{0:0.000}}"
                                        FontSize="{StaticResource TextBody}"
                                        HorizontalAlignment="Right"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Grid.Column="4"
                                        Text="{Binding TotalValue, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                                        FontSize="{StaticResource TextBody}"
@@ -113,22 +113,22 @@
                            Text="{DynamicResource ProformaInvoice.GrandTotal}"
                            FontSize="{StaticResource TextBody}"
                            FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock Grid.Column="2"
                            Text="{Binding GrandTotalQty, StringFormat={}{0} pcs}"
                            FontSize="{StaticResource TextBody}" FontWeight="Bold"
                            HorizontalAlignment="Right"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock Grid.Column="3"
                            Text="{Binding GrandTotalSqm, StringFormat={}{0:0.000}}"
                            FontSize="{StaticResource TextBody}" FontWeight="Bold"
                            HorizontalAlignment="Right"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock Grid.Column="4"
                            Text="{Binding GrandTotalLm, StringFormat={}{0:0.00}}"
                            FontSize="{StaticResource TextBody}" FontWeight="Bold"
                            HorizontalAlignment="Right"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock Grid.Column="5"
                            Text="{Binding GrandTotalValue, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                            FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"

@@ -23,25 +23,25 @@
         <Style x:Key="PlInputStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="Background" Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="Padding" Value="10,0"/>
             <Setter Property="Height" Value="32"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="CaretBrush" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}"/>
         </Style>
         <Style x:Key="PlCellStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
         </Style>
 
         <!-- Target-profitability layout styles (approved KPI redesign) -->
         <Style x:Key="TgtCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource Surface.Secondary.BorderBrush}"/>
             <Setter Property="BorderThickness" Value="{DynamicResource Surface.Secondary.BorderThickness}"/>
             <Setter Property="CornerRadius" Value="{DynamicResource Surface.Secondary.CornerRadius}"/>
@@ -63,19 +63,19 @@
         <Style x:Key="TgtCaptionStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         </Style>
 
         <Style x:Key="TgtKvLabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
         <Style x:Key="TgtKvValueStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
             <Setter Property="TextAlignment" Value="Right"/>
@@ -92,21 +92,21 @@
 
         <Style x:Key="TgtMicroLabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
             <Setter Property="Margin" Value="0,0,0,2"/>
         </Style>
 
         <Style x:Key="TgtMicroValueStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
 
         <Style x:Key="TgtSectionLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
             <Setter Property="Margin" Value="0,18,0,8"/>
         </Style>
 
@@ -119,14 +119,14 @@
 
         <Style x:Key="TgtSideLabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="0,2"/>
         </Style>
 
         <Style x:Key="TgtSideValueStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
             <Setter Property="TextAlignment" Value="Right"/>
@@ -266,7 +266,7 @@
                                           AutomationProperties.Name="Cost glass at selling price"/>
                             <TextBlock Text="{DynamicResource ProformaInvoice.CostGlassSellingPrice}"
                                        FontSize="{StaticResource TextBodyLarge}"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                        VerticalAlignment="Center"
                                        Margin="10,0,0,0"/>
                         </StackPanel>
@@ -279,7 +279,7 @@
                                        FontSize="{StaticResource TextCaption}" FontWeight="Bold">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsRecalculationPending}" Value="True">
                                                 <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
@@ -293,7 +293,7 @@
                             </TextBlock>
                             <TextBlock Text="{Binding LastCalculatedAtDisplay}"
                                        FontSize="{StaticResource TextCaption}"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"
                                        Margin="8,0,0,0"/>
                         </StackPanel>
                         <TextBlock Text="{Binding Step9MaintenanceRating}"
@@ -305,13 +305,13 @@
                                    ToolTip="{Binding Step9ImprovementSummary}"/>
                         <TextBlock Text="{Binding Step9ImprovementSummary}"
                                    FontSize="{StaticResource TextCaption}"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"
                                    HorizontalAlignment="Right"
                                    TextWrapping="Wrap"
                                    Margin="0,2,0,0"/>
                         <TextBlock Text="WASTAGE % also sets the formula yield (15% → ÷0.85) for the target below"
                                    FontSize="{StaticResource TextCaption}"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"
                                    HorizontalAlignment="Right"
                                    TextWrapping="Wrap"
                                    Margin="0,2,0,0"/>
@@ -335,9 +335,9 @@
                             <TextBlock Text="REQUIRED TARGET PRICE" Style="{StaticResource TgtCaptionStyle}"/>
                             <TextBlock Text="{Binding RequiredTargetPriceDisplay}"
                                        FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                        Margin="0,2,0,10"/>
-                            <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,0,0,10"/>
+                            <Border Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,0,0,10"/>
                             <StackPanel>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -384,7 +384,7 @@
                                     <TextBlock Grid.Column="0" Text="Basis" Style="{StaticResource TgtKvLabelStyle}"/>
                                     <TextBlock Grid.Column="1" Text="Area-weighted across specifications"
                                                Style="{StaticResource TgtKvValueStyle}"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                               Foreground="{DynamicResource TextTertiaryBrush}"/>
                                 </Grid>
                             </StackPanel>
                         </StackPanel>
@@ -401,9 +401,9 @@
                             <TextBlock Text="EXPECTED PROFIT MARGIN" Style="{StaticResource TgtCaptionStyle}"/>
                             <TextBlock Text="{Binding ExpectedProfitMarginDisplay}"
                                        FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                        Margin="0,2,0,10"/>
-                            <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,0,0,10"/>
+                            <Border Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,0,0,10"/>
                             <StackPanel>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -422,7 +422,7 @@
                                     <TextBlock Grid.Column="0" Text="Source" Style="{StaticResource TgtKvLabelStyle}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding ExpectedProfitMarginSourceLabel}"
                                                Style="{StaticResource TgtKvValueStyle}"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                               Foreground="{DynamicResource TextTertiaryBrush}"/>
                                 </Grid>
                             </StackPanel>
                         </StackPanel>
@@ -439,7 +439,7 @@
                                         <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding IsTargetIncomplete}" Value="True">
-                                        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
                                         <Setter Property="BorderThickness" Value="1"/>
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -491,7 +491,7 @@
                                                         <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding IsTargetIncomplete}" Value="True">
-                                                        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -510,7 +510,7 @@
                                                         <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding IsTargetIncomplete}" Value="True">
-                                                        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -518,7 +518,7 @@
                                     </TextBlock>
                                 </StackPanel>
                             </Grid>
-                            <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,0,0,10"/>
+                            <Border Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,0,0,10"/>
                             <StackPanel>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -546,7 +546,7 @@
                                     <TextBlock Grid.Column="0" Text="U-insert inside given (toggle off)" Style="{StaticResource TgtKvLabelStyle}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding IncludedUInsertAverageDisplay}"
                                                Style="{StaticResource TgtKvValueStyle}"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                               Foreground="{DynamicResource TextTertiaryBrush}"/>
                                 </Grid>
                                 <Grid Margin="0,6,0,0">
                                     <Grid.ColumnDefinitions>
@@ -558,7 +558,7 @@
                                                Style="{StaticResource TgtKvValueStyle}"
                                                FontWeight="SemiBold"/>
                                 </Grid>
-                                <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,10,0,8"/>
+                                <Border Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,10,0,8"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -615,7 +615,7 @@
                                     <TextBlock Grid.Column="0" Text="Target balance" Style="{StaticResource TgtKvLabelStyle}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding TargetBalancePerSqmDisplay}"
                                                Style="{StaticResource TgtKvValueStyle}"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                               Foreground="{DynamicResource TextTertiaryBrush}"/>
                                 </Grid>
                                 <Grid Margin="0,6,0,0">
                                     <Grid.ColumnDefinitions>
@@ -625,7 +625,7 @@
                                     <TextBlock Grid.Column="0" Text="Target balance value" Style="{StaticResource TgtKvLabelStyle}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding TargetBalanceValueDisplay}"
                                                Style="{StaticResource TgtKvValueStyle}"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                               Foreground="{DynamicResource TextTertiaryBrush}"/>
                                 </Grid>
                             </StackPanel>
                         </StackPanel>
@@ -674,14 +674,14 @@
                                 <TextBlock Text="{Binding TotalDifferenceValueDisplay}" Style="{StaticResource TgtMicroValueStyle}"/>
                             </StackPanel>
                         </Grid>
-                        <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,12,0,10"/>
+                        <Border Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,12,0,10"/>
                         <TextBlock Text="SPECIFICATION FORMULAS — STEP 5 SPECS" Style="{StaticResource TgtMicroLabelStyle}" Margin="0,2,0,8"/>
                         <Border Style="{StaticResource TgtInsetStyle}" Padding="14,12" Margin="0,0,0,8">
                             <TextBlock Text="{Binding TargetFormulaAllSpecsText}"
                                        FontFamily="Consolas" FontSize="{StaticResource TextBody}"
                                        FontWeight="SemiBold"
                                        LineHeight="22"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                        TextWrapping="Wrap"/>
                         </Border>
                         <TextBlock Text="{Binding CalculationWarningSummary}"
@@ -692,7 +692,7 @@
                                    Visibility="{Binding HasCalculationWarnings, Converter={StaticResource BoolToVisibilityConverter}}"/>
                         <TextBlock Text="{Binding CalculationVersionLabel}"
                                    FontSize="{StaticResource TextCaption}"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"
                                    Margin="0,8,0,0"/>
                     </StackPanel>
                 </Border>
@@ -700,7 +700,7 @@
 
                 <TextBlock Text="Per-specification comparison rows and full spec inspector live on tab 4 · SPECS."
                            FontSize="{StaticResource TextCaption}"
-                           Foreground="{DynamicResource MutedForegroundBrush}"
+                           Foreground="{DynamicResource TextTertiaryBrush}"
                            TextWrapping="Wrap" Margin="0,12,0,0"/>
 
                 <Expander Header="EXTRA DETAIL · actual glass cost rows and rate check" Margin="0,10,0,0" IsExpanded="True">
@@ -720,7 +720,7 @@
                 </Grid>
                 <TextBlock Text="This Target Profitability summary keeps the commercial glass-cost lens clean: active Step 6 extras such as U-insert, argon, fanhole, holes, cutout, polish and custom charges are billed separately and are not imported here. If an extra toggle is OFF, it is treated as included inside the Step 5 given AED/m² price/target judgement, not as a separate production-cost line in this card."
                            FontSize="{StaticResource TextCaption}"
-                           Foreground="{DynamicResource MutedForegroundBrush}"
+                           Foreground="{DynamicResource TextTertiaryBrush}"
                            TextWrapping="Wrap" Margin="0,0,0,10"/>
 
                 <Border Style="{StaticResource TgtCardStyle}" Margin="0,0,0,10">
@@ -777,7 +777,7 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding HeaderDisplay}"
                                                FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,10,0"/>
                                     <TextBlock Grid.Column="1"
@@ -785,7 +785,7 @@
                                                FontFamily="Consolas"
                                                FontSize="{StaticResource TextBody}"
                                                FontWeight="SemiBold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
                                                TextWrapping="Wrap"
                                                VerticalAlignment="Center"/>
                                     <TextBlock Grid.Column="2"
@@ -818,7 +818,7 @@
                                 <ItemsControl ItemsSource="{Binding Rows}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border BorderBrush="{DynamicResource OutlineBrush}"
+                                            <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                     BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                                     Padding="0,6">
                                                 <Grid>
@@ -995,7 +995,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Click a spec row for full formula detail"
                                        FontSize="{StaticResource TextCaption}"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"
                                        TextWrapping="Wrap"
                                        VerticalAlignment="Center"/>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
@@ -1026,7 +1026,7 @@
                         </Grid>
                         <TextBlock Text="Each Step 5 specification is priced independently (never mixed Base Rates). Click a row to open its full calculation inspector."
                                    FontSize="{StaticResource TextCaption}"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"
                                    TextWrapping="Wrap" Margin="0,0,0,10"/>
 
                         <Border Style="{StaticResource TgtCardStyle}" Padding="0"
@@ -1066,7 +1066,7 @@
                                 <ItemsControl Grid.Row="1" ItemsSource="{Binding TargetSpecsView}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border BorderBrush="{DynamicResource OutlineBrush}"
+                                            <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                     BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                                     Padding="0,8"
                                                     Cursor="Hand">
@@ -1114,7 +1114,7 @@
                                                                    FontWeight="SemiBold"
                                                                    TextWrapping="Wrap"/>
                                                         <TextBlock FontSize="{StaticResource TextCaption}"
-                                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                                   Foreground="{DynamicResource TextTertiaryBrush}"
                                                                    TextTrimming="CharacterEllipsis">
                                                             <Run Text="{Binding BuildTypeLabel, Mode=OneWay}"/>
                                                         </TextBlock>
@@ -1154,7 +1154,7 @@
                                                                    Style="{StaticResource PlCellStyle}"
                                                                    HorizontalAlignment="Right"
                                                                    FontSize="{StaticResource TextXSmall}"
-                                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
                                                     </StackPanel>
 
                                                     <Border Grid.Column="9" HorizontalAlignment="Left" VerticalAlignment="Center">
@@ -1231,7 +1231,7 @@
                                            Foreground="{DynamicResource AccentBrush}"/>
                                 <TextBlock Text="{Binding SpecDisplayName}"
                                            FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextWrapping="Wrap"/>
                             </StackPanel>
                             <Button Grid.Column="2"
@@ -1278,7 +1278,7 @@
                                         <TextBlock Text="1 · IDENTITY" Style="{StaticResource TgtSideHeadingStyle}" Margin="0,0,0,8"/>
                                         <TextBlock Text="{Binding SpecDisplayName}"
                                                    FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    TextWrapping="Wrap"/>
                                         <Grid Margin="0,6,0,0">
                                             <Grid.ColumnDefinitions>
@@ -1292,8 +1292,8 @@
                                                    FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
-                                        <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                                BorderBrush="{DynamicResource OutlineBrush}"
+                                        <Border Background="{DynamicResource SurfacePrimaryBrush}"
+                                                BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                 CornerRadius="{DynamicResource Radius.Small}"
                                                 Padding="10,8" Margin="0,8,0,0">
@@ -1301,14 +1301,14 @@
                                                 <TextBlock Text="STEP 4 PANE / SHEET SOURCE"
                                                            FontSize="{StaticResource TextXSmall}"
                                                            FontWeight="Bold"
-                                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                           Foreground="{DynamicResource TextTertiaryBrush}"/>
                                                 <TextBlock Text="{Binding OuterPaneSheetDisplay}"
                                                            FontSize="{StaticResource TextCaption}"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                                            TextWrapping="Wrap" Margin="0,3,0,0"/>
                                                 <TextBlock Text="{Binding InnerPaneSheetDisplay}"
                                                            FontSize="{StaticResource TextCaption}"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                                            TextWrapping="Wrap" Margin="0,2,0,0"
                                                            Visibility="{Binding HasSecondGlass, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                             </StackPanel>
@@ -1342,7 +1342,7 @@
                                         </Grid>
                                         <TextBlock Text="The Step 5 Base Price is the given selling price. It never comes from Step 4, the Step 9 calculation, the Sheet Store or a manual field here."
                                                    FontSize="{StaticResource TextCaption}"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   Foreground="{DynamicResource TextTertiaryBrush}"
                                                    TextWrapping="Wrap" Margin="0,6,0,0"/>
 
                                         <!-- 3 · TARGET FORMULA -->
@@ -1403,11 +1403,11 @@
                                             <TextBlock Grid.Column="0" Text="Target uplift" Style="{StaticResource TgtSideLabelStyle}"/>
                                             <TextBlock Grid.Column="1" Text="{Binding TargetUpliftDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
                                         </Grid>
-                                        <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                                BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                        <Border Background="{DynamicResource SurfacePrimaryBrush}"
+                                                BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                 CornerRadius="{DynamicResource Radius.Small}" Padding="10,8" Margin="0,8,0,0">
                                             <TextBlock FontFamily="Consolas" FontSize="{StaticResource TextCaption}"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                                        TextWrapping="Wrap" Text="{Binding FormulaText}"/>
                                         </Border>
                                         <Grid Margin="0,8,0,0">
@@ -1490,7 +1490,7 @@
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="0" Text="Final required target"
                                                        FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                                        VerticalAlignment="Center"/>
                                             <TextBlock Grid.Column="1" Text="{Binding FinalRequiredTargetDisplay}"
                                                        FontSize="{StaticResource TextSection}" FontWeight="Bold"
@@ -1531,7 +1531,7 @@
                                         </Grid>
                                         <TextBlock Text="The WASTAGE % box sets the formula yield used by the target above (15% → ÷0.85); Step 6 wastage charges are never part of this KPI."
                                                    FontSize="{StaticResource TextCaption}"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   Foreground="{DynamicResource TextTertiaryBrush}"
                                                    TextWrapping="Wrap" Margin="0,6,0,0"/>
 
                                         <!-- 6 · VALIDATION -->
@@ -1564,7 +1564,7 @@
                                                    Visibility="{Binding HasWarnings, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                         <TextBlock Text="Incomplete or missing inputs are reported as MISSING / INCOMPLETE — the margin is never shown as a misleading 0%."
                                                    FontSize="{StaticResource TextCaption}"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   Foreground="{DynamicResource TextTertiaryBrush}"
                                                    TextWrapping="Wrap" Margin="0,6,0,0"/>
 
                                     </StackPanel>

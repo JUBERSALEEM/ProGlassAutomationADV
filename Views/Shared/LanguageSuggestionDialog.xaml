@@ -26,7 +26,7 @@
         <TextBlock Text="Choose your language"
                    FontSize="{StaticResource TextSection}"
                    FontWeight="Bold"
-                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                   Foreground="{DynamicResource TextPrimaryBrush}"
                    HorizontalAlignment="Center"
                    TextWrapping="Wrap"
                    TextAlignment="Center"/>
@@ -43,7 +43,7 @@
 
         <TextBlock x:Name="ExplainText"
                    FontSize="{StaticResource TextBody}"
-                   Foreground="{DynamicResource MutedForegroundBrush}"
+                   Foreground="{DynamicResource TextTertiaryBrush}"
                    HorizontalAlignment="Center"
                    TextWrapping="Wrap"
                    TextAlignment="Center"
@@ -51,7 +51,7 @@
 
         <TextBlock Text="You can change this any time in Settings › Appearance."
                    FontSize="{StaticResource TextBody}"
-                   Foreground="{DynamicResource MutedForegroundBrush}"
+                   Foreground="{DynamicResource TextTertiaryBrush}"
                    HorizontalAlignment="Center"
                    TextWrapping="Wrap"
                    TextAlignment="Center"
@@ -73,9 +73,9 @@
                     Cursor="Hand"
                     IsCancel="True"
                     Click="KeepEnglish_Click"
-                    Background="{DynamicResource GlassSurfaceElevated}"
-                    Foreground="{DynamicResource PrimaryForegroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
+                    Background="{DynamicResource SurfaceElevatedBrush}"
+                    Foreground="{DynamicResource TextPrimaryBrush}"
+                    BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource Border.HairlineThickness}"/>
 
             <Button x:Name="SwitchButton"

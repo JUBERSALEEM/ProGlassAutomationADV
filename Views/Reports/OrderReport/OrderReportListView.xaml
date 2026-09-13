@@ -44,7 +44,7 @@
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0" Width="56" Height="56"
-                            Background="{DynamicResource ModuleBackgroundBrush}"
+                            Background="{DynamicResource SurfacePrimaryBrush}"
                             CornerRadius="{DynamicResource CardCornerRadius}" Margin="0,0,18,0">
                         <TextBlock Text="≡" FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"
@@ -66,8 +66,8 @@
                             Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border x:Name="bd" Background="{DynamicResource ModuleBackgroundBrush}"
-                                        BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                <Border x:Name="bd" Background="{DynamicResource SurfacePrimaryBrush}"
+                                        BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="{TemplateBinding Padding}">
                                     <StackPanel Orientation="Horizontal">
@@ -127,8 +127,8 @@
             <Border Grid.Column="4" CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,14">
                 <Border.Style>
                     <Style TargetType="Border">
-                        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-                        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+                        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+                        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
                         <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding HasMissingDocuments}" Value="True">
@@ -157,7 +157,7 @@
                                Margin="0,6,0,2">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding HasMissingDocuments}" Value="True">
                                         <Setter Property="Foreground" Value="White"/>
@@ -185,8 +185,8 @@
 
         <!-- ══ ROW 2 — SEARCH BAR ══ -->
         <Border Grid.Row="2" Margin="24,14,24,0"
-                Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                Background="{DynamicResource SurfacePrimaryBrush}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 CornerRadius="{DynamicResource CardCornerRadius}" Padding="12,10">
             <Grid>
@@ -197,7 +197,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0" Background="{DynamicResource WindowBackgroundBrush}"
-                        BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                         CornerRadius="{DynamicResource ControlCornerRadius}" Height="38">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -216,7 +216,7 @@
                                        Visibility="{Binding HasSearchText, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
                             <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                      FontSize="{StaticResource TextBodyLarge}" Background="Transparent"
-                                     BorderThickness="{DynamicResource Border.NoneThickness}" Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                     BorderThickness="{DynamicResource Border.NoneThickness}" Foreground="{DynamicResource TextPrimaryBrush}"
                                      VerticalContentAlignment="Center" CaretBrush="{DynamicResource AccentBrush}"/>
                         </Grid>
                     </Grid>
@@ -228,8 +228,8 @@
                         BorderThickness="{DynamicResource Border.NoneThickness}" ToolTip="Clear search">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
-                            <Border x:Name="bd" Background="{DynamicResource ModuleBackgroundBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                            <Border x:Name="bd" Background="{DynamicResource SurfacePrimaryBrush}"
+                                    BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}">
                                 <TextBlock Text="✕" FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -273,8 +273,8 @@
 
         <!-- ══ ROW 3 — COLUMN HEADERS ══ -->
         <Border Grid.Row="3" Margin="24,10,24,0"
-                Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                Background="{DynamicResource SurfacePrimaryBrush}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 CornerRadius="{DynamicResource ControlCornerRadius}" Padding="16,8"
                 Visibility="{Binding IsListVisible, Converter={StaticResource BoolToVisibilityConverter}}">
@@ -303,27 +303,27 @@
         <!-- ══ ROW 4 — CONTENT ══ -->
         <Grid Grid.Row="4" Margin="12,4,12,8">
 
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
+            <Border Background="{DynamicResource SurfacePrimaryBrush}"
+                    BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,48,0,48">
                     <TextBlock Text="↻" FontSize="{StaticResource TextDisplay}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"/>
                     <TextBlock Text="Loading order reports…" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center"
+                               Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center"
                                Margin="0,18,0,0"/>
                 </StackPanel>
             </Border>
 
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
+            <Border Background="{DynamicResource SurfacePrimaryBrush}"
+                    BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="420" Margin="0,48,0,48">
                     <TextBlock Text="No reports yet" FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center"
+                               Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center"
                                Margin="0,0,0,8"/>
                     <TextBlock Text="Generate an Overall Report to track a proforma invoice through job order, delivery and invoicing."
                                FontSize="{StaticResource TextBodyLarge}" TextWrapping="Wrap" TextAlignment="Center"
@@ -381,8 +381,8 @@
 
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                BorderBrush="{DynamicResource OutlineBrush}"
+                        <Border Background="{DynamicResource SurfacePrimaryBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                 CornerRadius="{DynamicResource CardCornerRadius}" ClipToBounds="True">
                             <Grid>
@@ -417,7 +417,7 @@
                                             <TextBlock Text="  /  " FontSize="{StaticResource TextBodyLarge}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                             <TextBlock Text="{Binding Title, Mode=OneWay}" FontSize="{StaticResource TextBodyLarge}"
-                                                       FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                       FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal">
                                             <Border Background="{DynamicResource TintIndigoBrush}"
@@ -440,7 +440,7 @@
                                 <Border Grid.Column="2" Background="{DynamicResource WindowBackgroundBrush}"
                                         Margin="0,10,8,10" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,10">
                                     <TextBlock Text="{Binding QuantitiesDisplay, Mode=OneWay}" FontSize="{StaticResource TextBody}"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
                                                VerticalAlignment="Center" TextWrapping="Wrap"/>
                                 </Border>
 

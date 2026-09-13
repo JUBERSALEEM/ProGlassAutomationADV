@@ -63,7 +63,7 @@
                                         Visibility="{Binding CanIssueAllDrafts,
                                             Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
-                                        Background="{DynamicResource GlassSurfaceUltra}"
+                                        Background="{DynamicResource SurfaceTertiaryBrush}"
                                         VerticalAlignment="Center">
                                     <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}">
                                         <Run Text="{Binding FamilyMemberCount, Mode=OneWay}"/>
@@ -120,14 +120,14 @@
                                                         </Border>
 
                                                         <!-- Attachment count badge -->
-                                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1"
+                                                        <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1"
                                                                 Margin="5,0,0,0"
                                                                 Background="{DynamicResource TintIndigoBrush}"
                                                                 VerticalAlignment="Center"
                                                                 Visibility="{Binding HasAttachments,
                                                                     Converter={StaticResource BoolToVisibilityConverter}}">
                                                             <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                                                       Foreground="{DynamicResource TextPrimaryBrush}">
                                                                 <Run Text="&#xE723;" FontFamily="Segoe MDL2 Assets"/><Run Text=" "/>
                                                                 <Run Text="{Binding AttachmentCount, Mode=OneWay}"/>
                                                             </TextBlock>
@@ -144,7 +144,7 @@
                                                         </Border.Background>
                                                         <TextBlock Text="{Binding StatusLabel}"
                                                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                     </Border>
                                                 </Grid>
 
@@ -158,7 +158,7 @@
                                                         </Border.Background>
                                                         <TextBlock Text="{Binding InvoiceTypeLabel}"
                                                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                     </Border>
 
                                                     <TextBlock Text="{Binding IssueDateDisplay}"
@@ -179,7 +179,7 @@
                                                                 Orientation="Horizontal">
                                                         <TextBlock Text="{DynamicResource TaxInvoice.Due}"
                                                                    FontSize="{StaticResource TextCaption}"
-                                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
                                                         <TextBlock Text="{Binding DueDateDisplay}"
                                                                    FontSize="{StaticResource TextCaption}" FontWeight="SemiBold">
                                                             <TextBlock.Style>
@@ -211,7 +211,7 @@
                     </ScrollViewer>
 
                     <!-- FAMILY TOTALS (fixed at bottom) -->
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="2"
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="2"
                             Margin="12,0,12,12"
                             Padding="14,12"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -229,7 +229,7 @@
                                 <TextBlock Text="{Binding FamilyProformaTotalDisplay}"
                                            FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                            HorizontalAlignment="Right"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                             </Grid>
 
                             <Grid Margin="0,0,0,6">
@@ -242,13 +242,13 @@
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </Grid>
 
-                            <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource OutlineBrush}"
+                            <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource BorderDefaultBrush}"
                                     BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                                     Padding="0,6,0,0">
                                 <Grid>
                                     <TextBlock Text="{DynamicResource Common.Balance}"
                                                FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{Binding FamilyBalanceTotalDisplay}"
                                                FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                                HorizontalAlignment="Right"

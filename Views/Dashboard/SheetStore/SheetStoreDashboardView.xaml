@@ -135,7 +135,7 @@
                                         SeriesBrush="{DynamicResource AccentBrush}"
                                         SeriesEndBrush="{DynamicResource AccentDarkBrush}"
                                         GridBrush="{DynamicResource DividerBrush}"
-                                        LabelBrush="{DynamicResource MutedForegroundBrush}"
+                                        LabelBrush="{DynamicResource TextTertiaryBrush}"
                                         EmptyMessage=""/>
                                 </Border>
 

@@ -33,7 +33,7 @@
                 <ControlTemplate.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
                         <Setter TargetName="Card" Property="Background"
-                                Value="{DynamicResource MenuHoverBrush}"/>
+                                Value="{DynamicResource SurfaceTertiaryBrush}"/>
                         <Setter TargetName="Card" Property="BorderBrush"
                                 Value="{DynamicResource AccentBrush}"/>
                     </Trigger>
@@ -56,13 +56,13 @@
                                Margin="0,0,6,0"/>
                     <TextBlock Text="{DynamicResource Nav.GroupStorage}"
                                FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
-                               Foreground="{DynamicResource MutedForegroundBrush}"
+                               Foreground="{DynamicResource TextTertiaryBrush}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
                 <TextBlock Text="{Binding StorageDisplay, FallbackValue='—'}"
                            HorizontalAlignment="Right"
                            FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
             </Grid>
             <Border Height="6"
                     Background="{DynamicResource BorderBrush}"
@@ -74,7 +74,7 @@
             </Border>
             <TextBlock Text="{Binding StorageSubtitle, FallbackValue='Storage unavailable'}"
                        FontSize="{StaticResource TextCaption}"
-                       Foreground="{DynamicResource MutedForegroundBrush}"
+                       Foreground="{DynamicResource TextTertiaryBrush}"
                        Margin="0,6,0,0"
                        TextWrapping="Wrap"/>
         </StackPanel>

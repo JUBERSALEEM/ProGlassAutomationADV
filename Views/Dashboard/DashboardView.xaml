@@ -147,9 +147,9 @@
                                     </Condition>
                                 </MultiDataTrigger.Conditions>
                                 <Setter TargetName="Pill" Property="Background"
-                                        Value="{DynamicResource MenuHoverBrush}"/>
+                                        Value="{DynamicResource SurfaceTertiaryBrush}"/>
                                 <Setter TargetName="Label" Property="Foreground"
-                                        Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                        Value="{DynamicResource TextPrimaryBrush}"/>
                             </MultiDataTrigger>
 
                             <!-- Active module -->
@@ -180,7 +180,7 @@
 
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+    <Grid Background="{DynamicResource SurfacePrimaryBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <!-- command bar -->
@@ -216,15 +216,15 @@
                        Margin="2,0,18,0"
                        TextTrimming="CharacterEllipsis"
                        MaxWidth="190"
-                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                       Foreground="{DynamicResource TextTertiaryBrush}"/>
 
             <!-- ── Segmented module picker ──────────────────────────────
                  Horizontally scrollable so a narrow window or a future
                  eighth module degrades into a scroll rather than
                  clipping the last segment. -->
             <Border Grid.Column="1"
-                    Background="{DynamicResource ElevatedSurfaceBrush}"
-                    BorderBrush="{DynamicResource GlassBorderGradientSoft}"
+                    Background="{DynamicResource SurfaceSecondaryBrush}"
+                    BorderBrush="{DynamicResource BorderSubtleBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="3"
@@ -252,8 +252,8 @@
                         VerticalAlignment="Center"
                         Margin="16,0,0,0">
 
-                <Border Background="{DynamicResource ElevatedSurfaceBrush}"
-                        BorderBrush="{DynamicResource GlassBorderGradientSoft}"
+                <Border Background="{DynamicResource SurfaceSecondaryBrush}"
+                        BorderBrush="{DynamicResource BorderSubtleBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="9,5"
@@ -266,7 +266,7 @@
                                    FontSize="{StaticResource TextCaption}"
                                    VerticalAlignment="Center"
                                    Margin="0,0,6,0"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
                         <TextBlock Text="{Binding ActivePage.LastRefreshed}"
                                    FontSize="{StaticResource TextCaption}"
                                    VerticalAlignment="Center"
@@ -274,8 +274,8 @@
                     </StackPanel>
                 </Border>
 
-                <Border Background="{DynamicResource ElevatedSurfaceBrush}"
-                        BorderBrush="{DynamicResource GlassBorderGradientSoft}"
+                <Border Background="{DynamicResource SurfaceSecondaryBrush}"
+                        BorderBrush="{DynamicResource BorderSubtleBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="7,4"
@@ -299,7 +299,7 @@
                                    Margin="0,0,4,0"
                                    TextTrimming="CharacterEllipsis"
                                    MaxWidth="150"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                     </StackPanel>
                 </Border>
             </StackPanel>

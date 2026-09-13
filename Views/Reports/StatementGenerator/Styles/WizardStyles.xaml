@@ -202,22 +202,22 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="bd"
-                            Background="{DynamicResource ModuleBackgroundBrush}"
-                            BorderBrush="{DynamicResource OutlineBrush}"
+                            Background="{DynamicResource SurfacePrimaryBrush}"
+                            BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
-                                          TextElement.Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                          TextElement.Foreground="{DynamicResource TextPrimaryBrush}"
                                           TextElement.FontWeight="SemiBold"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                             <Setter TargetName="bd" Property="Background"
-                                    Value="{DynamicResource MenuHoverBrush}"/>
+                                    Value="{DynamicResource SurfaceTertiaryBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="bd" Property="Opacity" Value="0.75"/>
@@ -243,7 +243,7 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="bd"
                             Background="Transparent"
-                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="{TemplateBinding Padding}"
@@ -303,7 +303,7 @@
                       light window needs an edge to read as a popup.
                     -->
                     <Border Background="{DynamicResource PopupSurfaceBrush}"
-                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="1"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="12,8"
@@ -315,7 +315,7 @@
                              The default TextBlock style scoped inside
                              this template ensures wrapping applies. -->
                         <ContentPresenter x:Name="cp"
-                                          TextElement.Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                          TextElement.Foreground="{DynamicResource TextPrimaryBrush}"
                                           TextElement.FontSize="{StaticResource TextBody}"
                                           TextElement.FontFamily="{DynamicResource AppFontFamily}">
                             <ContentPresenter.Resources>
@@ -328,7 +328,7 @@
                                          made the text invisible once the
                                          background was fixed. Must track the
                                          theme. -->
-                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                                     <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
                                     <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
                                     <Setter Property="LineHeight" Value="17"/>
@@ -363,7 +363,7 @@
 
     <Style x:Key="WizardCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
         <Setter Property="Background"           Value="{DynamicResource Surface.Primary.BackgroundBrush}"/>
-        <Setter Property="BorderBrush"          Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderBrush"          Value="{DynamicResource BorderDefaultBrush}"/>
         <Setter Property="BorderThickness"      Value="{DynamicResource Surface.Primary.BorderThickness}"/>
         <Setter Property="CornerRadius"         Value="{DynamicResource Surface.Primary.CornerRadius}"/>
         <Setter Property="Padding"              Value="20"/>
@@ -386,7 +386,7 @@
     <Style x:Key="StepTitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextTitleLarge}"/>
         <Setter Property="FontWeight"   Value="Bold"/>
-        <Setter Property="Foreground"   Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground"   Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="Margin"       Value="0,0,0,4"/>
     </Style>
 
@@ -402,7 +402,7 @@
     <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight"   Value="Bold"/>
-        <Setter Property="Foreground"   Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground"   Value="{DynamicResource TextTertiaryBrush}"/>
         <Setter Property="Margin"       Value="0,0,0,4"/>
     </Style>
 

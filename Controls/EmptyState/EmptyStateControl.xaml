@@ -32,8 +32,8 @@
     </UserControl.Resources>
 
     <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-            Background="{DynamicResource ModuleBackgroundBrush}"
-            BorderBrush="{DynamicResource OutlineBrush}"
+            Background="{DynamicResource SurfacePrimaryBrush}"
+            BorderBrush="{DynamicResource BorderDefaultBrush}"
             BorderThickness="{DynamicResource CardBorderThickness}"
             Padding="34,30"
             MaxWidth="460"
@@ -43,7 +43,7 @@
         <StackPanel HorizontalAlignment="Center">
 
             <!-- Tinted icon badge (Overview-dashboard style) -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Width="64" Height="64"
+            <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Width="64" Height="64"
                     CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                     HorizontalAlignment="Center"
                     Background="{DynamicResource TintIndigoBrush}">
@@ -59,7 +59,7 @@
                        HorizontalAlignment="Center"
                        TextAlignment="Center"
                        Margin="0,16,0,6"
-                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                       Foreground="{DynamicResource TextPrimaryBrush}"/>
 
             <TextBlock Text="{Binding Message, ElementName=Root}"
                        FontSize="{StaticResource TextBody}"

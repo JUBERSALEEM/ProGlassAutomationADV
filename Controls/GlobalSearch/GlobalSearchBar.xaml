@@ -29,7 +29,7 @@
         <Style x:Key="GsInputStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="Background"               Value="Transparent"/>
-            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground"               Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="BorderThickness"          Value="0"/>
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="Height"                   Value="26"/>
@@ -41,13 +41,13 @@
         <Style x:Key="GsResultTitleStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
         </Style>
 
         <Style x:Key="GsResultSubtitleStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
             <Setter Property="Margin"     Value="0,2,0,0"/>
         </Style>
@@ -63,12 +63,12 @@
                 Height="36"
                 Padding="14,0,8,0"
                 VerticalAlignment="Center"
-                Background="{DynamicResource ElevatedSurfaceBrush}"
+                Background="{DynamicResource SurfaceSecondaryBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 SnapsToDevicePixels="True">
             <Border.Style>
                 <Style TargetType="Border">
-                    <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
                     <Style.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
@@ -103,7 +103,7 @@
                                VerticalAlignment="Center"
                                Margin="2,0,0,0"
                                IsHitTestVisible="False"
-                               Foreground="{DynamicResource MutedForegroundBrush}">
+                               Foreground="{DynamicResource TextTertiaryBrush}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -133,7 +133,7 @@
                         Cursor="Hand"
                         BorderThickness="{DynamicResource Border.NoneThickness}"
                         Background="Transparent"
-                        Foreground="{DynamicResource MutedForegroundBrush}"
+                        Foreground="{DynamicResource TextTertiaryBrush}"
                         VerticalAlignment="Center"
                         ToolTip="{DynamicResource ToolTip.ClearSearch}">
                     <Button.Style>
@@ -163,7 +163,7 @@
                MaxHeight="460">
 
             <Border Background="{DynamicResource PopupSurfaceBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
+                    BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     MinWidth="440"
@@ -195,7 +195,7 @@
                             <DataTemplate>
                                 <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="12,9"
                                         Background="Transparent"
-                                        BorderBrush="{DynamicResource OutlineBrush}"
+                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                                         BorderThickness="{DynamicResource Border.BottomHairlineThickness}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -225,7 +225,7 @@
                                                        Style="{StaticResource GsResultSubtitleStyle}"/>
                                         </StackPanel>
 
-                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="2"
+                                        <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="2"
                                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                                 Padding="8,3"
                                                 Margin="10,0,0,0"
@@ -252,7 +252,7 @@
                                        FontSize="{StaticResource TextHeadline}"
                                        HorizontalAlignment="Center"
                                        Margin="0,0,0,8"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
                             <TextBlock Text="{DynamicResource Shell.SearchNoMatches}"
                                        FontSize="{StaticResource TextBody}"
                                        FontWeight="SemiBold"
@@ -262,18 +262,18 @@
                                        FontSize="{StaticResource TextCaption}"
                                        HorizontalAlignment="Center"
                                        Margin="0,4,0,0"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Status footer -->
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="1"
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="1"
                             Padding="12,7"
                             Background="{DynamicResource PopupSurfaceBrush}"
                             CornerRadius="{DynamicResource Radius.Bottom.Medium}">
                         <TextBlock Text="{Binding StatusMessage}"
                                    FontSize="{StaticResource TextCaption}"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
                     </Border>
                 </Grid>
             </Border>

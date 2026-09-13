@@ -92,10 +92,10 @@
                                         VerticalAlignment="Center">
                                 <TextBlock Text="{Binding EditionDisplay}"
                                            FontSize="{StaticResource TextTitle}" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 <TextBlock Text="{Binding StatusDescription}"
                                            FontSize="{StaticResource TextBody}"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                           Foreground="{DynamicResource TextTertiaryBrush}"
                                            TextWrapping="Wrap"
                                            Margin="0,2,0,0"/>
                             </StackPanel>
@@ -109,7 +109,7 @@
                                            HorizontalAlignment="Right"/>
                                 <TextBlock Text="{DynamicResource Settings.Remaining}"
                                            FontSize="{StaticResource TextBody}"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                           Foreground="{DynamicResource TextTertiaryBrush}"
                                            HorizontalAlignment="Right"/>
                             </StackPanel>
                         </Grid>

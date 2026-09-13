@@ -44,7 +44,7 @@
         <Style x:Key="LabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
             <Setter Property="Margin" Value="0,14,0,8"/>
         </Style>
 
@@ -103,7 +103,7 @@
         <StackPanel Grid.Row="0" Margin="0,0,0,16">
             <TextBlock Text="{Binding DialogTitle}"
                        FontSize="{StaticResource TextHeadline}" FontWeight="Bold"
-                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                       Foreground="{DynamicResource TextPrimaryBrush}"/>
             <TextBlock Text="{DynamicResource SheetStore.EnterGlassSheetInventoryDetails}"
                        FontSize="{StaticResource TextBody}" Margin="0,4,0,0"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>

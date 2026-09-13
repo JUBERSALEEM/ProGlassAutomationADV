@@ -12,8 +12,8 @@
                     xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
 
     <Style x:Key="LineItemsTableStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfaceWindowBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding" Value="12"/>
@@ -21,7 +21,7 @@
     </Style>
 
     <Style x:Key="LineItemsHeaderStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
-        <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
         <Setter Property="Padding" Value="4,8"/>
@@ -31,13 +31,13 @@
     <Style x:Key="LineItemsHeaderTextStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="HorizontalAlignment" Value="Center"/>
     </Style>
 
     <Style x:Key="LineItemsFooterStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
-        <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="BorderThickness" Value="0,1,0,0"/>
         <Setter Property="Padding" Value="4,8"/>
@@ -73,7 +73,7 @@
         <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
         <Setter Property="behaviors:TextBoxBehaviors.AcceptIntegersOnly" Value="True"/>
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
@@ -82,7 +82,7 @@
         <Setter Property="Height" Value="{DynamicResource DensityRowHeight}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="CaretBrush" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="SelectionBrush" Value="{DynamicResource AccentBrush}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Template">
@@ -135,7 +135,7 @@
          density-aware and focus/selection visible for keyboard operators. -->
     <Style x:Key="ErpDataGridStyle" TargetType="DataGrid">
         <Setter Property="Background" Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource Surface.Secondary.BorderBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Surface.Secondary.BorderThickness}"/>
         <Setter Property="RowHeight" Value="{DynamicResource DensityRowHeight}"/>
@@ -164,14 +164,14 @@
     </Style>
 
     <Style x:Key="ErpDataGridCellStyle" TargetType="DataGridCell">
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="True">
                 <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource SelectionForegroundBrush}"/>
             </Trigger>
             <Trigger Property="IsKeyboardFocusWithin" Value="True">
                 <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
@@ -185,10 +185,10 @@
         <Setter Property="MinHeight" Value="{DynamicResource DensityRowHeight}"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
             </Trigger>
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource SelectionBrush}"/>
             </Trigger>
         </Style.Triggers>
     </Style>

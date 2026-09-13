@@ -68,8 +68,8 @@
                                  Padding="8,0"
                                  VerticalContentAlignment="Center"
                                  FontSize="{StaticResource TextBody}"
-                                 Background="{DynamicResource ModuleBackgroundBrush}"
-                                 Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                 Background="{DynamicResource SurfacePrimaryBrush}"
+                                 Foreground="{DynamicResource TextPrimaryBrush}"
                                  BorderBrush="{DynamicResource BorderBrush}"
                                  BorderThickness="{DynamicResource Border.HairlineThickness}"
                                  KeyDown="PasswordBox_KeyDown"/>
@@ -87,7 +87,7 @@
                     Margin="0,14,0,0"
                     Padding="16,12"
                     CornerRadius="{DynamicResource Radius.Bottom.Medium}"
-                    Background="{DynamicResource MenuHoverBrush}"
+                    Background="{DynamicResource SurfaceTertiaryBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="{DynamicResource Border.TopHairlineThickness}">
                 <Grid>
@@ -98,7 +98,7 @@
                     <TextBlock Grid.Column="0"
                                Text="{DynamicResource Shared.DoubleClickAnywhereClose}"
                                FontSize="{StaticResource TextCaption}"
-                               Foreground="{DynamicResource MutedForegroundBrush}"
+                               Foreground="{DynamicResource TextTertiaryBrush}"
                                VerticalAlignment="Center"
                                TextWrapping="Wrap"/>
                     <Button x:Name="SwitchButton"

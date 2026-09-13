@@ -1,0 +1,52 @@
+<!--
+  AUTHORITATIVE semantic color roles.
+  Concrete Light defaults; ThemeManager.PublishProGlassDesignSystem
+  overwrites these at runtime from the active Light/Dark + family engine.
+  Application XAML should bind these keys, never Crystal*/LiquidGlass*.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <SolidColorBrush x:Key="WindowBackgroundBrush.Semantic" Color="#FFF8F4EB"/>
+
+    <SolidColorBrush x:Key="SurfacePrimaryBrush" Color="#F8FFFFFF"/>
+    <SolidColorBrush x:Key="SurfaceSecondaryBrush" Color="#EFFFFFFF"/>
+    <SolidColorBrush x:Key="SurfaceTertiaryBrush" Color="#14FFFFFF"/>
+    <SolidColorBrush x:Key="SurfaceInputBrush" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="SurfaceOverlayBrush" Color="#140F172A"/>
+
+    <SolidColorBrush x:Key="TextTertiaryBrush" Color="#9947554E"/>
+    <SolidColorBrush x:Key="TextDisabledBrush" Color="#6647554E"/>
+    <SolidColorBrush x:Key="TextPlaceholderBrush" Color="#8847554E"/>
+
+    <SolidColorBrush x:Key="BorderDefaultBrush" Color="#FFD8D0C2"/>
+    <SolidColorBrush x:Key="BorderFocusBrush" Color="#FF0369A1"/>
+
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="#260369A1"/>
+    <SolidColorBrush x:Key="SuccessSoftBrush" Color="#2216A34A"/>
+    <SolidColorBrush x:Key="WarningSoftBrush" Color="#22D97706"/>
+    <SolidColorBrush x:Key="DangerSoftBrush" Color="#22B91C1C"/>
+    <SolidColorBrush x:Key="InfoSoftBrush" Color="#220284C7"/>
+
+    <SolidColorBrush x:Key="SelectionBrush" Color="#330369A1"/>
+    <SolidColorBrush x:Key="SelectionForegroundBrush" Color="#FF0F172A"/>
+
+    <SolidColorBrush x:Key="InputBorderBrush" Color="#FFD8D0C2"/>
+    <SolidColorBrush x:Key="InputFocusBorderBrush" Color="#FF0369A1"/>
+    <SolidColorBrush x:Key="InputPlaceholderBrush" Color="#8847554E"/>
+    <SolidColorBrush x:Key="InputValidationBrush" Color="#FFB91C1C"/>
+
+    <SolidColorBrush x:Key="TabActiveBrush" Color="#FF0369A1"/>
+    <SolidColorBrush x:Key="TabInactiveBrush" Color="#0047554E"/>
+    <SolidColorBrush x:Key="TabHoverBrush" Color="#140369A1"/>
+    <SolidColorBrush x:Key="TabPressedBrush" Color="#220369A1"/>
+    <SolidColorBrush x:Key="TabFocusBrush" Color="#FF0369A1"/>
+
+    <SolidColorBrush x:Key="ReportPrimaryBrush" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="ReportSecondaryBrush" Color="#FFF8FAFC"/>
+    <SolidColorBrush x:Key="ReportHeaderBrush" Color="#FF1E3A5F"/>
+    <SolidColorBrush x:Key="ReportTextBrush" Color="#FF0F172A"/>
+    <SolidColorBrush x:Key="ReportBorderBrush" Color="#FFCBD5E1"/>
+    <SolidColorBrush x:Key="ReportAccentBrush" Color="#FF1E3A5F"/>
+
+</ResourceDictionary>

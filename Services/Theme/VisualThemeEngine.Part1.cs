@@ -196,7 +196,7 @@ namespace ProGlassAutomation.Services.Theme
         };
 
         /// <summary>Currently active family.</summary>
-        public static string Current { get; private set; } = Normal;
+        public static string Current { get; private set; } = NormalIndustrial;
 
         /// <summary>Module whose wallpaper is currently layered (or "").</summary>
         public static string CurrentModule { get; private set; } = "";
@@ -392,11 +392,9 @@ namespace ProGlassAutomation.Services.Theme
                 // Ios-17pm P4a: family-gated shell ambient host
                 // (MainWindow wallpaper layer) — removed with the
                 // same contract as the water gate.
-                resources.Remove("CrystalAmbientHostVisibility");
-                // Ios-17pm P4e: authored preview composition gate.
-                resources.Remove("CrystalPreviewHostVisibility");
-                foreach (var ck in CrystalFluidTokenKeys)
-                    resources.Remove(ck);
+                resources["CrystalAmbientHostVisibility"] = Visibility.Collapsed;
+                resources["CrystalPreviewHostVisibility"] = Visibility.Collapsed;
+                SeedCrystalPipelineTokens(resources);
                 // iOS 26 removal contract (2026-09-11): notify-critical gates
                 // get explicit fallback SETS (the indexer raises
                 // ResourcesChanged; Remove() did not reliably notify — the
@@ -409,8 +407,12 @@ namespace ProGlassAutomation.Services.Theme
                             System.Windows.Visibility.Collapsed;
                     else if (ck == "AboutWallpaperBrush")
                         resources["AboutWallpaperBrush"] = Ios26NeutralWallpaper;
-                    else
-                        resources.Remove(ck);
+                    else if (!resources.Contains(ck))
+                    {
+                        var fill = new SolidColorBrush(Colors.Transparent);
+                        fill.Freeze();
+                        resources[ck] = fill;
+                    }
                 }
                 // Re-seed the About glass keys from the CURRENT Surface.*
                 // values BEFORE the family switch (ERR-50472F lesson: no
@@ -441,10 +443,6 @@ namespace ProGlassAutomation.Services.Theme
 
                     case NormalIndustrial:
                         ApplyIndustrial(resources);
-                        break;
-
-                    case Ios26:
-                        ApplyIos26(resources);
                         break;
                 }
 
@@ -588,11 +586,9 @@ namespace ProGlassAutomation.Services.Theme
                     // Ios-17pm P4a: family-gated shell ambient host
                     // (MainWindow wallpaper layer) — removed with the
                     // same contract as the water gate.
-                    resources.Remove("CrystalAmbientHostVisibility");
-                    // Ios-17pm P4e: authored preview composition gate.
-                    resources.Remove("CrystalPreviewHostVisibility");
-                    foreach (var ck in CrystalFluidTokenKeys)
-                        resources.Remove(ck);
+                    resources["CrystalAmbientHostVisibility"] = Visibility.Collapsed;
+                    resources["CrystalPreviewHostVisibility"] = Visibility.Collapsed;
+                    SeedCrystalPipelineTokens(resources);
                     // PRE-SEED (2026-09-05 — ERR-50472F): never leave the
                     // dictionary with absent keys between teardown and the
                     // family republish — see Apply() for the full rationale.
@@ -629,7 +625,11 @@ namespace ProGlassAutomation.Services.Theme
                         resources["WindowBackgroundBrush"] = _familyWindowBrush;
                     if (_familyModuleBrush != null)
                         resources["ModuleBackgroundBrush"] = _familyModuleBrush;
-                    resources.Remove("ModuleWallpaperBrush");
+                    {
+                        var none = new SolidColorBrush(Colors.Transparent);
+                        none.Freeze();
+                        resources["ModuleWallpaperBrush"] = none;
+                    }
                 }
 
                 if (FileWallpaperApplies &&
@@ -781,6 +781,25 @@ namespace ProGlassAutomation.Services.Theme
         // fallback — AND names the missing key in the log, so a
         // machine-specific failure is diagnosable instead of invisible.
 
+        /// <summary>
+        /// Never Remove Crystal pipeline keys — DynamicResource on leftover
+        /// CrystalWaterControl / Settings sliders would resolve empty.
+        /// Seed authored baselines instead.
+        /// </summary>
+        private static void SeedCrystalPipelineTokens(ResourceDictionary resources)
+        {
+            resources["CrystalWaterOpacity"] = 0.40;
+            resources["CrystalWaterSpeed"] = 1.0;
+            resources["CrystalCausticOpacity"] = 0.18;
+            resources["CrystalBubbleOpacity"] = 0.70;
+            resources["CrystalReflectionOpacity"] = 0.22;
+            resources["CrystalReducedMotion"] = true;
+            resources["CrystalWaveAmplitude"] = 3.0;
+            resources["CrystalWaterDefaultEnabled"] = false;
+            resources["CrystalAmbientHostVisibility"] = Visibility.Collapsed;
+            resources["CrystalPreviewHostVisibility"] = Visibility.Collapsed;
+        }
+
         private static void GuaranteeCriticalResources(
             ResourceDictionary resources, bool silent = false)
         {
@@ -895,6 +914,32 @@ namespace ProGlassAutomation.Services.Theme
                          ("LiquidGlassBrush", moduleColor),
                          ("LiquidGlassSubtleBrush", elevatedColor),
                          ("LiquidGlassStrongBrush", elevatedColor),
+                         ("TextPrimaryBrush", primaryColor),
+                         ("TextSecondaryBrush", secondaryColor),
+                         ("TextTertiaryBrush", mutedColor),
+                         ("SurfacePrimaryBrush", moduleColor),
+                         ("SurfaceSecondaryBrush", elevatedColor),
+                         ("SurfaceTertiaryBrush", elevatedColor),
+                         ("SurfaceInputBrush", moduleColor),
+                         ("GlassUltraClearBrush", moduleColor),
+                         ("GlassSurfaceBrush", moduleColor),
+                         ("GlassCrystalBrush", elevatedColor),
+                         ("GlassFrostedBrush", elevatedColor),
+                         ("GlassSurfaceUltra", elevatedColor),
+                         ("GlassSurfaceStandard", moduleColor),
+                         ("GlassSurfaceElevated", elevatedColor),
+                         ("GlassBorderSoft", outlineColor),
+                         ("GlassBorderPrimary", outlineColor),
+                         ("GlassBorderBright", outlineColor),
+                         ("GlassBorderGradientCrystal", outlineColor),
+                         ("InputBorderBrush", outlineColor),
+                         ("BorderDefaultBrush", outlineColor),
+                         ("BorderSubtleBrush", outlineColor),
+                         ("PopupSurfaceBrush", elevatedColor),
+                         ("LiquidOverlayBrush", elevatedColor),
+                         ("LiquidFocusBrush", Color.FromRgb(0x03, 0x69, 0xA1)),
+                         ("LiquidCard", moduleColor),
+                         ("AccentHoverBrush", Color.FromRgb(0x11, 0x86, 0xC4)),
                          ("TintIndigoBrush", dark
                              ? Color.FromRgb(0x27, 0x2F, 0x3A)
                              : Color.FromRgb(0xED, 0xE7, 0xDA)),

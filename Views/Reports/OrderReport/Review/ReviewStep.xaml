@@ -30,8 +30,8 @@
 
     <UserControl.Resources>
         <Style x:Key="KpiCard" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
             <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
             <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
             <Setter Property="Padding" Value="14,12"/>
@@ -44,13 +44,13 @@
         <Style x:Key="KpiValue" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="Margin" Value="0,4,0,0"/>
         </Style>
         <Style x:Key="SectionTitle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="Margin" Value="0,16,0,8"/>
         </Style>
         <Style x:Key="Th" TargetType="TextBlock">
@@ -60,12 +60,12 @@
         </Style>
         <Style x:Key="Td" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         </Style>
         <Style x:Key="RowLine" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Padding" Value="10,6"/>
             <Setter Property="BorderThickness" Value="0,0,0,1"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
         </Style>
     </UserControl.Resources>
 
@@ -76,7 +76,7 @@
                 <!-- ═══ STEP TITLE ═══ -->
                 <TextBlock Text="Step 4 — Review"
                            FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock Text="The report below covers every selected proforma invoice through delivery and invoicing. Download the PDF, or go back to adjust the selection."
                            FontSize="{StaticResource TextBody}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -112,7 +112,7 @@
 
                         <Border Grid.Column="0" Width="56" Height="56"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
-                                Background="{DynamicResource ModuleBackgroundBrush}"
+                                Background="{DynamicResource SurfacePrimaryBrush}"
                                 VerticalAlignment="Center">
                             <TextBlock Text="✓" FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
                                        Foreground="{DynamicResource AccentBrush}"
@@ -138,7 +138,7 @@
                                 Height="44" Padding="20,0" Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="bd" Background="{DynamicResource ModuleBackgroundBrush}"
+                                    <Border x:Name="bd" Background="{DynamicResource SurfacePrimaryBrush}"
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Padding="{TemplateBinding Padding}">
                                         <StackPanel Orientation="Horizontal">
@@ -169,7 +169,7 @@
                                 Height="44" Padding="20,0" Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="bd" Background="{DynamicResource ModuleBackgroundBrush}"
+                                    <Border x:Name="bd" Background="{DynamicResource SurfacePrimaryBrush}"
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Padding="{TemplateBinding Padding}">
                                         <StackPanel Orientation="Horizontal">
@@ -250,8 +250,8 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border Margin="0,20,0,0"
-                                    Background="{DynamicResource ModuleBackgroundBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}"
+                                    Background="{DynamicResource SurfacePrimaryBrush}"
+                                    BorderBrush="{DynamicResource BorderDefaultBrush}"
                                     BorderThickness="{DynamicResource CardBorderThickness}"
                                     CornerRadius="{DynamicResource CardCornerRadius}"
                                     Padding="20,16">
@@ -294,7 +294,7 @@
                                                        HorizontalAlignment="Right"/>
                                             <TextBlock Text="{Binding Header.IssueDateDisplay}"
                                                        FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                                        HorizontalAlignment="Right" Margin="0,2,0,0"/>
                                         </StackPanel>
                                     </Grid>
@@ -395,7 +395,7 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Border Margin="0,0,0,8" Background="{DynamicResource WindowBackgroundBrush}"
-                                                        BorderBrush="{DynamicResource OutlineBrush}"
+                                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                         BorderThickness="{DynamicResource CardBorderThickness}"
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="12,10">
@@ -431,7 +431,7 @@
                                                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                            VerticalAlignment="Center" Margin="0,0,4,0"/>
                                                                 <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                                                            VerticalAlignment="Center">
                                                                     <Run Text="{Binding TotalWeightKg, Mode=OneWay, StringFormat={}{0:N1}}"/>
                                                                     <Run Text=" kg"/>
@@ -465,7 +465,7 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Border Margin="0,0,0,8" Background="{DynamicResource WindowBackgroundBrush}"
-                                                        BorderBrush="{DynamicResource OutlineBrush}"
+                                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                         BorderThickness="{DynamicResource CardBorderThickness}"
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="12,10">
@@ -495,15 +495,15 @@
                                                                 <TextBlock Text="Qty" FontSize="{StaticResource TextCaption}"
                                                                            Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,4,0"/>
                                                                 <TextBlock Text="{Binding TotalQty}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                                                           Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,12,0"/>
+                                                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,12,0"/>
                                                                 <TextBlock Text="Subtotal" FontSize="{StaticResource TextCaption}"
                                                                            Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,4,0"/>
                                                                 <TextBlock Text="{Binding Subtotal, StringFormat={}{0:N2}}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                                                           Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,12,0"/>
+                                                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,12,0"/>
                                                                 <TextBlock Text="VAT" FontSize="{StaticResource TextCaption}"
                                                                            Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,4,0"/>
                                                                 <TextBlock Text="{Binding VatAmount, StringFormat={}{0:N2}}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                                                           Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,12,0"/>
+                                                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,12,0"/>
                                                                 <TextBlock Text="Total" FontSize="{StaticResource TextCaption}"
                                                                            Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,4,0"/>
                                                                 <TextBlock Text="{Binding GrandTotal, StringFormat=AED {0:N2}}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
@@ -519,7 +519,7 @@
                                     <!-- ── RECONCILIATION ── -->
                                     <TextBlock Text="Reconciliation" Style="{StaticResource SectionTitle}"/>
                                     <Border Background="{DynamicResource WindowBackgroundBrush}"
-                                            BorderBrush="{DynamicResource OutlineBrush}"
+                                            BorderBrush="{DynamicResource BorderDefaultBrush}"
                                             BorderThickness="{DynamicResource CardBorderThickness}"
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Padding="12,10">
@@ -563,22 +563,22 @@
                                     <!-- ── ATTACHMENT COMPLETENESS ── -->
                                     <TextBlock Text="Attachment Completeness" Style="{StaticResource SectionTitle}"/>
                                     <Border Background="{DynamicResource WindowBackgroundBrush}"
-                                            BorderBrush="{DynamicResource OutlineBrush}"
+                                            BorderBrush="{DynamicResource BorderDefaultBrush}"
                                             BorderThickness="{DynamicResource CardBorderThickness}"
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Padding="12,10">
                                         <StackPanel>
-                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}">
                                                 <Run Text="PI attachments: "/>
                                                 <Run Text="{Binding Attachments.ProformaAttachmentCount, Mode=OneWay}" FontWeight="Bold"/>
                                             </TextBlock>
-                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0">
+                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0">
                                                 <Run Text="Delivery notes prepared: "/>
                                                 <Run Text="{Binding Attachments.DeliveryNotesPrepared, Mode=OneWay}" FontWeight="Bold"/>
                                                 <Run Text="  ·  with attachments: "/>
                                                 <Run Text="{Binding Attachments.DeliveryNotesAttached, Mode=OneWay}" FontWeight="Bold"/>
                                             </TextBlock>
-                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0">
+                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0">
                                                 <Run Text="Tax invoice attachments: "/>
                                                 <Run Text="{Binding Attachments.TaxInvoiceAttachmentCount, Mode=OneWay}" FontWeight="Bold"/>
                                             </TextBlock>
@@ -648,12 +648,12 @@
 
                 <!-- ═══ ALERTS (consolidated) ═══ -->
                 <TextBlock Text="Alerts" FontSize="{StaticResource TextSection}" FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,20,0,8"/>
+                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,20,0,8"/>
                 <ItemsControl ItemsSource="{Binding Warnings}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Margin="0,0,0,8" Background="{DynamicResource ModuleBackgroundBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}"
+                            <Border Margin="0,0,0,8" Background="{DynamicResource SurfacePrimaryBrush}"
+                                    BorderBrush="{DynamicResource BorderDefaultBrush}"
                                     BorderThickness="{DynamicResource CardBorderThickness}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="12,10">
@@ -681,7 +681,7 @@
                                     </Border>
                                     <StackPanel Grid.Column="1">
                                         <TextBlock Text="{Binding Title}" FontSize="{StaticResource TextBody}"
-                                                   FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                   FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         <TextBlock Text="{Binding Detail}" FontSize="{StaticResource TextBody}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    TextWrapping="Wrap" Margin="0,2,0,0"/>

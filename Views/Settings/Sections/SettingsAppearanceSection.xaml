@@ -176,8 +176,8 @@
                         <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                    Text="{DynamicResource Settings.PreviewCaption}"/>
                         <Border CornerRadius="{DynamicResource CardCornerRadius}"
-                                Background="{DynamicResource ElevatedSurfaceBrush}"
-                                BorderBrush="{DynamicResource OutlineBrush}"
+                                Background="{DynamicResource SurfaceSecondaryBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 Margin="0,8,0,0"
                                 SnapsToDevicePixels="True">
@@ -188,15 +188,11 @@
                                      invisible under other families.
                                      Ios-17pm P4e: AUTHORED water control
                                      (interim CrystalWater retired P4b). -->
-                                <crystal:CrystalWaterControl
-                                    WaterEnabled="{DynamicResource CrystalWaterDefaultEnabled}"
-                                    WaterLevel="0.4"
-                                    CornerRadius="{DynamicResource CardCornerRadius}"
-                                    IsHitTestVisible="False"/>
+                                <!-- Live CrystalWaterControl removed — TokenStore preview only. -->
                             <StackPanel Margin="12,10">
                                 <TextBlock Text="{DynamicResource Settings.PreviewModuleCard}"
                                            FontWeight="Bold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            FontSize="{StaticResource TextBody}"/>
                                 <TextBlock Text="{DynamicResource Settings.PreviewBody}"
                                            FontSize="{StaticResource TextCaption}"
@@ -214,30 +210,30 @@
                                             Background="{DynamicResource TintGreenBrush}">
                                         <TextBlock Text="{DynamicResource Settings.PreviewOk}"
                                                    FontSize="{StaticResource TextCaption}"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    HorizontalAlignment="Center"/>
                                     </Border>
                                     <Border Padding="9,3" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0"
                                             Background="{DynamicResource TintAmberBrush}">
                                         <TextBlock Text="{DynamicResource Settings.PreviewWarn}"
                                                    FontSize="{StaticResource TextCaption}"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    HorizontalAlignment="Center"/>
                                     </Border>
                                     <Border Padding="9,3" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0"
                                             Background="{DynamicResource TintRedBrush}">
                                         <TextBlock Text="{DynamicResource Settings.PreviewErr}"
                                                    FontSize="{StaticResource TextCaption}"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    HorizontalAlignment="Center"/>
                                     </Border>
                                     <Border Padding="9,3" CornerRadius="{DynamicResource Radius.XSmall}"
-                                            Background="{DynamicResource ModuleBackgroundBrush}"
-                                            BorderBrush="{DynamicResource OutlineBrush}"
+                                            Background="{DynamicResource SurfacePrimaryBrush}"
+                                            BorderBrush="{DynamicResource BorderDefaultBrush}"
                                             BorderThickness="{DynamicResource Border.HairlineThickness}">
                                         <TextBlock Text="{DynamicResource Settings.PreviewKeyline}"
                                                    FontSize="{StaticResource TextCaption}"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    HorizontalAlignment="Center"/>
                                     </Border>
                                 </UniformGrid>
@@ -400,7 +396,7 @@
                                                 Style="{StaticResource AccentChipStyle}">
                                             <StackPanel Orientation="Horizontal">
                                                 <Ellipse Width="11" Height="11" Fill="{Binding Swatch}"
-                                                         Stroke="{DynamicResource OutlineBrush}"
+                                                         Stroke="{DynamicResource BorderDefaultBrush}"
                                                          StrokeThickness="1"
                                                          VerticalAlignment="Center" Margin="0,0,8,0"/>
                                                 <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" TextWrapping="Wrap"/>
@@ -412,12 +408,12 @@
                             <!-- Free-pick font colour: type any hex, the whole
                                  text hierarchy (primary/secondary/muted) re-derives. -->
                             <Border Margin="0,10,0,0" Padding="8,6" CornerRadius="{DynamicResource Radius.Small}"
-                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                    BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     HorizontalAlignment="Left">
                                 <StackPanel Orientation="Horizontal">
                                     <Ellipse Width="14" Height="14"
                                              Fill="{Binding CustomFontColorSwatch}"
-                                             Stroke="{DynamicResource OutlineBrush}" StrokeThickness="1"
+                                             Stroke="{DynamicResource BorderDefaultBrush}" StrokeThickness="1"
                                              VerticalAlignment="Center" Margin="0,0,10,0"/>
                                     <TextBox Text="{Binding CustomFontColorHex, UpdateSourceTrigger=PropertyChanged}"
                                              Width="96" Padding="8,5" FontSize="{StaticResource TextBodyLarge}"
@@ -492,7 +488,7 @@
                             <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
                                 <Ellipse Width="14" Height="14"
                                          Fill="{Binding CardEdgeSwatch}"
-                                         Stroke="{DynamicResource OutlineBrush}" StrokeThickness="1"
+                                         Stroke="{DynamicResource BorderDefaultBrush}" StrokeThickness="1"
                                          VerticalAlignment="Center" Margin="0,0,10,0"/>
                                 <TextBox Text="{Binding CardEdgeColor, UpdateSourceTrigger=PropertyChanged}"
                                          Width="110" Padding="8,6" FontSize="{StaticResource TextBody}"
@@ -614,7 +610,7 @@
 
                                 <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,8,0">
                                     <StackPanel>
-                                        <TextBlock Text="Primary" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        <TextBlock Text="Primary" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         <TextBlock Text="Major page/module card" Style="{StaticResource SettingsTileCaptionStyle}"/>
                                         <TextBlock Margin="0,8,0,0" Style="{StaticResource SettingsTileCaptionStyle}" Text="Opacity"/>
                                         <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.3" Maximum="1" Value="{Binding SurfacePrimaryOpacity, Mode=TwoWay}"/>
@@ -627,7 +623,7 @@
 
                                 <Border Grid.Column="1" Style="{StaticResource SurfaceSecondaryStyle}" Margin="4,0">
                                     <StackPanel>
-                                        <TextBlock Text="Secondary" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        <TextBlock Text="Secondary" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         <TextBlock Text="Groups, filters, KPI cards" Style="{StaticResource SettingsTileCaptionStyle}"/>
                                         <TextBlock Margin="0,8,0,0" Style="{StaticResource SettingsTileCaptionStyle}" Text="Opacity"/>
                                         <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.25" Maximum="1" Value="{Binding SurfaceSecondaryOpacity, Mode=TwoWay}"/>
@@ -640,7 +636,7 @@
 
                                 <Border Grid.Column="2" Style="{StaticResource SurfaceDetailStyle}" Margin="8,0,0,0">
                                     <StackPanel>
-                                        <TextBlock Text="Detail" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        <TextBlock Text="Detail" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         <TextBlock Text="Chips, badges, facts" Style="{StaticResource SettingsTileCaptionStyle}"/>
                                         <TextBlock Margin="0,8,0,0" Style="{StaticResource SettingsTileCaptionStyle}" Text="Opacity"/>
                                         <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.15" Maximum="1" Value="{Binding SurfaceDetailOpacity, Mode=TwoWay}"/>
@@ -765,12 +761,12 @@
                             <!-- Free-pick colour: type any hex, the whole adaptive palette
                                  (Monet glass, tints, keylines) re-derives from it. -->
                             <Border Margin="0,12,0,0" Padding="10,8" CornerRadius="{DynamicResource Radius.Small}"
-                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                    BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     HorizontalAlignment="Left">
                                 <StackPanel Orientation="Horizontal">
                                     <Ellipse Width="14" Height="14"
                                              Fill="{Binding CustomAccentSwatch}"
-                                             Stroke="{DynamicResource OutlineBrush}" StrokeThickness="1"
+                                             Stroke="{DynamicResource BorderDefaultBrush}" StrokeThickness="1"
                                              VerticalAlignment="Center" Margin="0,0,10,0"/>
                                     <TextBox Text="{Binding CustomAccentHex, UpdateSourceTrigger=PropertyChanged}"
                                              Width="110" Padding="8,6" FontSize="{StaticResource TextBodyLarge}"
@@ -934,7 +930,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border CornerRadius="{DynamicResource CardCornerRadius}"
-                                                BorderBrush="{DynamicResource OutlineBrush}"
+                                                BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                 BorderThickness="{DynamicResource Border.RightBottomHairlineThickness}"
                                                 Padding="4,7"
                                                 Margin="0,0,8,8">
@@ -962,7 +958,7 @@
                                                            VerticalAlignment="Center"
                                                            TextTrimming="CharacterEllipsis"
                                                            Margin="0,0,6,0"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                                           Foreground="{DynamicResource TextPrimaryBrush}">
                                                     <TextBlock.ToolTip>
                                                         <StackPanel>
                                                             <TextBlock Text="{Binding Label}" FontWeight="SemiBold" TextWrapping="Wrap"/>
@@ -1134,6 +1130,8 @@
                                             CommandParameter="{Binding Key}"
                                             Margin="0,0,8,8">
                                         <StackPanel Orientation="Horizontal">
+                                            <Rectangle Width="36" Height="20" RadiusX="5" RadiusY="5"
+                                                       Fill="{Bindin           <StackPanel Orientation="Horizontal">
                                             <Rectangle Width="36" Height="20" RadiusX="5" RadiusY="5"
                                                        Fill="{Binding Preview}"/>
                                             <TextBlock Text="{Binding Label}" Margin="8,0,0,0"

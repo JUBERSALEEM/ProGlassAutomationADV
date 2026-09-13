@@ -60,7 +60,7 @@
         </DataTemplate>
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+    <Grid Background="{DynamicResource SurfacePrimaryBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>

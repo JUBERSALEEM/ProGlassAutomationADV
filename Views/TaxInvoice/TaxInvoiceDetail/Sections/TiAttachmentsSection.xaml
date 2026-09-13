@@ -60,7 +60,7 @@
                     </Border>
 
                     <!-- Viewing-different-family-member warning -->
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="1"
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="1"
                             Padding="12,8" Margin="10,10,10,0"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Background="{DynamicResource TintAmberBrush}"
@@ -76,7 +76,7 @@
                             </Style>
                         </Border.Style>
                         <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    TextWrapping="Wrap">
                             <Run Text="&#xE7B3;" FontFamily="Segoe MDL2 Assets"/><Run Text="{DynamicResource TaxInvoice.AttachmentsShownSelectedFamilyMember}"/>
                         </TextBlock>
@@ -106,12 +106,12 @@
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="&#xE723;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplay}"
                                                HorizontalAlignment="Center"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                               Foreground="{DynamicResource TextTertiaryBrush}"/>
                                     <TextBlock Text="{DynamicResource DeliveryNote.NoAttachmentsYet}"
                                                FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                                                HorizontalAlignment="Center"
                                                Margin="0,8,0,4"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{DynamicResource TaxInvoice.AddSignedPIDNPdfsHere}"
                                                FontSize="{StaticResource TextBody}"
                                                HorizontalAlignment="Center"
@@ -123,9 +123,9 @@
                                           Margin="10,6,10,10">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Margin="0,4" Padding="12,10"
+                                        <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Margin="0,4" Padding="12,10"
                                                 CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                Background="{DynamicResource MenuHoverBrush}"
+                                                Background="{DynamicResource SurfaceTertiaryBrush}"
                                                 SnapsToDevicePixels="True">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
@@ -147,7 +147,7 @@
                                                     <TextBlock Text="{Binding FileName}"
                                                                FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                                TextTrimming="CharacterEllipsis"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                     <TextBlock FontSize="{StaticResource TextCaption}" Margin="0,2,0,0"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}">
                                                         <Run Text="{Binding TypeLabel, Mode=OneWay}"/>

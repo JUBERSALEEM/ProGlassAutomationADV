@@ -63,7 +63,7 @@
                                                           ToolTip="Tick to include this job's panes — tick many jobs to combine (e.g. shared low-e outers merge into one cutting group)"/>
                                                 <StackPanel Grid.Column="1">
                                                     <TextBlock Text="{Binding JobOrderId}" FontSize="{StaticResource TextBody}"
-                                                               FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                               FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                     <TextBlock Text="{Binding SourceLabel, Mode=OneWay}"
                                                                FontSize="{StaticResource TextCaption}"
                                                                Foreground="{DynamicResource AccentBrush}" Margin="0,1,0,0"/>
@@ -93,7 +93,7 @@
 
                             <StackPanel Grid.Row="3">
                                 <TextBlock Text="{Binding JobsStatusText}" FontSize="{StaticResource TextCaption}"
-                                           TextWrapping="Wrap" Foreground="{DynamicResource MutedForegroundBrush}"
+                                           TextWrapping="Wrap" Foreground="{DynamicResource TextTertiaryBrush}"
                                            Margin="0,4,0,10"/>
                                 <Button Content="Refresh jobs" Style="{StaticResource OutlinedPillButton}"
                                         Command="{Binding RefreshJobsCommand}" HorizontalAlignment="Left"/>
@@ -119,7 +119,7 @@
                                 <!-- empty hint -->
                                 <TextBlock Text="Tick a job order on the left — its Step 4/5 panes (outer → inner) appear here for selection."
                                            FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
-                                           Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,12"
+                                           Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,12"
                                            Visibility="{Binding HasPaneChecklist, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
 
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,12"
@@ -174,13 +174,13 @@
                                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                    VerticalAlignment="Center" Margin="0,0,8,0"/>
                                                         <TextBlock Grid.Column="3" Text="{Binding Title}" FontSize="{StaticResource TextBody}"
-                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                                    VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
                                                         <TextBlock Grid.Column="4" Text="{Binding CountLabel}" FontSize="{StaticResource TextCaption}"
-                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                                    VerticalAlignment="Center" TextAlignment="Right" Margin="0,0,10,0"/>
                                                         <TextBlock Grid.Column="5" Text="{Binding AreaLabel}" FontSize="{StaticResource TextCaption}"
-                                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                                   Foreground="{DynamicResource TextTertiaryBrush}"
                                                                    VerticalAlignment="Center" TextAlignment="Right"/>
                                                     </Grid>
                                                 </Border>
@@ -215,7 +215,7 @@
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="CUTTING LIST" Style="{StaticResource OptPanelTitle}"/>
                                         <TextBlock Text="{Binding PieceSummary}" FontSize="{StaticResource TextCaption}"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0"/>
+                                                   Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                         <Button Content="Load reference job" Style="{StaticResource OptGhostButton}"
@@ -258,7 +258,7 @@
 
                                 <!-- empty hint -->
                                 <TextBlock Grid.Row="3" Text="{Binding PiecesEmptyHint}" FontSize="{StaticResource TextBody}"
-                                           TextWrapping="Wrap" Foreground="{DynamicResource MutedForegroundBrush}"
+                                           TextWrapping="Wrap" Foreground="{DynamicResource TextTertiaryBrush}"
                                            VerticalAlignment="Top" Margin="4,8,4,0"
                                            Visibility="{Binding HasPieces, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
 
@@ -297,7 +297,7 @@
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel Grid.Column="0" Margin="0,0,8,0">
                                                             <TextBlock Text="{Binding PieceLabel}" FontSize="{StaticResource TextBody}"
-                                                                       FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                       FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"
                                                                        TextTrimming="CharacterEllipsis"/>
                                                             <TextBlock Text="{Binding Position}" FontSize="{StaticResource TextCaption}"
                                                                        Foreground="{DynamicResource AccentBrush}"/>
@@ -306,7 +306,7 @@
                                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                    VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
                                                         <TextBlock Grid.Column="2" FontSize="{StaticResource TextBody}"
-                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center">
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center">
                                                             <Run Text="{Binding WidthText, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding HeightText, Mode=OneWay}"/>
                                                         </TextBlock>
                                                         <TextBox Grid.Column="3" Text="{Binding QtyText, UpdateSourceTrigger=PropertyChanged}"

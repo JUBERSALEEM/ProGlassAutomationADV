@@ -33,7 +33,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
         xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
-        xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid"
         xmlns:globalSearch="clr-namespace:ProGlassAutomation.Controls.GlobalSearch"
         xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels"
         xmlns:vmLicensing="clr-namespace:ProGlassAutomation.ViewModels.Licensing"
@@ -231,24 +230,6 @@
         </Grid.RowDefinitions>
 
         <!-- ═══════════════════════════════════════════════════════════
-             IOS-17PM P4a (2026-09-05) — FAMILY-GATED AMBIENT HOST.
-
-             The authored ambient layer (file 09 — drifting light blobs)
-             animates ABOVE the painted wallpaper scene and BELOW every
-             shell row (Grid.Span 2, first child → back-most).
-
-             Visibility is engine-owned via CrystalAmbientHostVisibility:
-             ApplyCrystalFluid writes Visible; BOTH family-switch paths
-             (VisualThemeEngine Part1) REMOVE the key, so the host
-             collapses under every non-crystal family. The control's D35
-             lifecycle fix stops its clocks while collapsed — zero
-             ambient CPU crosses a family switch.
-        ═══════════════════════════════════════════════════════════════ -->
-        <crystal:CrystalAmbientBackground
-                Grid.RowSpan="2"
-                Visibility="{DynamicResource CrystalAmbientHostVisibility}" />
-
-        <!-- ═══════════════════════════════════════════════════════════
              TOP PANEL — single dark bar of rounded 14px pills:
              hamburger · logo · search · theme · AI agent · date/time ·
              connectivity · notifications · settings · screenshot ·
@@ -281,7 +262,10 @@
                             Command="{Binding ToggleMenuCommand}"
                             ToolTip="{DynamicResource ToolTip.ToggleMenu}"
                             Margin="0,0,12,0"
-                            VerticalAlignment="Center"/>
+                            VerticalAlignment="Center"
+                            Panel.ZIndex="80"
+                            IsHitTestVisible="True"
+                            Focusable="True"/>
 
                 <!-- LOGO — click to open the About panel -->
                 <StackPanel x:Name="LogoPanel"

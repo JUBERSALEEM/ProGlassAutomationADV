@@ -4,6 +4,8 @@
 
 using ProGlassAutomation.Services.Theme;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -57,6 +59,7 @@ namespace ProGlassAutomation.Services
             ApplyAccent(_customAccent, raiseEvent: false);
             ReapplyOutlinePreference();
             ReapplySemanticSurfaces();
+            PublishProGlassDesignSystem();
         }
 
         /// <summary>Raised after the accent family is (re)derived.</summary>
@@ -70,50 +73,80 @@ namespace ProGlassAutomation.Services
         // ══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Parsed theme dictionaries, cached after first load.
-        ///
-        /// WHY CACHE (2026-09-02 perf pass): every Light/Dark toggle used
-        /// to construct a fresh ResourceDictionary from disk (pack URI →
-        /// file IO + XAML/BAML parse) on the UI thread — the single
-        /// biggest cost of the toggle. The engine never writes INTO these
-        /// dictionaries (it writes Application.Resources), so the parsed
-        /// instances are safe to re-add/remove across toggles.
+        /// Parsed Light/Dark palettes. Phase 4: overlay sources only —
+        /// never swapped in MergedDictionaries. App.xaml keeps LightTheme
+        /// merged as the startup fallback.
         /// </summary>
         private static ResourceDictionary? _lightDict;
         private static ResourceDictionary? _darkDict;
 
+        private static readonly string[] OverlaySkipPrefixes =
+        {
+            "Density", "CardCorner", "ControlCorner", "CardBorder", "CardEdge",
+            "Radius.", "Border.", "Surface.", "ProGlass.", "UiScale",
+            "ReducedMotion", "MotionSpeedRatio", "CrystalWater", "CrystalAmbient",
+            "CrystalPreview"
+        };
+
+        private static ResourceDictionary LoadThemeDictionary(AppTheme theme)
+        {
+            if (theme == AppTheme.Dark)
+            {
+                return _darkDict ??= new ResourceDictionary
+                {
+                    Source = new Uri("pack://application:,,,/Themes/DarkTheme.xaml", UriKind.Absolute)
+                };
+            }
+
+            return _lightDict ??= new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Themes/LightTheme.xaml", UriKind.Absolute)
+            };
+        }
+
+        private static void OverlayThemeDictionary(ResourceDictionary source)
+        {
+            var resources = Application.Current?.Resources;
+            if (resources == null) return;
+
+            var keys = new List<object>();
+            foreach (DictionaryEntry entry in source)
+                keys.Add(entry.Key);
+
+            foreach (var keyObj in keys)
+            {
+                if (keyObj is not string key) continue;
+                bool skip = false;
+                for (int i = 0; i < OverlaySkipPrefixes.Length; i++)
+                {
+                    if (key.StartsWith(OverlaySkipPrefixes[i], StringComparison.Ordinal))
+                    {
+                        skip = true;
+                        break;
+                    }
+                }
+                if (skip) continue;
+
+                try { resources[key] = source[key]; }
+                catch (Exception ex)
+                {
+                    Logging.AppLogService.Debug(
+                        $"[ThemeManager] overlay skip {key}: {ex.Message}");
+                }
+            }
+        }
+
         public static void ApplyTheme(AppTheme theme, bool deferPostProcessing = false)
         {
-            string themeUri = theme == AppTheme.Dark
-                ? "pack://application:,,,/Themes/DarkTheme.xaml"
-                : "pack://application:,,,/Themes/LightTheme.xaml";
-
-            ResourceDictionary newDict;
+            ResourceDictionary palette;
             try
             {
-                if (theme == AppTheme.Dark)
-                {
-                    newDict = _darkDict ??= new ResourceDictionary
-                    {
-                        Source = new Uri(themeUri, UriKind.Absolute)
-                    };
-                }
-                else
-                {
-                    newDict = _lightDict ??= new ResourceDictionary
-                    {
-                        Source = new Uri(themeUri, UriKind.Absolute)
-                    };
-                }
+                palette = LoadThemeDictionary(theme);
             }
             catch (Exception ex)
             {
-                // Never leave the app without a theme dictionary. If the
-                // new dictionary cannot load, KEEP the active one and
-                // surface the failure — a themeless resource scope is
-                // exactly the "every theme broken" symptom.
                 ProGlassAutomation.Services.Logging.AppLogService.Warning(
-                    $"Theme dictionary load failed ({themeUri}): {ex.Message}",
+                    $"Theme dictionary load failed ({theme}): {ex.Message}",
                     new ProGlassAutomation.Services.Logging.LogContext
                     {
                         Module = "Themes",
@@ -122,29 +155,7 @@ namespace ProGlassAutomation.Services
                 return;
             }
 
-            var appDicts = Application.Current.Resources.MergedDictionaries;
-
-            // Add FIRST, then remove the old instance. A later merged
-            // dictionary wins DynamicResource lookups, so the new theme
-            // becomes authoritative the moment it is added — there is
-            // never a gap where theme keys resolve to nothing (that gap
-            // blanked every DynamicResource-bound surface during each
-            // Light/Dark swap).
-            appDicts.Add(newDict);
-
-            // Remove the PREVIOUS theme dictionary (the new one is
-            // deliberately excluded from the match).
-            var existing = appDicts.FirstOrDefault(d =>
-                d != null && d != newDict && d.Source != null &&
-                (d.Source.OriginalString.Contains("LightTheme.xaml") ||
-                 d.Source.OriginalString.Contains("DarkTheme.xaml")));
-
-            if (existing != null)
-                appDicts.Remove(existing);
-
-            // Only now does the reported mode match the active
-            // dictionary (a failed load above returns early and leaves
-            // the previous theme reporting itself).
+            OverlayThemeDictionary(palette);
             _currentTheme = theme;
 
             if (!deferPostProcessing)
@@ -298,7 +309,8 @@ namespace ProGlassAutomation.Services
             // Monet / Crystal Fluid derive their own tinted surfaces
             // per family below.
             bool normalFamily =
-                VisualThemeEngine.Current == VisualThemeEngine.Normal;
+                VisualThemeEngine.Current == VisualThemeEngine.Normal
+                || VisualThemeEngine.Current == VisualThemeEngine.NormalIndustrial;
 
             // ── Core accent family ────────────────────────────────────
             // Light theme: accent as chosen.  Dark theme: lift lightness
@@ -468,6 +480,8 @@ namespace ProGlassAutomation.Services
             // The dashboards consume these via DynamicResource, so the
             // whole analytics surface follows the theme AND the accent.
             PublishDashAmbience(resources, core, dark);
+
+            PublishProGlassDesignSystem();
 
             if (raiseEvent)
                 AccentChanged?.Invoke(null, EventArgs.Empty);
@@ -712,19 +726,15 @@ namespace ProGlassAutomation.Services
         /// </summary>
         private static Color ThemeDefaultAccent()
         {
-            var resources = Application.Current?.Resources;
-            if (resources != null)
+            try
             {
-                var dict = resources.MergedDictionaries.FirstOrDefault(d =>
-                    d.Source != null &&
-                    (d.Source.OriginalString.Contains("LightTheme.xaml") ||
-                     d.Source.OriginalString.Contains("DarkTheme.xaml")));
-
-                if (dict != null &&
-                    dict["AccentBrush"] is SolidColorBrush themeBrush)
-                {
+                var dict = LoadThemeDictionary(_currentTheme);
+                if (dict["AccentBrush"] is SolidColorBrush themeBrush)
                     return themeBrush.Color;
-                }
+            }
+            catch
+            {
+                // fallback below
             }
 
             return _currentTheme == AppTheme.Dark
@@ -747,21 +757,20 @@ namespace ProGlassAutomation.Services
         /// </summary>
         internal static Color GetThemeColor(string key, Color fallback)
         {
-            var resources = Application.Current?.Resources;
-            if (resources == null) return fallback;
-
-            var dict = resources.MergedDictionaries.FirstOrDefault(d =>
-                d.Source != null &&
-                (d.Source.OriginalString.Contains("LightTheme.xaml") ||
-                 d.Source.OriginalString.Contains("DarkTheme.xaml")));
-
-            if (dict == null) return fallback;
-            return dict[key] switch
+            try
             {
-                SolidColorBrush brush => brush.Color,
-                Color color => color,
-                _ => fallback
-            };
+                var dict = LoadThemeDictionary(_currentTheme);
+                return dict[key] switch
+                {
+                    SolidColorBrush brush => brush.Color,
+                    Color color => color,
+                    _ => fallback
+                };
+            }
+            catch
+            {
+                return fallback;
+            }
         }
 
         /// <summary>

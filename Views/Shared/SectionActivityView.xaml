@@ -68,9 +68,9 @@
         <!-- Feed -->
         <Border Grid.Row="1"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
-                Background="{DynamicResource ModuleBackgroundBrush}"
+                Background="{DynamicResource SurfacePrimaryBrush}"
                 ClipToBounds="True">
 
             <Grid>
@@ -82,7 +82,7 @@
                 <!-- Column headers -->
                 <Border Grid.Row="0"
                         Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
-                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                         Padding="16,9">
                     <Grid>
@@ -108,13 +108,13 @@
                             Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
                     <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets"
                                FontSize="{StaticResource TextDisplayLarge}"
-                               Foreground="{DynamicResource MutedForegroundBrush}"
+                               Foreground="{DynamicResource TextTertiaryBrush}"
                                HorizontalAlignment="Center"/>
                     <TextBlock Text="No audit activity recorded yet"
                                FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
                                HorizontalAlignment="Center"
                                Margin="0,10,0,3"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock Text="User actions in this section will appear here instantly."
                                FontSize="{StaticResource TextBody}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -141,7 +141,7 @@
                                         Margin="10,8,10,0"
                                         Padding="14,12"
                                         Background="{DynamicResource Surface.Primary.BackgroundBrush}"
-                                        BorderBrush="{DynamicResource OutlineBrush}"
+                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                                         BorderThickness="{DynamicResource CardBorderThickness}"
                                         ToolTip="{Binding RowTooltip}">
                                     <Grid>
@@ -158,10 +158,10 @@
                                             <TextBlock Text="{Binding TimeDisplay}"
                                                        FontSize="{StaticResource TextBody}"
                                                        FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             <TextBlock Text="{Binding UtcTimeDisplay}"
                                                        FontSize="{StaticResource TextCaption}"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
                                         </StackPanel>
 
                                         <!-- WHO -->
@@ -169,7 +169,7 @@
                                             <TextBlock Text="{Binding ActorDisplay}"
                                                        FontSize="{StaticResource TextBody}"
                                                        FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                                        TextTrimming="CharacterEllipsis"/>
                                             <TextBlock Text="{Binding Username, StringFormat=login: {0}}"
                                                        FontSize="{StaticResource TextCaption}"
@@ -183,7 +183,7 @@
 
                                         <!-- WHAT / RECORD -->
                                         <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="10,0,0,0">
-                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
+                                            <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
                                                     Background="{DynamicResource TintIndigoBrush}"
                                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="8,3"
@@ -205,7 +205,7 @@
                                         <StackPanel Grid.Column="3" Margin="12,0,0,0" VerticalAlignment="Center">
                                             <TextBlock Text="{Binding Details}"
                                                        FontSize="{StaticResource TextBody}"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                                        TextTrimming="CharacterEllipsis"
                                                        ToolTip="{Binding Details}"/>
                                             <TextBlock Text="{Binding WhySummary, StringFormat=Why: {0}}"
@@ -217,7 +217,7 @@
                                             <TextBlock Text="{Binding ChangeSummary}"
                                                        FontSize="{StaticResource TextCaption}"
                                                        Margin="0,2,0,0"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                                       Foreground="{DynamicResource TextTertiaryBrush}"
                                                        TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
 

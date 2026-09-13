@@ -153,7 +153,7 @@
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding OverdueCount}" Value="0">
                                                     <Setter Property="Foreground"
-                                                            Value="{DynamicResource MutedForegroundBrush}"/>
+                                                            Value="{DynamicResource TextTertiaryBrush}"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -288,22 +288,22 @@
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,8,8,8">
                                             <TextBlock Text="{Binding JobOrderId}"
                                                        FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                                                 <Border Background="{DynamicResource TintGrayBrush}"
-                                                        BorderBrush="{DynamicResource OutlineBrush}"
+                                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="8,2"
                                                         Margin="0,0,6,0">
                                                     <TextBlock Text="{Binding ProjectName}"
                                                                FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                               Foreground="{DynamicResource TextPrimaryBrush}"
                                                                TextTrimming="CharacterEllipsis"
                                                                MaxWidth="140"/>
                                                 </Border>
                                                 <Border Background="{DynamicResource TintBlueBrush}"
-                                                        BorderBrush="{DynamicResource OutlineBrush}"
+                                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="8,2"
@@ -337,7 +337,7 @@
                                                    Text="{Binding CustomerName}"
                                                    FontSize="{StaticResource TextBody}"
                                                    TextTrimming="CharacterEllipsis"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    VerticalAlignment="Center"
                                                    Margin="8,0"
                                                    ToolTip="{Binding CustomerName}"/>
@@ -360,7 +360,7 @@
                                         <TextBlock Grid.Column="5"
                                                    Text="{Binding GrandTotalDisplay}"
                                                    FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    VerticalAlignment="Center"
                                                    HorizontalAlignment="Right"
                                                    Margin="0,0,12,0"/>

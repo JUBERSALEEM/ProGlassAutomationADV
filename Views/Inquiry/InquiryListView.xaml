@@ -140,12 +140,12 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg" CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Background="{DynamicResource MenuHoverBrush}"
+                                Background="{DynamicResource SurfaceTertiaryBrush}"
                                 Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                 <Border x:Name="CountPill" Margin="8,0,0,0" Padding="7,1.5" CornerRadius="{DynamicResource Radius.Large}"
-                                        Background="{DynamicResource ModuleBackgroundBrush}">
+                                        Background="{DynamicResource SurfacePrimaryBrush}">
                                     <TextBlock Text="{Binding Count, Mode=OneWay}" FontSize="{StaticResource TextCaption}"
                                                FontWeight="Bold"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -189,19 +189,19 @@
         <Style x:Key="PipelineStageNameStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         </Style>
 
         <Style x:Key="PipelineStageValueStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
         </Style>
 
         <Style x:Key="PipelineStageMetaStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         </Style>
 
         <!-- 4px state dot for a pipeline row -->
@@ -214,7 +214,7 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+    <Grid Background="{DynamicResource SurfacePrimaryBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -293,7 +293,7 @@
                            Foreground="{DynamicResource WarningBrush}"
                            VerticalAlignment="Center" Margin="0,0,12,0"/>
                 <TextBlock Grid.Column="1" Text="{Binding AwaitingNewPiBannerText}"
-                           FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}"
                            TextWrapping="Wrap" VerticalAlignment="Center"/>
                 <Button Grid.Column="2" Content="Cancel"
                         Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
@@ -536,7 +536,7 @@
                 <!-- Sticky column header (accent) -->
                 <Border Grid.Row="0"
                         Background="{DynamicResource AccentBrush}"
-                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="14,10"
                         SnapsToDevicePixels="True">
@@ -577,8 +577,8 @@
 
                 <!-- Virtualized inquiry rows -->
                 <Border Grid.Row="1"
-                        Background="{DynamicResource ModuleBackgroundBrush}"
-                        BorderBrush="{DynamicResource OutlineBrush}"
+                        Background="{DynamicResource SurfacePrimaryBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource Border.BoxNoTopThickness}"
                         CornerRadius="{DynamicResource Radius.Bottom.Medium}"
                         SnapsToDevicePixels="True">
@@ -748,7 +748,7 @@
                                             </Border>
                                             <TextBlock Text="{Binding CustomerName}"
                                                        FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                                        VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis"
                                                        ToolTip="{Binding CustomerName}"/>
@@ -763,7 +763,7 @@
                                         <TextBlock Grid.Column="5" Margin="0,0,8,0"
                                                    Text="{Binding ValueText, Mode=OneWay}"
                                                    FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    HorizontalAlignment="Right"
                                                    VerticalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis"/>
@@ -775,7 +775,7 @@
                                         <TextBlock Grid.Column="7" Margin="0,0,0,0"
                                                    Text="{Binding Salesman, Mode=OneWay}"
                                                    FontSize="{StaticResource TextBody}"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   Foreground="{DynamicResource TextTertiaryBrush}"
                                                    VerticalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis"
                                                    MaxWidth="58"
@@ -797,8 +797,8 @@
 
                 <Border Width="360"
                         VerticalAlignment="Stretch"
-                        Background="{DynamicResource ModuleBackgroundBrush}"
-                        BorderBrush="{DynamicResource OutlineBrush}"
+                        Background="{DynamicResource SurfacePrimaryBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="20"
@@ -834,7 +834,7 @@
                                                Foreground="{DynamicResource AccentBrush}"/>
                                     <TextBlock Text="{Binding SelectedInquiry.InquiryNumber}"
                                                FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
                                                TextTrimming="CharacterEllipsis"/>
                                 </StackPanel>
                                 <Button Grid.Column="2"
@@ -848,7 +848,7 @@
                             <!-- Selected inquiry summary -->
                             <TextBlock Text="{Binding SelectedInquiry.CustomerName}"
                                        FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                        Margin="0,10,0,0"
                                        TextWrapping="Wrap"/>
                             <TextBlock Text="{Binding SelectedInquiry.Project}"
@@ -861,7 +861,7 @@
                                  a state dot, name, document number, status, action. -->
                             <TextBlock Text="PIPELINE"
                                        FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"
                                        Margin="0,18,0,8"/>
 
                             <!-- Stage 1 · INQUIRY (always exists) -->
@@ -1270,7 +1270,7 @@
                             <!-- MONEY — total billed + outstanding -->
                             <TextBlock Text="MONEY"
                                        FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"
                                        Margin="0,16,0,8"/>
                             <Border CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Background="{DynamicResource TintBlueBrush}"
@@ -1288,7 +1288,7 @@
                                                    Foreground="{DynamicResource AccentBrush}"/>
                                         <TextBlock Text="{Binding SelectedInquiry.TotalBilledText}"
                                                    FontSize="{StaticResource TextSection}" FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Grid>
@@ -1309,7 +1309,7 @@
                                                    Foreground="{DynamicResource DangerBrush}"/>
                                         <TextBlock Text="{Binding SelectedInquiry.TotalOutstandingText}"
                                                    FontSize="{StaticResource TextSection}" FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Grid>
@@ -1318,7 +1318,7 @@
                             <!-- ACTIVITY — last 5 communications -->
                             <TextBlock Text="ACTIVITY"
                                        FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"
                                        Margin="0,16,0,8"/>
                             <ItemsControl ItemsSource="{Binding SelectedInquiry.RecentActivity}">
                                 <ItemsControl.ItemTemplate>
@@ -1334,10 +1334,10 @@
                                             <StackPanel Grid.Column="1">
                                                 <TextBlock Text="{Binding Title}"
                                                            FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <TextBlock Text="{Binding OccurredText}"
                                                            FontSize="{StaticResource TextXSmall}"
-                                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                           Foreground="{DynamicResource TextTertiaryBrush}"/>
                                                 <TextBlock Text="{Binding Description}"
                                                            FontSize="{StaticResource TextCaption}"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -1352,7 +1352,7 @@
                             <!-- ACTIONS -->
                             <TextBlock Text="ACTIONS"
                                        FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"
                                        Margin="0,16,0,8"/>
                             <Button Style="{StaticResource ModuleToolbarPrimaryButtonStyle}"
                                     Content="OPEN WORKSPACE"

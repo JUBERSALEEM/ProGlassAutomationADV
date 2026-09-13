@@ -101,13 +101,13 @@
     <Style x:Key="DbTitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextTitleLarge}"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
     </Style>
 
     <Style x:Key="DbSubtitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         <Setter Property="Margin" Value="0,3,0,0"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
@@ -115,27 +115,27 @@
     <Style x:Key="DbSectionTitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
     </Style>
 
     <Style x:Key="DbSectionSubStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         <Setter Property="Margin" Value="0,2,0,0"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
 
     <Style x:Key="DbMetaStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
     <Style x:Key="DbKpiLabelStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
         <Setter Property="MaxHeight" Value="30"/>
@@ -144,13 +144,13 @@
     <Style x:Key="DbKpiValueStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextDisplay}"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="TextAlignment" Value="Left"/>
     </Style>
 
     <Style x:Key="DbKpiFootStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextXSmall}"/>
-        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="Margin" Value="0,6,0,0"/>
     </Style>
@@ -180,7 +180,7 @@
          shadows (card + tile) is what made the old tiles look muddy. -->
     <Style x:Key="DbTileStyle" TargetType="Border"
            BasedOn="{StaticResource SurfaceDetailStyle}">
-        <Setter Property="Background" Value="{DynamicResource GlassUltraClearBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
@@ -191,7 +191,7 @@
     </Style>
 
     <Style x:Key="DbChartWellStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource GlassUltraClearBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
@@ -201,7 +201,7 @@
     </Style>
 
     <Style x:Key="DbRowCardStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource GlassUltraClearBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
@@ -219,7 +219,7 @@
          4 · CHIPS, BADGES, PILLS
     ═══════════════════════════════════════════════════════════════ -->
     <Style x:Key="DbChipStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource GlassUltraClearBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
@@ -256,8 +256,8 @@
         <Setter Property="Padding" Value="14,8"/>
         <Setter Property="Margin" Value="0,0,8,0"/>
         <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Cursor" Value="Hand"/>
@@ -426,7 +426,7 @@
                                FontSize="{StaticResource TextBody}"
                                FontWeight="SemiBold"
                                TextTrimming="CharacterEllipsis"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock Text="{Binding SubTitle}"
                                FontSize="{StaticResource TextCaption}"
                                Margin="0,2,0,0"
@@ -439,7 +439,7 @@
                                FontSize="{StaticResource TextBody}"
                                FontWeight="Bold"
                                HorizontalAlignment="Right"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <Border Style="{StaticResource DbPillStyle}"
                             Margin="0,5,0,0"
                             Background="{Binding StatusColor,
@@ -493,14 +493,14 @@
         <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
         <Setter Property="FontSize" Value="30"/>
         <Setter Property="HorizontalAlignment" Value="Center"/>
-        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         <Setter Property="Opacity" Value="0.55"/>
     </Style>
 
     <Style x:Key="DbEmptyTextStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="HorizontalAlignment" Value="Center"/>
-        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         <Setter Property="Margin" Value="0,10,0,0"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="TextAlignment" Value="Center"/>
@@ -520,7 +520,7 @@
          BrushKeyConverter, so stage colour follows the theme.
     ═══════════════════════════════════════════════════════════════ -->
     <Style x:Key="DbPipelineCardStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource GlassUltraClearBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
@@ -542,7 +542,7 @@
     <Style x:Key="DbPipelineNameStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
         <Setter Property="Margin" Value="9,0,0,0"/>
     </Style>
@@ -550,13 +550,13 @@
     <Style x:Key="DbPipelineValueStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextTitleLarge}"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="Margin" Value="0,7,0,0"/>
     </Style>
 
     <Style x:Key="DbPipelineFootStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextXSmall}"/>
-        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         <Setter Property="Margin" Value="0,3,0,0"/>
         <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
     </Style>

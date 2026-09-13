@@ -70,8 +70,8 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                Background="{DynamicResource LiquidCard}"
-                BorderBrush="{DynamicResource GlassBorderSoft}"
+                Background="{DynamicResource SurfacePrimaryBrush}"
+                BorderBrush="{DynamicResource BorderSubtleBrush}"
                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                 Effect="{StaticResource CardShadow}"
                 SnapsToDevicePixels="True">
@@ -194,8 +194,8 @@
                                  App.Config.SkipLoginUntilUpdate. -->
                             <Border Margin="2,14,2,0" Padding="14,10"
                                     CornerRadius="{DynamicResource Radius.Large}"
-                                    Background="{DynamicResource GlassSurfaceUltra}"
-                                    BorderBrush="{DynamicResource GlassBorderSoft}"
+                                    Background="{DynamicResource SurfacePrimaryBrush}"
+                                    BorderBrush="{DynamicResource BorderSubtleBrush}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>

@@ -34,12 +34,12 @@
                        Text="{Binding Title, ElementName=Root}"
                        FontSize="{StaticResource TextBody}"
                        FontWeight="Bold"
-                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                       Foreground="{DynamicResource TextPrimaryBrush}"/>
 
             <TextBlock Grid.Row="1"
                        Text="{Binding Subtitle, ElementName=Root}"
                        FontSize="{StaticResource TextBody}"
-                       Foreground="{DynamicResource MutedForegroundBrush}"
+                       Foreground="{DynamicResource TextTertiaryBrush}"
                        Margin="0,2,0,8"
                        TextWrapping="Wrap"/>
 
@@ -64,7 +64,7 @@
                                        FontSize="{StaticResource TextBody}"
                                        FontWeight="Bold"
                                        VerticalAlignment="Center"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
 
                             <TextBlock Grid.Row="0" Grid.Column="1"
                                        Text="{Binding Label}"
@@ -73,7 +73,7 @@
                                        TextTrimming="CharacterEllipsis"
                                        VerticalAlignment="Center"
                                        Margin="0,0,8,0"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                       Foreground="{DynamicResource TextPrimaryBrush}">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Style.Triggers>
@@ -81,7 +81,7 @@
                                             <DataTrigger Binding="{Binding IsOtherBucket}" Value="True">
                                                 <Setter Property="FontStyle" Value="Italic"/>
                                                 <Setter Property="Foreground"
-                                                        Value="{DynamicResource MutedForegroundBrush}"/>
+                                                        Value="{DynamicResource TextTertiaryBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -112,7 +112,7 @@
                                     Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
                                     Height="4" Margin="0,4,0,0"
                                     CornerRadius="{DynamicResource Radius.XSmall}"
-                                    Background="{DynamicResource GlassSurfaceElevated}">
+                                    Background="{DynamicResource SurfaceElevatedBrush}">
                                 <Border CornerRadius="{DynamicResource Radius.XSmall}"
                                         HorizontalAlignment="Left"
                                         Background="{DynamicResource AccentBrush}">

@@ -48,7 +48,7 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background"  Value="{DynamicResource MenuHoverBrush}"/>
+                <Setter Property="Background"  Value="{DynamicResource SurfaceTertiaryBrush}"/>
                 <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
             </Trigger>
         </Style.Triggers>
@@ -72,13 +72,13 @@
     <Style x:Key="PiKpiCaptionStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextXSmall}"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
     </Style>
 
     <Style x:Key="PiKpiValueStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="Margin"     Value="0,2,0,0"/>
         <!-- 2026-09-05 money polish: tabular figures column-align every
              amount and stop digit jitter on refresh (same contract the
@@ -111,13 +111,13 @@
                                        Margin="0,0,10,0"/>
                             <TextBlock Text="{TemplateBinding Content}"
                                        FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Bg" Property="Opacity" Value="0.8"/>
@@ -135,7 +135,7 @@
 
     <Style x:Key="PiRailBarStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Background"      Value="{DynamicResource WindowBackgroundBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
         <Setter Property="Padding"         Value="16,0"/>
         <Setter Property="Height"          Value="40"/>
@@ -143,8 +143,8 @@
     </Style>
 
     <Style x:Key="PiFooterBarStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="Background"      Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="0,1,0,0"/>
         <Setter Property="Padding"         Value="16,0"/>
         <Setter Property="Height"          Value="48"/>
@@ -159,13 +159,13 @@
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"      Value="SemiBold"/>
-        <Setter Property="Foreground"      Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground"      Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Root"
-                            Background="{DynamicResource ModuleBackgroundBrush}"
-                            BorderBrush="{DynamicResource OutlineBrush}"
+                            Background="{DynamicResource SurfacePrimaryBrush}"
+                            BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="14,0"
@@ -176,7 +176,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                            <Setter TargetName="Root" Property="Background"  Value="{DynamicResource MenuHoverBrush}"/>
+                            <Setter TargetName="Root" Property="Background"  Value="{DynamicResource SurfaceTertiaryBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Root" Property="Opacity" Value="0.4"/>
@@ -226,8 +226,8 @@
     <!-- ══ STEP 4 — type chip / layer strip / apply bar ══════════════ -->
 
     <Style x:Key="PiLayerStripStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
+        <Setter Property="Background"      Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderSubtleBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius"    Value="16"/>
         <Setter Property="Padding"         Value="14,12"/>
@@ -239,7 +239,7 @@
     <!-- Framed 3D product well — theme surface, never hardcoded paper. -->
     <Style x:Key="PiShowcaseWellStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Background"      Value="{DynamicResource GlassSurfaceElevated}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderSubtleBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius"    Value="16"/>
         <Setter Property="Padding"         Value="8"/>
@@ -266,8 +266,8 @@
     </Style>
 
     <Style x:Key="PiLetterheadZoneStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
-        <Setter Property="Background"      Value="{DynamicResource GlassSurfaceUltra}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
+        <Setter Property="Background"      Value="{DynamicResource SurfaceTertiaryBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderSubtleBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius"    Value="12"/>
         <Setter Property="MinHeight"       Value="56"/>
@@ -285,8 +285,8 @@
     </Style>
 
     <Style x:Key="PiCostTileStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
-        <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
+        <Setter Property="Background"      Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderSubtleBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius"    Value="12"/>
         <Setter Property="Padding"         Value="10,8"/>
@@ -298,7 +298,7 @@
     <Style x:Key="PiLayerTitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight"        Value="Bold"/>
-        <Setter Property="Foreground"        Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground"        Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="MinWidth"          Value="108"/>
     </Style>
@@ -307,13 +307,13 @@
         <Setter Property="FontFamily" Value="Consolas"/>
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
 
     <Style x:Key="PiStickyApplyBarStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="Background"      Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="0,1,0,0"/>
         <Setter Property="Padding"         Value="12,8"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -326,16 +326,16 @@
     </Style>
 
     <Style x:Key="PiTableHeaderStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="Background"      Value="{DynamicResource MenuHoverBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="Background"      Value="{DynamicResource SurfaceTertiaryBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
         <Setter Property="Padding"         Value="10,6"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
     <Style x:Key="PiDatePickerStyle" TargetType="DatePicker">
-        <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Background"               Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="Foreground"               Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="BorderThickness"          Value="1"/>
         <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
@@ -354,8 +354,8 @@
     </Style>
 
     <Style x:Key="PiComboBoxStyle" TargetType="ComboBox">
-        <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Background"               Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="Foreground"               Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="BorderThickness"          Value="1"/>
         <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
@@ -420,7 +420,7 @@
                             <ControlTemplate TargetType="TabItem">
                                 <Border x:Name="TabBd"
                                         Background="Transparent"
-                                        BorderBrush="{DynamicResource OutlineBrush}"
+                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                                         BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                         Padding="{TemplateBinding Padding}"
                                         Margin="0,0,8,0"
@@ -435,7 +435,7 @@
                                         <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                     </Trigger>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="TabBd" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                        <Setter TargetName="TabBd" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -526,8 +526,8 @@
     <!-- ══ INDUSTRIAL STATION DECK ══════════════════════════════════ -->
 
     <Style x:Key="PiStationRailStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="Background"      Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,1,0"/>
         <Setter Property="Padding"         Value="10,12"/>
         <Setter Property="Width"           Value="176"/>
@@ -535,8 +535,8 @@
     </Style>
 
     <Style x:Key="PiStationHeaderBarStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="Background"      Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
         <Setter Property="Padding"         Value="16,10"/>
         <Setter Property="MinHeight"       Value="56"/>
@@ -544,7 +544,7 @@
     </Style>
 
     <Style x:Key="PiWorkDeckStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
-        <Setter Property="Background"      Value="{DynamicResource GlassSurfaceUltra}"/>
+        <Setter Property="Background"      Value="{DynamicResource SurfaceTertiaryBrush}"/>
         <Setter Property="CornerRadius"    Value="0"/>
         <Setter Property="Padding"         Value="8,4"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -555,8 +555,8 @@
     </Style>
 
     <Style x:Key="PiZoneHeaderStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="Background"      Value="{DynamicResource MenuHoverBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="Background"      Value="{DynamicResource SurfaceTertiaryBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
         <Setter Property="Padding"         Value="14,8"/>
         <Setter Property="MinHeight"       Value="34"/>
@@ -566,8 +566,8 @@
     <Style x:Key="PiVaultHeaderStyle" TargetType="Border" BasedOn="{StaticResource PiZoneHeaderStyle}"/>
 
     <Style x:Key="PiProductViewportStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
-        <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
+        <Setter Property="Background"      Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderSubtleBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius"    Value="18"/>
         <Setter Property="ClipToBounds"    Value="True"/>
@@ -586,7 +586,7 @@
         <Setter Property="Minimum"    Value="0"/>
         <Setter Property="Maximum"    Value="1"/>
         <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-        <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
     </Style>
 
@@ -626,7 +626,7 @@
                                    IsHitTestVisible="False"/>
                         <Ellipse x:Name="Thumb"
                                  Width="20" Height="20"
-                                 Fill="{DynamicResource ModuleBackgroundBrush}"
+                                 Fill="{DynamicResource SurfacePrimaryBrush}"
                                  HorizontalAlignment="Left"
                                  Margin="3,0,0,0"
                                  SnapsToDevicePixels="True">
@@ -684,8 +684,8 @@
     </Style>
 
     <Style x:Key="PiStationIdentityStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="Background"      Value="{DynamicResource GlassSurfaceUltra}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
+        <Setter Property="Background"      Value="{DynamicResource SurfaceTertiaryBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderSubtleBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
         <Setter Property="CornerRadius"    Value="8,8,0,0"/>
         <Setter Property="Padding"         Value="8,6,8,6"/>
@@ -705,7 +705,7 @@
     <Style x:Key="PiStationTitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
@@ -735,7 +735,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Bg" Property="Background"
-                                    Value="{DynamicResource MenuHoverBrush}"/>
+                                    Value="{DynamicResource SurfaceTertiaryBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.35"/>

@@ -17,8 +17,8 @@
     <Grid>
 <!-- ATTACHMENTS CARD -->
             <Border Grid.Column="2"
-                    Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
+                    Background="{DynamicResource SurfacePrimaryBrush}"
+                    BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}"
                     SnapsToDevicePixels="True">
                 <Grid>
@@ -67,7 +67,7 @@
                     <Border Grid.Row="1"
                             Style="{StaticResource DifferentDnWarningStyle}">
                         <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    TextWrapping="Wrap">
                             <Run Text="{DynamicResource DeliveryNote.ViewingAttachmentsDifferentDN}"/>
                         </TextBlock>
@@ -87,12 +87,12 @@
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="&#xE723;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplay}"
                                                HorizontalAlignment="Center"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                               Foreground="{DynamicResource TextTertiaryBrush}"/>
                                     <TextBlock Text="{DynamicResource DeliveryNote.NoAttachmentsYet}"
                                                FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                                                HorizontalAlignment="Center"
                                                Margin="0,8,0,4"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{DynamicResource DeliveryNote.UploadPhotosSignedDeliveryCopies}"
                                                FontSize="{StaticResource TextBody}" HorizontalAlignment="Center"
                                                TextAlignment="Center" TextWrapping="Wrap"
@@ -104,9 +104,9 @@
                                           Margin="10,6,10,10">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Margin="0,4" Padding="12,10"
+                                        <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Margin="0,4" Padding="12,10"
                                                 CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                Background="{DynamicResource MenuHoverBrush}"
+                                                Background="{DynamicResource SurfaceTertiaryBrush}"
                                                 SnapsToDevicePixels="True">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
@@ -115,10 +115,10 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Grid.Column="0"
+                                                <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Grid.Column="0"
                                                         Width="40" Height="40"
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                        Background="{DynamicResource ModuleBackgroundBrush}"
+                                                        Background="{DynamicResource SurfacePrimaryBrush}"
                                                         ClipToBounds="True"
                                                         VerticalAlignment="Center">
                                                     <Grid>
@@ -140,7 +140,7 @@
                                                     <TextBlock Text="{Binding FileName}"
                                                                FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                                TextTrimming="CharacterEllipsis"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                     <TextBlock FontSize="{StaticResource TextBody}" Margin="0,2,0,0"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}">
                                                         <Run Text="{Binding FileSizeDisplay, Mode=OneWay}"/>

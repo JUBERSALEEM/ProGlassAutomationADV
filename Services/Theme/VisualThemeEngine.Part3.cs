@@ -210,16 +210,16 @@ namespace ProGlassAutomation.Services.Theme
             // §12: soft cyan/blue-gray shadow ink, low opacity.
             // Crystal Fluid = the water family: card/KPI surfaces that
             // bind CrystalWaterDefaultEnabled render CrystalWater.
-            resources["CrystalWaterDefaultEnabled"] = true;
+            resources["CrystalWaterDefaultEnabled"] = false;
             // Ios-17pm P4a: the SHELL ambient host in MainWindow (the
             // authored drifting-light layer) is family-gated through
             // this resource — Visible under Crystal Fluid, REMOVED at
             // every family switch (Part1 ×2, beside the water gate) so
             // no crystal clocks tick under another family.
-            resources["CrystalAmbientHostVisibility"] = Visibility.Visible;
+            resources["CrystalAmbientHostVisibility"] = Visibility.Collapsed;
             // Ios-17pm P4e: the settings preview's authored file-20
             // composition rides the same switch-removal contract.
-            resources["CrystalPreviewHostVisibility"] = Visibility.Visible;
+            resources["CrystalPreviewHostVisibility"] = Visibility.Collapsed;
 
             // Token baselines (root-level): a family repaint ALWAYS
             // restores the crystal water tokens. 2026-09-06 theme
@@ -491,10 +491,9 @@ namespace ProGlassAutomation.Services.Theme
             return family?.Trim() switch
             {
                 Monet => Monet,
-                CrystalFluid => CrystalFluid,
-                // "iOS 26" is a first-class family (the Liquid Glass
-                // application-wide look).
-                Ios26 => Ios26,
+                // Crystal / iOS 26 live painters retired — Industrial only.
+                CrystalFluid => NormalIndustrial,
+                Ios26 => NormalIndustrial,
                 // 2026-09-13 INDUSTRIAL REFORM (owner: "strictness
                 // industrial pattern"): the strict industrial look is the
                 // app-wide default again. The cream SaaS "Normal" folds

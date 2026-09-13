@@ -22,6 +22,11 @@
                 <!-- ── Theme (must be first so styles can reference brushes) ── -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/LightTheme.xaml"/>
 
+                <!-- Authoritative ProGlass Design System (tokens + materials).
+                     Families still paint via VisualThemeEngine; ThemeManager
+                     dual-writes these semantic keys at runtime. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/ProGlassDesignSystem/ProGlassDesignSystem.xaml"/>
+
                 <!-- Liquid Glass Design System (2026-08-29) — the CANONICAL
                      frosted-glass reference: brushes, shadows, typography,
                      panel/card/button/switch/input styles. Merged before
@@ -45,6 +50,7 @@
                      DesignTokens so every downstream dictionary and view can
                      consume the semantic vocabulary. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/SemanticTokens.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/PrintTokens.xaml"/>
                 <!-- ProGlass Design System LAYOUT LAYER (2026-09-13).
                      Additive canonical density vocabulary (ProGlassLayout.*)
                      over the runtime Density* keys published by
@@ -80,7 +86,7 @@
                 <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidStyles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidNavigation.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidDataGrid.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidScrollBar.xaml"/>
+                <!-- Phase 11: CrystalFluidScrollBar.xaml un-merged — keys unused outside the file. File kept on disk until Phase 12. -->
                 <!-- Industrial list-page chrome (PI / JO / DN / TI) -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ListPageStyles.xaml"/>
                 <!-- Line-item table chrome (Step 5 + JO/DN/TI details) -->
@@ -106,15 +112,6 @@
                      PasswordBox / ComboBox). Adopted incrementally by views
                      instead of each view declaring its own input chrome. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/InputStyles.xaml"/>
-
-                <!-- ProGlass Design System COMPONENT TOKEN LAYER (2026-09-13).
-                     Purely additive canonical aliases (ProGlassButton.*,
-                     ProGlassPill.*, ProGlassTabs.*, ProGlassInput.*) over the
-                     v3 ButtonStyles / PillStyles / ModuleTabStyles /
-                     InputStyles implementations. Merged AFTER every base
-                     dictionary it aliases, so the BasedOn references resolve
-                     via StaticResource while their values stay theme-driven. -->
-                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ComponentTokens.xaml"/>
 
                 <!-- Phase 8/9: shared dialog card/footer/title chrome. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/DialogStyles.xaml"/>
@@ -163,6 +160,12 @@
                      TypeScaleTokens.xaml, both of which are merged above.
                      Dashboard pages must use Db* keys only. ── -->
                 <ResourceDictionary Source="Styles/DashboardKit.xaml"/>
+
+                <!-- ProGlass Design System COMPONENT TOKEN LAYER.
+                     Merged AFTER Button/Pill/Tab/Input/Dialog/LiquidGlass/
+                     PiIndustrial/ListPage/DashboardKit so BasedOn aliases
+                     (Ghost, Toggle, KPI, DatePicker, Dialog) resolve. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ComponentTokens.xaml"/>
 
                 <!-- ═══════════════════════════════════════════════════════════════
                          CHAT 21 v3 — Statement Generator WIZARD shared styles
@@ -243,11 +246,11 @@
                      whole app; icons keep their own Segoe MDL2 family. -->
                 <Setter Property="FontSize"   Value="{DynamicResource DensityBodyFontSize}"/>
                 <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
-                <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
 
-                <!-- Surface — theme-aware background + border -->
-                <Setter Property="Background"     Value="{DynamicResource ModuleBackgroundBrush}"/>
-                <Setter Property="BorderBrush"    Value="{DynamicResource BorderBrush}"/>
+                <!-- Surface — TokenStore input material (not card/button brushes). -->
+                <Setter Property="Background"     Value="{DynamicResource SurfaceInputBrush}"/>
+                <Setter Property="BorderBrush"    Value="{DynamicResource InputBorderBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
 
                 <!-- Rendering -->
@@ -375,7 +378,7 @@
                                 <Trigger Property="IsReadOnly" Value="True">
                                     <Setter TargetName="MainBorder"
                                                 Property="Background"
-                                                Value="{DynamicResource MenuHoverBrush}"/>
+                                                Value="{DynamicResource SurfaceTertiaryBrush}"/>
                                     <Setter Property="Foreground"
                                                 Value="{DynamicResource SecondaryForegroundBrush}"/>
                                 </Trigger>

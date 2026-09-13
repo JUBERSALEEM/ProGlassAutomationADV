@@ -137,7 +137,7 @@
             <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="IsEditable" Value="True"/>
             <Setter Property="Padding" Value="14,0"/>
@@ -150,8 +150,8 @@
                     <ControlTemplate TargetType="ComboBox">
                         <Grid>
                             <Border x:Name="rootBorder"
-                                    Background="{DynamicResource ModuleBackgroundBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}"
+                                    Background="{DynamicResource SurfacePrimaryBrush}"
+                                    BorderBrush="{DynamicResource BorderDefaultBrush}"
                                     BorderThickness="{DynamicResource CardBorderThickness}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                     SnapsToDevicePixels="True"
@@ -194,7 +194,7 @@
                                    PopupAnimation="Fade"
                                    VerticalOffset="4">
                                 <Border Background="{DynamicResource PopupSurfaceBrush}"
-                                        BorderBrush="{DynamicResource OutlineBrush}"
+                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                                         BorderThickness="{DynamicResource CardBorderThickness}"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                         MinWidth="{TemplateBinding ActualWidth}"
@@ -212,7 +212,7 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="rootBorder" Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+                                <Setter TargetName="rootBorder" Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
                             </Trigger>
                             <Trigger Property="IsKeyboardFocusWithin" Value="True">
                                 <Setter TargetName="rootBorder" Property="BorderBrush" Value="{DynamicResource IndigoPrimary}"/>
@@ -266,7 +266,7 @@
             <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="14,0"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -276,8 +276,8 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="DatePicker">
                         <Border x:Name="rootBorder"
-                                Background="{DynamicResource ModuleBackgroundBrush}"
-                                BorderBrush="{DynamicResource OutlineBrush}"
+                                Background="{DynamicResource SurfacePrimaryBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                 SnapsToDevicePixels="True"
@@ -339,7 +339,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="rootBorder" Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+                                <Setter TargetName="rootBorder" Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
                             </Trigger>
                             <Trigger Property="IsKeyboardFocusWithin" Value="True">
                                 <Setter TargetName="rootBorder" Property="BorderBrush" Value="{DynamicResource IndigoPrimary}"/>
@@ -368,13 +368,13 @@
             <Setter Property="Margin" Value="8"/>
             <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
             <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                    <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
                     <Setter Property="BorderBrush" Value="{DynamicResource IndigoPrimary}"/>
                     <Setter Property="Effect" Value="{StaticResource OptionCardHoverShadow}"/>
                 </Trigger>
@@ -390,7 +390,7 @@
                     CornerRadius="{DynamicResource ControlCornerRadius}"
                     Padding="14,8"
                     Background="{DynamicResource PopupSurfaceBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
+                    BorderBrush="{DynamicResource BorderDefaultBrush}"
                     SnapsToDevicePixels="True">
                 <StackPanel Orientation="Horizontal"
                             VerticalAlignment="Center">
@@ -398,7 +398,7 @@
                             Width="18" Height="18"
                             CornerRadius="{DynamicResource Radius.Small}"
                             Background="Transparent"
-                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             Margin="0,0,10,0"
                             VerticalAlignment="Center"
@@ -453,8 +453,8 @@
                         <Condition Property="IsMouseOver" Value="True"/>
                         <Condition Property="IsChecked" Value="False"/>
                     </MultiTrigger.Conditions>
-                    <Setter TargetName="chipRoot" Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-                    <Setter TargetName="chipRoot" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                    <Setter TargetName="chipRoot" Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+                    <Setter TargetName="chipRoot" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
                 </MultiTrigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
@@ -515,8 +515,8 @@
                     </StackPanel>
 
                     <Border Grid.Column="1"
-                            Background="{DynamicResource ModuleBackgroundBrush}"
-                            BorderBrush="{DynamicResource OutlineBrush}"
+                            Background="{DynamicResource SurfacePrimaryBrush}"
+                            BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="22,18"
@@ -553,8 +553,8 @@
                      ROW 2 — FILTERS CARD
                 ═══════════════════════════════════════════════════ -->
                 <Border Grid.Row="2"
-                        Background="{DynamicResource ModuleBackgroundBrush}"
-                        BorderBrush="{DynamicResource OutlineBrush}"
+                        Background="{DynamicResource SurfacePrimaryBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                         Padding="0"
@@ -614,8 +614,8 @@
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border x:Name="bd"
-                                                Background="{DynamicResource ModuleBackgroundBrush}"
-                                                BorderBrush="{DynamicResource OutlineBrush}"
+                                                Background="{DynamicResource SurfacePrimaryBrush}"
+                                                BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Padding="{TemplateBinding Padding}"
@@ -736,7 +736,7 @@
 
                             <Border Grid.Column="1"
                                     Width="1"
-                                    Background="{DynamicResource OutlineBrush}"
+                                    Background="{DynamicResource BorderDefaultBrush}"
                                     Margin="14,10"
                                     Opacity="0.5"/>
 
@@ -784,7 +784,7 @@
                                                                        TextWrapping="Wrap"/>
                                                             <TextBlock Text="{DynamicResource Reports.StatementGenerator.ClickToggleNumberShowsCurrentMatchCount}"
                                                                        FontSize="{StaticResource TextBody}"
-                                                                       Foreground="{DynamicResource OutlineBrush}"
+                                                                       Foreground="{DynamicResource BorderDefaultBrush}"
                                                                        TextWrapping="Wrap"
                                                                        Margin="0,4,0,0"/>
                                                         </StackPanel>
@@ -803,8 +803,8 @@
                      ROW 4 — PDF OPTIONS CARD
                 ═══════════════════════════════════════════════════ -->
                 <Border Grid.Row="4"
-                        Background="{DynamicResource ModuleBackgroundBrush}"
-                        BorderBrush="{DynamicResource OutlineBrush}"
+                        Background="{DynamicResource SurfacePrimaryBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                         Padding="0"

@@ -47,7 +47,7 @@
                                         <StackPanel Grid.Column="0">
                                             <TextBlock Text="OPTIMIZATION REPORT" Style="{StaticResource OptPanelTitle}"/>
                                             <TextBlock Text="{Binding ResultStage}" FontSize="{StaticResource TextCaption}"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0"/>
+                                                       Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2,0,0"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                             <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintBlueBrush}" Padding="12,7"
@@ -83,7 +83,7 @@
                                         <StackPanel Grid.Column="0">
                                             <TextBlock Text="SHEETS" Style="{StaticResource OptHeader}"/>
                                             <TextBlock Text="{Binding ResultSheets}" FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="1">
                                             <TextBlock Text="UTILIZATION" Style="{StaticResource OptHeader}"/>
@@ -98,12 +98,12 @@
                                         <StackPanel Grid.Column="3">
                                             <TextBlock Text="UNPLACED" Style="{StaticResource OptHeader}"/>
                                             <TextBlock Text="{Binding ResultUnplaced}" FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="4">
                                             <TextBlock Text="GLASS AREA" Style="{StaticResource OptHeader}"/>
                                             <TextBlock Text="{Binding KpiGlass}" FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         </StackPanel>
                                     </Grid>
                                 </Grid>
@@ -120,7 +120,7 @@
                                         <StackPanel Grid.Column="0">
                                             <TextBlock Text="1 · INDUSTRIAL CUT REPORT" Style="{StaticResource OptPanelTitle}"/>
                                             <TextBlock Text="Grouped by glass composition — thickness, spec, sheet size, utilized quantity and utilization %, then the glass-ref size table per spec."
-                                                       FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap"/>
+                                                       FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                             <Button Content="CSV" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
@@ -137,7 +137,7 @@
 
                                     <!-- empty hint -->
                                     <TextBlock Text="No report yet — add pieces on the JOBS tab, then run a cut."
-                                               FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}"
+                                               FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}"
                                                TextWrapping="Wrap" Margin="0,0,0,8"
                                                Visibility="{Binding HasIndustrialReport, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
 
@@ -151,10 +151,10 @@
                                                             <TextBlock Text="{Binding ThicknessLabel}" FontSize="{StaticResource TextBody}"
                                                                        FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                                             <TextBlock Text="{Binding SpecName}" FontSize="{StaticResource TextBody}"
-                                                                       FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                       FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"
                                                                        Margin="8,0,0,0"/>
                                                             <TextBlock Text="{Binding Composition}" FontSize="{StaticResource TextCaption}"
-                                                                       Foreground="{DynamicResource MutedForegroundBrush}" Margin="10,1,0,0"
+                                                                       Foreground="{DynamicResource TextTertiaryBrush}" Margin="10,1,0,0"
                                                                        TextTrimming="CharacterEllipsis"/>
                                                         </StackPanel>
 
@@ -183,7 +183,7 @@
                                                         </ItemsControl>
 
                                                         <TextBlock Text="— not yet optimized —" FontSize="{StaticResource TextCaption}"
-                                                                   Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,6"
+                                                                   Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,6"
                                                                    Visibility="{Binding HasUtilization, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
 
                                                         <!-- piece table -->
@@ -220,7 +220,7 @@
                                                                                 <ColumnDefinition Width="104"/>
                                                                             </Grid.ColumnDefinitions>
                                                                             <TextBlock Grid.Column="0" Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}"
-                                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                                                       Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
                                                                             <TextBlock Grid.Column="1" Text="{Binding W1}" FontSize="{StaticResource TextBody}"
                                                                                        Foreground="{DynamicResource SecondaryForegroundBrush}" TextAlignment="Right"/>
                                                                             <TextBlock Grid.Column="2" Text="{Binding H1}" FontSize="{StaticResource TextBody}"
@@ -230,9 +230,9 @@
                                                                             <TextBlock Grid.Column="4" Text="{Binding H2}" FontSize="{StaticResource TextBody}"
                                                                                        Foreground="{DynamicResource SecondaryForegroundBrush}" TextAlignment="Right"/>
                                                                             <TextBlock Grid.Column="5" Text="{Binding Qty}" FontSize="{StaticResource TextBody}"
-                                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" TextAlignment="Right"/>
+                                                                                       Foreground="{DynamicResource TextPrimaryBrush}" TextAlignment="Right"/>
                                                                             <TextBlock Grid.Column="6" Text="{Binding TotalSqm}" FontSize="{StaticResource TextBody}"
-                                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" TextAlignment="Right"/>
+                                                                                       Foreground="{DynamicResource TextPrimaryBrush}" TextAlignment="Right"/>
                                                                         </Grid>
                                                                     </Border>
                                                                 </DataTemplate>
@@ -261,7 +261,7 @@
                                         <StackPanel Grid.Column="0">
                                             <TextBlock Text="2 · LAYOUT SUMMARY" Style="{StaticResource OptPanelTitle}"/>
                                             <TextBlock Text="Every sheet the engine produced — stock, pieces, utilization and offcut."
-                                                       FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                       FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                             <Button Content="CSV" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
@@ -303,14 +303,14 @@
                                                                 <ColumnDefinition Width="110"/>
                                                             </Grid.ColumnDefinitions>
                                                             <TextBlock Grid.Column="0" Text="{Binding SheetNo}" FontSize="{StaticResource TextBody}"
-                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                             <TextBlock Grid.Column="1" Text="{Binding Composition}" FontSize="{StaticResource TextBody}"
                                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                        TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
                                                             <TextBlock Grid.Column="2" Text="{Binding StockLabel}" FontSize="{StaticResource TextBody}"
-                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                             <TextBlock Grid.Column="3" Text="{Binding PieceCount}" FontSize="{StaticResource TextBody}"
-                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                             <TextBlock Grid.Column="4" Text="{Binding Utilization}" FontSize="{StaticResource TextBody}"
                                                                        FontWeight="SemiBold">
                                                                 <TextBlock.Style>
@@ -328,7 +328,7 @@
                                                                 </TextBlock.Style>
                                                             </TextBlock>
                                                             <TextBlock Grid.Column="5" Text="{Binding WasteLabel}" FontSize="{StaticResource TextBody}"
-                                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
                                                         </Grid>
                                                     </Border>
                                                 </DataTemplate>
@@ -353,7 +353,7 @@
                                         <StackPanel Grid.Column="0">
                                             <TextBlock Text="3 · PARTS SUMMARY" Style="{StaticResource OptPanelTitle}"/>
                                             <TextBlock Text="Merged glass groups — the cutting list summarized by composition."
-                                                       FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                       FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                             <Button Content="CSV" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
@@ -389,14 +389,14 @@
                                                                 <ColumnDefinition Width="110"/>
                                                             </Grid.ColumnDefinitions>
                                                             <TextBlock Grid.Column="0" Text="{Binding Composition}" FontSize="{StaticResource TextBody}"
-                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                                                        TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
                                                             <TextBlock Grid.Column="1" Text="{Binding Thickness}" FontSize="{StaticResource TextBody}"
                                                                        Foreground="{DynamicResource AccentBrush}"/>
                                                             <TextBlock Grid.Column="2" Text="{Binding PieceCount}" FontSize="{StaticResource TextBody}"
-                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                             <TextBlock Grid.Column="3" Text="{Binding AreaM2}" FontSize="{StaticResource TextBody}"
-                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                         </Grid>
                                                     </Border>
                                                 </DataTemplate>
@@ -421,7 +421,7 @@
                                         <StackPanel Grid.Column="0">
                                             <TextBlock Text="4 · STOCKS SUMMARY" Style="{StaticResource OptPanelTitle}"/>
                                             <TextBlock Text="{Binding StocksStatusText}" FontSize="{StaticResource TextCaption}"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                             <Button Content="CSV" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
@@ -460,18 +460,18 @@
                                                                 <ColumnDefinition Width="190"/>
                                                             </Grid.ColumnDefinitions>
                                                             <TextBlock Grid.Column="0" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                                                       Foreground="{DynamicResource TextPrimaryBrush}">
                                                                 <Run Text="{Binding WidthText, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding HeightText, Mode=OneWay}"/>
                                                             </TextBlock>
                                                             <TextBlock Grid.Column="1" Text="{Binding CompositionLabel}" FontSize="{StaticResource TextBody}"
                                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                        TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
                                                             <TextBlock Grid.Column="2" Text="{Binding AvailableText}" FontSize="{StaticResource TextBody}"
-                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                             <TextBlock Grid.Column="3" Text="{Binding UsedLabel}" FontSize="{StaticResource TextBody}"
                                                                        Foreground="{DynamicResource AccentBrush}"/>
                                                             <TextBlock Grid.Column="4" Text="{Binding SourceLabel}" FontSize="{StaticResource TextCaption}"
-                                                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                                                       Foreground="{DynamicResource TextTertiaryBrush}"
                                                                        TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
                                                         </Grid>
                                                     </Border>
@@ -493,7 +493,7 @@
                                         <StackPanel Grid.Column="0">
                                             <TextBlock Text="5 · SAVED SESSIONS" Style="{StaticResource OptPanelTitle}"/>
                                             <TextBlock Text="{Binding SessionStatus}" FontSize="{StaticResource TextCaption}"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                       Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="0,2,0,0"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                             <Button Content="Save session" Style="{StaticResource PrimaryPillButton}" Margin="0,0,8,0"
@@ -505,7 +505,7 @@
                                     </Grid>
 
                                     <TextBlock Text="No saved sessions yet — save the current cutting list to reopen it later."
-                                               FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}"
+                                               FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}"
                                                TextWrapping="Wrap" Margin="0,0,0,8"
                                                Visibility="{Binding HasSessions, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
 
@@ -520,12 +520,12 @@
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                                             <TextBlock Text="{Binding Name}" FontSize="{StaticResource TextBody}"
-                                                                       FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                       FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"
                                                                        TextTrimming="CharacterEllipsis"/>
                                                             <TextBlock Text="{Binding Detail}" FontSize="{StaticResource TextCaption}"
                                                                        Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,2,0,0"/>
                                                             <TextBlock Text="{Binding CreatedLabel}" FontSize="{StaticResource TextCaption}"
-                                                                       Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0"/>
+                                                                       Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,1,0,0"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                                             <Button Content="Open" Style="{StaticResource OutlinedPillButton}" Margin="0,0,8,0"

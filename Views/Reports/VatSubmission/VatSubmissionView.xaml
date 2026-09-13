@@ -15,7 +15,7 @@
          Matches PiReport and DeliveryReport design system exactly.
          4 view modes: Detail (row-level), BySalesman, ByCompany, ByProject.
     ═══════════════════════════════════════════════════════════════════ -->
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+    <Grid Background="{DynamicResource SurfacePrimaryBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -200,7 +200,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- View Mode Tabs -->
-                    <Border Grid.Row="0" BorderBrush="{DynamicResource GlassBorderSoft}" BorderThickness="{DynamicResource Border.BottomHairlineThickness}" Background="{DynamicResource GlassUltraClearBrush}">
+                    <Border Grid.Row="0" BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="{DynamicResource Border.BottomHairlineThickness}" Background="{DynamicResource SurfacePrimaryBrush}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -376,8 +376,8 @@
                                 CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20">
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
-                                <TextBlock Text="{DynamicResource Reports.DeliveryReport.UnableLoadRecords}" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
-                                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Reports.DeliveryReport.UnableLoadRecords}" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
                                 <Button Content="{DynamicResource Action.Retry}" Command="{Binding RefreshCommand}" Style="{StaticResource ReportRetryButton}" HorizontalAlignment="Center" ToolTip="{DynamicResource Reports.DeliveryReport.RetryLoadingRecords}"/>
                             </StackPanel>
                         </Border>
@@ -407,13 +407,13 @@
 
                                             <!-- Date / Time: left-aligned with a right gutter so the
                                                  timestamp keeps clear space from the Company column. -->
-                                            <TextBlock Grid.Column="1" Text="{Binding IssueDateDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Left" TextTrimming="CharacterEllipsis" Margin="0,0,14,0"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding IssueDateDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Left" TextTrimming="CharacterEllipsis" Margin="0,0,14,0"/>
 
                                             <!-- Company -->
-                                            <TextBlock Grid.Column="2" Text="{Binding CompanyName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding CompanyName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
 
                                             <!-- Customer -->
-                                            <TextBlock Grid.Column="3" Text="{Binding CustomerName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding CustomerName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
 
                                             <!-- Project -->
                                             <TextBlock Grid.Column="4" Text="{Binding ProjectName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
@@ -504,7 +504,7 @@
                                             </Grid.ColumnDefinitions>
 
                                             <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,6,0">
-                                                <TextBlock Text="{Binding Salesman}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding Salesman}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
                                             </StackPanel>
 
                                             <Border Grid.Column="1" Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -513,7 +513,7 @@
 
                                             <TextBlock Grid.Column="2" Text="{Binding TotalVat, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
 
-                                            <TextBlock Grid.Column="3" Text="{Binding TotalRevenue, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding TotalRevenue, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -566,7 +566,7 @@
                                             </Grid.ColumnDefinitions>
 
                                             <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,6,0">
-                                                <TextBlock Text="{Binding CompanyName}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding CompanyName}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
                                             </StackPanel>
 
                                             <Border Grid.Column="1" Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -575,7 +575,7 @@
 
                                             <TextBlock Grid.Column="2" Text="{Binding TotalVat, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
 
-                                            <TextBlock Grid.Column="3" Text="{Binding TotalRevenue, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding TotalRevenue, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -631,7 +631,7 @@
                                             </Grid.ColumnDefinitions>
 
                                             <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,6,0">
-                                                <TextBlock Text="{Binding ProjectName}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding ProjectName}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
                                             </StackPanel>
 
                                             <TextBlock Grid.Column="1" Text="{Binding CompanyName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
@@ -642,7 +642,7 @@
 
                                             <TextBlock Grid.Column="3" Text="{Binding TotalVat, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
 
-                                            <TextBlock Grid.Column="4" Text="{Binding TotalRevenue, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                            <TextBlock Grid.Column="4" Text="{Binding TotalRevenue, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -660,7 +660,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
                             <Button Content="{DynamicResource Reports.DeliveryReport.Prev}" Command="{Binding PrevPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="{DynamicResource Reports.DeliveryReport.GoPreviousPage}"/>
                             <Button Content="{DynamicResource Reports.DeliveryReport.Next}" Command="{Binding NextPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="{DynamicResource Reports.DeliveryReport.GoNextPage}"/>

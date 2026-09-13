@@ -15,8 +15,8 @@
     <DockPanel>
 
         <Border DockPanel.Dock="Bottom"
-                Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                Background="{DynamicResource SurfacePrimaryBrush}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                 Padding="18,12">
             <Grid>
@@ -33,7 +33,7 @@
                                Foreground="{DynamicResource AccentBrush}"
                                Margin="0,0,0,4"/>
                     <TextBlock FontFamily="Consolas" FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
                                TextWrapping="Wrap">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
@@ -86,8 +86,8 @@
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding IsSelected}" Value="False">
                                                         <Setter TargetName="ChipBorder" Property="Background" Value="Transparent"/>
-                                                        <Setter TargetName="ChipBorder" Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-                                                        <Setter TargetName="NameText" Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                                        <Setter TargetName="ChipBorder" Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+                                                        <Setter TargetName="NameText" Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                                                     </DataTrigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -104,7 +104,7 @@
                                        VerticalAlignment="Center"
                                        Margin="0,0,8,0"/>
                             <Border Background="{DynamicResource TintBlueBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}"
+                                    BorderBrush="{DynamicResource BorderDefaultBrush}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="10,4"
@@ -112,7 +112,7 @@
                                 <TextBlock Text="{Binding CalculationSectionCount}"
                                            FontSize="{StaticResource TextBody}"
                                            FontWeight="Bold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                             </Border>
                             <Button Command="{Binding AddCalculationSectionCommand}"
                                     Style="{StaticResource PiGhostChipButton}"
@@ -187,7 +187,7 @@
                                            FontWeight="Bold"
                                            Foreground="{DynamicResource WarningBrush}"/>
                                 <TextBlock FontSize="{StaticResource TextBody}"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextWrapping="Wrap" Margin="0,2,0,0">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
@@ -250,11 +250,11 @@
                                VerticalAlignment="Bottom" Margin="0,0,10,6"/>
                     <TextBlock Text="AED"
                                FontSize="{StaticResource TextSection}" FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
                                VerticalAlignment="Bottom" Margin="0,0,6,4"/>
                     <TextBlock Text="{Binding EstimatedRatePerSqm, Converter={StaticResource CurrencyConverter}}"
                                FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock Text="{DynamicResource ProformaInvoice.Sqm}"
                                FontSize="{StaticResource TextBodyLarge}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -287,8 +287,8 @@
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card"
-                                            Background="{DynamicResource ModuleBackgroundBrush}"
-                                            BorderBrush="{DynamicResource OutlineBrush}"
+                                            Background="{DynamicResource SurfacePrimaryBrush}"
+                                            BorderBrush="{DynamicResource BorderDefaultBrush}"
                                             BorderThickness="{DynamicResource Border.HairlineThickness}"
                                             CornerRadius="{DynamicResource CardCornerRadius}"
                                             Padding="12,8"
@@ -296,7 +296,7 @@
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                             <TextBlock x:Name="CodeText" Text="{Binding Code}"
                                                        FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             <TextBlock x:Name="TitleText" Text="{Binding Title}"
                                                        FontSize="{StaticResource TextBody}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"

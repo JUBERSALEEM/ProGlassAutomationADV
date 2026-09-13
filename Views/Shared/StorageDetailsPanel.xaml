@@ -22,7 +22,7 @@
             <Setter Property="FontWeight" Value="Medium"/>
             <Setter Property="Margin" Value="8,0,0,0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
         </Style>
         <Style x:Key="StorageRowSize" TargetType="TextBlock">
@@ -30,7 +30,7 @@
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Margin" Value="8,0,0,0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         </Style>
     </UserControl.Resources>
 
@@ -107,17 +107,17 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="{DynamicResource Storage.Total}"
                                                FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                               Foreground="{DynamicResource TextTertiaryBrush}"/>
                                     <TextBlock Text="{Binding StorageCountDisplay, FallbackValue='0'}"
                                                FontSize="{StaticResource TextCaption}"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                               Foreground="{DynamicResource TextTertiaryBrush}"
                                                Margin="6,1,0,0"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
                                 <TextBlock Text="{Binding StorageTotalDisplay, FallbackValue='—'}"
                                            HorizontalAlignment="Right"
                                            FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                             </Grid>
 
                             <TextBlock Text="{DynamicResource Storage.Refreshing}"
@@ -166,7 +166,7 @@
                             <!-- Local-only reassurance -->
                             <TextBlock Text="{DynamicResource Storage.LocalOnly}"
                                        FontSize="{StaticResource TextCaption}"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"
                                        TextWrapping="Wrap"
                                        Margin="0,4,0,4"/>
                         </StackPanel>

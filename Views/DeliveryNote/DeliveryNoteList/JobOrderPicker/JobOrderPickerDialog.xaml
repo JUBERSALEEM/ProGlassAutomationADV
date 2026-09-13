@@ -33,16 +33,16 @@
                          FontSize="{StaticResource TextBodyLarge}"
                          Padding="10,8"
                          BorderThickness="{DynamicResource Border.HairlineThickness}"
-                         BorderBrush="{DynamicResource OutlineBrush}"
-                         Background="{DynamicResource ElevatedSurfaceBrush}"
-                         Foreground="{DynamicResource PrimaryForegroundBrush}"
+                         BorderBrush="{DynamicResource BorderDefaultBrush}"
+                         Background="{DynamicResource SurfaceSecondaryBrush}"
+                         Foreground="{DynamicResource TextPrimaryBrush}"
                          TextChanged="OnSearchChanged"/>
                 <TextBlock Text="{DynamicResource DeliveryNote.SearchJobOrderCustomerProjectPIDeliveryNote}"
                            FontSize="{StaticResource TextBody}"
                            Margin="14,0,0,0"
                            VerticalAlignment="Center"
                            IsHitTestVisible="False"
-                           Foreground="{DynamicResource MutedForegroundBrush}">
+                           Foreground="{DynamicResource TextTertiaryBrush}">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Visibility" Value="Collapsed"/>

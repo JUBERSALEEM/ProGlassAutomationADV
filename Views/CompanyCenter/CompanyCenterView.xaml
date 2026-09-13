@@ -22,7 +22,7 @@
         <Style x:Key="CcFieldLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
             <Setter Property="Margin" Value="0,0,0,4"/>
         </Style>
         <Style x:Key="CcTextBox" TargetType="TextBox">
@@ -30,8 +30,8 @@
             <Setter Property="Padding" Value="10,0"/>
             <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
         </Style>
@@ -48,7 +48,7 @@
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Module.CompanyCenter}"
                                FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock Text="{DynamicResource CompanyCenter.CompaniesIdentityTRNBankingLogoDefault}"
                                FontSize="{StaticResource TextBody}" Margin="0,4,0,0"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -80,8 +80,8 @@
                         <DataTemplate>
                             <Border Margin="0,0,0,10" Padding="14,12"
                                     CornerRadius="{DynamicResource CardCornerRadius}" Cursor="Hand"
-                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
-                                    Background="{DynamicResource ModuleBackgroundBrush}"
+                                    BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
+                                    Background="{DynamicResource SurfacePrimaryBrush}"
                                     ToolTip="{DynamicResource CompanyCenter.ClickToLoadCompany}"
                                     Focusable="True"
                                     AutomationProperties.Name="{Binding CompanyName}"
@@ -109,7 +109,7 @@
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="BorderBrush"
-                                                Value="{DynamicResource OutlineBrush}"/>
+                                                Value="{DynamicResource BorderDefaultBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                                 <Setter Property="BorderBrush"
@@ -125,7 +125,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Width="46" Height="46"
+                                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Width="46" Height="46"
                                             CornerRadius="{DynamicResource CardCornerRadius}"
                                             VerticalAlignment="Center"
                                             Background="{DynamicResource TintIndigoBrush}">
@@ -141,7 +141,7 @@
                                                 VerticalAlignment="Center">
                                         <TextBlock Text="{Binding CompanyName}"
                                                    FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    TextTrimming="CharacterEllipsis"/>
                                         <TextBlock FontSize="{StaticResource TextCaption}" Margin="0,2,0,0"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}">
@@ -180,8 +180,8 @@
 
                 <!-- ── EDITOR ── -->
                 <Border Grid.Column="2"
-                        Background="{DynamicResource ModuleBackgroundBrush}"
-                        BorderBrush="{DynamicResource OutlineBrush}"
+                        Background="{DynamicResource SurfacePrimaryBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="24,20">
                     <StackPanel>
@@ -190,7 +190,7 @@
                              (left, per the chosen layout) + company identity.
                              Mirrors the TopPanel PDF composition. -->
                         <Border Background="{DynamicResource TintIndigoBrush}"
-                                BorderBrush="{DynamicResource OutlineBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="16,14"
@@ -207,7 +207,7 @@
                                 <Border Grid.Column="0"
                                         Width="56" Height="64"
                                         Background="{DynamicResource Surface.Primary.BackgroundBrush}"
-                                        BorderBrush="{DynamicResource OutlineBrush}"
+                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                                         CornerRadius="{DynamicResource Radius.Small}"
                                         VerticalAlignment="Center">
@@ -236,7 +236,7 @@
                                     <TextBlock Text="{Binding CompanyName}"
                                                FontSize="{StaticResource TextTitle}"
                                                FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
                                                TextTrimming="CharacterEllipsis"/>
                                     <TextBlock Margin="0,3,0,0"
                                                FontSize="{StaticResource TextBody}"
@@ -344,14 +344,14 @@
                                   IsChecked="{Binding IsDefaultCompany, Mode=TwoWay}"
                                   Content="Use as default company in new proforma invoices"
                                   FontWeight="SemiBold"
-                                  Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                  Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                         <!-- ══ LOGO & LETTERHEAD — left portrait / top panel · width/height ══
                              Two industrial letterhead layouts are offered
                              (LeftPortrait / TopPanel) plus the text-only fallback. -->
                         <Border Margin="0,16,0,0"
-                                Background="{DynamicResource ModuleBackgroundBrush}"
-                                BorderBrush="{DynamicResource OutlineBrush}"
+                                Background="{DynamicResource SurfacePrimaryBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardEdgeThickness}"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="16">
@@ -363,10 +363,10 @@
                                     <StackPanel>
                                         <TextBlock Text="LOGO &amp; LETTERHEAD"
                                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         <TextBlock Text="Brands every printed document — position, size and image."
                                                    FontSize="{StaticResource TextCaption}"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   Foreground="{DynamicResource TextTertiaryBrush}"
                                                    Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </StackPanel>
@@ -382,7 +382,7 @@
                                          aspect; blank white chip until a logo is picked. -->
                                     <Border Grid.Column="0" Width="96" Height="104"
                                             Background="{DynamicResource Surface.Primary.BackgroundBrush}"
-                                            BorderBrush="{DynamicResource OutlineBrush}"
+                                            BorderBrush="{DynamicResource BorderDefaultBrush}"
                                             BorderThickness="{DynamicResource Border.HairlineThickness}"
                                             CornerRadius="{DynamicResource Radius.Small}"
                                             VerticalAlignment="Top">
@@ -403,11 +403,11 @@
                                                 </StackPanel.Style>
                                                 <TextBlock Text="&#xE8B9;" FontFamily="Segoe MDL2 Assets"
                                                            FontSize="{StaticResource TextHeadline}"
-                                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                                           Foreground="{DynamicResource TextTertiaryBrush}"
                                                            HorizontalAlignment="Center"/>
                                                 <TextBlock Text="LOGO" FontSize="{StaticResource TextCaption}"
                                                            FontWeight="SemiBold"
-                                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                                           Foreground="{DynamicResource TextTertiaryBrush}"
                                                            HorizontalAlignment="Center" Margin="0,4,0,0"/>
                                             </StackPanel>
                                             <Image Source="{Binding LogoPath}" Stretch="Uniform" Margin="8">
@@ -464,7 +464,7 @@
                                         </Grid>
                                         <TextBlock Margin="0,4,0,0"
                                                    FontSize="{StaticResource TextCaption}"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}">
+                                                   Foreground="{DynamicResource TextTertiaryBrush}">
                                             <Run Text="Printed size in millimetres · "/>
                                             <Run Text="{Binding LogoWidthDisplay, Mode=OneWay}"/>
                                             <Run Text=" × "/>
@@ -479,18 +479,18 @@
                                             <RadioButton Content="Text only"
                                                          GroupName="CompanyLogoLayout"
                                                          IsChecked="{Binding IsNoLogoLayout}"
-                                                         Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                         Foreground="{DynamicResource TextPrimaryBrush}"
                                                          VerticalAlignment="Center"/>
                                             <RadioButton Content="Left portrait"
                                                          GroupName="CompanyLogoLayout"
                                                          IsChecked="{Binding IsLeftPortraitLayout}"
-                                                         Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                         Foreground="{DynamicResource TextPrimaryBrush}"
                                                          Margin="16,0,0,0"
                                                          VerticalAlignment="Center"/>
                                             <RadioButton Content="Top panel"
                                                          GroupName="CompanyLogoLayout"
                                                          IsChecked="{Binding IsTopPanelLayout}"
-                                                         Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                         Foreground="{DynamicResource TextPrimaryBrush}"
                                                          Margin="16,0,0,0"
                                                          VerticalAlignment="Center"/>
                                         </StackPanel>

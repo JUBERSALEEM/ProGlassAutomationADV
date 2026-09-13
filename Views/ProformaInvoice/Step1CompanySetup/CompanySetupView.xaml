@@ -111,8 +111,8 @@
                      The logo travels with the company: pick it here or in
                      Company Center — either way it lands on every printed
                      document and is saved back to the company record. -->
-                <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                        BorderBrush="{DynamicResource OutlineBrush}"
+                <Border Background="{DynamicResource SurfacePrimaryBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="12" Margin="0,0,0,14">
@@ -123,11 +123,11 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="48" Height="54" Background="{DynamicResource Surface.Primary.BackgroundBrush}"
-                                BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 CornerRadius="{DynamicResource Radius.Small}" VerticalAlignment="Center">
                             <Grid>
                                 <TextBlock Text="LOGO" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                           Foreground="{DynamicResource TextTertiaryBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
@@ -403,7 +403,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
                                         <TextBlock Text="{Binding CompanyName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                   Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
                                         <TextBlock Text="{Binding TrnMasked}" FontSize="{StaticResource TextBody}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                     </StackPanel>

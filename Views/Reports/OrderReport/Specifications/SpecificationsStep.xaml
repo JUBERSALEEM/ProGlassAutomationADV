@@ -51,7 +51,7 @@
         <!-- Table body cell -->
         <Style x:Key="Td" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
@@ -73,9 +73,9 @@
             <Setter Property="MinWidth" Value="120"/>
             <Setter Property="Padding" Value="16,0"/>
             <Setter Property="Margin" Value="0,0,10,0"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
             <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Template">
@@ -128,7 +128,7 @@
                         <TextBlock Text="REPORT BREAKDOWN · STEP 05" Style="{StaticResource Eyebrow}"/>
                         <TextBlock Text="Specifications"
                                    FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    Margin="0,4,0,0"/>
                         <TextBlock Text="Every proforma invoice broken into its specification groups — glass reference, dimensions, quantity, area, rate and amount — with column-aligned totals."
                                    FontSize="{StaticResource TextBody}"
@@ -149,8 +149,8 @@
 
                 <!-- Empty state -->
                 <Border Margin="0,20,0,0"
-                        Background="{DynamicResource ModuleBackgroundBrush}"
-                        BorderBrush="{DynamicResource OutlineBrush}"
+                        Background="{DynamicResource SurfacePrimaryBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="24,20">
@@ -175,8 +175,8 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border Margin="0,20,0,0"
-                                    Background="{DynamicResource ModuleBackgroundBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}"
+                                    Background="{DynamicResource SurfacePrimaryBrush}"
+                                    BorderBrush="{DynamicResource BorderDefaultBrush}"
                                     BorderThickness="{DynamicResource CardBorderThickness}"
                                     CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                                     Padding="22,20">
@@ -217,7 +217,7 @@
                                         <!-- PI grand totals -->
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                             <Border Background="{DynamicResource WindowBackgroundBrush}"
-                                                    BorderBrush="{DynamicResource OutlineBrush}"
+                                                    BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                     BorderThickness="{DynamicResource CardBorderThickness}"
                                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="12,6" Margin="0,0,8,0">
@@ -227,7 +227,7 @@
                                                 </StackPanel>
                                             </Border>
                                             <Border Background="{DynamicResource WindowBackgroundBrush}"
-                                                    BorderBrush="{DynamicResource OutlineBrush}"
+                                                    BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                     BorderThickness="{DynamicResource CardBorderThickness}"
                                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="12,6" Margin="0,0,8,0">
@@ -250,7 +250,7 @@
                                         </StackPanel>
                                     </Grid>
 
-                                    <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,16,0,2"/>
+                                    <Border Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,16,0,2"/>
 
                                     <!-- ── Spec groups ── -->
                                     <ItemsControl ItemsSource="{Binding Groups}">
@@ -274,7 +274,7 @@
 
                                                     <!-- ── Column header ── -->
                                                     <Border Background="{DynamicResource WindowBackgroundBrush}"
-                                                            BorderBrush="{DynamicResource OutlineBrush}"
+                                                            BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                             BorderThickness="{DynamicResource CardBorderThickness}"
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                                             Padding="12,8">
@@ -305,7 +305,7 @@
                                                         <ItemsControl.ItemTemplate>
                                                             <DataTemplate>
                                                                 <Border Padding="12,8" BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                                                                        BorderBrush="{DynamicResource OutlineBrush}">
+                                                                        BorderBrush="{DynamicResource BorderDefaultBrush}">
                                                                     <Grid>
                                                                         <Grid.ColumnDefinitions>
                                                                             <ColumnDefinition Width="36"/>

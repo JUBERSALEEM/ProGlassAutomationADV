@@ -20,7 +20,7 @@
          Balance = Total − Delivered. The related Delivery Notes expand
          INLINE inside each row — no split list + side panel.
     ═══════════════════════════════════════════════════════════════════ -->
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+    <Grid Background="{DynamicResource SurfacePrimaryBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -253,13 +253,13 @@
                         Margin="10,0,10,10"
                         Visibility="{Binding HasAnalytics, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed, TargetNullValue=Collapsed}">
                     <Expander IsExpanded="False"
-                              Foreground="{DynamicResource PrimaryForegroundBrush}">
+                              Foreground="{DynamicResource TextPrimaryBrush}">
                         <Expander.Header>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{DynamicResource Reports.AgeingAnalysis}"
                                            FontSize="{StaticResource TextBody}"
                                            FontWeight="Bold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 <!-- Escalation badge: only shown when there
                                      IS overdue work, so it never becomes
                                      background noise. -->
@@ -290,10 +290,10 @@
                                     <TextBlock Text="{DynamicResource Reports.PendingAgeing}"
                                                FontSize="{StaticResource TextBody}"
                                                FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{DynamicResource Reports.ByPieces}"
                                                FontSize="{StaticResource TextBody}"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                               Foreground="{DynamicResource TextTertiaryBrush}"
                                                Margin="0,2,0,8"/>
 
                                     <ItemsControl ItemsSource="{Binding Analytics.PendingAgeing}">
@@ -312,7 +312,7 @@
                                                                VerticalAlignment="Center">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
-                                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding IsCritical}" Value="True">
                                                                         <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
@@ -422,8 +422,8 @@
                             CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                             <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
-                            <TextBlock Text="{DynamicResource Reports.DeliveryReport.UnableLoadRecords}" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
-                            <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Reports.DeliveryReport.UnableLoadRecords}" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                            <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
                             <Button Content="{DynamicResource Action.Retry}" Command="{Binding RefreshCommand}" Style="{StaticResource ReportRetryButton}" HorizontalAlignment="Center" ToolTip="{DynamicResource Reports.DeliveryReport.RetryLoadingRecords}"/>
                         </StackPanel>
                     </Border>
@@ -467,19 +467,19 @@
                                             <ColumnDefinition Width="58"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Column="0" Padding="0,0,6,0" Text="{Binding SerialNumber}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="0" Padding="0,0,6,0" Text="{Binding SerialNumber}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="1" Padding="6,0" Text="{Binding ProformaId}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Grid.Column="2" Padding="6,0" Text="{Binding SpecificationDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"  ToolTip="{Binding SpecificationDisplay}"/>
+                                        <TextBlock Grid.Column="2" Padding="6,0" Text="{Binding SpecificationDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"  ToolTip="{Binding SpecificationDisplay}"/>
                                         <TextBlock Grid.Column="3" Padding="6,0" Text="{Binding GlassType}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock Grid.Column="4" Padding="6,0" Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock Grid.Column="5" Padding="6,0" Text="{Binding CustomerName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="4" Padding="6,0" Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="5" Padding="6,0" Text="{Binding CustomerName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                                         <TextBlock Grid.Column="6" Padding="6,0" Text="{Binding Salesman}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                                         <TextBlock Grid.Column="7" Padding="6,0" Text="{Binding ProjectName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                                         <TextBlock Grid.Column="8" Padding="6,0" Text="{Binding W1}" FontSize="{StaticResource TextBody}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                         <TextBlock Grid.Column="9" Padding="6,0" Text="{Binding H1}" FontSize="{StaticResource TextBody}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                         <TextBlock Grid.Column="10" Padding="6,0" Text="{Binding W2}" FontSize="{StaticResource TextBody}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                         <TextBlock Grid.Column="11" Padding="6,0" Text="{Binding H2}" FontSize="{StaticResource TextBody}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                        <TextBlock Grid.Column="12" Padding="6,0" Text="{Binding TotalQty}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        <TextBlock Grid.Column="12" Padding="6,0" Text="{Binding TotalQty}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         <TextBlock Grid.Column="13" Padding="6,0" Text="{Binding DeliveredQty}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource SuccessBrush}"/>
                                         <TextBlock Grid.Column="14" Padding="6,0,0,0" Text="{Binding BalanceQty}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource WarningBrush}"/>
                                     </Grid>
@@ -501,8 +501,8 @@
 
                         <Border Width="360"
                                 VerticalAlignment="Stretch"
-                                Background="{DynamicResource ModuleBackgroundBrush}"
-                                BorderBrush="{DynamicResource OutlineBrush}"
+                                Background="{DynamicResource SurfacePrimaryBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="20"
@@ -525,7 +525,7 @@
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,10,0">
                                             <TextBlock Text="{DynamicResource DeliveryNote.ROWDetails}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                             <TextBlock Text="{Binding SidebarSubtitle}" FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                                        TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
                                         </StackPanel>
                                         <Button Grid.Column="2" Style="{StaticResource RowOutlinedButton}"
@@ -533,7 +533,7 @@
                                                 ToolTip="{DynamicResource DeliveryNote.CloseClickRowAgain}" Command="{Binding CloseDetailCommand}"/>
                                     </Grid>
 
-                                    <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,16,0,16"/>
+                                    <Border Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,16,0,16"/>
 
                                     <!-- Open the owning Job Order (same affordance as PI/JO/TI reports) -->
                                     <Button Content="{DynamicResource Inquiry.OpenJobOrder}"
@@ -546,19 +546,19 @@
 
                                     <!-- Selected row identity -->
                                     <TextBlock Text="{DynamicResource Common.Specification}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                               Foreground="{DynamicResource MutedForegroundBrush}" Margin="4,0,0,8"/>
+                                               Foreground="{DynamicResource TextTertiaryBrush}" Margin="4,0,0,8"/>
                                     <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="12,10" Margin="0,0,0,12"
-                                            Background="{DynamicResource TintBlueBrush}" BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}">
+                                            Background="{DynamicResource TintBlueBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}">
                                         <StackPanel>
                                             <TextBlock Text="{Binding SelectedRow.SpecificationDisplay}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
-                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,4,0,0">
+                                                       Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
+                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,4,0,0">
                                                 <Run Text="{DynamicResource JobOrder.GlassType}"/><Run Text="{Binding SelectedRow.GlassType, Mode=OneWay}" FontWeight="SemiBold"/>
                                             </TextBlock>
-                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
+                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2,0,0">
                                                 <Run Text="{DynamicResource DeliveryNote.GlassRef}"/><Run Text="{Binding SelectedRow.GlassRef, Mode=OneWay}" FontWeight="SemiBold"/>
                                             </TextBlock>
-                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
+                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2,0,0">
                                                 <Run Text="{DynamicResource DeliveryNote.Dimensions}"/><Run Text="{Binding SelectedRow.GlassDetails, Mode=OneWay}" FontWeight="SemiBold"/>
                                             </TextBlock>
                                         </StackPanel>
@@ -566,7 +566,7 @@
 
                                     <!-- Selected row quantities -->
                                     <TextBlock Text="{DynamicResource DeliveryNote.Quantities}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                               Foreground="{DynamicResource MutedForegroundBrush}" Margin="4,0,0,8"/>
+                                               Foreground="{DynamicResource TextTertiaryBrush}" Margin="4,0,0,8"/>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -574,21 +574,21 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Border Grid.Column="0" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="12,10" Margin="0,0,4,10"
-                                                Background="{DynamicResource TintBlueBrush}" BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}">
+                                                Background="{DynamicResource TintBlueBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}">
                                             <StackPanel>
                                                 <TextBlock Text="TOTAL" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
-                                                <TextBlock Text="{Binding SelectedRow.TotalQty}" FontSize="{StaticResource TextTitle}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2,0,0"/>
+                                                <TextBlock Text="{Binding SelectedRow.TotalQty}" FontSize="{StaticResource TextTitle}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2,0,0"/>
                                             </StackPanel>
                                         </Border>
                                         <Border Grid.Column="1" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="12,10" Margin="4,0,4,10"
-                                                Background="{DynamicResource TintGreenBrush}" BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}">
+                                                Background="{DynamicResource TintGreenBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}">
                                             <StackPanel>
                                                 <TextBlock Text="{DynamicResource Common.Delivered}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                                                 <TextBlock Text="{Binding SelectedRow.DeliveredQty}" FontSize="{StaticResource TextTitle}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" Margin="0,2,0,0"/>
                                             </StackPanel>
                                         </Border>
                                         <Border Grid.Column="2" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="12,10" Margin="4,0,0,10"
-                                                Background="{DynamicResource TintAmberBrush}" BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}">
+                                                Background="{DynamicResource TintAmberBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}">
                                             <StackPanel>
                                                 <TextBlock Text="{DynamicResource Common.Balance}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
                                                 <TextBlock Text="{Binding SelectedRow.BalanceQty}" FontSize="{StaticResource TextTitle}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" Margin="0,2,0,0"/>
@@ -598,8 +598,8 @@
 
                                     <!-- Delivery history -->
                                     <TextBlock Text="{DynamicResource DeliveryNote.DeliveryHistory}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                               Foreground="{DynamicResource MutedForegroundBrush}" Margin="4,0,0,8"/>
-                                    <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="10,8">
+                                               Foreground="{DynamicResource TextTertiaryBrush}" Margin="4,0,0,8"/>
+                                    <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="10,8">
                                         <StackPanel>
                                             <ItemsControl ItemsSource="{Binding SelectedRow.Deliveries}">
                                                 <ItemsControl.ItemTemplate>
@@ -612,12 +612,12 @@
                                                                 </Grid.ColumnDefinitions>
                                                                 <StackPanel Grid.Column="0">
                                                                     <TextBlock Text="{Binding DeliveryNoteId}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
-                                                                    <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                                                    <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,1,0,0">
                                                                         <Run Text="{Binding DeliveryDate, Mode=OneWay, StringFormat={}{0:dd MMM yyyy}}"/>
                                                                         <Run Text=" · "/>
                                                                         <Run Text="{Binding Status, Mode=OneWay}"/>
                                                                     </TextBlock>
-                                                                    <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                                                    <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,1,0,0">
                                                                         <Run Text="{Binding DriverName, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding VehicleNumber, Mode=OneWay}"/>
                                                                     </TextBlock>
                                                                 </StackPanel>
@@ -632,7 +632,7 @@
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
                                             <TextBlock Text="{DynamicResource Reports.DeliveryReport.NoDeliveriesRecordedRowYet}"
-                                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}"
+                                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}"
                                                        Visibility="{Binding SelectedRow.Deliveries.Count, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=0}"
                                                        Margin="2,6"/>
                                         </StackPanel>
@@ -651,7 +651,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
                             <Button Content="{DynamicResource Reports.DeliveryReport.Prev}" Command="{Binding PrevPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="{DynamicResource Reports.DeliveryReport.GoPreviousPage}"/>
                             <Button Content="{DynamicResource Reports.DeliveryReport.Next}" Command="{Binding NextPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="{DynamicResource Reports.DeliveryReport.GoNextPage}"/>

@@ -10,7 +10,7 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+    <Grid Background="{DynamicResource SurfacePrimaryBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -218,8 +218,8 @@
                             CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                             <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
-                            <TextBlock Text="{DynamicResource Reports.DeliveryReport.UnableLoadRecords}" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
-                            <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Reports.DeliveryReport.UnableLoadRecords}" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                            <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
                             <Button Content="{DynamicResource Action.Retry}" Command="{Binding RefreshCommand}" Style="{StaticResource ReportRetryButton}" HorizontalAlignment="Center" ToolTip="{DynamicResource Reports.DeliveryReport.RetryLoadingRecords}"/>
                         </StackPanel>
                     </Border>
@@ -244,10 +244,10 @@
                                                 <ColumnDefinition Width="0.9*"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <TextBlock Grid.Column="0" Text="{Binding IssueDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="0" Text="{Binding IssueDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
                                             <TextBlock Grid.Column="1" Text="{Binding InvoiceNumber}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
                                             <TextBlock Grid.Column="2" Text="{Binding DocumentType}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
-                                            <TextBlock Grid.Column="3" Text="{Binding Description}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0" ToolTip="{Binding Description}"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding Description}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0" ToolTip="{Binding Description}"/>
                                             <TextBlock Grid.Column="4" Text="{Binding CustomerName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
                                             <TextBlock Grid.Column="5" Text="{Binding Debit, StringFormat={}AED {0:N0}}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                             <TextBlock Grid.Column="6" Text="{Binding Credit, StringFormat={}AED {0:N0}}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
@@ -263,7 +263,7 @@
                                                 <TextBlock Text="{DynamicResource Reports.StatementReport.LedgerEntry}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Expander.Header>
-                                        <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="12,10" Margin="0,8,0,0">
+                                        <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="12,10" Margin="0,8,0,0">
                                             <StackPanel>
                                                 <Button Content="{DynamicResource Inquiry.OpenTaxInvoice}"
                                                         Command="{Binding DataContext.OpenTaxInvoiceCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
@@ -289,31 +289,31 @@
                                                         <RowDefinition Height="Auto"/>
                                                     </Grid.RowDefinitions>
 
-                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource Common.Date}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding IssueDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource Common.Date}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding IssueDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
 
-                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource Reports.StatementReport.Document}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource Reports.StatementReport.Document}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
                                                     <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding InvoiceNumber}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" Margin="0,2" TextWrapping="Wrap"/>
 
-                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource Common.Type}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding DocumentType}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource Common.Type}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding DocumentType}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
 
-                                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource Reports.DeliveryReport.PI}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding ProformaId}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource Reports.DeliveryReport.PI}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding ProformaId}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
 
-                                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="{DynamicResource Common.Status}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Status}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="{DynamicResource Common.Status}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Status}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
 
-                                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="{DynamicResource Module.Statement}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding StatementNumber}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="{DynamicResource Module.Statement}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding StatementNumber}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
 
-                                                    <TextBlock Grid.Row="6" Grid.Column="0" Text="{DynamicResource Reports.StatementReport.Debit}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="6" Grid.Column="0" Text="{DynamicResource Reports.StatementReport.Debit}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
                                                     <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding Debit, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource DangerBrush}" Margin="0,2"/>
 
-                                                    <TextBlock Grid.Row="7" Grid.Column="0" Text="{DynamicResource Reports.StatementReport.Credit}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="7" Grid.Column="0" Text="{DynamicResource Reports.StatementReport.Credit}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
                                                     <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding Credit, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}" Margin="0,2"/>
 
-                                                    <TextBlock Grid.Row="8" Grid.Column="0" Text="{DynamicResource Common.Balance}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="8" Grid.Column="0" Text="{DynamicResource Common.Balance}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
                                                     <TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding Balance, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" Margin="0,2"/>
                                                 </Grid>
 
@@ -339,7 +339,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
                             <Button Content="{DynamicResource Reports.DeliveryReport.Prev}" Command="{Binding PrevPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="{DynamicResource Reports.DeliveryReport.GoPreviousPage}"/>
                             <Button Content="{DynamicResource Reports.DeliveryReport.Next}" Command="{Binding NextPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="{DynamicResource Reports.DeliveryReport.GoNextPage}"/>

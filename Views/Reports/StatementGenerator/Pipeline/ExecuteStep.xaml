@@ -86,7 +86,7 @@
             <Setter Property="Padding" Value="14,12"/>
             <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
             <Setter Property="Margin" Value="0,0,0,8"/>
             <Setter Property="Background" Value="{StaticResource StepIdleBg}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -137,8 +137,8 @@
 
         <!-- KPI metric tile -->
         <Style x:Key="MetricTileStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
             <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
             <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
             <Setter Property="Padding" Value="16,14"/>
@@ -190,8 +190,8 @@
                      PROGRESS STRIP (slim)
                 ═══════════════════════════════════════════════════ -->
                 <Border Margin="0,24,0,0"
-                        Background="{DynamicResource ModuleBackgroundBrush}"
-                        BorderBrush="{DynamicResource OutlineBrush}"
+                        Background="{DynamicResource SurfacePrimaryBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="20,16"
@@ -392,7 +392,7 @@
                     <!-- ═══ COLUMN 2: PROCESSING LOG (second) ═══ -->
                     <Border Grid.Column="2"
                             Background="{DynamicResource TerminalBg}"
-                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="18,14"
@@ -584,7 +584,7 @@
                                                         <Button.Template>
                                                             <ControlTemplate TargetType="Button">
                                                                 <Border x:Name="bd"
-                                                                        Background="{DynamicResource ModuleBackgroundBrush}"
+                                                                        Background="{DynamicResource SurfacePrimaryBrush}"
                                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                                         Padding="{TemplateBinding Padding}"
                                                                         BorderThickness="{DynamicResource Border.HairlineThickness}"
@@ -608,7 +608,7 @@
                                                                 </Border>
                                                                 <ControlTemplate.Triggers>
                                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
                                                                     </Trigger>
                                                                     <Trigger Property="IsPressed" Value="True">
                                                                         <Setter TargetName="bd" Property="Opacity" Value="0.75"/>

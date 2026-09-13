@@ -33,7 +33,7 @@
                FontSize="{StaticResource TextBodyLarge}"
                LineHeight="20"
                TextWrapping="Wrap"
-               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+               Foreground="{DynamicResource TextPrimaryBrush}"/>
 
     <dialogs:ThemedDialogWindow.FooterContent>
         <StackPanel Orientation="Horizontal">

@@ -35,9 +35,9 @@
         <Border.Style>
             <Style TargetType="Border" BasedOn="{StaticResource ErpKpiSurfaceStyle}">
                 <Setter Property="Background"
-                        Value="{DynamicResource ElevatedSurfaceBrush}"/>
+                        Value="{DynamicResource SurfaceSecondaryBrush}"/>
                 <Setter Property="BorderBrush"
-                        Value="{DynamicResource OutlineBrush}"/>
+                        Value="{DynamicResource BorderDefaultBrush}"/>
                 <Setter Property="BorderThickness" Value="1.5"/>
                 <Setter Property="Visibility" Value="Visible"/>
                 <Style.Triggers>
@@ -183,7 +183,7 @@
                                             Value="{Binding DisplayValue,
                                                     ElementName=Root}"/>
                                     <Setter Property="Foreground"
-                                            Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                            Value="{DynamicResource TextPrimaryBrush}"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding State, ElementName=Root}"
                                                      Value="Success">
@@ -209,12 +209,12 @@
                                    FontSize="{StaticResource TextBody}"
                                    Margin="4,0,0,2"
                                    VerticalAlignment="Bottom"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
                     </StackPanel>
 
                     <!-- Loading / updating indicator -->
                     <TextBlock Text="• • •" FontSize="{StaticResource TextSection}" FontWeight="Bold"
-                               Foreground="{DynamicResource MutedForegroundBrush}">
+                               Foreground="{DynamicResource TextTertiaryBrush}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -238,7 +238,7 @@
                            FontSize="{StaticResource TextCaption}"
                            Margin="0,2,0,0"
                            TextTrimming="CharacterEllipsis"
-                           Foreground="{DynamicResource MutedForegroundBrush}">
+                           Foreground="{DynamicResource TextTertiaryBrush}">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Style.Triggers>

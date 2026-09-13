@@ -120,9 +120,8 @@ namespace ProGlassAutomation.Controls.CrystalFluid
 
         public CrystalKpiCard()
         {
-            // KPI surfaces carry the water material by default (§31);
-            // every channel remains per-instance overridable.
-            WaterEnabled = true;
+            // Phase 9: water is environment-gated, never forced per KPI.
+            SetResourceReference(WaterEnabledProperty, "CrystalWaterDefaultEnabled");
             TiltEnabled = true;
             BubbleEnabled = true;
             BubbleCount = 3;

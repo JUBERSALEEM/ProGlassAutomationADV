@@ -39,7 +39,7 @@
                    Foreground="{DynamicResource DangerBrush}"
                    TextWrapping="Wrap"/>
         <Border Margin="0,14,0,0" Padding="16,14"
-            Background="{DynamicResource ElevatedSurfaceBrush}"
+            Background="{DynamicResource SurfaceSecondaryBrush}"
             BorderBrush="{DynamicResource BorderBrush}"
             BorderThickness="{DynamicResource Border.HairlineThickness}"
             CornerRadius="{DynamicResource Radius.Small}">

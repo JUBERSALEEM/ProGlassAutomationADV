@@ -44,7 +44,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+    <Grid Background="{DynamicResource SurfacePrimaryBrush}">
         <Grid.ColumnDefinitions>
             <!-- ERR-BEFC44 follow-up + 2026-09-05 drawer behaviour:
                  ERR-BEFC44: rail was a hard 232px, clipping long labels.
@@ -72,7 +72,7 @@
                 Visibility="{Binding IsSettingsRailOpen,
                     Converter={StaticResource BoolToVisibilityConverter}}"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
-                BorderBrush="{DynamicResource GlassBorderGradientCrystal}"
+                BorderBrush="{DynamicResource BorderStrongBrush}"
                 BorderThickness="{DynamicResource Border.StrongThickness}"
                 RenderOptions.EdgeMode="Aliased"
                 SnapsToDevicePixels="True">
@@ -91,7 +91,7 @@
                         IsHitTestVisible="False"/>
                 <Border Height="14" VerticalAlignment="Top"
                         CornerRadius="{DynamicResource Radius.Medium}"
-                        Background="{DynamicResource GlassTopReflection}"
+                        Background="{DynamicResource SurfaceElevatedBrush}"
                         Opacity="0.55"
                         IsHitTestVisible="False"/>
             <DockPanel Margin="10,20,10,16">
@@ -112,7 +112,7 @@
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="38" Height="38"
                                 CornerRadius="{DynamicResource Radius.Medium}"
-                                Background="{DynamicResource GlassSurfaceElevated}">
+                                Background="{DynamicResource SurfaceElevatedBrush}">
                             <TextBlock Text="&#xE713;"
                                        FontFamily="Segoe MDL2 Assets"
                                        FontSize="{StaticResource TextTitle}"
@@ -149,7 +149,7 @@
                     </Grid>
                 </Border>
                 <Border DockPanel.Dock="Top" Height="1"
-                        Background="{DynamicResource OutlineBrush}"
+                        Background="{DynamicResource BorderDefaultBrush}"
                         Margin="14,0,14,8"/>
 
                 <!-- Nav items — scroll so every page stays reachable on
@@ -224,7 +224,7 @@
         <Border Grid.Column="1"
                 Margin="0,14,0,14"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
-                BorderBrush="{DynamicResource GlassBorderSoft}"
+                BorderBrush="{DynamicResource BorderSubtleBrush}"
                 BorderThickness="{DynamicResource Border.BoxNoLeftThickness}"
                 CornerRadius="{DynamicResource Radius.Right.Medium}"
                 SnapsToDevicePixels="True">
@@ -234,7 +234,7 @@
                     Background="Transparent"
                     BorderThickness="{DynamicResource Border.NoneThickness}">
                 <TextBlock FontFamily="Segoe MDL2 Assets"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center">
                     <TextBlock.Style>
@@ -264,7 +264,7 @@
                  always announces where you are. -->
             <Border Grid.Row="0" Margin="14,10,12,0" Padding="14,10"
                     CornerRadius="{DynamicResource CardCornerRadius}"
-                    Background="{DynamicResource ElevatedSurfaceBrush}"
+                    Background="{DynamicResource SurfaceSecondaryBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="{DynamicResource Border.HairlineThickness}">
                 <Grid>
@@ -285,13 +285,13 @@
                                 <StackPanel VerticalAlignment="Center"
                                             HorizontalAlignment="Center">
                                     <Border Width="20" Height="2.5" CornerRadius="{DynamicResource Radius.XSmall}"
-                                            Background="{DynamicResource PrimaryForegroundBrush}"
+                                            Background="{DynamicResource TextPrimaryBrush}"
                                             Margin="0,0,0,4"/>
                                     <Border Width="20" Height="2.5" CornerRadius="{DynamicResource Radius.XSmall}"
-                                            Background="{DynamicResource PrimaryForegroundBrush}"
+                                            Background="{DynamicResource TextPrimaryBrush}"
                                             Margin="0,0,0,4"/>
                                     <Border Width="20" Height="2.5" CornerRadius="{DynamicResource Radius.XSmall}"
-                                            Background="{DynamicResource PrimaryForegroundBrush}"/>
+                                            Background="{DynamicResource TextPrimaryBrush}"/>
                                 </StackPanel>
                             </ControlTemplate>
                         </Button.Template>
@@ -300,7 +300,7 @@
                                Margin="12,0,0,0"
                                FontSize="{StaticResource TextSection}"
                                FontWeight="SemiBold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
                                Text="{Binding ActivePageLabel}"/>
                 </Grid>
             </Border>

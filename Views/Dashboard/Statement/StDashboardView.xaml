@@ -68,8 +68,8 @@
                     Padding="12,10"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     SnapsToDevicePixels="True"
-                    Background="{DynamicResource GlassUltraClearBrush}"
-                    BorderBrush="{DynamicResource GlassBorderGradientSoft}"
+                    Background="{DynamicResource SurfacePrimaryBrush}"
+                    BorderBrush="{DynamicResource BorderSubtleBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -106,14 +106,14 @@
                             <TextBlock Text=" · "
                                        FontSize="{StaticResource TextBody}"
                                        VerticalAlignment="Center"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
                             <TextBlock Text="{Binding SubTitle, Mode=OneWay}"
                                        FontSize="{StaticResource TextBody}"
                                        FontWeight="SemiBold"
                                        MaxWidth="260"
                                        TextTrimming="CharacterEllipsis"
                                        VerticalAlignment="Center"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                             <Border Margin="10,0,0,0"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -137,12 +137,12 @@
                                 <Run Text="{DynamicResource Common.Invoiced}"/>
                                 <Run Text="{Binding TotalInvoicedDisplay, Mode=OneWay}"
                                      FontWeight="Bold"
-                                     Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                     Foreground="{DynamicResource TextPrimaryBrush}"/>
                             </TextBlock>
 
                             <TextBlock Text=" · "
                                        FontSize="{StaticResource TextBody}"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
 
                             <TextBlock FontSize="{StaticResource TextBody}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}">
@@ -154,7 +154,7 @@
 
                             <TextBlock Text=" · "
                                        FontSize="{StaticResource TextBody}"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"
                                        Visibility="{Binding HasOverdue,
                                            Converter={StaticResource BoolToVisibilityConverter}}"/>
 
@@ -171,7 +171,7 @@
 
                         <TextBlock FontSize="{StaticResource TextCaption}"
                                    Margin="0,4,0,0"
-                                   Foreground="{DynamicResource MutedForegroundBrush}">
+                                   Foreground="{DynamicResource TextTertiaryBrush}">
                             <Run Text="{Binding InvoiceCount, Mode=OneWay}"/>
                             <Run Text="{DynamicResource Dashboard.InvoiceS}"/>
                             <Run Text="{Binding CreatedAtDisplay, Mode=OneWay}"/>

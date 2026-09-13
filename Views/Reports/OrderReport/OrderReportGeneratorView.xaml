@@ -82,9 +82,9 @@
              ROW 0 — STEPPER BAR
         ═══════════════════════════════════════════════════════════ -->
         <Border Grid.Row="0"
-                Background="{DynamicResource ModuleBackgroundBrush}"
+                Background="{DynamicResource SurfacePrimaryBrush}"
                 BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                BorderBrush="{DynamicResource OutlineBrush}">
+                BorderBrush="{DynamicResource BorderDefaultBrush}">
             <Grid Margin="20,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -127,8 +127,8 @@
                             <Border>
                                 <Border.Style>
                                     <Style TargetType="Border" BasedOn="{StaticResource StepNumberBadgeStyle}">
-                                        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-                                        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsStep1Complete}" Value="True">
                                                 <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
@@ -199,8 +199,8 @@
                             <Border>
                                 <Border.Style>
                                     <Style TargetType="Border" BasedOn="{StaticResource StepNumberBadgeStyle}">
-                                        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-                                        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsStep2Complete}" Value="True">
                                                 <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
@@ -271,8 +271,8 @@
                             <Border>
                                 <Border.Style>
                                     <Style TargetType="Border" BasedOn="{StaticResource StepNumberBadgeStyle}">
-                                        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-                                        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsStep3Complete}" Value="True">
                                                 <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
@@ -343,8 +343,8 @@
                             <Border>
                                 <Border.Style>
                                     <Style TargetType="Border" BasedOn="{StaticResource StepNumberBadgeStyle}">
-                                        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-                                        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsStep4Complete}" Value="True">
                                                 <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
@@ -415,8 +415,8 @@
                             <Border>
                                 <Border.Style>
                                     <Style TargetType="Border" BasedOn="{StaticResource StepNumberBadgeStyle}">
-                                        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-                                        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsStep5Complete}" Value="True">
                                                 <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
@@ -570,8 +570,8 @@
         <!-- ═══════════════════════════════════════════════════════════
              ROW 2 — FOOTER NAVIGATION
         ═══════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="2" Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderThickness="{DynamicResource Border.TopHairlineThickness}" BorderBrush="{DynamicResource OutlineBrush}">
+        <Border Grid.Row="2" Background="{DynamicResource SurfacePrimaryBrush}"
+                BorderThickness="{DynamicResource Border.TopHairlineThickness}" BorderBrush="{DynamicResource BorderDefaultBrush}">
             <Grid Margin="20,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>

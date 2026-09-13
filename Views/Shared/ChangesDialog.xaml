@@ -32,7 +32,7 @@
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border CornerRadius="{DynamicResource CardCornerRadius}"
-                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                             Padding="2,10">
                         <StackPanel>
@@ -40,8 +40,8 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding Field}"
                                            FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                <Border BorderBrush="{DynamicResource OutlineBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
                                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                                         Margin="8,0,0,0"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
@@ -55,7 +55,7 @@
                             </StackPanel>
 
                             <!-- BEFORE — full width, red tint -->
-                            <Border BorderBrush="{DynamicResource OutlineBrush}"
+                            <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     Margin="0,6,0,0"
                                     Background="{DynamicResource TintRedBrush}"
@@ -76,7 +76,7 @@
                             </Border>
 
                             <!-- AFTER — full width, green tint -->
-                            <Border BorderBrush="{DynamicResource OutlineBrush}"
+                            <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     Margin="0,4,0,0"
                                     Background="{DynamicResource TintGreenBrush}"

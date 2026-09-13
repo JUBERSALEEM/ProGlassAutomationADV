@@ -19,7 +19,7 @@
         <Style x:Key="AutoCompleteItemStyle" TargetType="ListBoxItem">
             <Setter Property="Padding"    Value="12,8"/>
             <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="Cursor"     Value="Hand"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Template">
@@ -34,7 +34,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
                                 <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource AccentBrush}"/>
@@ -53,8 +53,8 @@
              Input row: TextBox + chevron button
         ═══════════════════════════════════════════════════════════════ -->
         <Border x:Name="MainBorder"
-                Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                Background="{DynamicResource SurfacePrimaryBrush}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                 CornerRadius="{DynamicResource CardCornerRadius}"
                 SnapsToDevicePixels="True"
@@ -69,12 +69,12 @@
                 <TextBox x:Name="PART_TextBox"
                          Grid.Column="0"
                          Background="Transparent"
-                         Foreground="{DynamicResource PrimaryForegroundBrush}"
+                         Foreground="{DynamicResource TextPrimaryBrush}"
                          BorderThickness="{DynamicResource Border.NoneThickness}"
                          Padding="12,0"
                          VerticalContentAlignment="Center"
                          FontSize="{StaticResource TextBodyLarge}"
-                         CaretBrush="{DynamicResource PrimaryForegroundBrush}"
+                         CaretBrush="{DynamicResource TextPrimaryBrush}"
                          SelectionBrush="{DynamicResource AccentBrush}"
                          Focusable="True"/>
 

@@ -16,8 +16,8 @@
     <UserControl.Resources>
         <Style x:Key="FormInputStyle" TargetType="TextBox">
             <Setter Property="beh:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
@@ -57,7 +57,7 @@
         <ItemsControl ItemsSource="{Binding AddedCharges}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border BorderBrush="{DynamicResource OutlineBrush}"
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                             Padding="8,6">
                         <Grid>
@@ -79,7 +79,7 @@
                             <TextBlock Grid.Column="1"
                                        Text="{Binding ChargeName}"
                                        FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                        VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis"/>
                             <TextBlock Grid.Column="2"
@@ -87,7 +87,7 @@
                                        FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Grid.Column="3"
                                        Text="{Binding Unit}"
                                        FontSize="{StaticResource TextBody}"
@@ -99,7 +99,7 @@
                                        FontSize="{StaticResource TextBody}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Grid.Column="5"
                                        Text="{Binding FormulaDisplay}"
                                        FontSize="{StaticResource TextBody}" FontWeight="Bold"

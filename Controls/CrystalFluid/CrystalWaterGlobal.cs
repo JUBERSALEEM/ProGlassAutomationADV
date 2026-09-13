@@ -22,16 +22,11 @@ namespace ProGlassAutomation.Controls.CrystalFluid
     {
         private static bool _installed;
 
+        /// <summary>Live water auto-attach retired. Cards no longer wrap
+        /// CrystalWaterControl. Method kept so startup still compiles.</summary>
         public static void Install()
         {
-            if (_installed)
-                return;
             _installed = true;
-
-            EventManager.RegisterClassHandler(
-                typeof(Border),
-                FrameworkElement.LoadedEvent,
-                new RoutedEventHandler(OnBorderLoaded));
         }
 
         private static void OnBorderLoaded(object sender, RoutedEventArgs e)

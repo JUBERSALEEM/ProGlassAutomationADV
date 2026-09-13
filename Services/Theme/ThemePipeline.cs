@@ -129,6 +129,7 @@ namespace ProGlassAutomation.Services.Theme
                 //    from that final keyline.
                 ThemeManager.ReapplyOutlinePreference();
                 ThemeManager.ReapplySemanticSurfaces();
+                ThemeManager.PublishProGlassDesignSystem();
 
                 AppLogService.Debug(
                     $"[ThemePipeline] Rebuilt: {reason} | family={appearance?.VisualTheme} " +
@@ -157,6 +158,7 @@ namespace ProGlassAutomation.Services.Theme
                 VisualThemeEngine.ApplyModule(
                     VisualThemeEngine.LastRequestedModule,
                     App.Config?.Appearance);
+                ThemeManager.PublishProGlassDesignSystem();
                 AppLogService.Debug(
                     $"[ThemePipeline] Wallpaper layer rebuilt: {reason}",
                     new LogContext { Module = "Themes", Operation = "Pipeline" });
@@ -181,6 +183,7 @@ namespace ProGlassAutomation.Services.Theme
                 ThemeManager.ApplyAccent(
                     ThemeManager.AccentColor, raiseEvent: false);
                 ThemeManager.ReapplyOutlinePreference();
+                ThemeManager.PublishProGlassDesignSystem();
                 WallpaperOrchestrator.RefreshScene(); // Monet/accent scenes
             }
             catch (Exception ex)

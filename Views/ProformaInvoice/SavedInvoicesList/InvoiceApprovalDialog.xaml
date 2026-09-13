@@ -30,7 +30,7 @@
 
         <Style x:Key="ApprovalTextBox" TargetType="TextBox">
             <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="CaretBrush" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -38,7 +38,7 @@
                         <Border x:Name="Chrome"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Background="{DynamicResource WindowBackgroundBrush}"
-                                BorderBrush="{DynamicResource OutlineBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                 SnapsToDevicePixels="True">
                             <ScrollViewer x:Name="PART_ContentHost"
@@ -66,7 +66,7 @@
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
@@ -74,7 +74,7 @@
                             <Grid Width="18" Height="18"
                                   VerticalAlignment="Center">
                                 <Ellipse x:Name="Ring"
-                                         Stroke="{DynamicResource OutlineBrush}"
+                                         Stroke="{DynamicResource BorderDefaultBrush}"
                                          StrokeThickness="1.5"
                                          Fill="{DynamicResource WindowBackgroundBrush}"/>
                                 <Ellipse x:Name="Dot"

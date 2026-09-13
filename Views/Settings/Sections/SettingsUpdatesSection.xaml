@@ -74,30 +74,30 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="0"
-                                        Background="{DynamicResource MenuHoverBrush}"
+                                <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="0"
+                                        Background="{DynamicResource SurfaceTertiaryBrush}"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
                                         Padding="14,10" Margin="0,0,6,0">
                                     <StackPanel>
                                         <TextBlock Text="{DynamicResource Settings.CurrentVersion}"
                                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
                                         <TextBlock FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                                    Margin="0,3,0,0"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                                   Foreground="{DynamicResource TextPrimaryBrush}">
                                             <Run Text="{DynamicResource Settings.V}"/>
                                             <Run Text="{Binding CurrentVersionDisplay, Mode=OneWay}"/>
                                         </TextBlock>
                                     </StackPanel>
                                 </Border>
-                                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="1"
+                                <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="1"
                                         Background="{DynamicResource TintBlueBrush}"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
                                         Padding="14,10" Margin="6,0,0,0">
                                     <StackPanel>
                                         <TextBlock Text="{DynamicResource Settings.LatestRelease}"
                                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
                                         <TextBlock FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                                    Margin="0,3,0,0"
                                                    Foreground="{DynamicResource AccentBrush}"
@@ -169,7 +169,7 @@
                                            Margin="12,0,0,0"
                                            VerticalAlignment="Center"
                                            TextWrapping="Wrap"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                           Foreground="{DynamicResource TextTertiaryBrush}"/>
                             </StackPanel>
 
                             <!-- Mode=OneWay: UpdateDownloadProgress is read-only
@@ -203,8 +203,8 @@
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
-                            Background="{DynamicResource MenuHoverBrush}"
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
+                            Background="{DynamicResource SurfaceTertiaryBrush}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="14,12">
                         <Border.Style>
@@ -227,11 +227,11 @@
                                 <TextBlock Text="{Binding ReleaseNameDisplay}"
                                            FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                            VerticalAlignment="Center"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 <TextBlock FontSize="{StaticResource TextBody}"
                                            Margin="10,0,0,0"
                                            VerticalAlignment="Center"
-                                           Foreground="{DynamicResource MutedForegroundBrush}">
+                                           Foreground="{DynamicResource TextTertiaryBrush}">
                                     <Run Text="{DynamicResource Settings.Published}"/>
                                     <Run Text="{Binding ReleasePublishedDisplay, Mode=OneWay}"/>
                                 </TextBlock>
@@ -272,7 +272,7 @@
                                 <ItemsControl ItemsSource="{Binding UpdateHistory}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource OutlineBrush}"
+                                            <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                     BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                                     Padding="2,7">
                                                 <Grid>
@@ -284,7 +284,7 @@
                                                     <TextBlock Grid.Column="0"
                                                                FontSize="{StaticResource TextBody}"
                                                                VerticalAlignment="Center"
-                                                               Foreground="{DynamicResource MutedForegroundBrush}">
+                                                               Foreground="{DynamicResource TextTertiaryBrush}">
                                                         <Run Text="{Binding TimestampUtc, Mode=OneWay,
                                                                     StringFormat='dd MMM yyyy HH:mm'}"/>
                                                     </TextBlock>
@@ -311,7 +311,7 @@
                                                         </Border.Style>
                                                         <TextBlock Text="{Binding EventType}"
                                                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                     </Border>
                                                     <TextBlock Grid.Column="2"
                                                                FontSize="{StaticResource TextBody}"

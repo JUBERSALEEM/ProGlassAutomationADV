@@ -163,10 +163,18 @@ directive explicitly asks to preserve.
 | D | Material engine | ✅ `MaterialTokens.xaml` |
 | E | Components | ✅ `ComponentTokens.xaml` |
 | F | Layout + density | ✅ `LayoutTokens.xaml` |
-| G | Reference screen | ⏭ planned — see §9 |
+| G | Reference screen | ⏭ deferred (no DI-registered gallery; PI/Dashboard remain the live reference) |
 | H | Module migration (PI → JO → DN → TI) | ⏭ gradual, alias-first |
 | I | Remaining modules | ⏭ |
 | J | Legacy cleanup | ⏭ only after verified zero-reference + Windows build |
+
+**2026-09-13 follow-up (this change-set):**
+- `PrintTokens.xaml` — paper-safe print surfaces (`PrintSurfaceBrush`, `ProGlassPrint.*`).
+- `ComponentTokens.xaml` expanded: Ghost/Link/Icon/Chip/Action/Export, Toggle, KPI variants, DatePicker, Dialog, Tooltip.
+- `TypeScaleTokens.xaml` — `Type.Display/H1/H2/Title/Section/Body/Caption/NumericValue/Money/Code`.
+- `SemanticTokens.xaml` — `RadiusNone`, `Space1…Space8`, `Spacing.*`, `ReducedMotion`.
+- Component dictionary merge moved **after** Dialog + LiquidGlass + DashboardKit so BasedOn aliases resolve.
+- No business logic, schema, virtualization, or PI/JO/DN/TI workflow changes.
 
 ## 9. Next phase (G) — reference screen plan
 

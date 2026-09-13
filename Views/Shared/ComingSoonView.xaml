@@ -68,7 +68,7 @@
 
             <!-- ══ Status chip (badge above the heading) ══════════════ -->
             <Border Background="{DynamicResource TintIndigoBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
+                    BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource ControlCornerRadius}"
                     Padding="14,6"
@@ -97,7 +97,7 @@
                        HorizontalAlignment="Center"
                        TextAlignment="Center"
                        Margin="0,18,0,0"
-                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                       Foreground="{DynamicResource TextPrimaryBrush}"/>
 
             <!-- ══ Description ════════════════════════════════════════ -->
             <TextBlock Text="{Binding Description}"
@@ -118,7 +118,7 @@
                        TextAlignment="Center"
                        TextWrapping="Wrap"
                        Margin="0,24,0,0"
-                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                       Foreground="{DynamicResource TextTertiaryBrush}"/>
         </StackPanel>
     </Grid>
 </UserControl>

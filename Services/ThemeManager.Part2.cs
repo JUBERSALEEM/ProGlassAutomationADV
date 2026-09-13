@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.Theme;
+using ProGlassAutomation.Services.Theme.Engine;
 using ProGlassAutomation.Services.AI.AIConfig;
 using System;
 using System.Linq;
@@ -132,7 +133,7 @@ namespace ProGlassAutomation.Services
         public static void ApplyDisplayDensity(string density)
         {
             string key = (density ?? "Compact").Trim();
-            if (key is not ("Compact" or "Normal" or "Comfortable"))
+            if (key is not ("Compact" or "Normal" or "Comfortable" or "Spacious"))
                 key = "Compact";
             _displayDensity = key;
 
@@ -144,6 +145,13 @@ namespace ProGlassAutomation.Services
 
             switch (key)
             {
+                case "Spacious":
+                    inputH = 42; buttonH = 44; rowH = 38;
+                    title = 24; kpi = 22; body = 14; buttonMin = 120;
+                    cardPad = new Thickness(20, 14, 20, 14);
+                    stripPad = new Thickness(22, 14, 22, 14);
+                    pageMargin = new Thickness(22, 16, 22, 16);
+                    break;
                 case "Comfortable":
                     inputH = 38; buttonH = 40; rowH = 34;
                     title = 22; kpi = 20; body = 14; buttonMin = 110;
@@ -177,7 +185,21 @@ namespace ProGlassAutomation.Services
             resources["DensityCardPadding"] = cardPad;
             resources["DensityStripPadding"] = stripPad;
             resources["DensityPageMargin"] = pageMargin;
+            resources["Density.ControlHeight"] = inputH;
+            resources["Density.RowHeight"] = rowH;
+            resources["Density.TitleSize"] = title;
+            resources["Density.CardPadding"] = cardPad;
+            resources["Density.PagePadding"] = pageMargin;
+            resources["ControlHeightSmall"] = inputH;
+            resources["ControlHeightMedium"] = buttonH;
+            resources["ControlHeightLarge"] = buttonH + 4;
+            resources["TypographyBodySize"] = body;
+            resources["TypographyKpiValueSize"] = kpi;
+            resources["TypographyTitleSize"] = title;
+            resources["CardPadding"] = cardPad;
+            resources["PagePadding"] = pageMargin;
             ApplySemanticSurfacePadding(resources, cardPad, stripPad);
+            PublishProGlassDesignSystem();
         }
 
 
@@ -243,30 +265,37 @@ namespace ProGlassAutomation.Services
 
             appearance ??= App.Config?.Appearance;
 
-            string mode = (appearance?.SurfaceMaterialMode ?? "Glass").Trim();
-            if (mode is not ("Glass" or "Solid" or "Transparent"))
-                mode = "Glass";
+            var material = ProGlassThemeEngine.ParseMaterial(appearance?.SurfaceMaterialMode);
 
             double primaryOpacity = Clamp01(appearance?.SurfacePrimaryOpacity ?? 1.0, 0.30, 1.0);
             double secondaryOpacity = Clamp01(appearance?.SurfaceSecondaryOpacity ?? 0.94, 0.25, 1.0);
             double detailOpacity = Clamp01(appearance?.SurfaceDetailOpacity ?? 0.86, 0.15, 1.0);
 
-            string primaryKey = mode switch
+            if (material == ProGlassMaterial.Solid)
             {
-                "Solid" => "ElevatedSurfaceBrush",
-                "Transparent" => "ModuleBackgroundBrush",
+                primaryOpacity = 1.0;
+                secondaryOpacity = 1.0;
+                detailOpacity = Math.Max(detailOpacity, 0.96);
+            }
+
+            string primaryKey = material switch
+            {
+                ProGlassMaterial.Solid => "ElevatedSurfaceBrush",
+                ProGlassMaterial.Soft => "ModuleBackgroundBrush",
+                ProGlassMaterial.Crystal => "GlassCrystalBrush",
                 _ => "GlassSurfaceBrush"
             };
-            string secondaryKey = mode switch
+            string secondaryKey = material switch
             {
-                "Solid" => "WindowBackgroundBrush",
-                "Transparent" => "GlassSurfaceUltra",
+                ProGlassMaterial.Solid => "WindowBackgroundBrush",
+                ProGlassMaterial.Soft => "GlassSurfaceUltra",
+                ProGlassMaterial.Crystal => "GlassSurfaceUltra",
                 _ => "GlassSurfaceUltra"
             };
-            string detailKey = mode switch
+            string detailKey = material switch
             {
-                "Solid" => "MenuHoverBrush",
-                "Transparent" => "ModuleBackgroundBrush",
+                ProGlassMaterial.Solid => "MenuHoverBrush",
+                ProGlassMaterial.Soft => "ModuleBackgroundBrush",
                 _ => "ModuleBackgroundBrush"
             };
 
@@ -313,7 +342,18 @@ namespace ProGlassAutomation.Services
             {
                 resources["Surface.Primary.Effect"] = null;
             }
+
+            PublishProGlassDesignSystem();
         }
+
+        /// <summary>
+        /// Dual-writes the ProGlass Design System semantic keys from the
+        /// live engine-managed brushes so Industrial / Monet / Crystal and
+        /// Light / Dark all resolve through one vocabulary without views
+        /// referencing Crystal* or LiquidGlass* names.
+        /// </summary>
+        public static void PublishProGlassDesignSystem()
+            => ProGlassThemeEngine.Publish();
 
         public static void ReapplySemanticSurfaces()
             => ApplySemanticSurfaces(App.Config?.Appearance);
@@ -334,8 +374,20 @@ namespace ProGlassAutomation.Services
             ResourceDictionary resources, double overlayOpacity)
         {
             if (overlayOpacity <= 0.001) return;
-            if (resources["Surface.Primary.BackgroundBrush"] is not SolidColorBrush surface) return;
-            if (resources["AccentBrush"] is not SolidColorBrush accent) return;
+            SolidColorBrush? surface = null;
+            SolidColorBrush? accent = null;
+            try
+            {
+                if (resources.Contains("Surface.Primary.BackgroundBrush"))
+                    surface = resources["Surface.Primary.BackgroundBrush"] as SolidColorBrush;
+                if (resources.Contains("AccentBrush"))
+                    accent = resources["AccentBrush"] as SolidColorBrush;
+            }
+            catch (Exception)
+            {
+                return;
+            }
+            if (surface == null || accent == null) return;
 
             byte Mix(byte a, byte b)
                 => (byte)Math.Round(a * (1.0 - overlayOpacity) + b * overlayOpacity);
@@ -362,13 +414,36 @@ namespace ProGlassAutomation.Services
                 return;
             }
 
-            if (resources[sourceKey] is Brush brush)
+            Brush? brush = null;
+            try
             {
-                var clone = brush.CloneCurrentValue();
-                clone.Opacity = Math.Min(clone.Opacity, opacity);
-                if (clone.CanFreeze) clone.Freeze();
-                resources[targetKey] = clone;
+                if (resources.Contains(sourceKey))
+                    brush = resources[sourceKey] as Brush;
             }
+            catch (Exception)
+            {
+                brush = null;
+            }
+
+            if (brush == null)
+            {
+                try
+                {
+                    if (resources.Contains("ElevatedSurfaceBrush"))
+                        brush = resources["ElevatedSurfaceBrush"] as Brush;
+                }
+                catch (Exception)
+                {
+                    brush = null;
+                }
+            }
+
+            if (brush == null) return;
+
+            var clone = brush.CloneCurrentValue();
+            clone.Opacity = Math.Min(clone.Opacity, opacity);
+            if (clone.CanFreeze) clone.Freeze();
+            resources[targetKey] = clone;
         }
 
         public static void ReapplyDisplayDensity()

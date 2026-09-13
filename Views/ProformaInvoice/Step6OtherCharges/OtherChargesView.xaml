@@ -24,7 +24,7 @@
     <UserControl.Resources>
         <Style x:Key="RateInputStyle" TargetType="TextBox">
             <Setter Property="beh:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
@@ -68,8 +68,8 @@
 
         <Style x:Key="CustomInputStyle" TargetType="TextBox">
             <Setter Property="beh:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
@@ -80,8 +80,8 @@
 
         <Style x:Key="SpecTargetToggleStyle" TargetType="ToggleButton">
             <Setter Property="Height" Value="28"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
@@ -153,7 +153,7 @@
                         <TextBlock Text="{DynamicResource ProformaInvoice.AdvancedAutoChargeMode}"
                                    FontSize="{StaticResource TextBody}"
                                    FontWeight="SemiBold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    VerticalAlignment="Center"
                                    Margin="10,0,0,0"/>
                     </StackPanel>
@@ -195,7 +195,7 @@
                 <ItemsControl ItemsSource="{Binding MetricHub.PerSpecMetrics}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border BorderBrush="{DynamicResource OutlineBrush}"
+                            <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
                                     BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                     Padding="10,6">
                                 <Grid>
@@ -213,7 +213,7 @@
                                         <TextBlock Text="{Binding SpecDisplayName}"
                                                    FontSize="{StaticResource TextBody}"
                                                    FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    TextWrapping="Wrap"/>
                                         <TextBlock Text="{Binding GlassType}"
                                                    FontSize="{StaticResource TextCaption}"
@@ -289,7 +289,7 @@
                 <ItemsControl ItemsSource="{Binding ChargeRows}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border BorderBrush="{DynamicResource OutlineBrush}"
+                            <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
                                     BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                     Padding="8,8">
                                 <StackPanel>
@@ -313,7 +313,7 @@
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,8,0">
                                             <TextBlock Text="{Binding ChargeName}"
                                                        FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                                       Foreground="{DynamicResource TextPrimaryBrush}">
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
                                                         <Style.Triggers>
@@ -394,7 +394,7 @@
                                                        AllowsTransparency="True"
                                                        PopupAnimation="Fade">
                                                     <Border DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=Popup}}"
-                                                            Background="{DynamicResource PopupSurfaceBrush}"
+                                                            Background="{DynamicResource SurfaceOverlayBrush}"
                                                             BorderBrush="{DynamicResource AccentBrush}"
                                                             BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -413,7 +413,7 @@
                                                                             <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
                                                                                       Cursor="Hand"
                                                                                       Margin="0,0,0,6"
-                                                                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                                      Foreground="{DynamicResource TextPrimaryBrush}"
                                                                                       VerticalContentAlignment="Top"
                                                                                       ToolTip="{Binding DisplayName}">
                                                                                 <TextBlock Text="{Binding DisplayName}"
@@ -438,7 +438,7 @@
                                                                                        FontSize="{StaticResource TextBody}"
                                                                                        TextWrapping="Wrap"
                                                                                        Margin="4,3"
-                                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                                                                        ToolTip="{Binding DisplayName}"/>
                                                                         </DataTemplate>
                                                                     </ListBox.ItemTemplate>
@@ -490,7 +490,7 @@
                                                    FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                                         <TextBox Grid.Column="4"
                                                  Text="{Binding Rate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
@@ -571,7 +571,7 @@
 
                 <Border Style="{StaticResource LineItemsFooterStyle}" Margin="0,12,0,0">
                     <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
                                HorizontalAlignment="Right">
                         <Run Text="{DynamicResource ProformaInvoice.WastageAED}"/>
                         <Run Text="{Binding WastagesSection.TotalWastageValue, Converter={StaticResource CurrencyConverter}, Mode=OneWay}"/>

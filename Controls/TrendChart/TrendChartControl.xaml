@@ -99,13 +99,13 @@
                            FontFamily="Segoe MDL2 Assets"
                            FontSize="{StaticResource TextHeadline}"
                            HorizontalAlignment="Center"
-                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                           Foreground="{DynamicResource TextTertiaryBrush}"/>
                 <TextBlock x:Name="EmptyText"
                            Text="No data available for this period."
                            FontSize="{StaticResource TextBody}"
                            Margin="0,7,0,0"
                            HorizontalAlignment="Center"
-                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                           Foreground="{DynamicResource TextTertiaryBrush}"/>
             </StackPanel>
         </Grid>
 
@@ -140,7 +140,7 @@
                                FontSize="{StaticResource TextBodyLarge}"
                                FontWeight="Bold"
                                Margin="0,1,0,0"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                 </StackPanel>
             </Border>
         </Popup>

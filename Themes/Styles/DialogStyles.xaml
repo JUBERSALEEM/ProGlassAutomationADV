@@ -54,7 +54,7 @@
         <Setter Property="Height" Value="42"/>
         <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Background" Value="{DynamicResource DialogInsetBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -64,7 +64,7 @@
     <Style x:Key="DialogTitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextTitle}"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="TextTrimming" Value="None"/>
     </Style>
@@ -82,7 +82,7 @@
     <Style x:Key="DialogFieldLabelStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         <Setter Property="Margin" Value="2,0,0,6"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
@@ -98,7 +98,7 @@
     <!-- Small hint / validation text. -->
     <Style x:Key="DialogHintTextStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="Margin" Value="2,6,0,0"/>
     </Style>
@@ -108,7 +108,7 @@
          hand-rolled variants). -->
     <Style x:Key="DialogSectionCardStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource DialogInsetBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Medium}"/>
         <Setter Property="Padding" Value="14,12"/>
@@ -129,7 +129,7 @@
         <Setter Property="Width" Value="34"/>
         <Setter Property="Height" Value="30"/>
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="Content" Value="&#xE711;"/>
@@ -148,9 +148,9 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Chrome" Property="Background"
-                                    Value="{DynamicResource MenuHoverBrush}"/>
+                                    Value="{DynamicResource SurfaceTertiaryBrush}"/>
                             <Setter Property="Foreground"
-                                    Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                    Value="{DynamicResource TextPrimaryBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Chrome" Property="Background"
@@ -176,7 +176,7 @@
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Template">
@@ -188,7 +188,7 @@
                         <!-- The card: single glass surface + outline + elevation. -->
                         <Border x:Name="PART_Card"
                                 Background="{DynamicResource DialogSurfaceBrush}"
-                                BorderBrush="{DynamicResource OutlineBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                                 Effect="{DynamicResource ShadowElevated}"
@@ -316,21 +316,21 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ToolTip">
-                    <Border Background="{DynamicResource PopupSurfaceBrush}"
-                            BorderBrush="{DynamicResource OutlineBrush}"
+                    <Border Background="{DynamicResource SurfaceOverlayBrush}"
+                            BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="1"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="12,8"
                             MaxWidth="360"
                             SnapsToDevicePixels="True"
                             Effect="{StaticResource Dialog.ToolTipShadow}">
-                        <ContentPresenter TextElement.Foreground="{DynamicResource PrimaryForegroundBrush}"
+                        <ContentPresenter TextElement.Foreground="{DynamicResource TextPrimaryBrush}"
                                           TextElement.FontSize="{StaticResource TextBody}"
                                           TextElement.FontFamily="{DynamicResource AppFontFamily}">
                             <ContentPresenter.Resources>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="TextWrapping" Value="Wrap"/>
-                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                                     <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
                                     <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
                                 </Style>

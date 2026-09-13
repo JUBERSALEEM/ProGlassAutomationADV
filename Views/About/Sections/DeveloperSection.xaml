@@ -39,7 +39,7 @@
                         <TextBlock Text="{Binding Name}"
                                    FontSize="{StaticResource TextCaption}"
                                    FontWeight="SemiBold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    IsHitTestVisible="False"/>
                     </Border>
                 </DataTemplate>
@@ -55,7 +55,7 @@
                         <TextBlock Text="{Binding Title}"
                                    FontSize="{StaticResource TextBody}"
                                    FontWeight="Medium"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    Margin="9,0,0,0"
                                    VerticalAlignment="Center"
                                    TextTrimming="CharacterEllipsis"
@@ -116,7 +116,7 @@
                                 <TextBlock Text="{Binding DeveloperName}"
                                            FontSize="{StaticResource TextHeadline}"
                                            FontWeight="Bold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextWrapping="Wrap"
                                            IsHitTestVisible="False"/>
                                 <TextBlock Text="{DynamicResource About.PrincipalDeveloperProductDesignWorkflow}"
@@ -176,7 +176,7 @@
                                 <TextBlock Text="{DynamicResource About.Version}" FontSize="9" FontWeight="Bold"
                                            Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
                                 <TextBlock Text="{Binding Version}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,3,0,0"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0"/>
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource AboutSectionPanelStyle}" Margin="0,0,0,10" Padding="14,12">
@@ -184,7 +184,7 @@
                                 <TextBlock Text="{DynamicResource About.Build}" FontSize="9" FontWeight="Bold"
                                            Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
                                 <TextBlock Text="{Binding Build}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,3,0,0"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0"/>
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource AboutSectionPanelStyle}" Margin="0,10,10,0" Padding="14,12">
@@ -192,7 +192,7 @@
                                 <TextBlock Text="{DynamicResource About.Edition}" FontSize="9" FontWeight="Bold"
                                            Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
                                 <TextBlock Text="{Binding LicenseStatus.EditionDisplay}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource AboutSectionPanelStyle}" Margin="0,10,0,0" Padding="14,12">
@@ -200,7 +200,7 @@
                                 <TextBlock Text="{DynamicResource Common.Status}" FontSize="9" FontWeight="Bold"
                                            Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
                                 <TextBlock Text="{Binding LicenseStatus.StatusBadge}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                         </Border>
                     </UniformGrid>
@@ -260,7 +260,7 @@
                                    Foreground="{DynamicResource AboutGlassCaptionBrush}" VerticalAlignment="Center"/>
                         <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="Clean Code" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Text="Readable and maintainable" FontSize="{StaticResource TextCaption}"
                                        Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
                         </StackPanel>
@@ -270,7 +270,7 @@
                                    Foreground="{DynamicResource AboutGlassCaptionBrush}" VerticalAlignment="Center"/>
                         <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="Test Driven" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Text="Unit tests always" FontSize="{StaticResource TextCaption}"
                                        Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
                         </StackPanel>
@@ -280,7 +280,7 @@
                                    Foreground="{DynamicResource AboutGlassCaptionBrush}" VerticalAlignment="Center"/>
                         <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="Continuous" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Text="Deployment automated" FontSize="{StaticResource TextCaption}"
                                        Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
                         </StackPanel>
@@ -305,7 +305,7 @@
                            FontWeight="Bold"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Copyright}"
                            FontSize="{StaticResource TextCaption}"

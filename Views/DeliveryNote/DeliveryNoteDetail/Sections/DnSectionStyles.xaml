@@ -11,7 +11,7 @@
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="0,4,0,0"/>
             <Setter Property="Foreground"
-                    Value="{DynamicResource MutedForegroundBrush}"/>
+                    Value="{DynamicResource TextTertiaryBrush}"/>
         </Style>
         <Style x:Key="HistoryRowButtonStyle" TargetType="Button">
             <Setter Property="Cursor" Value="Hand"/>
@@ -47,7 +47,7 @@
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Foreground"
-                    Value="{DynamicResource PrimaryForegroundBrush}"/>
+                    Value="{DynamicResource TextPrimaryBrush}"/>
         </Style>
 <Style x:Key="CompactStatUnitStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
@@ -60,14 +60,14 @@
             <Setter Property="FontSize" Value="{StaticResource TextXSmall}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground"
-                    Value="{DynamicResource MutedForegroundBrush}"/>
+                    Value="{DynamicResource TextTertiaryBrush}"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="TextAlignment" Value="Center"/>
             <Setter Property="Margin" Value="0,5,0,2"/>
         </Style>
         <Style x:Key="CumulativeSeparatorStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Width" Value="1"/>
-            <Setter Property="Background" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BorderDefaultBrush}"/>
             <Setter Property="Opacity" Value="0.5"/>
             <Setter Property="Margin" Value="0,4"/>
         </Style>
@@ -77,7 +77,7 @@
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="TextAlignment" Value="Center"/>
             <Setter Property="Foreground"
-                    Value="{DynamicResource PrimaryForegroundBrush}"/>
+                    Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="Margin" Value="0,0,0,5"/>
         </Style>
         <Style x:Key="DeliveredQtyReadOnlyStyle" TargetType="TextBlock"
@@ -116,7 +116,7 @@
         </Style>
         
         <Style x:Key="DifferentDnWarningStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
             <Setter Property="BorderThickness" Value="1.5"/>
             <Setter Property="Padding" Value="12,8"/>
             <Setter Property="Margin" Value="10,10,10,0"/>
@@ -154,7 +154,7 @@
             <Setter Property="CornerRadius" Value="10"/>
             <Setter Property="BorderThickness" Value="1.5"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsSelected}" Value="True">
@@ -175,7 +175,7 @@
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground"
-                    Value="{DynamicResource PrimaryForegroundBrush}"/>
+                    Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsCurrentDn}" Value="True">
@@ -222,7 +222,7 @@
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground"
-                    Value="{DynamicResource PrimaryForegroundBrush}"/>
+                    Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="Text" Value="DELIVERY ITEMS"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsMasterDn}" Value="True">
@@ -261,8 +261,8 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
         <Style x:Key="MasterHeroStripStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-            <Setter Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfaceElevatedBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="16,16,0,0"/>
             <Setter Property="Padding" Value="12,8"/>
@@ -284,7 +284,7 @@
         <Style x:Key="OptionalDimStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
             <Setter Property="TextAlignment" Value="Right"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -335,7 +335,7 @@
                                 <Setter TargetName="Bg" Property="Background"
                                         Value="{DynamicResource BorderBrush}"/>
                                 <Setter Property="Foreground"
-                                        Value="{DynamicResource MutedForegroundBrush}"/>
+                                        Value="{DynamicResource TextTertiaryBrush}"/>
                                 <Setter Property="Cursor" Value="Arrow"/>
                             </Trigger>
                         </ControlTemplate.Triggers>

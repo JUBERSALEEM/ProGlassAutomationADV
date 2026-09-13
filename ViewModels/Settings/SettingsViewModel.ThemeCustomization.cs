@@ -64,8 +64,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// <summary>Family gate — the Crystal Fluid material axes are only
         /// shown while the Ios-17pm family is active. Normal/Monet keep
         /// their existing Appearance controls.</summary>
-        public bool IsCrystalThemeActive =>
-            SelectedVisualTheme == VisualThemeEngine.CrystalFluid;
+        public bool IsCrystalThemeActive => false;
 
         /// <summary>Identity of the last preset that wrote the axes
         /// ("Default" | "Calm" | "Intense"), or "" after a manual tweak.

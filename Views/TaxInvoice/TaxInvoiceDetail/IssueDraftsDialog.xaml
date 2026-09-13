@@ -33,7 +33,7 @@
             <ItemsControl x:Name="DraftList">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border BorderBrush="{DynamicResource OutlineBrush}"
+                        <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                 Padding="4,10">
                             <Grid>
@@ -51,7 +51,7 @@
                                         <TextBlock Text="{Binding InvoiceNumber}"
                                                    FontSize="{StaticResource TextBodyLarge}"
                                                    FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         <Border CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Padding="6,1" Margin="8,0,0,0"
                                                 Background="{DynamicResource TintAmberBrush}"
@@ -59,7 +59,7 @@
                                                 Visibility="{Binding IsCurrent, Converter={StaticResource BoolToVisibilityConverter}}">
                                             <TextBlock Text="{DynamicResource TaxInvoice.Invoice}"
                                                        FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         </Border>
                                     </StackPanel>
                                     <TextBlock FontSize="{StaticResource TextCaption}"

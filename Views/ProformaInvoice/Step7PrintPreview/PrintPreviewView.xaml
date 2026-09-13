@@ -61,8 +61,8 @@
                            AllowsTransparency="True"
                            StaysOpen="True"
                            PopupAnimation="Fade">
-                        <Border Background="{DynamicResource PopupSurfaceBrush}"
-                                BorderBrush="{DynamicResource OutlineBrush}"
+                        <Border Background="{DynamicResource SurfaceOverlayBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="1"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="6"
@@ -115,7 +115,7 @@
 
         <Border Grid.Column="2"
                 Background="{DynamicResource Print.Paper}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 CornerRadius="{DynamicResource CardCornerRadius}"
                 Padding="16"
@@ -134,7 +134,7 @@
                 -->
                 <Border DockPanel.Dock="Top"
                         Background="{DynamicResource SurfaceBrush}"
-                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="1"
                         CornerRadius="{DynamicResource ControlCornerRadius}"
                         Padding="10,8"

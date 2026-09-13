@@ -67,7 +67,7 @@
                                Style="{StaticResource CardLabelStyle}"
                                Margin="0,0,0,8"/>
                     <Border Style="{StaticResource ModuleListKpiStripStyle}"
-                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
                             Margin="0,0,0,12">
@@ -86,7 +86,7 @@
                                 <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource CardLabelStyle}"/>
                                 <TextBlock Text="{Binding InvoiceSnapshot.Company.CompanyName, FallbackValue=—}"
                                            FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextTrimming="CharacterEllipsis"/>
                                 <TextBlock FontSize="{StaticResource TextBody}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -101,7 +101,7 @@
                                 <TextBlock Text="{DynamicResource JobOrder.Client}" Style="{StaticResource CardLabelStyle}"/>
                                 <TextBlock Text="{Binding InvoiceSnapshot.Client.CustomerName, FallbackValue=—}"
                                            FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextTrimming="CharacterEllipsis"/>
                                 <TextBlock FontSize="{StaticResource TextBody}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -116,7 +116,7 @@
                                 <TextBlock Text="{DynamicResource Common.Project}" Style="{StaticResource CardLabelStyle}"/>
                                 <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectIdentifierName, FallbackValue=—}"
                                            FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextTrimming="CharacterEllipsis"/>
                                 <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectReference, FallbackValue=—}"
                                            FontSize="{StaticResource TextBody}"
@@ -142,7 +142,7 @@
                                Margin="0,0,0,4"/>
                     <TextBlock Text="{DynamicResource JobOrder.ProductionTicketSizesQtySQMTotalSQM}"
                                FontSize="{StaticResource TextCaption}"
-                               Foreground="{DynamicResource MutedForegroundBrush}"
+                               Foreground="{DynamicResource TextTertiaryBrush}"
                                Margin="0,0,0,8"/>
 
                     <ItemsControl ItemsSource="{Binding InvoiceSnapshot.SpecGroups}">
@@ -151,7 +151,7 @@
                                 <Border Style="{StaticResource SpecGroupCardStyle}">
                                     <StackPanel>
 
-                                        <Border Background="{DynamicResource MenuHoverBrush}"
+                                        <Border Background="{DynamicResource SurfaceTertiaryBrush}"
                                                 Padding="12,6"
                                                 BorderBrush="{DynamicResource DividerBrush}"
                                                 BorderThickness="{DynamicResource Border.BottomHairlineThickness}">
@@ -168,7 +168,7 @@
                                                 </Border>
                                                 <TextBlock Text="{Binding SelectedSpecName, FallbackValue=—}"
                                                            FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                                            VerticalAlignment="Center"
                                                            TextTrimming="CharacterEllipsis"/>
                                             </StackPanel>

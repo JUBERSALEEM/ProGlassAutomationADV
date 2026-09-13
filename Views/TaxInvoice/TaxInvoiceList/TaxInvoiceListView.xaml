@@ -29,7 +29,7 @@
                     <Style TargetType="Border" BasedOn="{StaticResource ModuleListRowStyle}">
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
                             </Trigger>
                             <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                 <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
@@ -72,9 +72,9 @@
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,8,8,8">
                         <TextBlock Text="{Binding ProformaId}"
                                    FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <TextBlock FontSize="{StaticResource TextCaption}" Margin="0,3,0,0"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"
                                    TextTrimming="CharacterEllipsis">
                             <Run Text="{DynamicResource DeliveryNote.Latest}"/><Run Text="{Binding LatestIssueDateDisplay, Mode=OneWay}"/>
                             <Run Text="  ·  "/><Run Text="{Binding LatestInvoiceNumber, Mode=OneWay}"/>
@@ -85,7 +85,7 @@
                     <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="8,0">
                         <TextBlock Text="{Binding CustomerName}"
                                    FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    TextTrimming="CharacterEllipsis"/>
                         <TextBlock Text="{Binding ProjectName}"
                                    FontSize="{StaticResource TextBody}" Margin="0,2,0,0"
@@ -95,14 +95,14 @@
 
                     <Border Grid.Column="3"
                             Background="{DynamicResource TintGrayBrush}"
-                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="8,3"
                             VerticalAlignment="Center"
                             HorizontalAlignment="Center">
                         <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                   Foreground="{DynamicResource TextPrimaryBrush}">
                             <Run Text="{Binding InvoiceCount, Mode=OneWay}"/>
                             <Run Text="{DynamicResource Reports.Inv}"/>
                         </TextBlock>
@@ -110,7 +110,7 @@
 
                     <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="8,0">
                         <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    Margin="0,0,0,4">
                             <Run Text="{Binding ProgressPercent, Mode=OneWay, StringFormat={}{0:0.#}}"/>
                             <Run Text="%"/>
@@ -347,14 +347,14 @@
                         <TextBlock Grid.Column="0"
                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    VerticalAlignment="Center" Margin="0,0,10,0"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    Text="{DynamicResource TaxInvoice.Selected}"/>
                         <TextBlock Grid.Column="1"
                                    Text="{Binding SelectedFamilyMetaLine}"
                                    FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                    VerticalAlignment="Center"
                                    TextTrimming="CharacterEllipsis"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <Button Grid.Column="2" Style="{StaticResource RowOutlinedButton}"
                                 Tag="&#xE711;" Content="{DynamicResource Action.Clear}"
                                 ToolTip="{DynamicResource TaxInvoice.ClearSelection}"

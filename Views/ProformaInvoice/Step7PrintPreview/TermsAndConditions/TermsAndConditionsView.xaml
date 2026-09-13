@@ -21,8 +21,8 @@
     <UserControl.Resources>
         <Style x:Key="InputBoxStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="8,4"/>
@@ -53,7 +53,7 @@
         <ItemsControl ItemsSource="{Binding Clauses}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate DataType="{x:Type models:TermClause}">
-                    <Border BorderBrush="{DynamicResource OutlineBrush}"
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="0,0,0,1"
                             Padding="0,8">
                         <StackPanel>

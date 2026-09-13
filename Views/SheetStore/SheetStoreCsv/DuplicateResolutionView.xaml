@@ -36,13 +36,13 @@
         <Style x:Key="RowLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Padding" Value="12,10"/>
         </Style>
         <Style x:Key="RowValue" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Padding" Value="12,10"/>
@@ -66,20 +66,20 @@
 
         <!-- Sheet identity -->
         <Border Grid.Row="1"
-                Background="{DynamicResource MenuHoverBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                Background="{DynamicResource SurfaceTertiaryBrush}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,10" Margin="0,0,0,16"
                 SnapsToDevicePixels="True">
             <TextBlock Text="{Binding SheetLabel}"
                        FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
-                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                       Foreground="{DynamicResource TextPrimaryBrush}"/>
         </Border>
 
         <!-- Comparison grid -->
         <Border Grid.Row="2"
                 Background="{DynamicResource DialogInsetBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 CornerRadius="{DynamicResource CardCornerRadius}" Padding="0"
                 SnapsToDevicePixels="True">
@@ -99,11 +99,11 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Headers -->
-                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="0" Grid.Column="0"
-                        Background="{DynamicResource MenuHoverBrush}"
+                <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="0" Grid.Column="0"
+                        Background="{DynamicResource SurfaceTertiaryBrush}"
                         Padding="10,10" CornerRadius="{DynamicResource Radius.Medium}">
                     <TextBlock Text="{DynamicResource SheetStore.Field}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                               Foreground="{DynamicResource MutedForegroundBrush}"
+                               Foreground="{DynamicResource TextTertiaryBrush}"
                                HorizontalAlignment="Center"/>
                 </Border>
                 <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0" Grid.Column="1" Background="{DynamicResource AccentBrush}" Padding="10,10">
@@ -196,7 +196,7 @@
                   Content="{DynamicResource SheetStore.ApplyActionRemainingDuplicates}"
                   IsChecked="{Binding ApplyToRemaining, Mode=TwoWay}"
                   FontSize="{StaticResource TextBody}"
-                  Foreground="{DynamicResource PrimaryForegroundBrush}"
+                  Foreground="{DynamicResource TextPrimaryBrush}"
                   Margin="0,16,0,12"
                   Cursor="Hand"/>
 

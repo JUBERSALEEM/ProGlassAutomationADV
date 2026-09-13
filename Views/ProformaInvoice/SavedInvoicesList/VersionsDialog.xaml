@@ -34,7 +34,7 @@
                    FontSize="{StaticResource TextBody}" FontStyle="Italic"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
-                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                   Foreground="{DynamicResource TextTertiaryBrush}"/>
 
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
@@ -42,7 +42,7 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border CornerRadius="{DynamicResource CardCornerRadius}"
-                                BorderBrush="{DynamicResource OutlineBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                 Padding="2,10">
                             <Grid>
@@ -69,7 +69,7 @@
                                             VerticalAlignment="Center">
                                     <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                TextWrapping="Wrap"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                               Foreground="{DynamicResource TextPrimaryBrush}">
                                         <Run Text="{DynamicResource About.Version}"/>
                                         <Run Text="{Binding VersionNo, Mode=OneWay}"/>
                                         <Run Text=" — "/>

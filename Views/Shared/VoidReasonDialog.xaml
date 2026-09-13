@@ -38,7 +38,7 @@
 
         <Border Grid.Row="1"
                 Background="{DynamicResource WindowBackgroundBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 CornerRadius="{DynamicResource ControlCornerRadius}">
             <TextBox x:Name="ReasonTextBox"
@@ -47,7 +47,7 @@
                      BorderThickness="0"
                      Padding="12,10"
                      FontSize="{StaticResource TextSection}"
-                     Foreground="{DynamicResource PrimaryForegroundBrush}"
+                     Foreground="{DynamicResource TextPrimaryBrush}"
                      TextWrapping="Wrap"
                      AcceptsReturn="True"
                      VerticalScrollBarVisibility="Auto"

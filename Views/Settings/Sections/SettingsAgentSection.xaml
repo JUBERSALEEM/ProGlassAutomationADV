@@ -325,7 +325,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border CornerRadius="{DynamicResource CardCornerRadius}"
-                                                BorderBrush="{DynamicResource OutlineBrush}"
+                                                BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                 BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                                 Padding="0,10">
                                             <Grid>
@@ -339,7 +339,7 @@
                                                                FontSize="{StaticResource TextBody}"
                                                                FontWeight="SemiBold"
                                                                TextTrimming="CharacterEllipsis"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                     <TextBlock Text="{Binding StatusDisplay}"
                                                                FontSize="{StaticResource TextCaption}"
                                                                Margin="0,3,0,0">

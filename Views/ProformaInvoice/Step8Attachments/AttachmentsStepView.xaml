@@ -113,7 +113,7 @@
                     <ItemsControl ItemsSource="{Binding Attachments}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border BorderBrush="{DynamicResource OutlineBrush}"
+                                <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
                                         BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                         Padding="10,8">
                                     <Grid>
@@ -132,7 +132,7 @@
                                         <TextBlock Grid.Column="1"
                                                    Text="{Binding FileName}"
                                                    FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    TextTrimming="CharacterEllipsis"
                                                    VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="2"

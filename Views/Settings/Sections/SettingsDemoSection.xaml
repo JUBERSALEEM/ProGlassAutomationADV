@@ -461,7 +461,7 @@
                                     <DataTemplate>
                                         <StackPanel Margin="0,0,0,10">
                                             <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                                       Foreground="{DynamicResource TextPrimaryBrush}">
                                                 <Run Text="{Binding Module, Mode=OneWay}"/>
                                                 <Run Text=" · "/>
                                                 <Run Text="{Binding State, Mode=OneWay}"/>

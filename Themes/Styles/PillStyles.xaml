@@ -18,7 +18,7 @@
     <Style x:Key="PillTextDarkStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
     </Style>
 
@@ -75,7 +75,7 @@
     <Style x:Key="OutlinePillStyle" TargetType="Border"
            BasedOn="{StaticResource StatusPillBaseStyle}">
         <Setter Property="Background"      Value="Transparent"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
@@ -84,7 +84,7 @@
         <Setter Property="CornerRadius"        Value="12"/>
         <Setter Property="Padding"             Value="10,3"/>
         <Setter Property="Background"          Value="{DynamicResource TintGrayBrush}"/>
-        <Setter Property="BorderBrush"         Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderBrush"         Value="{DynamicResource BorderDefaultBrush}"/>
         <Setter Property="BorderThickness"     Value="1"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="VerticalAlignment"   Value="Center"/>
@@ -94,7 +94,7 @@
     <Style x:Key="TagPillTextStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
     </Style>
 
     <!-- Trending badge (small pill with arrow + percentage) -->

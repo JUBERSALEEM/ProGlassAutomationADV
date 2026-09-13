@@ -50,7 +50,9 @@
     <DynamicResource x:Key="SurfacePopupBrush"     ResourceKey="PopupSurfaceBrush"/>
     <DynamicResource x:Key="SurfaceSidebarBrush"   ResourceKey="SideMenuBackgroundBrush"/>
 
-    <!-- ── LEVEL 2 · SEMANTIC TEXT ──────────────────────────────────── -->
+    <!-- ── LEVEL 2 · SEMANTIC TEXT ────────────────────────────────────
+         TextPrimaryBrush / TextSecondaryBrush already exist in Light/Dark
+         themes — do NOT redeclare. Only fill the missing muted alias. -->
     <DynamicResource x:Key="TextMutedBrush" ResourceKey="MutedForegroundBrush"/>
 
     <!-- ── LEVEL 2 · SEMANTIC BORDERS / DIVIDERS ────────────────────── -->
@@ -67,6 +69,7 @@
          CardCornerRadiusLarge) so a theme family can change the whole
          radius hierarchy in one place; RadiusCompact rides the fixed fine
          scale; RadiusPill is the 999 capsule.                                -->
+    <DynamicResource x:Key="RadiusNone"    ResourceKey="Radius.None"/>
     <DynamicResource x:Key="RadiusCompact" ResourceKey="Radius.Small"/>
     <DynamicResource x:Key="RadiusControl" ResourceKey="ControlCornerRadius"/>
     <DynamicResource x:Key="RadiusCard"    ResourceKey="CardCornerRadius"/>
@@ -84,5 +87,6 @@
     <sys:String x:Key="Motion.Standard">0:0:0.2</sys:String>
     <sys:String x:Key="Motion.Slow">0:0:0.35</sys:String>
     <sys:String x:Key="Motion.Emphasis">0:0:0.5</sys:String>
+    <sys:Boolean x:Key="ReducedMotion">False</sys:Boolean>
 
 </ResourceDictionary>

@@ -150,6 +150,25 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                     }
                 }
 
+                // Retired fourth family — always fold to Crystal so
+                // navigation does not paint a dead Ios26 path.
+                if (string.Equals(config.Appearance.VisualTheme,
+                        VisualThemeEngine.Ios26,
+                        StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(config.Appearance.VisualTheme,
+                        "iOS 26", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(config.Appearance.VisualTheme,
+                        VisualThemeEngine.CrystalFluid,
+                        StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(config.Appearance.VisualTheme,
+                        "Crystal", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(config.Appearance.VisualTheme,
+                        "Crystal Fluid", StringComparison.OrdinalIgnoreCase))
+                {
+                    config.Appearance.VisualTheme =
+                        VisualThemeEngine.NormalIndustrial;
+                }
+
                 config.Ai ??= new AiSettings();
                 config.ProformaInvoiceFields ??= new ProformaInvoiceFeatureFlags();
                 config.InquiryFields ??= new InquiryFeatureFlags();

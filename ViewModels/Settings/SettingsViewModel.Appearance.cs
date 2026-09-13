@@ -235,7 +235,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// </summary>
         public List<string> DisplayDensityOptions { get; } = new()
         {
-            "Compact", "Normal", "Comfortable"
+            "Compact", "Normal", "Comfortable", "Spacious"
         };
 
         public List<string> PdfLayoutOptions { get; } = new()
@@ -256,7 +256,8 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 if (_config?.Appearance == null) return;
                 string v = string.IsNullOrWhiteSpace(value) ? "Glass" : value.Trim();
-                if (v is not ("Glass" or "Solid" or "Transparent")) v = "Glass";
+                var material = ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine.ParseMaterial(v);
+                v = ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine.PersistMaterial(material);
                 if (_config.Appearance.SurfaceMaterialMode == v) return;
                 _config.Appearance.SurfaceMaterialMode = v;
                 ThemeManager.ApplySemanticSurfaces(_config.Appearance);

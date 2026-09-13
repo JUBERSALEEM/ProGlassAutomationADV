@@ -19,7 +19,7 @@
                            FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                            HorizontalAlignment="Center"
                            Typography.NumeralAlignment="Tabular"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock x:Name="CenterLabel"
                            FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
                            HorizontalAlignment="Center"
@@ -34,13 +34,13 @@
                            FontFamily="Segoe MDL2 Assets"
                            FontSize="{StaticResource TextTitleLarge}"
                            HorizontalAlignment="Center"
-                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                           Foreground="{DynamicResource TextTertiaryBrush}"/>
                 <TextBlock x:Name="EmptyText"
                            Text="No data"
                            FontSize="{StaticResource TextBody}"
                            Margin="0,6,0,0"
                            HorizontalAlignment="Center"
-                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                           Foreground="{DynamicResource TextTertiaryBrush}"/>
             </StackPanel>
         </Grid>
 

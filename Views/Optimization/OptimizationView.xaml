@@ -16,71 +16,18 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <!-- ═══ Root: left rail + content ═══════════════════════════════ -->
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="224"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-
-        <!-- ══ LEFT VERTICAL NAVIGATION RAIL ══════════════════════════ -->
-        <Border Grid.Column="0" Background="{DynamicResource SideMenuBackgroundBrush}"
-                BorderBrush="{DynamicResource GlassBorderGradientSoft}" BorderThickness="0,0,1,0">
-            <DockPanel>
-                <!-- Brand -->
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="18,22,18,24">
-                    <Border Width="34" Height="34" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource AccentBrush}"
-                            VerticalAlignment="Center">
-                        <TextBlock Text="&#xE80A;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitle}"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="PROGLASS" FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Text="OPTIMIZATION" FontSize="{StaticResource TextXSmall}" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource AccentBrush}"/>
-                    </StackPanel>
-                </StackPanel>
-
-                <!-- Tabs -->
-                <StackPanel DockPanel.Dock="Top" Margin="12,0,12,12">
-                    <TextBlock Text="CUTTING" Style="{StaticResource OptHeader}" Margin="8,0,0,10"/>
-                    <RadioButton GroupName="OptTabs" Tag="&#xE821;" Content="JOBS"
-                                 IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"
-                                 Style="{StaticResource OptRailTab}"/>
-                    <RadioButton GroupName="OptTabs" Tag="&#xE8A7;" Content="SIZES"
-                                 IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=1}"
-                                 Style="{StaticResource OptRailTab}"/>
-                    <RadioButton GroupName="OptTabs" Tag="&#xE7B8;" Content="STOCKS"
-                                 IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=2}"
-                                 Style="{StaticResource OptRailTab}"/>
-                    <RadioButton GroupName="OptTabs" Tag="&#xE713;" Content="SETTINGS"
-                                 IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}"
-                                 Style="{StaticResource OptRailTab}"/>
-                    <RadioButton GroupName="OptTabs" Tag="&#xE9D9;" Content="SUMMARY"
-                                 IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=4}"
-                                 Style="{StaticResource OptRailTab}"/>
-                    <RadioButton GroupName="OptTabs" Tag="&#xE80A;" Content="2D VIEW"
-                                 IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=5}"
-                                 Style="{StaticResource OptRailTab}"/>
-                    <RadioButton GroupName="OptTabs" Tag="&#xE9F9;" Content="REPORT"
-                                 IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=6}"
-                                 Style="{StaticResource OptRailTab}"/>
-                </StackPanel>
-            </DockPanel>
-        </Border>
-
-        <!-- ══ CONTENT ════════════════════════════════════════════════ -->
-        <Grid Grid.Column="1" Margin="22,20,22,22">
+    <!-- Full-width module: hamburger owns the app menu; tabs sit in the header. -->
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+        <Grid Margin="12,8,12,12">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
             <!-- ── Header: title + engine controls ── -->
-            <Grid Grid.Row="0" Margin="0,0,0,16">
+            <Grid Grid.Row="0" Margin="0,0,0,12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
@@ -88,7 +35,7 @@
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="OPTIMIZATION" Style="{StaticResource ModulePageTitleStyle}"/>
                     <TextBlock Text="Cutting plans that minimize waste — pieces in, sheets out, verified layouts."
-                               FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                               FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                     <TextBlock Text="{Binding RunMessage}" FontSize="{StaticResource TextBody}"
                                FontWeight="SemiBold" Foreground="{DynamicResource WarningBrush}"
                                TextWrapping="Wrap" Margin="0,4,0,0"
@@ -110,8 +57,32 @@
                 </StackPanel>
             </Grid>
 
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+                <RadioButton GroupName="OptTabs" Tag="&#xE821;" Content="JOBS"
+                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"
+                             Style="{StaticResource OptRailTab}" Margin="0,0,8,0"/>
+                <RadioButton GroupName="OptTabs" Tag="&#xE8A7;" Content="SIZES"
+                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=1}"
+                             Style="{StaticResource OptRailTab}" Margin="0,0,8,0"/>
+                <RadioButton GroupName="OptTabs" Tag="&#xE7B8;" Content="STOCKS"
+                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=2}"
+                             Style="{StaticResource OptRailTab}" Margin="0,0,8,0"/>
+                <RadioButton GroupName="OptTabs" Tag="&#xE713;" Content="SETTINGS"
+                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}"
+                             Style="{StaticResource OptRailTab}" Margin="0,0,8,0"/>
+                <RadioButton GroupName="OptTabs" Tag="&#xE9D9;" Content="SUMMARY"
+                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=4}"
+                             Style="{StaticResource OptRailTab}" Margin="0,0,8,0"/>
+                <RadioButton GroupName="OptTabs" Tag="&#xE80A;" Content="2D VIEW"
+                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=5}"
+                             Style="{StaticResource OptRailTab}" Margin="0,0,8,0"/>
+                <RadioButton GroupName="OptTabs" Tag="&#xE9F9;" Content="REPORT"
+                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=6}"
+                             Style="{StaticResource OptRailTab}"/>
+            </StackPanel>
+
             <!-- ── KPI card strip ── -->
-            <Grid Grid.Row="1" Margin="0,0,0,16">
+            <Grid Grid.Row="2" Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
@@ -213,7 +184,7 @@
             </Grid>
 
             <!-- ══ TAB CONTENT ══════════════════════════════════════════ -->
-            <Grid Grid.Row="2">
+            <Grid Grid.Row="3">
                 <tabs:JobsTabView/>
                 <tabs:SizesTabView/>
                 <tabs:StocksTabView/>

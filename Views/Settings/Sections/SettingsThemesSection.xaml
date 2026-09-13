@@ -336,8 +336,8 @@
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="{DynamicResource Settings.CrystalPreviewHint}"/>
                             <Border CornerRadius="{DynamicResource CardCornerRadius}"
-                                    Background="{DynamicResource ElevatedSurfaceBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}"
+                                    Background="{DynamicResource SurfaceSecondaryBrush}"
+                                    BorderBrush="{DynamicResource BorderDefaultBrush}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     Margin="0,8,0,0"
                                     Height="150"

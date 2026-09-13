@@ -11,14 +11,14 @@
     <Style x:Key="CrashFieldLabel" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         <Setter Property="VerticalAlignment" Value="Top"/>
         <Setter Property="Margin"     Value="0,0,0,4"/>
     </Style>
 
     <Style x:Key="CrashFieldValue" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="VerticalAlignment" Value="Top"/>
         <Setter Property="Margin"     Value="0,0,0,4"/>
     </Style>
@@ -73,7 +73,7 @@
     <Style x:Key="CrashGhostButton" TargetType="Button"
            BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding"    Value="14,8"/>
         <Setter Property="Cursor"     Value="Hand"/>

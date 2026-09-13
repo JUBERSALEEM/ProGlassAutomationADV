@@ -16,8 +16,8 @@
     <UserControl.Resources>
         <Style x:Key="RowInputStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
@@ -32,8 +32,8 @@
         </Style>
         <Style x:Key="SourceToggleButtonStyle" TargetType="ToggleButton">
             <Setter Property="Height" Value="28"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
@@ -123,7 +123,7 @@
         <ItemsControl ItemsSource="{Binding WastageRows}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border BorderBrush="{DynamicResource OutlineBrush}"
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                             Padding="8,6">
                         <StackPanel>
@@ -211,7 +211,7 @@
                                            AllowsTransparency="True"
                                            PopupAnimation="Fade">
                                         <Border DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=Popup}}"
-                                                Background="{DynamicResource PopupSurfaceBrush}"
+                                                Background="{DynamicResource SurfaceOverlayBrush}"
                                                 BorderBrush="{DynamicResource AccentBrush}"
                                                 BorderThickness="{DynamicResource Border.StrongThickness}"
                                                 CornerRadius="{DynamicResource CardCornerRadius}"
@@ -263,7 +263,7 @@
                                                                                     <TextBlock Text="{Binding SourceDisplayLabel}"
                                                                                                FontSize="{StaticResource TextBody}"
                                                                                                FontWeight="SemiBold"
-                                                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                                               Foreground="{DynamicResource TextPrimaryBrush}"
                                                                                                TextTrimming="CharacterEllipsis"/>
                                                                                     <!-- Colour badge vs the row colour:
                                                                                          ✓ same glass, ⚠ different glass.
@@ -329,7 +329,7 @@
                                            FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 <TextBox Grid.Column="4"
                                          Text="{Binding Rate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.####}}"
                                          Style="{StaticResource RateInputStyle}"
@@ -351,7 +351,7 @@
                                            AllowsTransparency="True"
                                            PopupAnimation="Fade">
                                         <Border DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=Popup}}"
-                                                Background="{DynamicResource PopupSurfaceBrush}"
+                                                Background="{DynamicResource SurfaceOverlayBrush}"
                                                 BorderBrush="{DynamicResource AccentBrush}"
                                                 BorderThickness="{DynamicResource Border.StrongThickness}"
                                                 CornerRadius="{DynamicResource CardCornerRadius}"

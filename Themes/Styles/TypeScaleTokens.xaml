@@ -44,4 +44,20 @@
     <sys:Double x:Key="TextDisplay">24</sys:Double>
     <sys:Double x:Key="TextDisplayLarge">28</sys:Double>
 
+    <!-- Canonical typography roles (master prompt). Aliases only —
+         values stay on the Text* scale so Appearance density can still
+         override Density* independently. -->
+    <sys:Double x:Key="Type.Caption">12</sys:Double>
+    <sys:Double x:Key="Type.Small">12</sys:Double>
+    <sys:Double x:Key="Type.Body">13</sys:Double>
+    <sys:Double x:Key="Type.BodyLarge">14</sys:Double>
+    <sys:Double x:Key="Type.Section">15</sys:Double>
+    <sys:Double x:Key="Type.Title">18</sys:Double>
+    <sys:Double x:Key="Type.H2">20</sys:Double>
+    <sys:Double x:Key="Type.H1">22</sys:Double>
+    <sys:Double x:Key="Type.Display">24</sys:Double>
+    <sys:Double x:Key="Type.NumericValue">24</sys:Double>
+    <sys:Double x:Key="Type.Money">24</sys:Double>
+    <FontFamily x:Key="Type.Code">Consolas</FontFamily>
+
 </ResourceDictionary>

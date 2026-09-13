@@ -77,8 +77,8 @@
                 <ControlTemplate TargetType="TextBox">
                     <Border x:Name="Chrome"
                             CornerRadius="{DynamicResource Radius.Medium}"
-                            Background="{DynamicResource GlassSurfaceBrush}"
-                            BorderBrush="{DynamicResource GlassBorderSoft}"
+                            Background="{DynamicResource SurfacePrimaryBrush}"
+                            BorderBrush="{DynamicResource BorderSubtleBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
                             SnapsToDevicePixels="True">
                         <Grid>
@@ -104,11 +104,11 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
-                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource SurfaceElevatedBrush}"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Chrome" Property="Opacity" Value="0.5"/>
@@ -130,8 +130,8 @@
                 <ControlTemplate TargetType="PasswordBox">
                     <Border x:Name="Chrome"
                             CornerRadius="{DynamicResource Radius.Medium}"
-                            Background="{DynamicResource GlassSurfaceBrush}"
-                            BorderBrush="{DynamicResource GlassBorderSoft}"
+                            Background="{DynamicResource SurfacePrimaryBrush}"
+                            BorderBrush="{DynamicResource BorderSubtleBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
                             SnapsToDevicePixels="True">
                         <Grid>
@@ -157,11 +157,11 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
-                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource SurfaceElevatedBrush}"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Chrome" Property="Opacity" Value="0.5"/>
@@ -186,8 +186,8 @@
                         <Border x:Name="Box"
                                 Width="18" Height="18"
                                 CornerRadius="{DynamicResource Radius.Small}"
-                                Background="{DynamicResource GlassSurfaceBrush}"
-                                BorderBrush="{DynamicResource GlassBorderSoft}"
+                                Background="{DynamicResource SurfacePrimaryBrush}"
+                                BorderBrush="{DynamicResource BorderSubtleBrush}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 VerticalAlignment="Center"
                                 SnapsToDevicePixels="True">
@@ -206,11 +206,11 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="Glyph" Property="Visibility" Value="Visible"/>
-                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
-                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource SurfaceElevatedBrush}"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

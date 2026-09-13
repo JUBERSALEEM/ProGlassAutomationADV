@@ -52,7 +52,7 @@
     </UserControl.Resources>
 
     <Grid Margin="{DynamicResource DensityPageMargin}"
-          Background="{DynamicResource ModuleBackgroundBrush}">
+          Background="{DynamicResource SurfacePrimaryBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -93,7 +93,7 @@
                                VerticalAlignment="Center"
                                Margin="12,0,0,0"
                                FontSize="{StaticResource TextBody}"
-                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                               Foreground="{DynamicResource TextTertiaryBrush}"/>
                 </StackPanel>
 
                 <!-- All document actions + invoice value -->

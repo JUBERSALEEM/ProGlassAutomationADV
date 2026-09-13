@@ -38,8 +38,6 @@ namespace ProGlassAutomation.Tests.Theme
         {
             VisualThemeEngine.NormalIndustrial,
             VisualThemeEngine.Monet,
-            VisualThemeEngine.CrystalFluid,
-            VisualThemeEngine.Ios26,
         };
 
         // ── F-01: the managed-key contract ──────────────────────────────

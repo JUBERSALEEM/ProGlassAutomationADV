@@ -17,8 +17,8 @@
     <Grid>
 <!-- HISTORY CARD -->
             <Border Grid.Column="2"
-                    Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
+                    Background="{DynamicResource SurfacePrimaryBrush}"
+                    BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}"
                     SnapsToDevicePixels="True">
                 <Grid>
@@ -50,7 +50,7 @@
                             </StackPanel>
                             <Border Grid.Column="1"
                                     CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
-                                    Background="{DynamicResource GlassSurfaceUltra}"
+                                    Background="{DynamicResource SurfaceTertiaryBrush}"
                                     VerticalAlignment="Center">
                                 <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                            Foreground="{DynamicResource OnAccentForegroundBrush}">
@@ -115,9 +115,9 @@
                                                         <StackPanel Orientation="Horizontal">
                                                             <TextBlock Text="{Binding DeliveryNoteId}"
                                                                        Style="{StaticResource HistoryRowDnIdStyle}"/>
-                                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1"
+                                                            <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1"
                                                                     Margin="5,0,0,0"
-                                                                    Background="{DynamicResource MenuHoverBrush}"
+                                                                    Background="{DynamicResource SurfaceTertiaryBrush}"
                                                                     VerticalAlignment="Center">
                                                                 <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                            Foreground="{DynamicResource SecondaryForegroundBrush}">
@@ -134,14 +134,14 @@
                                                                 <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                            Foreground="{DynamicResource OnAccentForegroundBrush}"><Run Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets"/><Run Text="{DynamicResource DeliveryNote.Editing}"/></TextBlock>
                                                             </Border>
-                                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1"
+                                                            <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1"
         Margin="5,0,0,0"
         Background="{DynamicResource TintIndigoBrush}"
         VerticalAlignment="Center"
         Visibility="{Binding HasAttachments,
             Converter={StaticResource BoolToVisibilityConverter}}">
                                                                 <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-               Foreground="{DynamicResource PrimaryForegroundBrush}">
+               Foreground="{DynamicResource TextPrimaryBrush}">
         <Run Text="&#xE723;" FontFamily="Segoe MDL2 Assets"/><Run Text=" "/>
         <Run Text="{Binding AttachmentCount, Mode=OneWay}"/>
                                                                 </TextBlock>
@@ -150,7 +150,7 @@
                                                             <!-- CHAT 19 INVOICED: invoiced badge in history row
      Shows a CHECK badge (TI number) when this DN has been invoiced.
      Hidden when InvoicedBadgeText is empty (not yet invoiced). -->
-                                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="7,2"
+                                                            <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="7,2"
         Margin="5,0,0,0"
         Background="{DynamicResource TintGreenBrush}"
         VerticalAlignment="Center"
@@ -183,7 +183,7 @@
                                                                 HorizontalAlignment="Right">
                                                         <TextBlock HorizontalAlignment="Right"
                                                                    FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
-                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}">
                                                             <Run Text="{Binding DeliveredQty, Mode=OneWay}"/>
                                                             <Run Text=" pcs"/>
                                                         </TextBlock>
@@ -194,7 +194,7 @@
                                                                              Converter={StaticResource BrushKeyConverter}}">
                                                             <TextBlock Text="{Binding Status}"
                                                                        FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                         </Border>
                                                         <!-- CHAT 19 INVOICED:
      When CanInvoice = true  → shows "Tax Invoice" (blue, active)
@@ -227,8 +227,8 @@
 
                                                 <!-- Cumulative timeline -->
                                                 <Border Margin="0,8,0,0" CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                        Background="{DynamicResource ModuleBackgroundBrush}"
-                                                        BorderBrush="{DynamicResource OutlineBrush}"
+                                                        Background="{DynamicResource SurfacePrimaryBrush}"
+                                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                         BorderThickness="{DynamicResource CardBorderThickness}"
                                                         SnapsToDevicePixels="True">
                                                     <Grid>
@@ -291,7 +291,7 @@
                     </ScrollViewer>
 
                     <!-- History totals -->
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="2"
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="2"
                             Margin="12,0,12,12" Padding="12,10"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Background="{DynamicResource TintIndigoBrush}">
@@ -305,7 +305,7 @@
                                 <TextBlock Text="{Binding HistoryTotalOrdered}"
                                            FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                            HorizontalAlignment="Center"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 <TextBlock Text="{DynamicResource Common.Ordered}" FontSize="{StaticResource TextCaption}"
                                            HorizontalAlignment="Center"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>

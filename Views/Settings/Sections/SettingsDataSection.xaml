@@ -78,7 +78,7 @@
                                 <CheckBox Content="Use shared company database folder"
                                           IsChecked="{Binding UseSharedDataRoot, Mode=TwoWay}"
                                           FontWeight="SemiBold"
-                                          Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                          Foreground="{DynamicResource TextPrimaryBrush}"
                                           Margin="0,8,0,0"/>
                                 <CheckBox Content="Copy current local data if shared folder is empty"
                                           IsChecked="{Binding CopyLocalDataOnEnable, Mode=TwoWay}"
@@ -126,7 +126,7 @@
 
                         <Border CornerRadius="{DynamicResource CardCornerRadius}"
                                 Background="{DynamicResource TintAmberBrush}"
-                                BorderBrush="{DynamicResource OutlineBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                 Padding="10,8"
                                 Margin="0,12,0,0">
@@ -210,8 +210,8 @@
                                      SelectedItem="{Binding SelectedBackup}"
                                      MaxHeight="170"
                                      BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                     BorderBrush="{DynamicResource OutlineBrush}"
-                                     Background="{DynamicResource MenuHoverBrush}">
+                                     BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                     Background="{DynamicResource SurfaceTertiaryBrush}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal" Margin="2">
@@ -297,7 +297,7 @@
                             <!-- License status strip (compact — full card lives on the About page) -->
                             <Border Padding="10,8"
                                     CornerRadius="{DynamicResource CardCornerRadius}"
-                                    Background="{DynamicResource MenuHoverBrush}"
+                                    Background="{DynamicResource SurfaceTertiaryBrush}"
                                     Margin="0,0,0,10">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -345,8 +345,8 @@
                                      Margin="0,10,0,0"
                                      MaxHeight="240"
                                      BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                     BorderBrush="{DynamicResource OutlineBrush}"
-                                     Background="{DynamicResource MenuHoverBrush}">
+                                     BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                     Background="{DynamicResource SurfaceTertiaryBrush}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
                                         <Grid Margin="2">

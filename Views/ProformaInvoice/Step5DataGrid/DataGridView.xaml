@@ -63,7 +63,7 @@
                     <ControlTemplate TargetType="ListViewItem">
                         <Border x:Name="RowBorder"
                                 BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                                BorderBrush="{DynamicResource OutlineBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 Padding="0,2"
                                 Background="Transparent"
                                 HorizontalAlignment="Stretch">
@@ -72,7 +72,7 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="RowBorder" Property="Background"
-                                        Value="{DynamicResource MenuHoverBrush}"/>
+                                        Value="{DynamicResource SurfaceTertiaryBrush}"/>
                             </Trigger>
                             <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
                                 <Setter TargetName="RowBorder" Property="Background"
@@ -210,8 +210,8 @@
             <ItemsControl ItemsSource="{Binding SpecGroups}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                BorderBrush="{DynamicResource OutlineBrush}"
+                        <Border Background="{DynamicResource SurfacePrimaryBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="12,10"
@@ -297,7 +297,7 @@
                                     <TextBlock Text="{Binding SpecDisplayName}"
                                                FontSize="{StaticResource TextBodyLarge}"
                                                FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{Binding SheetSelectionSummary}"
                                                FontSize="{StaticResource TextCaption}"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -461,14 +461,14 @@
                                         <TextBlock Grid.Column="6"
                                                    Text="{Binding FooterTotalQty, Mode=OneWay}"
                                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
                                         <!-- Total SQM under TOTAL SQM column -->
                                         <TextBlock Grid.Column="8"
                                                    Text="{Binding FooterTotalSqm, StringFormat={}{0:0.00}, Mode=OneWay}"
                                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
                                         <!-- Total value under VALUE column -->

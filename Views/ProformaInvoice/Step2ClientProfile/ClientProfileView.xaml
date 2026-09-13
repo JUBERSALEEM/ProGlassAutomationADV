@@ -283,7 +283,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
                                         <TextBlock Text="{Binding CustomerName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                   Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
                                         <TextBlock Text="{Binding TrnMasked}" FontSize="{StaticResource TextBody}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                     </StackPanel>

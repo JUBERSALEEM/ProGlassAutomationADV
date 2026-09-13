@@ -35,7 +35,7 @@
         <StackPanel Grid.Row="0" Margin="40,24,40,16">
             <TextBlock Text="Step 2 — Select Proforma Invoices"
                        FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                       Foreground="{DynamicResource TextPrimaryBrush}"/>
             <TextBlock Text="{Binding PreviewVM.SelectionSummaryDisplay}"
                        FontSize="{StaticResource TextSection}"
                        Foreground="{DynamicResource AccentBrush}" Margin="0,6,0,0"/>
@@ -46,8 +46,8 @@
 
         <!-- Rows -->
         <Border Grid.Row="1" Margin="40,0,40,0"
-                Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                Background="{DynamicResource SurfacePrimaryBrush}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}">
             <Grid>
@@ -76,7 +76,7 @@
                         <DataTemplate>
                             <Border Padding="16,10"
                                     BorderThickness="0,0,0,1"
-                                    BorderBrush="{DynamicResource OutlineBrush}">
+                                    BorderBrush="{DynamicResource BorderDefaultBrush}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
@@ -93,7 +93,7 @@
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{Binding ProformaId}"
                                                        FontSize="{StaticResource TextSection}" FontWeight="Bold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             <Border Background="{DynamicResource TintIndigoBrush}"
                                                     CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,1" Margin="10,0,0,0"
                                                     VerticalAlignment="Center">
@@ -116,7 +116,7 @@
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
                                         <TextBlock Text="{Binding GrandTotalDisplay}"
                                                    FontSize="{StaticResource TextSection}" FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    HorizontalAlignment="Right"/>
                                         <TextBlock Text="{Binding CreatedAtDisplay}"
                                                    FontSize="{StaticResource TextCaption}"

@@ -60,14 +60,14 @@
                                                     </Grid.ColumnDefinitions>
                                                     <StackPanel Grid.Column="0" Margin="0,0,10,0">
                                                         <TextBlock Text="{Binding Composition}" FontSize="{StaticResource TextBody}"
-                                                                   FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
+                                                                   FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
                                                         <TextBlock Text="{Binding Thickness}" FontSize="{StaticResource TextCaption}"
                                                                    Foreground="{DynamicResource AccentBrush}"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1">
                                                         <TextBlock Text="PIECES" Style="{StaticResource OptHeader}"/>
                                                         <TextBlock Text="{Binding PieceCount}" FontSize="{StaticResource TextBody}"
-                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="2">
                                                         <TextBlock Text="SIZE ROWS" Style="{StaticResource OptHeader}"/>
@@ -77,7 +77,7 @@
                                                     <StackPanel Grid.Column="3">
                                                         <TextBlock Text="AREA (M²)" Style="{StaticResource OptHeader}"/>
                                                         <TextBlock Text="{Binding AreaM2}" FontSize="{StaticResource TextBody}"
-                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                     </StackPanel>
                                                 </Grid>
                                             </Border>
@@ -115,13 +115,13 @@
                                                             <ColumnDefinition Width="140"/>
                                                         </Grid.ColumnDefinitions>
                                                         <TextBlock Grid.Column="0" Text="{Binding Number}" FontSize="{StaticResource TextBody}"
-                                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
                                                         <TextBlock Grid.Column="1" Text="{Binding Ref}" FontSize="{StaticResource TextBody}"
-                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
                                                         <TextBlock Grid.Column="2" Text="{Binding Composition}" FontSize="{StaticResource TextBody}"
                                                                    Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
                                                         <TextBlock Grid.Column="3" Text="{Binding Size}" FontSize="{StaticResource TextBody}"
-                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                     </Grid>
                                                 </Border>
                                             </DataTemplate>

@@ -10,7 +10,7 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+    <Grid Background="{DynamicResource SurfacePrimaryBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -95,22 +95,22 @@
                 </Border>
 
                 <!-- SPEC MIX (top specs by value) -->
-                <Border Grid.Row="1" Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1"
+                <Border Grid.Row="1" Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1"
                         Padding="16,10" Visibility="{Binding HasSpecMix, Converter={StaticResource BoolToVisibilityConverter}}">
                     <StackPanel>
-                        <TextBlock Text="TOP SPECIFICATIONS BY VALUE" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,8"/>
+                        <TextBlock Text="TOP SPECIFICATIONS BY VALUE" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
                         <ItemsControl ItemsSource="{Binding TopSpecs}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate><WrapPanel Orientation="Horizontal"/></ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="10,7" Margin="0,0,8,8">
+                                    <Border Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="10,7" Margin="0,0,8,8">
                                         <StackPanel>
-                                            <TextBlock Text="{Binding SpecName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis" MaxWidth="220"/>
+                                            <TextBlock Text="{Binding SpecName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis" MaxWidth="220"/>
                                             <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
                                                 <TextBlock FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource SuccessBrush}" FontWeight="Bold"><Run Text="AED "/><Run Text="{Binding TotalValue, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
-                                                <TextBlock FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="8,0,0,0"><Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text=" pcs · "/><Run Text="{Binding TotalSqm, Mode=OneWay, StringFormat={}{0:N1}}"/><Run Text=" m²"/></TextBlock>
+                                                <TextBlock FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="8,0,0,0"><Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text=" pcs · "/><Run Text="{Binding TotalSqm, Mode=OneWay, StringFormat={}{0:N1}}"/><Run Text=" m²"/></TextBlock>
                                             </StackPanel>
                                         </StackPanel>
                                     </Border>
@@ -231,7 +231,7 @@
                              Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
                         <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Padding="16,7" Margin="0,1" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1">
+                                    <Border Padding="16,7" Margin="0,1" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="1.4*"/>
@@ -247,24 +247,24 @@
                                             <!-- Sr + glass identity. Sr is page-scoped (stamped by the VM). -->
                                             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding DisplaySerial}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                                           Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"
                                                            Margin="0,0,10,0" ToolTip="Row number on this page"/>
                                                 <StackPanel VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
-                                                    <TextBlock Text="{Binding GlassType}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Text="{Binding GlassType}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource TextTertiaryBrush}" TextTrimming="CharacterEllipsis"/>
                                                 </StackPanel>
                                             </StackPanel>
 
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding SpecDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis" ToolTip="{Binding SpecDisplay}"/>
-                                                <TextBlock FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis"><Run Text="{Binding ProformaId, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding ProjectName, Mode=OneWay}"/></TextBlock>
+                                                <TextBlock FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource TextTertiaryBrush}" TextTrimming="CharacterEllipsis"><Run Text="{Binding ProformaId, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding ProjectName, Mode=OneWay}"/></TextBlock>
                                             </StackPanel>
 
                                             <TextBlock Grid.Column="2" Text="{Binding CustomerName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
 
-                                            <TextBlock Grid.Column="3" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="{Binding W1, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding H1, Mode=OneWay}"/></TextBlock>
-                                            <TextBlock Grid.Column="4" Text="{Binding Qty}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                            <TextBlock Grid.Column="5" Text="{Binding TotalSqm, StringFormat={}{0:N2}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                            <TextBlock Grid.Column="3" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="{Binding W1, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding H1, Mode=OneWay}"/></TextBlock>
+                                            <TextBlock Grid.Column="4" Text="{Binding Qty}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            <TextBlock Grid.Column="5" Text="{Binding TotalSqm, StringFormat={}{0:N2}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                             <TextBlock Grid.Column="6" Text="{Binding Amount, StringFormat={}{0:N0}}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
 
                                             <!-- Traceability chips: PI → JO → DN → TI -->
@@ -332,7 +332,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding PageDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                            <TextBlock Text="{Binding PageDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                             <Border Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="6,2" Margin="10,0,0,0" Visibility="{Binding IsCapped, Converter={StaticResource BoolToVisibilityConverter}}" ToolTip="Only the 1000 most recent proformas were scanned. Narrow the date range or filter to see older rows.">
                                 <TextBlock Text="SCAN CAPPED — narrow filters for older rows" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
                             </Border>

@@ -147,13 +147,13 @@
                             Background="{DynamicResource DashHeroBlueBrush}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
                             ClipToBounds="True"
-                            BorderBrush="{DynamicResource GlassBorderGradientCrystal}"
+                            BorderBrush="{DynamicResource BorderStrongBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
                             SnapsToDevicePixels="True">
                         <Grid>
                             <!-- Glass specular highlight -->
                             <Border Height="1" VerticalAlignment="Top"
-                                    Background="{DynamicResource GlassSpecularHighlight}"
+                                    Background="{DynamicResource SurfaceElevatedBrush}"
                                     Opacity="0.6" IsHitTestVisible="False"/>
                             <!-- Decorative glass circles -->
                             <Ellipse Width="200" Height="200"
@@ -280,7 +280,7 @@
                                     SeriesBrush="{DynamicResource AccentBrush}"
                                     SeriesEndBrush="{DynamicResource AccentDarkBrush}"
                                     GridBrush="{DynamicResource DividerBrush}"
-                                    LabelBrush="{DynamicResource MutedForegroundBrush}"/>
+                                    LabelBrush="{DynamicResource TextTertiaryBrush}"/>
                             </Border>
                         </DockPanel>
                     </Border>

@@ -24,7 +24,7 @@
         <Style x:Key="UcFieldLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
             <Setter Property="Margin" Value="0,0,0,4"/>
         </Style>
         <Style x:Key="UcTextBox" TargetType="TextBox">
@@ -32,8 +32,8 @@
             <Setter Property="Padding" Value="10,0"/>
             <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
         </Style>
@@ -42,8 +42,8 @@
             <Setter Property="Padding" Value="10,0"/>
             <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
         </Style>
@@ -53,7 +53,7 @@
             <Setter Property="Width" Value="44"/>
             <Setter Property="CornerRadius" Value="2.5"/>
             <Setter Property="Margin" Value="0,0,6,0"/>
-            <Setter Property="Background" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BorderDefaultBrush}"/>
         </Style>
     </UserControl.Resources>
 
@@ -65,7 +65,7 @@
 
             <!-- A-3 — DEFAULT CREDENTIAL WARNING -->
             <Border Margin="0,0,0,16" Padding="16,12" CornerRadius="{DynamicResource ControlCornerRadius}"
-                    Background="{DynamicResource ModuleBackgroundBrush}"
+                    Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource WarningBrush}"
                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                     Visibility="{Binding IsDefaultPasswordInUse,
@@ -93,7 +93,7 @@
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Module.UserCenter}"
                                FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock FontSize="{StaticResource TextBody}" Margin="0,4,0,0"
                                Foreground="{DynamicResource SecondaryForegroundBrush}">
                         <Run Text="{DynamicResource Shell.UserHint}"/>
@@ -121,8 +121,8 @@
                         <DataTemplate>
                             <Border Margin="0,0,0,10" Padding="14,12"
                                     CornerRadius="{DynamicResource CardCornerRadius}" Cursor="Hand"
-                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
-                                    Background="{DynamicResource ModuleBackgroundBrush}"
+                                    BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
+                                    Background="{DynamicResource SurfacePrimaryBrush}"
                                     behaviors:ClickToCommandBehavior.Command="{Binding SelectUserCommand}"
                                         behaviors:ClickToCommandBehavior.CommandParameter="{Binding Tag, RelativeSource={RelativeSource Self}}"
                                     Tag="{Binding}"
@@ -130,7 +130,7 @@
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="BorderBrush"
-                                                Value="{DynamicResource OutlineBrush}"/>
+                                                Value="{DynamicResource BorderDefaultBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                                 <Setter Property="BorderBrush"
@@ -146,7 +146,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Width="44" Height="44"
+                                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Width="44" Height="44"
                                             CornerRadius="{DynamicResource CardCornerRadius}"
                                             VerticalAlignment="Center"
                                             Background="{DynamicResource TintIndigoBrush}">
@@ -162,7 +162,7 @@
                                                 VerticalAlignment="Center">
                                         <TextBlock Text="{Binding DisplayName}"
                                                    FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    TextTrimming="CharacterEllipsis"/>
                                         <TextBlock FontSize="{StaticResource TextCaption}" Margin="0,2,0,0"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}">
@@ -178,7 +178,7 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintIndigoBrush}"
+                                        <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintIndigoBrush}"
                                                 CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3">
                                             <Border.Style>
                                                 <Style TargetType="Border">
@@ -210,8 +210,8 @@
 
                 <!-- ── RIGHT PANEL ── -->
                 <Border Grid.Column="2"
-                        Background="{DynamicResource ModuleBackgroundBrush}"
-                        BorderBrush="{DynamicResource OutlineBrush}"
+                        Background="{DynamicResource SurfacePrimaryBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="24,20">
                     <StackPanel>
@@ -278,7 +278,7 @@
                                 </StackPanel>
                                 <TextBlock x:Name="NewPasswordGuidance"
                                            FontSize="{StaticResource TextCaption}"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                           Foreground="{DynamicResource TextTertiaryBrush}"
                                            TextWrapping="Wrap" Margin="0,2,0,0"
                                            Visibility="Collapsed"/>
                             </StackPanel>
@@ -378,7 +378,7 @@
                                 <TextBlock x:Name="ChangePasswordGuidance"
                                            Width="200"
                                            FontSize="{StaticResource TextCaption}"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                           Foreground="{DynamicResource TextTertiaryBrush}"
                                            TextWrapping="Wrap" Margin="0,2,0,0"
                                            Visibility="Collapsed"/>
                             </StackPanel>

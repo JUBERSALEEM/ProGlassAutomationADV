@@ -35,18 +35,18 @@
         <Style x:Key="InvoicePartyLabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
             <Setter Property="Margin" Value="0,0,0,6"/>
         </Style>
         <Style x:Key="InvoicePartyValueStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
         <Style x:Key="InvoiceMetaChipStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="Padding" Value="10,6"/>
@@ -64,7 +64,7 @@
 <Style x:Key="FamilyInvoiceNumberStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsCurrentInvoice}" Value="True">
@@ -78,7 +78,7 @@
             <Setter Property="CornerRadius" Value="10"/>
             <Setter Property="BorderThickness" Value="1.5"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsSelected}" Value="True">

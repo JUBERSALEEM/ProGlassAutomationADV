@@ -99,11 +99,11 @@
                     CornerRadius="{DynamicResource ControlCornerRadius}"
                     Background="{DynamicResource SideMenuBackgroundBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
-                    BorderBrush="{DynamicResource OutlineBrush}">
+                    BorderBrush="{DynamicResource BorderDefaultBrush}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Reports.UninvoicedDeliveryNotes}"
                                FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                               Foreground="{DynamicResource MutedForegroundBrush}"
+                               Foreground="{DynamicResource TextTertiaryBrush}"
                                Margin="0,0,0,8"/>
 
                     <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -113,8 +113,8 @@
                         <ItemsControl ItemsSource="{Binding UninvoicedDeliveryNotes}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                            BorderBrush="{DynamicResource OutlineBrush}"
+                                    <Border Background="{DynamicResource SurfacePrimaryBrush}"
+                                            BorderBrush="{DynamicResource BorderDefaultBrush}"
                                             BorderThickness="{DynamicResource CardBorderThickness}"
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Padding="12,10"
@@ -138,12 +138,12 @@
                                                     <TextBlock Text="{Binding DeliveryNoteType, Mode=OneWay}"
                                                                FontSize="{StaticResource TextCaption}"
                                                                FontWeight="SemiBold"
-                                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                               Foreground="{DynamicResource TextTertiaryBrush}"/>
                                                     <TextBlock Text="  ·  "
                                                                FontSize="{StaticResource TextCaption}"
-                                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                               Foreground="{DynamicResource TextTertiaryBrush}"/>
                                                     <TextBlock FontSize="{StaticResource TextCaption}"
-                                                               Foreground="{DynamicResource MutedForegroundBrush}">
+                                                               Foreground="{DynamicResource TextTertiaryBrush}">
                                                         <Run Text="{DynamicResource Common.Delivered}"/>
                                                         <Run Text="{Binding DeliveryDate,
                                                                 StringFormat=dd MMM yyyy, Mode=OneWay}"/>
@@ -178,7 +178,7 @@
             <TextBlock Text="{DynamicResource Reports.WhatWouldLike}"
                        FontSize="{StaticResource TextSection}"
                        FontWeight="SemiBold"
-                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                       Foreground="{DynamicResource TextPrimaryBrush}"
                        HorizontalAlignment="Center"
                        Margin="0,8,0,12"/>
 

@@ -40,7 +40,7 @@
                 <Border Grid.Column="0"
                         Height="10"
                         CornerRadius="{DynamicResource Radius.Small}"
-                        Background="{DynamicResource MenuHoverBrush}"
+                        Background="{DynamicResource SurfaceTertiaryBrush}"
                         ClipToBounds="True">
                     <Border Height="10"
                             HorizontalAlignment="Left"
@@ -59,7 +59,7 @@
                 <TextBlock Grid.Column="1"
                            Text="{Binding OverallProgressText}"
                            FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
                            Margin="12,0,0,0"
                            VerticalAlignment="Center"
                            MinWidth="40"
@@ -80,7 +80,7 @@
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                     BorderThickness="{DynamicResource CardBorderThickness}"
                                     Background="{DynamicResource SideMenuBackgroundBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}">
+                                    BorderBrush="{DynamicResource BorderDefaultBrush}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="40"/>
@@ -92,10 +92,10 @@
                                     </Grid.ColumnDefinitions>
 
                                     <!-- Step icon -->
-                                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Grid.Column="0"
+                                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Grid.Column="0"
                                             Width="32" Height="32"
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
-                                            Background="{DynamicResource ModuleBackgroundBrush}"
+                                            Background="{DynamicResource SurfacePrimaryBrush}"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Top">
                                         <TextBlock Text="{Binding Icon}"
@@ -112,12 +112,12 @@
                                         <TextBlock Text="{Binding Title, Mode=OneWay}"
                                                    FontSize="{StaticResource TextBodyLarge}"
                                                    FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                                         <!-- Description (subtitle) -->
                                         <TextBlock Text="{Binding Description, Mode=OneWay}"
                                                    FontSize="{StaticResource TextBody}"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   Foreground="{DynamicResource TextTertiaryBrush}"
                                                    Margin="0,2,0,0"/>
 
                                         <!-- Current message (colored by status) -->

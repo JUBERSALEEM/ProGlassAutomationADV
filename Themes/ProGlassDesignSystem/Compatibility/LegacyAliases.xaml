@@ -1,0 +1,18 @@
+<!--
+  MIGRATION ONLY. Old Crystal/Liquid/module keys remain published by
+  Light/Dark + VisualThemeEngine. This file maps NEW semantic names onto
+  those live engine keys so new XAML can consume SurfacePrimaryBrush
+  while existing views keep GlassUltraClearBrush until Phase J.
+
+  Do not develop new screens against Glass*/Liquid*/Crystal* keys.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <DynamicResource x:Key="SurfaceWorkspaceBrush" ResourceKey="ModuleBackgroundBrush"/>
+    <DynamicResource x:Key="SurfaceWindowBrush" ResourceKey="WindowBackgroundBrush"/>
+    <DynamicResource x:Key="SurfaceCardBrush" ResourceKey="GlassUltraClearBrush"/>
+    <DynamicResource x:Key="SurfacePopupBrush" ResourceKey="PopupSurfaceBrush"/>
+    <DynamicResource x:Key="SurfaceSidebarBrush" ResourceKey="SideMenuBackgroundBrush"/>
+
+</ResourceDictionary>

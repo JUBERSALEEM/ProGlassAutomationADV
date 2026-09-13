@@ -64,7 +64,7 @@
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="bd"
                                         Property="Background"
-                                        Value="{DynamicResource LiquidControlHoverBrush}"/>
+                                        Value="{DynamicResource SurfaceTertiaryBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -127,7 +127,7 @@
         </Style>
 
         <Style x:Key="AiBubble" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="MaxWidth"            Value="380"/>
@@ -135,7 +135,7 @@
             <Setter Property="Padding"             Value="14,10"/>
             <Setter Property="Margin"              Value="0,4,60,4"/>
             <Setter Property="Background"
-                    Value="{DynamicResource MenuHoverBrush}"/>
+                    Value="{DynamicResource SurfaceTertiaryBrush}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="UseLayoutRounding"   Value="True"/>
             <Setter Property="Visibility"          Value="Collapsed"/>
@@ -165,7 +165,7 @@
 
         <Style x:Key="SuggChip" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Background"
-                    Value="{DynamicResource MenuHoverBrush}"/>
+                    Value="{DynamicResource SurfaceTertiaryBrush}"/>
             <Setter Property="CornerRadius"        Value="12"/>
             <Setter Property="Padding"             Value="14,9"/>
             <Setter Property="Margin"              Value="0,3"/>
@@ -175,7 +175,7 @@
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background"
-                            Value="{DynamicResource OutlineBrush}"/>
+                            Value="{DynamicResource BorderDefaultBrush}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -184,7 +184,7 @@
 
     <Grid>
 
-        <Rectangle Fill="{DynamicResource LiquidOverlayBrush}" Opacity="0.3"
+        <Rectangle Fill="{DynamicResource SurfaceOverlayBrush}" Opacity="0.3"
                    behaviors:ClickToCommandBehavior.Command="{Binding CloseChatCommand}">
             <Rectangle.Style>
                 <Style TargetType="Rectangle">
@@ -211,7 +211,7 @@
              (AiChatView.xaml.cs) so the user can drag it out of the way. -->
         <Canvas x:Name="ChatCanvas">
         <Border x:Name="ChatPanel"
-                BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Width="420" Height="600"
+                BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Width="420" Height="600"
                 MaxHeight="{Binding ActualHeight,
                             RelativeSource={RelativeSource AncestorType=Window},
                             Converter={StaticResource WindowInsetConverter},
@@ -262,7 +262,7 @@
                         <Border Grid.Column="0"
                                 Width="38" Height="38"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
-                                Background="{DynamicResource LiquidGlassSubtleBrush}"
+                                Background="{DynamicResource SurfaceSecondaryBrush}"
                                 VerticalAlignment="Center"
                                 SnapsToDevicePixels="True">
                             <TextBlock Text="&#xE99A;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitleLarge}"
@@ -336,7 +336,7 @@
                                    FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                    HorizontalAlignment="Center"
                                    Margin="0,16,0,4"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    IsHitTestVisible="False"/>
 
                         <TextBlock Text="{DynamicResource AI.AskAboutGlassProductionInvoicesJobOrders}"
@@ -364,7 +364,7 @@
                                             behaviors:ClickToCommandBehavior.CommandParameter="{Binding Tag, RelativeSource={RelativeSource Self}}">
                                         <TextBlock Text="{Binding}"
                                                    FontSize="{StaticResource TextBody}"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    IsHitTestVisible="False"/>
                                     </Border>
                                 </DataTemplate>
@@ -416,7 +416,7 @@
                                         <Border Style="{StaticResource AiBubble}">
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Text}"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                                            FontSize="{StaticResource TextBodyLarge}"
                                                            TextWrapping="Wrap"/>
                                                 <StackPanel Orientation="Horizontal"
@@ -455,9 +455,9 @@
                          Hidden while streaming (the live bubble below
                          takes over once tokens arrive).
                     ════════════════════════════════════════════════ -->
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" HorizontalAlignment="Left"
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" HorizontalAlignment="Left"
                             VerticalAlignment="Bottom"
-                            Background="{DynamicResource MenuHoverBrush}"
+                            Background="{DynamicResource SurfaceTertiaryBrush}"
                             CornerRadius="{DynamicResource Radius.Asymmetric.Brand}"
                             Padding="14,10"
                             Margin="16,0,0,8"
@@ -598,7 +598,7 @@
                                     Content="&#xE711;" FontSize="{StaticResource TextXSmall}"
                                     Background="Transparent"
                                     BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand"
-                                    Foreground="{DynamicResource MutedForegroundBrush}"
+                                    Foreground="{DynamicResource TextTertiaryBrush}"
                                     ToolTip="{DynamicResource AI.StopGenerating}"
                                     VerticalAlignment="Center"/>
                         </StackPanel>
@@ -609,9 +609,9 @@
                          token-by-token while Gemini streams it.
                          Bound to ActiveStream (StreamingChatMessage).
                     ════════════════════════════════════════════════ -->
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" HorizontalAlignment="Left"
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" HorizontalAlignment="Left"
                             VerticalAlignment="Bottom"
-                            Background="{DynamicResource MenuHoverBrush}"
+                            Background="{DynamicResource SurfaceTertiaryBrush}"
                             CornerRadius="{DynamicResource Radius.Asymmetric.Brand}"
                             Padding="14,10"
                             Margin="16,0,0,8"
@@ -630,7 +630,7 @@
                             </Style>
                         </Border.Style>
                         <TextBlock Text="{Binding ActiveStream.Text}"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    FontSize="{StaticResource TextBodyLarge}"
                                    TextWrapping="Wrap"/>
                     </Border>
@@ -683,7 +683,7 @@
                 </Border>
 
                 <!-- Input area -->
-                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="3"
+                <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="3"
                         Background="{DynamicResource SideMenuBackgroundBrush}"
                         CornerRadius="{DynamicResource Radius.Bottom.Medium}"
                         Padding="12"
@@ -714,7 +714,7 @@
                                         <Border.Style>
                                             <Style TargetType="Border">
                                                 <Setter Property="Background"
-                                                        Value="{DynamicResource MenuHoverBrush}"/>
+                                                        Value="{DynamicResource SurfaceTertiaryBrush}"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsSpeakerOn}"
                                                                  Value="True">
@@ -847,7 +847,7 @@
                                             <Border.Style>
                                                 <Style TargetType="Border">
                                                     <Setter Property="Background"
-                                                            Value="{DynamicResource MenuHoverBrush}"/>
+                                                            Value="{DynamicResource SurfaceTertiaryBrush}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsListening}"
                                                                      Value="True">
@@ -900,8 +900,8 @@
                         </Grid>
 
                         <!-- Text input -->
-                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Grid.Column="2"
-                                Background="{DynamicResource MenuHoverBrush}"
+                        <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Grid.Column="2"
+                                Background="{DynamicResource SurfaceTertiaryBrush}"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="14,0"
                                 Height="42"
@@ -915,7 +915,7 @@
                                      BorderThickness="{DynamicResource Border.NoneThickness}"
                                      Background="Transparent"
                                      FontSize="{StaticResource TextBodyLarge}"
-                                     Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                     Foreground="{DynamicResource TextPrimaryBrush}"
                                      VerticalAlignment="Center">
                                 <TextBox.InputBindings>
                                     <KeyBinding Key="Enter" Command="{Binding SendCommand}"/>

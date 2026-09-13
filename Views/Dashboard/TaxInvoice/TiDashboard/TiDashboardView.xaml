@@ -127,7 +127,7 @@
                                    FontSize="{StaticResource TextBody}"
                                    FontWeight="Bold"
                                    TextTrimming="CharacterEllipsis"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <TextBlock FontSize="{StaticResource TextBody}"
                                    Margin="0,2,0,0"
                                    TextTrimming="CharacterEllipsis"
@@ -145,7 +145,7 @@
                                    FontSize="{StaticResource TextBody}"
                                    FontWeight="Bold"
                                    HorizontalAlignment="Right"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <Border CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="7,2"
                                 Margin="0,4,0,0"
@@ -191,7 +191,7 @@
                                    FontSize="{StaticResource TextBody}"
                                    FontWeight="Bold"
                                    VerticalAlignment="Center"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                         <TextBlock Grid.Column="1"
                                    Text="{Binding CountDisplay}"
@@ -241,11 +241,11 @@
         ═══════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="TiTopCustomerTemplate">
             <Border Style="{StaticResource DbRowCardStyle}"
-                    BorderBrush="{DynamicResource GlassBorderGradientSoft}" BorderThickness="{DynamicResource Border.HairlineThickness}" Margin="0,0,0,10"
+                    BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Margin="0,0,0,10"
                     Padding="12,10"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     SnapsToDevicePixels="True"
-                    Background="{DynamicResource GlassUltraClearBrush}">
+                    Background="{DynamicResource SurfacePrimaryBrush}">
                 <StackPanel>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -277,7 +277,7 @@
                                        FontSize="{StaticResource TextBody}"
                                        FontWeight="Bold"
                                        TextTrimming="CharacterEllipsis"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Text="{Binding InvoiceCountDisplay}"
                                        FontSize="{StaticResource TextCaption}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -289,7 +289,7 @@
                                    FontWeight="Bold"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Right"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                     </Grid>
 
                     <Border Height="5"
@@ -524,7 +524,7 @@
                                         SeriesBrush="{DynamicResource AccentBrush}"
                                         SeriesEndBrush="{DynamicResource AccentDarkBrush}"
                                         GridBrush="{DynamicResource DividerBrush}"
-                                        LabelBrush="{DynamicResource MutedForegroundBrush}"/>
+                                        LabelBrush="{DynamicResource TextTertiaryBrush}"/>
                                 </Border>
                                 <Border Padding="0,40"
                                         Visibility="{Binding HasRevenueData,

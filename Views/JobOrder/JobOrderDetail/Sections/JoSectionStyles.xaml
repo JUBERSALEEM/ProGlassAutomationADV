@@ -36,7 +36,7 @@
         <Style x:Key="JoActionBarStyle" TargetType="Border" BasedOn="{StaticResource SpecGroupCardStyle}">
             <Setter Property="Padding" Value="14,10"/>
             <Setter Property="Margin" Value="0,2,0,0"/>
-            <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
         </Style>
 
         <!-- ═══════════════════════════════════════════════════════════════
@@ -79,7 +79,7 @@
         <Style x:Key="JoFieldTitleStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
             <Setter Property="FontWeight"        Value="Bold"/>
-            <Setter Property="Foreground"        Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground"        Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="IsHitTestVisible"  Value="False"/>
         </Style>
@@ -97,8 +97,8 @@
             <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="Padding"     Value="8,6"/>
             <Setter Property="Margin"      Value="0,0,0,0"/>
-            <Setter Property="Background"  Value="{DynamicResource MenuHoverBrush}"/>
-            <Setter Property="Foreground"  Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Background"  Value="{DynamicResource SurfaceTertiaryBrush}"/>
+            <Setter Property="Foreground"  Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
         </Style>
@@ -118,7 +118,7 @@
             <Setter Property="Margin"      Value="0,0,0,0"/>
             <Setter Property="Height"      Value="30"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Background"  Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="Background"  Value="{DynamicResource SurfaceTertiaryBrush}"/>
         </Style>
 
         <Style x:Key="JoCompactDateStyle" TargetType="DatePicker">
@@ -127,7 +127,7 @@
             <Setter Property="Margin"      Value="0,0,0,0"/>
             <Setter Property="Height"      Value="30"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Background"  Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="Background"  Value="{DynamicResource SurfaceTertiaryBrush}"/>
         </Style>
 
 </ResourceDictionary>

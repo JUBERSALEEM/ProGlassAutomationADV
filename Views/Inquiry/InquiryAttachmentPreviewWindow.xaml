@@ -32,7 +32,7 @@
 
         <!-- Command strip -->
         <Border Padding="16,10" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                Background="{DynamicResource ElevatedSurfaceBrush}">
+                Background="{DynamicResource SurfaceSecondaryBrush}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -47,9 +47,9 @@
                 </Border>
                 <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
                     <TextBlock x:Name="NameText" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold" TextTrimming="CharacterEllipsis"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock x:Name="MetaText" FontSize="{StaticResource TextCaption}" Margin="0,2,0,0"
-                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                               Foreground="{DynamicResource TextTertiaryBrush}"/>
                 </StackPanel>
                 <Button Grid.Column="2" Content="{DynamicResource Inquiry.OpenSystemApp}" Click="OpenExternal_Click" Cursor="Hand"
                         Style="{StaticResource ModuleToolbarSecondaryButtonStyle}" VerticalAlignment="Center"/>
@@ -57,7 +57,7 @@
         </Border>
 
         <!-- Surfaces -->
-        <Grid Grid.Row="1" Background="{DynamicResource ModuleBackgroundBrush}">
+        <Grid Grid.Row="1" Background="{DynamicResource SurfacePrimaryBrush}">
             <Image x:Name="ImagePreview" Stretch="Uniform" Margin="16" Visibility="Collapsed"/>
             <WebBrowser x:Name="PdfPreview" Margin="8" Visibility="Collapsed"/>
 
@@ -74,7 +74,7 @@
                     </Border>
                     <TextBlock Text="{DynamicResource Inquiry.FileFoundDisk}" FontSize="{StaticResource TextTitle}" FontWeight="Bold" Margin="0,16,0,0"
                                HorizontalAlignment="Center" TextAlignment="Center"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock x:Name="MissingDetail" FontSize="{StaticResource TextBody}" Margin="0,8,0,0" HorizontalAlignment="Center"
                                TextAlignment="Center" TextWrapping="Wrap"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -92,7 +92,7 @@
                     </Border>
                     <TextBlock Text="{DynamicResource Inquiry.AppPreviewAvailableFileType}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                Margin="0,16,0,0" HorizontalAlignment="Center" TextAlignment="Center"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock FontSize="{StaticResource TextBody}" Margin="0,8,0,0" HorizontalAlignment="Center" TextAlignment="Center"
                                TextWrapping="Wrap" Foreground="{DynamicResource SecondaryForegroundBrush}"
                                Text="{DynamicResource Inquiry.DrawingsSpreadsheetsOpenSystemApplication}"/>

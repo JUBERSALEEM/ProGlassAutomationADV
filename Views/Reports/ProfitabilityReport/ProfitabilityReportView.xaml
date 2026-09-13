@@ -10,7 +10,7 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+    <Grid Background="{DynamicResource SurfacePrimaryBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -99,7 +99,7 @@
                         Padding="16,8" Visibility="{Binding HasCostGaps, Converter={StaticResource BoolToVisibilityConverter}}">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource WarningBrush}" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding CostCoverageNote}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding CostCoverageNote}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" Margin="10,0,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
 
@@ -202,7 +202,7 @@
                              Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
                         <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Padding="16,8" Margin="0,1" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1">
+                                    <Border Padding="16,8" Margin="0,1" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="1.6*"/>
@@ -215,7 +215,7 @@
                                             </Grid.ColumnDefinitions>
 
                                             <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,12,0">
-                                                <TextBlock Text="{Binding Name}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding Name}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
                                             </StackPanel>
 
                                             <!-- Quantity / area get their OWN column (2026-09-10) —
@@ -223,10 +223,10 @@
                                                  which also crowded the P&L numbers next to it. -->
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Qty, StringFormat={}{0:N0} pcs}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
-                                                <TextBlock Text="{Binding Sqm, StringFormat={}{0:N1} m²}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center"/>
+                                                <TextBlock Text="{Binding Sqm, StringFormat={}{0:N1} m²}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
                                             </StackPanel>
 
-                                            <TextBlock Grid.Column="2" Text="{Binding Revenue, StringFormat={}{0:N0}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,16,0"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Revenue, StringFormat={}{0:N0}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,16,0"/>
 
                                             <TextBlock Grid.Column="3" FontSize="{StaticResource TextBody}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,16,0" Text="{Binding Cost, StringFormat={}{0:N0}}">
                                                 <TextBlock.Style>
@@ -234,7 +234,7 @@
                                                         <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding HasCostData}" Value="False">
-                                                                <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                                                <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
@@ -247,7 +247,7 @@
                                                         <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding HasCostData}" Value="False">
-                                                                <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                                                <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
@@ -260,7 +260,7 @@
                                                         <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding HasCostData}" Value="False">
-                                                                <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                                                <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
@@ -279,7 +279,7 @@
                                                         <TextBlock Text="STALE" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
                                                     </Border>
                                                 </StackPanel>
-                                                <TextBlock Text="{Binding CostSource}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,2,0,0" ToolTip="{Binding CostSource}"/>
+                                                <TextBlock Text="{Binding CostSource}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource TextTertiaryBrush}" TextTrimming="CharacterEllipsis" Margin="0,2,0,0" ToolTip="{Binding CostSource}"/>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -295,7 +295,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" VerticalAlignment="Center" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" VerticalAlignment="Center" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
                             <Button Content="&#xE76B;" FontFamily="Segoe MDL2 Assets" Command="{Binding PrevPageCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" ToolTip="Previous page"/>
                             <Button Content="&#xE76C;" FontFamily="Segoe MDL2 Assets" Command="{Binding NextPageCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" ToolTip="Next page"/>

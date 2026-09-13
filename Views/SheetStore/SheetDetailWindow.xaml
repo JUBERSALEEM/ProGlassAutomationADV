@@ -37,19 +37,19 @@
         <Style x:Key="StatLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         </Style>
 
         <Style x:Key="StatValue" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextDisplay}"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="Margin" Value="0,4,0,0"/>
         </Style>
 
         <Style x:Key="StatCard" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource DialogInsetBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
             <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
             <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
             <Setter Property="Padding" Value="20,16"/>
@@ -85,7 +85,7 @@
                     <ControlTemplate TargetType="ListViewItem">
                         <Border x:Name="RowBorder"
                                 BorderThickness="0,0,0,1"
-                                BorderBrush="{DynamicResource OutlineBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 Padding="0,7"
                                 Background="Transparent"
                                 HorizontalAlignment="Stretch">
@@ -95,7 +95,7 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="RowBorder" Property="Background"
-                                        Value="{DynamicResource MenuHoverBrush}"/>
+                                        Value="{DynamicResource SurfaceTertiaryBrush}"/>
                             </Trigger>
                             <!-- A reversal is a correction, not a failure —
                                  tinted so a corrected row is findable without
@@ -113,7 +113,7 @@
         <!-- Individual rounded spec card -->
         <Style x:Key="SpecCard" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource DialogInsetBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
             <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
             <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadiusLarge}"/>
             <Setter Property="Padding" Value="18,14"/>
@@ -125,20 +125,20 @@
         <Style x:Key="SpecLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         </Style>
 
         <Style x:Key="SpecValue" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextTitle}"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="Margin" Value="0,6,0,0"/>
         </Style>
 
         <Style x:Key="FieldLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
             <Setter Property="Margin" Value="0,0,0,6"/>
         </Style>
 
@@ -179,7 +179,7 @@
 
         <Style x:Key="ReadValue" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="Margin" Value="0,0,0,16"/>
         </Style>
     </Window.Resources>
@@ -228,8 +228,8 @@
              template clips the label and the active fill never shows.
         ═════════════════════════════════════════════════════════════ -->
         <Border Grid.Row="1"
-                Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                Background="{DynamicResource SurfacePrimaryBrush}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="0,0,0,1"
                 Padding="20,10"
                 MinHeight="64"
@@ -634,7 +634,7 @@
                                          TextAlignment="Center" Height="54"
                                          VerticalContentAlignment="Center"
                                          Background="{DynamicResource DialogInsetBrush}"
-                                         Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                         Foreground="{DynamicResource TextPrimaryBrush}">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
                                             <Setter Property="BorderThickness" Value="0"/>
@@ -776,7 +776,7 @@
                                          TextAlignment="Center" Height="54"
                                          VerticalContentAlignment="Center"
                                          Background="{DynamicResource DialogInsetBrush}"
-                                         Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                         Foreground="{DynamicResource TextPrimaryBrush}">
                                     <TextBox.Style>
                                         <Style TargetType="TextBox">
                                             <Setter Property="BorderThickness" Value="0"/>
@@ -1146,7 +1146,7 @@
 
                     <Border Grid.Row="1"
                             Background="{DynamicResource DialogInsetBrush}"
-                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="1,0,1,1"
                             CornerRadius="{DynamicResource Radius.Bottom.Medium}">
                         <ListView ItemsSource="{Binding Movements}"
@@ -1209,13 +1209,13 @@
                                                    HorizontalAlignment="Center"
                                                    Text="{Binding QuantityChanged}"
                                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                                         <TextBlock Grid.Column="3" VerticalAlignment="Center"
                                                    HorizontalAlignment="Right"
                                                    Text="{Binding ValueChanged, StringFormat={}{0:N2}}"
                                                    FontSize="{StaticResource TextBody}"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                                         <TextBlock Grid.Column="5" VerticalAlignment="Center"
                                                    Text="{Binding Details}"
@@ -1228,7 +1228,7 @@
                                                    Text="{Binding UserName}"
                                                    TextTrimming="CharacterEllipsis"
                                                    FontSize="{StaticResource TextCaption}"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
                                     </Grid>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
@@ -1313,7 +1313,7 @@
                             <TextBlock Text="CONSUMPTION" Style="{StaticResource StatLabel}" Margin="0,0,0,10"/>
                             <TextBlock Text="{Binding ConsumptionPercent, StringFormat={}{0:N1}% of stock used}"
                                        FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Text="{Binding UsedValueAtCost, StringFormat=Used stock at cost: {0:N2} AED}"
                                        FontSize="{StaticResource TextBody}" Margin="0,8,0,0"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>

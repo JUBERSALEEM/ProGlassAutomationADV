@@ -10,7 +10,7 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+    <Grid Background="{DynamicResource SurfacePrimaryBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -220,7 +220,7 @@
                                                         <TextBlock Text="{Binding Initials}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                     <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                                                        <TextBlock Text="{Binding CompanyName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock Text="{Binding CompanyName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
                                                         <StackPanel Orientation="Horizontal">
                                                             <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Visibility="{Binding IsSavedCompany, Converter={StaticResource BoolToVisibilityConverter}}">
                                                                 <TextBlock Text="ON FILE" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
@@ -228,20 +228,20 @@
                                                             <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Margin="4,0,0,0" Visibility="{Binding IsDefault, Converter={StaticResource BoolToVisibilityConverter}}">
                                                                 <TextBlock Text="DEFAULT" FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                                             </Border>
-                                                            <TextBlock Text="{Binding CompanyLocation}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="6,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                                            <TextBlock Text="{Binding CompanyLocation}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="6,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                                                         </StackPanel>
                                                     </StackPanel>
                                                 </StackPanel>
 
                                                 <TextBlock Grid.Column="1" Text="{Binding CompanyTrn}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                                                <TextBlock Grid.Column="2" Text="{Binding PiCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                                <TextBlock Grid.Column="3" Text="{Binding TaxInvoiceCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                                <TextBlock Grid.Column="4" Text="{Binding PiValue, StringFormat={}{0:N0}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding PiCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                <TextBlock Grid.Column="3" Text="{Binding TaxInvoiceCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                <TextBlock Grid.Column="4" Text="{Binding PiValue, StringFormat={}{0:N0}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                                 <TextBlock Grid.Column="5" Text="{Binding InvoicedValue, StringFormat={}{0:N0}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                                 <TextBlock Grid.Column="6" FontSize="{StaticResource TextBody}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding Outstanding, StringFormat={}{0:N0}}">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
-                                                            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding HasOutstanding}" Value="True">
                                                                     <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
@@ -262,7 +262,7 @@
                                                     <TextBlock Text="Company details" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                                 </StackPanel>
                                             </Expander.Header>
-                                        <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Margin="0,8,0,0">
+                                        <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Margin="0,8,0,0">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
@@ -271,7 +271,7 @@
                                                 </Grid.ColumnDefinitions>
 
                                                 <StackPanel Grid.Column="0">
-                                                    <TextBlock Text="COMPANY DETAILS" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,8"/>
+                                                    <TextBlock Text="COMPANY DETAILS" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="120"/>
@@ -285,25 +285,25 @@
                                                             <RowDefinition Height="Auto"/>
                                                         </Grid.RowDefinitions>
 
-                                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Representative" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Representative}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
+                                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Representative" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Representative}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2" TextWrapping="Wrap"/>
 
-                                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Mobile" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding RepresentativeMobile}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Mobile" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding RepresentativeMobile}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
 
-                                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Email" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CompanyEmail}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Email" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CompanyEmail}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
 
-                                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Bank" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding BankName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Bank" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding BankName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
 
-                                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Account" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding AccountNumber}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Account" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding AccountNumber}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
                                                     </Grid>
                                                 </StackPanel>
 
                                                 <StackPanel Grid.Column="2">
-                                                    <TextBlock Text="DOCUMENT ACTIVITY" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,8"/>
+                                                    <TextBlock Text="DOCUMENT ACTIVITY" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="120"/>
@@ -317,22 +317,22 @@
                                                             <RowDefinition Height="Auto"/>
                                                         </Grid.RowDefinitions>
 
-                                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Proformas" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PiCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Proformas" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PiCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
 
-                                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Job Orders" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding JobOrderCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Job Orders" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding JobOrderCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
 
-                                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Delivery Notes" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding DnCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Delivery Notes" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding DnCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
 
-                                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Tax Invoices" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding TaxInvoiceCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Tax Invoices" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding TaxInvoiceCount}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
 
-                                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Invoiced" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Invoiced" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
                                                         <TextBlock Grid.Row="4" Grid.Column="1" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SuccessBrush}" Margin="0,2"><Run Text="AED "/><Run Text="{Binding InvoicedValue, Mode=OneWay, StringFormat={}{0:N2}}"/></TextBlock>
 
-                                                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Outstanding" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Outstanding" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
                                                         <TextBlock Grid.Row="5" Grid.Column="1" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" Margin="0,2"><Run Text="AED "/><Run Text="{Binding Outstanding, Mode=OneWay, StringFormat={}{0:N2}}"/></TextBlock>
                                                     </Grid>
                                                 </StackPanel>
@@ -352,7 +352,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" VerticalAlignment="Center" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" VerticalAlignment="Center" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
                             <Button Content="&#xE76B;" FontFamily="Segoe MDL2 Assets" Command="{Binding PrevPageCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" ToolTip="Previous page"/>
                             <Button Content="&#xE76C;" FontFamily="Segoe MDL2 Assets" Command="{Binding NextPageCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" ToolTip="Next page"/>

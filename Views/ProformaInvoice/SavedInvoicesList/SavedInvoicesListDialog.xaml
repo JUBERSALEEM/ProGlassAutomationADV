@@ -33,7 +33,7 @@
         <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 BorderThickness="{DynamicResource Border.TopHairlineThickness}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
                 Padding="20,12">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -45,7 +45,7 @@
                 <TextBlock Grid.Column="0"
                            Text="{DynamicResource ProformaInvoice.SelectInvoiceLoadWizardCloseCancel}"
                            FontSize="{StaticResource TextBody}"
-                           Foreground="{DynamicResource MutedForegroundBrush}"
+                           Foreground="{DynamicResource TextTertiaryBrush}"
                            VerticalAlignment="Center"/>
 
                 <!-- Close button — fixed: hover + press states, CornerRadius=10 -->

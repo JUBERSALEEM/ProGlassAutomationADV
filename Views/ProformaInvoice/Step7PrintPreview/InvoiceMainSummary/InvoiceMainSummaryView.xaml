@@ -20,13 +20,13 @@
     <UserControl.Resources>
         <Style x:Key="SummaryLabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
         <Style x:Key="SummaryValueStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
@@ -64,8 +64,8 @@
         </Style>
         <Style x:Key="NumericInputStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
@@ -229,7 +229,7 @@
             <TextBlock Grid.Column="1"
                        Text="VAT"
                        FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                       Foreground="{DynamicResource TextPrimaryBrush}"
                        VerticalAlignment="Center"
                        Margin="0,0,10,0"/>
             <TextBox Grid.Column="3"
@@ -256,12 +256,12 @@
             </Grid.ColumnDefinitions>
             <TextBlock Text="{DynamicResource ProformaInvoice.GrandTotalAED}"
                        FontSize="{StaticResource TextSection}" FontWeight="Bold"
-                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                       Foreground="{DynamicResource TextPrimaryBrush}"
                        VerticalAlignment="Center"/>
             <TextBlock Grid.Column="1"
                        Text="{Binding GrandTotalVatInclusive, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                        FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
-                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                       Foreground="{DynamicResource TextPrimaryBrush}"/>
         </Grid>
     </StackPanel>
 </UserControl>

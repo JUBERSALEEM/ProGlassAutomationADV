@@ -32,7 +32,7 @@
         <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
             <Setter Property="Margin" Value="4,0,0,6"/>
         </Style>
 
@@ -44,7 +44,7 @@
         <!-- Log entry row style with hover -->
         <Style x:Key="LogEntryStyle" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
             <Setter Property="BorderThickness" Value="1.5"/>
             <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
             <Setter Property="Padding" Value="16,12"/>
@@ -99,7 +99,7 @@
         <!-- Filters -->
         <Border Grid.Row="1"
                 Background="{DynamicResource DialogInsetBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,14" Margin="0,0,0,16"
                 SnapsToDevicePixels="True">
@@ -171,7 +171,7 @@
                 </Grid>
 
                 <!-- Row 2: Search -->
-                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource MenuHoverBrush}"
+                <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource SurfaceTertiaryBrush}"
                         CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,8" Margin="0,12,0,0"
                         SnapsToDevicePixels="True">
                     <DockPanel>
@@ -180,7 +180,7 @@
                                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
                                  BorderThickness="0" Background="Transparent"
                                  VerticalAlignment="Center" FontSize="{StaticResource TextBodyLarge}"
-                                 Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                 Foreground="{DynamicResource TextPrimaryBrush}"/>
                     </DockPanel>
                 </Border>
             </StackPanel>
@@ -192,7 +192,7 @@
         ═══════════════════════════════════════════════════════════ -->
         <Border Grid.Row="2"
                 Background="{DynamicResource DialogInsetBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 CornerRadius="{DynamicResource CardCornerRadius}" Padding="12"
                 SnapsToDevicePixels="True">
@@ -201,10 +201,10 @@
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                             IsHitTestVisible="False"
                             Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="60" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="60" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
                     <TextBlock Text="{DynamicResource SheetStore.NoHistoryYet}" FontSize="{StaticResource TextTitle}" FontWeight="SemiBold"
                                Margin="0,16,0,4" HorizontalAlignment="Center"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock Text="{DynamicResource SheetStore.ActionsSheetStoreAppearHere}"
                                FontSize="{StaticResource TextBody}" HorizontalAlignment="Center"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -260,11 +260,11 @@
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="{Binding SheetDescription}"
                                                    FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         <TextBlock Text="{Binding Details}"
                                                    FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
                                                    Margin="0,3,0,0"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                                             <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding UserName}"
@@ -284,7 +284,7 @@
                                                 <TextBlock Text="{DynamicResource SheetStore.ReversedBadge}"
                                                            FontSize="{StaticResource TextCaption}"
                                                            FontWeight="Bold"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             </Border>
                                         </StackPanel>
                                     </StackPanel>
@@ -294,7 +294,7 @@
                                         <TextBlock Text="{Binding DateDisplay}"
                                                    FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                    HorizontalAlignment="Right"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         <TextBlock Text="{Binding DayDisplay}"
                                                    FontSize="{StaticResource TextCaption}"
                                                    HorizontalAlignment="Right"

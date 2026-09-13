@@ -1,0 +1,45 @@
+<!--
+  Material engine: one Border primitive, four levels.
+  Crystal water/caustics stay in Themes/CrystalFluid (environment only).
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style x:Key="ProGlassMaterial.Solid" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource BorderDefault}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource RadiusCard}"/>
+        <Setter Property="Padding" Value="{DynamicResource CardPadding}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+
+    <Style x:Key="ProGlassMaterial.Soft" TargetType="Border"
+           BasedOn="{StaticResource ProGlassMaterial.Solid}">
+        <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+        <Setter Property="Effect" Value="{DynamicResource ElevationLow}"/>
+    </Style>
+
+    <Style x:Key="ProGlassMaterial.Frosted" TargetType="Border"
+           BasedOn="{StaticResource ProGlassMaterial.Solid}">
+        <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}"/>
+    </Style>
+
+    <Style x:Key="ProGlassMaterial.Crystal" TargetType="Border"
+           BasedOn="{StaticResource ProGlassMaterial.Solid}">
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
+        <Setter Property="Effect" Value="{DynamicResource ElevationMedium}"/>
+    </Style>
+
+    <Style x:Key="ProGlassCard" TargetType="Border"
+           BasedOn="{StaticResource ProGlassMaterial.Solid}"/>
+
+    <Style x:Key="ProGlassKpiCard" TargetType="Border"
+           BasedOn="{StaticResource ProGlassMaterial.Soft}">
+        <Setter Property="MinHeight" Value="{DynamicResource KpiHeight}"/>
+    </Style>
+
+</ResourceDictionary>

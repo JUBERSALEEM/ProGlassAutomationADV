@@ -328,7 +328,7 @@
                                                    Text="{Binding CompanyName}"
                                                    FontSize="{StaticResource TextBody}"
                                                    TextTrimming="CharacterEllipsis"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    Padding="14,12"
                                                    VerticalAlignment="Center"
                                                    ToolTip="{Binding CompanyName}"/>
@@ -337,7 +337,7 @@
                                                    Text="{Binding CustomerName}"
                                                    FontSize="{StaticResource TextBody}"
                                                    TextTrimming="CharacterEllipsis"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    Padding="14,12"
                                                    VerticalAlignment="Center"
                                                    ToolTip="{Binding CustomerName}"/>
@@ -371,7 +371,7 @@
                                                    Text="{Binding GrandTotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                                                    FontSize="{StaticResource TextBodyLarge}"
                                                    FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    Padding="14,12"
                                                    HorizontalAlignment="Right"
                                                    VerticalAlignment="Center"/>

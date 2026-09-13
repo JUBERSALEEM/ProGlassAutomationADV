@@ -41,8 +41,8 @@
                      Padding="12,0"
                      FontSize="{StaticResource TextBodyLarge}"
                      Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=200}"
-                     Background="{DynamicResource ModuleBackgroundBrush}"
-                     Foreground="{DynamicResource PrimaryForegroundBrush}"
+                     Background="{DynamicResource SurfacePrimaryBrush}"
+                     Foreground="{DynamicResource TextPrimaryBrush}"
                      BorderBrush="{DynamicResource BorderBrush}"
                      BorderThickness="{DynamicResource Border.HairlineThickness}"
                      ToolTip="{DynamicResource JobOrder.SearchPINumberCustomerProject}"/>
@@ -65,7 +65,7 @@
         <TextBlock Grid.Row="1"
                    Margin="0,0,0,10"
                    FontSize="{StaticResource TextBody}"
-                   Foreground="{DynamicResource MutedForegroundBrush}"
+                   Foreground="{DynamicResource TextTertiaryBrush}"
                    Text="{Binding CountText}"/>
 
         <!-- ── LIST ────────────────────────────────────────────────── -->
@@ -94,7 +94,7 @@
                 <TextBlock FontSize="{StaticResource TextBody}"
                            Text="{Binding WarningText}"
                            TextWrapping="Wrap"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
             </StackPanel>
         </Border>
     </Grid>

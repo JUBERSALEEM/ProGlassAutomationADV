@@ -61,7 +61,7 @@
             <StackPanel Grid.Column="0" VerticalAlignment="Center">
                 <TextBlock Text="{DynamicResource God.DnTitle}"
                            FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock Text="{DynamicResource God.DnSubtitle}"
                            FontSize="{StaticResource TextBody}" Margin="0,2,0,0"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -71,7 +71,7 @@
             <Border Grid.Column="1"
                     MaxWidth="340"
                     Margin="24,0"
-                    Background="{DynamicResource MenuHoverBrush}"
+                    Background="{DynamicResource SurfaceTertiaryBrush}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="14,0"
                     Height="38"
@@ -110,7 +110,7 @@
         <Border Grid.Row="2"
                 Margin="0,4,0,0"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 ClipToBounds="True">
                 <Grid>

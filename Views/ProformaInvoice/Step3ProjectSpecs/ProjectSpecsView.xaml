@@ -222,7 +222,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
                                         <TextBlock Text="{Binding DisplayProjectName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                   Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
                                         <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis">
                                             <Run Text="{Binding ReferencePreview, Mode=OneWay}"/>
                                             <Run Text="  ·  "/>

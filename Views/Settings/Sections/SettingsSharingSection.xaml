@@ -62,17 +62,17 @@
                             <CheckBox Content="{DynamicResource Sharing.ProviderWhatsApp}"
                                       IsChecked="{Binding SharingWhatsAppEnabled, Mode=TwoWay}"
                                       FontWeight="SemiBold"
-                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                      Foreground="{DynamicResource TextPrimaryBrush}"
                                       Margin="0,8,0,0"/>
                             <CheckBox Content="{DynamicResource Sharing.ProviderEmail}"
                                       IsChecked="{Binding SharingEmailEnabled, Mode=TwoWay}"
                                       FontWeight="SemiBold"
-                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                      Foreground="{DynamicResource TextPrimaryBrush}"
                                       Margin="0,8,0,0"/>
                             <CheckBox Content="{DynamicResource Sharing.ProviderShowFile}"
                                       IsChecked="{Binding SharingSystemFileEnabled, Mode=TwoWay}"
                                       FontWeight="SemiBold"
-                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                      Foreground="{DynamicResource TextPrimaryBrush}"
                                       Margin="0,8,0,0"/>
                         </StackPanel>
 
@@ -162,7 +162,7 @@
                                                    Text="{Binding DocumentTypeKey}"
                                                    FontSize="{StaticResource TextBody}"
                                                    FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                    VerticalAlignment="Center"/>
                                         <ComboBox Grid.Column="1" Margin="0,0,8,0"
                                                   ItemsSource="{Binding DataContext.SharingFormatOptions,

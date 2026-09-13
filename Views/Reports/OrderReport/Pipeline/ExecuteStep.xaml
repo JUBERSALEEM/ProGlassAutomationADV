@@ -27,7 +27,7 @@
 
             <TextBlock Text="Step 3 — Execute"
                        FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                       Foreground="{DynamicResource TextPrimaryBrush}"
                        HorizontalAlignment="Center"/>
 
             <!-- Busy indicator while building -->
@@ -45,7 +45,7 @@
 
                 <ProgressBar IsIndeterminate="True" Width="220" Height="6"
                              Foreground="{DynamicResource AccentBrush}"
-                             Background="{DynamicResource OutlineBrush}"/>
+                             Background="{DynamicResource BorderDefaultBrush}"/>
                 <TextBlock Text="Building report — reading proforma invoices, job orders, delivery notes and tax invoices…"
                            FontSize="{StaticResource TextBody}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -71,7 +71,7 @@
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
                 <TextBlock FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
                            HorizontalAlignment="Center" Margin="0,16,0,0">
                     <Run Text="Report ready — "/>
                     <Run Text="{Binding SectionCount, Mode=OneWay}"/>

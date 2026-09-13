@@ -98,7 +98,7 @@
                                                 <StackPanel Grid.Column="0">
                                                     <TextBlock Text="{Binding DisplayName}"
                                                                FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                               Foreground="{DynamicResource TextPrimaryBrush}"
                                                                IsHitTestVisible="False"/>
                                                     <TextBlock FontSize="{StaticResource TextCaption}"
                                                                Margin="0,2,0,0"
@@ -255,7 +255,7 @@
                                                IsHitTestVisible="False"/>
                                     <TextBlock Text="{Binding DownloadEtaText}"
                                                FontSize="{StaticResource TextBody}" Margin="10,0,0,0"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                               Foreground="{DynamicResource TextTertiaryBrush}"
                                                IsHitTestVisible="False"/>
                                 </StackPanel>
                             </StackPanel>

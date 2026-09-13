@@ -46,13 +46,13 @@
                                            Margin="0,0,10,0"/>
                                 <TextBlock Text="{TemplateBinding Content}"
                                            FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="Bg" Property="Opacity" Value="0.8"/>
@@ -235,7 +235,7 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled">
     <Grid Margin="{DynamicResource DensityPageMargin}"
-          Background="{DynamicResource ModuleBackgroundBrush}">
+          Background="{DynamicResource SurfacePrimaryBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -266,19 +266,19 @@
                             VerticalAlignment="Center">
                     <TextBlock Text="{Binding DeliveryNoteId}"
                                Style="{StaticResource ModuleDetailTitleStyle}"/>
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,3"
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,3"
                             Margin="10,0,0,0" VerticalAlignment="Center"
                             Background="{DynamicResource TintIndigoBrush}">
                         <TextBlock Text="{Binding DeliveryType}"
                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                     </Border>
                     <Border Style="{StaticResource FocBadgeStyle}">
                         <TextBlock Text="{DynamicResource DeliveryNote.FREECharge}"
                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
                     </Border>
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,3"
+                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,3"
                             Margin="6,0,0,0" VerticalAlignment="Center"
                             Background="{DynamicResource TintGreenBrush}">
                         <TextBlock Text="{Binding Status}"
@@ -319,8 +319,8 @@
                            AllowsTransparency="True"
                            StaysOpen="True"
                            PopupAnimation="Fade">
-                        <Border Background="{DynamicResource PopupSurfaceBrush}"
-                                BorderBrush="{DynamicResource OutlineBrush}"
+                        <Border Background="{DynamicResource SurfaceOverlayBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="6"
@@ -341,7 +341,7 @@
                                         Command="{Binding ShowVersionsCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Border Height="1" Margin="10,4"
-                                        Background="{DynamicResource OutlineBrush}"/>
+                                        Background="{DynamicResource BorderDefaultBrush}"/>
                                 <Button Style="{StaticResource DnMenuActionItem}"
                                         Tag="&#xE8A5;" Content="{DynamicResource DeliveryNote.ExportPDF}"
                                         Command="{Binding ExportPdfCommand}"
@@ -359,7 +359,7 @@
                                         Command="{Binding ShareCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Border Height="1" Margin="10,4"
-                                        Background="{DynamicResource OutlineBrush}"/>
+                                        Background="{DynamicResource BorderDefaultBrush}"/>
                                 <Button Style="{StaticResource DnMenuRealOnlyItem}"
                                         Tag="&#xE74D;" Content="{DynamicResource DeliveryNote.DeleteDeliveryNote}"
                                         Command="{Binding DeleteDnCommand}"
@@ -405,7 +405,7 @@
                     <TextBlock Text="{DynamicResource Lock.PostedBodyLocked}"
                                TextWrapping="Wrap"
                                FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>

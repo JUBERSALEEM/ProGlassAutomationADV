@@ -190,8 +190,8 @@
            BasedOn="{StaticResource PillButtonBase}">
         <Setter Property="Height" Value="{DynamicResource DensityButtonHeight}"/>
         <Setter Property="Padding" Value="20,0"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Template" Value="{StaticResource GlassPillButtonTemplate}"/>
@@ -204,7 +204,7 @@
         <Setter Property="Padding" Value="14,0"/>
         <Setter Property="MinWidth" Value="92"/>
         <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Template" Value="{StaticResource GlassPillButtonTemplate}"/>
@@ -222,7 +222,7 @@
         <Setter Property="Cursor" Value="Hand"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             </Trigger>
             <DataTrigger Binding="{Binding Path=(behaviors:TabState.IsActive),
                                            RelativeSource={RelativeSource Self}}"
@@ -385,8 +385,8 @@
         <Setter Property="Height" Value="26"/>
         <Setter Property="Padding" Value="10,0"/>
         <Setter Property="MinWidth" Value="46"/>
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Template" Value="{StaticResource RowButtonTemplate}"/>
@@ -397,7 +397,7 @@
         <Setter Property="Height" Value="26"/>
         <Setter Property="Padding" Value="8,0"/>
         <Setter Property="MinWidth" Value="44"/>
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>

@@ -78,7 +78,7 @@
                 <TextBlock Text="{DynamicResource Lock.PostedBodyLocked}"
                            TextWrapping="Wrap"
                            FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
                            VerticalAlignment="Center"/>
             </StackPanel>
         </Border>
@@ -219,7 +219,7 @@
         <!-- Last edited / audit hint -->
         <TextBlock Text="{Binding LastEditedDisplay}"
                    FontSize="{StaticResource TextCaption}" FontStyle="Italic"
-                   Foreground="{DynamicResource MutedForegroundBrush}"
+                   Foreground="{DynamicResource TextTertiaryBrush}"
                    Margin="2,0,0,0"
                    IsHitTestVisible="False"/>
 

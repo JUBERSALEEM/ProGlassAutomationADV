@@ -36,7 +36,7 @@
                             <TextBlock Grid.Row="0"
                                        Text="Stock pool for the run — only the Step 4 sheet sizes the selected specs were quoted on (outer/inner per spec). Tick the racks each spec may use; unticked racks stay listed but are never fed to the optimizer."
                                        FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
-                                       Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,10"/>
+                                       Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,10"/>
 
                             <TextBlock Grid.Row="1" Text="{Binding StocksStatusText}"
                                        FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
@@ -116,7 +116,7 @@
                                                                   Style="{StaticResource LiquidGlassCheckBox}"
                                                                   ToolTip="Tick to let this rack be used by the optimizer (Step 4 sheets are auto-selected)"/>
                                                         <TextBlock Grid.Column="1" FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center">
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center">
                                                             <Run Text="{Binding WidthText, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding HeightText, Mode=OneWay}"/>
                                                         </TextBlock>
                                                         <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,10,0">
@@ -132,7 +132,7 @@
                                                                    Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"
                                                                    Visibility="{Binding HasUsed, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                                         <TextBlock Grid.Column="5" Text="{Binding SourceLabel}" FontSize="{StaticResource TextCaption}"
-                                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                                   Foreground="{DynamicResource TextTertiaryBrush}"
                                                                    VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,10,0"/>
                                                         <Button Grid.Column="6" Content="Remove" Style="{StaticResource OptGhostButton}"
                                                                 Command="{Binding DataContext.RemoveStockCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"

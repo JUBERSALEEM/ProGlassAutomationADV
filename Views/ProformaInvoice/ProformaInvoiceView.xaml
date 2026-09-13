@@ -100,8 +100,8 @@
             </Grid.RowDefinitions>
 
             <Border Grid.Row="0"
-                    Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
+                    Background="{DynamicResource SurfacePrimaryBrush}"
+                    BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                     Padding="16,8">
                 <Grid>
@@ -153,7 +153,7 @@
                                                     <Border x:Name="Dot"
                                                             Width="20" Height="20"
                                                             CornerRadius="{DynamicResource Radius.Medium}"
-                                                            Background="{DynamicResource MenuHoverBrush}"
+                                                            Background="{DynamicResource SurfaceTertiaryBrush}"
                                                             Margin="0,0,6,0">
                                                         <TextBlock x:Name="Num"
                                                                    Text="{Binding StationCode}"
@@ -175,17 +175,17 @@
                                                     <Setter TargetName="Num" Property="FontFamily" Value="Segoe MDL2 Assets"/>
                                                     <Setter TargetName="Num" Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
                                                     <Setter TargetName="Dot" Property="Background" Value="{DynamicResource TintGreenBrush}"/>
-                                                    <Setter TargetName="Lbl" Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                                    <Setter TargetName="Lbl" Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding IsActive}" Value="True">
                                                     <Setter TargetName="Chip" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                                     <Setter TargetName="Dot" Property="Background" Value="{DynamicResource AccentBrush}"/>
                                                     <Setter TargetName="Num" Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-                                                    <Setter TargetName="Lbl" Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                                    <Setter TargetName="Lbl" Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                                                     <Setter TargetName="Lbl" Property="FontWeight" Value="Bold"/>
                                                 </DataTrigger>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="Chip" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                                    <Setter TargetName="Chip" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
@@ -342,8 +342,8 @@
             </Grid>
 
             <Border Grid.Row="2"
-                    Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
+                    Background="{DynamicResource SurfacePrimaryBrush}"
+                    BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                     Padding="20,0">
                 <Grid>
@@ -362,7 +362,7 @@
                                  Value="{Binding ProgressPercent, Mode=OneWay}"
                                  Margin="28,0"
                                  Foreground="{DynamicResource AccentBrush}"
-                                 Background="{DynamicResource MenuHoverBrush}"
+                                 Background="{DynamicResource SurfaceTertiaryBrush}"
                                  BorderThickness="{DynamicResource Border.NoneThickness}"/>
                     <Button Grid.Column="2"
                             Command="{Binding NextStepCommand}"

@@ -78,7 +78,7 @@
             CornerRadius="{DynamicResource CardCornerRadius}"
             Padding="10,6"
             BorderThickness="{DynamicResource Border.HairlineThickness}"
-            BorderBrush="{DynamicResource GlassBorderSoft}"
+            BorderBrush="{DynamicResource BorderSubtleBrush}"
             Cursor="SizeAll"
             ToolTip="{DynamicResource Shared.DragMoveRecorder}"
             MouseLeftButtonDown="HudDrag_MouseLeftButtonDown">
@@ -110,7 +110,7 @@
                             Command="{Binding PauseCommand}"
                             Margin="0,0,4,0"
                             Visibility="{Binding PauseVisibility}"
-                            Background="{DynamicResource GlassSurfaceElevated}"
+                            Background="{DynamicResource SurfaceElevatedBrush}"
                             AutomationProperties.Name="Pause or resume recording">
                         <TextBlock Text="{Binding PauseGlyph}" FontFamily="Segoe MDL2 Assets"
                                    FontSize="{StaticResource TextBody}" VerticalAlignment="Center"
@@ -146,7 +146,7 @@
                     <Button
                             Style="{StaticResource HudButtonStyle}"
                             Command="{Binding CloseCommand}"
-                            Background="{DynamicResource GlassSurfaceBrush}"
+                            Background="{DynamicResource SurfacePrimaryBrush}"
                             Visibility="{Binding CloseVisibility}"
                             AutomationProperties.Name="Close">
                         <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets"
@@ -159,7 +159,7 @@
             <!-- Only visible while finalizing / finished -->
             <TextBlock
                        Text="{Binding StageText}"
-                       FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}"
+                       FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource TextTertiaryBrush}"
                        Margin="16,4,0,0" TextWrapping="Wrap"
                        MaxWidth="260"
                        Visibility="{Binding StageVisibility}"/>
