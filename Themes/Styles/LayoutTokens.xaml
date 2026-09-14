@@ -21,21 +21,22 @@
        This file only adds the canonical ProGlassLayout.* vocabulary over
        the same runtime keys, so new modules consume ONE name.
 
-     EMERGENCY UI RECOVERY FIX FOR MC1000:
-       Previously this file used <DynamicResource> and was changed to <StaticResource>
-       to make FontSize aliases safe (Double directly). However StaticResource
-       requires compile-time availability in same dictionary or merged dictionary
-       at compile time. Density* is defined in LightTheme.xaml which is merged
-       in App.xaml BEFORE this file, but XAML compiler for this file alone does
-       NOT see LightTheme resources at compile time (only at runtime via App.xaml
-       MergedDictionaries), causing MC1000 Index out of range build error at
-       Line 40. Fix: For FontSize aliases, use sys:Double directly with fixed
-       fallback values matching LightTheme (Body 13, Title 18, Kpi 16) — concrete
-       Double, startup-safe, prevents ResourceReferenceExpression crash inside
-       templates. For layout Thickness/Double, keep DynamicResource so density
-       switching still works at runtime (DynamicResource is valid for non-FontSize
-       properties and does not cause FontSize crash). This preserves theme
-       infrastructure and fixes MC1000.
+     RESOURCE-VALUE RULE (post-splash crash fix, 2026-09-14):
+       Every key in this file is a CONCRETE value (sys:Double / Thickness).
+       Two historical mistakes to avoid:
+       1. <StaticResource x:Key=... ResourceKey="Density*"> — the XAML
+          compiler does not see LightTheme.xaml when compiling this file
+          alone (merged dictionaries are runtime-only), so the cross-file
+          key fails with MC1000 at build time.
+       2. <DynamicResource x:Key=... ResourceKey="Density*"> — compiles
+          fine, but stores a ResourceReferenceExpression marker object as
+          the resource VALUE; the first control assigning it to Height /
+          MinWidth / Padding / Margin crashes with
+          "ResourceReferenceExpression is not a valid value for property
+          '...'". (This was the post-splash launch crash.)
+       Live density switching is preserved by ThemeManager.ApplyDisplay
+       Density, which dual-writes every ProGlassLayout.* key onto
+       Application resources at startup and on every density change.
 
      WHAT LAYOUT IS NOT
        Workspace / Station / Rail / Deck / Grid / List / Queue are
@@ -51,18 +52,25 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=System.Runtime">
 
-    <!-- ── DENSITY · ProGlassLayout — EMERGENCY: FontSize aliases as sys:Double directly (startup-safe concrete double, not ResourceReferenceExpression). Previously DynamicResource Density* → ResourceReferenceExpression → ArgumentException in FrameworkTemplate.ReceivePropertySet when consumed as FontSize inside template. Now Double directly, safe. -->
+    <!-- ── DENSITY · ProGlassLayout — CONCRETE VALUES ONLY.
+         NEVER use <DynamicResource x:Key=...> here: that markup form stores
+         a ResourceReferenceExpression marker as the resource value and
+         crashes the first property assignment after the splash.
+         The values below are the Compact-density fallbacks; live density
+         switching works because ThemeManager.ApplyDisplayDensity dual-writes
+         every ProGlassLayout.* key onto Application resources at startup
+         and on every density change. -->
     <sys:Double x:Key="ProGlassLayout.TitleFontSize">18</sys:Double>
     <sys:Double x:Key="ProGlassLayout.KpiFontSize">16</sys:Double>
     <sys:Double x:Key="ProGlassLayout.BodyFontSize">13</sys:Double>
 
-    <!-- Layout Thickness/Double — keep DynamicResource so density switching works at runtime (valid for non-FontSize) -->
-    <DynamicResource x:Key="ProGlassLayout.RowHeight"       ResourceKey="DensityRowHeight"/>
-    <DynamicResource x:Key="ProGlassLayout.InputHeight"     ResourceKey="DensityInputHeight"/>
-    <DynamicResource x:Key="ProGlassLayout.ButtonHeight"    ResourceKey="DensityButtonHeight"/>
-    <DynamicResource x:Key="ProGlassLayout.ButtonMinWidth"  ResourceKey="DensityButtonMinWidth"/>
-    <DynamicResource x:Key="ProGlassLayout.CardPadding"     ResourceKey="DensityCardPadding"/>
-    <DynamicResource x:Key="ProGlassLayout.SectionPadding"  ResourceKey="DensityStripPadding"/>
-    <DynamicResource x:Key="ProGlassLayout.PageMargin"      ResourceKey="DensityPageMargin"/>
+    <!-- Compact-density fallbacks (ThemeManager republishes at runtime) -->
+    <sys:Double x:Key="ProGlassLayout.RowHeight">26</sys:Double>
+    <sys:Double x:Key="ProGlassLayout.InputHeight">28</sys:Double>
+    <sys:Double x:Key="ProGlassLayout.ButtonHeight">30</sys:Double>
+    <sys:Double x:Key="ProGlassLayout.ButtonMinWidth">84</sys:Double>
+    <Thickness x:Key="ProGlassLayout.CardPadding">8,6,8,6</Thickness>
+    <Thickness x:Key="ProGlassLayout.SectionPadding">10,6,10,6</Thickness>
+    <Thickness x:Key="ProGlassLayout.PageMargin">10,6,10,6</Thickness>
 
 </ResourceDictionary>

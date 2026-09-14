@@ -83,6 +83,13 @@ namespace ProGlassAutomation.Services.Theme.Engine
 
                 EnsurePaletteFallbacks(resources);
 
+                // Semantic alias layer (SemanticTokens / LayoutTokens /
+                // GlobalDesignSystem compatibility keys). Their XAML entries
+                // hold CONCRETE fallback values — never ResourceReference
+                // markers — and this keeps those aliases live-re-tinted on
+                // every family / mode / accent change.
+                DualWriteSemanticAliases(resources);
+
                 resources["ProGlass.Family"] = Family.ToString();
                 resources["ProGlass.Mode"] = Mode.ToString();
                 resources["ProGlass.Material"] = Material.ToString();
@@ -169,6 +176,48 @@ namespace ProGlassAutomation.Services.Theme.Engine
             var clone = live.CloneCurrentValue();
             if (clone.CanFreeze) clone.Freeze();
             resources[target] = clone;
+        }
+
+        /// <summary>
+        /// Live dual-writes for the semantic alias layer. The alias XAML
+        /// files (Themes/Styles/SemanticTokens.xaml,
+        /// Themes/ProGlassDesignSystem/Compatibility/LegacyAliases.xaml and
+        /// the compatibility section of GlobalDesignSystem.xaml) store
+        /// concrete fallback values — a &lt;DynamicResource x:Key=...&gt; entry
+        /// would instead store a ResourceReferenceExpression marker as the
+        /// resource value and crash the first property assignment after the
+        /// splash. This method re-points those aliases at the live
+        /// engine-managed palette on every Publish so light/dark and family
+        /// switches re-tint every semantic consumer.
+        /// </summary>
+        private static void DualWriteSemanticAliases(ResourceDictionary resources)
+        {
+            CopyBrush(resources, "SurfaceWindowBrush", "WindowBackgroundBrush", "WindowBackgroundBrush");
+            CopyBrush(resources, "SurfaceWorkspaceBrush", "ModuleBackgroundBrush", "SurfacePrimaryBrush");
+            CopyBrush(resources, "SurfaceCardBrush", "GlassUltraClearBrush", "SurfacePrimaryBrush");
+            CopyBrush(resources, "SurfaceElevatedBrush", "ElevatedSurfaceBrush", "WindowBackgroundBrush");
+            CopyBrush(resources, "SurfacePopupBrush", "PopupSurfaceBrush", "ElevatedSurfaceBrush");
+            CopyBrush(resources, "SurfaceSidebarBrush", "SideMenuBackgroundBrush", "WindowBackgroundBrush");
+            CopyBrush(resources, "TextMutedBrush", "MutedForegroundBrush", "TextTertiaryBrush");
+            CopyBrush(resources, "FocusBrush", "LiquidFocusBrush", "BorderFocusBrush");
+
+            // Radius hierarchy follows the user-set card radius (published by
+            // ThemeManager.ApplyCardCornerRadius before this runs at startup).
+            CopyCorner(resources, "RadiusNone", "Radius.None", 0);
+            CopyCorner(resources, "RadiusCompact", "Radius.Small", 6);
+            CopyCorner(resources, "RadiusControl", "ControlCornerRadius", 8);
+            CopyCorner(resources, "RadiusCard", "CardCornerRadius", 12);
+            CopyCorner(resources, "RadiusLarge", "CardCornerRadiusLarge", 16);
+            CopyCorner(resources, "RadiusDialog", "CardCornerRadiusLarge", 16);
+        }
+
+        private static void CopyCorner(
+            ResourceDictionary resources, string target, string source, double fallback)
+        {
+            if (resources.Contains(source) && resources[source] is CornerRadius corner)
+                resources[target] = corner;
+            else
+                resources[target] = new CornerRadius(fallback);
         }
 
         private static void EnsurePaletteFallbacks(ResourceDictionary resources)

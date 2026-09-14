@@ -228,6 +228,17 @@ namespace ProGlassAutomation.Services
             resources["DbKpiTileMinHeight"] = kpiMinH;
             resources["DbChartMinHeight"] = chartMinH;
 
+            // ProGlassLayout.* canonical density vocabulary (LayoutTokens.xaml
+            // holds only concrete fallbacks — live density must come from here
+            // so new modules consuming the canonical names still reflow).
+            resources["ProGlassLayout.RowHeight"] = rowH;
+            resources["ProGlassLayout.InputHeight"] = inputH;
+            resources["ProGlassLayout.ButtonHeight"] = buttonH;
+            resources["ProGlassLayout.ButtonMinWidth"] = buttonMin;
+            resources["ProGlassLayout.CardPadding"] = cardPad;
+            resources["ProGlassLayout.SectionPadding"] = stripPad;
+            resources["ProGlassLayout.PageMargin"] = pageMargin;
+
             ApplySemanticSurfacePadding(resources, cardPad, stripPad);
             PublishProGlassDesignSystem();
         }

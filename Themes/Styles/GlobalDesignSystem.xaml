@@ -44,10 +44,16 @@
     <FontFamily x:Key="FontFamily.App">Segoe UI Variable, Segoe UI, Inter, sans-serif</FontFamily>
     <FontFamily x:Key="FontFamily.Icon">Segoe MDL2 Assets</FontFamily>
     <FontFamily x:Key="FontFamily.Code">Consolas, Cascadia Code, monospace</FontFamily>
-    <!-- Aliases for backward compat -->
+    <!-- Aliases for backward compat.
+         CONCRETE VALUES, not markup-extension aliases: a
+         <DynamicResource x:Key=...> entry stores a ResourceReferenceExpression
+         marker object as the resource VALUE, which crashes property assignment
+         ("ResourceReferenceExpression is not a valid value for property 'FontFamily'").
+         FontService.ApplySavedFont republishes AppFontFamily on Application
+         resources at startup, so live font switching still works. -->
     <FontFamily x:Key="IconFontFamily">Segoe MDL2 Assets</FontFamily>
-    <DynamicResource x:Key="AppFontFamily" ResourceKey="FontFamily.App"/>
-    <DynamicResource x:Key="AppFontFamilyVariable" ResourceKey="FontFamily.App"/>
+    <FontFamily x:Key="AppFontFamily">Segoe UI Variable, Segoe UI</FontFamily>
+    <FontFamily x:Key="AppFontFamilyVariable">Segoe UI Variable, Segoe UI</FontFamily>
 
     <!-- ═══════════════════════════════════════════════════════════════
          2. FONT WEIGHT — ONE CANONICAL (replaces 99.7% hardcoded)
@@ -60,12 +66,15 @@
     <FontWeight x:Key="FontWeight.Medium">Medium</FontWeight>
     <FontWeight x:Key="FontWeight.SemiBold">SemiBold</FontWeight>
     <FontWeight x:Key="FontWeight.Bold">Bold</FontWeight>
-    <!-- Aliases for SemanticTypography -->
-    <DynamicResource x:Key="TypographyBodyWeight" ResourceKey="Weight.Regular"/>
-    <DynamicResource x:Key="TypographyLabelWeight" ResourceKey="Weight.SemiBold"/>
-    <DynamicResource x:Key="TypographyHeadingWeight" ResourceKey="Weight.SemiBold"/>
-    <DynamicResource x:Key="TypographyTitleWeight" ResourceKey="Weight.Bold"/>
-    <DynamicResource x:Key="TypographyDisplayWeight" ResourceKey="Weight.Bold"/>
+    <!-- Aliases for SemanticTypography — concrete weights (markup-extension
+         alias entries store ResourceReferenceExpression markers as the value
+         and crash when assigned to FontWeight). Weights are design constants;
+         they never change at runtime, so no live tracking is needed. -->
+    <FontWeight x:Key="TypographyBodyWeight">Normal</FontWeight>
+    <FontWeight x:Key="TypographyLabelWeight">SemiBold</FontWeight>
+    <FontWeight x:Key="TypographyHeadingWeight">SemiBold</FontWeight>
+    <FontWeight x:Key="TypographyTitleWeight">Bold</FontWeight>
+    <FontWeight x:Key="TypographyDisplayWeight">Bold</FontWeight>
 
     <!-- ═══════════════════════════════════════════════════════════════
          3. FONT SIZE — ONE CANONICAL TYPOGRAPHY SCALE
@@ -94,7 +103,11 @@
     <sys:Double x:Key="FontSize.Chip">11</sys:Double>
     <sys:Double x:Key="FontSize.Badge">10</sys:Double>
 
-    <!-- Aliases for existing TypeScaleTokens — EMERGENCY UI RECOVERY: use StaticResource so Text* resolves to Double directly, not ResourceReferenceExpression, preventing FontSize crash inside templates. Previously DynamicResource caused ResourceReferenceExpression → ArgumentException in FrameworkTemplate.ReceivePropertySet. -->
+    <!-- Aliases for existing TypeScaleTokens.
+         These MUST stay StaticResource (same-file target): they resolve to a
+         concrete Double at dictionary load. A <DynamicResource x:Key=...>
+         entry would instead store a ResourceReferenceExpression marker as the
+         value and crash any template assigning it to FontSize. -->
     <StaticResource x:Key="TextXSmall" ResourceKey="FontSize.Caption"/>
     <StaticResource x:Key="TextCaption" ResourceKey="FontSize.BodySmall"/>
     <StaticResource x:Key="TextBody" ResourceKey="FontSize.Body"/>
@@ -107,7 +120,10 @@
     <StaticResource x:Key="TextDisplay" ResourceKey="FontSize.Kpi"/>
     <StaticResource x:Key="TextDisplayLarge" ResourceKey="FontSize.Display"/>
 
-    <!-- SemanticTypography aliases — EMERGENCY: StaticResource for startup-safe double -->
+    <!-- SemanticTypography aliases — StaticResource (concrete doubles at load).
+         ThemeManager.ApplyDisplayDensity republishes TypographyBodySize /
+         TypographyTitleSize / TypographyKpiValueFontSize on Application
+         resources at startup, so density-driven sizes still track live. -->
     <StaticResource x:Key="TypographyDisplaySize" ResourceKey="FontSize.Display"/>
     <StaticResource x:Key="TypographyH1Size" ResourceKey="FontSize.H1"/>
     <StaticResource x:Key="TypographyH2Size" ResourceKey="FontSize.H2"/>
@@ -121,7 +137,7 @@
     <StaticResource x:Key="TypographyMoneySize" ResourceKey="FontSize.Money"/>
     <StaticResource x:Key="TypographyIconSize" ResourceKey="FontSize.Icon"/>
 
-    <!-- Type.* aliases — EMERGENCY: StaticResource for startup-safe double -->
+    <!-- Type.* aliases — StaticResource (concrete doubles at load) -->
     <StaticResource x:Key="Type.Caption" ResourceKey="FontSize.Caption"/>
     <StaticResource x:Key="Type.Small" ResourceKey="FontSize.BodySmall"/>
     <StaticResource x:Key="Type.Body" ResourceKey="FontSize.Body"/>
@@ -134,7 +150,9 @@
     <StaticResource x:Key="Type.NumericValue" ResourceKey="FontSize.Kpi"/>
     <StaticResource x:Key="Type.Money" ResourceKey="FontSize.Money"/>
 
-    <!-- Density aliases (for backward compat) — EMERGENCY: StaticResource for startup-safe double -->
+    <!-- Density aliases (for backward compat) — StaticResource (concrete doubles
+         at load). ThemeManager.ApplyDisplayDensity republishes these three keys
+         on Application resources at startup, so density switching still wins. -->
     <StaticResource x:Key="DensityBodyFontSize" ResourceKey="FontSize.Body"/>
     <StaticResource x:Key="DensityTitleFontSize" ResourceKey="FontSize.H2"/>
     <StaticResource x:Key="DensityKpiValueFontSize" ResourceKey="FontSize.Kpi"/>
@@ -173,13 +191,20 @@
     <CornerRadius x:Key="Radius.Left.Medium">10,0,0,10</CornerRadius>
     <CornerRadius x:Key="Radius.Right.Medium">0,10,10,0</CornerRadius>
 
-    <!-- Aliases for existing keys -->
-    <DynamicResource x:Key="CardCornerRadius" ResourceKey="Radius.Card"/>
-    <DynamicResource x:Key="ControlCornerRadius" ResourceKey="Radius.Control"/>
-    <DynamicResource x:Key="CardCornerRadiusLarge" ResourceKey="Radius.Dialog"/>
-    <DynamicResource x:Key="Surface.Primary.CornerRadius" ResourceKey="Radius.Card"/>
-    <DynamicResource x:Key="Surface.Secondary.CornerRadius" ResourceKey="Radius.Card"/>
-    <DynamicResource x:Key="Surface.Detail.CornerRadius" ResourceKey="Radius.Medium"/>
+    <!-- Aliases for existing keys.
+         CONCRETE VALUES (fallbacks), not markup-extension aliases — a
+         <DynamicResource x:Key=...> entry stores a ResourceReferenceExpression
+         marker as the value and crashes CornerRadius assignment. Live tracking:
+         ThemeManager.ApplyCardCornerRadius republishes CardCornerRadius /
+         ControlCornerRadius / CardCornerRadiusLarge on Application resources at
+         startup, and ApplySemanticSurfaces republishes Surface.*.CornerRadius
+         from the saved appearance. -->
+    <CornerRadius x:Key="CardCornerRadius">12</CornerRadius>
+    <CornerRadius x:Key="ControlCornerRadius">8</CornerRadius>
+    <CornerRadius x:Key="CardCornerRadiusLarge">16</CornerRadius>
+    <CornerRadius x:Key="Surface.Primary.CornerRadius">12</CornerRadius>
+    <CornerRadius x:Key="Surface.Secondary.CornerRadius">12</CornerRadius>
+    <CornerRadius x:Key="Surface.Detail.CornerRadius">10</CornerRadius>
 
     <!-- Legacy aliases -->
     <CornerRadius x:Key="RadiusSmall">6</CornerRadius>
@@ -205,18 +230,21 @@
     <Thickness x:Key="Border.BoxNoLeft">0,1,1,1</Thickness>
     <Thickness x:Key="Border.BoxNoTop">1,0,1,1</Thickness>
 
-    <!-- Aliases -->
-    <DynamicResource x:Key="CardBorderThickness" ResourceKey="Border.Default"/>
-    <DynamicResource x:Key="CardEdgeThickness" ResourceKey="Border.Strong"/>
-    <DynamicResource x:Key="BorderThin" ResourceKey="Border.Thin"/>
-    <DynamicResource x:Key="BorderDefault" ResourceKey="Border.Default"/>
-    <DynamicResource x:Key="BorderStrong" ResourceKey="Border.Strong"/>
-    <DynamicResource x:Key="Border.TopHairlineThickness" ResourceKey="Border.TopHairline"/>
-    <DynamicResource x:Key="Border.BottomHairlineThickness" ResourceKey="Border.BottomHairline"/>
-    <DynamicResource x:Key="Border.LeftHairlineThickness" ResourceKey="Border.LeftHairline"/>
-    <DynamicResource x:Key="Border.RightHairlineThickness" ResourceKey="Border.RightHairline"/>
-    <DynamicResource x:Key="Border.VerticalHairlineThickness" ResourceKey="Border.VerticalHairline"/>
-    <DynamicResource x:Key="Border.HorizontalHairlineThickness" ResourceKey="Border.HorizontalHairline"/>
+    <!-- Aliases — CONCRETE VALUES (fallbacks). ThemeManager republishes
+         CardBorderThickness / CardEdgeThickness and the Border.*Hairline*
+         family on Application resources at startup, so live card-edge
+         changes still win over these merged-dictionary fallbacks. -->
+    <Thickness x:Key="CardBorderThickness">1</Thickness>
+    <Thickness x:Key="CardEdgeThickness">1.5</Thickness>
+    <Thickness x:Key="BorderThin">1</Thickness>
+    <Thickness x:Key="BorderDefault">1</Thickness>
+    <Thickness x:Key="BorderStrong">1.5</Thickness>
+    <Thickness x:Key="Border.TopHairlineThickness">0,1,0,0</Thickness>
+    <Thickness x:Key="Border.BottomHairlineThickness">0,0,0,1</Thickness>
+    <Thickness x:Key="Border.LeftHairlineThickness">1,0,0,0</Thickness>
+    <Thickness x:Key="Border.RightHairlineThickness">0,0,1,0</Thickness>
+    <Thickness x:Key="Border.VerticalHairlineThickness">1,0,1,0</Thickness>
+    <Thickness x:Key="Border.HorizontalHairlineThickness">0,1,0,1</Thickness>
 
     <!-- ═══════════════════════════════════════════════════════════════
          6. SPACING — ONE CANONICAL
@@ -239,19 +267,22 @@
     <Thickness x:Key="Space.Dialog">24</Thickness>
     <Thickness x:Key="Space.Toolbar">12,8</Thickness>
 
-    <!-- Aliases for SemanticSpacing -->
-    <DynamicResource x:Key="SpacingXS" ResourceKey="Space.Xs"/>
-    <DynamicResource x:Key="SpacingSM" ResourceKey="Space.Sm"/>
-    <DynamicResource x:Key="SpacingMD" ResourceKey="Space.Md"/>
-    <DynamicResource x:Key="SpacingLG" ResourceKey="Space.Lg"/>
-    <DynamicResource x:Key="SpacingXL" ResourceKey="Space.Xl"/>
-    <DynamicResource x:Key="SpacingXXL" ResourceKey="Space.2Xl"/>
-    <DynamicResource x:Key="PagePadding" ResourceKey="Space.Page"/>
-    <DynamicResource x:Key="SectionSpacing" ResourceKey="Space.Section"/>
-    <DynamicResource x:Key="CardPadding" ResourceKey="Space.Card"/>
-    <DynamicResource x:Key="ControlPadding" ResourceKey="Space.Control"/>
-    <DynamicResource x:Key="DialogPadding" ResourceKey="Space.Dialog"/>
-    <DynamicResource x:Key="ToolbarPadding" ResourceKey="Space.Toolbar"/>
+    <!-- Aliases for SemanticSpacing — CONCRETE VALUES. ThemeManager.
+         ApplyDisplayDensity republishes PagePadding / CardPadding on
+         Application resources at startup (density-dependent); the rest are
+         design constants. -->
+    <sys:Double x:Key="SpacingXS">4</sys:Double>
+    <sys:Double x:Key="SpacingSM">8</sys:Double>
+    <sys:Double x:Key="SpacingMD">12</sys:Double>
+    <sys:Double x:Key="SpacingLG">16</sys:Double>
+    <sys:Double x:Key="SpacingXL">24</sys:Double>
+    <sys:Double x:Key="SpacingXXL">32</sys:Double>
+    <Thickness x:Key="PagePadding">12</Thickness>
+    <Thickness x:Key="SectionSpacing">12,0,12,12</Thickness>
+    <Thickness x:Key="CardPadding">12,9</Thickness>
+    <Thickness x:Key="ControlPadding">12,0</Thickness>
+    <Thickness x:Key="DialogPadding">24</Thickness>
+    <Thickness x:Key="ToolbarPadding">12,8</Thickness>
 
     <!-- Density (published by ThemeManager.ApplyDisplayDensity) — fallbacks -->
     <Thickness x:Key="Density.PageMargin">12</Thickness>
@@ -262,14 +293,16 @@
     <sys:Double x:Key="Density.KpiTileMinHeight">86</sys:Double>
     <sys:Double x:Key="Density.ChartMinHeight">220</sys:Double>
 
-    <!-- Db* aliases (modern dashboard grammar) -->
-    <DynamicResource x:Key="DbPageMargin" ResourceKey="Density.PageMargin"/>
-    <DynamicResource x:Key="DbCardPadding" ResourceKey="Density.CardPadding"/>
-    <DynamicResource x:Key="DbTilePadding" ResourceKey="Density.TilePadding"/>
-    <DynamicResource x:Key="DbGutter" ResourceKey="Density.Gutter"/>
-    <DynamicResource x:Key="DbGutterHalfMargin" ResourceKey="Density.GutterHalf"/>
-    <DynamicResource x:Key="DbKpiTileMinHeight" ResourceKey="Density.KpiTileMinHeight"/>
-    <DynamicResource x:Key="DbChartMinHeight" ResourceKey="Density.ChartMinHeight"/>
+    <!-- Db* aliases (modern dashboard grammar) — CONCRETE Compact-density
+         fallbacks. ThemeManager.ApplyDisplayDensity republishes every Db* key
+         on Application resources at startup, so the saved density always wins. -->
+    <Thickness x:Key="DbPageMargin">10,6,10,6</Thickness>
+    <Thickness x:Key="DbCardPadding">14,13,14,13</Thickness>
+    <Thickness x:Key="DbTilePadding">10,8,10,8</Thickness>
+    <sys:Double x:Key="DbGutter">8</sys:Double>
+    <Thickness x:Key="DbGutterHalfMargin">4</Thickness>
+    <sys:Double x:Key="DbKpiTileMinHeight">80</sys:Double>
+    <sys:Double x:Key="DbChartMinHeight">180</sys:Double>
 
     <!-- ═══════════════════════════════════════════════════════════════
          7. SHADOWS — ONE CANONICAL
@@ -285,15 +318,17 @@
     <DropShadowEffect x:Key="Shadow.Dialog" BlurRadius="28" ShadowDepth="0" Opacity="0.18" Color="#FF0F172A"/>
     <DropShadowEffect x:Key="Shadow.Elevated" BlurRadius="16" ShadowDepth="0" Opacity="0.12" Color="#FF0F172A"/>
 
-    <!-- Aliases for SemanticElevation -->
-    <DynamicResource x:Key="ElevationNone" ResourceKey="Shadow.None"/>
-    <DynamicResource x:Key="ElevationLow" ResourceKey="Shadow.Soft"/>
-    <DynamicResource x:Key="ElevationMedium" ResourceKey="Shadow.Medium"/>
-    <DynamicResource x:Key="ElevationHigh" ResourceKey="Shadow.Large"/>
-    <DynamicResource x:Key="ElevationOverlay" ResourceKey="Shadow.XLarge"/>
-    <DynamicResource x:Key="ElevationCard" ResourceKey="Shadow.Card"/>
-    <DynamicResource x:Key="ElevationPopup" ResourceKey="Shadow.Popup"/>
-    <DynamicResource x:Key="ElevationDialog" ResourceKey="Shadow.Dialog"/>
+    <!-- Aliases for SemanticElevation — StaticResource (same-file targets) so
+         each alias resolves to the concrete DropShadowEffect instance at load.
+         Effects are design constants; no runtime republish exists for them. -->
+    <StaticResource x:Key="ElevationNone" ResourceKey="Shadow.None"/>
+    <StaticResource x:Key="ElevationLow" ResourceKey="Shadow.Soft"/>
+    <StaticResource x:Key="ElevationMedium" ResourceKey="Shadow.Medium"/>
+    <StaticResource x:Key="ElevationHigh" ResourceKey="Shadow.Large"/>
+    <StaticResource x:Key="ElevationOverlay" ResourceKey="Shadow.XLarge"/>
+    <StaticResource x:Key="ElevationCard" ResourceKey="Shadow.Card"/>
+    <StaticResource x:Key="ElevationPopup" ResourceKey="Shadow.Popup"/>
+    <StaticResource x:Key="ElevationDialog" ResourceKey="Shadow.Dialog"/>
 
     <!-- ═══════════════════════════════════════════════════════════════
          8. COLORS & SURFACES — ONE CANONICAL
@@ -377,13 +412,23 @@
     <CornerRadius x:Key="Surface.Glass.Radius">12</CornerRadius>
     <Thickness x:Key="Surface.Glass.Padding">12,9</Thickness>
 
-    <!-- DynamicResource aliases to existing engine-managed keys -->
-    <DynamicResource x:Key="Surface.Primary.BackgroundBrush" ResourceKey="SurfacePrimaryBrush"/>
-    <DynamicResource x:Key="Surface.Secondary.BackgroundBrush" ResourceKey="SurfaceSecondaryBrush"/>
-    <DynamicResource x:Key="Surface.Detail.BackgroundBrush" ResourceKey="SurfaceTertiaryBrush"/>
-    <DynamicResource x:Key="Surface.Primary.BorderBrush" ResourceKey="BorderDefaultBrush"/>
-    <DynamicResource x:Key="Surface.Secondary.BorderBrush" ResourceKey="BorderDefaultBrush"/>
-    <DynamicResource x:Key="Surface.Detail.BorderBrush" ResourceKey="BorderDefaultBrush"/>
+    <!-- Semantic surface brushes.
+         CONCRETE fallback brushes (matching the static Surface.*.Background /
+         Surface.*.Border values above), NOT DynamicResource alias entries —
+         those store ResourceReferenceExpression markers as the value and crash
+         the first Background/BorderBrush assignment after the splash
+         (shell sidebar cards, dashboards, DataGrid chrome).
+         LIVE TRACKING: ThemeManager.ApplySemanticSurfaces (called at startup
+         after ApplyCardCornerRadius, and on every Settings appearance change)
+         republishes these six keys on Application resources from the active
+         family/mode palette, so light/dark and family switches still re-tint
+         every consumer. -->
+    <SolidColorBrush x:Key="Surface.Primary.BackgroundBrush" Color="#F8FFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Secondary.BackgroundBrush" Color="#EFFFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Detail.BackgroundBrush" Color="#00FFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Primary.BorderBrush" Color="#2EFFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Secondary.BorderBrush" Color="#FFCBD5E1"/>
+    <SolidColorBrush x:Key="Surface.Detail.BorderBrush" Color="#FFCBD5E1"/>
 
     <!-- ═══════════════════════════════════════════════════════════════
          9. SURFACE STYLES — ONE CANONICAL CARD SYSTEM (6 levels)
@@ -614,6 +659,17 @@
         <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
     <Style x:Key="Input.ComboBox" TargetType="ComboBox">
+        <Setter Property="Background" Value="{DynamicResource SurfaceInputBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource InputBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.Thin}"/>
+        <Setter Property="Padding" Value="{DynamicResource Space.Control}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Input}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Regular}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Density.ControlHeight}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="Input.DatePicker" TargetType="DatePicker">
         <Setter Property="Background" Value="{DynamicResource SurfaceInputBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource InputBorderBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.Thin}"/>

@@ -11,9 +11,19 @@
        battle-tested, but their key names are the legacy/material names.
 
        This file is the COMPATIBILITY / ALIAS layer: it adds the canonical
-       semantic names as pure DynamicResource aliases that point at the
-       existing, engine-managed keys. Nothing here overrides or deletes
-       anything — it is 100% additive.
+       semantic names on top of the existing, engine-managed keys. Nothing
+       here overrides or deletes anything — it is 100% additive.
+
+       CRITICAL (2026-09-14 — post-splash launch crash fix):
+       These entries MUST be CONCRETE fallback values, never
+       <DynamicResource x:Key=...> alias entries. That markup form stores
+       a ResourceReferenceExpression marker object as the resource VALUE;
+       the first control assigning it to a typed property (Background,
+       CornerRadius, ...) throws
+       "ResourceReferenceExpression is not a valid value for property ...".
+       The concrete values below only cover the pre-publish window — after
+       startup, ProGlassThemeEngine.Publish() owns these keys at higher
+       (Application-level) priority via DualWriteSemanticAliases.
 
        ALIAS DIRECTION (documented decision)
          canonical  →  legacy material key
@@ -27,8 +37,8 @@
      DO NOT
        · add a key here that already exists elsewhere (merged-dictionary
          later-wins would silently shadow it);
-       · convert this file's aliases to StaticResource (they must track
-         runtime theme/appearance changes);
+       · reintroduce markup-extension alias entries (they re-create the
+         ResourceReferenceExpression crash);
        · delete a legacy key — the compatibility layer exists precisely so
          the two vocabularies can coexist until views are migrated.
      ═══════════════════════════════════════════════════════════════════ -->
@@ -42,26 +52,27 @@
            Industrial → solid slate/white material
            Monet      → Monet-tinted material
            Crystal    → crystal glass material                            -->
-    <DynamicResource x:Key="SurfaceWindowBrush"    ResourceKey="WindowBackgroundBrush"/>
-    <DynamicResource x:Key="SurfaceWorkspaceBrush" ResourceKey="ModuleBackgroundBrush"/>
-    <DynamicResource x:Key="SurfaceCardBrush"      ResourceKey="GlassUltraClearBrush"/>
-    <DynamicResource x:Key="SurfaceElevatedBrush"  ResourceKey="ElevatedSurfaceBrush"/>
-    <DynamicResource x:Key="SurfaceInputBrush"     ResourceKey="ModuleBackgroundBrush"/>
-    <DynamicResource x:Key="SurfacePopupBrush"     ResourceKey="PopupSurfaceBrush"/>
-    <DynamicResource x:Key="SurfaceSidebarBrush"   ResourceKey="SideMenuBackgroundBrush"/>
+    <SolidColorBrush x:Key="SurfaceWindowBrush"    Color="#FFF5F7FA"/>
+    <SolidColorBrush x:Key="SurfaceWorkspaceBrush" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="SurfaceCardBrush"      Color="#F8FFFFFF"/>
+    <SolidColorBrush x:Key="SurfaceElevatedBrush"  Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="SurfaceInputBrush"     Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="SurfacePopupBrush"     Color="#FFF8FAFC"/>
+    <SolidColorBrush x:Key="SurfaceSidebarBrush"   Color="#FFEEF1F5"/>
 
     <!-- ── LEVEL 2 · SEMANTIC TEXT ────────────────────────────────────
          TextPrimaryBrush / TextSecondaryBrush already exist in Light/Dark
-         themes — do NOT redeclare. Only fill the missing muted alias. -->
-    <DynamicResource x:Key="TextMutedBrush" ResourceKey="MutedForegroundBrush"/>
+         themes — do NOT redeclare. Only fill the missing muted alias.
+         Concrete fallback; Publish() re-paints it live. -->
+    <SolidColorBrush x:Key="TextMutedBrush" Color="#FF64748B"/>
 
     <!-- ── LEVEL 2 · SEMANTIC BORDERS / DIVIDERS ────────────────────── -->
-    <DynamicResource x:Key="BorderSubtleBrush" ResourceKey="OutlineDefaultBrush"/>
-    <DynamicResource x:Key="BorderStrongBrush" ResourceKey="OutlineStrongBrush"/>
+    <SolidColorBrush x:Key="BorderSubtleBrush" Color="#FFCBD5E1"/>
+    <SolidColorBrush x:Key="BorderStrongBrush" Color="#FF94A3B8"/>
 
     <!-- ── LEVEL 2 · FOCUS & ACCENT STATES ──────────────────────────── -->
-    <DynamicResource x:Key="FocusBrush"        ResourceKey="LiquidFocusBrush"/>
-    <DynamicResource x:Key="AccentPressedBrush" ResourceKey="AccentDarkBrush"/>
+    <SolidColorBrush x:Key="FocusBrush"        Color="#660369A1"/>
+    <SolidColorBrush x:Key="AccentPressedBrush" Color="#FF1D4ED8"/>
 
     <!-- ── LEVEL 1 · RADIUS (semantic geometry) ───────────────────────
          RadiusControl / RadiusCard / RadiusLarge / RadiusDialog alias the
@@ -69,12 +80,12 @@
          CardCornerRadiusLarge) so a theme family can change the whole
          radius hierarchy in one place; RadiusCompact rides the fixed fine
          scale; RadiusPill is the 999 capsule.                                -->
-    <DynamicResource x:Key="RadiusNone"    ResourceKey="Radius.None"/>
-    <DynamicResource x:Key="RadiusCompact" ResourceKey="Radius.Small"/>
-    <DynamicResource x:Key="RadiusControl" ResourceKey="ControlCornerRadius"/>
-    <DynamicResource x:Key="RadiusCard"    ResourceKey="CardCornerRadius"/>
-    <DynamicResource x:Key="RadiusLarge"   ResourceKey="CardCornerRadiusLarge"/>
-    <DynamicResource x:Key="RadiusDialog"  ResourceKey="CardCornerRadiusLarge"/>
+    <CornerRadius x:Key="RadiusNone">0</CornerRadius>
+    <CornerRadius x:Key="RadiusCompact">6</CornerRadius>
+    <CornerRadius x:Key="RadiusControl">8</CornerRadius>
+    <CornerRadius x:Key="RadiusCard">12</CornerRadius>
+    <CornerRadius x:Key="RadiusLarge">16</CornerRadius>
+    <CornerRadius x:Key="RadiusDialog">16</CornerRadius>
     <CornerRadius x:Key="RadiusPill">999</CornerRadius>
 
     <!-- ── LEVEL 1 · MOTION (semantic durations) ──────────────────────

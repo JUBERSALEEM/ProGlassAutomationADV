@@ -70,173 +70,6 @@ namespace ProGlassAutomation
             // 0) Technical logging first — everything after can report here.
             AppLogService.Initialize();
 
-            // TEMPORARY DIAGNOSTIC — Phase 19R FULL FORENSICS ERR-102553
-            // Objective: Identify EXACT remaining ControlTemplate/DataTemplate/style/property supplying ResourceReferenceExpression to FontSize during startup.
-            // Evidence-driven: capture Message/Inner/HResult/stack/targetObject/member/value/templatedParent/Name/TargetType/type chain per task.
-            // This is temporary instrumentation — remove after clean launch verified.
-            try
-            {
-                AppDomain.CurrentDomain.FirstChanceException += (_, args) =>
-                {
-                    try
-                    {
-                        if (args.Exception is System.Windows.Markup.XamlParseException xpe)
-                        {
-                            var baseUri = xpe.BaseUri?.ToString() ?? "null";
-                            var line = xpe.LineNumber;
-                            var pos = xpe.LinePosition;
-                            AppLogService.Debug(
-                                $"[Forensics] FirstChance XamlParseException | BaseUri={baseUri} Line={line} Pos={pos} Message={xpe.Message} HResult=0x{xpe.HResult:X8}",
-                                new LogContext { Operation = "Forensics_XamlParse" });
-                            if (xpe.InnerException != null)
-                            {
-                                var inner = xpe.InnerException;
-                                AppLogService.Debug(
-                                    $"[Forensics] XamlParse Inner | Type={inner.GetType().FullName} HResult=0x{inner.HResult:X8} Message={inner.Message} Stack={inner.StackTrace?.Substring(0, Math.Min(4000, inner.StackTrace.Length))}",
-                                    new LogContext { Operation = "Forensics_XamlParseInner" });
-                                // Log inner inner if present (ArgumentException)
-                                if (inner.InnerException != null)
-                                {
-                                    var ii = inner.InnerException;
-                                    AppLogService.Debug(
-                                        $"[Forensics] XamlParse InnerInner | Type={ii.GetType().FullName} HResult=0x{ii.HResult:X8} Message={ii.Message}",
-                                        new LogContext { Operation = "Forensics_XamlParseInnerInner" });
-                                }
-                            }
-                            try
-                            {
-                                var theme = ProGlassAutomation.Services.Theme.VisualThemeEngine.Current;
-                                var accent = ProGlassAutomation.Services.ThemeManager.CurrentAccentHex ?? "unknown";
-                                AppLogService.Debug($"[Forensics] Current VisualTheme={theme} Accent={accent} AppTheme={ProGlassAutomation.Services.ThemeManager.CurrentTheme}", new LogContext { Operation = "Forensics_Theme" });
-                            }
-                            catch { }
-                            // Visual tree snapshot at time of XamlParseException
-                            try
-                            {
-                                Application.Current?.Dispatcher?.BeginInvoke(new Action(() =>
-                                {
-                                    try
-                                    {
-                                        var mw = Application.Current?.MainWindow;
-                                        if (mw != null)
-                                        {
-                                            AppLogService.Debug($"[Forensics] MainWindow Type={mw.GetType().FullName} ContentType={mw.Content?.GetType().FullName} DataContextType={mw.DataContext?.GetType().FullName} IsLoaded={mw.IsLoaded} WindowState={mw.WindowState}", new LogContext { Operation = "Forensics_VisualTree" });
-                                            // Walk visual tree top-level children
-                                            int count = 0;
-                                            void Walk(System.Windows.DependencyObject d, int depth)
-                                            {
-                                                if (d == null || count > 150 || depth > 8) return;
-                                                var fe = d as System.Windows.FrameworkElement;
-                                                var typeName = d.GetType().FullName;
-                                                var name = fe?.Name ?? "";
-                                                var templatedParent = fe?.TemplatedParent?.GetType().FullName ?? "null";
-                                                var template = fe?.Template?.GetType().FullName ?? "null";
-                                                // Try to read FontSize local value
-                                                string fontSizeInfo = "";
-                                                try
-                                                {
-                                                    if (fe != null)
-                                                    {
-                                                        var local = fe.ReadLocalValue(System.Windows.Controls.Control.FontSizeProperty);
-                                                        if (local != System.Windows.DependencyProperty.UnsetValue)
-                                                        {
-                                                            fontSizeInfo = $" LocalFontSizeType={local?.GetType().FullName} Value={local}";
-                                                        }
-                                                        // Also check TextElement.FontSize
-                                                        var teLocal = fe.ReadLocalValue(System.Windows.Documents.TextElement.FontSizeProperty);
-                                                        if (teLocal != System.Windows.DependencyProperty.UnsetValue)
-                                                        {
-                                                            fontSizeInfo += $" TextElement.LocalType={teLocal?.GetType().FullName} Value={teLocal}";
-                                                        }
-                                                    }
-                                                }
-                                                catch { }
-                                                if (fe != null && (typeName.Contains("TextBlock") || typeName.Contains("Control") || typeName.Contains("Border") || typeName.Contains("Grid") || depth < 3))
-                                                {
-                                                    AppLogService.Debug($"[Forensics] VisualTree depth={depth} Type={typeName} Name={name} TemplatedParent={templatedParent} Template={template}{fontSizeInfo}", new LogContext { Operation = "Forensics_VisualTree" });
-                                                    count++;
-                                                }
-                                                int children = System.Windows.Media.VisualTreeHelper.GetChildrenCount(d);
-                                                for (int i = 0; i < children && count < 150; i++)
-                                                {
-                                                    var child = System.Windows.Media.VisualTreeHelper.GetChild(d, i);
-                                                    Walk(child, depth + 1);
-                                                }
-                                            }
-                                            Walk(mw, 0);
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        AppLogService.Debug($"[Forensics] VisualTree walk failed: {ex.Message}", new LogContext { Operation = "Forensics_VisualTree" });
-                                    }
-                                }), System.Windows.Threading.DispatcherPriority.Background);
-                            }
-                            catch { }
-                        }
-                        if (args.Exception is ArgumentException ae && ae.Message.Contains("ResourceReferenceExpression"))
-                        {
-                            AppLogService.Debug(
-                                $"[Forensics] FirstChance ArgumentException ResourceReferenceExpression | Message={ae.Message} HResult=0x{ae.HResult:X8} Stack={ae.StackTrace?.Substring(0, Math.Min(5000, ae.StackTrace.Length))}",
-                                new LogContext { Operation = "Forensics_FontSize" });
-                            try
-                            {
-                                var stack = ae.StackTrace ?? "";
-                                var frames = stack.Split('\n').Take(15);
-                                AppLogService.Debug($"[Forensics] Stack frames: {string.Join(" | ", frames)}", new LogContext { Operation = "Forensics_Stack" });
-                                // Try to extract target object from stack or exception data
-                                if (ae.Data != null && ae.Data.Count > 0)
-                                {
-                                    foreach (var key in ae.Data.Keys)
-                                    {
-                                        AppLogService.Debug($"[Forensics] ArgumentException Data Key={key} Value={ae.Data[key]} Type={ae.Data[key]?.GetType().FullName}", new LogContext { Operation = "Forensics_Data" });
-                                    }
-                                }
-                                // Try to log current thread's dispatcher frame
-                                var dispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher;
-                                AppLogService.Debug($"[Forensics] Dispatcher Thread={System.Threading.Thread.CurrentThread.ManagedThreadId} HasShutdownStarted={dispatcher.HasShutdownStarted}", new LogContext { Operation = "Forensics_Dispatcher" });
-                            }
-                            catch { }
-                            // Also try to capture which resource key is being resolved
-                            try
-                            {
-                                // The message usually contains "System.Windows.ResourceReferenceExpression is not a valid value for property 'FontSize'"
-                                // We can try to inspect the call stack for the property name and resource key
-                                var st = new System.Diagnostics.StackTrace(args.Exception, true);
-                                foreach (var frame in st.GetFrames() ?? Array.Empty<System.Diagnostics.StackFrame>())
-                                {
-                                    var method = frame.GetMethod();
-                                    if (method == null) continue;
-                                    var methodName = method.Name;
-                                    var declType = method.DeclaringType?.FullName ?? "unknown";
-                                    var file = frame.GetFileName() ?? "unknown";
-                                    var line = frame.GetFileLineNumber();
-                                    if (methodName.Contains("ReceivePropertySet") || methodName.Contains("LoadContent") || methodName.Contains("ApplyTemplate") || methodName.Contains("Measure"))
-                                    {
-                                        AppLogService.Debug($"[Forensics] Relevant frame Method={declType}.{methodName} File={file} Line={line}", new LogContext { Operation = "Forensics_FrameDetail" });
-                                    }
-                                }
-                            }
-                            catch { }
-                        }
-                    }
-                    catch { /* best-effort */ }
-                };
-            }
-            catch { /* best-effort */ }
-
-            // TEMPORARY DIAGNOSTIC — Resource type inspection after VisualThemeEngine.Apply
-            // This logs whether critical FontSize/Text* resources are Double or ResourceReferenceExpression
-            // To identify if alias causes ResourceReferenceExpression to be returned
-            try
-            {
-                // Defer inspection until after Application resources are available
-                // Will be executed after VisualThemeEngine.Apply in StartupCore
-                // We hook into a delayed action that runs after theme apply
-                // Actual inspection is done via a helper method called after theme apply (see below)
-            }
-            catch { }
-
             // ── Global unhandled exception catcher ──────────────────────
             // Writes a FULL crash report (logs\crash-latest.txt) and shows
             // a user-safe dialog with the ErrorId, so any crash can be
@@ -687,61 +520,6 @@ namespace ProGlassAutomation
                 Config.Appearance?.WallpaperPath ?? "",
                 Config.Appearance?.WallpaperOpacity ?? 0.85);
 
-            // EMERGENCY UI RECOVERY — TEMPORARY STARTUP-SAFE THEME MODE
-            // Objective: Make ProGlass Automation start successfully on Windows and show actual UI again.
-            // Previous 9-file startup fix FAILED, 606 candidates remain, crash ERR-35B71A persists.
-            // Fastest safe path: Ensure startup-critical FontSize resources are actual double values, not ResourceReferenceExpression.
-            // We already fixed GlobalDesignSystem.xaml Text*/Density*/Type*/Typography* from DynamicResource to StaticResource so they resolve to Double directly.
-            // As additional safety net, before MainWindow/template rendering, we verify and repair any remaining ResourceReferenceExpression aliases in Application resources.
-            // This preserves existing theme infrastructure (ProGlassThemeEngine, VisualThemeEngine, ThemeManager, GlobalDesignSystem, accent, density) and does not create another theme system.
-            try
-            {
-                EnsureStartupSafeFontSizeResources();
-            }
-            catch (Exception ex)
-            {
-                AppLogService.Warning($"EnsureStartupSafeFontSizeResources failed: {ex.Message}", new LogContext { Operation = "StartupSafeTheme" });
-            }
-
-            // TEMPORARY DIAGNOSTIC — Phase 19: log resource types after theme apply
-            try
-            {
-                var appResources = Application.Current?.Resources;
-                if (appResources != null)
-                {
-                    string[] keysToCheck = new[]
-                    {
-                        "FontSize.Body", "FontSize.Title", "FontSize.Caption", "FontSize.H2", "FontSize.Kpi",
-                        "FontSize.H1", "FontSize.H3", "FontSize.Display",
-                        "TextBody", "TextBodyLarge", "TextCaption", "TextXSmall", "TextTitle", "TextTitleLarge", "TextSection", "TextSubhead",
-                        "DensityBodyFontSize", "DensityKpiValueFontSize", "DensityTitleFontSize",
-                        "ProGlassLayout.BodyFontSize", "ProGlassLayout.KpiFontSize"
-                    };
-                    foreach (var k in keysToCheck)
-                    {
-                        try
-                        {
-                            if (appResources.Contains(k))
-                            {
-                                var v = appResources[k];
-                                var t = v?.GetType().FullName ?? "null";
-                                var isRef = t.Contains("ResourceReferenceExpression") ? " *** IS ResourceReferenceExpression ***" : "";
-                                AppLogService.Debug($"[Forensics] Resource {k} = {v} | Type={t}{isRef}", new LogContext { Operation = "Forensics_ResourceCheck" });
-                            }
-                            else
-                            {
-                                AppLogService.Debug($"[Forensics] Resource {k} MISSING", new LogContext { Operation = "Forensics_ResourceCheck" });
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            AppLogService.Debug($"[Forensics] Resource {k} check failed: {ex.Message}", new LogContext { Operation = "Forensics_ResourceCheck" });
-                        }
-                    }
-                }
-            }
-            catch { /* best-effort */ }
-
             // 9e) Restore the persisted accent — preset palette key OR
             //     the free-pick custom hex — and re-derive the full
             //     accent family (hover/tint/contrast) from it so the UI
@@ -779,6 +557,26 @@ namespace ProGlassAutomation
             // 9h) Restore the persisted card corner radius (default 12).
             ProGlassAutomation.Services.ThemeManager.ApplyCardCornerRadius(
                 Config.Appearance?.CardCornerRadius ?? 12);
+
+            // 9h2) Semantic surface layer (2026-09-14 — post-splash crash fix).
+            // Materializes the Surface.*.BackgroundBrush / BorderBrush /
+            // CornerRadius / BorderThickness / Effect keys on Application
+            // resources from the saved appearance. MUST run before the first
+            // window: the shell sidebar, dashboards and DataGrid chrome all
+            // consume those keys (previously they only existed as
+            // ResourceReferenceExpression markers in the merged dictionaries,
+            // which crashed the first property assignment after the splash).
+            try
+            {
+                ProGlassAutomation.Services.ThemeManager.ApplySemanticSurfaces();
+            }
+            catch (Exception semEx)
+            {
+                AppLogService.Warning(
+                    "Semantic surfaces failed to apply on startup; continuing with token fallbacks: "
+                    + semEx.Message,
+                    new LogContext { Module = "Theme", Operation = "StartupSemanticSurfaces" });
+            }
 
             // 9i) Restore the persisted global UI font (family + weight +
             //     style) via FontService. Imported fonts are re-registered
@@ -1333,170 +1131,6 @@ namespace ProGlassAutomation
                         Module = "Main",
                         Operation = "BringMainWindowToForegroundAsync"
                     });
-            }
-        }
-
-        /// <summary>
-        /// EMERGENCY UI RECOVERY — TEMPORARY STARTUP-SAFE THEME MODE
-        /// Objective: Make ProGlass Automation start successfully on Windows and show actual UI again.
-        /// Previous 9-file startup fix FAILED — 606 candidates remain, crash ERR-35B71A persists.
-        /// Fastest safe path: Ensure startup-critical FontSize resources are actual double values, not ResourceReferenceExpression.
-        /// During startup, before MainWindow/template rendering, prevent unresolved ResourceReferenceExpression aliases from being used as concrete FontSize values.
-        /// Ensure startup-critical controls/templates receive actual double FontSize values, preferring canonical resources FontSize.Body etc.
-        /// This preserves existing theme infrastructure (ProGlassThemeEngine, VisualThemeEngine, ThemeManager, GlobalDesignSystem, accent, density) and does not create another theme system.
-        /// Never create resource alias chain StaticResource → DynamicResource → ResourceReferenceExpression → FontSize as concrete template value — concrete double must reach actual FontSize property.
-        /// Where necessary, use canonical double resource directly: FontSize="{DynamicResource FontSize.Body}" rather than FontSize="{StaticResource TextBody}" when TextBody itself resolves to DynamicResource expression.
-        /// Startup-first scope: App startup, MainWindow, shell, splash, global button/input/menu/shell styles, startup-visible dashboard components — not all 606 candidates.
-        /// </summary>
-        private static void EnsureStartupSafeFontSizeResources()
-        {
-            try
-            {
-                var appResources = Application.Current?.Resources;
-                if (appResources == null) return;
-
-                // Canonical FontSize doubles — must be double
-                var canonicalKeys = new[]
-                {
-                    "FontSize.Display", "FontSize.H1", "FontSize.H2", "FontSize.H3",
-                    "FontSize.Title", "FontSize.Subtitle", "FontSize.Body", "FontSize.BodySmall",
-                    "FontSize.Label", "FontSize.Caption", "FontSize.Kpi", "FontSize.Button",
-                    "FontSize.Navigation", "FontSize.DataGrid", "FontSize.Money", "FontSize.Icon",
-                    "FontSize.Input", "FontSize.Tab", "FontSize.Chip", "FontSize.Badge"
-                };
-
-                // Ensure canonical are double — if missing or ResourceReferenceExpression, log
-                foreach (var key in canonicalKeys)
-                {
-                    try
-                    {
-                        if (appResources.Contains(key))
-                        {
-                            var val = appResources[key];
-                            var typeName = val?.GetType().FullName ?? "null";
-                            if (typeName.Contains("ResourceReferenceExpression"))
-                            {
-                                AppLogService.Warning($"[StartupSafe] Canonical {key} is ResourceReferenceExpression — should be Double — attempting to resolve to double", new LogContext { Operation = "StartupSafeTheme" });
-                                // Try to resolve underlying double by looking up the chain
-                                // For safety, we will NOT replace canonical here — just log, because canonical should already be Double per GDS
-                            }
-                        }
-                    }
-                    catch { }
-                }
-
-                // Startup-critical aliases that were previously DynamicResource → ResourceReferenceExpression → crash
-                // We now ensure they are Double directly. If they are still ResourceReferenceExpression, we replace with canonical Double.
-                var aliasToCanonical = new System.Collections.Generic.Dictionary<string, string>
-                {
-                    { "TextXSmall", "FontSize.Caption" },
-                    { "TextCaption", "FontSize.BodySmall" },
-                    { "TextBody", "FontSize.Body" },
-                    { "TextBodyLarge", "FontSize.Title" },
-                    { "TextSection", "FontSize.H3" },
-                    { "TextSubhead", "FontSize.H3" },
-                    { "TextTitle", "FontSize.H2" },
-                    { "TextTitleLarge", "FontSize.H1" },
-                    { "TextHeadline", "FontSize.H1" },
-                    { "TextDisplay", "FontSize.Kpi" },
-                    { "TextDisplayLarge", "FontSize.Display" },
-                    { "DensityBodyFontSize", "FontSize.Body" },
-                    { "DensityTitleFontSize", "FontSize.H2" },
-                    { "DensityKpiValueFontSize", "FontSize.Kpi" },
-                    { "ProGlassLayout.BodyFontSize", "FontSize.Body" },
-                    { "ProGlassLayout.TitleFontSize", "FontSize.H2" },
-                    { "ProGlassLayout.KpiFontSize", "FontSize.Kpi" },
-                    // Type.* aliases
-                    { "Type.Caption", "FontSize.Caption" },
-                    { "Type.Small", "FontSize.BodySmall" },
-                    { "Type.Body", "FontSize.Body" },
-                    { "Type.BodyLarge", "FontSize.Title" },
-                    { "Type.Section", "FontSize.H3" },
-                    { "Type.Title", "FontSize.H2" },
-                    { "Type.H2", "FontSize.H2" },
-                    { "Type.H1", "FontSize.H1" },
-                    { "Type.Display", "FontSize.Display" },
-                    { "Type.NumericValue", "FontSize.Kpi" },
-                    { "Type.Money", "FontSize.Money" },
-                    // Typography* aliases
-                    { "TypographyDisplaySize", "FontSize.Display" },
-                    { "TypographyH1Size", "FontSize.H1" },
-                    { "TypographyH2Size", "FontSize.H2" },
-                    { "TypographyTitleSize", "FontSize.H2" },
-                    { "TypographySubtitleSize", "FontSize.Title" },
-                    { "TypographyBodySize", "FontSize.Body" },
-                    { "TypographyBodySmallSize", "FontSize.BodySmall" },
-                    { "TypographyCaptionSize", "FontSize.Caption" },
-                    { "TypographyLabelSize", "FontSize.Label" },
-                    { "TypographyKpiValueSize", "FontSize.Kpi" },
-                    { "TypographyMoneySize", "FontSize.Money" },
-                    { "TypographyIconSize", "FontSize.Icon" }
-                };
-
-                int repaired = 0;
-                foreach (var kvp in aliasToCanonical)
-                {
-                    var aliasKey = kvp.Key;
-                    var canonicalKey = kvp.Value;
-                    try
-                    {
-                        if (!appResources.Contains(aliasKey)) continue;
-                        var aliasVal = appResources[aliasKey];
-                        var aliasType = aliasVal?.GetType().FullName ?? "null";
-                        bool isRef = aliasType.Contains("ResourceReferenceExpression");
-                        if (isRef)
-                        {
-                            // Resolve canonical double
-                            if (appResources.Contains(canonicalKey))
-                            {
-                                var canonicalVal = appResources[canonicalKey];
-                                // canonical should be double
-                                if (canonicalVal is double d)
-                                {
-                                    // Replace alias with actual double to prevent ResourceReferenceExpression reaching template
-                                    appResources[aliasKey] = d;
-                                    repaired++;
-                                    AppLogService.Info($"[StartupSafe] Repaired {aliasKey} (was ResourceReferenceExpression) → {canonicalKey}={d} Double", new LogContext { Operation = "StartupSafeTheme" });
-                                }
-                                else if (canonicalVal != null && double.TryParse(canonicalVal.ToString(), out var parsed))
-                                {
-                                    appResources[aliasKey] = parsed;
-                                    repaired++;
-                                    AppLogService.Info($"[StartupSafe] Repaired {aliasKey} → parsed {parsed} from {canonicalKey}", new LogContext { Operation = "StartupSafeTheme" });
-                                }
-                                else
-                                {
-                                    AppLogService.Warning($"[StartupSafe] {aliasKey} is ResourceReferenceExpression but canonical {canonicalKey} is not double: Type={canonicalVal?.GetType().FullName}", new LogContext { Operation = "StartupSafeTheme" });
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // Already safe — log for verification
-                            if (aliasVal is double)
-                            {
-                                AppLogService.Debug($"[StartupSafe] {aliasKey} already Double={aliasVal} — safe", new LogContext { Operation = "StartupSafeTheme" });
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        AppLogService.Debug($"[StartupSafe] Check {aliasKey} failed: {ex.Message}", new LogContext { Operation = "StartupSafeTheme" });
-                    }
-                }
-
-                if (repaired > 0)
-                {
-                    AppLogService.Info($"[StartupSafe] Total repaired FontSize aliases: {repaired} — startup should now receive concrete double values", new LogContext { Operation = "StartupSafeTheme" });
-                }
-                else
-                {
-                    AppLogService.Info($"[StartupSafe] No ResourceReferenceExpression aliases found — startup-critical FontSize resources already safe (GDS fix applied)", new LogContext { Operation = "StartupSafeTheme" });
-                }
-            }
-            catch (Exception ex)
-            {
-                AppLogService.Warning($"EnsureStartupSafeFontSizeResources outer failed: {ex.Message}", new LogContext { Operation = "StartupSafeTheme" });
             }
         }
 
