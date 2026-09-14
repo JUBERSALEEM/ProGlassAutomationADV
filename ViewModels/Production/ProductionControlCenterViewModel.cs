@@ -9,10 +9,13 @@
 //   GDS authoritative, surface hierarchy Background→Primary→Secondary→Detail→Elevated
 // ═══════════════════════════════════════════════════════════════════════
 
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.Production;
 using ProGlassAutomation.Models.Production.Control;
 using ProGlassAutomation.Models.Production.SavedProduction;
+using ProGlassAutomation.Services.Production;
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Services.Production.Control;
 using System;
 using System.Collections.Generic;
@@ -149,17 +152,17 @@ namespace ProGlassAutomation.ViewModels.Production
 
         public ProductionControlCenterViewModel()
         {
-            LoadCommand = new AsyncRelayCommand(_ => LoadAsync());
-            StartCommand = new AsyncRelayCommand(_ => StartAsync(), _ => HasSelection);
-            PauseCommand = new AsyncRelayCommand(_ => PauseAsync(), _ => HasSelection);
-            ResumeCommand = new AsyncRelayCommand(_ => ResumeAsync(), _ => HasSelection);
-            CompleteCommand = new AsyncRelayCommand(_ => CompleteAsync(), _ => HasSelection);
-            HoldCommand = new AsyncRelayCommand(_ => HoldAsync(), _ => HasSelection);
-            ReleaseHoldCommand = new AsyncRelayCommand(_ => ReleaseHoldAsync(), _ => HasSelection && Selected!.IsOnHold);
-            AssignCommand = new AsyncRelayCommand(_ => AssignAsync(), _ => HasSelection);
-            UnassignCommand = new AsyncRelayCommand(_ => UnassignAsync(), _ => HasSelection);
-            SetPriorityCommand = new AsyncRelayCommand(_ => SetPriorityAsync(), _ => HasSelection);
-            CancelCommand = new RelayCommand(_ => { _cts?.Cancel(); ProgressLabel = "Cancellation requested"; });
+            LoadCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(LoadAsync, "Control load"), _ => !IsRunning);
+            StartCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(StartAsync, "Control start"), _ => HasSelection && !IsRunning);
+            PauseCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(PauseAsync, "Control pause"), _ => HasSelection && !IsRunning);
+            ResumeCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ResumeAsync, "Control resume"), _ => HasSelection && !IsRunning);
+            CompleteCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(CompleteAsync, "Control complete"), _ => HasSelection && !IsRunning);
+            HoldCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(HoldAsync, "Control hold"), _ => HasSelection && !IsRunning);
+            ReleaseHoldCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ReleaseHoldAsync, "Control release hold"), _ => HasSelection && Selected!.IsOnHold && !IsRunning);
+            AssignCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(AssignAsync, "Control assign"), _ => HasSelection && !IsRunning);
+            UnassignCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(UnassignAsync, "Control unassign"), _ => HasSelection && !IsRunning);
+            SetPriorityCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(SetPriorityAsync, "Control priority"), _ => HasSelection && !IsRunning);
+            CancelCommand = new RelayCommand(_ => { _cts?.Cancel(); ProgressLabel = "Cancellation requested"; }, _ => IsRunning);
         }
 
         public async Task LoadAsync()
@@ -289,9 +292,9 @@ namespace ProGlassAutomation.ViewModels.Production
             ProgressLabel = $"Starting {Selected.JobRef} {Selected.SpecName} {Selected.StageLabel}...";
             try
             {
-                var (ok, msg) = await ProductionControlService.StartAsync(Selected.WorkItemId, OperatorInput, CancellationToken.None).ConfigureAwait(false);
-                ProgressLabel = ok ? $"Started {Selected.JobRef} {Selected.StageLabel}" : $"Start blocked: {msg}";
-                if (ok) await LoadAsync().ConfigureAwait(false);
+                var startResult = await ProductionControlService.StartAsync(Selected.WorkItemId, OperatorInput, CancellationToken.None).ConfigureAwait(false);
+                ProgressLabel = startResult.Ok ? $"Started {Selected.JobRef} {Selected.StageLabel}" : $"Start blocked: {startResult.Message}";
+                if (startResult.Ok) await LoadAsync().ConfigureAwait(false);
             }
             catch (Exception ex) { ProgressLabel = $"Start failed: {ex.Message}"; }
             finally { IsRunning = false; }
@@ -304,9 +307,9 @@ namespace ProGlassAutomation.ViewModels.Production
             ProgressLabel = $"Pausing {Selected.JobRef} {Selected.StageLabel}...";
             try
             {
-                var (ok, msg) = await ProductionControlService.PauseAsync(Selected.WorkItemId, "Paused from Production Control Center").ConfigureAwait(false);
-                ProgressLabel = ok ? $"Paused {Selected.JobRef}" : $"Pause failed: {msg}";
-                if (ok) await LoadAsync().ConfigureAwait(false);
+                var pauseResult = await ProductionControlService.PauseAsync(Selected.WorkItemId, "Paused from Production Control Center").ConfigureAwait(false);
+                ProgressLabel = pauseResult.Ok ? $"Paused {Selected.JobRef}" : $"Pause failed: {pauseResult.Message}";
+                if (pauseResult.Ok) await LoadAsync().ConfigureAwait(false);
             }
             catch (Exception ex) { ProgressLabel = $"Pause failed: {ex.Message}"; }
             finally { IsRunning = false; }
@@ -319,9 +322,9 @@ namespace ProGlassAutomation.ViewModels.Production
             ProgressLabel = $"Resuming {Selected.JobRef} {Selected.StageLabel}...";
             try
             {
-                var (ok, msg) = await ProductionControlService.ResumeAsync(Selected.WorkItemId).ConfigureAwait(false);
-                ProgressLabel = ok ? $"Resumed {Selected.JobRef}" : $"Resume failed: {msg}";
-                if (ok) await LoadAsync().ConfigureAwait(false);
+                var resumeResult = await ProductionControlService.ResumeAsync(Selected.WorkItemId).ConfigureAwait(false);
+                ProgressLabel = resumeResult.Ok ? $"Resumed {Selected.JobRef}" : $"Resume failed: {resumeResult.Message}";
+                if (resumeResult.Ok) await LoadAsync().ConfigureAwait(false);
             }
             catch (Exception ex) { ProgressLabel = $"Resume failed: {ex.Message}"; }
             finally { IsRunning = false; }
@@ -334,9 +337,9 @@ namespace ProGlassAutomation.ViewModels.Production
             ProgressLabel = $"Completing {Selected.JobRef} {Selected.StageLabel}...";
             try
             {
-                var (ok, applied, msg) = await ProductionControlService.CompleteAsync(Selected.WorkItemId, Selected.Qty).ConfigureAwait(false);
-                ProgressLabel = ok ? $"Completed {applied}/{Selected.Qty} {Selected.JobRef} {msg}" : $"Complete failed: {msg}";
-                if (ok) await LoadAsync().ConfigureAwait(false);
+                var completeResult = await ProductionControlService.CompleteAsync(Selected.WorkItemId, Selected.Qty).ConfigureAwait(false);
+                ProgressLabel = completeResult.Ok ? $"Completed {completeResult.Applied}/{Selected.Qty} {Selected.JobRef} {completeResult.Message}" : $"Complete failed: {completeResult.Message}";
+                if (completeResult.Ok) await LoadAsync().ConfigureAwait(false);
             }
             catch (Exception ex) { ProgressLabel = $"Complete failed: {ex.Message}"; }
             finally { IsRunning = false; }
@@ -349,9 +352,9 @@ namespace ProGlassAutomation.ViewModels.Production
             ProgressLabel = $"Holding {Selected.JobRef} {Selected.StageLabel} Reason {HoldReasonInput}...";
             try
             {
-                var (ok, msg, holdId) = await ProductionControlService.HoldAsync(Selected.WorkItemId, HoldReasonInput, $"Hold from Control Center by {Services.Audit.AuditService.CurrentUsername}").ConfigureAwait(false);
-                ProgressLabel = ok ? $"On Hold {holdId} {msg}" : $"Hold failed: {msg}";
-                if (ok) await LoadAsync().ConfigureAwait(false);
+                var holdResult = await ProductionControlService.HoldAsync(Selected.WorkItemId, HoldReasonInput, $"Hold from Control Center by {Services.Audit.AuditService.CurrentUsername}").ConfigureAwait(false);
+                ProgressLabel = holdResult.Ok ? $"On Hold {holdResult.HoldId} {holdResult.Message}" : $"Hold failed: {holdResult.Message}";
+                if (holdResult.Ok) await LoadAsync().ConfigureAwait(false);
             }
             catch (Exception ex) { ProgressLabel = $"Hold failed: {ex.Message}"; }
             finally { IsRunning = false; }
@@ -369,9 +372,9 @@ namespace ProGlassAutomation.ViewModels.Production
                 using var db = new Services.Production.ProductionDbContext();
                 var hold = await db.ControlHolds.FirstOrDefaultAsync(h => h.WorkItemId == Selected.WorkItemId && !h.IsReleased).ConfigureAwait(false);
                 if (hold == null) { ProgressLabel = "No active hold found"; return; }
-                var (ok, msg) = await ProductionControlService.ReleaseHoldAsync(hold.HoldId, "Released from Control Center").ConfigureAwait(false);
-                ProgressLabel = ok ? $"Hold Released {hold.HoldId}" : $"Release failed: {msg}";
-                if (ok) await LoadAsync().ConfigureAwait(false);
+                var releaseResult = await ProductionControlService.ReleaseHoldAsync(hold.HoldId, "Released from Control Center").ConfigureAwait(false);
+                ProgressLabel = releaseResult.Ok ? $"Hold Released {hold.HoldId}" : $"Release failed: {releaseResult.Message}";
+                if (releaseResult.Ok) await LoadAsync().ConfigureAwait(false);
             }
             catch (Exception ex) { ProgressLabel = $"Release hold failed: {ex.Message}"; }
             finally { IsRunning = false; }
@@ -384,9 +387,9 @@ namespace ProGlassAutomation.ViewModels.Production
             ProgressLabel = $"Assigning {Selected.JobRef} WS {WorkstationInput} Operator {OperatorInput}...";
             try
             {
-                var (ok, msg, assignId) = await ProductionControlService.AssignAsync(Selected.WorkItemId, WorkstationInput, OperatorInput, "Assigned from Control Center").ConfigureAwait(false);
-                ProgressLabel = ok ? $"Assigned {assignId} {msg}" : $"Assign failed: {msg}";
-                if (ok) await LoadAsync().ConfigureAwait(false);
+                var assignResult = await ProductionControlService.AssignAsync(Selected.WorkItemId, WorkstationInput, OperatorInput, "Assigned from Control Center").ConfigureAwait(false);
+                ProgressLabel = assignResult.Ok ? $"Assigned {assignResult.AssignmentId} {assignResult.Message}" : $"Assign failed: {assignResult.Message}";
+                if (assignResult.Ok) await LoadAsync().ConfigureAwait(false);
             }
             catch (Exception ex) { ProgressLabel = $"Assign failed: {ex.Message}"; }
             finally { IsRunning = false; }
@@ -399,9 +402,9 @@ namespace ProGlassAutomation.ViewModels.Production
             ProgressLabel = $"Unassigning {Selected.JobRef}...";
             try
             {
-                var (ok, msg) = await ProductionControlService.UnassignAsync(Selected.WorkItemId).ConfigureAwait(false);
-                ProgressLabel = ok ? $"Unassigned {msg}" : $"Unassign failed: {msg}";
-                if (ok) await LoadAsync().ConfigureAwait(false);
+                var unassignResult = await ProductionControlService.UnassignAsync(Selected.WorkItemId).ConfigureAwait(false);
+                ProgressLabel = unassignResult.Ok ? $"Unassigned {unassignResult.Message}" : $"Unassign failed: {unassignResult.Message}";
+                if (unassignResult.Ok) await LoadAsync().ConfigureAwait(false);
             }
             catch (Exception ex) { ProgressLabel = $"Unassign failed: {ex.Message}"; }
             finally { IsRunning = false; }
@@ -415,9 +418,9 @@ namespace ProGlassAutomation.ViewModels.Production
             ProgressLabel = $"Setting priority {Selected.JobRef} → {prio}...";
             try
             {
-                var (ok, msg) = await ProductionControlService.SetPriorityAsync(Selected.WorkItemId, prio, $"Priority changed to {prio} from Control Center").ConfigureAwait(false);
-                ProgressLabel = ok ? msg : $"Priority failed: {msg}";
-                if (ok) await LoadAsync().ConfigureAwait(false);
+                var prioResult = await ProductionControlService.SetPriorityAsync(Selected.WorkItemId, prio, $"Priority changed to {prio} from Control Center").ConfigureAwait(false);
+                ProgressLabel = prioResult.Ok ? prioResult.Message : $"Priority failed: {prioResult.Message}";
+                if (prioResult.Ok) await LoadAsync().ConfigureAwait(false);
             }
             catch (Exception ex) { ProgressLabel = $"Priority failed: {ex.Message}"; }
             finally { IsRunning = false; }

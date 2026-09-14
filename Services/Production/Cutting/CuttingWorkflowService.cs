@@ -374,7 +374,7 @@ namespace ProGlassAutomation.Services.Production.Cutting
                         VerificationResult = isVerified ? "Verified Layout — no overlap, within bounds, kerf/margin respected, rotation valid" : string.Join("; ", verificationProblems),
                         CreatedBy = AuditService.CurrentUsername,
                         CreatedAt = DateTime.Now,
-                        Notes = $"Group {group.DisplayLabel} {group.TotalPieces} pcs {totalArea:0.##} sqm"
+                        Notes = $"Group {group.DisplayLabel} {group.TotalPieces} pcs {group.TotalAreaSqm:0.##} sqm"
                     };
 
                     try

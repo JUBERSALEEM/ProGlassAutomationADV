@@ -8,6 +8,7 @@
 //   Uses existing GDS semantic tokens, no new theme dict.
 // ═══════════════════════════════════════════════════════════════════════
 
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.Production;
 using ProGlassAutomation.Models.Production.SavedProduction;
@@ -447,7 +448,7 @@ namespace ProGlassAutomation.ViewModels.Production
             if (parameter is not ProductionWorkItemRow row) return;
 
             var answer = System.Windows.MessageBox.Show(
-                $"Cancel work item {row.GlassRef} {row.SpecGroupNumber}/{row.SerialNumber} {row.Position}?\n\nSoft cancellation — preserves who/when/reason, releases reservations only when safe (not consumed), history kept.",
+                $"Cancel work item {row.GlassRef} {row.Item.SpecGroupNumber}/{row.SerialNumber} {row.Position}?\n\nSoft cancellation — preserves who/when/reason, releases reservations only when safe (not consumed), history kept.",
                 "Cancel work item",
                 System.Windows.MessageBoxButton.YesNo,
                 System.Windows.MessageBoxImage.Question);

@@ -13,6 +13,7 @@
 //   Performance async/await CancellationToken IProgress.
 // ═══════════════════════════════════════════════════════════════════════
 
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.Production;
 using ProGlassAutomation.Models.Production.Process;
@@ -422,9 +423,9 @@ namespace ProGlassAutomation.ViewModels.Production
                     return;
                 }
 
-                var (ok, msg, pairings) = await PairingService.PairAsync(JobRefInput, firstUnit.SpecGroupNumber, firstUnit.SerialNumber, _cts.Token).ConfigureAwait(true);
-                ActionMessage = msg;
-                if (ok) await LoadAsync().ConfigureAwait(true);
+                var pairingResult = await PairingService.PairAsync(JobRefInput, firstUnit.SpecGroupNumber, firstUnit.SerialNumber, _cts.Token).ConfigureAwait(true);
+                ActionMessage = pairingResult.Message;
+                if (pairingResult.Ok) await LoadAsync().ConfigureAwait(true);
             }
             finally
             {
@@ -464,13 +465,13 @@ namespace ProGlassAutomation.ViewModels.Production
 
                 string type = firstUnit.BuildType.Equals("Lam", StringComparison.OrdinalIgnoreCase) ? "Lamination" : "DGU";
 
-                var (ok, msg, assemblies) = await DoublingLaminationService.AssembleAsync(
+                var assemblyResult = await DoublingLaminationService.AssembleAsync(
                     JobRefInput, firstUnit.SpecGroupNumber, firstUnit.SerialNumber, type,
                     spacerInfo: "12mm Air", interlayerInfo: type == "Lamination" ? "PVB 0.76mm Clear" : "",
                     ct: _cts.Token).ConfigureAwait(true);
 
-                ActionMessage = msg;
-                if (ok) await LoadAsync().ConfigureAwait(true);
+                ActionMessage = assemblyResult.Message;
+                if (assemblyResult.Ok) await LoadAsync().ConfigureAwait(true);
             }
             finally
             {
