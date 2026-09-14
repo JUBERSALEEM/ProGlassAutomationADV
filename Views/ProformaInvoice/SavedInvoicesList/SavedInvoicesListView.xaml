@@ -226,7 +226,7 @@
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 IsHitTestVisible="False"
-                                Style="{StaticResource SurfacePrimaryStyle}">
+                                Style="{StaticResource SurfacePrimaryPanelStyle}">
                         <emptyState:EmptyStateControl
                             Icon="&#xE7C3;"
                             Title="{DynamicResource ProformaInvoice.NoSavedInvoicesFound}"

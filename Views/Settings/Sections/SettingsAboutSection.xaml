@@ -2,13 +2,11 @@
      FILE: Views/Settings/Sections/SettingsAboutSection.xaml
      PROJECT: ProGlassAutomation
      MODULE: Settings v2 — ABOUT & HELP page (tile-grid redesign Aug 2026)
-
      REDESIGN
        Was: one version strip plus four full-width InfoCard boxes
        stacked vertically. On a wide monitor each info card stretched
        the whole pane with its bullet list, so 60% of horizontal space
        was empty and the page was a very long scroll.
-
        Now: the four knowledge cards become 660-wide tiles that reflow
        into two per row in the WrapPanel. Each keeps its glyph badge +
        title + paragraph + bullets so the same information is legible,
@@ -95,7 +93,7 @@
                     <!-- About the Theme System -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <Border Style="{StaticResource InfoGlyphBadgeStyle}" Margin="0,0,10,0">
                                     <TextBlock Text="&#xE790;" Style="{StaticResource InfoGlyphTextStyle}"/>
                                 </Border>
@@ -115,7 +113,7 @@
                     <!-- About the AI Assistant -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <Border Style="{StaticResource InfoGlyphBadgeStyle}" Margin="0,0,10,0">
                                     <TextBlock Text="&#xE8F2;" Style="{StaticResource InfoGlyphTextStyle}"/>
                                 </Border>
@@ -135,7 +133,7 @@
                     <!-- About Your API Key & Privacy -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <Border Style="{StaticResource InfoGlyphBadgeStyle}" Margin="0,0,10,0">
                                     <TextBlock Text="&#xE72E;" Style="{StaticResource InfoGlyphTextStyle}"/>
                                 </Border>
@@ -154,7 +152,7 @@
                     <!-- About Voice Models -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <Border Style="{StaticResource InfoGlyphBadgeStyle}" Margin="0,0,10,0">
                                     <TextBlock Text="&#xE720;" Style="{StaticResource InfoGlyphTextStyle}"/>
                                 </Border>

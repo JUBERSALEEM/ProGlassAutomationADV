@@ -1,11 +1,9 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/SheetStore/SheetDetailWindow.xaml
      MODULE: Inventory — full-screen detail workspace
-
      Opened by DOUBLE-CLICKING a row. Maximized, not a 480px dialog:
      this is a workspace, and the previous attempt at it was a cloned
      Buy dialog that offered nothing the list did not already show.
-
      Composition:
        header — identity (category / thickness / colour / size) + the
                 row's actions (BUY · USE) + close
@@ -404,7 +402,6 @@
                  tab STAYS OPEN after a commit and refreshes in place —
                  receiving two deliveries in a row should not mean
                  reopening the page.
-
                  Laid out like Overview: a row of stat cards across the
                  full width, then full-width section cards. It previously
                  sat in a 900px left-aligned column, which left most of a
@@ -532,7 +529,6 @@
                  tab STAYS OPEN after a commit and refreshes in place —
                  receiving two deliveries in a row should not mean
                  reopening the page.
-
                  Laid out like Overview: a row of stat cards across the
                  full width, then full-width section cards. It previously
                  sat in a 900px left-aligned column, which left most of a
@@ -1005,7 +1001,6 @@
                             BorderThickness="1,0,1,1"
                             CornerRadius="{DynamicResource Radius.Bottom.Medium}">
                         <ListView ItemsSource="{Binding Movements}"
-                                  ItemContainerStyle="{StaticResource MovementRowStyle}"
                                   Background="Transparent"
                                   BorderThickness="0"
                                   Padding="0" Margin="0"

@@ -125,12 +125,12 @@
             <StackPanel>
                 <TextBlock Text="{DynamicResource ProformaInvoice.ChargeNAME}" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding InputName, UpdateSourceTrigger=PropertyChanged}"
-                         Style="{StaticResource SurfacePrimaryStyle}"/>
+                         Style="{StaticResource Input.TextBox}"/>
             </StackPanel>
             <StackPanel Grid.Column="2">
                 <TextBlock Text="QTY" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,3"/>
                 <TextBox beh:TextBoxBehaviors.AcceptDecimals="True"
-                         Style="{StaticResource SurfacePrimaryStyle}">
+                         Style="{StaticResource Input.TextBox}">
                     <TextBox.Text>
                         <Binding Path="InputQty" Mode="TwoWay"
                                  UpdateSourceTrigger="LostFocus"
@@ -148,7 +148,7 @@
             <StackPanel Grid.Column="6">
                 <TextBlock Text="{DynamicResource Common.Rate}" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,3"/>
                 <TextBox beh:TextBoxBehaviors.AcceptDecimals="True"
-                         Style="{StaticResource SurfacePrimaryStyle}">
+                         Style="{StaticResource Input.TextBox}">
                     <TextBox.Text>
                         <Binding Path="InputRate" Mode="TwoWay"
                                  UpdateSourceTrigger="LostFocus"

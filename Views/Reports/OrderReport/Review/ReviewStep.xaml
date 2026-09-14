@@ -2,7 +2,6 @@
      FILE: Views/Reports/OrderReport/Review/ReviewStep.xaml
      PROJECT: ProGlassAutomation
      MODULE: Report Generator — Step 4: Review (2026-09-06)
-
      Final wizard step. Renders the generated OrderReportBundle:
        · bundle banner (report number, title, generated-at, section count)
        · bundle KPI strip (ordered / delivered / invoiced / value / missing)
@@ -337,7 +336,7 @@
                                     <ItemsControl ItemsSource="{Binding SpecRows}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Style="{StaticResource RowLine}">
+                                                <Border>
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="120"/>
@@ -513,7 +512,7 @@
                                             <ItemsControl ItemsSource="{Binding Reconciliation.Rows}" Margin="0,8,0,0">
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
-                                                        <Border Style="{StaticResource RowLine}">
+                                                        <Border>
                                                             <Grid>
                                                                 <Grid.ColumnDefinitions>
                                                                     <ColumnDefinition Width="90"/>

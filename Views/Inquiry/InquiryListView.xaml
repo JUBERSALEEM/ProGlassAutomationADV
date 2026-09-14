@@ -2,7 +2,6 @@
      FILE: Views/Inquiry/InquiryListView.xaml
      MODULE: Inquiry register — Clean list + slide-in lifecycle rail
                                               (SheetStore pattern, applied)
-
      LAYOUT
      ──────
        Row 0   Header bar      title + subtitle + search + actions
@@ -10,7 +9,6 @@
        Row 2   Status tabs + filter row
        Row 3   Main list       dense single-line rows; no pipeline noise
        Row 4   Footer          result count + pagination
-
      SLIDE-IN RAIL (right, ~376px)
      ─────────────────────────────
        Hidden by default. Opens when a row is clicked; clicking the same
@@ -22,7 +20,6 @@
          • MONEY — total billed + outstanding
          • ACTIVITY — last 5 communications
          • ACTIONS — Open workspace, workflow transitions, Convert to PI
-
      DESIGN SYSTEM
      ─────────────
        Only shared primitives from DesignTokens / ListPageStyles / PillStyles
@@ -324,7 +321,7 @@
                                 <Button Content="{Binding Label}"
                                         Command="{Binding ElementName=Root, Path=DataContext.SelectStatusTabCommand}"
                                         CommandParameter="{Binding Key}"
-                                        Style="{StaticResource Tab.Inactive}"
+                                        Style="{StaticResource Tab.InactiveControl}"
                                         HorizontalContentAlignment="Stretch"
                                         HorizontalAlignment="Stretch"/>
                             </DataTemplate>
@@ -362,7 +359,7 @@
                                 <Button Content="{Binding Label}"
                                         Command="{Binding ElementName=Root, Path=DataContext.SelectPipelineTabCommand}"
                                         CommandParameter="{Binding Kind}"
-                                        Style="{StaticResource Tab.Inactive}"
+                                        Style="{StaticResource Tab.InactiveControl}"
                                         HorizontalContentAlignment="Stretch"
                                         HorizontalAlignment="Stretch"/>
                             </DataTemplate>
@@ -519,7 +516,6 @@
                                         Tag="{Binding DataContext, ElementName=Root}"
                                         MouseLeftButtonUp="OnRowClick">
                                     <!-- Right-click row context menu.
-
                                          Senior fix: ContextMenu lives in a Popup,
                                          outside the normal visual tree, so it does
                                          NOT reliably see ElementName=Root command

@@ -17,7 +17,6 @@
     <Grid>
 <!-- HISTORY CARD -->
             <Border Grid.Column="2"
-                   
                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}"
                     SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
@@ -83,13 +82,13 @@
                                             <Border.ContextMenu>
                                                 <ContextMenu>
                                                     <MenuItem Header="{DynamicResource DeliveryNote.OpenDN}"
-                                                              Style="{StaticResource Typography.Body}"
+                                                              FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Regular}" Foreground="{DynamicResource TextPrimaryBrush}"
                                                               Command="{Binding PlacementTarget.Tag.SelectHistoryEntryCommand,
                                                                         RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                               CommandParameter="{Binding}"/>
                                                     <Separator/>
                                                     <MenuItem Header="{DynamicResource DeliveryNote.ConvertTaxInvoice}"
-                                                              Style="{StaticResource Typography.Body}"
+                                                              FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Regular}" Foreground="{DynamicResource TextPrimaryBrush}"
                                                               Command="{Binding PlacementTarget.Tag.ConvertToTaxInvoiceCommand,
                                                                         RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                               CommandParameter="{Binding}"/>

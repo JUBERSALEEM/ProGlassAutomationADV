@@ -1,6 +1,5 @@
 <!--
     Service Profitability View - Separate Tab for Detailed Service Analysis
-
     Shows breakdown of profit by service type:
     - Glass margin (buying vs selling)
     - Spacer/ASP service (DGU only)
@@ -8,7 +7,6 @@
     - Tempering service (SGU only)
     - PVB interlayer service (LAM only)
     - U-insert service
-
     Each service shows:
     - Charge (what customer pays)
     - Cost (actual cost)
@@ -162,7 +160,7 @@
                     <ItemsControl ItemsSource="{Binding ServiceBreakdown}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource ProfitableRowStyle}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.BottomHairlineThickness}">
+                                <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.BottomHairlineThickness}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="1.5*"/>
@@ -178,38 +176,32 @@
                                         <!-- Spec Name -->
                                         <TextBlock Grid.Column="0"
                                                    Text="{Binding SpecName}"
-                                                  
                                                    FontWeight="{DynamicResource Weight.SemiBold}"
                                                    Foreground="{DynamicResource AccentBrush}"/>
 
                                         <!-- Service Name -->
                                         <TextBlock Grid.Column="1"
                                                    Text="{Binding ServiceName}"
-                                                  
                                                    FontWeight="{DynamicResource Weight.SemiBold}"/>
 
                                         <!-- Description -->
                                         <TextBlock Grid.Column="2"
                                                    Text="{Binding Description}"
-                                                  
                                                    TextWrapping="Wrap"/>
 
                                         <!-- Area -->
                                         <TextBlock Grid.Column="3"
                                                    Text="{Binding AreaDisplay}"
-                                                  
                                                    HorizontalAlignment="Right"/>
 
                                         <!-- Charge -->
                                         <TextBlock Grid.Column="4"
                                                    Text="{Binding ChargeDisplay}"
-                                                  
                                                    HorizontalAlignment="Right"/>
 
                                         <!-- Cost -->
                                         <TextBlock Grid.Column="5"
                                                    Text="{Binding CostDisplay}"
-                                                  
                                                    HorizontalAlignment="Right"/>
 
                                         <!-- Profit -->

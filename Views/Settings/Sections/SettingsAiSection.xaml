@@ -2,14 +2,12 @@
      FILE: Views/Settings/Sections/SettingsAiSection.xaml
      PROJECT: ProGlassAutomation
      MODULE: Settings v2 — AI ASSISTANT page (redesigned Aug 2026)
-
      REDESIGN
        Was: 5 giant stacked SectionCardStyle blocks (Master toggle, Data
        access, Model & tuning, Providers, Security). The Providers card
        alone contained three vertically-stacked ProviderCardBaseStyle
        cards taking the full width — on a wide monitor 65% of horizontal
        space was empty.
-
        Now: tile-grid layout — master switches and metric readouts fit
        into 320-wide tiles, providers become side-by-side wide tiles
        that self-align in the WrapPanel. API keys stay in a
@@ -73,7 +71,7 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F2;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.EnableAIAssistant}"/>
                             </StackPanel>
@@ -96,7 +94,7 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F9;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.UseRealBusinessData}"/>
                             </StackPanel>
@@ -113,12 +111,11 @@
                     <!-- Model readout -->
                     <Border>
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.ActiveModel}"/>
                             </StackPanel>
                             <TextBlock Text="{Binding AiModel}"
-                                      
                                        TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
                             <TextBlock Style="{StaticResource Typography.Caption}"
                                        Text="{DynamicResource Settings.ModelIdentifierCurrentlySelectedProvider}"/>
@@ -128,7 +125,7 @@
                     <!-- Max tokens -->
                     <Border>
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE762;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.MaxTokens}"/>
                             </StackPanel>
@@ -142,7 +139,7 @@
                     <!-- Temperature -->
                     <Border>
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE706;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.Temperature}"/>
                             </StackPanel>
@@ -378,7 +375,7 @@
                     <!-- Config path (full-row tile) -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.KeysFile}"/>
                             </StackPanel>
@@ -414,7 +411,7 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72E;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.KeepKeysSaved}"/>
                             </StackPanel>
@@ -431,7 +428,7 @@
                     <!-- Remove saved keys -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE74D;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.RemoveSavedKeys}"/>
                             </StackPanel>
@@ -447,7 +444,7 @@
                     <!-- Clear AI memory -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE81C;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.ClearAIMemory}"/>
                             </StackPanel>

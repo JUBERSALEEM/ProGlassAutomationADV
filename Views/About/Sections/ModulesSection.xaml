@@ -93,8 +93,8 @@
                 <ListBox ItemsSource="{Binding ModuleScopes}"
                          SelectedItem="{Binding SelectedScopeItem, Mode=TwoWay}"
                          DisplayMemberPath="Label"
-                         Style="{StaticResource Chip.Primary}"
-                         ItemContainerStyle="{StaticResource Badge.Primary}"/>
+                         Style="{StaticResource SurfaceSecondaryListBoxStyle}"
+                         ItemContainerStyle="{StaticResource ChipListItemStyle}"/>
             </Border>
         </Grid>
 

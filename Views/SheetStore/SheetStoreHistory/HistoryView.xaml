@@ -195,7 +195,6 @@
 
                 <!-- Virtualized log list -->
                 <ListBox ItemsSource="{Binding Entries}"
-                         ItemContainerStyle="{StaticResource SurfaceDetailStyle}"
                          BorderThickness="0"
                          Background="Transparent"
                          Focusable="False"

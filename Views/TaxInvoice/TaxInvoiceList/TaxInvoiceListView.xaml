@@ -400,19 +400,19 @@
                     <RadioButton Grid.Column="0" GroupName="TiStatusTabs" Tag="&#xE8A5;" Content="{DynamicResource TaxInvoice.Families}"
                             CommandParameter="{Binding AllCount}"
                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"
-                            Style="{StaticResource Tab.Inactive}"/>
+                            Style="{StaticResource Tab.InactiveRadio}"/>
                     <RadioButton Grid.Column="1" GroupName="TiStatusTabs" Tag="&#xE70F;" Content="{DynamicResource TaxInvoice.Draft}"
                             CommandParameter="{Binding DraftCount}"
                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=1}"
-                            Style="{StaticResource Tab.Inactive}"/>
+                            Style="{StaticResource Tab.InactiveRadio}"/>
                     <RadioButton Grid.Column="2" GroupName="TiStatusTabs" Tag="&#xE72D;" Content="{DynamicResource TaxInvoice.Issued}"
                             CommandParameter="{Binding IssuedCount}"
                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=2}"
-                            Style="{StaticResource Tab.Inactive}"/>
+                            Style="{StaticResource Tab.InactiveRadio}"/>
                     <RadioButton Grid.Column="3" GroupName="TiStatusTabs" Tag="&#xE73E;" Content="{DynamicResource TaxInvoice.FullyPAID}"
                             CommandParameter="{Binding PaidCount}"
                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}"
-                            Style="{StaticResource Tab.Inactive}"/>
+                            Style="{StaticResource Tab.InactiveRadio}"/>
                 </Grid>
 
                 <Border Grid.Row="4" Style="{StaticResource ModuleListTableHeaderStyle}">
@@ -456,7 +456,6 @@
                         </Grid.Style>
                         <ListBox ItemsSource="{Binding AllFamilies}"
                                  ItemTemplate="{StaticResource FamilyRowTemplate}"
-                                 ItemContainerStyle="{StaticResource SurfaceDetailStyle}"
                                  BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -512,7 +511,6 @@
                         </Grid.Style>
                         <ListBox ItemsSource="{Binding DraftFamilies}"
                                  ItemTemplate="{StaticResource FamilyRowTemplate}"
-                                 ItemContainerStyle="{StaticResource SurfaceDetailStyle}"
                                  BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -564,7 +562,6 @@
                         </Grid.Style>
                         <ListBox ItemsSource="{Binding IssuedFamilies}"
                                  ItemTemplate="{StaticResource FamilyRowTemplate}"
-                                 ItemContainerStyle="{StaticResource SurfaceDetailStyle}"
                                  BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -616,7 +613,6 @@
                         </Grid.Style>
                         <ListBox ItemsSource="{Binding PaidFamilies}"
                                  ItemTemplate="{StaticResource FamilyRowTemplate}"
-                                 ItemContainerStyle="{StaticResource SurfaceDetailStyle}"
                                  BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"

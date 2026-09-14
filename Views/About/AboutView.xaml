@@ -2,18 +2,15 @@
      FILE: Views/About/AboutView.xaml
      PROJECT: ProGlassAutomation
      MODULE: About — tabbed glass shell (v6)
-
      Glass identity (matches Splash / Login):
        • deep-navy aurora stage with soft orbs
        • frosted glass hero + segmented tabs + section cards
        • light glass text (Ice / Frost / Cerulean / Snow)
-
      Structure:
        • compact glass hero (icon + identity + version/build)
        • segmented top tab strip: About · Modules · Developer
        • content area switches between three section UserControls
          (one XAML file per section, edited independently)
-
      PRESERVED:
        • AboutViewModel bindings (AppName, AppTagline, Version, Build,
          DeveloperName, Email, Copyright, PrivacyLines,
@@ -216,7 +213,6 @@
                                      the module slabs. -->
                                 <Border Width="64" Height="64"
                                         CornerRadius="{DynamicResource Radius.2XLarge}"
-                                       
                                         BorderBrush="{DynamicResource AboutGlassSlabStroke}"
                                         BorderThickness="1"
                                         SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
@@ -357,8 +353,8 @@
                         SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                     <ListBox ItemsSource="{Binding Tabs}"
                              SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
-                             Style="{StaticResource SurfaceSecondaryStyle}"
-                             ItemContainerStyle="{StaticResource Tab.Inactive}"/>
+                             Style="{StaticResource SurfaceSecondaryListBoxStyle}"
+                             ItemContainerStyle="{StaticResource Tab.InactiveItem}"/>
                 </Border>
 
                 <!-- ═══ SECTION CONTENT (switched by SelectedTabIndex) ═══

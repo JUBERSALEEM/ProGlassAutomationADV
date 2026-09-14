@@ -228,7 +228,6 @@
 
             <Border Visibility="{Binding HasError,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
-                   
                     Padding="14" Margin="4,0,4,10">
                 <TextBlock Text="{Binding ErrorMessage}"
                            Foreground="{DynamicResource DangerBrush}"
@@ -409,27 +408,27 @@
                     <RadioButton Grid.Column="0" GroupName="DnStatusTabs" Tag="&#xE7B8;" Content="{DynamicResource Dnl.All}"
                             CommandParameter="{Binding AllGroupedCount}"
                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"
-                            Style="{StaticResource Tab.Inactive}"/>
+                            Style="{StaticResource Tab.InactiveRadio}"/>
                     <RadioButton Grid.Column="1" GroupName="DnStatusTabs" Tag="&#xE70F;" Content="{DynamicResource Dnl.Prepared}"
                             CommandParameter="{Binding PreparedGroupedCount}"
                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=1}"
-                            Style="{StaticResource Tab.Inactive}"/>
+                            Style="{StaticResource Tab.InactiveRadio}"/>
                     <RadioButton Grid.Column="2" GroupName="DnStatusTabs" Tag="&#xE73E;" Content="{DynamicResource Dnl.Delivered}"
                             CommandParameter="{Binding DeliveredGroupedCount}"
                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=2}"
-                            Style="{StaticResource Tab.Inactive}"/>
+                            Style="{StaticResource Tab.InactiveRadio}"/>
                     <RadioButton Grid.Column="3" GroupName="DnStatusTabs" Tag="&#xE81C;" Content="{DynamicResource Dnl.Pending}"
                             CommandParameter="{Binding PendingItems.Count}"
                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}"
-                            Style="{StaticResource Tab.Inactive}"/>
+                            Style="{StaticResource Tab.InactiveRadio}"/>
                     <RadioButton Grid.Column="4" GroupName="DnStatusTabs" Tag="&#xE713;" Content="{DynamicResource God.Rework}"
                             CommandParameter="{Binding ReworkGroupedCount}"
                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=4}"
-                            Style="{StaticResource Tab.Inactive}"/>
+                            Style="{StaticResource Tab.InactiveRadio}"/>
                     <RadioButton Grid.Column="5" GroupName="DnStatusTabs" Tag="&#xE7A7;" Content="{DynamicResource Dnl.Returned}"
                             CommandParameter="{Binding ReturnedGroupedCount}"
                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=5}"
-                            Style="{StaticResource Tab.Inactive}"/>
+                            Style="{StaticResource Tab.InactiveRadio}"/>
                 </Grid>
 
                 <Border Grid.Row="4">
@@ -479,7 +478,6 @@
                         </Grid.Style>
                         <ListBox ItemsSource="{Binding AllItemsGrouped}"
                                  ItemTemplate="{StaticResource JoGroupRowTemplate}"
-                                 ItemContainerStyle="{StaticResource SurfaceDetailStyle}"
                                  BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -534,7 +532,6 @@
                         </Grid.Style>
                         <ListBox ItemsSource="{Binding PreparedItemsGrouped}"
                                  ItemTemplate="{StaticResource JoGroupRowTemplate}"
-                                 ItemContainerStyle="{StaticResource SurfaceDetailStyle}"
                                  BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -585,7 +582,6 @@
                         </Grid.Style>
                         <ListBox ItemsSource="{Binding DeliveredItemsGrouped}"
                                  ItemTemplate="{StaticResource JoGroupRowTemplate}"
-                                 ItemContainerStyle="{StaticResource SurfaceDetailStyle}"
                                  BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -635,7 +631,6 @@
                             </Style>
                         </Grid.Style>
                         <ListBox ItemsSource="{Binding PendingItems}"
-                                 ItemContainerStyle="{StaticResource SurfaceDetailStyle}"
                                  BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -738,7 +733,6 @@
                         </Grid.Style>
                         <ListBox ItemsSource="{Binding ReworkItemsGrouped}"
                                  ItemTemplate="{StaticResource JoGroupRowTemplate}"
-                                 ItemContainerStyle="{StaticResource SurfaceDetailStyle}"
                                  BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -789,7 +783,6 @@
                         </Grid.Style>
                         <ListBox ItemsSource="{Binding ReturnedItemsGrouped}"
                                  ItemTemplate="{StaticResource JoGroupRowTemplate}"
-                                 ItemContainerStyle="{StaticResource SurfaceDetailStyle}"
                                  BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"

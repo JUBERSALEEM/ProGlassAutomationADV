@@ -93,7 +93,6 @@
                     <TextBlock Text="{DynamicResource Dg.CutList}"/>
                 </StackPanel>
                 <TextBlock Text="{DynamicResource Dg.ColumnsHint}"
-                          
                            TextWrapping="Wrap"/>
 
                 <Grid Margin="0,10,0,8">
@@ -254,14 +253,14 @@
                                         <TextBlock Text="{DynamicResource Dg.Base}" Margin="0,0,0,2"
                                                    ToolTip="{Binding ImportedPrice, Converter={StaticResource CurrencyConverter}, ConverterParameter=imported}"/>
                                         <TextBox Text="{Binding BaseRate, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}"
-                                                 Style="{StaticResource SurfacePrimaryStyle}"
+                                                 Style="{StaticResource Input.TextBox}"
                                                  Width="80"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="8" VerticalAlignment="Bottom">
                                         <TextBlock Text="{DynamicResource Dg.SurchargePct}" Margin="0,0,0,2"
                                                    ToolTip="{Binding SurchargeRate, Converter={StaticResource CurrencyConverter}, ConverterParameter=surcharge}"/>
                                         <TextBox Text="{Binding SurchargePercent, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}"
-                                                 Style="{StaticResource SurfacePrimaryStyle}"
+                                                 Style="{StaticResource Input.TextBox}"
                                                  Width="64"/>
                                     </StackPanel>
                                     <Button Grid.Column="10"
@@ -387,15 +386,15 @@
                                                     <ColumnDefinition Width="26"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0" Text="{Binding SerialNumber}" Style="{StaticResource LineItemsSerialStyle}"/>
-                                                <TextBox Grid.Column="1" Text="{Binding GlassRef, UpdateSourceTrigger=LostFocus}" Style="{StaticResource SurfacePrimaryStyle}" Margin="2,0"/>
-                                                <TextBox Grid.Column="2" Text="{Binding W1, UpdateSourceTrigger=LostFocus}" Style="{StaticResource SurfacePrimaryStyle}" Margin="2,0"/>
-                                                <TextBox Grid.Column="3" Text="{Binding H1, UpdateSourceTrigger=LostFocus}" Style="{StaticResource SurfacePrimaryStyle}" Margin="2,0"/>
-                                                <TextBox Grid.Column="4" Text="{Binding W2, UpdateSourceTrigger=LostFocus}" Style="{StaticResource SurfacePrimaryStyle}" Margin="2,0"/>
-                                                <TextBox Grid.Column="5" Text="{Binding H2, UpdateSourceTrigger=LostFocus}" Style="{StaticResource SurfacePrimaryStyle}" Margin="2,0"/>
-                                                <TextBox Grid.Column="6" Text="{Binding Qty, UpdateSourceTrigger=LostFocus}" Style="{StaticResource SurfacePrimaryStyle}" Margin="2,0"/>
+                                                <TextBox Grid.Column="1" Text="{Binding GlassRef, UpdateSourceTrigger=LostFocus}" Style="{StaticResource Input.TextBox}" Margin="2,0"/>
+                                                <TextBox Grid.Column="2" Text="{Binding W1, UpdateSourceTrigger=LostFocus}" Style="{StaticResource Input.TextBox}" Margin="2,0"/>
+                                                <TextBox Grid.Column="3" Text="{Binding H1, UpdateSourceTrigger=LostFocus}" Style="{StaticResource Input.TextBox}" Margin="2,0"/>
+                                                <TextBox Grid.Column="4" Text="{Binding W2, UpdateSourceTrigger=LostFocus}" Style="{StaticResource Input.TextBox}" Margin="2,0"/>
+                                                <TextBox Grid.Column="5" Text="{Binding H2, UpdateSourceTrigger=LostFocus}" Style="{StaticResource Input.TextBox}" Margin="2,0"/>
+                                                <TextBox Grid.Column="6" Text="{Binding Qty, UpdateSourceTrigger=LostFocus}" Style="{StaticResource Input.TextBox}" Margin="2,0"/>
                                                 <TextBlock Grid.Column="7" Text="{Binding Sqm1, StringFormat={}{0:0.000}}" Style="{StaticResource LineItemsReadonlyStyle}"/>
                                                 <TextBlock Grid.Column="8" Text="{Binding TotalSqm, StringFormat={}{0:0.000}}" Style="{StaticResource LineItemsReadonlyStyle}"/>
-                                                <TextBox Grid.Column="9" Text="{Binding Rate, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}" Style="{StaticResource SurfacePrimaryStyle}" Margin="1,0"/>
+                                                <TextBox Grid.Column="9" Text="{Binding Rate, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}" Style="{StaticResource Input.TextBox}" Margin="1,0"/>
                                                 <TextBlock Grid.Column="10" Text="{Binding Value, StringFormat=AED {0:N2}}" Style="{StaticResource LineItemsMoneyStyle}"/>
                                                 <Button Grid.Column="11"
                                                         Command="{Binding DataContext.RemoveRowCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
@@ -429,7 +428,7 @@
 
                                         <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" VerticalAlignment="Center">
                                             <TextBox Width="64" Text="{Binding BulkRowCountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                     Style="{StaticResource SurfacePrimaryStyle}"
+                                                     Style="{StaticResource Input.TextBox}"
                                                      ToolTip="{DynamicResource Dg.GenerateRows}"/>
                                             <Button Command="{Binding GenerateRowsCommand}"
                                                     Style="{StaticResource PiGhostChipButton}"

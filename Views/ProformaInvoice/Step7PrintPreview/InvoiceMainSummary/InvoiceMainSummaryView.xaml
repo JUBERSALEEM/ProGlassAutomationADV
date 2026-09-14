@@ -120,7 +120,7 @@
             </StackPanel>
             <TextBox Grid.Column="2"
                      Text="{Binding DiscountValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:0.00}}"
-                     Style="{StaticResource SurfacePrimaryStyle}"
+                     Style="{StaticResource Input.TextBox}"
                      behaviors:TextBoxBehaviors.AcceptDecimals="True"
                      HorizontalAlignment="Left"
                      MinWidth="96"
@@ -155,7 +155,7 @@
                            VerticalAlignment="Center"
                            Margin="0,0,8,0"/>
                 <TextBox Text="{Binding RoundToGrandTotal, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:0.00}}"
-                         Style="{StaticResource SurfacePrimaryStyle}"
+                         Style="{StaticResource Input.TextBox}"
                          behaviors:TextBoxBehaviors.AcceptDecimals="True"
                          MinWidth="110"
                          ToolTip="{DynamicResource ProformaInvoice.CustomerEvenFigureEG1550000ApplyWritesAED}"/>
@@ -211,7 +211,7 @@
                        Margin="0,0,10,0"/>
             <TextBox Grid.Column="3"
                      Text="{Binding VatPercent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
-                     Style="{StaticResource SurfacePrimaryStyle}"
+                     Style="{StaticResource Input.TextBox}"
                      IsEnabled="{Binding IsVatApplicable}"/>
             <TextBlock Grid.Column="4"
                        Text="%"

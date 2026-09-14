@@ -137,11 +137,10 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBox Text="{Binding ColorName, UpdateSourceTrigger=PropertyChanged}"
-                                                 Style="{StaticResource SurfacePrimaryStyle}"
+                                                 Style="{StaticResource Input.TextBox}"
                                                  Margin="0,0,8,0"/>
                                         <TextBlock Grid.Column="1"
                                                    Text="{Binding SideDisplay}"
-                                                  
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    VerticalAlignment="Center"/>
                                     </Grid>
@@ -318,7 +317,7 @@
                                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 <TextBox Grid.Column="4"
                                          Text="{Binding Rate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.####}}"
-                                         Style="{StaticResource SurfacePrimaryStyle}"
+                                         Style="{StaticResource Input.TextBox}"
                                          behaviors:TextBoxBehaviors.AcceptDecimals="True"
                                          IsEnabled="{Binding IsManualRateMode}"
                                          Margin="4,0"/>
@@ -364,15 +363,13 @@
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel>
                                                             <TextBlock Text="{DynamicResource ProformaInvoice.Color}"
-                                                                      
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding ColorName, Mode=OneWay}"
-                                                                     Style="{StaticResource SurfacePrimaryStyle}"
+                                                                     Style="{StaticResource Input.TextBox}"
                                                                      IsReadOnly="True"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="2">
                                                             <TextBlock Text="{DynamicResource ProformaInvoice.OptimizationFormula}"
-                                                                      
                                                                        Margin="0,0,0,2"/>
                                                             <ToggleButton Style="{StaticResource PiToggleSwitch}"
                                                                           IsChecked="{Binding UseOptimizationFormula}"
@@ -394,33 +391,29 @@
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel>
                                                             <TextBlock Text="{DynamicResource ProformaInvoice.SheetWidth}"
-                                                                      
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding SelectedSheetWidthText, Mode=OneWay}"
-                                                                     Style="{StaticResource SurfacePrimaryStyle}"
+                                                                     Style="{StaticResource Input.TextBox}"
                                                                      IsReadOnly="True"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="2">
                                                             <TextBlock Text="{DynamicResource ProformaInvoice.SheetHeight}"
-                                                                      
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding SelectedSheetHeightText, Mode=OneWay}"
-                                                                     Style="{StaticResource SurfacePrimaryStyle}"
+                                                                     Style="{StaticResource Input.TextBox}"
                                                                      IsReadOnly="True"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="4">
                                                             <TextBlock Text="{DynamicResource ProformaInvoice.SheetQTY}"
-                                                                      
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding SheetQuantityText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                     Style="{StaticResource SurfacePrimaryStyle}"/>
+                                                                     Style="{StaticResource Input.TextBox}"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="6">
                                                             <TextBlock Text="{DynamicResource ProformaInvoice.SheetSQMPrice}"
-                                                                      
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding FormulaPricePerSqmText, Mode=OneWay}"
-                                                                     Style="{StaticResource SurfacePrimaryStyle}"
+                                                                     Style="{StaticResource Input.TextBox}"
                                                                      IsReadOnly="True"/>
                                                         </StackPanel>
                                                     </Grid>
@@ -443,18 +436,16 @@
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel>
                                                             <TextBlock Text="{DynamicResource ProformaInvoice.OPT}"
-                                                                      
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding OptimizationPercentText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                     Style="{StaticResource SurfacePrimaryStyle}"
+                                                                     Style="{StaticResource Input.TextBox}"
                                                                      behaviors:TextBoxBehaviors.AcceptDecimals="True"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="2">
                                                             <TextBlock Text="{DynamicResource ProformaInvoice.UtilizedSQM}"
-                                                                      
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding UtilizedSqm, StringFormat={}{0:0.00}, Mode=OneWay}"
-                                                                     Style="{StaticResource SurfacePrimaryStyle}"
+                                                                     Style="{StaticResource Input.TextBox}"
                                                                      IsReadOnly="True"/>
                                                         </StackPanel>
                                                     </Grid>

@@ -2,7 +2,6 @@
      FILE: Views/Settings/Sections/SettingsThemesSection.xaml
      PROJECT: ProGlassAutomation
      MODULE: Settings v2 — THEMES page (2026-09-06)
-
      Replaces the removed Theme Studio (0–100 playground) with its one
      legitimate capability: bounded, persisted Crystal Fluid (Ios-17pm)
      material tuning. FAMILY-AWARE:
@@ -14,11 +13,9 @@
        · Normal / Monet keep their existing Appearance controls
          (CardCornerRadius, CardBorderThickness, UseGradientSurfaces);
          a hint tile points back to Appearance when Crystal is inactive.
-
      Six LIVE axes only (water opacity/speed, wave amplitude, caustic,
      bubble, reflection opacity). Glass/glass-border/shadow opacity stay
      parked in CrystalFluidSettings — no fake controls.
-
      Bindings target SettingsViewModel (DataContext flows from shell).
 ═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsThemesSection"
@@ -71,7 +68,7 @@
                 <UniformGrid Columns="2" Margin="0,0,0,6">
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}"
                                            Text="{DynamicResource Settings.LblThemeFamily}"/>
@@ -91,7 +88,7 @@
                          gradients). Always available. -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE777;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}"
                                            Text="{DynamicResource Settings.ResetThemeFamily}"/>
@@ -101,7 +98,6 @@
                             <Button AutomationProperties.AutomationId="Settings.ResetThemeFamily"
                                     Command="{Binding ResetThemeFamilyCommand}"
                                     Content="{DynamicResource Settings.ResetThemeFamily}"
-                                   
                                     HorizontalAlignment="Stretch"/>
                         </StackPanel>
                     </Border>
@@ -119,7 +115,7 @@
                     <!-- Quick presets (Default / Calm / Intense) -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A9;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}"
                                            Text="{DynamicResource Settings.GrpPresets}"/>
@@ -181,7 +177,7 @@
                     <!-- Six live Crystal Fluid axes -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE771;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}"
                                            Text="{DynamicResource Settings.GrpCrystalMaterial}"/>
@@ -328,7 +324,7 @@
                          this reservoir live. -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}"
                                            Text="{DynamicResource Settings.PreviewTitle}"/>
@@ -357,7 +353,7 @@
                         Visibility="{Binding IsCrystalThemeActive,
                             Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <StackPanel>
-                        <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                        <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE946;"/>
                             <TextBlock Style="{StaticResource Typography.Title}"
                                        Text="{DynamicResource Settings.SecThemes}"/>

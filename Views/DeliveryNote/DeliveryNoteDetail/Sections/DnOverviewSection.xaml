@@ -64,7 +64,6 @@
                     <StackPanel HorizontalAlignment="Center">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding TotalPreviouslyDeliveredQty}"
-                                      
                                        Foreground="{DynamicResource AccentBrush}"/>
                             <TextBlock Text=" pcs"
                                        Foreground="{DynamicResource AccentBrush}" Opacity="0.75"/>
@@ -82,7 +81,6 @@
                     <StackPanel HorizontalAlignment="Center">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding TotalDeliveredQty}"
-                                      
                                        Foreground="{DynamicResource SuccessBrush}"/>
                             <TextBlock Text=" pcs"
                                        Foreground="{DynamicResource SuccessBrush}" Opacity="0.75"/>
@@ -100,13 +98,11 @@
                     <StackPanel HorizontalAlignment="Center">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding TotalBalanceQty}"
-                                      
                                        Foreground="{DynamicResource WarningBrush}"/>
                             <TextBlock Text=" pcs"
                                        Foreground="{DynamicResource WarningBrush}" Opacity="0.75"/>
                         </StackPanel>
                         <TextBlock Text="{DynamicResource Common.Balance}"
-                                  
                                    Foreground="{DynamicResource WarningBrush}"/>
                     </StackPanel>
                 </Border>
@@ -182,7 +178,6 @@
                                               />
                                 </StackPanel>
                                 <TextBlock Text="{Binding ProjectName}"
-                                          
                                            MaxWidth="500" Margin="0,2,0,0"/>
                                 <TextBlock Text="{Binding ProjectReference}"
                                            FontSize="{DynamicResource FontSize.Body}"
@@ -206,12 +201,12 @@
                                                Style="{StaticResource MasterHeroMetaLabelStyle}"/>
                                     <TextBlock Text="{Binding JobOrderId}"
                                                Style="{StaticResource MasterHeroMetaValueStyle}"/>
-                                    <TextBlock Style="{StaticResource MasterHeroDividerStyle}"/>
+                                    <Rectangle Style="{StaticResource HairlineStyle}" Margin="0,6"/>
                                     <TextBlock Text="{DynamicResource DeliveryNote.PI}"
                                                Style="{StaticResource MasterHeroMetaLabelStyle}"/>
                                     <TextBlock Text="{Binding ProformaId}"
                                                Style="{StaticResource MasterHeroMetaValueStyle}"/>
-                                    <TextBlock Style="{StaticResource MasterHeroDividerStyle}"/>
+                                    <Rectangle Style="{StaticResource HairlineStyle}" Margin="0,6"/>
                                     <TextBlock Text="{DynamicResource DeliveryNote.SEQ}"
                                                Style="{StaticResource MasterHeroMetaLabelStyle}"/>
                                     <TextBlock Text="{Binding SequenceNumber}"
@@ -425,7 +420,7 @@
                                     <DataTemplate>
                                         <Border Style="{StaticResource SpecGroupCardStyle}">
                                             <StackPanel>
-                                                <Border Style="{StaticResource SpecGroupHeaderStyle}">
+                                                <Border >
                                                     <Border.Background>
                                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                                                             <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
@@ -487,38 +482,30 @@
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"/>
                                                         <TextBlock Grid.Column="6" Text="QTY"
-                                                                  
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"/>
                                                         <TextBlock Grid.Column="7" Text="{DynamicResource DeliveryNote.PREV}"
-                                                                  
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"
                                                                    ToolTip="{DynamicResource DeliveryNote.PreviouslyDeliveredOtherDns}"/>
                                                         <TextBlock Grid.Column="8" Text="SQM"
-                                                                  
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"/>
                                                         <TextBlock Grid.Column="9" Text="{DynamicResource DeliveryNote.TotalSQM}"
-                                                                  
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"/>
                                                         <TextBlock Grid.Column="10" Text="{DynamicResource DeliveryNote.WTPC}"
-                                                                  
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"
                                                                    ToolTip="{DynamicResource DeliveryNote.WeightPieceKg}"/>
                                                         <TextBlock Grid.Column="11" Text="{DynamicResource DeliveryNote.TotalWT}"
-                                                                  
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"
                                                                    ToolTip="{DynamicResource DeliveryNote.TotalWeightKg}"/>
                                                         <TextBlock Grid.Column="12" Text="{DynamicResource Common.Delivered}"
-                                                                  
                                                                    HorizontalAlignment="Center"
                                                                    Margin="6,8,10,8"/>
                                                         <TextBlock Grid.Column="13" Text="{DynamicResource Common.Balance}"
-                                                                  
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"/>
                                                     </Grid>
@@ -572,11 +559,9 @@
                                                                     </Grid.ColumnDefinitions>
                                                                     <TextBlock Grid.Column="0"
                                                                                Text="{Binding SerialNumber}"
-                                                                              
                                                                                HorizontalAlignment="Center"/>
                                                                     <TextBlock Grid.Column="1"
                                                                                Text="{Binding GlassRef}"
-                                                                              
                                                                                FontWeight="{DynamicResource Weight.SemiBold}"
                                                                                TextTrimming="CharacterEllipsis"
                                                                                ToolTip="{Binding GlassRef}"/>

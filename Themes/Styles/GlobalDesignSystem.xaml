@@ -2,16 +2,12 @@
     FILE: Themes/Styles/GlobalDesignSystem.xaml
     PROJECT: ProGlassAutomationADV — ONE AUTHORITATIVE DESIGN SYSTEM
     VERSION: 2026-09-13 — Global UI Architecture
-
     PURPOSE: Single source of truth for ALL visual tokens.
     Replaces 7 competing card systems, 4 radius systems, 5 color systems.
-
     ARCHITECTURE: Theme → Design Tokens → Global Styles → Controls → Cards/Surfaces → Every View
     All tokens are DynamicResource so ThemeManager can publish at runtime.
-
     LOAD ORDER: Must be merged LAST in App.xaml (after all other dictionaries) so it wins.
     No view should define local visual tokens — all consume from here.
-
     TOKENS:
       - FontFamily: App (Segoe UI Variable), Icon (Segoe MDL2 Assets)
       - FontWeight: Regular, Medium, SemiBold, Bold
@@ -24,7 +20,6 @@
       - Surfaces: Primary, Secondary, Detail, Elevated, Kpi, Glass (with BackgroundBrush, BorderBrush, BorderThickness, CornerRadius, Padding, Effect)
       - Colors: PrimaryForeground, SecondaryForeground, MutedForeground, Accent, Success, Warning, Danger, Tint*, Background, etc.
       - Special: PaperBrush (#FFFFFF for printable), Splash, Chart, AboutGlow, Wizard
-
     STYLES:
       - SurfacePrimaryStyle, SurfaceSecondaryStyle, SurfaceDetailStyle, SurfaceElevatedStyle, SurfaceKpiStyle, SurfaceGlassStyle
       - Aliases: DbCardStyle, DbRowCardStyle, DbPipelineCardStyle, ModuleSectionCardStyle, CardStyle, SectionCardStyle, StatCardStyle, etc. all BasedOn Surface*
@@ -680,6 +675,207 @@
         <Setter Property="MinHeight" Value="{DynamicResource Density.ControlHeight}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
+    <Style x:Key="Input.PasswordBox" TargetType="PasswordBox">
+        <Setter Property="Background" Value="{DynamicResource SurfaceInputBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource InputBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.Thin}"/>
+        <Setter Property="Padding" Value="{DynamicResource Space.Control}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Input}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Regular}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Density.ControlHeight}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         12b. POLYMORPHIC SURFACE STYLES (post-splash crash fix, 2026-09-14)
+         The canonical Surface* card styles target Border (and the
+         Typography* styles target TextBlock). WPF throws
+         "TargetType does not match type of element" when one of them is
+         applied to a Button / StackPanel / ListBox / RadioButton — and
+         ~150 view sites do exactly that (mostly the Settings pages).
+         These companions provide the same surface vocabulary for the
+         other element families, so views keep their intended look
+         without a TargetType crash.
+    ═══════════════════════════════════════════════════════════════ -->
+    <!-- Panel family (StackPanel / UniformGrid / Grid). Panel has no
+         CornerRadius / Effect, so those setters are intentionally absent. -->
+    <Style x:Key="SurfacePrimaryPanelStyle" TargetType="Panel">
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.Default}"/>
+        <Setter Property="Padding" Value="{DynamicResource Space.Card}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+    <Style x:Key="SurfaceDetailPanelStyle" TargetType="Panel">
+        <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.Default}"/>
+        <Setter Property="Padding" Value="{DynamicResource Space.Tile}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+    <!-- Button family — clickable surface rows (Quick Settings panel,
+         report export buttons). Same template shape as Button.Primary. -->
+    <Style x:Key="SurfacePrimaryButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.Thin}"/>
+        <Setter Property="Padding" Value="16,9"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Button}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Root" Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Root" Property="Opacity" Value="0.9"/></Trigger>
+                        <Trigger Property="IsPressed" Value="True"><Setter TargetName="Root" Property="Opacity" Value="0.8"/></Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Root" Property="Opacity" Value="0.5"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="SurfaceDetailButtonStyle" TargetType="Button" BasedOn="{StaticResource SurfacePrimaryButtonStyle}">
+        <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Regular}"/>
+        <Setter Property="Padding" Value="12,9"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+    </Style>
+    <!-- ListBox family — card-styled list containers. -->
+    <Style x:Key="SurfaceSecondaryListBoxStyle" TargetType="ListBox">
+        <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.Default}"/>
+        <Setter Property="Padding" Value="{DynamicResource Space.Card}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+    <!-- ListBoxItem container variants (ItemContainerStyle). A Border-target
+         style (Tab.Inactive / Badge.Primary / SurfaceDetailStyle) throws when
+         WPF applies it to the generated ListBoxItem containers. -->
+    <Style x:Key="Tab.InactiveItem" TargetType="ListBoxItem">
+        <Setter Property="Background" Value="{DynamicResource TabInactiveBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+        <Setter Property="Padding" Value="12,6"/>
+        <Setter Property="Margin" Value="0,0,6,0"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Button}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="Bg" Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource Radius.Tab}"
+                            Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <ContentPresenter/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TabHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TabActiveBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="ChipListItemStyle" TargetType="ListBoxItem">
+        <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.Thin}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Padding" Value="6,2"/>
+        <Setter Property="Margin" Value="0,0,6,0"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Caption}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="Bg" Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource Radius.Chip}"
+                            Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.85"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!-- Tab-filter controls (status tabs are Buttons / RadioButtons, not
+         Borders). Pill template on the shared ButtonBase so both element
+         families can legally inherit it; the RadioButton variant adds the
+         checked state (live accent). -->
+    <Style x:Key="Tab.InactiveBase" TargetType="ButtonBase">
+        <Setter Property="Background" Value="{DynamicResource TabInactiveBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="12,6"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Button}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ButtonBase">
+                    <Border x:Name="Bg" Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource Radius.Tab}"
+                            Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TabHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.85"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="Tab.InactiveControl" TargetType="Button" BasedOn="{StaticResource Tab.InactiveBase}"/>
+    <Style x:Key="Tab.InactiveRadio" TargetType="RadioButton" BasedOn="{StaticResource Tab.InactiveBase}">
+        <Style.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Background" Value="{DynamicResource TabActiveBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
 
     <!-- Aliases -->
     <Style x:Key="TextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
@@ -847,7 +1043,11 @@
     <Style x:Key="MasterHeroMetaLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
     <Style x:Key="MasterHeroMetaValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
     <Style x:Key="MasterHeroStripStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
-    <Style x:Key="ModernToggleSwitch" TargetType="CheckBox"/>
+    <!-- Settings toggles are ToggleButtons (not CheckBoxes) — the old
+         CheckBox TargetType made every usage throw at instantiation.
+         Delegates to the designed liquid glass switch (defined in
+         LiquidGlassStyles.xaml, resolved at runtime). -->
+    <Style x:Key="ModernToggleSwitch" TargetType="ToggleButton" BasedOn="{StaticResource LiquidGlassSwitchStyle}"/>
     <Style x:Key="MovementRowStyle" TargetType="DataGridRow"/>
     <Style x:Key="OptionalDimStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
     <Style x:Key="PlCellStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>

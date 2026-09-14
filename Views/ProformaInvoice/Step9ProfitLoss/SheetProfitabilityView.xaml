@@ -1,16 +1,12 @@
 <!--
     Sheet Profitability View — Separate Tab for Sheet Usage Analysis
-
     Model (proforma-based, NOT stock-based):
-
         BUY SHEET  =  USED SHEET  +  WASTAGE (leftover)
-
     • BUY SHEET   — sheets bought, priced at the Step 9 glass amount.
     • USED SHEET  — sheets required to cover cut SQM + wastage %.
     • WASTAGE     — the LEFTOVER of cutting = BUY − USED. Derived, never
                     purchased — no separate "wastage sheet" and no
                     scrap/remnant value.
-
     The Step 6 WASTAGE CHARGE is a separate fee, read from the matching
     Step 6 wastage row's SOURCE (outer / inner / lam / middle), its SQM,
     its SHEET QTY and its rate, then cross-checked against the usage:
@@ -94,16 +90,16 @@
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
                     <Button Content="CSV" Command="{Binding ExportCsvCommand}"
-                            Style="{StaticResource SurfacePrimaryStyle}"
+                            Style="{StaticResource SurfacePrimaryButtonStyle}"
                             ToolTip="Export this analysis as CSV."/>
                     <Button Content="EXCEL" Command="{Binding ExportExcelCommand}"
-                            Style="{StaticResource SurfacePrimaryStyle}"
+                            Style="{StaticResource SurfacePrimaryButtonStyle}"
                             ToolTip="Export this analysis as Excel."/>
                     <Button Content="PDF" Command="{Binding ExportPdfCommand}"
-                            Style="{StaticResource SurfacePrimaryStyle}"
+                            Style="{StaticResource SurfacePrimaryButtonStyle}"
                             ToolTip="Export this analysis as PDF."/>
                     <Button Content="{DynamicResource Sharing.Share}" Command="{Binding ShareCommand}"
-                            Style="{StaticResource SurfacePrimaryStyle}"
+                            Style="{StaticResource SurfacePrimaryButtonStyle}"
                             ToolTip="Share this analysis via the Sharing Center."/>
                     <Button Content="REFRESH"
                             Command="{Binding RefreshCommand}"

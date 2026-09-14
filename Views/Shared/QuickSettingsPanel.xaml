@@ -87,7 +87,7 @@
                         <StackPanel>
 
                             <TextBlock Style="{StaticResource Typography.Label}" Text="{DynamicResource Settings.GrpLook}"/>
-                            <Button Style="{StaticResource SurfaceDetailStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Appearance">
+                            <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Appearance">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
                                     <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecAppearance}"/>
@@ -95,19 +95,19 @@
                             </Button>
 
                             <TextBlock Style="{StaticResource Typography.Label}" Text="{DynamicResource Settings.GrpIntelligence}"/>
-                            <Button Style="{StaticResource SurfaceDetailStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="AI">
+                            <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="AI">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F2;"/>
                                     <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecAi}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource SurfaceDetailStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Agent">
+                            <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Agent">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE99A;"/>
                                     <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecAgent}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource SurfaceDetailStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Voice">
+                            <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Voice">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE720;"/>
                                     <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecVoice}"/>
@@ -115,37 +115,37 @@
                             </Button>
 
                             <TextBlock Style="{StaticResource Typography.Label}" Text="{DynamicResource Nav.GroupSystem}"/>
-                            <Button Style="{StaticResource SurfaceDetailStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Data">
+                            <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Data">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE74E;"/>
                                     <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecData}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource SurfaceDetailStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Updates">
+                            <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Updates">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72C;"/>
                                     <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecUpdates}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource SurfaceDetailStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Demo">
+                            <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Demo">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE714;"/>
                                     <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecDemo}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource SurfaceDetailStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Features">
+                            <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Features">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE762;"/>
                                     <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecFeatures}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource SurfaceDetailStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="License">
+                            <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="License">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE192;"/>
                                     <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecLicense}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource SurfaceDetailStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="About">
+                            <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="About">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE946;"/>
                                     <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecAbout}"/>

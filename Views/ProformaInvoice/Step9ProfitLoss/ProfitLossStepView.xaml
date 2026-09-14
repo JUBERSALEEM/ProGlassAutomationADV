@@ -124,7 +124,7 @@
                                                     Converter={StaticResource DecimalTypingConverter},
                                                     UpdateSourceTrigger=PropertyChanged}"
                                      behaviors:TextBoxBehaviors.AcceptDecimals="True"
-                                     Style="{StaticResource SurfacePrimaryStyle}"
+                                     Style="{StaticResource Input.TextBox}"
                                      Width="84"
                                      ToolTip="{DynamicResource ProformaInvoice.CuttingAllowanceAddedRequiredAreaBefore}"/>
                             <TextBlock Text="%"
@@ -263,7 +263,6 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="Basis"/>
                                     <TextBlock Grid.Column="1" Text="Area-weighted across specifications"
-                                              
                                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                                 </Grid>
                             </StackPanel>
@@ -301,7 +300,6 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="Source"/>
                                     <TextBlock Grid.Column="1" Text="{Binding ExpectedProfitMarginSourceLabel}"
-                                              
                                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                                 </Grid>
                             </StackPanel>
@@ -494,7 +492,6 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="Target balance"/>
                                     <TextBlock Grid.Column="1" Text="{Binding TargetBalancePerSqmDisplay}"
-                                              
                                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                                 </Grid>
                                 <Grid Margin="0,6,0,0">
@@ -504,7 +501,6 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="Target balance value"/>
                                     <TextBlock Grid.Column="1" Text="{Binding TargetBalanceValueDisplay}"
-                                              
                                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                                 </Grid>
                             </StackPanel>
@@ -532,13 +528,11 @@
                             <StackPanel>
                                 <TextBlock Text="GIVEN PRICE SOURCE"/>
                                 <TextBlock Text="{Binding GivenPriceSourceLabel}"
-                                          
                                            TextWrapping="Wrap"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="SCOPE"/>
                                 <TextBlock Text="{Binding TargetScopeNote}"
-                                          
                                            TextWrapping="Wrap"/>
                             </StackPanel>
                             <StackPanel Grid.Column="4">
@@ -711,23 +705,18 @@
                                                         <ColumnDefinition Width="110"/>
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" Text="{Binding Kind}"
-                                                              
                                                                FontWeight="{DynamicResource Weight.SemiBold}"
                                                                Foreground="{DynamicResource AccentBrush}"/>
                                                     <TextBlock Grid.Column="1" Text="{Binding Description}"
-                                                              
                                                                TextWrapping="Wrap"
                                                                Margin="0,0,12,0"/>
                                                     <TextBlock Grid.Column="2" Text="{Binding SizeDisplay}"
-                                                              
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                                     <TextBlock Grid.Column="3" Text="{Binding QuantityDisplay}"
                                                               />
                                                     <TextBlock Grid.Column="4" Text="{Binding PriceDisplay}"
-                                                              
                                                                HorizontalAlignment="Right"/>
                                                     <TextBlock Grid.Column="5" Text="{Binding AmountDisplay}"
-                                                              
                                                                FontWeight="{DynamicResource Weight.Bold}"
                                                                HorizontalAlignment="Right"/>
                                                 </Grid>
@@ -744,7 +733,6 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{DynamicResource ProformaInvoice.CheckRATESQM}"
-                                              
                                                VerticalAlignment="Center"
                                                Margin="0,0,10,0"/>
                                     <TextBox Grid.Column="1"
@@ -758,7 +746,7 @@
                                              Focusable="True"
                                              IsTabStop="True"
                                              MinWidth="88"
-                                             Style="{StaticResource SurfacePrimaryStyle}"
+                                             Style="{StaticResource Input.TextBox}"
                                              ToolTip="{DynamicResource ProformaInvoice.TypeRateIntendQuoteMarkShownBeside}"/>
                                     <TextBlock Grid.Column="2"
                                                Text="{Binding RateCheckDisplay}"

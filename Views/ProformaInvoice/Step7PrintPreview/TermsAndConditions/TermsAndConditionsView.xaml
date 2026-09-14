@@ -58,7 +58,7 @@
                                               AutomationProperties.Name="Include term"/>
                                 <TextBox Grid.Column="1"
                                          Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource Typography.Title}"
+                                         FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
                                          Margin="0,0,8,0"/>
                                 <StackPanel Grid.Column="2" Orientation="Horizontal">
                                     <Button Command="{Binding DataContext.MoveUpCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -85,7 +85,7 @@
                                 </StackPanel>
                             </Grid>
                             <TextBox Text="{Binding Body, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource SurfacePrimaryStyle}"
+                                     Style="{StaticResource Input.TextBox}"
                                      AcceptsReturn="True"
                                      TextWrapping="Wrap"
                                      MinHeight="40"
@@ -104,7 +104,6 @@
                                     </Style>
                                 </StackPanel.Style>
                                 <TextBlock Text="{DynamicResource ProformaInvoice.ValidityDays}"
-                                          
                                            Margin="0,0,8,0"/>
                                 <ComboBox ItemsSource="{Binding DataContext.ValidityDayOptions, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                           SelectedItem="{Binding ValidityDays}"
@@ -126,7 +125,6 @@
                                 </StackPanel.Style>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                     <TextBlock Text="{DynamicResource ProformaInvoice.PaymentLines}"
-                                              
                                                Margin="0"
                                                VerticalAlignment="Center"/>
                                     <Button Command="{Binding DataContext.AddPaymentSubLineCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -144,7 +142,7 @@
                                                     <ColumnDefinition Width="28"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBox Text="{Binding Mode=OneWay}"
-                                                         Style="{StaticResource SurfacePrimaryStyle}"
+                                                         Style="{StaticResource Input.TextBox}"
                                                          FontSize="{DynamicResource FontSize.Body}"
                                                          IsReadOnly="True"
                                                          ToolTip="{DynamicResource ProformaInvoice.EditRemoveLineAddNewOne}"/>

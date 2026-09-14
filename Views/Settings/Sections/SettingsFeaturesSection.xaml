@@ -2,14 +2,12 @@
      FILE: Views/Settings/Sections/SettingsFeaturesSection.xaml
      PROJECT: ProGlassAutomation
      MODULE: Settings v2 — FEATURES page (tile-grid redesign Aug 2026)
-
      REDESIGN
        Was: every optional field was a full-width Grid row (label +
        toggle) stacked inside a giant full-width card per step. On a
        wide pane each toggle row stretched the whole width, so 65% of
        horizontal space was empty and the page was a long vertical
        list of identical rows.
-
        Now: each optional field is its own 320-wide tile (title +
        hint + toggle) dropped into a WrapPanel, so they reflow into
        3–4 columns and the page becomes a tidy grid of switches. The
@@ -17,7 +15,6 @@
        Session card stay as full-row tiles. Every PiToggleSwitch
        IsChecked binding, both DataContext re-scopes, and the
        SettingsFeaturesRoot ElementName handoff are preserved.
-
      UX contract (unchanged):
        • DB-required fields never appear here — Company Name, Customer
          Name and Proforma ID are always visible in the wizard.
@@ -171,13 +168,13 @@
                 <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE77B;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.SessionSecurity}"/>
                             </StackPanel>
                             <!-- Full-width action row: buttons stretch evenly
                                  across the whole card (no left-cramped gap). -->
-                            <UniformGrid Columns="2" Style="{StaticResource SettingsActionRowStyle}">
+                            <UniformGrid Columns="2" Style="{StaticResource SurfacePrimaryPanelStyle}">
                                 <Button Content="{DynamicResource Settings.ForgetDevice}"
                                         Command="{Binding DataContext.ForgetThisDeviceCommand,
                                             ElementName=SettingsFeaturesRoot}"
@@ -220,7 +217,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource ProformaInvoice.FederalTRN}"/>
                             </StackPanel>
@@ -232,7 +229,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource ProformaInvoice.Headquarters}"/>
                             </StackPanel>
@@ -244,7 +241,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource CompanyCenter.Representative}"/>
                             </StackPanel>
@@ -256,7 +253,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.RepresentativeMobile}"/>
                             </StackPanel>
@@ -268,7 +265,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource CompanyCenter.CompanyEMAIL}"/>
                             </StackPanel>
@@ -280,7 +277,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource CompanyCenter.BANKNAME}"/>
                             </StackPanel>
@@ -292,7 +289,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource ProformaInvoice.AccountIBAN}"/>
                             </StackPanel>
@@ -304,7 +301,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource ProformaInvoice.IssueDATE}"/>
                             </StackPanel>
@@ -316,7 +313,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource ProformaInvoice.ValidUntil}"/>
                             </StackPanel>
@@ -328,7 +325,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Common.Status}"/>
                             </StackPanel>
@@ -349,7 +346,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource ProformaInvoice.CustomerTRN}"/>
                             </StackPanel>
@@ -361,7 +358,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource ProformaInvoice.ReferenceCODE}"/>
                             </StackPanel>
@@ -373,7 +370,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource ProformaInvoice.SalesRepresentative}"/>
                             </StackPanel>
@@ -385,7 +382,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Inquiry.Prepared2}"/>
                             </StackPanel>
@@ -397,7 +394,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.AttentionKindAttn}"/>
                             </StackPanel>
@@ -409,7 +406,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.ClientPhone}"/>
                             </StackPanel>
@@ -421,7 +418,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource ProformaInvoice.BillingAddress}"/>
                             </StackPanel>
@@ -440,7 +437,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource ProformaInvoice.ProjectNAME}"/>
                             </StackPanel>
@@ -452,7 +449,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource ProformaInvoice.ProjectReference}"/>
                             </StackPanel>
@@ -464,7 +461,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.ContractNumber}"/>
                             </StackPanel>
@@ -476,7 +473,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource ProformaInvoice.LPOPONumber}"/>
                             </StackPanel>
@@ -488,7 +485,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource ProformaInvoice.SITEDeliveryLocation}"/>
                             </StackPanel>
@@ -521,7 +518,7 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8FD;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="Profit margin % — global default"/>
                             </StackPanel>
@@ -543,7 +540,7 @@
                 <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A5;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.BulkActions}"/>
                             </StackPanel>
@@ -551,7 +548,7 @@
                                        Text="{DynamicResource Settings.FlipOptionalFieldOnceRestoreBoxLayout}"/>
                             <!-- Full-width action row: buttons stretch evenly
                                  across the whole card (no left-cramped gap). -->
-                            <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}">
+                            <UniformGrid Columns="3" Style="{StaticResource SurfacePrimaryPanelStyle}">
                                 <Button Content="{DynamicResource Settings.Enable}"
                                         Command="{Binding EnableAllCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"
@@ -594,13 +591,13 @@
                 <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9D2;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.BulkActions}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.FlipInquiryFieldOnce}"/>
-                            <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}">
+                            <UniformGrid Columns="3" Style="{StaticResource SurfacePrimaryPanelStyle}">
                                 <Button Content="{DynamicResource Settings.Enable}"
                                         Command="{Binding EnableAllCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"/>
@@ -624,7 +621,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Inquiry.InquiryReference}"/>
                             </StackPanel>
@@ -636,7 +633,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.CustomerLocation}"/>
                             </StackPanel>
@@ -648,7 +645,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.ProjectDescription}"/>
                             </StackPanel>
@@ -660,7 +657,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Common.Salesman}"/>
                             </StackPanel>
@@ -672,7 +669,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Inquiry.Prepared2}"/>
                             </StackPanel>
@@ -684,7 +681,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Common.Priority}"/>
                             </StackPanel>
@@ -696,7 +693,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.EstimatedValue}"/>
                             </StackPanel>
@@ -708,7 +705,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Common.Notes}"/>
                             </StackPanel>
@@ -739,13 +736,13 @@
                 <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE713;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.BulkActions}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.FlipJobOrderFieldOnce}"/>
-                            <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}">
+                            <UniformGrid Columns="3" Style="{StaticResource SurfacePrimaryPanelStyle}">
                                 <Button Content="{DynamicResource Settings.Enable}"
                                         Command="{Binding EnableAllCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"/>
@@ -769,7 +766,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource JobOrder.Assigned}"/>
                             </StackPanel>
@@ -781,7 +778,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.SiteContact}"/>
                             </StackPanel>
@@ -793,7 +790,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.SitePhone}"/>
                             </StackPanel>
@@ -805,7 +802,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.SiteAddress}"/>
                             </StackPanel>
@@ -817,7 +814,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource JobOrder.DrawingReference}"/>
                             </StackPanel>
@@ -829,7 +826,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource JobOrder.CuttingInstructions}"/>
                             </StackPanel>
@@ -841,7 +838,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource JobOrder.InternalNotes}"/>
                             </StackPanel>
@@ -871,13 +868,13 @@
                 <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE718;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.BulkActions}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.FlipDeliveryNoteFieldOnce}"/>
-                            <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}">
+                            <UniformGrid Columns="3" Style="{StaticResource SurfacePrimaryPanelStyle}">
                                 <Button Content="{DynamicResource Settings.Enable}"
                                         Command="{Binding EnableAllCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"/>
@@ -901,7 +898,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource DeliveryNote.DriverNAME}"/>
                             </StackPanel>
@@ -913,7 +910,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource DeliveryNote.VehicleNumber}"/>
                             </StackPanel>
@@ -925,7 +922,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.FOCFreeCost}"/>
                             </StackPanel>
@@ -937,7 +934,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource DeliveryNote.ReceiverNAME}"/>
                             </StackPanel>
@@ -949,7 +946,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Common.Notes}"/>
                             </StackPanel>
@@ -979,13 +976,13 @@
                 <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7B8;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.BulkActions}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.FlipTaxInvoiceFieldOnce}"/>
-                            <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}">
+                            <UniformGrid Columns="3" Style="{StaticResource SurfacePrimaryPanelStyle}">
                                 <Button Content="{DynamicResource Settings.Enable}"
                                         Command="{Binding EnableAllCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"/>
@@ -1009,7 +1006,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Reports.TaxInvoiceReport.DUEDATE}"/>
                             </StackPanel>
@@ -1021,7 +1018,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.PaymentTerms}"/>
                             </StackPanel>
@@ -1033,7 +1030,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.Discount}"/>
                             </StackPanel>
@@ -1045,7 +1042,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.IBAN}"/>
                             </StackPanel>
@@ -1057,7 +1054,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.Swift}"/>
                             </StackPanel>

@@ -2,14 +2,12 @@
      FILE: Views/Settings/Sections/SettingsDataSection.xaml
      PROJECT: ProGlassAutomation
      MODULE: Settings v2 — DATA & BACKUP page (tile-grid redesign Aug 2026)
-
      REDESIGN
        Was: three giant full-width cards stacked vertically (Backup &
        Restore, Sample Data, Database Health). Each card held its own
        full-width list/grid, so on a wide monitor 60% of horizontal
        space was empty and the page needed endless scrolling on a
        laptop.
-
        Now: the page is grouped into three labelled tile groups. Small,
        independent actions (backup actions / restore) sit side-by-side
        in 320-wide tiles; the backup set list lives in a wide tile; the
@@ -71,7 +69,7 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
-                                <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                                <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE968;"/>
                                     <TextBlock Style="{StaticResource Typography.Title}" Text="{Binding DataRootModeDisplay}"/>
                                 </StackPanel>
@@ -107,7 +105,7 @@
                                          Padding="10,7"
                                          FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
 
-                                <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}" Margin="0,10,0,0">
+                                <UniformGrid Columns="3" Style="{StaticResource SurfacePrimaryPanelStyle}" Margin="0,10,0,0">
                                     <Button Style="{StaticResource SettingsActionButtonStyle}"
                                             Content="Test Connection"
                                             Command="{Binding TestSharedDataRootCommand}"
@@ -152,7 +150,7 @@
                     <!-- Backup actions tile -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE74E;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.BackupActions}"/>
                             </StackPanel>
@@ -180,7 +178,7 @@
                     <!-- Restore tile -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE895;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource ProformaInvoice.Restore}"/>
                             </StackPanel>
@@ -200,7 +198,7 @@
                     <!-- Backup sets list (wide tile) -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F7;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.BackupSets}"/>
                             </StackPanel>
@@ -251,7 +249,7 @@
                 <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A5;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.ExploreSampleData}"/>
                             </StackPanel>
@@ -259,7 +257,7 @@
                                        Text="{DynamicResource Settings.6Sheets3Proformas2JobOrders2DeliveryNotes3}"/>
                             <!-- Full-width action row: buttons stretch evenly
                                  across the whole card. -->
-                            <UniformGrid Columns="2" Style="{StaticResource SettingsActionRowStyle}" Margin="0,10,0,0">
+                            <UniformGrid Columns="2" Style="{StaticResource SurfacePrimaryPanelStyle}" Margin="0,10,0,0">
                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Content="{DynamicResource Settings.LOADSampleDATA}"
                                         Command="{Binding LoadSampleDataCommand}"
@@ -327,7 +325,7 @@
 
                             <!-- Full-width action row: buttons stretch evenly
                                  across the whole card. -->
-                            <UniformGrid Columns="2" Style="{StaticResource SettingsActionRowStyle}">
+                            <UniformGrid Columns="2" Style="{StaticResource SurfacePrimaryPanelStyle}">
                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Content="{DynamicResource Action.Refresh}"
                                         Command="{Binding RefreshDatabaseHealthCommand}"

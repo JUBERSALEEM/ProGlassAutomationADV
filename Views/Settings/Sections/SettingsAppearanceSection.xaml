@@ -2,20 +2,17 @@
      FILE: Views/Settings/Sections/SettingsAppearanceSection.xaml
      PROJECT: ProGlassAutomation
      MODULE: Settings v2 — APPEARANCE page (redesigned Aug 2026)
-
      REDESIGN
        Was: one giant SectionCardStyle per subject (Theme mode, Wallpaper,
        Accent, Font, Motion, Module wallpapers) containing full-width
        DockPanel rows. On wide monitors that wasted 60-70% of horizontal
        space; on 1366 laptops it felt endless.
-
        Now: a WrapPanel of individual "tiles" (SettingsTileStyle) that
        auto-flow into 2-4 columns. Wide surfaces (module wallpaper list,
        accent palette) use SettingsWideTileStyle / SettingsFullRowTileStyle
        so they still get proper width when they need it. Every binding is
        preserved byte-for-byte — this is a layout redesign, not a data
        change.
-
      Bindings target SettingsViewModel (DataContext flows from shell).
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsAppearanceSection"
@@ -169,7 +166,7 @@
                      seen, not a label they trust blindly. -->
                 <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,10">
                     <StackPanel>
-                        <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                        <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>
                             <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.PreviewTitle}"/>
                         </StackPanel>
@@ -249,7 +246,6 @@
                      engine writes CrystalPreviewHostVisibility under
                      Crystal Fluid and removes it at BOTH switch paths,
                      so this gallery renders ONLY under its own family.
-
                      Order mirrors file 20: environment highlight trio +
                      ambient → KPI strip (water) → nav row → status pill
                      + DETERMINATE progress → authored grid chrome.
@@ -355,7 +351,7 @@
                     <!-- Visual theme -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.LblThemeFamily}"/>
                             </StackPanel>
@@ -373,7 +369,7 @@
                     <!-- Font Color (global text colour, 2026-08-25) -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE2B1;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.FontColor}"/>
                             </StackPanel>
@@ -433,7 +429,7 @@
                     <!-- Defined card edges: on/off + edge weight (1–100) + colour plate -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE71B;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.DefinedCardEdges}"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
@@ -509,7 +505,7 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7F4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.GradientSurfaces}"/>
                             </StackPanel>
@@ -526,7 +522,7 @@
                     <!-- Corner radius -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7B3;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.CardCornerRadius}"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
@@ -550,7 +546,7 @@
                     <!-- Display density -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE740;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.GrpDensity}"/>
                             </StackPanel>
@@ -567,7 +563,7 @@
                     <!-- Module-skin frost: blur wallpaper + tinted glass cards -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE2B1;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="Frosted module cards"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
@@ -626,7 +622,7 @@
                     <!-- Semantic ERP surfaces: Primary / Secondary / Detail customization -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE771;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="ERP surface levels"/>
                             </StackPanel>
@@ -713,7 +709,7 @@
                     <!-- UI scale -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A3;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.UIScale}"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
@@ -743,7 +739,7 @@
                     <!-- PDF layout -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A5;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.PDFLayout}"/>
                             </StackPanel>
@@ -761,7 +757,7 @@
                     <!-- Motion & performance -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.MotionPerformance}"/>
                             </StackPanel>
@@ -787,7 +783,7 @@
                     <!-- Accent palette (wide) -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.LblAccent}"/>
                             </StackPanel>
@@ -845,7 +841,7 @@
                     <!-- Font family -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE185;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.FontFamily}"/>
                             </StackPanel>
@@ -865,7 +861,7 @@
                     <!-- Weight + Style -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D2;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.FontWeightStyle}"/>
                             </StackPanel>
@@ -925,7 +921,7 @@
                     <!-- Global wallpaper — one card, all controls on one line -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xEB9F;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.GlobalWallpaper}"/>
                             </StackPanel>
@@ -973,7 +969,7 @@
                          the list no longer grows the page by 17 stacked rows. -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B9;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.ModuleWallpapers}"/>
                             </StackPanel>
@@ -1076,7 +1072,7 @@
                     <!-- Language (15 shipped, live switch, en-US primary) -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>
                                 <TextBlock
                                            Text="{DynamicResource Settings.LblLanguage}"/>
@@ -1094,7 +1090,7 @@
                     <!-- Currency (live FX, offline = last fetched) -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Text="&#xEAF1;"/>
                                 <TextBlock
                                            Text="{DynamicResource Settings.LblCurrency}"/>
@@ -1112,7 +1108,7 @@
                     <!-- Phone country (from IP, editable) -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                                 <TextBlock Text="&#xE717;"/>
                                 <TextBlock
                                            Text="{DynamicResource Settings.LblPhoneCountry}"/>
@@ -1134,7 +1130,7 @@
                      static. Persisted; survives family switches. -->
                 <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,10">
                     <StackPanel>
-                        <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                        <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                             <TextBlock Text="&#xE713;"/>
                             <TextBlock
                                        Text="{DynamicResource Settings.ReducedMotion}"/>
@@ -1155,7 +1151,7 @@
                      persistent local library. -->
                 <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,10">
                     <StackPanel>
-                        <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                        <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                             <TextBlock
                                        Text="{DynamicResource Settings.WallpaperStudio}"/>
                             <TextBlock TextWrapping="Wrap"
@@ -1326,7 +1322,7 @@
                      tile in this section. Bindings/AutomationIds unchanged. -->
                 <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,4,0,0">
                     <StackPanel>
-                        <StackPanel Style="{StaticResource SurfaceDetailStyle}">
+                        <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE774;"/>
                             <TextBlock Style="{StaticResource Typography.Title}"
                                        Text="{DynamicResource Settings.LocaleFallback}"/>

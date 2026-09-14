@@ -2,7 +2,6 @@
      FILE: Views/UserCenter/UserCenterView.xaml
      PROJECT: ProGlassAutomation
      MODULE: User Center (Phase 1)
-
      Left: user cards (role, active/current badges).
      Right: create user + switch active user (passwords stay in
      PasswordBoxes; code-behand hands them straight to the VM).
@@ -227,7 +226,7 @@
                             <StackPanel Grid.Row="2" Grid.Column="2">
                                 <TextBlock Text="{DynamicResource UserCenter.Password}" Style="{StaticResource Typography.Label}"/>
                                 <PasswordBox x:Name="NewPasswordBox"
-                                             Style="{StaticResource Input.TextBox}"
+                                             Style="{StaticResource Input.PasswordBox}"
                                              PasswordChanged="NewPasswordBox_PasswordChanged"/>
                                 <!-- Strength meter: lit by PasswordMeterHelper. -->
                                 <StackPanel x:Name="NewPasswordMeter" Orientation="Horizontal" Margin="0,6,0,0">
@@ -249,7 +248,7 @@
                             <StackPanel Grid.Row="4" Grid.ColumnSpan="3">
                                 <TextBlock Text="{DynamicResource UserCenter.ConfirmPassword}" Style="{StaticResource Typography.Label}"/>
                                 <PasswordBox x:Name="ConfirmPasswordBox"
-                                             Style="{StaticResource Input.TextBox}"/>
+                                             Style="{StaticResource Input.PasswordBox}"/>
                             </StackPanel>
 
                             <!-- PHASE D — WHY note recorded with the audit entry -->
@@ -294,7 +293,7 @@
                         <StackPanel Orientation="Horizontal">
                             <PasswordBox x:Name="SwitchPasswordBox"
                                          Width="240"
-                                         Style="{StaticResource Input.TextBox}"/>
+                                         Style="{StaticResource Input.PasswordBox}"/>
                             <Button Style="{StaticResource PrimaryPillButton}"
                                     Tag="&#xE895;" Content="{DynamicResource UserCenter.SIGNSelected}"
                                     Click="SwitchUser_Click"
@@ -319,14 +318,14 @@
                                            Style="{StaticResource Typography.Label}"/>
                                 <PasswordBox x:Name="CurrentPasswordBox"
                                              Width="200"
-                                             Style="{StaticResource Input.TextBox}"/>
+                                             Style="{StaticResource Input.PasswordBox}"/>
                             </StackPanel>
                             <StackPanel Margin="0,0,12,0">
                                 <TextBlock Text="{DynamicResource Login.NEWPassword}"
                                            Style="{StaticResource Typography.Label}"/>
                                 <PasswordBox x:Name="ChangeNewPasswordBox"
                                              Width="200"
-                                             Style="{StaticResource Input.TextBox}"
+                                             Style="{StaticResource Input.PasswordBox}"
                                              PasswordChanged="ChangeNewPasswordBox_PasswordChanged"/>
                                 <!-- Strength meter: lit by PasswordMeterHelper. -->
                                 <StackPanel x:Name="ChangePasswordMeter" Orientation="Horizontal" Margin="0,6,0,0">
@@ -350,7 +349,7 @@
                                            Style="{StaticResource Typography.Label}"/>
                                 <PasswordBox x:Name="ChangeConfirmPasswordBox"
                                              Width="200"
-                                             Style="{StaticResource Input.TextBox}"/>
+                                             Style="{StaticResource Input.PasswordBox}"/>
                             </StackPanel>
                             <Button Style="{StaticResource PrimaryPillButton}"
                                     Tag="&#xE72E;" Content="{DynamicResource UserCenter.ChangePassword}"
