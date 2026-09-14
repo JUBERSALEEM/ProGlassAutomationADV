@@ -242,6 +242,22 @@
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
+    <!-- 2026-09-14: WORK CENTER / CONTROL CENTER mini DataGrids use the same
+         semantic standard as the themed grids: counts/percent/flags center,
+         free text left, every cell vertically centered; header alignment
+         always matches the cell alignment. -->
+    <Style x:Key="WorkCenterCenterHeaderStyle" TargetType="DataGridColumnHeader">
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="WorkCenterCenterCellTextStyle" TargetType="TextBlock">
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="WorkCenterLeftCellTextStyle" TargetType="TextBlock">
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
     <!-- ═══════════════════════════════════════════════════════════════
          UNIFIED TAB SYSTEM — for use by any module's tab navigation.
          Active tab: accent glass pill with bright foreground.

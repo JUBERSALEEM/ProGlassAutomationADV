@@ -120,17 +120,17 @@
                               AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
                               Style="{StaticResource SurfaceDataGrid}">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="80"/>
-                            <DataGridTextColumn Header="Spec" Binding="{Binding SpecName}" Width="100"/>
-                            <DataGridTextColumn Header="Piece" Binding="{Binding PieceId}" Width="*"/>
-                            <DataGridTextColumn Header="Process" Binding="{Binding ProcessType}" Width="70"/>
-                            <DataGridTextColumn Header="Prev" Binding="{Binding PreviousStage}" Width="60"/>
-                            <DataGridTextColumn Header="Next" Binding="{Binding NextStage}" Width="60"/>
-                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="60"/>
-                            <DataGridTextColumn Header="Qty" Binding="{Binding QtyDone}" Width="50"/>
-                            <DataGridTextColumn Header="Req" Binding="{Binding QtyRequired}" Width="50"/>
-                            <DataGridTextColumn Header="QC" Binding="{Binding QcStatus}" Width="50"/>
-                            <DataGridCheckBoxColumn Header="FOC" Binding="{Binding IsFoc}" Width="40"/>
+                            <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="110" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Spec" Binding="{Binding SpecName}" Width="180" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Piece" Binding="{Binding PieceId}" Width="310" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Process" Binding="{Binding ProcessType}" Width="130" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Prev" Binding="{Binding PreviousStage}" Width="110" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Next" Binding="{Binding NextStage}" Width="110" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="130" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Qty" Binding="{Binding QtyDone}" Width="90" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="Req" Binding="{Binding QtyRequired}" Width="90" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="QC" Binding="{Binding QcStatus}" Width="90" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridCheckBoxColumn Header="FOC" Binding="{Binding IsFoc}" Width="68"/>
                         </DataGrid.Columns>
                     </DataGrid>
                     <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,0">
@@ -163,9 +163,9 @@
                         <TextBlock Text="Pairings — DGU Component A/B deterministic" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,8"/>
                         <DataGrid Grid.Row="1" ItemsSource="{Binding Pairings}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Pair" Binding="{Binding PairId}" Width="80"/>
-                                <DataGridTextColumn Header="Outer" Binding="{Binding OuterPieceId}" Width="*"/>
-                                <DataGridTextColumn Header="Inner" Binding="{Binding InnerPieceId}" Width="*"/>
+                                <DataGridTextColumn Header="Pair" Binding="{Binding PairId}" Width="80" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Outer" Binding="{Binding OuterPieceId}" Width="132" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Inner" Binding="{Binding InnerPieceId}" Width="132" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
@@ -181,9 +181,9 @@
                         <TextBlock Text="Assemblies — DGU/Lamination lineage preserved" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,8"/>
                         <DataGrid Grid.Row="1" ItemsSource="{Binding Assemblies}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Assembly" Binding="{Binding AssemblyLabel}" Width="80"/>
-                                <DataGridTextColumn Header="Type" Binding="{Binding AssemblyType}" Width="80"/>
-                                <DataGridTextColumn Header="Components" Binding="{Binding ComponentsJson}" Width="*"/>
+                                <DataGridTextColumn Header="Assembly" Binding="{Binding AssemblyLabel}" Width="90" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Type" Binding="{Binding AssemblyType}" Width="80" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Components" Binding="{Binding ComponentsJson}" Width="174" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>

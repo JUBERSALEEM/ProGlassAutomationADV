@@ -140,11 +140,11 @@
                               AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
                               Style="{StaticResource SurfaceDataGrid}">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="80"/>
-                            <DataGridTextColumn Header="Sheets" Binding="{Binding SheetsUsed}" Width="50"/>
-                            <DataGridTextColumn Header="Pieces" Binding="{Binding TotalPieces}" Width="50"/>
-                            <DataGridTextColumn Header="Util %" Binding="{Binding UtilizationPct}" Width="60"/>
-                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*"/>
+                            <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="70" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Sheets" Binding="{Binding SheetsUsed}" Width="50" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="Pieces" Binding="{Binding TotalPieces}" Width="50" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="Util %" Binding="{Binding UtilizationPct}" Width="50" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="84" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
@@ -170,13 +170,13 @@
                         <DataGrid Grid.Row="1" ItemsSource="{Binding CuttingSheets}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
                                   Style="{StaticResource SurfaceDataGrid}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="SheetNo" Binding="{Binding SheetNo}" Width="60"/>
-                                <DataGridTextColumn Header="Stock" Binding="{Binding StockSizeLabel}" Width="200"/>
-                                <DataGridTextColumn Header="W×H" Binding="{Binding StockWidthMm}" Width="*"/>
-                                <DataGridTextColumn Header="Util %" Binding="{Binding UtilizationPct}" Width="60"/>
-                                <DataGridTextColumn Header="Waste %" Binding="{Binding WastagePct}" Width="60"/>
-                                <DataGridTextColumn Header="Pieces" Binding="{Binding PlacedPieceCount}" Width="60"/>
-                                <DataGridCheckBoxColumn Header="Verified" Binding="{Binding IsVerified}" Width="60"/>
+                                <DataGridTextColumn Header="SheetNo" Binding="{Binding SheetNo}" Width="80" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Stock" Binding="{Binding StockSizeLabel}" Width="430" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="W×H" Binding="{Binding StockWidthMm}" Width="380" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Util %" Binding="{Binding UtilizationPct}" Width="150" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Waste %" Binding="{Binding WastagePct}" Width="150" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Pieces" Binding="{Binding PlacedPieceCount}" Width="130" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridCheckBoxColumn Header="Verified" Binding="{Binding IsVerified}" Width="138"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
@@ -195,15 +195,15 @@
                                   AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
                                   Style="{StaticResource SurfaceDataGrid}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Piece" Binding="{Binding PieceLabel}" Width="*"/>
-                                <DataGridTextColumn Header="Spec" Binding="{Binding SpecName}" Width="120"/>
-                                <DataGridTextColumn Header="Size" Binding="{Binding WidthMm}" Width="80"/>
-                                <DataGridTextColumn Header="Pos" Binding="{Binding Position}" Width="60"/>
-                                <DataGridTextColumn Header="Sheet" Binding="{Binding CuttingSheetId}" Width="120"/>
-                                <DataGridTextColumn Header="Rot" Binding="{Binding IsRotated}" Width="50"/>
-                                <DataGridTextColumn Header="X/Y" Binding="{Binding X}" Width="80"/>
-                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="80"/>
-                                <DataGridCheckBoxColumn Header="FOC" Binding="{Binding IsFoc}" Width="50"/>
+                                <DataGridTextColumn Header="Piece" Binding="{Binding PieceLabel}" Width="340" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Spec" Binding="{Binding SpecName}" Width="220" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Size" Binding="{Binding WidthMm}" Width="140" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Pos" Binding="{Binding Position}" Width="100" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Sheet" Binding="{Binding CuttingSheetId}" Width="230" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Rot" Binding="{Binding IsRotated}" Width="90" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="X/Y" Binding="{Binding X}" Width="140" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="140" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridCheckBoxColumn Header="FOC" Binding="{Binding IsFoc}" Width="58"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
