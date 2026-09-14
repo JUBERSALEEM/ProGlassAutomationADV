@@ -28,14 +28,12 @@
                  WPF forbids setting UserControl.Resources twice, MC3024) -->
 <!-- STACK pill -->
                 <DataTemplate x:Key="DevStackPillTemplate">
+                    <!-- 2026-09-14: glass + SurfacePrimary double chrome →
+                         one L3 chip. -->
                     <Border Margin="0,0,8,8"
                             Padding="12,5"
                             HorizontalAlignment="Left"
-                            Background="{DynamicResource AboutGlassPanelBrush}"
-                            BorderBrush="{DynamicResource AboutGlassSlabStroke}"
-                            BorderThickness="1"
-                            CornerRadius="{DynamicResource Radius.Medium}"
-                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                            Style="{StaticResource SurfaceDetailStyle}">
                         <TextBlock Text="{Binding Name}"
                                    FontSize="{DynamicResource FontSize.BodySmall}"
                                    FontWeight="{DynamicResource Weight.SemiBold}"
@@ -98,19 +96,16 @@
 
                     <Border Style="{StaticResource SurfaceSecondaryStyle}" Padding="16,14">
                         <StackPanel Orientation="Horizontal">
-                            <!-- 84px vivid gradient squircle + the REAL product icon -->
-                            <Border Width="84" Height="84" CornerRadius="{DynamicResource Radius.2XLarge}"
-                                   
-                                    BorderBrush="{DynamicResource AboutGlassSlabStroke}"
-                                    BorderThickness="1"
-                                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
-                                <Border Width="76" Height="76" CornerRadius="{DynamicResource Radius.XLarge}" ClipToBounds="True">
-                                    <Border.Background>
-                                        <ImageBrush ImageSource="{x:Static viewsAbout:AppIconResource.Icon}"
-                                                    Stretch="UniformToFill"
-                                                    RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    </Border.Background>
-                                </Border>
+                            <!-- 2026-09-14: was an 84px card wrapping a 76px
+                                 card (two overlapping tiles) → ONE 84px L3
+                                 tile with the icon paint. -->
+                            <Border Width="84" Height="84"
+                                    Style="{StaticResource SurfaceDetailStyle}">
+                                <Border.Background>
+                                    <ImageBrush ImageSource="{x:Static viewsAbout:AppIconResource.Icon}"
+                                                Stretch="UniformToFill"
+                                                RenderOptions.BitmapScalingMode="HighQuality"/>
+                                </Border.Background>
                             </Border>
                             <StackPanel Margin="18,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding DeveloperName}"
@@ -137,16 +132,14 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- email pill (handler preserved) -->
+                    <!-- email chip (handler preserved) — 2026-09-14: glass +
+                         SurfacePrimary double chrome → one L3 chip. -->
                     <Border Margin="0,14,0,0"
                             Padding="14,8"
                             HorizontalAlignment="Left"
                             Cursor="Hand"
-                            Background="{DynamicResource AboutGlassPanelBrush}"
-                            BorderBrush="{DynamicResource AboutGlassSlabStroke}"
-                            BorderThickness="1"
-                            CornerRadius="{DynamicResource Radius.Card}"
-                            MouseLeftButtonDown="Email_MouseLeftButtonDown" Style="{StaticResource SurfacePrimaryStyle}">
+                            MouseLeftButtonDown="Email_MouseLeftButtonDown"
+                            Style="{StaticResource SurfaceDetailStyle}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xE715;"
                                        FontFamily="{DynamicResource FontFamily.Icon}"
@@ -175,16 +168,18 @@
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource About.Version}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
-                                <TextBlock Text="{Binding Version}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0"/>
+                            <TextBlock Text="{Binding Version}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0"
+                                       TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="0,0,0,10" Padding="14,12">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource About.Build}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
-                                <TextBlock Text="{Binding Build}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0"/>
+                            <TextBlock Text="{Binding Build}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0"
+                                       TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="0,10,10,0" Padding="14,12">
@@ -237,16 +232,15 @@
                         </Border>
                     </Grid>
                     <Border Style="{StaticResource SurfaceSecondaryStyle}" Padding="14,14">
-                        <!-- 2026-09-14: fixed 2-column UniformGrid → centered
-                             WrapPanel of equal 300px tech tiles
-                             (TechItemTemplate carries the width). 2-up at
-                             normal widths, reflows 2 → 1 as the window
-                             narrows. -->
+                        <!-- 2026-09-14: the fixed 300px WrapPanel tiles
+                             overflowed this column on narrow windows (text
+                             ran out of the boxes) → fluid equal-width 2-up
+                             grid; tiles stretch and their text wraps. -->
                         <ItemsControl ItemsSource="{Binding TechStack}"
                                       ItemTemplate="{StaticResource TechItemTemplate}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <WrapPanel HorizontalAlignment="Center"/>
+                                    <UniformGrid Columns="2"/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
@@ -256,7 +250,9 @@
 
             <Border Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}">
                 <StackPanel>
-                    <TextBlock Text="PRINCIPLES"
+                    <!-- 2026-09-14: ALL-CAPS hard-coded → proper case
+                         (UI-10 label standard). -->
+                    <TextBlock Text="Principles"
                                FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource AboutGlassCaptionBrush}"
                                Margin="0,0,0,8"/>
@@ -290,7 +286,7 @@
                                        Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
                         </StackPanel>
                     </StackPanel>
-                    <TextBlock Text="CAPABILITIES"
+                    <TextBlock Text="Capabilities"
                                FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource AboutGlassCaptionBrush}"
                                Margin="0,0,0,4"/>

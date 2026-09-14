@@ -50,19 +50,22 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="ListBoxItem">
-                            <Border x:Name="TabBg"
-                                    Background="Transparent"
-                                    BorderBrush="Transparent"
-                                    BorderThickness="1"
-                                    CornerRadius="{DynamicResource Radius.XLarge}"
-                                    Padding="18,7"
-                                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
-                                <ContentPresenter HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="TabBg" Property="Background" Value="{DynamicResource AboutGlassPanelBrush}"/>
+                        <!-- 2026-09-14: 16px pill corner + conflicting
+                             SurfacePrimaryStyle → 10px standard corner, no
+                             double chrome (the template owns this Border). -->
+                        <Border x:Name="TabBg"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                BorderThickness="1"
+                                CornerRadius="{DynamicResource Radius.Medium}"
+                                Padding="18,7"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabBg" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
                                 </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter TargetName="TabBg" Property="Background" Value="{DynamicResource LiquidAccentDeep}"/>
@@ -167,9 +170,11 @@
                 <!-- ═══ HERO — frosted identity strip ═══ -->
                 <Border Style="{StaticResource SurfaceElevatedStyle}">
                     <Grid>
+                        <!-- 2026-09-14: sheen overlay must not carry a second
+                             surface style (double chrome). -->
                         <Border Background="{DynamicResource LiquidSheen}"
                                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                                IsHitTestVisible="False" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                IsHitTestVisible="False"/>
 
                         <Grid Margin="24,18">
                             <Grid.RowDefinitions>
@@ -208,30 +213,23 @@
                                         <RotateTransform x:Name="IconRingRotate" Angle="0"/>
                                     </Ellipse.RenderTransform>
                                 </Ellipse>
-                                <!-- iOS-26: vivid gradient squircle (54px visual
-                                     in a 64px tile) with the rim light — matches
-                                     the module slabs. -->
+                                <!-- 2026-09-14: was a 64px card wrapping a 54px
+                                     card (two overlapping tiles) → ONE 64px L3
+                                     tile with the icon paint. -->
                                 <Border Width="64" Height="64"
-                                        CornerRadius="{DynamicResource Radius.2XLarge}"
-                                        BorderBrush="{DynamicResource AboutGlassSlabStroke}"
-                                        BorderThickness="1"
-                                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
-                                    <Border Width="54" Height="54"
-                                            CornerRadius="{DynamicResource Radius.XLarge}"
-                                            ClipToBounds="True">
-                                        <!--
-                                          Shared frozen app icon
-                                          (AppIconResource): decoded once
-                                          per process instead of per
-                                          About open — see the freeze
-                                          note in AppIconResource.cs.
-                                        -->
-                                        <Border.Background>
-                                            <ImageBrush ImageSource="{x:Static viewsAbout:AppIconResource.Icon}"
-                                                        Stretch="UniformToFill"
-                                                        RenderOptions.BitmapScalingMode="HighQuality"/>
-                                        </Border.Background>
-                                    </Border>
+                                        Style="{StaticResource SurfaceDetailStyle}">
+                                    <!--
+                                      Shared frozen app icon
+                                      (AppIconResource): decoded once
+                                      per process instead of per
+                                      About open — see the freeze
+                                      note in AppIconResource.cs.
+                                    -->
+                                    <Border.Background>
+                                        <ImageBrush ImageSource="{x:Static viewsAbout:AppIconResource.Icon}"
+                                                    Stretch="UniformToFill"
+                                                    RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    </Border.Background>
                                 </Border>
                             </Grid>
 
@@ -261,17 +259,21 @@
                                         Grid.Column="2"
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Right">
+                                <!-- 2026-09-14: accent badge keeps its own
+                                     chrome — the SurfacePrimaryStyle on top of
+                                     it was double chrome. -->
                                 <Border Background="{DynamicResource LiquidAccentDeep}"
                                         CornerRadius="{DynamicResource Radius.Card}"
                                         Padding="14,6"
                                         HorizontalAlignment="Right"
                                         BorderBrush="{DynamicResource AboutGlassSlabStroke}"
                                         BorderThickness="1"
-                                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                        SnapsToDevicePixels="True">
                                     <TextBlock Text="{Binding Version}"
                                                FontSize="{DynamicResource FontSize.Body}"
                                                FontWeight="{DynamicResource Weight.Bold}"
                                                TextAlignment="Center"
+                                               TextTrimming="CharacterEllipsis"
                                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                IsHitTestVisible="False"/>
                                 </Border>
@@ -348,21 +350,21 @@
                     </Grid>
                 </Border>
 
-                <!-- ═══ TAB STRIP — floating glass capsule. FUNCTIONAL
+                <!-- ═══ TAB STRIP — segmented control. FUNCTIONAL
                      NAVIGATION: never visibility-gated (2026-09-11 — the
                      chrome gate hid the ONLY path to Modules/Developer in
                      non-iOS26 families and under a dead engine; the owner
                      literally could not find the screens). Centered per the
-                     approved mockup. iOS 26 paints it frosted; other
-                     families paint it with the seeded Surface brushes. ═══ -->
+                     approved mockup.
+                     2026-09-14: the 999-radius glass capsule (Radius.Full) is
+                     gone — standard 12px segmented control on the surface
+                     system, matching every other module. ═══ -->
                 <Border HorizontalAlignment="Center"
-                        Background="{DynamicResource AboutGlassCapsuleBrush}"
-                        BorderBrush="{DynamicResource AboutGlassSlabStroke}"
-                        BorderThickness="1"
-                        CornerRadius="{DynamicResource Radius.Full}"
+                        Style="{StaticResource SurfaceSecondaryStyle}"
+                        CornerRadius="{DynamicResource Radius.Control}"
                         Padding="6,5"
                         Margin="0,2,0,20"
-                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                        SnapsToDevicePixels="True">
                     <!-- 2026-09-14: the ListBox defaulted to its VERTICAL
                          ItemsPanel, so the three tabs stacked top-to-bottom
                          at uneven widths. A 1×3 UniformGrid renders them in

@@ -96,15 +96,12 @@
     <!-- ═══ TEMPLATES (glass) ═══ -->
 
     <DataTemplate x:Key="HeroPillarTemplate">
-        <!-- 2026-09-10: compact glass chip (mockup "12 MODULES / 5 DATABASES
-             / AI READY" pills) instead of the 148×118 stat box. -->
-        <Border CornerRadius="{DynamicResource Radius.Card}"
+        <!-- 2026-09-14: glass-palette chrome (AboutGlassPanelBrush +
+             AboutGlassSlabStroke) replaced with the global surface system —
+             one card language across the app (SurfaceDetail = L3 chip). -->
+        <Border Style="{StaticResource SurfaceDetailStyle}"
                 Padding="12,7"
-                Margin="0,0,8,8"
-                BorderThickness="1"
-                Background="{DynamicResource AboutGlassPanelBrush}"
-                BorderBrush="{DynamicResource AboutGlassSlabStroke}"
-                SnapsToDevicePixels="True">
+                Margin="0,0,8,8">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <Border Width="22" Height="22"
                         CornerRadius="{DynamicResource Radius.Control}"
@@ -138,22 +135,15 @@
     </DataTemplate>
 
     <DataTemplate x:Key="ModuleChipTemplate">
-        <!-- 2026-09-10 iOS-26 REWRITE: full-width glass SLAB (mockup-exact).
-             Horizontal: 46px vivid gradient squircle + 13px semibold name +
-             10px gray caption over the wallpaper-lit frosted panel. The
-             hover-lift micro-interaction and its named transforms
-             (ModuleChipScale / ModuleChipLift) are preserved verbatim. -->
+        <!-- 2026-09-14: fixed 280px glass slab → fluid L1 card on the global
+             surface system (SurfacePrimaryStyle); width is now driven by the
+             UniformGrid cell in ModulesSection, so slabs can never overflow
+             the content column. -->
         <Border x:Name="ModuleChipRoot"
-                CornerRadius="{DynamicResource AboutCardCornerRadius}"
-                Width="280"
+                Style="{StaticResource SurfacePrimaryStyle}"
                 MinHeight="148"
                 Padding="18,14"
                 Margin="5"
-                HorizontalAlignment="Left"
-                BorderThickness="1"
-                BorderBrush="{DynamicResource AboutGlassSlabStroke}"
-                Background="{DynamicResource AboutGlassSlabBrush}"
-                SnapsToDevicePixels="True"
                 CacheMode="BitmapCache"
                 RenderTransformOrigin="0.5,0.5">
             <Border.RenderTransform>
@@ -226,9 +216,11 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Vivid gradient squircle + white gloss strip -->
+                <!-- Vivid gradient squircle + white gloss strip.
+                     2026-09-14: icon tile is L3 (SurfaceDetail), not a
+                     second L1 card inside the slab. -->
                 <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
-                        Style="{StaticResource SurfacePrimaryStyle}">
+                        Style="{StaticResource SurfaceDetailStyle}">
                     <Grid>
                         <!-- 2026-09-14: glyph was invisible (no Foreground)
                              and top-left instead of centred. -->
@@ -278,19 +270,15 @@
                                IsHitTestVisible="False"/>
                 </StackPanel>
 
-                <!-- LG4 stat chip: small glass capsule right of the text
+                <!-- LG4 stat chip: small L3 capsule right of the text
                      (LIVE SHEET COUNT for Sheet Store — INPC-backed). -->
                 <Border Grid.Row="1" Grid.Column="2"
-                        Background="{DynamicResource AboutGlassPanelBrush}"
-                        BorderBrush="{DynamicResource AboutGlassSlabStroke}"
-                        BorderThickness="1"
-                        CornerRadius="{DynamicResource Radius.Medium}"
+                        Style="{StaticResource SurfaceDetailStyle}"
                         Padding="8,3"
                         HorizontalAlignment="Left"
                         Margin="0,12,0,2"
                         VerticalAlignment="Center"
-                        Visibility="{DynamicResource AboutGlassChromeVisibility}"
-                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                        Visibility="{DynamicResource AboutGlassChromeVisibility}">
                     <TextBlock Text="{Binding StatChip}"
                                FontSize="{DynamicResource FontSize.Caption}"
                                FontWeight="{DynamicResource Weight.Bold}"
@@ -311,19 +299,13 @@
     </DataTemplate>
 
     <DataTemplate x:Key="TechItemTemplate">
-        <!-- 2026-09-14: fixed 300px width for the Developer tab's
-             WrapPanel tech-stack row (reflows 2 → 1 as the window
-             narrows; Stretch inside a WrapPanel = one full-width row). -->
-        <Border CornerRadius="{DynamicResource AboutPanelCornerRadius}"
-                Width="300"
+        <!-- 2026-09-14: fixed 300px glass tile (overflowed its column on
+             narrow windows) → fluid L2 tile (SurfaceSecondary) sized by the
+             UniformGrid cell in DeveloperSection; icon is L3. -->
+        <Border Style="{StaticResource SurfaceSecondaryStyle}"
                 MinHeight="64"
                 Padding="14,10"
-                Margin="7"
-                HorizontalAlignment="Left"
-                BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"
-                Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
-                BorderBrush="{DynamicResource Surface.Secondary.BorderBrush}"
-                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                Margin="7">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -332,7 +314,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0"
-                        Style="{StaticResource SurfacePrimaryStyle}"
+                        Style="{StaticResource SurfaceDetailStyle}"
                         Width="42"
                         Height="42"
                         VerticalAlignment="Center">
@@ -358,17 +340,15 @@
     </DataTemplate>
 
     <DataTemplate x:Key="CapabilityCardTemplate">
-        <Border CornerRadius="{DynamicResource AboutPanelCornerRadius}"
+        <!-- 2026-09-14: glass + Surface.* double chrome → one L2 tile;
+             icon is L3 (no card-in-card). -->
+        <Border Style="{StaticResource SurfaceSecondaryStyle}"
                 MinHeight="132"
                 Padding="16,14"
                 Margin="8"
-                HorizontalAlignment="Stretch"
-                BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"
-                Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
-                BorderBrush="{DynamicResource Surface.Secondary.BorderBrush}"
-                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                HorizontalAlignment="Stretch">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Border Style="{StaticResource SurfacePrimaryStyle}"
+                <Border Style="{StaticResource SurfaceDetailStyle}"
                         Width="52"
                         Height="52"
                         HorizontalAlignment="Center">
@@ -404,15 +384,13 @@
     </DataTemplate>
 
     <DataTemplate x:Key="WorkflowCardTemplate">
-        <Border CornerRadius="{DynamicResource Surface.Secondary.CornerRadius}"
+        <!-- 2026-09-14: glass + Surface.* double chrome → one L2 tile;
+             icon is L3. -->
+        <Border Style="{StaticResource SurfaceSecondaryStyle}"
                 MinHeight="196"
                 Padding="20,18"
                 Margin="7"
-                HorizontalAlignment="Stretch"
-                BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"
-                Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
-                BorderBrush="{DynamicResource Surface.Secondary.BorderBrush}"
-                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                HorizontalAlignment="Stretch">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -431,7 +409,7 @@
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             Margin="0,12,0,0">
-                    <Border Style="{StaticResource SurfacePrimaryStyle}"
+                    <Border Style="{StaticResource SurfaceDetailStyle}"
                             Width="50"
                             Height="50"
                             HorizontalAlignment="Center">
@@ -482,56 +460,14 @@
     
 
     <!--
-      Pill button used on the license card for the
-      "COPY" action and any future call-to-action
-      chips. Flat, semi-transparent, accent-coloured
-      border, hand cursor, hover-lighten.
+      Action button used on the license card (COPY actions) and the
+      crash-reports card (Refresh / Open folder / Clear / Open file).
+
+      2026-09-14: the custom pill template (the "999 rounded" look) is
+      gone — these now use the app-standard 12px button (Button.Secondary).
+      Key name kept so the six consumer sites need no view edits.
     -->
     <Style x:Key="AboutPillButtonStyle" TargetType="Button"
-           BasedOn="{StaticResource PillButtonBase}">
-        <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
-        <Setter Property="FontWeight"   Value="{DynamicResource Weight.Bold}"/>
-        <Setter Property="Foreground"   Value="{DynamicResource LiquidAccent}"/>
-        <Setter Property="Background"   Value="Transparent"/>
-        <Setter Property="BorderBrush"   Value="{DynamicResource Surface.Primary.BorderBrush}"/>
-        <Setter Property="BorderThickness" Value="{DynamicResource Surface.Secondary.BorderThickness}"/>
-        <Setter Property="MinHeight"   Value="{DynamicResource DensityButtonHeight}"/>
-        <Setter Property="MinWidth"    Value="{DynamicResource DensityButtonMinWidth}"/>
-        <Setter Property="Padding"      Value="12,4"/>
-        <Setter Property="Cursor"       Value="Hand"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bd"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource Surface.Secondary.CornerRadius}"
-                            Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"/>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background"
-                                    Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
-                        </Trigger>
-                        <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bd" Property="Background"
-                                    Value="{DynamicResource Surface.Detail.BackgroundBrush}"/>
-                        </Trigger>
-                        <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Bd" Property="BorderBrush"
-                                    Value="{DynamicResource LiquidAccent}"/>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Bd" Property="Opacity" Value="0.45"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+           BasedOn="{StaticResource Button.Secondary}"/>
 
 </ResourceDictionary>

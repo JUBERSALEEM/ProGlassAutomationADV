@@ -50,6 +50,8 @@
                                Margin="0,0,0,0"/>
                 </StackPanel>
 
+                <!-- 2026-09-14: status badge keeps its own chrome — the
+                     SurfacePrimaryStyle on top of it was double chrome. -->
                 <Border Grid.Column="1"
                         MinWidth="168"
                         Padding="16,8"
@@ -57,7 +59,7 @@
                         Background="{DynamicResource Surface.Detail.BackgroundBrush}"
                         BorderBrush="{DynamicResource Surface.Primary.BorderBrush}"
                         BorderThickness="{DynamicResource Surface.Detail.BorderThickness}"
-                        VerticalAlignment="Top" Style="{StaticResource SurfacePrimaryStyle}">
+                        VerticalAlignment="Top">
                     <TextBlock Text="{Binding StatusBadge}"
                                FontSize="{DynamicResource FontSize.Body}"
                                FontWeight="{DynamicResource Weight.Bold}"
@@ -66,7 +68,9 @@
                 </Border>
             </Grid>
 
-            <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,18">
+            <!-- 2026-09-14: this card sat inside the outer L1 card with its
+                 OWN L1 chrome (card-in-card) → L2. -->
+            <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="0,0,0,18">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1.35*"/>
@@ -134,7 +138,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}">
+                <Border Grid.Column="0" Style="{StaticResource SurfaceSecondaryStyle}">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource About.AccountWindow}"
                                    Style="{StaticResource AboutPanelKickerStyle}"/>
@@ -165,7 +169,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}">
+                <Border Grid.Column="2" Style="{StaticResource SurfaceSecondaryStyle}">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource About.TrustEntitlements}"
                                    Style="{StaticResource AboutPanelKickerStyle}"/>
@@ -197,7 +201,7 @@
                 </Border>
             </Grid>
 
-            <Border Style="{StaticResource SurfacePrimaryStyle}"
+            <Border Style="{StaticResource SurfaceSecondaryStyle}"
                     Visibility="{Binding HasPayloadDetails, Converter={StaticResource BoolToVisibilityConverter}}"
                     Margin="0,0,0,18">
                 <StackPanel>
@@ -239,7 +243,7 @@
                 </StackPanel>
             </Border>
 
-            <Border Style="{StaticResource SurfacePrimaryStyle}"
+            <Border Style="{StaticResource SurfaceSecondaryStyle}"
                     Visibility="{Binding HasNotes, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource About.IssuerNotes}"

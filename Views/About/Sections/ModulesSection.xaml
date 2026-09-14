@@ -31,19 +31,22 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="ListBoxItem">
+                            <!-- 2026-09-14: 16px pill corner + conflicting
+                                 SurfacePrimaryStyle → 10px standard corner,
+                                 no double chrome. -->
                             <Border x:Name="PillBg"
                                     Background="Transparent"
                                     BorderBrush="Transparent"
                                     BorderThickness="1"
-                                    CornerRadius="{DynamicResource Radius.XLarge}"
+                                    CornerRadius="{DynamicResource Radius.Medium}"
                                     Padding="13,5"
-                                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                    SnapsToDevicePixels="True">
                                 <ContentPresenter HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="PillBg" Property="Background" Value="{DynamicResource AboutGlassPanelBrush}"/>
+                                    <Setter TargetName="PillBg" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
                                 </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter TargetName="PillBg" Property="Background" Value="{DynamicResource LiquidAccentDeep}"/>
@@ -81,15 +84,15 @@
                            Margin="0,2,0,0"/>
             </StackPanel>
 
+            <!-- 2026-09-14: 20px glass capsule + double chrome → standard
+                 12px segmented control on the surface system. -->
             <Border Grid.Column="1"
-                    Background="{DynamicResource AboutGlassCapsuleBrush}"
-                    BorderBrush="{DynamicResource AboutGlassSlabStroke}"
-                    BorderThickness="1"
-                    CornerRadius="{DynamicResource Radius.2XLarge}"
+                    Style="{StaticResource SurfaceSecondaryStyle}"
+                    CornerRadius="{DynamicResource Radius.Control}"
                     Padding="6,4"
                     VerticalAlignment="Top"
                     Visibility="{DynamicResource AboutGlassChromeVisibility}"
-                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                    SnapsToDevicePixels="True">
                 <!-- 2026-09-14: default vertical ItemsPanel stacked the four
                      scope chips vertically inside the capsule — now one row. -->
                 <ListBox ItemsSource="{Binding ModuleScopes}"
@@ -106,18 +109,16 @@
             </Border>
         </Grid>
 
-        <!-- 2026-09-14: fixed 4-column UniformGrid → centered WrapPanel of
-             equal 280px slabs (ModuleChipTemplate carries the width).
-             12 modules render 4-up at normal widths exactly like the
-             approved mosaic, but reflow 4 → 3 → 2 as the window narrows
-             instead of every slab collapsing to one quarter of the
-             available width. -->
+        <!-- 2026-09-14: the fixed 280px WrapPanel slabs overflowed the
+             content column on narrow windows (text ran out of the boxes).
+             Fluid 4-up UniformGrid instead: slabs always fit, text wraps
+             inside, 12 modules render 4-up like the approved mosaic. -->
         <ItemsControl ItemsSource="{Binding FilteredModules}"
                       ItemTemplate="{StaticResource ModuleChipTemplate}"
                       Margin="0,0,0,14">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <WrapPanel HorizontalAlignment="Center"/>
+                    <UniformGrid Columns="4"/>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ItemsControl>
