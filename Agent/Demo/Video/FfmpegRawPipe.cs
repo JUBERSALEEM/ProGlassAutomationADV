@@ -55,6 +55,29 @@ namespace ProGlassAutomation.Agent.Demo.Video
         public long BytesPiped { get; private set; }
         public string? Error { get; private set; }
 
+        // ── ENCODER HEALTH (Phase-2 diagnostics, 2026-09-14) ──────────
+        // Observation only: process identity, liveness and exit state so a
+        // mid-recording ffmpeg death shows up in the log instead of leaving
+        // the HUD on "REC" over a dead encoder.
+        private volatile bool _finishRequested;
+
+        public int ProcessId
+        {
+            get { try { return _process?.Id ?? -1; } catch { return -1; } }
+        }
+
+        public bool ProcessAlive
+        {
+            get { try { return _process != null && !_process.HasExited; } catch { return false; } }
+        }
+
+        public int? ExitCode
+        {
+            get { try { var p = _process; return p != null && p.HasExited ? p.ExitCode : null; } catch { return null; } }
+        }
+
+        public DateTime ProcessStartedUtc { get; private set; }
+
         private FfmpegRawPipe(string videoPath) => VideoPath = videoPath;
 
         /// <summary>
@@ -148,25 +171,37 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 {
                     _process = p,
                     _stdin = p.StandardInput.BaseStream,
-                    IsOpen = true
+                    IsOpen = true,
+                    ProcessStartedUtc = DateTime.UtcNow
                 };
 
                 // stderr MUST be drained. ffmpeg writes progress there and
                 // a full pipe buffer deadlocks the child process — the
                 // classic "encoder froze halfway" bug.
-                _ = Task.Run(() =>
+            _ = Task.Run(() =>
+            {
+                try
                 {
-                    try
+                    string tail = p.StandardError.ReadToEnd();
+                    if (!string.IsNullOrWhiteSpace(tail) && p.ExitCode != 0)
+                        pipe.Error = Tail(tail);
+
+                    // PHASE-2 DIAGNOSTIC: an early non-zero exit while the
+                    // recording is still LIVE is the "silent encoder death"
+                    // signal. An exit after finish was requested (normal
+                    // stop, bounded-kill) is not logged here.
+                    if (!pipe._finishRequested && p.ExitCode != 0)
                     {
-                        string tail = p.StandardError.ReadToEnd();
-                        if (!string.IsNullOrWhiteSpace(tail) && p.ExitCode != 0)
-                            pipe.Error = Tail(tail);
+                        AppLogService.Warning(
+                            $"[RecEncoder] ffmpeg exited DURING RECORDING (pid={pipe.ProcessId}, code={p.ExitCode}): {Tail(tail)}",
+                            new LogContext { Module = "Recording", Operation = "EncoderExit" });
                     }
-                    catch (Exception ex)
-                    {
-                        AppLogService.Debug($"[FfmpegRawPipe] stderr drain: {ex.Message}");
-                    }
-                });
+                }
+                catch (Exception ex)
+                {
+                    AppLogService.Debug($"[FfmpegRawPipe] stderr drain: {ex.Message}");
+                }
+            });
 
                 return pipe;
             }
@@ -205,7 +240,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 IsOpen = false;
                 Error ??= ex.Message;
                 AppLogService.Warning(
-                    $"Raw video pipe closed unexpectedly: {ex.Message}",
+                    $"Raw video pipe closed unexpectedly (pid={ProcessId}, exitCode={ExitCode?.ToString() ?? "n/a"}): {ex.Message}",
                     new LogContext { Module = "Recording", Operation = "RawPipeWrite" });
                 return false;
             }
@@ -221,6 +256,10 @@ namespace ProGlassAutomation.Agent.Demo.Video
         public async Task<bool> FinishAsync(TimeSpan timeout)
         {
             if (_process == null) return false;
+
+            // PHASE-2: mark deliberate end so the stderr drain does not
+            // report a normal stop as an in-recording exit.
+            _finishRequested = true;
 
             try
             {
@@ -274,6 +313,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
         {
             if (_disposed) return;
             _disposed = true;
+            _finishRequested = true;
 
             lock (_writeGate)
             {

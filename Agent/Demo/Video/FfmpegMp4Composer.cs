@@ -637,6 +637,45 @@ namespace ProGlassAutomation.Agent.Demo.Video
         }
 
         /// <summary>
+        /// PHASE-2 DIAGNOSTIC — one bounded ffprobe call returning a compact
+        /// video-stream summary (time_base, avg_frame_rate, nb_frames,
+        /// duration) for the stop summary. Observation only: the value is
+        /// logged, never used to alter behaviour. Null when ffprobe is
+        /// unavailable or the probe fails.
+        /// </summary>
+        public static string? TryProbeVideoSummary(string path)
+        {
+            string? probe = FindProbe();
+            if (probe == null || string.IsNullOrWhiteSpace(path) || !File.Exists(path)) return null;
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = probe,
+                    Arguments = "-v error -select_streams v:0 -show_entries stream=time_base,avg_frame_rate,nb_frames,duration -of default=noprint_wrappers=1 \"" + path + "\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                };
+                var toolResult = ProcessStartGuard.TryStartTool(psi.FileName, psi.Arguments, CorrelationContext.NewId());
+                using var p = toolResult.IsSuccess ? toolResult.Value : null;
+                if (p == null) return null;
+
+                var errTask = p.StandardError.ReadToEndAsync();
+                string text = p.StandardOutput.ReadToEnd();
+
+                if (!p.WaitForExit(5000)) { try { p.Kill(); } catch (Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ffprobe] summary: probe timeout: " + ex.Message); } return null; }
+                try { errTask.Wait(500); } catch (Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ffprobe] summary: drain ignored: " + ex.Message); }
+                text = (text ?? "").Trim();
+                if (text.Length == 0) return null;
+                return text.Replace("\r", " ").Replace("\n", "; ");
+            }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ffprobe] summary: unmeasured: " + ex.Message); }
+            return null;
+        }
+
+        /// <summary>
         /// Duration from ffprobe when present. Null means it was not measured.
         /// Never invents a duration.
         /// </summary>

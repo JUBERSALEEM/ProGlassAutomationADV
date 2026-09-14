@@ -157,6 +157,15 @@ namespace ProGlassAutomation.Services.Recording
 
             Status = $"Saved {Path.GetFileName(mp4)} ({info.Length} bytes). {durationNote}.";
 
+            // PHASE-2 DIAGNOSTIC: the delivered file vs wall clock — the
+            // final comparison line for the "5 minutes → 5 seconds" question.
+            AppLogService.Info(
+                $"[RecSaved] {Path.GetFileName(mp4)} size={info.Length} bytes " +
+                $"probed={(probed?.ToString("0.###") ?? "n/a")}s " +
+                $"recorderWall={recorder.Duration.TotalSeconds:0.###}s " +
+                $"frames={recorder.EncodedFrames} retime={recorder.RetimeScale:0.0000} audio={audioNote}",
+                new LogContext { Module = "Recording", Operation = "FinishSaved" });
+
             try
             {
                 File.WriteAllText(Path.Combine(folder, "RESULT.txt"),
@@ -388,6 +397,22 @@ namespace ProGlassAutomation.Services.Recording
                         retime > 1.02
                             ? $"Correcting duration ×{retime:0.0}…"
                             : "Finishing…");
+
+                    // PHASE-2 DIAGNOSTIC: exactly what the re-time step will
+                    // do — claimed vs real duration, the factor, whether
+                    // -itsscale will run, and whether -shortest is active.
+                    double claimedSecs = recorder.CaptureNominalFps > 0 && recorder.EncodedFrames > 0
+                        ? recorder.EncodedFrames / (double)recorder.CaptureNominalFps
+                        : -1;
+                    bool willRescale = retime > 0 && Math.Abs(retime - 1.0) > 0.015;
+                    bool shortestActive = !string.IsNullOrWhiteSpace(liveMix) && File.Exists(liveMix);
+                    AppLogService.Info(
+                        $"[RecRetime] writtenFrames={recorder.EncodedFrames} nominalFps={recorder.CaptureNominalFps} " +
+                        $"claimed={claimedSecs:0.###}s real={recorder.Duration.TotalSeconds:0.###}s " +
+                        $"factor={retime:0.0000} rescale={willRescale} " +
+                        $"method={willRescale ? "-itsscale + -c:v copy" : "plain mux (factor ~1)"} " +
+                        $"shortest={shortestActive} audio={(string.IsNullOrWhiteSpace(liveMix) ? "none" : Path.GetFileName(liveMix))}",
+                        new LogContext { Module = "Recording", Operation = "StopRetime" });
 
                     string? merged = await FfmpegMp4Composer
                         .RetimeCopyAsync(recorder.RawVideoPath!, liveMix, mp4, retime, ct)

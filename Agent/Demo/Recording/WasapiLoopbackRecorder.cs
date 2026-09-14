@@ -88,7 +88,10 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             if (e.Exception != null)
             {
                 Error = e.Exception.Message;
-                AppLogService.Debug("[DemoAudio] loopback stopped: " + e.Exception.Message);
+                // PHASE-2 DIAGNOSTIC: an unexpected audio-stream death is a
+                // WARNING, not a debug line — a dead loopback can truncate
+                // the final MP4 via -shortest.
+                AppLogService.Warning("[RecAudio] loopback stream stopped unexpectedly: " + e.Exception.Message);
             }
             _stopped?.TrySetResult(true);
         }

@@ -133,6 +133,18 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
         public int DroppedFrames => Volatile.Read(ref _droppedFrames);
         public int EncodedFrames => Volatile.Read(ref _encodedFrames);
+
+        // ── PHASE-2 DIAGNOSTICS (2026-09-14) ──────────────────────────
+        // Captured-vs-written split, the effective fps the loop ended at,
+        // and the audio stream durations — so the stop summary can say
+        // exactly how many frames the machine actually produced and
+        // whether the audio could have truncated the final file.
+        private int _capturedFrames;
+
+        public int CapturedFrames => Volatile.Read(ref _capturedFrames);
+        public int FinalEffectiveFps { get; private set; }
+        public TimeSpan? LoopbackAudioSeconds { get; private set; }
+        public TimeSpan? MicAudioSeconds { get; private set; }
         public string? LiveAudioPath => _audio.Path;
         public string? MicAudioPath => _mic.Path;
         public string? AudioError =>
@@ -174,6 +186,10 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             lock (_framesGate) _frames.Clear();
             Interlocked.Exchange(ref _droppedFrames, 0);
             Interlocked.Exchange(ref _encodedFrames, 0);
+            Interlocked.Exchange(ref _capturedFrames, 0);
+            FinalEffectiveFps = Math.Max(1, _settings.Fps);
+            LoopbackAudioSeconds = null;
+            MicAudioSeconds = null;
             Duration = TimeSpan.Zero;
             EncodePercent = 0;
             EncodeStage = "Recording";
@@ -296,9 +312,12 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                 }
             }
 
-            try { await _audio.StopAsync().ConfigureAwait(false); }
+            // PHASE-2: capture the audio stream durations (WavDuration) —
+            // a short live.wav relative to wall time is the -shortest
+            // truncation signal.
+            try { LoopbackAudioSeconds = await _audio.StopAsync().ConfigureAwait(false); }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WindowScreenRecorder] StopAsync: loopback is optional: " + ex.Message); }
-            try { await _mic.StopAsync().ConfigureAwait(false); }
+            try { MicAudioSeconds = await _mic.StopAsync().ConfigureAwait(false); }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WindowScreenRecorder] StopAsync: mic is optional: " + ex.Message); }
 
             if (_pipe != null)
@@ -308,6 +327,52 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                 try { await _pipe.FinishAsync(CancellationToken.None).ConfigureAwait(false); }
                 catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WindowScreenRecorder] StopAsync: fallback JPEG encode still available: " + ex.Message); }
             }
+
+            // ── PHASE-2 DIAGNOSTIC: one grep-able stop summary ─────────
+            // For the exact recording that just ended: wall time,
+            // captured/written/dropped/expected frames, encoder liveness +
+            // exit code, what the raw file CLAIMS vs what ffprobe reports
+            // about its stream, how long the audio actually ran, and the
+            // retime factor the save path is about to apply.
+            try
+            {
+                double? rawClaimed = null;
+                string? rawProbe = null;
+                if (_rawActive && !string.IsNullOrWhiteSpace(_rawVideoPath))
+                {
+                    try { rawClaimed = FfmpegMp4Composer.TryReadDurationSeconds(_rawVideoPath); }
+                    catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WindowScreenRecorder] StopAsync: raw duration probe optional: " + ex.Message); }
+                    try { rawProbe = FfmpegMp4Composer.TryProbeVideoSummary(_rawVideoPath); }
+                    catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WindowScreenRecorder] StopAsync: raw stream probe optional: " + ex.Message); }
+                }
+
+                string? pipeError = _rawPipe?.Error;
+                if (!string.IsNullOrWhiteSpace(pipeError) && pipeError.Length > 200)
+                    pipeError = "…" + pipeError[^200..];
+
+                AppLogService.Info(
+                    $"[RecSummary] wall={Duration.TotalSeconds:F1}s " +
+                    $"nominal={_settings.Fps}fps effective={FinalEffectiveFps}fps " +
+                    $"captured={Volatile.Read(ref _capturedFrames)} " +
+                    $"written={Volatile.Read(ref _encodedFrames)} " +
+                    $"dropped={Volatile.Read(ref _droppedFrames)} " +
+                    $"expected={(int)Math.Round(Duration.TotalSeconds * _settings.Fps)} " +
+                    $"ffmpeg pid={_rawPipe?.ProcessId ?? -1} " +
+                    $"alive={(_rawPipe?.ProcessAlive ?? false)} " +
+                    $"exitCode={_rawPipe?.ExitCode?.ToString() ?? "n/a"} " +
+                    $"started={_rawPipe?.ProcessStartedUtc.ToString("HH:mm:ss") ?? "n/a"} " +
+                    $"stderr={(string.IsNullOrWhiteSpace(pipeError) ? "clean" : pipeError!)} " +
+                    $"rawClaimed={(rawClaimed?.ToString("0.###") ?? "n/a")}s " +
+                    $"rawProbe={rawProbe ?? "n/a"} " +
+                    $"audio loopback={(LoopbackAudioSeconds?.TotalSeconds.ToString("0.##") ?? "off")}s " +
+                    $"mic={(MicAudioSeconds?.TotalSeconds.ToString("0.##") ?? "off")}s " +
+                    $"audioError={(string.IsNullOrWhiteSpace(AudioError) ? "none" : AudioError)} " +
+                    $"retime={RetimeScale:0.0000} " +
+                    $"rawActive={_rawActive}",
+                    new Services.Logging.LogContext { Module = "Recording", Operation = "StopSummary" });
+            }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WindowScreenRecorder] StopAsync: summary log optional: " + ex.Message); }
+
             EncodePercent = 55;
         }
 
@@ -485,6 +550,12 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             const double UiBudgetFraction = 0.5;   // never eat >50% of a frame
             const int MinFps = 8;
 
+            // PHASE-2 DIAGNOSTIC: periodic health line — every 100 written
+            // frames or 10 s, whichever comes first. Never per-frame, so it
+            // cannot itself throttle recording.
+            int healthLogWritten = 0;
+            var healthLogAt = DateTime.UtcNow;
+
             while (!ct.IsCancellationRequested)
             {
                 if (_paused)
@@ -512,6 +583,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                     if (capture.TryCapture(buffer))
                     {
                         haveFrame = true;
+                        Interlocked.Increment(ref _capturedFrames);
                         blankStreak = capture.LastFrameWasBlank ? blankStreak + 1 : 0;
 
                         // The screen blit costs nothing on the UI thread;
@@ -545,6 +617,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                             {
                                 effectiveFps = Math.Max(MinFps, effectiveFps / 2);
                                 effInterval = TimeSpan.FromMilliseconds(1000.0 / effectiveFps);
+                                FinalEffectiveFps = effectiveFps;   // PHASE-2: record the throttle
                                 slowStreak = 0;
 
                                 AppLogService.Debug(
@@ -590,6 +663,27 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                 else
                 {
                     Interlocked.Increment(ref _droppedFrames);
+                }
+
+                // ── PHASE-2 DIAGNOSTIC: periodic encoder health ───────
+                // Answers "is the encoder alive right now, and is anything
+                // actually being written?" — the exact question the silent
+                // HUD cannot answer.
+                int writtenNow = Volatile.Read(ref _encodedFrames);
+                if (writtenNow - healthLogWritten >= 100 || DateTime.UtcNow - healthLogAt >= TimeSpan.FromSeconds(10))
+                {
+                    healthLogWritten = writtenNow;
+                    healthLogAt = DateTime.UtcNow;
+                    var rp = _rawPipe;
+                    AppLogService.Debug(
+                        $"[RecHealth] t={(DateTime.UtcNow - _started).TotalSeconds:F0}s " +
+                        $"captured={Volatile.Read(ref _capturedFrames)} " +
+                        $"written={writtenNow} " +
+                        $"dropped={Volatile.Read(ref _droppedFrames)} " +
+                        $"effFps={effectiveFps} " +
+                        $"ffmpeg={(rp == null ? "n/a" : rp.ProcessAlive ? "alive" : "DEAD (code=" + (rp.ExitCode?.ToString() ?? "?") + ")")} " +
+                        $"pid={rp?.ProcessId ?? -1}",
+                        new Services.Logging.LogContext { Module = "Recording", Operation = "Health" });
                 }
 
                 // Persistent black output means the driver ignored

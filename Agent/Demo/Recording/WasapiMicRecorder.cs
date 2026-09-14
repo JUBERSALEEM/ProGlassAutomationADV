@@ -100,7 +100,8 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             if (e.Exception != null)
             {
                 Error = e.Exception.Message;
-                AppLogService.Debug("[DemoMic] stopped: " + e.Exception.Message);
+                // PHASE-2 DIAGNOSTIC: see WasapiLoopbackRecorder.OnStopped.
+                AppLogService.Warning("[RecAudio] mic stream stopped unexpectedly: " + e.Exception.Message);
             }
             _stopped?.TrySetResult(true);
         }
