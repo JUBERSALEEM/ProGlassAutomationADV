@@ -48,7 +48,7 @@ namespace ProGlassAutomation.Agent.Demo
         }
 
         public static void ShowSaved(
-            string path, TimeSpan duration, int frames, string audioNote)
+            string path, TimeSpan duration, long frames, string audioNote)
         {
             _recorder = null;
 

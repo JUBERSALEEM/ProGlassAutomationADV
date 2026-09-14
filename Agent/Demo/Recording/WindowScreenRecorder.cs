@@ -180,7 +180,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         public const double MaxRetimeScale = 3600.0;
 
         public static double ComputeRetimeScale(
-            int encodedFrames, int nominalFps, double realSeconds)
+            long encodedFrames, int nominalFps, double realSeconds)
         {
             if (encodedFrames <= 0 || nominalFps <= 0 || realSeconds <= 0.05)
                 return 1.0;
@@ -195,20 +195,20 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         // tasks. Plain ++ on an int is a read-modify-write and loses counts
         // under contention, which made the HUD's dropped/encoded figures
         // quietly wrong. Interlocked + Volatile.Read is the correct pair.
-        private int _droppedFrames;
-        private int _encodedFrames;
+        private long _droppedFrames;
+        private long _encodedFrames;
 
-        public int DroppedFrames => Volatile.Read(ref _droppedFrames);
-        public int EncodedFrames => Volatile.Read(ref _encodedFrames);
+        public long DroppedFrames => Volatile.Read(ref _droppedFrames);
+        public long EncodedFrames => Volatile.Read(ref _encodedFrames);
 
         // ── PHASE-2 DIAGNOSTICS (2026-09-14) ──────────────────────────
         // Captured-vs-written split, the effective fps the loop ended at,
         // and the audio stream durations — so the stop summary can say
         // exactly how many frames the machine actually produced and
         // whether the audio could have truncated the final file.
-        private int _capturedFrames;
+        private long _capturedFrames;
 
-        public int CapturedFrames => Volatile.Read(ref _capturedFrames);
+        public long CapturedFrames => Volatile.Read(ref _capturedFrames);
         public int FinalEffectiveFps { get; private set; }
         public TimeSpan? LoopbackAudioSeconds { get; private set; }
         public TimeSpan? MicAudioSeconds { get; private set; }
@@ -513,11 +513,11 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             try
             {
                 double durSec = Duration.TotalSeconds;
-                int encodedNow = Volatile.Read(ref _encodedFrames);
-                int capturedNow = Volatile.Read(ref _capturedFrames);
-                int droppedNow = Volatile.Read(ref _droppedFrames);
+                long encodedNow = Volatile.Read(ref _encodedFrames);
+                long capturedNow = Volatile.Read(ref _capturedFrames);
+                long droppedNow = Volatile.Read(ref _droppedFrames);
                 double effFps = durSec > 0.05 ? encodedNow / durSec : 0;
-                int expectedFrames = (int)Math.Round(durSec * _settings.Fps);
+                long expectedFrames = (long)Math.Round(durSec * _settings.Fps);
 
                 AppLogService.Info(
                     $"[RecFPS] requested={_settings.Fps} captured={capturedNow} " +
@@ -891,7 +891,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                 // Answers "is the encoder alive right now, and is anything
                 // actually being written?" — the exact question the silent
                 // HUD cannot answer.
-                int writtenNow = Volatile.Read(ref _encodedFrames);
+                long writtenNow = Volatile.Read(ref _encodedFrames);
                 if (writtenNow - healthLogWritten >= 100 || DateTime.UtcNow - healthLogAt >= TimeSpan.FromSeconds(10))
                 {
                     healthLogWritten = writtenNow;
@@ -953,14 +953,14 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                         var perfNow = DateTime.UtcNow;
                         double perfInterval = Math.Max(0.5, (perfNow - perfAt).TotalSeconds);
                         perfAt = perfNow;
-                        int capNow = Volatile.Read(ref _capturedFrames);
-                        int encNow = Volatile.Read(ref _encodedFrames);
+                        long capNow = Volatile.Read(ref _capturedFrames);
+                        long encNow = Volatile.Read(ref _encodedFrames);
                         double capFps = (capNow - perfCapturedPrev) / perfInterval;
                         double encFps = (encNow - perfEncodedPrev) / perfInterval;
                         perfCapturedPrev = capNow;
                         perfEncodedPrev = encNow;
 
-                        string encCpu = "n/a";
+                        string cpuPercentStr = "n/a";
                         try
                         {
                             var fp = _rawPipe?.FfmpegProcess;
@@ -969,7 +969,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                                 var cpuNow = fp.TotalProcessorTime;
                                 double cpuPct = (cpuNow - encCpuPrev).TotalMilliseconds / (perfInterval * 1000.0) * 100.0;
                                 encCpuPrev = cpuNow;
-                                if (cpuPct > 0) encCpu = cpuPct.ToString("0.#") + "%";
+                                if (cpuPct > 0) cpuPercentStr = cpuPct.ToString("0.#") + "%";
                             }
                         }
                         catch { /* encoder already gone — fine */ }
@@ -983,7 +983,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                             $"captureFps={capFps:0.##} encodedFps={encFps:0.##} " +
                             $"droppedFrames={Volatile.Read(ref _droppedFrames)} " +
                             $"encoderQueue=none(streaming, backpressure=blocking write) " +
-                            $"encCpu={encCpu} appMemory={appMem} " +
+                            $"cpuPercent={cpuPercentStr} memoryMB={appMem} " +
                             $"encoder={_rawPipe?.EncodeName ?? "n/a"} resolution={outW}x{outH}",
                             new Services.Logging.LogContext { Module = "Recording", Operation = "Performance" });
                     }

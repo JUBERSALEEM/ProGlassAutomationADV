@@ -84,7 +84,7 @@ namespace ProGlassAutomation.Services.Recording
             "Idle. Records only this app window — not the desktop.";
         public string? LastMp4Path { get; private set; }
         public string? LastFolder { get; private set; }
-        public int EncodedFrames { get; private set; }
+        public long EncodedFrames { get; private set; }
         public DateTime StartedUtc { get; private set; }
 
         public ScreenRecordSettings Settings
