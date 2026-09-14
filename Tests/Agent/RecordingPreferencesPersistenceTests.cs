@@ -34,6 +34,8 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(60,   prefs.Fps);
             // PHASE 4 (2026-09-14): quality tier defaults to High (1).
             Assert.Equal(1,    prefs.QualityTier);
+            // PHASE 5 (2026-09-14): encoder defaults to Auto (0).
+            Assert.Equal(0,    prefs.Encoder);
             Assert.True(prefs.CaptureLiveAudio);
             Assert.True(prefs.CaptureMicrophone);
             Assert.False(prefs.Supersample);
@@ -47,6 +49,7 @@ namespace ProGlassAutomation.Tests.Agent
             {
                 QualityHeight        = 1440,
                 QualityTier          = 2,
+                Encoder              = 2,
                 Fps                  = 60,
                 CaptureLiveAudio     = false,
                 CaptureMicrophone    = false,
@@ -60,6 +63,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.NotNull(back);
             Assert.Equal(1440, back!.QualityHeight);
             Assert.Equal(2,    back.QualityTier);
+            Assert.Equal(2,    back.Encoder);
             Assert.Equal(60,   back.Fps);
             Assert.False(back.CaptureLiveAudio);
             Assert.False(back.CaptureMicrophone);
@@ -79,6 +83,9 @@ namespace ProGlassAutomation.Tests.Agent
 
             Assert.NotNull(back);
             Assert.Equal(1, back!.QualityTier);
+            // PHASE 5: a config saved before the encoder option existed
+            // must hydrate to Auto, not to a hardware encoder.
+            Assert.Equal(0, back.Encoder);
         }
 
         [Fact]

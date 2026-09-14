@@ -1,4 +1,5 @@
 using ProGlassAutomation.Agent.Demo.Recording;
+using ProGlassAutomation.Agent.Demo.Video;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Recording;
 using System;
@@ -45,6 +46,7 @@ namespace ProGlassAutomation.ViewModels.Shared
                 ?? new DialogService();
             _ = initialize; // discriminator only — keeps the two ctors distinct
 
+            SeedEncoderOptions();
             SelectedQualityTier = ScreenRecordSettings.QualityTiers
                 .FirstOrDefault(t => t.Tier == _svc.Settings.QualityTier)
                 ?? ScreenRecordSettings.QualityTiers[1];
@@ -54,6 +56,14 @@ namespace ProGlassAutomation.ViewModels.Shared
             SelectedFps = ScreenRecordSettings.FpsOptions
                 .FirstOrDefault(f => f.Fps == _svc.Settings.Fps)
                 ?? ScreenRecordSettings.FpsOptions[0];
+
+            // PHASE 5: probe the hardware encoders in the BACKGROUND
+            // (test-encode proof + throughput measurement). Never blocks
+            // the panel; results refresh the Encoder combo via the
+            // Changed event. A probe that never completes just means
+            // "hardware unproven" — Auto falls back to libx264.
+            ProGlassAutomation.Agent.Demo.Video.EncoderProbe.Changed += OnEncoderProbeChanged;
+            RequestProbeForCurrentSelection();
             _captureLiveAudio = _svc.Settings.CaptureLiveAudio;
             _captureMicrophone = _svc.Settings.CaptureMicrophone;
 
@@ -105,6 +115,103 @@ namespace ProGlassAutomation.ViewModels.Shared
         public IReadOnlyList<ScreenRecordFpsOption> FpsChoices =>
             ScreenRecordSettings.FpsOptions;
 
+        // ── PHASE 5 (Step 22): encoder selection ──────────────────────
+        // Auto and CPU are always available; the NVIDIA/Intel rows appear
+        // only when the background probe PROVES the encoder initializes
+        // (test encode, not a name check). If a selected hardware row
+        // disappears (probe found it unusable), the selection drops to
+        // Auto — the recording itself can never break over this.
+        private readonly List<ScreenRecordEncoderOption> _encoderOptions = new();
+        public IReadOnlyList<ScreenRecordEncoderOption> EncoderOptions => _encoderOptions;
+
+        private ScreenRecordEncoderOption _selectedEncoder = ScreenRecordSettings.EncoderOptions[0];
+        public ScreenRecordEncoderOption SelectedEncoder
+        {
+            get => _selectedEncoder;
+            set
+            {
+                if (value == null || ReferenceEquals(_selectedEncoder, value)) return;
+                _selectedEncoder = value;
+                PushSettings();
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(Hint));
+                RequestProbeForCurrentSelection();
+            }
+        }
+
+        private void SeedEncoderOptions()
+        {
+            _encoderOptions.Clear();
+            var cap = ProGlassAutomation.Agent.Demo.Video.EncoderProbe.Snapshot();
+            foreach (var opt in ScreenRecordSettings.EncoderOptions)
+            {
+                if (opt.Hardware)
+                {
+                    bool usable = opt.Encoder == ScreenRecordEncoder.Nvenc
+                        ? cap.NvencUsable : cap.QsvUsable;
+                    if (!usable) continue;
+                }
+                _encoderOptions.Add(opt);
+            }
+            _selectedEncoder = _encoderOptions
+                .FirstOrDefault(e => e.Encoder == _svc.Settings.Encoder) ?? _encoderOptions[0];
+        }
+
+        /// <summary>
+        /// (Re)request the background probe for the encoder/resolution
+        /// the user is currently looking at. Idempotent and non-blocking.
+        /// </summary>
+        private void RequestProbeForCurrentSelection()
+        {
+            try
+            {
+                var cap = ProGlassAutomation.Agent.Demo.Video.EncoderProbe.Snapshot();
+                var sel = ProGlassAutomation.Agent.Demo.Video.VideoEncoder.Resolve(
+                    _svc.Settings.Encoder, cap.NvencUsable, cap.QsvUsable).Selection;
+                var (w, h) = _svc.Settings.OutputSize;
+                ProGlassAutomation.Agent.Demo.Video.EncoderProbe.RequestProbe(sel.Name, w, h, _svc.Settings.Fps);
+            }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug($"[ScreenRecord] probe request: {ex.Message}"); }
+        }
+
+        /// <summary>
+        /// Probe results land on a background thread — marshal to the UI
+        /// thread before touching bound properties.
+        /// </summary>
+        private void OnEncoderProbeChanged()
+        {
+            var apply = new Action(() =>
+            {
+                var cap = ProGlassAutomation.Agent.Demo.Video.EncoderProbe.Snapshot();
+                bool added = false;
+                if (cap.NvencUsable && _encoderOptions.All(e => e.Encoder != ScreenRecordEncoder.Nvenc))
+                {
+                    _encoderOptions.Add(ScreenRecordSettings.EncoderOptions.First(e => e.Encoder == ScreenRecordEncoder.Nvenc));
+                    added = true;
+                }
+                if (cap.QsvUsable && _encoderOptions.All(e => e.Encoder != ScreenRecordEncoder.Qsv))
+                {
+                    _encoderOptions.Add(ScreenRecordSettings.EncoderOptions.First(e => e.Encoder == ScreenRecordEncoder.Qsv));
+                    added = true;
+                }
+                // A selected hardware encoder that the probe rejected → Auto.
+                bool selectedHardwareGone =
+                    _selectedEncoder?.Encoder == ScreenRecordEncoder.Nvenc && !cap.NvencUsable ||
+                    _selectedEncoder?.Encoder == ScreenRecordEncoder.Qsv && !cap.QsvUsable;
+                if (selectedHardwareGone) _selectedEncoder = _encoderOptions[0];
+
+                if (added || selectedHardwareGone)
+                {
+                    OnPropertyChanged(nameof(EncoderOptions));
+                    OnPropertyChanged(nameof(SelectedEncoder));
+                    OnPropertyChanged(nameof(Hint));
+                }
+            });
+            var disp = System.Windows.Application.Current?.Dispatcher;
+            if (disp != null && !disp.CheckAccess()) disp.BeginInvoke(apply);
+            else apply();
+        }
+
         private ScreenRecordQualityTierOption _selectedQualityTier =
             ScreenRecordSettings.QualityTiers[1];
         public ScreenRecordQualityTierOption SelectedQualityTier
@@ -131,6 +238,9 @@ namespace ProGlassAutomation.ViewModels.Shared
                 PushSettings();
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(Hint));
+                // Throughput scales with resolution — refresh the probe
+                // estimate so the FPS guard has data for the new size.
+                RequestProbeForCurrentSelection();
             }
         }
 
@@ -191,7 +301,8 @@ namespace ProGlassAutomation.ViewModels.Shared
             "Records only this app window at " +
             (SelectedQuality?.Title ?? "1080p") + " / " +
             (SelectedFps?.Title ?? "30 fps") + " / " +
-            (SelectedQualityTier?.Title ?? "High") + " quality" +
+            (SelectedQualityTier?.Title ?? "High") + " quality / " +
+            (SelectedEncoder?.Title ?? "Auto") +
             ". A REC bar with duration and STOP appears on the window." +
             (CaptureLiveAudio ? " Internal audio on." : "") +
             (CaptureMicrophone ? " Microphone on." : "");
@@ -229,6 +340,7 @@ namespace ProGlassAutomation.ViewModels.Shared
 
             next.QualityTier = SelectedQualityTier?.Tier ?? ScreenRecordQualityTier.High;
             next.Quality = SelectedQuality?.Quality ?? ScreenRecordQuality.FullHd;
+            next.Encoder = SelectedEncoder?.Encoder ?? ScreenRecordEncoder.Auto;
             next.Fps = SelectedFps?.Fps ?? 30;
             next.CaptureLiveAudio = CaptureLiveAudio;
             next.CaptureMicrophone = CaptureMicrophone;

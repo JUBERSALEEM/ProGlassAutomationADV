@@ -2064,6 +2064,7 @@
     <sys:String x:Key="Settings.ProvidersAPIKeysModelTuningDataAccess">Провайдеры, ключи API, настройка моделей и доступ к данным.</sys:String>
     <sys:String x:Key="Settings.Published">опубликовано</sys:String>
     <sys:String x:Key="Settings.Px">px</sys:String>
+    <sys:String x:Key="Settings.Encoder">Кодировщик</sys:String>
     <sys:String x:Key="Settings.Quality">Качество</sys:String>
     <sys:String x:Key="Settings.Resolution">Разрешение</sys:String>
     <sys:String x:Key="Settings.QuotationExpiryDate">Дата истечения котировки.</sys:String>

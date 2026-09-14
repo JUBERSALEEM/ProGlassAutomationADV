@@ -1,3 +1,4 @@
+using ProGlassAutomation.Agent.Demo.Video;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,6 +56,20 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         public override string ToString() => Title;
     }
 
+    // PHASE 5 (2026-09-14) — encoder selection. H.264 is always the
+    // codec (compatibility); this only picks the ENCODER: Auto walks
+    // NVENC → QSV → libx264, explicit choices fall back per the same
+    // chain when the hardware encoder is unavailable (the probe proves
+    // availability by test-encoding, see EncoderProbe). The record
+    // panel shows the NVIDIA/Intel rows only when the probe found them.
+    public sealed class ScreenRecordEncoderOption
+    {
+        public ScreenRecordEncoder Encoder { get; init; }
+        public string Title { get; init; } = "";
+        public bool Hardware { get; init; }
+        public override string ToString() => Title;
+    }
+
     /// <summary>
     /// In-app capture of the running main window only.
     /// 720 / 1080 / 2K / 4K at 30 / 40 / 50 / 60 fps.
@@ -99,6 +114,17 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             new() { Tier = ScreenRecordQualityTier.VeryHigh, Title = "Very High",  CrfBase = 13 }
         ];
 
+        // PHASE 5 — encoder options for the record panel. Auto/CPU are
+        // always shown; the hardware rows are shown by the panel only
+        // when EncoderProbe proves the encoder initializes.
+        public static IReadOnlyList<ScreenRecordEncoderOption> EncoderOptions { get; } =
+        [
+            new() { Encoder = ScreenRecordEncoder.Auto,  Title = "Auto" },
+            new() { Encoder = ScreenRecordEncoder.Cpu,   Title = "CPU (libx264)" },
+            new() { Encoder = ScreenRecordEncoder.Nvenc, Title = "NVIDIA (NVENC)", Hardware = true },
+            new() { Encoder = ScreenRecordEncoder.Qsv,   Title = "Intel (QSV)",    Hardware = true }
+        ];
+
         public static readonly int[] AllowedFps = [30, 40, 50, 60];
 
         // 2026-09-04 — default raised to 4K/60 on the user's explicit
@@ -138,6 +164,16 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         /// the near-lossless setting.
         /// </summary>
         public ScreenRecordQualityTier QualityTier { get; set; } = ScreenRecordQualityTier.High;
+
+        /// <summary>
+        /// PHASE 5 — encoder request. Default <see cref="ScreenRecordEncoder.Auto"/>
+        /// (best available hardware H.264, falling back to CPU libx264).
+        /// An explicit hardware choice that the probe finds unavailable
+        /// falls back down the same chain at start time — with the
+        /// reason logged ([RecEncoderSelect]) — so a missing GPU can
+        /// never break a recording.
+        /// </summary>
+        public ScreenRecordEncoder Encoder { get; set; } = ScreenRecordEncoder.Auto;
 
         /// <summary>
         /// LEGACY in the current GDI + raw-video pipeline: captured frames
@@ -266,6 +302,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         {
             Quality = Quality,
             QualityTier = QualityTier,
+            Encoder = Encoder,
             Fps = Fps,
             CaptureLiveAudio = CaptureLiveAudio,
             CaptureMicrophone = CaptureMicrophone,
@@ -282,6 +319,9 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
             if (QualityTiers.All(t => t.Tier != QualityTier))
                 QualityTier = ScreenRecordQualityTier.High;
+
+            if (EncoderOptions.All(e => e.Encoder != Encoder))
+                Encoder = ScreenRecordEncoder.Auto;
 
             if (Array.IndexOf(AllowedFps, Fps) < 0)
             {

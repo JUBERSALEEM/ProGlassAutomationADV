@@ -521,6 +521,16 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// </summary>
         public int QualityTier { get; set; } = 1;
 
+        /// <summary>
+        /// Encoder request (PHASE 5, 2026-09-14): 0 = Auto (preferred
+        /// hardware H.264 → CPU libx264), 1 = CPU, 2 = NVIDIA (NVENC),
+        /// 3 = Intel (QSV). Legacy configs without this field hydrate
+        /// to Auto; out-of-range values are clamped on load. An
+        /// unavailable hardware choice falls back at start time and the
+        /// reason is logged ([RecEncoderSelect]).
+        /// </summary>
+        public int Encoder { get; set; } = 0;
+
         /// <summary>Capture internal system audio via WASAPI loopback.</summary>
         public bool CaptureLiveAudio { get; set; } = true;
 

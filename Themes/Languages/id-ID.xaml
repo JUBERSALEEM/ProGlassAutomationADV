@@ -2064,6 +2064,7 @@
     <sys:String x:Key="Settings.ProvidersAPIKeysModelTuningDataAccess">Penyedia, kunci API, penyesuaian model, dan akses data.</sys:String>
     <sys:String x:Key="Settings.Published">diterbitkan</sys:String>
     <sys:String x:Key="Settings.Px">px</sys:String>
+    <sys:String x:Key="Settings.Encoder">Pengode</sys:String>
     <sys:String x:Key="Settings.Quality">Kualitas</sys:String>
     <sys:String x:Key="Settings.Resolution">Resolusi</sys:String>
     <sys:String x:Key="Settings.QuotationExpiryDate">Tanggal kedaluwarsa penawaran.</sys:String>

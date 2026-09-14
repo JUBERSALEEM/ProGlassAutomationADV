@@ -2064,6 +2064,7 @@
     <sys:String x:Key="Settings.ProvidersAPIKeysModelTuningDataAccess">提供商、API 密钥、模型调优和数据访问。</sys:String>
     <sys:String x:Key="Settings.Published">已发布</sys:String>
     <sys:String x:Key="Settings.Px">px</sys:String>
+    <sys:String x:Key="Settings.Encoder">编码器</sys:String>
     <sys:String x:Key="Settings.Quality">质量</sys:String>
     <sys:String x:Key="Settings.Resolution">分辨率</sys:String>
     <sys:String x:Key="Settings.QuotationExpiryDate">报价到期日期。</sys:String>

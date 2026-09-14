@@ -2,6 +2,7 @@ using ProGlassAutomation.Agent.Demo.Video;
 using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -253,10 +254,46 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         public void Start(string framesFolder, int fps) =>
             Start(framesFolder, (new ScreenRecordSettings { Fps = fps }).Clamp());
 
+        /// <summary>
+        /// PHASE 5: start with a RESOLVED encoder selection (the service
+        /// resolves + logs [RecEncoderSelect] before calling this). The
+        /// 2-argument overload below resolves the same way for callers
+        /// that do not go through the service (Demo Center).
+        /// </summary>
+        public void Start(
+            string framesFolder, ScreenRecordSettings settings,
+            ProGlassAutomation.Agent.Demo.Video.VideoEncoderSelection encoder,
+            bool encoderFallback, string? encoderFallbackReason)
+            => StartCore(framesFolder, settings, encoder, encoderFallback, encoderFallbackReason);
+
         public void Start(string framesFolder, ScreenRecordSettings settings)
         {
+            var s = (settings ?? new ScreenRecordSettings()).Clone().Clamp();
+            var cap = ProGlassAutomation.Agent.Demo.Video.EncoderProbe.Snapshot();
+            var res = ProGlassAutomation.Agent.Demo.Video.VideoEncoder.Resolve(
+                s.Encoder, cap.NvencUsable, cap.QsvUsable);
+            StartCore(framesFolder, s, res.Selection, res.Fallback, res.Reason);
+        }
+
+        private ProGlassAutomation.Agent.Demo.Video.VideoEncoderSelection _encoderSelection =
+            ProGlassAutomation.Agent.Demo.Video.VideoEncoderSelection.Libx264;
+
+        // PHASE 5 — how the encoder was resolved (Step 30: a hardware
+        // init failure must be visible, never silently claimed as HW).
+        public bool EncoderUsedFallback { get; private set; }
+        public string? EncoderFallbackReason { get; private set; }
+
+        private void StartCore(
+            string framesFolder, ScreenRecordSettings settings,
+            ProGlassAutomation.Agent.Demo.Video.VideoEncoderSelection encoder,
+            bool encoderFallback, string? encoderFallbackReason)
+        {
             try { _cts?.Cancel(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
-            _settings = (settings ?? new ScreenRecordSettings()).Clone().Clamp();
+            settings ??= new ScreenRecordSettings();
+            _settings = settings.Clone().Clamp();
+            _encoderSelection = encoder ?? ProGlassAutomation.Agent.Demo.Video.VideoEncoderSelection.Libx264;
+            EncoderUsedFallback = encoderFallback;
+            EncoderFallbackReason = encoderFallbackReason;
             Directory.CreateDirectory(framesFolder);
             lock (_framesGate) _frames.Clear();
             Interlocked.Exchange(ref _droppedFrames, 0);
@@ -462,6 +499,55 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WindowScreenRecorder] StopAsync: summary log optional: " + ex.Message); }
 
+            // ── PHASE 5 (Steps 5/19/20): the THREE different fps ──────
+            // requested (what the user chose), captured (frames the
+            // screen actually delivered) and encoded (frames that
+            // reached the encoder). Plus [RecFrameHealth]: when the
+            // effective rate is far below the configured rate, the
+            // recording is STARVED — retime will make it the right
+            // LENGTH but not the right SMOOTHNESS. That is a warning
+            // condition that must be visible in the log, per Step 20:
+            // < 15 fps → Warning, < 5 fps → Critical. Diagnostics only —
+            // it does not fail the save (duration validation still owns
+            // the SAVED decision).
+            try
+            {
+                double durSec = Duration.TotalSeconds;
+                int encodedNow = Volatile.Read(ref _encodedFrames);
+                int capturedNow = Volatile.Read(ref _capturedFrames);
+                int droppedNow = Volatile.Read(ref _droppedFrames);
+                double effFps = durSec > 0.05 ? encodedNow / durSec : 0;
+                int expectedFrames = (int)Math.Round(durSec * _settings.Fps);
+
+                AppLogService.Info(
+                    $"[RecFPS] requested={_settings.Fps} captured={capturedNow} " +
+                    $"encoded={encodedNow} dropped={droppedNow} effective={effFps:0.##}",
+                    new Services.Logging.LogContext { Module = "Recording", Operation = "FpsReport" });
+
+                string severity = effFps < 5 ? "Critical" : effFps < 15 ? "Warning" : "Normal";
+                bool starved = severity != "Normal";
+                if (starved)
+                {
+                    AppLogService.Warning(
+                        $"[RecFrameHealth] expectedFrames={expectedFrames} actualFrames={encodedNow} " +
+                        $"effectiveFps={effFps:0.##} starvation=true severity={severity} " +
+                        $"encoder={_rawPipe?.EncodeName ?? "n/a"} " +
+                        "note=duration is re-timed to wall clock (Phase 3) but the video " +
+                        "contains far fewer real frames than the configured fps; " +
+                        "smoothness suffers. Fix: lower resolution, or select a hardware " +
+                        "encoder (NVIDIA/Intel) in Recording settings.",
+                        new Services.Logging.LogContext { Module = "Recording", Operation = "FrameHealth" });
+                }
+                else
+                {
+                    AppLogService.Info(
+                        $"[RecFrameHealth] expectedFrames={expectedFrames} actualFrames={encodedNow} " +
+                        $"effectiveFps={effFps:0.##} starvation=false severity=Normal",
+                        new Services.Logging.LogContext { Module = "Recording", Operation = "FrameHealth" });
+                }
+            }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WindowScreenRecorder] StopAsync: fps log optional: " + ex.Message); }
+
             EncodePercent = 55;
         }
 
@@ -559,7 +645,8 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                 _rawVideoPath!, fps,
                 capture.Width, capture.Height,
                 outW, outH,
-                _settings.EncodeCrf);
+                _settings.EncodeCrf,
+                _encoderSelection);
 
             if (_rawPipe == null)
             {
@@ -586,8 +673,10 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             try
             {
                 AppLogService.Info(
-                    $"[RecEncode] codec=libx264 preset={_rawPipe.EncodePreset} " +
-                    $"crf={_rawPipe.EncodeCrfUsed} tune=stillimage " +
+                    $"[RecEncode] codec=h264 encoder={_rawPipe.EncodeName} " +
+                    $"hardware={_rawPipe.HardwareEncoder} preset={_rawPipe.EncodePreset} " +
+                    $"quality={_rawPipe.EncodeCrfUsed} " +
+                    $"fallback={EncoderUsedFallback} reason={EncoderFallbackReason ?? ""} " +
                     $"in={srcW}x{srcH} out={outW}x{outH} fps={fps} " +
                     $"tier={_settings.QualityTier} " +
                     $"frameBuffer={frameBytes}B (single reused buffer, streamed)",
@@ -607,6 +696,12 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             // never per frame.
             var storageLogAt = DateTime.UtcNow;
             bool diskLowReported = false;
+
+            // PHASE 5 — [RecPerformance] sampling state (Step 24):
+            // periodic capture/encode rates, encoder CPU and app memory.
+            long perfCapturedPrev = 0, perfEncodedPrev = 0;
+            var perfAt = DateTime.UtcNow;
+            TimeSpan encCpuPrev = TimeSpan.Zero;
 
             // ── ONE-FRAME-PER-CAPTURE + RE-TIME-AT-SAVE (2026-09-10) ─
             //
@@ -847,6 +942,52 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                             new Services.Logging.LogContext { Module = "Recording", Operation = "Storage" });
                     }
                     catch (Exception ex) { AppLogService.Debug($"[RawLoop] storage log: {ex.Message}"); }
+
+                    // ── PHASE 5: [RecPerformance] — periodic health ────
+                    // Real capture/encode rates over the interval,
+                    // encoder CPU (percent of one core × cores, so 800%
+                    // = 8 cores) and app memory. This is the live view
+                    // of frame starvation BEFORE the stop report.
+                    try
+                    {
+                        var perfNow = DateTime.UtcNow;
+                        double perfInterval = Math.Max(0.5, (perfNow - perfAt).TotalSeconds);
+                        perfAt = perfNow;
+                        int capNow = Volatile.Read(ref _capturedFrames);
+                        int encNow = Volatile.Read(ref _encodedFrames);
+                        double capFps = (capNow - perfCapturedPrev) / perfInterval;
+                        double encFps = (encNow - perfEncodedPrev) / perfInterval;
+                        perfCapturedPrev = capNow;
+                        perfEncodedPrev = encNow;
+
+                        string encCpu = "n/a";
+                        try
+                        {
+                            var fp = _rawPipe?.FfmpegProcess;
+                            if (fp != null)
+                            {
+                                var cpuNow = fp.TotalProcessorTime;
+                                double cpuPct = (cpuNow - encCpuPrev).TotalMilliseconds / (perfInterval * 1000.0) * 100.0;
+                                encCpuPrev = cpuNow;
+                                if (cpuPct > 0) encCpu = cpuPct.ToString("0.#") + "%";
+                            }
+                        }
+                        catch { /* encoder already gone — fine */ }
+
+                        string appMem = "n/a";
+                        try { appMem = (Process.GetCurrentProcess().WorkingSet64 / 1024 / 1024) + "MB"; }
+                        catch { /* optional */ }
+
+                        AppLogService.Info(
+                            $"[RecPerformance] t={(perfNow - _started).TotalSeconds:F0}s " +
+                            $"captureFps={capFps:0.##} encodedFps={encFps:0.##} " +
+                            $"droppedFrames={Volatile.Read(ref _droppedFrames)} " +
+                            $"encoderQueue=none(streaming, backpressure=blocking write) " +
+                            $"encCpu={encCpu} appMemory={appMem} " +
+                            $"encoder={_rawPipe?.EncodeName ?? "n/a"} resolution={outW}x{outH}",
+                            new Services.Logging.LogContext { Module = "Recording", Operation = "Performance" });
+                    }
+                    catch (Exception ex) { AppLogService.Debug($"[RawLoop] performance log: {ex.Message}"); }
 
                     if (!diskLowReported && availDisk >= 0
                         && availDisk < FfmpegMp4Composer.MinFreeDiskBytes)

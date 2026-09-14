@@ -2064,6 +2064,7 @@
     <sys:String x:Key="Settings.ProvidersAPIKeysModelTuningDataAccess">Fournisseurs, clés API, réglage des modèles et accès aux données.</sys:String>
     <sys:String x:Key="Settings.Published">publié</sys:String>
     <sys:String x:Key="Settings.Px">px</sys:String>
+    <sys:String x:Key="Settings.Encoder">Encodeur</sys:String>
     <sys:String x:Key="Settings.Quality">Qualité</sys:String>
     <sys:String x:Key="Settings.Resolution">Résolution</sys:String>
     <sys:String x:Key="Settings.QuotationExpiryDate">Date d&#x27;expiration de la cotation.</sys:String>

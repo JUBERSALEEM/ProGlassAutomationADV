@@ -65,6 +65,13 @@ namespace ProGlassAutomation.Agent.Demo.Video
         public int OutputWidth { get; private set; }
         public int OutputHeight { get; private set; }
 
+        // ── PHASE 5 TELEMETRY (2026-09-14) ────────────────────────────
+        // The concrete encoder this pipe actually uses (hardware or CPU)
+        // and the live process handle for performance sampling.
+        public string EncodeName { get; private set; } = "libx264";
+        public bool HardwareEncoder { get; private set; }
+        public Process? FfmpegProcess { get { try { return _process; } catch { return null; } } }
+
         // ── ENCODER HEALTH (Phase-2 diagnostics, 2026-09-14) ──────────
         // Observation only: process identity, liveness and exit state so a
         // mid-recording ffmpeg death shows up in the log instead of leaving
@@ -103,10 +110,12 @@ namespace ProGlassAutomation.Agent.Demo.Video
             string videoPath, int fps,
             int srcW, int srcH,
             int outW, int outH,
-            int crf)
+            int crf,
+            VideoEncoderSelection encoder = VideoEncoderSelection.Libx264)
         {
             string? ffmpeg = FfmpegMp4Composer.Find();
             if (string.IsNullOrWhiteSpace(ffmpeg)) return null;
+            encoder ??= VideoEncoderSelection.Libx264;
 
             fps = Math.Clamp(fps, 1, 60);
             crf = Math.Clamp(crf, 10, 28);
@@ -145,28 +154,42 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 outPixels >= 2560L * 1440 ? "superfast" :
                 "veryfast";
 
-            // -tune stillimage: x264 tuning aimed at sharp static detail
-            //   rather than film grain — correct for UI capture.
-            // -g: one keyframe per second, so seeking/scrubbing is usable.
-            // -threads 0: let x264 use every core; 4K needs all of them.
-            // -bf 3: PHASE 4B (2026-09-14) — the ultrafast/superfast
-            //   presets DISABLE B-frames, which is the single biggest
-            //   compression headroom left on the table for screen
-            //   content. Three B-frames (x264's own default for most
-            //   presets) cuts the encoded bitrate at the SAME CRF, which
-            //   does two things at once: smaller files for identical
-            //   visual quality, and a faster-draining pipe — the encoder
-            //   emits fewer bytes per frame, so more distinct frames
-            //   land during a recording (frame starvation was the
-            //   dominant cause of the "30 MB / looks thin on Android"
-            //   report). Standard H.264 High profile; plays everywhere
-            //   including Android. No rate-control change: CRF stays
-            //   the quality authority.
+            // ── PHASE 5 (2026-09-14): encoder-agnostic argument build ─
+            // The quality mechanism differs per encoder (documented in
+            // VideoEncoder.BuildQualityArgs): libx264 uses CRF, NVENC
+            // uses VBR with a quality target (-cq) and no bitrate
+            // ceiling, QSV uses constant CQP. All three are
+            // QUALITY-BASED — Step 13 forbids solving starvation with
+            // fixed bitrates. libx264-only extras (tune, threads, B-
+            // frame count) never apply to the GPU encoders, which have
+            // their own B-frame handling and do not need -threads.
+            //
+            // libx264 (CPU path) keeps the Phase-4B settings:
+            //   -tune stillimage: sharp static detail — correct for UI.
+            //   -g {fps}: one keyframe per second for usable seeking.
+            //   -threads 0: every core; 4K needs all of them.
+            //   -bf 3: B-frames (x264's own default for most presets,
+            //     disabled at ultrafast/superfast) — smaller files at
+            //     the same CRF AND a faster-draining pipe.
+            (string encoderArgs, string encoderPreset) = encoder.Name switch
+            {
+                "libx264" =>
+                {
+                    string q = VideoEncoder.BuildQualityArgs(encoder, crf).Args;
+                    ($"-c:v libx264 -preset {preset} -tune stillimage -threads 0 {q} -g {fps} -bf 3", preset)
+                },
+                _ =>
+                {
+                    string q = VideoEncoder.BuildQualityArgs(encoder, crf).Args;
+                    ($"-c:v {encoder.Name} {q} -g {fps}",
+                        encoder.Name == "h264_nvenc" ? "p5" : "default")
+                }
+            };
+
             string args =
                 $"-y -f rawvideo -pix_fmt bgra -s {srcW}x{srcH} -framerate {fps} " +
                 $"-use_wallclock_as_timestamps 0 -i - " +
-                $"-an -vf \"{vf}\" -c:v libx264 -preset {preset} -tune stillimage " +
-                $"-threads 0 -crf {crf} -g {fps} -bf 3 -pix_fmt yuv420p " +
+                $"-an -vf \"{vf}\" {encoderArgs} -pix_fmt yuv420p " +
                 // Explicit BT.709 tagging: screen capture IS sRGB (≈709).
                 // Untagged files leave the primaries to guesswork, and a
                 // 4K upscale interpreted as BT.2020 / flat-range
@@ -190,16 +213,20 @@ namespace ProGlassAutomation.Agent.Demo.Video
                     return null;
                 }
 
+                var qArgs = VideoEncoder.BuildQualityArgs(encoder, crf);
                 var pipe = new FfmpegRawPipe(videoPath)
                 {
                     _process = p,
                     _stdin = p.StandardInput.BaseStream,
                     IsOpen = true,
                     ProcessStartedUtc = DateTime.UtcNow,
-                    // PHASE 4: record the ACTUAL values used (post-clamp,
-                    // post-even-rounding), not the requested ones.
-                    EncodePreset = preset,
-                    EncodeCrfUsed = crf,
+                    // PHASE 4/5: record the ACTUAL values used (post-clamp,
+                    // post-even-rounding, post-encoder-mapping), not the
+                    // requested ones.
+                    EncodeName = encoder.Name,
+                    HardwareEncoder = encoder.Hardware,
+                    EncodePreset = encoderPreset,
+                    EncodeCrfUsed = qArgs.QualityValue,
                     NominalFps = fps,
                     OutputWidth = outW,
                     OutputHeight = outH

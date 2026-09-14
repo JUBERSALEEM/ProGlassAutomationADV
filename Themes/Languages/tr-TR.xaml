@@ -2064,6 +2064,7 @@
     <sys:String x:Key="Settings.ProvidersAPIKeysModelTuningDataAccess">Sağlayıcılar, API anahtarları, model ayarı ve veri erişimi.</sys:String>
     <sys:String x:Key="Settings.Published">yayınlandı</sys:String>
     <sys:String x:Key="Settings.Px">px</sys:String>
+    <sys:String x:Key="Settings.Encoder">Kodlayıcı</sys:String>
     <sys:String x:Key="Settings.Quality">Kalite</sys:String>
     <sys:String x:Key="Settings.Resolution">Çözünürlük</sys:String>
     <sys:String x:Key="Settings.QuotationExpiryDate">Teklif son kullanma tarihi.</sys:String>

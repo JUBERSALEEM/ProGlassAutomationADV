@@ -62,6 +62,8 @@ namespace ProGlassAutomation.Services.Recording
                     },
                     QualityTier = (ProGlassAutomation.Agent.Demo.Recording.ScreenRecordQualityTier)
                         System.Math.Clamp(prefs.QualityTier, 0, 2),
+                    Encoder = (ProGlassAutomation.Agent.Demo.Video.ScreenRecordEncoder)
+                        System.Math.Clamp(prefs.Encoder, 0, 3),
                     Fps = prefs.Fps,
                     CaptureLiveAudio = prefs.CaptureLiveAudio,
                     CaptureMicrophone = prefs.CaptureMicrophone,
@@ -109,6 +111,7 @@ namespace ProGlassAutomation.Services.Recording
                 App.Config.Recording ??= new RecordingPreferences();
                 App.Config.Recording.QualityHeight = (int)rec.Quality;
                 App.Config.Recording.QualityTier = (int)rec.QualityTier;
+                App.Config.Recording.Encoder = (int)rec.Encoder;
                 App.Config.Recording.Fps = rec.Fps;
                 App.Config.Recording.CaptureLiveAudio = rec.CaptureLiveAudio;
                 App.Config.Recording.CaptureMicrophone = rec.CaptureMicrophone;
@@ -169,16 +172,38 @@ namespace ProGlassAutomation.Services.Recording
             double? finalKbps = durationSec != null && durationSec > 0
                 ? info.Length * 8.0 / 1000.0 / durationSec.Value
                 : null;
+            double? mbPerMinute = durationSec != null && durationSec > 0
+                ? info.Length / 1024.0 / 1024.0 / durationSec.Value * 60.0
+                : null;
+            double realEncodedFps = durationSec != null && durationSec > 0.05
+                ? recorder.EncodedFrames / durationSec.Value
+                : 0;
             bool audioOn = recorder.LiveAudioStarted || recorder.MicAudioStarted;
             var (outW, outH) = rec.OutputSize;
+            // PHASE 5 (Step 23): the rate-control name follows the
+            // concrete encoder — CRF (libx264), VBR+CQ (NVENC), CQP
+            // (QSV). The quality VALUE is the encoder-mapped one the
+            // pipe actually used (see FfmpegRawPipe.EncodeCrfUsed).
+            string rateControl = recorder.EncodeName switch
+            {
+                "h264_nvenc" => "VBR+CQ",
+                "h264_qsv" => "CQP",
+                _ => "CRF"
+            };
             AppLogService.Info(
-                $"[RecQuality] resolution={outW}x{outH} capture={recorder.CaptureWidth}x{recorder.CaptureHeight} " +
-                $"fps={rec.Fps} codec=h264 encoder=libx264 preset={recorder.EncodePreset} " +
-                $"rateControl=CRF crf={recorder.EncodeCrfUsed} tier={rec.QualityTier} " +
+                $"[RecQuality] resolution={outW}x{outH} " +
+                $"captureResolution={recorder.CaptureWidth}x{recorder.CaptureHeight} " +
+                $"encodedResolution={outW}x{outH} " +
+                $"fps={rec.Fps} realEncodedFps={realEncodedFps:0.##} " +
+                $"codec=h264 encoder={recorder.EncodeName} hardware={recorder.HardwareEncoder} " +
+                $"preset={recorder.EncodePreset} rateControl={rateControl} " +
+                $"CRFOrQuality={recorder.EncodeCrfUsed} tier={rec.QualityTier} " +
+                $"pixelFormat=yuv420p " +
                 $"videoKbps={(videoKbps?.ToString("0.#") ?? "n/a")} " +
                 $"audioKbps={(audioOn ? "160" : "none")} " +
                 $"finalKbps={(finalKbps?.ToString("0.#") ?? "n/a")} " +
-                $"fileSize={info.Length}B duration={(durationSec?.ToString("0.###") ?? "n/a")}s",
+                $"fileSize={info.Length}B duration={(durationSec?.ToString("0.###") ?? "n/a")}s " +
+                $"MBPerMinute={(mbPerMinute?.ToString("0.##") ?? "n/a")}",
                 new LogContext { Module = "Recording", Operation = "QualityTelemetry" });
 
             // PHASE-2 DIAGNOSTIC: the delivered file vs wall clock — the
@@ -300,6 +325,78 @@ namespace ProGlassAutomation.Services.Recording
                     new LogContext { Module = "Recording", Operation = "DiskPreflight" });
             }
 
+            // ── PHASE 5 (Steps 8/9/30): encoder resolution ────────────
+            // Resolve the requested encoder against PROBED capability
+            // (the probe proves an encoder by test-encoding; an unproven
+            // hardware encoder is never selected). The fallback chain
+            // always ends at libx264 — the pipeline that has always
+            // worked — so a missing/broken GPU cannot break recording.
+            var encSnap = ProGlassAutomation.Agent.Demo.Video.EncoderProbe.Snapshot();
+            var encRes = ProGlassAutomation.Agent.Demo.Video.VideoEncoder.Resolve(
+                rec.Encoder, encSnap.NvencUsable, encSnap.QsvUsable);
+            AppLogService.Info(
+                $"[RecEncoderSelect] requested={rec.Encoder} selected={encRes.Selection.Name} " +
+                $"hardware={encRes.Selection.Hardware} fallback={encRes.Fallback} " +
+                $"reason={encRes.Reason ?? ""}",
+                new LogContext { Module = "Recording", Operation = "EncoderSelect" });
+            if (encRes.Fallback && !string.IsNullOrWhiteSpace(encRes.Reason))
+                Status = $"Requested encoder unavailable ({encRes.Reason}); using {encRes.Selection.Name}.";
+
+            // ── PHASE 5 (Steps 11/21): FPS guard ──────────────────────
+            // Never "record 60 FPS" by re-timing starved frames (that
+            // produced the 1-fps 4K masters). When the probe has
+            // MEASURED the selected encoder's sustained fps and it
+            // cannot sustain ≥50% of the requested rate at the selected
+            // resolution — while a smaller one can — downgrade cleanly
+            // 4K → 2K → 1080p and communicate it. No probe data → no
+            // downgrade (the [RecFrameHealth] line at stop still flags
+            // starvation loudly).
+            string? fpsGuardNote = null;
+            if (encSnap.MeasuredFps.HasValue && encSnap.MeasuredEncoder == encRes.Selection.Name
+                && encSnap.MeasuredWidth > 0 && encSnap.MeasuredHeight > 0)
+            {
+                var (gw, gh) = rec.OutputSize;
+                double need = rec.Fps * 0.5;
+                double est = ProGlassAutomation.Agent.Demo.Video.VideoEncoder.EstimateEncodeFps(
+                    encSnap.MeasuredFps.Value, encSnap.MeasuredWidth, encSnap.MeasuredHeight, gw, gh);
+                if (est < need)
+                {
+                    foreach (var lower in new[]
+                             {
+                                 ScreenRecordQuality.Qhd2K,
+                                 ScreenRecordQuality.FullHd,
+                                 ScreenRecordQuality.Hd720
+                             })
+                    {
+                        if (lower >= rec.Quality) continue;
+                        var opt = ScreenRecordSettings.Qualities.First(q => q.Quality == lower);
+                        double le = ProGlassAutomation.Agent.Demo.Video.VideoEncoder.EstimateEncodeFps(
+                            encSnap.MeasuredFps.Value, encSnap.MeasuredWidth, encSnap.MeasuredHeight,
+                            opt.Width, opt.Height);
+                        if (le >= need)
+                        {
+                            AppLogService.Warning(
+                                $"[RecFpsGuard] encoder={encRes.Selection.Name} estimated {est:0.#}fps " +
+                                $"at {gw}x{gh} (< {need:0.#} needed for {rec.Fps}fps); " +
+                                $"downgrading to {opt.Width}x{opt.Height} (est {le:0.#}fps)",
+                                new LogContext { Module = "Recording", Operation = "FpsGuard" });
+                            rec.Quality = lower;
+                            fpsGuardNote = $"Recording at {opt.Width}×{opt.Height} instead of {gw}×{gh}: " +
+                                $"this machine cannot encode {gw}×{gh} smoothly with {encRes.Selection.Name}.";
+                            break;
+                        }
+                    }
+                }
+            }
+            if (!string.IsNullOrWhiteSpace(fpsGuardNote))
+                Status = fpsGuardNote!;
+
+            // Keep the probe fresh for the next start (background, idempotent).
+            {
+                var (pw, ph) = rec.OutputSize;
+                ProGlassAutomation.Agent.Demo.Video.EncoderProbe.RequestProbe(encRes.Selection.Name, pw, ph, rec.Fps);
+            }
+
             string folder = NewJobFolder();
             string frames = Path.Combine(folder, "frames");
             Directory.CreateDirectory(frames);
@@ -307,7 +404,7 @@ namespace ProGlassAutomation.Services.Recording
             var recorder = new WindowScreenRecorder();
             try
             {
-                recorder.Start(frames, rec);
+                recorder.Start(frames, rec, encRes.Selection, encRes.Fallback, encRes.Reason);
 
                 // PHASE 3: if the capture loop ends for a FATAL reason
                 // mid-recording (encoder death, persistent blank output),

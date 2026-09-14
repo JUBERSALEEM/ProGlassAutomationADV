@@ -42,6 +42,23 @@
             </Border>
 
             <StackPanel Grid.Row="1" Margin="14,12,14,14">
+                <!-- PHASE 5 (2026-09-14): encoder selection. H.264 is
+                     always the codec; Auto = best available hardware
+                     H.264 (NVENC → QSV) with automatic libx264 fallback.
+                     NVIDIA/Intel rows appear only when the background
+                     probe proves the encoder initializes. -->
+                <TextBlock Text="{DynamicResource Settings.Encoder}"
+                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Margin="0,0,0,4"/>
+                <ComboBox ItemsSource="{Binding EncoderOptions}"
+                          SelectedItem="{Binding SelectedEncoder, Mode=TwoWay}"
+                          DisplayMemberPath="Title"
+                          IsEnabled="{Binding IsIdle}"
+                          IsSynchronizedWithCurrentItem="False"
+                          Padding="10,7"
+                          FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+
                 <!-- PHASE 4 (2026-09-14): encoder quality tier (CRF).
                      Standard = smallest files, High (default) = sharp
                      ERP text at reasonable size, Very High = the
@@ -49,7 +66,7 @@
                 <TextBlock Text="{DynamicResource Settings.Quality}"
                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
-                           Margin="0,0,0,4"/>
+                           Margin="0,12,0,4"/>
                 <ComboBox ItemsSource="{Binding QualityTiers}"
                           SelectedItem="{Binding SelectedQualityTier, Mode=TwoWay}"
                           DisplayMemberPath="Title"

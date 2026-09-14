@@ -2064,6 +2064,7 @@
     <sys:String x:Key="Settings.ProvidersAPIKeysModelTuningDataAccess">প্রদানকারী, API কী, মডেল টিউনিং ও ডেটা অ্যাক্সেস।</sys:String>
     <sys:String x:Key="Settings.Published">প্রকাশিত</sys:String>
     <sys:String x:Key="Settings.Px">পিক্সেল</sys:String>
+    <sys:String x:Key="Settings.Encoder">এনকোডার</sys:String>
     <sys:String x:Key="Settings.Quality">মান</sys:String>
     <sys:String x:Key="Settings.Resolution">রেজোলিউশন</sys:String>
     <sys:String x:Key="Settings.QuotationExpiryDate">কোটার মেয়াদ শেষের তারিখ।</sys:String>
