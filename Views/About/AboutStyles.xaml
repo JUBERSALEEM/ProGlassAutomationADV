@@ -140,7 +140,6 @@
              UniformGrid cell in ModulesSection, so slabs can never overflow
              the content column. -->
         <Border x:Name="ModuleChipRoot"
-                Style="{StaticResource SurfacePrimaryStyle}"
                 MinHeight="148"
                 Padding="18,14"
                 Margin="5"
@@ -158,8 +157,11 @@
                      (WPF MC4011). Instead the animations target the styled
                      Border ITSELF via a property path into its own
                      RenderTransform: Children[0] is the ScaleTransform,
-                     Children[1] the TranslateTransform declared above. -->
-                <Style TargetType="Border">
+                     Children[1] the TranslateTransform declared above.
+                     2026-09-14: L1 chrome comes from BasedOn (SurfacePrimary)
+                     — the Style attribute was removed to avoid MC3024
+                     (Style set twice). -->
+                <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                     <Setter Property="Effect" Value="{StaticResource AboutCardEffect}"/>
                     <Style.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
