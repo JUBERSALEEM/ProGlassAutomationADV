@@ -1095,7 +1095,9 @@
     <!-- 2026-09-14: was an EMPTY Ellipse style; three Border-based consumers in
          InquiryEditorWindow crashed at load ("Can only base on a Style with
          target type that is base type 'Border'"). Now a real Border dot:
-         26px circle, neutral rest state, active state via DataTriggers. -->
+         26px circle, neutral rest state, active state via DataTriggers.
+         (Border has no Horizontal/VerticalContentAlignment — child centering
+         lives in StepNumberStyle, its only consumers.) -->
     <Style x:Key="StepDotStyle" TargetType="Border">
         <Setter Property="Width" Value="26"/>
         <Setter Property="Height" Value="26"/>
@@ -1103,10 +1105,11 @@
         <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
-    <Style x:Key="StepNumberStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="StepNumberStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}">
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
     <Style x:Key="StepTitleStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Title}"/>
     <Style x:Key="SurfaceComboBox" TargetType="ComboBox" BasedOn="{StaticResource Input.ComboBox}"/>
     <Style x:Key="SurfaceDataGrid" TargetType="DataGrid"/>
