@@ -728,6 +728,10 @@
     <!-- Auto-generated color tokens for remaining hardcoded hex in Views -->
     <SolidColorBrush x:Key="Splash.DarkTealBrush.Alpha14.80" Color="#14808080"/>
     <SolidColorBrush x:Key="Splash.TealBrush.Alpha28.80" Color="#28808080"/>
+    <Color x:Key="White.Alpha33.Color">#33FFFFFF</Color>
+    <Color x:Key="White.Alpha4C.Color">#4CFFFFFF</Color>
+    <Color x:Key="White.Alpha12.Color">#12FFFFFF</Color>
+    <Color x:Key="TransparentWhite.Color">#00FFFFFF</Color>
     <SolidColorBrush x:Key="White.Alpha33" Color="#33FFFFFF"/>
     <SolidColorBrush x:Key="White.Alpha4C" Color="#4CFFFFFF"/>
     <SolidColorBrush x:Key="Black.Alpha0D" Color="#0D000000"/>

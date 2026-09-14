@@ -234,7 +234,7 @@
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
                                     <GradientStop Color="{DynamicResource About.GlowBrush1.Alpha59}" Offset="0"/>
-                                    <GradientStop Color="{DynamicResource TransparentWhite}" Offset="1"/>
+                                    <GradientStop Color="#00FFFFFF" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
                         </Border>
