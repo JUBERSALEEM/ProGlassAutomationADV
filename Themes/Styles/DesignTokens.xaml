@@ -114,7 +114,7 @@
         <Setter Property="BorderThickness" Value="{DynamicResource Surface.Primary.BorderThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Surface.Primary.CornerRadius}"/>
         <Setter Property="Padding" Value="{DynamicResource Surface.Primary.Padding}"/>
-        <Setter Property="Effect" Value="{DynamicResource Surface.Primary.Effect}"/>
+        <Setter Property="Effect" Value="{StaticResource Surface.Primary.Effect}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
     </Style>

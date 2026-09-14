@@ -280,10 +280,10 @@
     <DropShadowEffect x:Key="Shadow.Large" BlurRadius="28" ShadowDepth="0" Opacity="0.18" Color="#FF0F172A"/>
     <DropShadowEffect x:Key="Shadow.XLarge" BlurRadius="36" ShadowDepth="0" Opacity="0.22" Color="#FF0F172A"/>
 
-    <DynamicResource x:Key="Shadow.Card" ResourceKey="Shadow.Soft"/>
-    <DynamicResource x:Key="Shadow.Popup" ResourceKey="Shadow.Medium"/>
-    <DynamicResource x:Key="Shadow.Dialog" ResourceKey="Shadow.Large"/>
-    <DynamicResource x:Key="Shadow.Elevated" ResourceKey="Shadow.Medium"/>
+    <DropShadowEffect x:Key="Shadow.Card" BlurRadius="8" ShadowDepth="0" Opacity="0.08" Color="#FF0F172A"/>
+    <DropShadowEffect x:Key="Shadow.Popup" BlurRadius="16" ShadowDepth="0" Opacity="0.12" Color="#FF0F172A"/>
+    <DropShadowEffect x:Key="Shadow.Dialog" BlurRadius="28" ShadowDepth="0" Opacity="0.18" Color="#FF0F172A"/>
+    <DropShadowEffect x:Key="Shadow.Elevated" BlurRadius="16" ShadowDepth="0" Opacity="0.12" Color="#FF0F172A"/>
 
     <!-- Aliases for SemanticElevation -->
     <DynamicResource x:Key="ElevationNone" ResourceKey="Shadow.None"/>
@@ -396,7 +396,7 @@
         <Setter Property="BorderThickness" Value="{DynamicResource Border.Default}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}"/>
         <Setter Property="Padding" Value="{DynamicResource Space.Card}"/>
-        <Setter Property="Effect" Value="{DynamicResource Shadow.Card}"/>
+        <Setter Property="Effect" Value="{StaticResource Shadow.Soft}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
     </Style>
@@ -414,7 +414,7 @@
         <Setter Property="Background" Value="{DynamicResource PopupSurfaceBrush}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Dialog}"/>
         <Setter Property="Padding" Value="{DynamicResource Space.Dialog}"/>
-        <Setter Property="Effect" Value="{DynamicResource Shadow.Dialog}"/>
+        <Setter Property="Effect" Value="{StaticResource Shadow.Large}"/>
     </Style>
     <Style x:Key="SurfaceKpiStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
         <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>

@@ -435,7 +435,7 @@
         <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
         <Setter Property="Padding" Value="{StaticResource SoftCardPadding}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="Effect" Value="{DynamicResource ShadowSoft}"/>
+        <Setter Property="Effect" Value="{StaticResource ShadowSoft}"/>
     </Style>
 
     <!-- CLICKABLE variant of SoftCardStyle. SoftCardStyle itself is used
@@ -716,7 +716,7 @@
     <Style x:Key="IndustrialDashboardCardStyle" TargetType="Border" BasedOn="{StaticResource SoftCardStyle}">
         <Setter Property="Padding" Value="{StaticResource IndustrialDashboardCardPadding}"/>
         <Setter Property="MinHeight" Value="118"/>
-        <Setter Property="Effect" Value="{DynamicResource ShadowElevated}"/>
+        <Setter Property="Effect" Value="{StaticResource ShadowElevated}"/>
     </Style>
 
     
@@ -728,7 +728,7 @@
         <Setter Property="Padding" Value="14,12"/>
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.StrongThickness}"/>
-        <Setter Property="Effect" Value="{DynamicResource ShadowSoft}"/>
+        <Setter Property="Effect" Value="{StaticResource ShadowSoft}"/>
     </Style>
 
     <!-- KPI row host: equal columns, reference's 10px gutter handled by

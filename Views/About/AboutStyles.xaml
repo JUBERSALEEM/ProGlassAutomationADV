@@ -163,7 +163,7 @@
                      RenderTransform: Children[0] is the ScaleTransform,
                      Children[1] the TranslateTransform declared above. -->
                 <Style TargetType="Border">
-                    <Setter Property="Effect" Value="{DynamicResource AboutCardEffect}"/>
+                    <Setter Property="Effect" Value="{StaticResource AboutCardEffect}"/>
                     <Style.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="BorderBrush" Value="{DynamicResource LiquidAccent}"/>

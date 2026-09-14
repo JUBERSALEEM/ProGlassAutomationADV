@@ -29,7 +29,7 @@
                             BorderBrush="{DynamicResource GlassBorderSoft}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
                             CornerRadius="{TemplateBinding CornerRadius}"
-                            Effect="{DynamicResource ShadowSoft}"
+                            Effect="{StaticResource ShadowSoft}"
                             SnapsToDevicePixels="True">
                         <Grid>
                             <!-- white top highlight / meniscus: frosted
@@ -84,7 +84,7 @@
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderPrimary}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="18"/>
-        <Setter Property="Effect" Value="{DynamicResource ShadowElevated}"/>
+        <Setter Property="Effect" Value="{StaticResource ShadowElevated}"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
@@ -120,7 +120,7 @@
                                 Background="{DynamicResource GlassUltraClearBrush}"
                                 BorderBrush="{DynamicResource GlassDangerBorderBrush}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                Effect="{DynamicResource ShadowSoft}"/>
+                                Effect="{StaticResource ShadowSoft}"/>
                         <Border Height="14" CornerRadius="{DynamicResource Radius.Top.Medium}" VerticalAlignment="Top"
                                 Background="{DynamicResource GlassTopReflection}" Opacity="0.65" Margin="1,1,1,0"/>
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
@@ -242,7 +242,7 @@
                             Background="{DynamicResource GlassSurfaceUltra}"
                             BorderBrush="{DynamicResource GlassBorderPrimary}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            Effect="{DynamicResource ShadowSoft}">
+                            Effect="{StaticResource ShadowSoft}">
                         <Grid>
                             <Border Height="9" CornerRadius="{DynamicResource Radius.Top.Medium}" VerticalAlignment="Top"
                                     Background="{DynamicResource GlassTopReflection}" Opacity="0.6" Margin="1,1,1,0"
@@ -271,7 +271,7 @@
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderPrimary}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="24"/>
-        <Setter Property="Effect" Value="{DynamicResource ShadowElevated}"/>
+        <Setter Property="Effect" Value="{StaticResource ShadowElevated}"/>
     </Style>
 
     <Style x:Key="LiquidGlassDialogOverlayStyle" TargetType="Border">

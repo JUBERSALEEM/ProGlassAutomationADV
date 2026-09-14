@@ -59,7 +59,7 @@
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="16,12"/>
-        <Setter Property="Effect" Value="{DynamicResource ShadowElevated}"/>
+        <Setter Property="Effect" Value="{StaticResource ShadowElevated}"/>
     </Style>
 
     <!-- LIQUID GLASS CARD — layered transparent surface with crystal edge.
@@ -72,7 +72,7 @@
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="16"/>
-        <Setter Property="Effect" Value="{DynamicResource ShadowElevated}"/>
+        <Setter Property="Effect" Value="{StaticResource ShadowElevated}"/>
         <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
@@ -114,7 +114,7 @@
                         <!-- L0: Ambient + contact shadow -->
                         <Border x:Name="ShadowHost"
                                 CornerRadius="{DynamicResource Radius.Large}"
-                                Effect="{DynamicResource ShadowElevated}"/>
+                                Effect="{StaticResource ShadowElevated}"/>
                         <!-- L1+L2: Crystal edge + transparent surface -->
                         <Border x:Name="SurfaceBorder"
                                 CornerRadius="{DynamicResource Radius.Large}"
@@ -157,7 +157,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ContentControl">
                     <Grid>
-                        <Border CornerRadius="{DynamicResource Radius.Large}" Effect="{DynamicResource ShadowSoft}"/>
+                        <Border CornerRadius="{DynamicResource Radius.Large}" Effect="{StaticResource ShadowSoft}"/>
                         <Border CornerRadius="{DynamicResource Radius.Large}"
                                 Background="{DynamicResource GlassUltraClearBrush}"
                                 BorderBrush="{DynamicResource GlassBorderGradientCrystal}"
@@ -184,7 +184,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ContentControl">
                     <Grid>
-                        <Border CornerRadius="{DynamicResource Radius.Large}" Effect="{DynamicResource ShadowElevated}"/>
+                        <Border CornerRadius="{DynamicResource Radius.Large}" Effect="{StaticResource ShadowElevated}"/>
                         <Border CornerRadius="{DynamicResource Radius.Large}"
                                 Background="{DynamicResource GlassCrystalBrush}"
                                 BorderBrush="{DynamicResource GlassBorderGradientCrystal}"
@@ -217,7 +217,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ContentControl">
                     <Grid>
-                        <Border CornerRadius="{DynamicResource Radius.Large}" Effect="{DynamicResource ShadowSoft}"/>
+                        <Border CornerRadius="{DynamicResource Radius.Large}" Effect="{StaticResource ShadowSoft}"/>
                         <Border CornerRadius="{DynamicResource Radius.Large}"
                                 Background="{DynamicResource GlassWaterBrush}"
                                 BorderBrush="{DynamicResource GlassBorderGradientSoft}"
@@ -244,7 +244,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ContentControl">
                     <Grid>
-                        <Border CornerRadius="{DynamicResource Radius.Large}" Effect="{DynamicResource ShadowElevated}"/>
+                        <Border CornerRadius="{DynamicResource Radius.Large}" Effect="{StaticResource ShadowElevated}"/>
                         <Border CornerRadius="{DynamicResource Radius.Large}"
                                 Background="{DynamicResource GlassFrostedBrush}"
                                 BorderBrush="{DynamicResource GlassBorderSoft}"
@@ -284,7 +284,7 @@
                         <!-- L0: Shadow -->
                         <Border x:Name="ShadowBorder"
                                 CornerRadius="{DynamicResource Radius.Hero}"
-                                Effect="{DynamicResource ShadowSoft}"/>
+                                Effect="{StaticResource ShadowSoft}"/>
                         <!-- L1+L2: Crystal edge + transparent surface -->
                         <Border x:Name="Bg"
                                 CornerRadius="{DynamicResource Radius.Hero}"
@@ -374,7 +374,7 @@
                             <ScaleTransform ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5"/>
                         </Grid.RenderTransform>
                         <!-- Shadow -->
-                        <Border CornerRadius="{DynamicResource Radius.Hero}" Effect="{DynamicResource ShadowElevated}"/>
+                        <Border CornerRadius="{DynamicResource Radius.Hero}" Effect="{StaticResource ShadowElevated}"/>
                         <!-- Accent surface with crystal border -->
                         <Border x:Name="Bg"
                                 CornerRadius="{DynamicResource Radius.Hero}"
@@ -453,7 +453,7 @@
                                 Background="{DynamicResource GlassSurfaceBrush}"
                                 BorderBrush="{DynamicResource GlassBorderGradientSoft}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                Effect="{DynamicResource ShadowSoft}"/>
+                                Effect="{StaticResource ShadowSoft}"/>
                         <Border Height="10" CornerRadius="{DynamicResource Radius.Top.Medium}" VerticalAlignment="Top"
                                 Background="{DynamicResource GlassTopReflection}" Opacity="0.6" Margin="1,1,1,0"/>
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
@@ -527,7 +527,7 @@
                                 Background="{DynamicResource GlassSurfaceBrush}"
                                 BorderBrush="{DynamicResource GlassBorderGradientSoft}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                Effect="{DynamicResource ShadowSoft}"/>
+                                Effect="{StaticResource ShadowSoft}"/>
                         <!-- Top Glare -->
                         <Border Height="18" CornerRadius="{DynamicResource Radius.Top.Medium}" VerticalAlignment="Top"
                                 Background="{DynamicResource GlassTopReflection}" Opacity="0.65" Margin="1,1,1,0"/>
@@ -634,7 +634,7 @@
                                 Background="{DynamicResource GlassSurfaceBrush}"
                                 BorderBrush="{DynamicResource GlassBorderGradientSoft}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                Effect="{DynamicResource ShadowSoft}"/>
+                                Effect="{StaticResource ShadowSoft}"/>
                         <Border Height="18" CornerRadius="{DynamicResource Radius.Top.Medium}" VerticalAlignment="Top"
                                 Background="{DynamicResource GlassTopReflection}" Opacity="0.65" Margin="1,1,1,0"/>
                         <Border CornerRadius="{DynamicResource Radius.Hero}" BorderThickness="{DynamicResource Border.TopHairlineThickness}" BorderBrush="{DynamicResource GlassSwitchInnerHighlightBrush}" Opacity="0.8" Margin="1"/>
@@ -729,7 +729,7 @@
                                 Background="{DynamicResource GlassSurfaceBrush}"
                                 BorderBrush="{DynamicResource GlassBorderGradientSoft}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                Effect="{DynamicResource ShadowSoft}"
+                                Effect="{StaticResource ShadowSoft}"
                                 VerticalAlignment="Center">
                             <Grid>
                                 <Border Height="7" CornerRadius="{DynamicResource Radius.Top.Medium}" VerticalAlignment="Top"
@@ -772,7 +772,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            Effect="{DynamicResource ShadowSoft}">
+                            Effect="{StaticResource ShadowSoft}">
                         <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -802,7 +802,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            Effect="{DynamicResource ShadowSoft}">
+                            Effect="{StaticResource ShadowSoft}">
                         <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -847,7 +847,7 @@
                                             Background="{TemplateBinding Background}"
                                             BorderBrush="{TemplateBinding BorderBrush}"
                                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                            Effect="{DynamicResource ShadowSoft}">
+                                            Effect="{StaticResource ShadowSoft}">
                                         <Border Height="10" CornerRadius="{DynamicResource Radius.Top.Medium}" VerticalAlignment="Top"
                                                 Background="{DynamicResource GlassTopReflection}" Opacity="0.6" Margin="1,1,1,0"/>
                                     </Border>
@@ -875,7 +875,7 @@
                                     Background="{DynamicResource PopupSurfaceBrush}"
                                     BorderBrush="{DynamicResource GlassBorderGradientSoft}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                    Effect="{DynamicResource ShadowElevated}">
+                                    Effect="{StaticResource ShadowElevated}">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <ItemsPresenter/>
                                 </ScrollViewer>
@@ -914,7 +914,7 @@
                                             Background="{DynamicResource GlassSurfaceElevated}"
                                             BorderBrush="{DynamicResource GlassBorderBright}"
                                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                            Effect="{DynamicResource ShadowSoft}"/>
+                                            Effect="{StaticResource ShadowSoft}"/>
                                 </ControlTemplate>
                             </Thumb.Template>
                         </Thumb>

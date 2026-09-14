@@ -34,7 +34,7 @@
         <Setter Property="Padding" Value="4"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="Effect" Value="{DynamicResource ShadowSoft}"/>
+        <Setter Property="Effect" Value="{StaticResource ShadowSoft}"/>
     </Style>
 
     <!-- ══ TAB BUTTON — layered glass pill with spring press animation ═══

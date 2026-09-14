@@ -191,7 +191,7 @@
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                                Effect="{DynamicResource ShadowElevated}"
+                                Effect="{StaticResource ShadowElevated}"
                                 SnapsToDevicePixels="True">
 
                             <Border ClipToBounds="True"

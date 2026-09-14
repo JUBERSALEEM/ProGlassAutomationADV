@@ -18,7 +18,7 @@
     <Style x:Key="ProGlassMaterial.Soft" TargetType="Border"
            BasedOn="{StaticResource ProGlassMaterial.Solid}">
         <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
-        <Setter Property="Effect" Value="{DynamicResource ElevationLow}"/>
+        <Setter Property="Effect" Value="{StaticResource ElevationLow}"/>
     </Style>
 
     <Style x:Key="ProGlassMaterial.Frosted" TargetType="Border"
@@ -31,7 +31,7 @@
            BasedOn="{StaticResource ProGlassMaterial.Solid}">
         <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
-        <Setter Property="Effect" Value="{DynamicResource ElevationMedium}"/>
+        <Setter Property="Effect" Value="{StaticResource ElevationMedium}"/>
     </Style>
 
     <Style x:Key="ProGlassCard" TargetType="Border"

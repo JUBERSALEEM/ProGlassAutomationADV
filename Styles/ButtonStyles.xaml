@@ -47,7 +47,7 @@
             <!-- L0: Shadow -->
             <Border x:Name="ShadowHost"
                     CornerRadius="{DynamicResource CardCornerRadius}"
-                    Effect="{DynamicResource ShadowSoft}"/>
+                    Effect="{StaticResource ShadowSoft}"/>
             <!-- L1+L2: Surface + crystal border -->
             <Border x:Name="Bg"
                     Background="{TemplateBinding Background}"

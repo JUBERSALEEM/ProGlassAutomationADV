@@ -27,7 +27,7 @@
 
         <Style x:Key="OptKpiCard" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
             <Setter Property="Padding" Value="16,14"/>
-            <Setter Property="Effect" Value="{DynamicResource ShadowSoft}"/>
+            <Setter Property="Effect" Value="{StaticResource ShadowSoft}"/>
         </Style>
 
         <!-- Tinted square icon badge on each KPI card -->

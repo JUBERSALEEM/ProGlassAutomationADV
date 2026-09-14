@@ -18,7 +18,7 @@
     <Style x:Key="PiWorkSurfaceStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
 
         <Setter Property="Padding"         Value="12,8"/>
-        <Setter Property="Effect"          Value="{DynamicResource ShadowSoft}"/>
+        <Setter Property="Effect"          Value="{StaticResource ShadowSoft}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
@@ -232,7 +232,7 @@
         <Setter Property="CornerRadius"    Value="16"/>
         <Setter Property="Padding"         Value="14,12"/>
         <Setter Property="Margin"          Value="0,0,0,10"/>
-        <Setter Property="Effect"          Value="{DynamicResource ShadowSoft}"/>
+        <Setter Property="Effect"          Value="{StaticResource ShadowSoft}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
@@ -243,7 +243,7 @@
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius"    Value="16"/>
         <Setter Property="Padding"         Value="8"/>
-        <Setter Property="Effect"          Value="{DynamicResource ShadowSoft}"/>
+        <Setter Property="Effect"          Value="{StaticResource ShadowSoft}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
@@ -291,7 +291,7 @@
         <Setter Property="CornerRadius"    Value="12"/>
         <Setter Property="Padding"         Value="10,8"/>
         <Setter Property="Margin"          Value="0,0,6,0"/>
-        <Setter Property="Effect"          Value="{DynamicResource ShadowSoft}"/>
+        <Setter Property="Effect"          Value="{StaticResource ShadowSoft}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
@@ -571,14 +571,14 @@
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius"    Value="18"/>
         <Setter Property="ClipToBounds"    Value="True"/>
-        <Setter Property="Effect"          Value="{DynamicResource ShadowSoft}"/>
+        <Setter Property="Effect"          Value="{StaticResource ShadowSoft}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
     <Style x:Key="PiCommandFooterStyle" TargetType="Border" BasedOn="{StaticResource PiFooterBarStyle}">
         <Setter Property="Height"  Value="52"/>
         <Setter Property="Padding" Value="16,0"/>
-        <Setter Property="Effect"  Value="{DynamicResource GlassShadowSoft}"/>
+        <Setter Property="Effect"  Value="{StaticResource GlassShadowSoft}"/>
     </Style>
 
     <Style x:Key="PiProgressTrackStyle" TargetType="ProgressBar">

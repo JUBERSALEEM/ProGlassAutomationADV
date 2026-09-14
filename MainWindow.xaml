@@ -642,7 +642,7 @@
                     Background="{DynamicResource ShellLiquidBrush}"
                     BorderBrush="{DynamicResource GlassBorderGradientCrystal}"
                     Panel.ZIndex="10"
-                    Effect="{DynamicResource ShadowElevated}"
+                    Effect="{StaticResource ShadowElevated}"
                     SnapsToDevicePixels="True"
                     ClipToBounds="True">
                 <Border.Style>
@@ -1167,7 +1167,7 @@
                     BorderBrush="{DynamicResource AccentBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     Background="{DynamicResource ModuleBackgroundBrush}"
-                    Effect="{DynamicResource ShadowElevated}"
+                    Effect="{StaticResource ShadowElevated}"
                     Visibility="{Binding IsAgentChatOpen,
                         Converter={StaticResource BoolToVisibilityConverter},
                         FallbackValue=Collapsed,
