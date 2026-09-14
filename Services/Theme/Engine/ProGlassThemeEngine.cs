@@ -153,7 +153,7 @@ namespace ProGlassAutomation.Services.Theme.Engine
                 if (resources.Contains(key) && resources[key] is Brush b)
                     return b;
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
                 ProGlassAutomation.Services.Logging.AppLogService.Debug($"[foreach] suppressed: {ex.Message}");
             }
