@@ -12,7 +12,7 @@
       - FontFamily: App (Segoe UI Variable), Icon (Segoe MDL2 Assets)
       - FontWeight: Regular, Medium, SemiBold, Bold
       - FontSize: Display, H1, H2, H3, Title, Subtitle, Body, BodySmall, Label, Caption, Kpi, Button, Navigation, DataGrid, Money, Icon
-      - Radius: Small=6, Medium=10, Large=12, XLarge=16, 2XLarge=20, Full=999, Control=12, Card=12, Dialog=16, Chip=999, Tab=12, Input=12, Panel=14, etc. (standard control surface = 12px)
+      - Radius: Small=6, Medium=10, Large=12, XLarge=16, 2XLarge=20, Full=12, Control=12, Card=12, Dialog=16, Chip=12, Tab=12, Input=12, Panel=14, etc. (standard control surface = 12px; 999 capsules removed 2026-09-14)
       - Border: Thin=1, Default=1, Strong=1.5
       - Spacing: Xs=4, Sm=8, Md=12, Lg=16, Xl=24, 2Xl=32, 3Xl=40, Page, Card, Tile, Gutter
       - Density: DbPageMargin, DbCardPadding, DbTilePadding, DbGutter, DbGutterHalfMargin, DbKpiTileMinHeight, DbChartMinHeight (published by ThemeManager.ApplyDisplayDensity)
@@ -155,8 +155,8 @@
     <!-- ═══════════════════════════════════════════════════════════════
          4. GEOMETRY — ONE CANONICAL RADIUS SCALE
          Replaces 70 hardcoded CornerRadius. All DynamicResource.
-         Small=6, Medium=10, Large=12, XLarge=16, 2XLarge=20, Full=999
-         Control=8, Card=12, Dialog=16, Chip=999, Tab=8, Input=8, Panel=14
+         Small=6, Medium=10, Large=12, XLarge=16, 2XLarge=20, Full=12
+         Control=8, Card=12, Dialog=16, Chip=12, Tab=8, Input=8, Panel=14
     ═══════════════════════════════════════════════════════════════ -->
     <CornerRadius x:Key="Radius.None">0</CornerRadius>
     <CornerRadius x:Key="Radius.XSmall">3</CornerRadius>
@@ -165,7 +165,10 @@
     <CornerRadius x:Key="Radius.Large">12</CornerRadius>
     <CornerRadius x:Key="Radius.XLarge">16</CornerRadius>
     <CornerRadius x:Key="Radius.2XLarge">20</CornerRadius>
-    <CornerRadius x:Key="Radius.Full">999</CornerRadius>
+    <!-- 2026-09-14: 999 capsule removed per the global 12px standard.
+         Kept at 12 for existing consumers; true circles must use an
+         Ellipse or an explicit half-size radius, never this token. -->
+    <CornerRadius x:Key="Radius.Full">12</CornerRadius>
 
     <!-- Semantic aliases.
          2026-09-14 visual-polish pass: the STANDARD control surface
@@ -174,17 +177,17 @@
          8, which is what produced the "random 8px corners" look across
          the redesigned UI. The hierarchy is preserved: XSmall 3 (micro
          chips), Small 6, Medium 10 (detail surfaces), Card 12, Dialog
-         16, Hero 18, Pill/Chip 999. -->
+         16, Hero 18, Pill/Chip 12 (999 capsules removed 2026-09-14). -->
     <CornerRadius x:Key="Radius.Control">12</CornerRadius>
     <CornerRadius x:Key="Radius.Card">12</CornerRadius>
     <CornerRadius x:Key="Radius.Dialog">16</CornerRadius>
-    <CornerRadius x:Key="Radius.Chip">999</CornerRadius>
+    <CornerRadius x:Key="Radius.Chip">12</CornerRadius>
     <CornerRadius x:Key="Radius.Tab">12</CornerRadius>
     <CornerRadius x:Key="Radius.Input">12</CornerRadius>
     <CornerRadius x:Key="Radius.Panel">14</CornerRadius>
     <CornerRadius x:Key="Radius.Button">12</CornerRadius>
-    <CornerRadius x:Key="Radius.Badge">999</CornerRadius>
-    <CornerRadius x:Key="Radius.Pill">999</CornerRadius>
+    <CornerRadius x:Key="Radius.Badge">12</CornerRadius>
+    <CornerRadius x:Key="Radius.Pill">12</CornerRadius>
     <CornerRadius x:Key="Radius.Hero">18</CornerRadius>
 
     <!-- Asymmetric -->
@@ -215,7 +218,7 @@
     <!-- Legacy aliases -->
     <CornerRadius x:Key="RadiusSmall">6</CornerRadius>
     <CornerRadius x:Key="RadiusPanel">14</CornerRadius>
-    <CornerRadius x:Key="RadiusFull">999</CornerRadius>
+    <CornerRadius x:Key="RadiusFull">12</CornerRadius>
 
     <!-- ═══════════════════════════════════════════════════════════════
          5. BORDER THICKNESS — ONE CANONICAL

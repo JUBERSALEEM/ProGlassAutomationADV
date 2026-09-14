@@ -705,7 +705,9 @@
 
     <Style x:Key="DbSkeletonCircleStyle" TargetType="Border"
            BasedOn="{StaticResource DbSkeletonBlockStyle}">
-        <Setter Property="CornerRadius" Value="999"/>
+        <!-- Circle placeholder: exactly half of 32px (stays a true circle;
+             the 12px standard applies to buttons/chips/capsules, not dots). -->
+        <Setter Property="CornerRadius" Value="16"/>
         <Setter Property="Width" Value="32"/>
         <Setter Property="Height" Value="32"/>
     </Style>

@@ -79,7 +79,7 @@
          FAMILY-MANAGED corner tokens (ControlCornerRadius, CardCornerRadius,
          CardCornerRadiusLarge) so a theme family can change the whole
          radius hierarchy in one place; RadiusCompact rides the fixed fine
-         scale; RadiusPill is the 999 capsule.                                -->
+         scale; RadiusPill was the 999 capsule (removed 2026-09-14).          -->
     <CornerRadius x:Key="RadiusNone">0</CornerRadius>
     <CornerRadius x:Key="RadiusCompact">6</CornerRadius>
     <!-- 2026-09-14: 8 → 12 to match the canonical control radius
@@ -88,7 +88,8 @@
     <CornerRadius x:Key="RadiusCard">12</CornerRadius>
     <CornerRadius x:Key="RadiusLarge">16</CornerRadius>
     <CornerRadius x:Key="RadiusDialog">16</CornerRadius>
-    <CornerRadius x:Key="RadiusPill">999</CornerRadius>
+    <!-- 2026-09-14: 999 capsule removed per the global 12px standard. -->
+    <CornerRadius x:Key="RadiusPill">12</CornerRadius>
 
     <!-- ── LEVEL 1 · MOTION (semantic durations) ──────────────────────
          Published as sys:String exactly like the engine's

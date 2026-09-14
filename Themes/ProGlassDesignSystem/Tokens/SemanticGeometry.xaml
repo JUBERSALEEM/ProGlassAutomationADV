@@ -4,7 +4,8 @@
 
     <CornerRadius x:Key="RadiusSmall">6</CornerRadius>
     <CornerRadius x:Key="RadiusPanel">14</CornerRadius>
-    <CornerRadius x:Key="RadiusFull">999</CornerRadius>
+    <!-- 2026-09-14: 999 capsule removed per the global 12px standard. -->
+    <CornerRadius x:Key="RadiusFull">12</CornerRadius>
 
     <Thickness x:Key="BorderThin">1</Thickness>
     <Thickness x:Key="BorderDefault">1</Thickness>
