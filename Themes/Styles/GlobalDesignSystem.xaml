@@ -673,6 +673,15 @@
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Chip}"/>
         <Setter Property="Padding" Value="8,4"/>
     </Style>
+
+    <!-- Hairline separator — thin 1px line for dividers -->
+    <Style x:Key="HairlineStyle" TargetType="Rectangle">
+        <Setter Property="Height" Value="1"/>
+        <Setter Property="Fill" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="Opacity" Value="0.6"/>
+    </Style>
     <Style x:Key="Badge.Primary" TargetType="Border" BasedOn="{StaticResource Chip.Primary}">
         <Setter Property="Padding" Value="6,2"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Radius.Badge}"/>
