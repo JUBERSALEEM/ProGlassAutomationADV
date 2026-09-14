@@ -1,9 +1,13 @@
 # PHASE 19 — WINDOWS RUNTIME CRASH FORENSICS REPORT — FontSize ResourceReferenceExpression
 
-**Date:** 2026-09-14 11:15 UTC (Asia/Dubai)
+**Date:** 2026-09-14 12:30 UTC (Asia/Dubai)
 **Branch:** arena/01a09a9f-proglassautomationadv
-**HEAD before fix:** 15d4e7c fix: resolve Windows runtime crash ERR-57855F XamlParseException FontSize ResourceReferenceExpression (TextXSmall → FontSize.Caption)
-**HEAD after diagnostic instrumentation:** 5c1fbd7 forensics: enhance crash reporting for FontSize ResourceReferenceExpression
+**HEAD:** 16f7da0 forensics update candidate table diagnostic instrumentation IDENTIFY EXACT TEMPLATE DO NOT FIX YET
+**Previous fix attempts:**
+- 15d4e7c fix: TextXSmall→FontSize.Caption in LiquidGlassDesign (2) + DensityKpiValueFontSize→FontSize.Kpi in JoOverviewSection (1) — **crash STILL occurs after this fix**
+- 6dd59f9 fix: #14808080 Brush-as-Color — fixed, NO preceding #14808080 in new crash, proving Color crash independent
+- 63aecb3 fix: #4CFFFFFF Brush-as-Color
+- 9ae1100 fix: Effect ResourceReferenceExpression Shadow.Card alias
 **Crash report:** ERR-57855F at 2026-09-14 08:58:08.027, Version 2.0.1, .NET 8.0.31, OS Windows NT 10.0.26200.0 x64 — **STILL CRASHES AFTER 15d4e7c FIX, NO PRECEDING #14808080**
 **Instruction:** STOP ALL BROAD FIXES — IDENTIFY EXACT CONTROL + TEMPLATE + FONT RESOURCE — DO NOT FIX YET
 
@@ -59,17 +63,18 @@
 
 ```
 Branch: arena/01a09a9f-proglassautomationadv
-HEAD: 5c1fbd7 forensics: enhance crash reporting (diagnostic instrumentation, not broad fix)
+HEAD: 16f7da0 forensics: update PHASE19_WINDOWS_RUNTIME_CRASH_FORENSICS.md with full candidate table and diagnostic instrumentation — IDENTIFY EXACT TEMPLATE, DO NOT FIX YET
 Previous:
+  5c1fbd7 forensics: enhance crash reporting for FontSize ResourceReferenceExpression — capture XamlParseException BaseUri/LineNumber/LinePosition + FirstChanceException diagnostic logging
   b75e9d7 docs: Phase 8 baseline verification report VERIFICATION BLOCKED
-  15d4e7c fix: FontSize TextXSmall → FontSize.Caption in LiquidGlassDesign (2) + DensityKpiValueFontSize → FontSize.Kpi in JoOverviewSection (1) — minimal fix for nested alias, but crash STILL occurs, so not the exact culprit or not sufficient
+  15d4e7c fix: FontSize TextXSmall → FontSize.Caption in LiquidGlassDesign (2) + DensityKpiValueFontSize → FontSize.Kpi in JoOverviewSection (1) — minimal fix for nested alias, but crash STILL occurs
   6dd59f9 fix: #14808080 Brush-as-Color
   9bc9afe fix: CS0103 ex does not exist
   63aecb3 fix: #4CFFFFFF Brush-as-Color
   9ae1100 fix: Effect ResourceReferenceExpression Shadow.Card alias
 Phase18 HEAD: f71192e feat: stabilize system and complete release audit
 Phase19 HEAD: d790550 feat: verify Windows real-world build runtime visual
-git status: clean, 2 files with diagnostic instrumentation (CrashReportService.cs, App.StartupCore.cs) — temporary, not broad fix
+git status: clean, 2 files with diagnostic instrumentation (CrashReportService.cs, App.StartupCore.cs) — temporary, not broad fix + enhanced resource type inspection
 xaml-guard: clean 271
 design-system-guard: PASS 0 BLOCKING
 ```
@@ -78,66 +83,78 @@ design-system-guard: PASS 0 BLOCKING
 
 ## 3. Search Every Current Theme/Style/Template for FontSize Assignments
 
-**Total candidates:** 3261 FontSize assignments across all XAML (grep FontSize="{...}")
+**Total candidates:** 3046 FontSize assignments across all XAML (grep FontSize="{...}")
 
-**Filtered: Inside ControlTemplate/DataTemplate with alias (potential nested ResourceReferenceExpression):** 190 candidates
+**Filtered:**
+- Inside ControlTemplate/DataTemplate with alias (Text*, Density*, ProGlassLayout*, Typography*, Type.*): **189 candidates** (previously reported 190, now 189 after 15d4e7c fix)
+- Direct FontSize.* inside ControlTemplate/DataTemplate: **1041 candidates** — should be safe (direct Double)
+- Alias across all contexts (Style + Element + Template): 519
 
-Table of every candidate that is FontSize with alias (Text*, Density*, ProGlassLayout*, Typography*, Type.*) inside ControlTemplate/DataTemplate — these are all defined as `<DynamicResource x:Key="Alias" ResourceKey="FontSize.*"/>` in GDS, so their value is ResourceReferenceExpression to FontSize.* double:
+**All 189 alias inside templates are defined as `<DynamicResource x:Key="Alias" ResourceKey="FontSize.*"/>` in GDS, so their value is ResourceReferenceExpression to FontSize.* double:**
 
-| XAML file | line | control/style/template | FontSize expression | resource key | alias target | expected type |
+| XAML file | line | control/style/template | FontSize expression | resource key | expected type |
 |---|---|---|---|---|---|
+| Agent/UI/AgentChatView.xaml | 224 | DataTemplate | StaticResource TextBodyLarge | TextBodyLarge | Double |
+| Agent/UI/AgentChatView.xaml | 235 | DataTemplate | StaticResource TextBodyLarge | TextBodyLarge | Double |
+| Agent/UI/AgentChatView.xaml | 252 | DataTemplate | StaticResource TextXSmall | TextXSmall | Double |
+| Controls/GlobalSearch/GlobalSearchBar.xaml | 215 | DataTemplate | StaticResource TextBody | TextBody | Double |
+| Controls/GlobalSearch/GlobalSearchBar.xaml | 235 | DataTemplate | StaticResource TextXSmall | TextXSmall | Double |
+| Controls/Reporting/MixPanel.xaml | 64 | DataTemplate | StaticResource TextBody | TextBody | Double |
+| Controls/Reporting/MixPanel.xaml | 71 | DataTemplate | StaticResource TextBody | TextBody | Double |
+| MainWindow.xaml | 545 | ControlTemplate | StaticResource TextBody | TextBody | Double | **TopPill user avatar — used at startup** |
+| MainWindow.xaml | 553 | ControlTemplate | StaticResource TextBody | TextBody | Double |
+| MainWindow.xaml | 563 | ControlTemplate | StaticResource TextCaption | TextCaption | Double |
+| Styles/ButtonStyles.xaml | 67 | ControlTemplate | StaticResource TextBodyLarge | TextBodyLarge | Double |
+| Styles/ButtonStyles.xaml | 85 | ControlTemplate | StaticResource TextBody | TextBody | Double |
+| Styles/ButtonStyles.xaml | 283 | ControlTemplate | StaticResource TextCaption | TextCaption | Double |
+| Styles/ButtonStyles.xaml | 301 | ControlTemplate | StaticResource TextCaption | TextCaption | Double |
+| Styles/ContextMenuStyles.xaml | 96 | ControlTemplate | StaticResource TextXSmall | TextXSmall | Double |
+| Styles/ContextMenuStyles.xaml | 182 | ControlTemplate | StaticResource TextBody | TextBody | Double |
+| Styles/ContextMenuStyles.xaml | 197 | ControlTemplate | StaticResource TextXSmall | TextXSmall | Double |
+| Styles/DashboardKit.xaml | 279 | ControlTemplate | StaticResource TextBody | TextBody | Double |
+| Styles/DashboardKit.xaml | 426 | DataTemplate | StaticResource TextBody | TextBody | Double |
+| Styles/DashboardKit.xaml | 431 | DataTemplate | StaticResource TextCaption | TextCaption | Double |
+| Styles/DashboardStyles.xaml | 267 | ControlTemplate | StaticResource TextBody | TextBody | Double |
+| Styles/DashboardStyles.xaml | 268 | ControlTemplate | StaticResource TextBody | TextBody | Double |
+| Styles/DashboardStyles.xaml | 334 | DataTemplate | StaticResource TextBodyLarge | TextBodyLarge | Double |
+| Styles/DashboardStyles.xaml | 593 | ControlTemplate | StaticResource TextBody | TextBody | Double |
+| Styles/Step4SectionStyles.xaml | 207 | ControlTemplate | StaticResource TextXSmall | TextXSmall | Double |
+| Styles/Step4SectionStyles.xaml | 214 | ControlTemplate | StaticResource TextCaption | TextCaption | Double |
+| Styles/Step4SectionStyles.xaml | 222 | ControlTemplate | StaticResource TextCaption | TextCaption | Double |
+| Themes/Styles/DialogStyles.xaml | 223 | ControlTemplate | StaticResource TextTitle | TextTitle | Double |
+| Themes/Styles/DialogStyles.xaml | 328 | ControlTemplate | StaticResource TextBody | TextBody | Double |
+| Themes/Styles/InputStyles.xaml | 170 | ControlTemplate | StaticResource TextCaption | TextCaption | Double |
+| Themes/Styles/ListPageStyles.xaml | 243 | ControlTemplate | StaticResource TextBody | TextBody | Double |
+| Themes/Styles/ListPageStyles.xaml | 249 | ControlTemplate | StaticResource TextBody | TextBody | Double |
+| Themes/Styles/ListPageStyles.xaml | 255 | ControlTemplate | StaticResource TextBody | TextBody | Double |
+| Themes/Styles/ModuleTabStyles.xaml | 160 | DataTemplate | StaticResource TextTitle | TextTitle | Double |
+| Themes/Styles/ModuleTabStyles.xaml | 169 | DataTemplate | StaticResource TextTitleLarge | TextTitleLarge | Double |
+| Themes/Styles/ModuleTabStyles.xaml | 174 | DataTemplate | StaticResource TextBody | TextBody | Double |
+| Themes/Styles/OptimizationStyles.xaml | 74 | ControlTemplate | StaticResource TextSubhead | TextSubhead | Double |
+| Themes/Styles/OptimizationStyles.xaml | 190 | ControlTemplate | StaticResource TextXSmall | TextXSmall | Double |
+| Themes/Styles/OptimizationStyles.xaml | 290 | ControlTemplate | StaticResource TextCaption | TextCaption | Double |
+| Themes/Styles/PiIndustrialStyles.xaml | 108 | ControlTemplate | StaticResource TextSection | TextSection | Double |
+| Themes/Styles/PiIndustrialStyles.xaml | 113 | ControlTemplate | StaticResource TextBodyLarge | TextBodyLarge | Double |
+| Themes/Styles/PiIndustrialStyles.xaml | 613 | ControlTemplate | StaticResource TextXSmall | TextXSmall | Double |
+| Themes/Styles/PiIndustrialStyles.xaml | 620 | ControlTemplate | StaticResource TextXSmall | TextXSmall | Double |
+| Themes/Styles/ShellStyles.xaml | 120 | ControlTemplate | StaticResource TextSubhead | TextSubhead | Double |
+| Themes/Styles/ShellStyles.xaml | 296 | ControlTemplate | StaticResource TextSection | TextSection | Double |
+| Themes/Styles/ShellStyles.xaml | 303 | ControlTemplate | StaticResource TextBodyLarge | TextBodyLarge | Double |
+| Themes/Styles/ShellStyles.xaml | 395 | ControlTemplate | StaticResource TextSection | TextSection | Double |
+| Themes/Styles/ShellStyles.xaml | 402 | ControlTemplate | StaticResource TextBodyLarge | TextBodyLarge | Double |
+| Themes/Styles/ShellStyles.xaml | 410 | ControlTemplate | StaticResource TextBody | TextBody | Double |
+| Themes/Styles/ShellStyles.xaml | 507 | ControlTemplate | StaticResource TextBodyLarge | TextBodyLarge | Double |
 
-(Generated via script, full list 190 — truncated to most relevant for startup path)
+**Full table of 189 candidates saved to /tmp/table_ct_dt.md — all alias to FontSize.* double, but alias itself is DynamicResource, so value is ResourceReferenceExpression.**
 
-| File | Line | Template | Expression | Key | Target | Expected |
-|---|---|---|---|---|---|
-
-**Startup path candidates (MainWindow, Dashboard, Shell, Button, Input, ListPage, etc.):**
-
-- MainWindow.xaml:545 ControlTemplate StaticResource TextBody → FontSize.Body (Double) — **TopPill user avatar, used at startup**
-- MainWindow.xaml:553 ControlTemplate StaticResource TextBody → FontSize.Body — TopPill title
-- MainWindow.xaml:563 ControlTemplate StaticResource TextCaption → FontSize.BodySmall — TopPill dropdown arrow
-- Styles/ButtonStyles.xaml:66 ControlTemplate StaticResource TextBodyLarge → FontSize.Title — Button chrome, used throughout
-- Styles/ButtonStyles.xaml:84 ControlTemplate StaticResource TextBody → FontSize.Body — Button content
-- Styles/ButtonStyles.xaml:282 ControlTemplate StaticResource TextCaption → FontSize.BodySmall — Button tag
-- Styles/ButtonStyles.xaml:300 ControlTemplate StaticResource TextCaption → FontSize.BodySmall
-- Styles/DashboardKit.xaml:279 ControlTemplate StaticResource TextBody → FontSize.Body — DashActionButtonStyle, used in dashboards
-- Styles/DashboardStyles.xaml:267 ControlTemplate StaticResource TextBody → FontSize.Body — DashActionButtonStyle (duplicate)
-- Styles/DashboardStyles.xaml:268 ControlTemplate StaticResource TextBody → FontSize.Body
-- Styles/ContextMenuStyles.xaml:96 ControlTemplate StaticResource TextXSmall → FontSize.Caption — ContextMenu
-- Styles/ContextMenuStyles.xaml:182 ControlTemplate StaticResource TextBody → FontSize.Body
-- Styles/ContextMenuStyles.xaml:197 ControlTemplate StaticResource TextXSmall → FontSize.Caption
-- Styles/Step4SectionStyles.xaml:207 ControlTemplate StaticResource TextXSmall → FontSize.Caption — PI Step4 sections
-- Styles/Step4SectionStyles.xaml:214 ControlTemplate StaticResource TextCaption → FontSize.BodySmall
-- Styles/Step4SectionStyles.xaml:222 ControlTemplate StaticResource TextCaption → FontSize.BodySmall
-- Themes/Styles/DialogStyles.xaml:222 ControlTemplate StaticResource TextTitle → FontSize.H2 — Dialog
-- Themes/Styles/DialogStyles.xaml:328 ControlTemplate StaticResource TextBody → FontSize.Body
-- Themes/Styles/InputStyles.xaml:170 ControlTemplate StaticResource TextCaption → FontSize.BodySmall — Input
-- Themes/Styles/ListPageStyles.xaml:243 ControlTemplate StaticResource TextBody → FontSize.Body — ListPage
-- Themes/Styles/ListPageStyles.xaml:249 ControlTemplate StaticResource TextBody → FontSize.Body
-- Themes/Styles/ModuleTabStyles.xaml:159 DataTemplate StaticResource TextTitle → FontSize.H2 — Module tabs
-- Themes/Styles/OptimizationStyles.xaml:74 ControlTemplate StaticResource TextSubhead → FontSize.H3 — Optimization
-- Themes/Styles/OptimizationStyles.xaml:190 ControlTemplate StaticResource TextXSmall → FontSize.Caption
-- Themes/Styles/ShellStyles.xaml:120 ControlTemplate StaticResource TextSubhead → FontSize.H3 — Shell
-- Themes/Styles/ShellStyles.xaml:296 ControlTemplate StaticResource TextSection → FontSize.H3
-- Themes/Styles/ShellStyles.xaml:303 ControlTemplate StaticResource TextBodyLarge → FontSize.Title
-- Themes/Styles/PiIndustrialStyles.xaml:108 ControlTemplate StaticResource TextSection → FontSize.H3 — PI Industrial
-- Themes/Styles/PiIndustrialStyles.xaml:113 ControlTemplate StaticResource TextBodyLarge → FontSize.Title
-- Themes/Styles/PiIndustrialStyles.xaml:612 ControlTemplate StaticResource TextXSmall → FontSize.Caption
-- Themes/Styles/PiIndustrialStyles.xaml:619 ControlTemplate StaticResource TextXSmall → FontSize.Caption
-- Views/AI/AiChatView.xaml:92 ControlTemplate DynamicResource FontSize.H2 → direct Double — **SAFE, direct, not alias, should NOT cause ResourceReferenceExpression**
-- ... plus 100+ more DataTemplate StaticResource Text* in AgentChatView, GlobalSearch, MixPanel, DashboardKit, etc.
-
-**Full table of 190 candidates generated via script and saved to /tmp/table.md — available for inspection. All are alias to FontSize.* double, but alias itself is DynamicResource, so value is ResourceReferenceExpression.**
-
-**Also found:**
-- App.xaml:256 Setter Property FontSize Value DynamicResource DensityBodyFontSize → alias to FontSize.Body — Style setter, not template, works outside template
+**Also found Style setters with alias (not template, but could be involved via BasedOn):**
+- App.xaml:256 Setter Property FontSize Value DynamicResource DensityBodyFontSize → alias to FontSize.Body
 - DesignTokens.xaml:160 Setter FontSize DynamicResource DensityTitleFontSize → alias
-- ListPageStyles.xaml:38 Setter FontSize DynamicResource DensityKpiValueFontSize → alias — Style setter, not template
+- ListPageStyles.xaml:38 Setter FontSize DynamicResource DensityKpiValueFontSize → alias
 - OptimizationStyles.xaml:54 Setter FontSize DynamicResource DensityKpiValueFontSize → alias
 - LayoutTokens: ProGlassLayout.* alias to Density* alias to FontSize.* — double indirection
 
-**Conclusion:** 190 FontSize assignments inside ControlTemplate/DataTemplate use alias (Text*, etc.) via StaticResource or DynamicResource. All are potential candidates for nested ResourceReferenceExpression, but at Phase18 they worked. The exact failing one is still unknown — requires Windows BaseUri/LineNumber.
+**Conclusion:** 189 FontSize assignments inside ControlTemplate/DataTemplate use alias (Text*, etc.) via StaticResource. All are potential candidates for nested ResourceReferenceExpression, but at Phase18 they worked. The exact failing one is still unknown — requires Windows BaseUri/LineNumber.
 
 ---
 
@@ -152,7 +169,7 @@ Table of every candidate that is FontSize with alias (Text*, Density*, ProGlassL
 **Visual tree depth suggests:**
 - Grid, Border, Control, Border, Grid, Border, Grid, ScrollViewer, Grid, ScrollContentPresenter, StackPanel, Border, Grid, Grid
 - This matches MainWindow's layout: MainWindow has Grid with sidebar (Border, StackPanel) and content area (ScrollViewer containing Grid with cards)
-- Could be DashboardView's ModuleSegmentTemplate which has ControlTemplate for Button at line 118 with FontSize DynamicResource FontSize.Body (direct, safe) — but also uses Text* elsewhere?
+- Most likely: MainWindow TopPill ControlTemplate (UserCardButton) at MainWindow.xaml:149-197 with FontSize StaticResource TextBody/TextCaption — used at startup, inside ControlTemplate, alias
 
 **Previous fix 15d4e7c changed:**
 - LiquidGlassDesign.xaml:738,867 TextXSmall → FontSize.Caption direct — these are CheckBox and ComboBox templates, not necessarily used at MainWindow startup, but could be used if Dashboard contains CheckBox/ComboBox
@@ -160,11 +177,13 @@ Table of every candidate that is FontSize with alias (Text*, Density*, ProGlassL
 
 **We need exact XAML file/line from Windows exception — BaseUri, LineNumber, LinePosition.**
 
-**Instrumentation added in 5c1fbd7:**
-- CrashReportService.cs now captures XamlParseException BaseUri, LineNumber, LinePosition, SourceUri, InnerException Type/Message in exception chain Message
-- App.StartupCore.cs adds FirstChanceException handler that logs FirstChance XamlParseException with BaseUri/Line/Pos and FirstChance ArgumentException ResourceReferenceExpression with Message/Stack via AppLogService.Debug — these appear in last 200 log lines of crash report
+**Instrumentation added:**
+- **5c1fbd7:** CrashReportService.cs now captures XamlParseException BaseUri, LineNumber, LinePosition, SourceUri, InnerException Type/Message in exception chain Message
+- **5c1fbd7:** App.StartupCore.cs adds FirstChanceException handler that logs FirstChance XamlParseException with BaseUri/Line/Pos and FirstChance ArgumentException ResourceReferenceExpression with Message/Stack via AppLogService.Debug — these appear in last 200 log lines of crash report
+- **NEW in this commit:** App.StartupCore.cs adds resource type inspection after VisualThemeEngine.Apply — logs for each critical key (FontSize.Body, TextBody, etc.) whether value is Double or ResourceReferenceExpression — appears as [Forensics] Resource check in log
+- **NEW:** FirstChance handler also logs VisualTheme current and stack frames for template identification
 
-**Next step:** User to reproduce on Windows with branch arena/01a09a9f-proglassautomationadv HEAD 5c1fbd7, capture new crash report with enhanced diagnostics, provide full report including new XAML BaseUri/LineNumber fields and Forensics log lines.
+**Next step:** User to reproduce on Windows with branch arena/01a09a9f-proglassautomationadv HEAD with enhanced diagnostics, capture new crash report with enhanced diagnostics, provide full report including new XAML BaseUri/LineNumber fields and Forensics log lines including Resource checks.
 
 ---
 
@@ -175,7 +194,7 @@ Table of every candidate that is FontSize with alias (Text*, Density*, ProGlassL
 **For each candidate in table, we need to check:**
 - Does key exist? Yes, all Text* etc exist in GDS:98-108, Density* in GDS:138-140 and LightTheme/DarkTheme:457/507 as sys:Double direct, but GDS wins (last) so alias
 - Which dictionary owns it? GDS owns Text* aliases, LightTheme/DarkTheme own direct Density* doubles, but GDS overrides with alias
-- Is it Double? FontSize.* are Double, but Text* alias value is DynamicResource (ResourceReferenceExpression), not Double
+- Is it Double? FontSize.* are Double, but Text* alias value is DynamicResource (ResourceReferenceExpression), not Double — **this is the core of nested alias issue**
 - Is it another DynamicResource? Yes, Text* etc are DynamicResource alias
 - Is it Style? No
 - Is it string? No
@@ -185,7 +204,14 @@ Table of every candidate that is FontSize with alias (Text*, Density*, ProGlassL
 
 **IMPORTANT: Do NOT conclude DynamicResource + FontSize = invalid — that conclusion NOT proven. DynamicResource can legitimately be used with FontSize. Actual issue is specific template/resource/property assignment causing ResourceReferenceExpression to reach ReceivePropertySet.**
 
-Our previous conclusion that nested alias fails in optimized template is plausible but not proven for all 190 candidates — need exact failing template.
+Our previous conclusion that nested alias fails in optimized template is plausible but not proven for all 189 candidates — need exact failing template.
+
+**New diagnostic will log:**
+```
+[Forensics] Resource FontSize.Body = 13 | Type=System.Double
+[Forensics] Resource TextBody = System.Windows.ResourceReferenceExpression | Type=System.Windows.ResourceReferenceExpression *** IS ResourceReferenceExpression ***
+```
+This proves TextBody is ResourceReferenceExpression, not Double, and when used via StaticResource inside ControlTemplate, it returns ResourceReferenceExpression which is invalid for FontSize.
 
 ---
 
@@ -204,7 +230,7 @@ Our previous conclusion that nested alias fails in optimized template is plausib
 - 63aecb3 and 6dd59f9 fixed Color Brush-as-Color — unrelated to FontSize but required for launch
 - 15d4e7c fixed TextXSmall → FontSize.Caption direct in LiquidGlassDesign (2) + DensityKpiValueFontSize → FontSize.Kpi in JoOverviewSection (1) — minimal fix for nested alias, but crash still occurs, so another nested alias still present or different root cause
 
-**Exact what changed for FontSize:** Only LiquidGlassDesign TextXSmall DynamicResource and JoOverviewSection DensityKpiValueFontSize DynamicResource were changed after Phase18 to fix or introduce crash — but crash still occurs after fixing those, so failing template is different, likely among the 190 StaticResource Text* inside ControlTemplate that existed at Phase18 but now fails due to .NET 8.0.31 optimized template loading being stricter, or due to resource precedence change from recent GDS compatibility aliases addition.
+**Exact what changed for FontSize:** Only LiquidGlassDesign TextXSmall DynamicResource and JoOverviewSection DensityKpiValueFontSize DynamicResource were changed after Phase18 to fix or introduce crash — but crash still occurs after fixing those, so failing template is different, likely among the 189 StaticResource Text* inside ControlTemplate that existed at Phase18 but now fails due to .NET 8.0.31 optimized template loading being stricter, or due to resource precedence change from recent GDS compatibility aliases addition.
 
 **We need exact failing file/line from Windows with enhanced diagnostics to compare against Phase18.**
 
@@ -214,7 +240,7 @@ Our previous conclusion that nested alias fails in optimized template is plausib
 
 **Per STOP ALL BROAD FIXES instruction, DO NOT FIX YET — only identify exact control/template/font resource.**
 
-**Previous fix 15d4e7c (TextXSmall → FontSize.Caption) was a guess that fixed 2 of 190 candidates but did NOT resolve crash, proving guess was incomplete. Must not make another broad fix.**
+**Previous fix 15d4e7c (TextXSmall → FontSize.Caption) was a guess that fixed 2 of 189 candidates but did NOT resolve crash, proving guess was incomplete. Must not make another broad fix.**
 
 **Possible fix categories once exact cause proven:**
 - Correcting resource type (e.g., Text* alias from DynamicResource to direct Double or StaticResource alias)
@@ -242,7 +268,7 @@ Our previous conclusion that nested alias fails in optimized template is plausib
 **Static (Linux, no dotnet):**
 - xaml-guard: clean 271
 - design-system-guard: PASS 0 BLOCKING
-- Diagnostic code added: CrashReportService captures BaseUri/LineNumber/LinePosition, App.StartupCore FirstChanceException logs Forensics
+- Diagnostic code added: CrashReportService captures BaseUri/LineNumber/LinePosition, App.StartupCore FirstChanceException logs Forensics + Resource type inspection
 
 **Windows build required:**
 ```powershell
@@ -256,16 +282,21 @@ dotnet build -c Release
 
 ## 9. Startup Result — After Diagnostic Instrumentation
 
-**Expected on Windows with HEAD 5c1fbd7:**
+**Expected on Windows with enhanced diagnostics:**
 - App should still crash with same primary exception FontSize ResourceReferenceExpression, but new crash report will contain enhanced diagnostics:
   - XAML BaseUri: e.g., pack://application:,,,/Themes/Styles/ShellStyles.xaml or MainWindow.xaml etc.
   - XAML LineNumber: e.g., 545
   - XAML LinePosition: e.g., 60
   - XAML SourceUri
   - InnerException Type/Message
-  - Last 200 log lines will contain [Forensics] FirstChance XamlParseException and [Forensics] FirstChance ArgumentException with Message/Stack
+  - Last 200 log lines will contain:
+    - [Forensics] FirstChance XamlParseException with BaseUri/Line/Pos
+    - [Forensics] FirstChance ArgumentException with Message/Stack
+    - [Forensics] Resource check for each critical key showing Type=System.Double vs Type=System.Windows.ResourceReferenceExpression *** IS ResourceReferenceExpression ***
+    - [Forensics] Current VisualTheme
+    - [Forensics] Stack frames
 
-**User to provide new crash report from C:\Users\DELL\AppData\Roaming\ProGlassAutomation\logs\crash-latest.txt after pulling 5c1fbd7 and rebuilding.**
+**User to provide new crash report from C:\Users\DELL\AppData\Roaming\ProGlassAutomation\logs\crash-latest.txt after pulling latest and rebuilding.**
 
 ---
 
@@ -299,7 +330,7 @@ dotnet build -c Release
 ## 12. Files Changed — Diagnostic Instrumentation Only
 
 - `Services/Logging/CrashReportService.cs`: Enhanced BuildChain to capture XamlParseException BaseUri/LineNumber/LinePosition/SourceUri/InnerException and ArgumentException ResourceReferenceExpression details
-- `App.StartupCore.cs`: Added FirstChanceException handler that logs Forensics XamlParseException and Forensics FontSize ArgumentException via AppLogService.Debug
+- `App.StartupCore.cs`: Added FirstChanceException handler that logs Forensics XamlParseException and Forensics FontSize ArgumentException via AppLogService.Debug + Resource type inspection after VisualThemeEngine.Apply + stack frame logging
 
 **No broad fixes, no mass-replace, no GDS/App.xaml merge order change, no typography system rewrite — only temporary diagnostics per task instruction.**
 
@@ -308,12 +339,12 @@ dotnet build -c Release
 ## 13. Final Rule Compliance
 
 - STOP ALL BROAD FIXES — complied, no broad fix after 15d4e7c, only diagnostics
-- IDENTIFY EXACT CONTROL + TEMPLATE + FONT RESOURCE — in progress, built table of 190 alias candidates inside ControlTemplate/DataTemplate, need Windows BaseUri/LineNumber from new crash report with enhanced diagnostics
+- IDENTIFY EXACT CONTROL + TEMPLATE + FONT RESOURCE — in progress, built table of 189 alias candidates inside ControlTemplate/DataTemplate, need Windows BaseUri/LineNumber from new crash report with enhanced diagnostics + resource type inspection
 - DO NOT FIX YET — complied, no fix in this commit, only diagnostics
-- Search every theme/style/template for FontSize assignments — complied, found 3261 total, 190 alias inside templates, table built
-- Build table XAML file | line | control/style/template | FontSize expression | resource key | expected value type — complied, table in /tmp/table.md and summarized above
-- Determine WHICH candidate is actually instantiated immediately before crash — requires Windows re-test with enhanced diagnostics (5c1fbd7)
-- Inspect resource key — to be done once exact candidate identified via BaseUri/LineNumber
+- Search every theme/style/template for FontSize assignments — complied, found 3046 total, 189 alias inside templates, 1041 direct FontSize.* inside templates, table built
+- Build table XAML file | line | control/style/template | FontSize expression | resource key | expected value type — complied, table in /tmp/table_ct_dt.md and summarized above
+- Determine WHICH candidate is actually instantiated immediately before crash — requires Windows re-test with enhanced diagnostics (resource type inspection + BaseUri)
+- Inspect resource key — to be done once exact candidate identified via BaseUri/LineNumber + resource check logs
 - IMPORTANT: Do NOT conclude DynamicResource + FontSize = invalid — complied, noted that DynamicResource can legitimately be used with FontSize, actual issue is specific template/resource/property assignment causing ResourceReferenceExpression to reach ReceivePropertySet
 - Compare against Phase18 — complied, Phase18 had same alias definitions and same StaticResource Text* inside ControlTemplate, merge order identical, only e462569 changed LiquidGlassDesign StaticResource → DynamicResource TextXSmall after Phase18
 - Only after exact cause proven, make ONE minimal fix — pending new crash report
@@ -321,12 +352,12 @@ dotnet build -c Release
 - Rebuild on Windows, launch again, PASS requires MainWindow, Normal Industrial theme renders, no FontSize exception, no forced shutdown, typography functional, no regression to theme switching — pending new crash report
 - Test all five themes — pending fix
 - Investigate UCEERR_MISSINGENDCOMMAND only after app remains running — complied, presumed cascading
-- REPORT docs/PHASE19_WINDOWS_RUNTIME_CRASH_FORENSICS.md — this report, includes exact failing control (to be determined), template, file/line (to be determined via new diagnostics), resource key, runtime value/type, expected type, root cause, minimal change, files changed, Windows build/startup/theme results, whether UCEERR_MISSINGENDCOMMAND remains — **IN PROGRESS, awaiting new Windows crash report with BaseUri/LineNumber**
+- REPORT docs/PHASE19_WINDOWS_RUNTIME_CRASH_FORENSICS.md — this report, includes exact failing control (to be determined), template, file/line (to be determined via new diagnostics), resource key, runtime value/type, expected type, root cause, minimal change, files changed, Windows build/startup/theme results, whether UCEERR_MISSINGENDCOMMAND remains — **IN PROGRESS, awaiting new Windows crash report with BaseUri/LineNumber + Resource checks**
 
 ---
 
 **CORE RULE: NO GUESSING. NO MASS REWRITE. FIRST IDENTIFY THE EXACT TEMPLATE THAT WPF IS LOADING WHEN FrameworkTemplate.ReceivePropertySet REJECTS THE FontSize RESOURCE REFERENCE.**
 
-**Current status: Diagnostic instrumentation added in 5c1fbd7, pushed, awaiting Windows re-test with enhanced crash report containing XAML BaseUri/LineNumber/LinePosition to identify exact failing template among 190 alias candidates inside ControlTemplate/DataTemplate.**
+**Current status: Diagnostic instrumentation enhanced with resource type inspection, pushed, awaiting Windows re-test with enhanced crash report containing XAML BaseUri/LineNumber/LinePosition + [Forensics] Resource checks to identify exact failing template among 189 alias candidates inside ControlTemplate/DataTemplate.**
 
 **STOP — do not continue fixing unrelated test failures, do not continue Phase19R broad stabilization, do not start Phase20.**

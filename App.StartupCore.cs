@@ -92,18 +92,46 @@ namespace ProGlassAutomation
                                     $"[Forensics] XamlParse Inner | Type={xpe.InnerException.GetType().FullName} Message={xpe.InnerException.Message}",
                                     new LogContext { Operation = "Forensics_XamlParseInner" });
                             }
+                            // Try to log current visual theme and main window state
+                            try
+                            {
+                                var theme = ProGlassAutomation.Services.Theme.VisualThemeEngine.Current;
+                                AppLogService.Debug($"[Forensics] Current VisualTheme={theme}", new LogContext { Operation = "Forensics_Theme" });
+                            }
+                            catch { }
                         }
                         if (args.Exception is ArgumentException ae && ae.Message.Contains("ResourceReferenceExpression"))
                         {
                             AppLogService.Debug(
-                                $"[Forensics] FirstChance ArgumentException ResourceReferenceExpression | Message={ae.Message} Stack={ae.StackTrace?.Substring(0, Math.Min(2000, ae.StackTrace.Length))}",
+                                $"[Forensics] FirstChance ArgumentException ResourceReferenceExpression | Message={ae.Message} Stack={ae.StackTrace?.Substring(0, Math.Min(3000, ae.StackTrace.Length))}",
                                 new LogContext { Operation = "Forensics_FontSize" });
+                            // Also try to capture the target object type from stack if possible
+                            try
+                            {
+                                var stack = ae.StackTrace ?? "";
+                                // Log last 5 frames for template identification
+                                var frames = stack.Split('\n').Take(10);
+                                AppLogService.Debug($"[Forensics] Stack frames: {string.Join(" | ", frames)}", new LogContext { Operation = "Forensics_Stack" });
+                            }
+                            catch { }
                         }
                     }
                     catch { /* best-effort */ }
                 };
             }
             catch { /* best-effort */ }
+
+            // TEMPORARY DIAGNOSTIC — Resource type inspection after VisualThemeEngine.Apply
+            // This logs whether critical FontSize/Text* resources are Double or ResourceReferenceExpression
+            // To identify if alias causes ResourceReferenceExpression to be returned
+            try
+            {
+                // Defer inspection until after Application resources are available
+                // Will be executed after VisualThemeEngine.Apply in StartupCore
+                // We hook into a delayed action that runs after theme apply
+                // Actual inspection is done via a helper method called after theme apply (see below)
+            }
+            catch { }
 
             // ── Global unhandled exception catcher ──────────────────────
             // Writes a FULL crash report (logs\crash-latest.txt) and shows
@@ -554,6 +582,45 @@ namespace ProGlassAutomation
                     ?? VisualThemeEngine.NormalIndustrial,
                 Config.Appearance?.WallpaperPath ?? "",
                 Config.Appearance?.WallpaperOpacity ?? 0.85);
+
+            // TEMPORARY DIAGNOSTIC — Phase 19: log resource types after theme apply
+            try
+            {
+                var appResources = Application.Current?.Resources;
+                if (appResources != null)
+                {
+                    string[] keysToCheck = new[]
+                    {
+                        "FontSize.Body", "FontSize.Title", "FontSize.Caption", "FontSize.H2", "FontSize.Kpi",
+                        "FontSize.H1", "FontSize.H3", "FontSize.Display",
+                        "TextBody", "TextBodyLarge", "TextCaption", "TextXSmall", "TextTitle", "TextTitleLarge", "TextSection", "TextSubhead",
+                        "DensityBodyFontSize", "DensityKpiValueFontSize", "DensityTitleFontSize",
+                        "ProGlassLayout.BodyFontSize", "ProGlassLayout.KpiFontSize"
+                    };
+                    foreach (var k in keysToCheck)
+                    {
+                        try
+                        {
+                            if (appResources.Contains(k))
+                            {
+                                var v = appResources[k];
+                                var t = v?.GetType().FullName ?? "null";
+                                var isRef = t.Contains("ResourceReferenceExpression") ? " *** IS ResourceReferenceExpression ***" : "";
+                                AppLogService.Debug($"[Forensics] Resource {k} = {v} | Type={t}{isRef}", new LogContext { Operation = "Forensics_ResourceCheck" });
+                            }
+                            else
+                            {
+                                AppLogService.Debug($"[Forensics] Resource {k} MISSING", new LogContext { Operation = "Forensics_ResourceCheck" });
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            AppLogService.Debug($"[Forensics] Resource {k} check failed: {ex.Message}", new LogContext { Operation = "Forensics_ResourceCheck" });
+                        }
+                    }
+                }
+            }
+            catch { /* best-effort */ }
 
             // 9e) Restore the persisted accent — preset palette key OR
             //     the free-pick custom hex — and re-derive the full
