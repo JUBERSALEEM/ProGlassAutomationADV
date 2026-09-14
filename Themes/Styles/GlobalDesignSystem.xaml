@@ -702,16 +702,12 @@
          CornerRadius / Effect, so those setters are intentionally absent. -->
     <Style x:Key="SurfacePrimaryPanelStyle" TargetType="Panel">
         <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
-        <Setter Property="BorderThickness" Value="{DynamicResource Border.Default}"/>
         <Setter Property="Padding" Value="{DynamicResource Space.Card}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
     </Style>
     <Style x:Key="SurfaceDetailPanelStyle" TargetType="Panel">
         <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
-        <Setter Property="BorderThickness" Value="{DynamicResource Border.Default}"/>
         <Setter Property="Padding" Value="{DynamicResource Space.Tile}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
