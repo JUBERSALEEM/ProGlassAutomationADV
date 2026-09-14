@@ -225,7 +225,7 @@
                         BorderBrush="{DynamicResource WarningBrush}"
                         BorderThickness="1"
                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
-                        MinHeight="76" Style="{StaticResource SurfacePrimaryStyle}">
+                        MinHeight="76">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Common.Outstanding}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource WarningBrush}"/>
@@ -240,7 +240,7 @@
                         BorderBrush="{DynamicResource DangerBrush}"
                         BorderThickness="1"
                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
-                        MinHeight="76" Style="{StaticResource SurfacePrimaryStyle}">
+                        MinHeight="76">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Common.Overdue}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource DangerBrush}"/>
@@ -523,7 +523,7 @@
                                         Background="{DynamicResource SurfacePrimaryBrush}"
                                         BorderThickness="1"
                                         BorderBrush="{Binding Color,
-                                            Converter={StaticResource ColorStringConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                                            Converter={StaticResource ColorStringConverter}}">
                                     <StackPanel HorizontalAlignment="Center">
                                         <Ellipse Width="10" Height="10"
                                                  HorizontalAlignment="Center"

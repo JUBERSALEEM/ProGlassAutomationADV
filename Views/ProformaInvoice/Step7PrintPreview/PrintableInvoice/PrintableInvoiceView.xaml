@@ -854,9 +854,9 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{DynamicResource ProformaInvoice.OtherProcessingDeliveryTotal}" Style="{StaticResource PrintValueStyle}"/>
+                        <TextBlock Grid.Column="0" Text="{DynamicResource ProformaInvoice.OtherProcessingDeliveryTotal}"/>
                         <TextBlock Grid.Column="1" Text="{Binding MainSummary.OtherChargesSubtotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=suffix}"
-                                   Style="{StaticResource PrintValueStyle}" Margin="16,0,0,0"/>
+                                   Margin="16,0,0,0"/>
                     </Grid>
 
                     <Border Background="{DynamicResource Print.Border}" Height="1" Margin="0,4"/>

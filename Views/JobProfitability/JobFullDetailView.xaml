@@ -391,14 +391,14 @@
 
                                                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Given" Style="{StaticResource FullKvLabel}"/>
                                                     <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding GivenPricePerSqmDisplay}"
-                                                               Style="{StaticResource FullKvValue}"/>
+                                                              />
 
-                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Final required target" Style="{StaticResource FullKvLabel}"/>
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Final required target"/>
                                                     <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding FinalRequiredTargetPerSqmDisplay}"
-                                                               Style="{StaticResource FullKvValue}"/>
+                                                              />
 
-                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Difference · margin" Style="{StaticResource FullKvLabel}"/>
-                                                    <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource FullKvValue}">
+                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Difference · margin"/>
+                                                    <TextBlock Grid.Row="2" Grid.Column="1">
                                                         <Run Text="{Binding DifferencePerSqmDisplay, Mode=OneWay}"/><Run Text=" · "/>
                                                         <Run Text="{Binding MarginDisplay, Mode=OneWay}"/>
                                                     </TextBlock>

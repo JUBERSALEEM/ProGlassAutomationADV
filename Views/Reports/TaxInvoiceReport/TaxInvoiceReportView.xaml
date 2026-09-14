@@ -233,7 +233,7 @@
                     
                         <!-- Full-width search band — inventory-style accent
                              magnifier + borderless input (2026-09-10). -->
-                        <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource ReportSearchBandStyle}" Margin="0,12,0,0">
+                        <Border Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12,0,0">
                             <DockPanel>
                                 <TextBlock Text="&#xE721;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                            Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
@@ -254,7 +254,7 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <Border Grid.Row="0" Style="{StaticResource ReportTableHeaderStyle}">
+                    <Border Grid.Row="0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="0.9*"/>
@@ -268,16 +268,16 @@
                                 <ColumnDefinition Width="0.8*"/>
                                 <ColumnDefinition Width="0.6*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{DynamicResource Reports.TaxInvoiceReport.InvoiceDATE}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="1" Text="{DynamicResource Reports.DeliveryReport.PI}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="2" Text="{DynamicResource Common.Company}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="3" Text="{DynamicResource Common.Customer}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="4" Text="{DynamicResource Common.Project}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="5" Text="{DynamicResource Common.Salesman}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="6" Text="{DynamicResource Inquiry.Prepared2}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="7" Text="{DynamicResource Common.Status}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="8" Text="{DynamicResource Common.Amount}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right" Margin="0,0,14,0"/>
-                            <TextBlock Grid.Column="9" Text="QTY" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="0" Text="{DynamicResource Reports.TaxInvoiceReport.InvoiceDATE}"/>
+                            <TextBlock Grid.Column="1" Text="{DynamicResource Reports.DeliveryReport.PI}"/>
+                            <TextBlock Grid.Column="2" Text="{DynamicResource Common.Company}"/>
+                            <TextBlock Grid.Column="3" Text="{DynamicResource Common.Customer}"/>
+                            <TextBlock Grid.Column="4" Text="{DynamicResource Common.Project}"/>
+                            <TextBlock Grid.Column="5" Text="{DynamicResource Common.Salesman}"/>
+                            <TextBlock Grid.Column="6" Text="{DynamicResource Inquiry.Prepared2}"/>
+                            <TextBlock Grid.Column="7" Text="{DynamicResource Common.Status}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="8" Text="{DynamicResource Common.Amount}" HorizontalAlignment="Right" Margin="0,0,14,0"/>
+                            <TextBlock Grid.Column="9" Text="QTY" HorizontalAlignment="Right"/>
                         </Grid>
                     </Border>
 

@@ -254,7 +254,7 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <Border Grid.Row="0" Style="{StaticResource ReportTableHeaderStyle}">
+                    <Border Grid.Row="0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="0.8*"/>
@@ -268,16 +268,16 @@
                                 <ColumnDefinition Width="0.7*"/>
                                 <ColumnDefinition Width="0.7*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{DynamicResource Reports.JoReport.JO}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="1" Text="{DynamicResource Reports.DeliveryReport.PI}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="2" Text="{DynamicResource Common.Company}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="3" Text="{DynamicResource Reports.JoReport.CustomerProject}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="4" Text="{DynamicResource Common.Salesman}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="5" Text="{DynamicResource Inquiry.Prepared2}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="6" Text="{DynamicResource Common.Status}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="7" Text="TOTAL" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right" Margin="0,0,14,0"/>
-                            <TextBlock Grid.Column="8" Text="{DynamicResource Reports.JoReport.QTYSQM}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right" Margin="0,0,14,0"/>
-                            <TextBlock Grid.Column="9" Text="{DynamicResource Reports.JoReport.DelivBAL}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="0" Text="{DynamicResource Reports.JoReport.JO}"/>
+                            <TextBlock Grid.Column="1" Text="{DynamicResource Reports.DeliveryReport.PI}"/>
+                            <TextBlock Grid.Column="2" Text="{DynamicResource Common.Company}"/>
+                            <TextBlock Grid.Column="3" Text="{DynamicResource Reports.JoReport.CustomerProject}"/>
+                            <TextBlock Grid.Column="4" Text="{DynamicResource Common.Salesman}"/>
+                            <TextBlock Grid.Column="5" Text="{DynamicResource Inquiry.Prepared2}"/>
+                            <TextBlock Grid.Column="6" Text="{DynamicResource Common.Status}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="7" Text="TOTAL" HorizontalAlignment="Right" Margin="0,0,14,0"/>
+                            <TextBlock Grid.Column="8" Text="{DynamicResource Reports.JoReport.QTYSQM}" HorizontalAlignment="Right" Margin="0,0,14,0"/>
+                            <TextBlock Grid.Column="9" Text="{DynamicResource Reports.JoReport.DelivBAL}" HorizontalAlignment="Right"/>
                         </Grid>
                     </Border>
 

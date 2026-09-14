@@ -239,7 +239,7 @@
                                 HorizontalAlignment="Center"
                                 Background="{DynamicResource ChatBrand}"
                                 SnapsToDevicePixels="True"
-                                UseLayoutRounding="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                UseLayoutRounding="True">
                             <TextBlock Text="&#xE8BD;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Display}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        HorizontalAlignment="Center"

@@ -48,10 +48,10 @@
                     <StackPanel HorizontalAlignment="Center">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding TotalOrderedQty}"
-                                       Style="{StaticResource Typography.Kpi}"/>
-                            <TextBlock Text=" pcs" Style="{StaticResource Typography.BodySmall}"/>
+                                      />
+                            <TextBlock Text=" pcs"/>
                         </StackPanel>
-                        <TextBlock Text="{DynamicResource Common.Ordered}" Style="{StaticResource Typography.Label}"/>
+                        <TextBlock Text="{DynamicResource Common.Ordered}"/>
                     </StackPanel>
                 </Border>
 
@@ -435,7 +435,7 @@
                                                     <StackPanel Orientation="Horizontal">
                                                         <Border Width="4" CornerRadius="{DynamicResource Radius.XSmall}"
                                                                 Background="{DynamicResource SurfacePrimaryBrush}"
-                                                                Margin="0,0,10,0" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                                                Margin="0,0,10,0"/>
                                                         <TextBlock Text="{DynamicResource DeliveryNote.SPEC}"
                                                                    FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                                    Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
@@ -447,7 +447,7 @@
                                                     </StackPanel>
                                                 </Border>
 
-                                                <Border Style="{StaticResource LineItemsHeaderStyle}">
+                                                <Border>
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="30"/>
@@ -487,24 +487,24 @@
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"/>
                                                         <TextBlock Grid.Column="6" Text="QTY"
-                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                  
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"/>
                                                         <TextBlock Grid.Column="7" Text="{DynamicResource DeliveryNote.PREV}"
-                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                  
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"
                                                                    ToolTip="{DynamicResource DeliveryNote.PreviouslyDeliveredOtherDns}"/>
                                                         <TextBlock Grid.Column="8" Text="SQM"
-                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                  
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"/>
                                                         <TextBlock Grid.Column="9" Text="{DynamicResource DeliveryNote.TotalSQM}"
-                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                  
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"/>
                                                         <TextBlock Grid.Column="10" Text="{DynamicResource DeliveryNote.WTPC}"
-                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                  
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"
                                                                    ToolTip="{DynamicResource DeliveryNote.WeightPieceKg}"/>

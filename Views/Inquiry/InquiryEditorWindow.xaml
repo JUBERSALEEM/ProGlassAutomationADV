@@ -226,7 +226,7 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel>
-                                    <TextBlock Text="{DynamicResource Inquiry.Customer}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Inquiry.Customer}"/>
                                     <ComboBox x:Name="CustomerInput" ItemsSource="{Binding Customers}"
                                               Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
                                               Style="{StaticResource ModernEditableComboBoxStyle}" StaysOpenOnEdit="True"
@@ -237,7 +237,7 @@
                                             Visibility="{Binding Path=ShowCustomerLocation,
                                                 Source={x:Static features:InquiryFieldVisibility.Instance},
                                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <TextBlock Text="{DynamicResource CompanyCenter.Location}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource CompanyCenter.Location}"/>
                                     <!-- Editable ComboBox: shows the saved addresses for
                                          the currently-typed customer, but the user can still
                                          type a brand-new one. The dropdown is empty when
@@ -523,7 +523,7 @@
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                <TextBlock Text="{DynamicResource Inquiry.SourceDocuments}" Style="{StaticResource ModuleColumnHeaderStyle}"/>
+                                <TextBlock Text="{DynamicResource Inquiry.SourceDocuments}"/>
                                 <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
                                            VerticalAlignment="Center" Margin="9,0,0,0"/>
                                 <TextBlock Text="{DynamicResource Inquiry.ManifestBackedWorksDatabase}" Margin="9,0,0,0"

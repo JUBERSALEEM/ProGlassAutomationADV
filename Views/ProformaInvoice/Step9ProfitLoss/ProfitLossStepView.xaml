@@ -483,18 +483,18 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Margin against TARGET" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="0" Text="Margin against TARGET"/>
                                     <TextBlock Grid.Column="1" Text="{Binding TargetMarginPercentDisplay}"
-                                               Style="{StaticResource TgtKvValueStyle}" FontWeight="{DynamicResource Weight.SemiBold}"/>
+                                               FontWeight="{DynamicResource Weight.SemiBold}"/>
                                 </Grid>
                                 <Grid Margin="0,6,0,0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Target balance" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="0" Text="Target balance"/>
                                     <TextBlock Grid.Column="1" Text="{Binding TargetBalancePerSqmDisplay}"
-                                               Style="{StaticResource TgtKvValueStyle}"
+                                              
                                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                                 </Grid>
                                 <Grid Margin="0,6,0,0">
@@ -502,9 +502,9 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Target balance value" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="0" Text="Target balance value"/>
                                     <TextBlock Grid.Column="1" Text="{Binding TargetBalanceValueDisplay}"
-                                               Style="{StaticResource TgtKvValueStyle}"
+                                              
                                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                                 </Grid>
                             </StackPanel>

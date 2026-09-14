@@ -36,7 +36,7 @@
                             Width="56" Height="56"
                             Background="{DynamicResource AccentBrush}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
-                            Margin="0,0,18,0" Style="{StaticResource SurfacePrimaryStyle}">
+                            Margin="0,0,18,0">
                         <TextBlock Text="≡"
                                    FontSize="{DynamicResource FontSize.Display}"
                                    FontWeight="{DynamicResource Weight.Bold}"
@@ -440,14 +440,14 @@
             <Border Background="{DynamicResource AccentBrush}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Visibility="{Binding IsLoading,
-                        Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                        Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             Margin="0,48,0,48">
                     <Border Width="72" Height="72"
                             Background="{DynamicResource AccentBrush}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
-                            HorizontalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                            HorizontalAlignment="Center">
                         <TextBlock Text="↻"
                                    FontSize="{DynamicResource FontSize.Kpi}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"

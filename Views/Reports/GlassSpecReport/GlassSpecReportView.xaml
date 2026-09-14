@@ -173,7 +173,7 @@
                     
                         <!-- Full-width search band — inventory-style accent
                              magnifier + borderless input (2026-09-10). -->
-                        <Border Grid.Row="1" Grid.ColumnSpan="2" Style="{StaticResource ReportSearchBandStyle}" Margin="0,12,0,0">
+                        <Border Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12,0,0">
                             <DockPanel>
                                 <TextBlock Text="&#xE721;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                            Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
@@ -189,7 +189,7 @@
                 <!-- Header grid margin removed: the header content now starts at
                      the 16px style padding, matching the row Border padding
                      (16,x) below so columns line up. -->
-                <Border Grid.Row="3" Style="{StaticResource ReportTableHeaderStyle}">
+                <Border Grid.Row="3">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1.4*"/>

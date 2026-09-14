@@ -778,8 +778,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Buy sheet price" Style="{StaticResource Typography.Label}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding BuySheetPriceDisplay}" Style="{StaticResource Typography.Body}"/>
+                                <TextBlock Grid.Column="0" Text="Buy sheet price"/>
+                                <TextBlock Grid.Column="1" Text="{Binding BuySheetPriceDisplay}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -787,8 +787,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Used sheet price" Style="{StaticResource Typography.Label}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding UsedSheetPriceDisplay}" Style="{StaticResource Typography.Body}"
+                                <TextBlock Grid.Column="0" Text="Used sheet price"/>
+                                <TextBlock Grid.Column="1" Text="{Binding UsedSheetPriceDisplay}"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </Grid>
                             <Grid>
@@ -797,8 +797,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Wastage value" Style="{StaticResource Typography.Label}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding WastageValueDisplay}" Style="{StaticResource Typography.Body}"
+                                <TextBlock Grid.Column="0" Text="Wastage value"/>
+                                <TextBlock Grid.Column="1" Text="{Binding WastageValueDisplay}"
                                            Foreground="{DynamicResource WarningBrush}"/>
                             </Grid>
 

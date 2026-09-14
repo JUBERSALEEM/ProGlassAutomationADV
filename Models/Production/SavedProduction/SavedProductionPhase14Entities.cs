@@ -181,10 +181,10 @@ namespace ProGlassAutomation.Models.Production.SavedProduction
 
         public int Quantity { get; set; } = 1;
 
-        [Column(TypeName = \"decimal(18, 2)\")]
+        [Column(TypeName = "decimal(18, 2)")]
         public decimal UtilizationPct { get; set; }
 
-        [Column(TypeName = \"decimal(18, 2)\")]
+        [Column(TypeName = "decimal(18, 2)")]
         public decimal WastagePct { get; set; }
 
         public int Status { get; set; } = (int)AllocationStatus.Allocated;
@@ -208,7 +208,7 @@ namespace ProGlassAutomation.Models.Production.SavedProduction
     /// Preserves Work Item, Piece, Stage, Result, Reason, Inspector, Timestamp, Notes.
     /// QC failure does NOT destroy completed production history.
     /// </summary>
-    [Table(\"ProductionQcEntries\")]
+    [Table("ProductionQcEntries")]
     public class SavedProductionQcEntry
     {
         [Key]
@@ -272,7 +272,7 @@ namespace ProGlassAutomation.Models.Production.SavedProduction
     /// Traceable: Stock Sheet → Material Allocation → Optimization Layout
     /// → Cut Piece → Production → Breakage/Rework → Consumption → Actual Cost
     /// </summary>
-    [Table(\"ProductionActualCosts\")]
+    [Table("ProductionActualCosts")]
     public class SavedActualCost
     {
         [Key]
@@ -306,16 +306,16 @@ namespace ProGlassAutomation.Models.Production.SavedProduction
         [MaxLength(200)]
         public string MaterialAllocationId { get; set; } = string.Empty;
 
-        [Column(TypeName = \"decimal(18, 4)\")]
+        [Column(TypeName = "decimal(18, 4)")]
         public decimal Quantity { get; set; }
 
-        [Column(TypeName = \"decimal(18, 4)\")]
+        [Column(TypeName = "decimal(18, 4)")]
         public decimal UnitCost { get; set; }
 
-        [Column(TypeName = \"decimal(18, 4)\")]
+        [Column(TypeName = "decimal(18, 4)")]
         public decimal TotalCost { get; set; }
 
-        [Column(TypeName = \"decimal(18, 4)\")]
+        [Column(TypeName = "decimal(18, 4)")]
         public decimal SellingValue { get; set; }
 
         public bool IsFoc { get; set; } = false;
@@ -336,7 +336,7 @@ namespace ProGlassAutomation.Models.Production.SavedProduction
     /// Original piece NOT silently modified; breakage recorded as entry,
     /// replacement created as new work item with deterministic ReplacementId.
     /// </summary>
-    [Table(\"ProductionReplacements\")]
+    [Table("ProductionReplacements")]
     public class SavedProductionReplacement
     {
         [Key]

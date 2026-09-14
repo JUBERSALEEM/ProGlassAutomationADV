@@ -1078,10 +1078,10 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SurfaceDetailStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}"
+                                <TextBlock
                                            Text="{DynamicResource Settings.LblLanguage}"/>
                             </StackPanel>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock
                                        Text="{DynamicResource Settings.HintLanguage}"/>
                             <ComboBox AutomationProperties.AutomationId="Settings.Language"
                                       ItemsSource="{Binding Languages}"
@@ -1095,11 +1095,11 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SurfaceDetailStyle}">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xEAF1;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}"
+                                <TextBlock Text="&#xEAF1;"/>
+                                <TextBlock
                                            Text="{DynamicResource Settings.LblCurrency}"/>
                             </StackPanel>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock
                                        Text="{DynamicResource Settings.HintCurrency}"/>
                             <ComboBox AutomationProperties.AutomationId="Settings.Currency"
                                       ItemsSource="{Binding Currencies}"

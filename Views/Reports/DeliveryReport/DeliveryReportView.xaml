@@ -192,7 +192,7 @@
 
                             <!-- Delivery status -->
                             <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="{DynamicResource Common.Status}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Common.Status}"/>
                                 <ComboBox Width="140" Style="{StaticResource ModernComboBoxStyle}" Height="40" MinHeight="40"
                                           ItemsSource="{Binding StatusOptions}"
                                           SelectedItem="{Binding SelectedStatus}"
@@ -201,13 +201,13 @@
 
                             <!-- Date From -->
                             <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="{DynamicResource Common.FromDate}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Common.FromDate}"/>
                                 <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" Height="40" SelectedDate="{Binding DateFrom}" ToolTip="{DynamicResource Reports.DeliveryReport.FilterRowsDeliveryDateStart}"/>
                             </StackPanel>
 
                             <!-- Date To -->
                             <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="{DynamicResource Common.ToDate}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Common.ToDate}"/>
                                 <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" Height="40" SelectedDate="{Binding DateTo}" ToolTip="{DynamicResource Reports.DeliveryReport.FilterRowsDeliveryDateEnd}"/>
                             </StackPanel>
 

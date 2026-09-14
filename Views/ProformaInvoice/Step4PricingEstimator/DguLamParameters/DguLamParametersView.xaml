@@ -138,7 +138,7 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Common.Price}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding LamOuterBasePrice, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                                <TextBox Text="{Binding LamOuterBasePrice, StringFormat={}{0:0.##}}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>

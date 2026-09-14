@@ -364,7 +364,7 @@
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel>
                                                             <TextBlock Text="{DynamicResource ProformaInvoice.Color}"
-                                                                       Style="{StaticResource PiFieldLabelStyle}"
+                                                                      
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding ColorName, Mode=OneWay}"
                                                                      Style="{StaticResource SurfacePrimaryStyle}"
@@ -372,7 +372,7 @@
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="2">
                                                             <TextBlock Text="{DynamicResource ProformaInvoice.OptimizationFormula}"
-                                                                       Style="{StaticResource PiFieldLabelStyle}"
+                                                                      
                                                                        Margin="0,0,0,2"/>
                                                             <ToggleButton Style="{StaticResource PiToggleSwitch}"
                                                                           IsChecked="{Binding UseOptimizationFormula}"

@@ -90,10 +90,10 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="{DynamicResource Diagnostics.TIME}"
-                                           Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
                                            ToolTip="{DynamicResource Diagnostics.WhenEventLogged}"/>
                                 <TextBlock Grid.Column="1" Text="{DynamicResource Diagnostics.Level}"
-                                           Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
                                            ToolTip="{DynamicResource Diagnostics.SeverityINFOWARNErrorCritical}"/>
                                 <TextBlock Grid.Column="2" Text="{DynamicResource Diagnostics.ModuleFunction}"
                                            Foreground="{DynamicResource OnAccentForegroundBrush}"

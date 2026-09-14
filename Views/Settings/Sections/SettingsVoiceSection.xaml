@@ -36,9 +36,9 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="{DynamicResource Settings.SecVoice}" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="{DynamicResource Settings.SecVoice}"/>
             <TextBlock Text="{DynamicResource Settings.OfflineSpeechTextOpenaiWhisper95AccuracyNo}"
-                       Style="{StaticResource PageSubtitleStyle}"/>
+                      />
         </StackPanel>
 
         <ScrollViewer Grid.Row="1"

@@ -426,7 +426,7 @@
                                        Foreground="{DynamicResource WarningBrush}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="6" Style="{StaticResource SurfaceKpiStyle}"
+                    <Border Grid.Column="6"
                             ToolTip="{DynamicResource SheetStore.BalanceValueTip}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource SheetStore.BalanceValue}"
@@ -436,7 +436,7 @@
                                        Foreground="{DynamicResource InfoBrush}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="7" Style="{StaticResource SurfaceKpiStyle}" Margin="0"
+                    <Border Grid.Column="7" Margin="0"
                             ToolTip="{DynamicResource SheetStore.ExpectedProfitTip}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource SheetStore.ExpectedProfit}"

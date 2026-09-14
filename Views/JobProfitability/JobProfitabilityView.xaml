@@ -125,14 +125,14 @@
                         </StackPanel>
 
                         <StackPanel Grid.Column="6">
-                            <TextBlock Text="{DynamicResource Common.Salesman}" Style="{StaticResource Typography.Label}"/>
+                            <TextBlock Text="{DynamicResource Common.Salesman}"/>
                             <ComboBox ItemsSource="{Binding SalesmanFilterOptions}"
                                       SelectedItem="{Binding SalesmanFilter}"
                                       Style="{StaticResource JpComboStyle}"/>
                         </StackPanel>
 
                         <StackPanel Grid.Column="8">
-                            <TextBlock Text="{DynamicResource JobProfitability.DATERange}" Style="{StaticResource Typography.Label}"/>
+                            <TextBlock Text="{DynamicResource JobProfitability.DATERange}"/>
                             <ComboBox ItemsSource="{Binding DateRangeOptions}"
                                       SelectedItem="{Binding DateRangeFilter}"
                                       Style="{StaticResource JpComboStyle}"/>
@@ -510,7 +510,7 @@
                                                 <ColumnDefinition Width="176"/>
                                                 <ColumnDefinition Width="156"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0" Text="PROFORMA" Style="{StaticResource JpHeaderCellStyle}"/>
+                                                    <TextBlock Grid.Column="0" Text="PROFORMA"/>
                                                     <TextBlock Grid.Column="1" Text="CUSTOMER / PROJECT"/>
                                                     <TextBlock Grid.Column="2" Text="CONFIRMED"/>
                                                     <TextBlock Grid.Column="3" Text="NET" HorizontalAlignment="Right"/>

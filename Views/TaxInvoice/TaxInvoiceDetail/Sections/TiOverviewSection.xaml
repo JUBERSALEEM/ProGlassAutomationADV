@@ -209,7 +209,7 @@
                                  Foreground="{DynamicResource TextPrimaryBrush}"/>
                         </TextBlock>
                     </Border>
-                    <Border Style="{StaticResource Chip.Primary}">
+                    <Border>
                         <TextBlock FontSize="{DynamicResource FontSize.Body}">
                             <Run Text="{DynamicResource ProformaInvoice.SITE}" FontWeight="{DynamicResource Weight.Bold}"
                                  Foreground="{DynamicResource TextTertiaryBrush}"/>
@@ -226,7 +226,7 @@
                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="12,10"
-                        Margin="0,4,0,12" Style="{StaticResource SurfacePrimaryStyle}">
+                        Margin="0,4,0,12">
                     <!-- Auto-compact bank block: Bank Name + Account No (from
                          company setup) always show; IBAN / SWIFT collapse if
                          turned OFF in Settings ► Features ► Tax Invoice. -->

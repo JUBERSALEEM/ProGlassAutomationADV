@@ -171,14 +171,14 @@
                             <ColumnDefinition Width="0.6*"/>
                             <ColumnDefinition Width="1.2*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Padding="0,0,6,0" Text="{DynamicResource DeliveryNote.SPEC}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                        <TextBlock Grid.Column="1" Padding="6,0" Text="{DynamicResource ProformaInvoice.LM1}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="2" Padding="6,0" Text="{DynamicResource ProformaInvoice.LM2}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="3" Padding="6,0" Text="{DynamicResource ProformaInvoice.SQM1}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="4" Padding="6,0" Text="{DynamicResource ProformaInvoice.SQM2}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="5" Padding="6,0" Text="PCS" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="6" Padding="6,0" Text="{DynamicResource ProformaInvoice.Panes}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="7" Padding="6,0,0,0" Text="{DynamicResource Nav.Polish}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                        <TextBlock Padding="0,0,6,0" Text="{DynamicResource DeliveryNote.SPEC}" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Column="1" Padding="6,0" Text="{DynamicResource ProformaInvoice.LM1}"/>
+                        <TextBlock Grid.Column="2" Padding="6,0" Text="{DynamicResource ProformaInvoice.LM2}"/>
+                        <TextBlock Grid.Column="3" Padding="6,0" Text="{DynamicResource ProformaInvoice.SQM1}"/>
+                        <TextBlock Grid.Column="4" Padding="6,0" Text="{DynamicResource ProformaInvoice.SQM2}"/>
+                        <TextBlock Grid.Column="5" Padding="6,0" Text="PCS"/>
+                        <TextBlock Grid.Column="6" Padding="6,0" Text="{DynamicResource ProformaInvoice.Panes}"/>
+                        <TextBlock Grid.Column="7" Padding="6,0,0,0" Text="{DynamicResource Nav.Polish}" HorizontalAlignment="Left"/>
                     </Grid>
                 </Border>
 

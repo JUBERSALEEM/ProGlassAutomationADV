@@ -762,25 +762,25 @@
                                 <ComboBox ItemsSource="{Binding CategoryOptions}"
                                           Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
                                           Style="{StaticResource DetailCombo}"/>
-                                <TextBlock Text="{Binding CategoryError}" Style="{StaticResource FieldError}"
+                                <TextBlock Text="{Binding CategoryError}"
                                            Visibility="{Binding HasCategoryError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2" MinHeight="92">
-                                <TextBlock Text="THICKNESS (mm)" Style="{StaticResource FieldLabel}"/>
+                                <TextBlock Text="THICKNESS (mm)"/>
                                 <ComboBox ItemsSource="{Binding ThicknessOptions}"
                                           Text="{Binding ThicknessText, UpdateSourceTrigger=PropertyChanged}"
                                           Style="{StaticResource DetailCombo}"/>
-                                <TextBlock Text="{Binding ThicknessError}" Style="{StaticResource FieldError}"
+                                <TextBlock Text="{Binding ThicknessError}"
                                            Visibility="{Binding HasThicknessError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="4" MinHeight="92">
-                                <TextBlock Text="COLOUR" Style="{StaticResource FieldLabel}"/>
+                                <TextBlock Text="COLOUR"/>
                                 <ComboBox ItemsSource="{Binding ColorOptions}"
                                           Text="{Binding Color, UpdateSourceTrigger=PropertyChanged}"
                                           Style="{StaticResource DetailCombo}"/>
-                                <TextBlock Text="{Binding ColorError}" Style="{StaticResource FieldError}"
+                                <TextBlock Text="{Binding ColorError}"
                                            Visibility="{Binding HasColorError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
@@ -790,7 +790,7 @@
 
                     <Border Style="{StaticResource SectionCard}">
                         <StackPanel>
-                            <TextBlock Text="DIMENSIONS &amp; SOURCE" Style="{StaticResource StatLabel}" Margin="0,0,0,14"/>
+                            <TextBlock Text="DIMENSIONS &amp; SOURCE" Margin="0,0,0,14"/>
                             <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
