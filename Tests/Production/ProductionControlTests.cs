@@ -323,8 +323,8 @@ namespace ProGlassAutomation.Tests.Production
         private static void TestDuplicateStartProtection()
         {
             Console.WriteLine("[Test] 22 Duplicate start protection — second start safely fail or no-op no duplicate execution");
-            var execId = Services.Production.Process.ProductionProcessRoutingService.BuildExecutionId("JO-1", 1, 1, Services.Production.Process.ProductionProcessType.Cutting, 0);
-            var execId2 = Services.Production.Process.ProductionProcessRoutingService.BuildExecutionId("JO-1", 1, 1, Services.Production.Process.ProductionProcessType.Cutting, 0);
+            var execId = Services.Production.Process.ProductionProcessRoutingService.BuildExecutionId("JO-1", 1, 1, Models.Production.Process.ProductionProcessType.Cutting, 0);
+            var execId2 = Services.Production.Process.ProductionProcessRoutingService.BuildExecutionId("JO-1", 1, 1, Models.Production.Process.ProductionProcessType.Cutting, 0);
             if (execId != execId2) throw new Exception("Duplicate execution should have same deterministic id");
             Console.WriteLine($"  OK — {execId} idempotent");
         }

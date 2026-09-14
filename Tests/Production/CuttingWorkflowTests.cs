@@ -80,9 +80,9 @@ namespace ProGlassAutomation.Tests.Production
             // We test ordering logic without DB
             var sheets = new List<StockSelectionResult>
             {
-                new StockSelectionResult { Sheet = new Models.SheetStore.GlassSheet { Id=2, WidthMm=3210, HeightMm=2250, Balance=10, ThicknessMm=6, Color="Grey" }, StockSize = new StockSize{ WidthMm=3210, HeightMm=2250 }, AvailableBalance=10, EffectiveAvailable=10, WasteScore=100 },
-                new StockSelectionResult { Sheet = new Models.SheetStore.GlassSheet { Id=1, WidthMm=3210, HeightMm=2250, Balance=10, ThicknessMm=6, Color="Grey" }, StockSize = new StockSize{ WidthMm=3210, HeightMm=2250 }, AvailableBalance=10, EffectiveAvailable=10, WasteScore=100 },
-                new StockSelectionResult { Sheet = new Models.SheetStore.GlassSheet { Id=3, WidthMm=4000, HeightMm=2500, Balance=10, ThicknessMm=6, Color="Grey" }, StockSize = new StockSize{ WidthMm=4000, HeightMm=2500 }, AvailableBalance=10, EffectiveAvailable=10, WasteScore=500 },
+                new StockSelectionResult { Sheet = new Models.SheetStore.GlassSheet { Id=2, WidthMm=3210, HeightMm=2250, Stock=10, Used=0, ThicknessMm=6, Color="Grey" }, StockSize = new StockSize{ WidthMm=3210, HeightMm=2250 }, AvailableBalance=10, ReservedQty=0, AllocatedQty=0, WasteScore=100 },
+                new StockSelectionResult { Sheet = new Models.SheetStore.GlassSheet { Id=1, WidthMm=3210, HeightMm=2250, Stock=10, Used=0, ThicknessMm=6, Color="Grey" }, StockSize = new StockSize{ WidthMm=3210, HeightMm=2250 }, AvailableBalance=10, ReservedQty=0, AllocatedQty=0, WasteScore=100 },
+                new StockSelectionResult { Sheet = new Models.SheetStore.GlassSheet { Id=3, WidthMm=4000, HeightMm=2500, Stock=10, Used=0, ThicknessMm=6, Color="Grey" }, StockSize = new StockSize{ WidthMm=4000, HeightMm=2500 }, AvailableBalance=10, ReservedQty=0, AllocatedQty=0, WasteScore=500 },
             };
 
             var ordered = sheets.OrderBy(s => s.WasteScore).ThenBy(s => s.Sheet.SqmPerSheet).ThenBy(s => s.Sheet.Id).ToList();
@@ -217,8 +217,8 @@ namespace ProGlassAutomation.Tests.Production
             Console.WriteLine("[Test] Kerf/Margin — use existing MarginProfile verifier authoritative bounds overlap kerf margin rotation invalid never allocatable");
 
             var margins = MarginProfile.DefaultFor(6);
-            if (margins.Kerf < 3) throw new Exception($"Kerf should be >=3 for 6mm, got {margins.Kerf}");
-            if (margins.MinBreakout < 10) throw new Exception($"MinBreakout should be >=10, got {margins.MinBreakout}");
+            if (margins.KerfMm < 3) throw new Exception($"Kerf should be >=3 for 6mm, got {margins.KerfMm}");
+            if (margins.MinBreakoutMm < 10) throw new Exception($"MinBreakout should be >=10, got {margins.MinBreakoutMm}");
 
             var pieces = new List<CutPiece> { new CutPiece { WidthMm=1000, HeightMm=1000, PieceLabel="P1" } };
             var stock = new List<StockSize> { new StockSize { WidthMm=3210, HeightMm=2250 } };
@@ -228,7 +228,7 @@ namespace ProGlassAutomation.Tests.Production
 
             if (problems.Count > 0) throw new Exception($"Valid layout failed margin verification: {string.Join("; ", problems)}");
 
-            Console.WriteLine($"  OK — Kerf={margins.Kerf} MinBreakout={margins.MinBreakout} verifier authoritative");
+            Console.WriteLine($"  OK — Kerf={margins.KerfMm} MinBreakout={margins.MinBreakoutMm} verifier authoritative");
         }
 
         private static void TestMultiSheetSupport()
