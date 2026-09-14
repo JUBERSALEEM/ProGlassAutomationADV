@@ -94,16 +94,16 @@
                         Background="{DynamicResource SurfaceElevatedBrush}"
                         Opacity="0.55"
                         IsHitTestVisible="False" Style="{StaticResource SurfacePrimaryStyle}"/>
-            <DockPanel Margin="10,20,10,16">
+            <DockPanel Margin="10,10,10,10">
 
                 <!-- Brand header — 2026-09-05 restyled to the REPORTS-module
                      rail design (owner directive: identical visual language):
                      accent header card with icon tile, two-line title, and
                      the collapse button INSIDE the header (single click). -->
-                <Border DockPanel.Dock="Top" Margin="4,2,4,10"
+                <Border DockPanel.Dock="Top" Margin="4,2,4,8"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Background="{DynamicResource AccentBrush}"
-                        Padding="12,12" Style="{StaticResource SurfacePrimaryStyle}">
+                        Padding="10,10" Style="{StaticResource SurfacePrimaryStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="38"/>

@@ -68,9 +68,9 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="CUSTOMER" Binding="{Binding Customer}" Width="1.2*"/>
+                            <DataGridTextColumn Header="CUSTOMER" Binding="{Binding Customer}" Width="160"/>
                             <DataGridTextColumn Header="W×H" Binding="{Binding SizeLabel}" Width="140"/>
-                            <DataGridTextColumn Header="GLASS" Binding="{Binding GlassLabel}" Width="1.3*"/>
+                            <DataGridTextColumn Header="GLASS" Binding="{Binding GlassLabel}" Width="150"/>
                             <DataGridTextColumn Header="TREATMENT" Binding="{Binding TreatmentLabel}" Width="120"/>
                             <DataGridTextColumn Header="LM" Binding="{Binding LmLabel}" Width="90"/>
                             <DataGridTextColumn Header="LOAD" Binding="{Binding LoadLabel}" Width="90"/>

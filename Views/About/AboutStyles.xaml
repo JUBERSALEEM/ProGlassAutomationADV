@@ -472,4 +472,21 @@
     <Style x:Key="AboutPillButtonStyle" TargetType="Button"
            BasedOn="{StaticResource Button.Secondary}"/>
 
+    <!--
+      2026-09-14 (owner: "about section cards are overlapping" /
+      "license section cards also overlapping"): every L1 card nested a
+      full L2 card (SurfaceSecondaryStyle = background + border +
+      corner + padding) a few px inside its own border — two frames
+      stacked on top of each other. Sub-panels inside an L1 card must
+      read as INSETS, not as a second card: one quiet background,
+      standard corner, padding — NO border of their own. This style is
+      the only chrome an About sub-panel may carry.
+    -->
+    <Style x:Key="AboutInsetStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource Surface.Detail.BackgroundBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}"/>
+        <Setter Property="Padding" Value="14,12"/>
+    </Style>
+
 </ResourceDictionary>

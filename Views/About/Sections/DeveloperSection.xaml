@@ -94,7 +94,7 @@
                         </Border>
                     </Grid>
 
-                    <Border Style="{StaticResource SurfaceSecondaryStyle}" Padding="16,14">
+                    <Border Style="{StaticResource AboutInsetStyle}" Padding="16,14">
                         <StackPanel Orientation="Horizontal">
                             <!-- 2026-09-14: was an 84px card wrapping a 76px
                                  card (two overlapping tiles) → ONE 84px L3
@@ -164,7 +164,7 @@
                                Style="{StaticResource Typography.H2}"
                                Margin="0,0,0,14"/>
                     <UniformGrid Columns="2" Rows="2">
-                        <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="0,0,10,10" Padding="14,12">
+                        <Border Style="{StaticResource AboutInsetStyle}" Margin="0,0,10,10" Padding="14,12">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource About.Version}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
@@ -173,7 +173,7 @@
                                        TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="0,0,0,10" Padding="14,12">
+                        <Border Style="{StaticResource AboutInsetStyle}" Margin="0,0,0,10" Padding="14,12">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource About.Build}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
@@ -182,7 +182,7 @@
                                        TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="0,10,10,0" Padding="14,12">
+                        <Border Style="{StaticResource AboutInsetStyle}" Margin="0,10,10,0" Padding="14,12">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource About.Edition}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
@@ -190,7 +190,7 @@
                                            Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="0,10,0,0" Padding="14,12">
+                        <Border Style="{StaticResource AboutInsetStyle}" Margin="0,10,0,0" Padding="14,12">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Common.Status}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
@@ -231,7 +231,7 @@
                             </TextBlock>
                         </Border>
                     </Grid>
-                    <Border Style="{StaticResource SurfaceSecondaryStyle}" Padding="14,14">
+                    <Border Style="{StaticResource AboutInsetStyle}" Padding="14,14">
                         <!-- 2026-09-14: the fixed 300px WrapPanel tiles
                              overflowed this column on narrow windows (text
                              ran out of the boxes) → fluid equal-width 2-up

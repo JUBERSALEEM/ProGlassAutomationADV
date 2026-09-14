@@ -1,3 +1,26 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Reports/StatementList/StatementListView.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Statement Generator — saved statements list
+
+     2026-09-14 REBUILD (owner: "recents / statement / new statement
+     section is ugly — upgrade it"): the page used the pre-design-system
+     look — solid rainbow KPI blocks, an accent-on-accent header with
+     four decorative dots, and row cards full of solid colour blocks
+     whose amount columns did not line up with the header row.
+
+     Now the standard module-list language (Tax Invoice / Delivery Note /
+     Saved Job Orders parity):
+       • surface page header + accent icon tile + PrimaryPillButton
+       • tinted KPI cards (12px gutters, coloured value, hairline border)
+       • standard search bar (surface card, ghost clear, outlined refresh)
+       • ModuleListTableHeaderStyle header band with the SAME column
+         grid as the rows — labels and data align per column
+       • rows = surface cards: tinted status pill, coloured amount text
+         (no solid blocks), ghost icon action buttons
+     Every binding, command and localization key from the previous
+     revision is preserved verbatim.
+═══════════════════════════════════════════════════════════════════════ -->
 <UserControl
     x:Class="ProGlassAutomation.Views.Reports.StatementList.StatementListView"
              TextOptions.TextHintingMode="Fixed"
@@ -10,6 +33,52 @@
     UseLayoutRounding="True"
     SnapsToDevicePixels="True">
 
+    <UserControl.Resources>
+        <!-- Ghost icon action button for the row actions (PDF / SHARE /
+             EDIT / DELETE). Hover fills with the button's own tint. -->
+        <Style x:Key="StatementGhostActionStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width" Value="34"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Background="Transparent"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="{Binding Background, RelativeSource={RelativeSource TemplatedParent}}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.75"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Tinted KPI card — one card shape, colour by state. -->
+        <Style x:Key="StatementKpiCardStyle" TargetType="Border"
+               BasedOn="{StaticResource SurfacePrimaryStyle}">
+            <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
+            <Setter Property="Padding" Value="14,12"/>
+        </Style>
+    </UserControl.Resources>
+
     <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -19,230 +88,143 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ══ ROW 0 — RICH HEADER ══ -->
+        <!-- ══ ROW 0 — PAGE HEADER (surface card + accent icon tile) ══ -->
         <Border Grid.Row="0"
                 Margin="24,16,24,0"
-                CornerRadius="{DynamicResource CardCornerRadius}"
-                ClipToBounds="True">
-            <Border CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource AccentBrush}" Padding="24,20" Style="{StaticResource SurfacePrimaryStyle}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+                Style="{StaticResource SurfacePrimaryStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0"
-                            Width="56" Height="56"
-                            Background="{DynamicResource AccentBrush}"
-                            CornerRadius="{DynamicResource CardCornerRadius}"
-                            Margin="0,0,18,0">
-                        <TextBlock Text="≡"
-                                   FontSize="{DynamicResource FontSize.Display}"
-                                   FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
+                <Border Grid.Column="0"
+                        Width="52" Height="52"
+                        Margin="0,0,16,0"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource SurfaceDetailStyle}"
+                        Background="{DynamicResource TintIndigoBrush}">
+                    <TextBlock Text="&#xE8A5;"
+                               FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="{DynamicResource FontSize.H1}"
+                               Foreground="{DynamicResource AccentBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
 
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="{DynamicResource Nav.StatementGenerator}"
-                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                   FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                   Margin="0,0,0,4"/>
-                        <TextBlock Text="{DynamicResource Reports.AccountStatements}"
-                                   FontSize="{DynamicResource FontSize.H1}"
-                                   FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Text="{Binding StatusMessage}"
-                                   FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                   Margin="0,4,0,0"/>
-                    </StackPanel>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{DynamicResource Nav.StatementGenerator}"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="{DynamicResource Reports.AccountStatements}"
+                               FontSize="{DynamicResource FontSize.H1}"
+                               FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               Margin="0,2,0,0"/>
+                    <TextBlock Text="{Binding StatusMessage}"
+                               FontSize="{DynamicResource FontSize.Body}"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Margin="0,4,0,0"/>
+                </StackPanel>
 
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Right"
-                                    Margin="0,0,0,10">
-                            <Border Width="10" Height="10" CornerRadius="{DynamicResource Radius.Small}"
-                                    Background="{DynamicResource AccentBrush}" Margin="0,0,5,0"/>
-                            <Border Width="10" Height="10" CornerRadius="{DynamicResource Radius.Small}"
-                                    Background="{DynamicResource SuccessBrush}" Margin="0,0,5,0"/>
-                            <Border Width="10" Height="10" CornerRadius="{DynamicResource Radius.Small}"
-                                    Background="{DynamicResource WarningBrush}" Margin="0,0,5,0"/>
-                            <Border Width="10" Height="10" CornerRadius="{DynamicResource Radius.Small}"
-                                    Background="{DynamicResource DangerBrush}"/>
-                        </StackPanel>
-                        <Button Content="{DynamicResource Reports.NewStatement}"
-                                Command="{Binding NewStatementCommand}"
-                                Height="40"
-                                Padding="20,0"
-                                FontSize="{DynamicResource FontSize.Title}"
-                                FontWeight="{DynamicResource Weight.SemiBold}"
-                                Cursor="Hand"
-                                Foreground="{DynamicResource AccentBrush}"
-                                BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="bd"
-                                            Background="{DynamicResource SurfaceSecondaryBrush}"
-                                            BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                            BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                                            Padding="{TemplateBinding Padding}">
-                                        <ContentPresenter HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"/>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
-                                        </Trigger>
-                                        <Trigger Property="IsPressed" Value="True">
-                                            <Setter TargetName="bd" Property="Opacity" Value="0.75"/>
-                                        </Trigger>
-                                        <Trigger Property="IsEnabled" Value="False">
-                                            <Setter TargetName="bd" Property="Opacity" Value="0.45"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>
-                    </StackPanel>
-                </Grid>
-            </Border>
+                <Button Grid.Column="2"
+                        Command="{Binding NewStatementCommand}"
+                        Style="{StaticResource PrimaryPillButton}"
+                        Tag="&#xE710;"
+                        Content="{DynamicResource Reports.NewStatement}"
+                        VerticalAlignment="Center"/>
+            </Grid>
         </Border>
 
-        <!-- ══ ROW 1 — RICH KPI CARDS ══ -->
+        <!-- ══ ROW 1 — KPI STRIP (tinted cards, 12px gutters) ══ -->
         <Grid Grid.Row="1" Margin="24,14,24,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="12"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="12"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="12"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <Border Grid.Column="0"
-                    Background="{DynamicResource AccentBrush}"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    Padding="16,14">
+                    Style="{StaticResource StatementKpiCardStyle}"
+                    Background="{DynamicResource TintBlueBrush}"
+                    BorderBrush="{DynamicResource AccentBrush}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Dashboard.Statements}"
-                               FontSize="{DynamicResource FontSize.Body}"
-                               FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                               Style="{StaticResource ModuleListKpiLabelStyle}"/>
                     <TextBlock Text="{Binding TotalStatements}"
-                               FontSize="{DynamicResource FontSize.Display}"
-                               FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"
-                               Margin="0,6,0,2"/>
+                               Style="{StaticResource ModuleListKpiValueStyle}"
+                               Foreground="{DynamicResource AccentBrush}"/>
                     <TextBlock Text="{DynamicResource Reports.TotalSaved}"
-                               FontSize="{DynamicResource FontSize.Body}"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                               Style="{StaticResource ModuleListKpiHintStyle}"/>
                 </StackPanel>
             </Border>
 
             <Border Grid.Column="2"
-                    Background="{DynamicResource SuccessBrush}"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    Padding="16,14">
+                    Style="{StaticResource StatementKpiCardStyle}"
+                    Background="{DynamicResource TintGreenBrush}"
+                    BorderBrush="{DynamicResource SuccessBrush}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Reports.TotalInvoiced}"
-                               FontSize="{DynamicResource FontSize.Body}"
-                               FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                               Style="{StaticResource ModuleListKpiLabelStyle}"/>
                     <TextBlock Text="{Binding TotalInvoicedDisplay}"
-                               FontSize="{DynamicResource FontSize.H1}"
-                               FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"
-                               Margin="0,6,0,2"/>
+                               Style="{StaticResource ModuleListKpiValueStyle}"
+                               Foreground="{DynamicResource SuccessBrush}"/>
                     <TextBlock Text="{DynamicResource Reports.Statements}"
-                               FontSize="{DynamicResource FontSize.Body}"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                               Style="{StaticResource ModuleListKpiHintStyle}"/>
                 </StackPanel>
             </Border>
 
             <Border Grid.Column="4"
-                    Background="{DynamicResource WarningBrush}"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    Padding="16,14">
+                    Style="{StaticResource StatementKpiCardStyle}"
+                    Background="{DynamicResource TintAmberBrush}"
+                    BorderBrush="{DynamicResource WarningBrush}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Common.Outstanding}"
-                               FontSize="{DynamicResource FontSize.Body}"
-                               FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                               Style="{StaticResource ModuleListKpiLabelStyle}"/>
                     <TextBlock Text="{Binding TotalOutstandingDisplay}"
-                               FontSize="{DynamicResource FontSize.H1}"
-                               FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"
-                               Margin="0,6,0,2"/>
+                               Style="{StaticResource ModuleListKpiValueStyle}"
+                               Foreground="{DynamicResource WarningBrush}"/>
                     <TextBlock Text="{DynamicResource Reports.TotalBalanceDue}"
-                               FontSize="{DynamicResource FontSize.Body}"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                               Style="{StaticResource ModuleListKpiHintStyle}"/>
                 </StackPanel>
             </Border>
 
-            <Border Grid.Column="6" CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,14">
+            <Border Grid.Column="6">
                 <Border.Style>
-                    <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
-                        <Setter Property="Background"
-                                Value="{DynamicResource SideMenuBackgroundBrush}"/>
+                    <Style TargetType="Border" BasedOn="{StaticResource StatementKpiCardStyle}">
+                        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+                        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding HasOverdue}" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                <Setter Property="Background" Value="{DynamicResource TintRedBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Common.Overdue}"
-                               FontSize="{DynamicResource FontSize.Body}"
-                               FontWeight="{DynamicResource Weight.Bold}">
+                               Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                    <TextBlock Text="{Binding TotalOverdueDisplay}">
                         <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground"
-                                        Value="{DynamicResource TextTertiaryBrush}"/>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource ModuleListKpiValueStyle}">
+                                <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding HasOverdue}" Value="True">
-                                        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                    <TextBlock Text="{Binding TotalOverdueDisplay}"
-                               FontSize="{DynamicResource FontSize.H1}"
-                               FontWeight="{DynamicResource Weight.Bold}"
-                               Margin="0,6,0,2">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground"
-                                        Value="{DynamicResource TextPrimaryBrush}"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding HasOverdue}" Value="True">
-                                        <Setter Property="Foreground" Value="White"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </TextBlock.Style>
                     </TextBlock>
                     <TextBlock Text="{DynamicResource Reports.PastDueDate}"
-                               FontSize="{DynamicResource FontSize.Body}">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground"
-                                        Value="{DynamicResource TextTertiaryBrush}"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding HasOverdue}" Value="True">
-                                        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                               Style="{StaticResource ModuleListKpiHintStyle}"/>
                 </StackPanel>
             </Border>
         </Grid>
@@ -250,254 +232,168 @@
         <!-- ══ ROW 2 — SEARCH BAR ══ -->
         <Border Grid.Row="2"
                 Margin="24,14,24,0"
-                Background="{DynamicResource SideMenuBackgroundBrush}"
-                BorderBrush="{DynamicResource BorderDefaultBrush}"
-                BorderThickness="{DynamicResource CardBorderThickness}"
-                CornerRadius="{DynamicResource CardCornerRadius}"
-                Padding="12,10" Style="{StaticResource SurfacePrimaryStyle}">
+                Padding="10,8"
+                Style="{StaticResource SurfacePrimaryStyle}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0"
-                        Background="{DynamicResource SurfacePrimaryBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource Border.HairlineThickness}"
-                        CornerRadius="{DynamicResource ControlCornerRadius}"
-                        Height="38" Style="{StaticResource SurfacePrimaryStyle}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="40"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="36"/>
-                        </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0" Height="38">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                        <Border Grid.Column="0"
-                                Background="{DynamicResource AccentBrush}"
-                                CornerRadius="{DynamicResource Radius.Left.Medium}" Style="{StaticResource SurfacePrimaryStyle}">
-                            <TextBlock Text="⌕"
-                                       FontSize="{DynamicResource FontSize.H3}"
-                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
+                    <TextBlock Grid.Column="0"
+                               Text="&#xE721;"
+                               FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="{DynamicResource FontSize.Body}"
+                               Foreground="{DynamicResource AccentBrush}"
+                               VerticalAlignment="Center"
+                               Margin="8,0,8,0"
+                               IsHitTestVisible="False"/>
 
-                        <Grid Grid.Column="1" Margin="10,0,0,0">
-                            <TextBlock Text="{DynamicResource Reports.SearchNumberCustomerProject}"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource TextTertiaryBrush}"
-                                       VerticalAlignment="Center"
-                                       IsHitTestVisible="False"
-                                       Visibility="{Binding HasSearchText,
-                                           Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
-                            <TextBox Text="{Binding SearchText,
-                                         UpdateSourceTrigger=PropertyChanged}"
-                                     FontSize="{DynamicResource FontSize.Title}"
-                                     Background="Transparent"
-                                     BorderThickness="{DynamicResource Border.NoneThickness}"
-                                     Foreground="{DynamicResource TextPrimaryBrush}"
-                                     VerticalContentAlignment="Center"
-                                     CaretBrush="{DynamicResource AccentBrush}"
-                                     SelectionBrush="{DynamicResource AccentBrush}" Style="{StaticResource TextBoxStyle}"/>
-                        </Grid>
-
-                        <Button Grid.Column="2"
-                                Style="{StaticResource RowDangerButton}"
-                                Tag="&#xE711;"
-                                ToolTip="{DynamicResource Reports.ClearSearch}"
-                                Command="{Binding ClearSearchCommand}"
-                                Width="28" Height="28" MinWidth="28" Padding="0"
-                                FontSize="{DynamicResource FontSize.Body}"
-                                Cursor="Hand"
-                                Foreground="{DynamicResource TextTertiaryBrush}"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Visibility="{Binding HasSearchText,
-                                    Converter={StaticResource BoolToVisibilityConverter}}">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="bd"
-                                            Background="{TemplateBinding Background}"
-                                            CornerRadius="{DynamicResource ControlCornerRadius}" Style="{StaticResource SurfacePrimaryStyle}">
-                                        <ContentPresenter HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"/>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="bd"
-                                                    Property="Background"
-                                                    Value="{DynamicResource SurfaceTertiaryBrush}"/>
-                                        </Trigger>
-                                        <Trigger Property="IsPressed" Value="True">
-                                            <Setter TargetName="bd"
-                                                    Property="Opacity" Value="0.75"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>
+                    <Grid Grid.Column="1">
+                        <TextBlock Text="{DynamicResource Reports.SearchNumberCustomerProject}"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                   VerticalAlignment="Center"
+                                   IsHitTestVisible="False"
+                                   Visibility="{Binding HasSearchText,
+                                      Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                        <TextBox Text="{Binding SearchText,
+                                     UpdateSourceTrigger=PropertyChanged}"
+                                 FontSize="{DynamicResource FontSize.Body}"
+                                 Background="Transparent"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}"
+                                 Foreground="{DynamicResource TextPrimaryBrush}"
+                                 VerticalContentAlignment="Center"
+                                 CaretBrush="{DynamicResource AccentBrush}"
+                                 SelectionBrush="{DynamicResource AccentBrush}"
+                                 Style="{StaticResource TextBoxStyle}"/>
                     </Grid>
-                </Border>
+
+                    <Button Grid.Column="2"
+                            Style="{StaticResource RowDangerButton}"
+                            Tag="&#xE711;"
+                            ToolTip="{DynamicResource Reports.ClearSearch}"
+                            Command="{Binding ClearSearchCommand}"
+                            Width="28" Height="28" MinWidth="28" Padding="0"
+                            FontSize="{DynamicResource FontSize.Body}"
+                            Cursor="Hand"
+                            Foreground="{DynamicResource TextTertiaryBrush}"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Margin="6,0,2,0"
+                            Visibility="{Binding HasSearchText,
+                                Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </Grid>
 
                 <Button Grid.Column="2"
                         Command="{Binding RefreshCommand}"
-                        Height="38"
-                        Padding="16,0"
-                        FontSize="{DynamicResource FontSize.Body}"
-                        FontWeight="{DynamicResource Weight.SemiBold}"
-                        Cursor="Hand"
-                        Foreground="{DynamicResource OnAccentForegroundBrush}"
-                        BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="bd"
-                                    Background="{DynamicResource AccentBrush}"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="↻"
-                                               FontSize="{DynamicResource FontSize.H3}"
-                                               Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,6,0"/>
-                                    <TextBlock Text="{DynamicResource Action.Refresh}"
-                                               FontSize="{DynamicResource FontSize.Body}"
-                                               FontWeight="{DynamicResource Weight.SemiBold}"
-                                               Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                               VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
-                                </Trigger>
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="bd" Property="Opacity" Value="0.75"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
+                        Style="{StaticResource OutlinedPillButton}"
+                        Tag="&#xE72C;"
+                        Content="{DynamicResource Action.Refresh}"
+                        VerticalAlignment="Center"/>
             </Grid>
         </Border>
 
-        <!-- ══ ROW 3 — COLUMN HEADERS ══ -->
+        <!-- ══ ROW 3 — COLUMN HEADERS (module standard band; the SAME
+             column grid the rows use, so labels and data align) ══ -->
         <Border Grid.Row="3"
-                Margin="24,10,24,0"
-                Background="{DynamicResource SideMenuBackgroundBrush}"
-                BorderBrush="{DynamicResource BorderDefaultBrush}"
-                BorderThickness="{DynamicResource CardBorderThickness}"
-                CornerRadius="{DynamicResource ControlCornerRadius}"
-                Padding="16,8"
+                Margin="24,12,24,0"
+                Style="{StaticResource ModuleListTableHeaderStyle}"
                 Visibility="{Binding IsListVisible,
-                    Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                    Converter={StaticResource BoolToVisibilityConverter}}">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="6"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="148"/>
-                    <ColumnDefinition Width="148"/>
+                    <ColumnDefinition Width="3"/>
+                    <ColumnDefinition Width="1.6*"/>
+                    <ColumnDefinition Width="1.3*"/>
+                    <ColumnDefinition Width="1.3*"/>
                     <ColumnDefinition Width="110"/>
-                    <ColumnDefinition Width="220"/>
+                    <ColumnDefinition Width="170"/>
                 </Grid.ColumnDefinitions>
-
                 <TextBlock Grid.Column="1"
                            Text="{DynamicResource Reports.StatementCustomer}"
-                           FontSize="{DynamicResource FontSize.BodySmall}"
-                           FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource TextTertiaryBrush}"
-                           Margin="14,0,0,0"/>
+                           Style="{StaticResource ModuleListHeaderTextStyle}"
+                           Margin="14,0"/>
                 <TextBlock Grid.Column="2"
                            Text="{DynamicResource Common.Invoiced}"
-                           FontSize="{DynamicResource FontSize.BodySmall}"
-                           FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource SuccessBrush}"/>
+                           Style="{StaticResource ModuleListHeaderTextStyle}"
+                           HorizontalAlignment="Right" Margin="0,0,16,0"/>
                 <TextBlock Grid.Column="3"
                            Text="{DynamicResource Common.Outstanding}"
-                           FontSize="{DynamicResource FontSize.BodySmall}"
-                           FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource WarningBrush}"/>
+                           Style="{StaticResource ModuleListHeaderTextStyle}"
+                           HorizontalAlignment="Right" Margin="0,0,16,0"/>
                 <TextBlock Grid.Column="4"
                            Text="{DynamicResource Common.Status}"
-                           FontSize="{DynamicResource FontSize.BodySmall}"
-                           FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource TextTertiaryBrush}"/>
+                           Style="{StaticResource ModuleListHeaderTextStyle}"/>
                 <TextBlock Grid.Column="5"
                            Text="{DynamicResource Common.Actions}"
-                           FontSize="{DynamicResource FontSize.BodySmall}"
-                           FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource TextTertiaryBrush}"
-                           HorizontalAlignment="Right"/>
+                           Style="{StaticResource ModuleListHeaderTextStyle}"
+                           HorizontalAlignment="Right" Margin="0,0,14,0"/>
             </Grid>
         </Border>
 
         <!-- ══ ROW 4 — CONTENT ══ -->
-        <Grid Grid.Row="4" Margin="12,4,12,8">
+        <Grid Grid.Row="4" Margin="24,4,24,8">
 
-            <Border Background="{DynamicResource AccentBrush}"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
+            <!-- Loading -->
+            <Border Style="{StaticResource SurfacePrimaryStyle}"
                     Visibility="{Binding IsLoading,
                         Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             Margin="0,48,0,48">
-                    <Border Width="72" Height="72"
-                            Background="{DynamicResource AccentBrush}"
+                    <Border Width="64" Height="64"
                             CornerRadius="{DynamicResource CardCornerRadius}"
+                            Background="{DynamicResource TintIndigoBrush}"
                             HorizontalAlignment="Center">
-                        <TextBlock Text="↻"
+                        <TextBlock Text="&#xE8A5;"
+                                   FontFamily="{DynamicResource FontFamily.Icon}"
                                    FontSize="{DynamicResource FontSize.Kpi}"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                   Foreground="{DynamicResource AccentBrush}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"/>
                     </Border>
                     <TextBlock Text="{DynamicResource Dashboard.LoadingStatements}"
                                FontSize="{DynamicResource FontSize.H3}"
                                FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
                                HorizontalAlignment="Center"
-                               Margin="0,18,0,0"/>
+                               Margin="0,16,0,0"/>
                     <TextBlock Text="{DynamicResource Reports.PreparingDataTotals}"
                                FontSize="{DynamicResource FontSize.Body}"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"
+                               Foreground="{DynamicResource TextTertiaryBrush}"
                                HorizontalAlignment="Center"
                                Margin="0,5,0,0"/>
                 </StackPanel>
             </Border>
 
-            <Border Background="{DynamicResource SideMenuBackgroundBrush}"
-                    BorderBrush="{DynamicResource BorderDefaultBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
+            <!-- Empty -->
+            <Border Style="{StaticResource SurfacePrimaryStyle}"
                     Visibility="{Binding IsEmpty,
                         Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel HorizontalAlignment="Center"
                             VerticalAlignment="Center"
-                            MaxWidth="420"
+                            MaxWidth="440"
                             Margin="0,48,0,48">
-
-                    <Border Width="80" Height="80"
+                    <Border Width="64" Height="64"
                             CornerRadius="{DynamicResource CardCornerRadius}"
+                            Background="{DynamicResource TintIndigoBrush}"
                             HorizontalAlignment="Center"
-                            ClipToBounds="True"
-                            Margin="0,0,0,20">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0" Grid.Column="0" Background="{DynamicResource AccentBrush}"/>
-                            <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0" Grid.Column="1" Background="{DynamicResource SuccessBrush}"/>
-                            <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1" Grid.Column="0" Background="{DynamicResource WarningBrush}"/>
-                            <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1" Grid.Column="1" Background="{DynamicResource DangerBrush}"/>
-                        </Grid>
+                            Margin="0,0,0,18">
+                        <TextBlock Text="&#xE7C3;"
+                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource FontSize.Kpi}"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
                     </Border>
 
                     <TextBlock Text="{DynamicResource Dashboard.NoStatementsYet}"
@@ -507,45 +403,21 @@
                                HorizontalAlignment="Center"
                                Margin="0,0,0,8"/>
                     <TextBlock Text="{DynamicResource Reports.CreateFirstAccountStatementTrackInvoices}"
-                               FontSize="{DynamicResource FontSize.Title}"
+                               FontSize="{DynamicResource FontSize.Body}"
                                TextWrapping="Wrap"
                                TextAlignment="Center"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               Margin="0,0,0,24"/>
+                               Margin="0,0,0,20"/>
 
                     <Button Content="{DynamicResource Reports.NewStatement}"
                             Command="{Binding NewStatementCommand}"
-                            Height="40"
-                            Padding="28,0"
-                            FontSize="{DynamicResource FontSize.Title}"
-                            FontWeight="{DynamicResource Weight.SemiBold}"
-                            Cursor="Hand"
-                            Foreground="{DynamicResource OnAccentForegroundBrush}"
-                            BorderThickness="{DynamicResource Border.NoneThickness}"
-                            HorizontalAlignment="Center" Style="{StaticResource SecondaryButtonStyle}">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border x:Name="bd"
-                                        Background="{DynamicResource AccentBrush}"
-                                        CornerRadius="{DynamicResource ControlCornerRadius}"
-                                        Padding="{TemplateBinding Padding}">
-                                    <ContentPresenter HorizontalAlignment="Center"
-                                                      VerticalAlignment="Center"/>
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
-                                    </Trigger>
-                                    <Trigger Property="IsPressed" Value="True">
-                                        <Setter TargetName="bd" Property="Opacity" Value="0.75"/>
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
+                            Style="{StaticResource PrimaryPillButton}"
+                            Tag="&#xE710;"
+                            HorizontalAlignment="Center"/>
                 </StackPanel>
             </Border>
 
+            <!-- List -->
             <ListView ItemsSource="{Binding Rows}"
                       SelectedItem="{Binding SelectedRow}"
                       Background="Transparent"
@@ -583,7 +455,7 @@
 
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="{DynamicResource SideMenuBackgroundBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}" ClipToBounds="True">
+                        <Border ClipToBounds="True">
                             <Border.Style>
                                 <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                                     <Style.Triggers>
@@ -595,22 +467,23 @@
                             </Border.Style>
 
                             <Grid>
+                                <!-- SAME column grid as the header band -->
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="6"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="148"/>
-                                    <ColumnDefinition Width="148"/>
+                                    <ColumnDefinition Width="3"/>
+                                    <ColumnDefinition Width="1.6*"/>
+                                    <ColumnDefinition Width="1.3*"/>
+                                    <ColumnDefinition Width="1.3*"/>
                                     <ColumnDefinition Width="110"/>
-                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="170"/>
                                 </Grid.ColumnDefinitions>
 
-                                <Border Grid.Column="0" CornerRadius="{DynamicResource Radius.Left.Medium}">
+                                <!-- Accent rail (red when overdue) -->
+                                <Border Grid.Column="0">
                                     <Border.Style>
-                                        <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                                        <Style TargetType="Border">
                                             <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding HasOverdue}"
-                                                             Value="True">
+                                                <DataTrigger Binding="{Binding HasOverdue}" Value="True">
                                                     <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -619,132 +492,121 @@
                                 </Border>
 
                                 <!-- COL 1: Statement info -->
-                                <Border Grid.Column="1" Padding="16,14,12,14">
-                                    <StackPanel>
-                                        <StackPanel Orientation="Horizontal"
-                                                    Margin="0,0,0,7">
-                                            <TextBlock Text="{Binding StatementNumber, Mode=OneWay}"
-                                                       FontSize="{DynamicResource FontSize.Title}"
-                                                       FontWeight="{DynamicResource Weight.Bold}"
-                                                       Foreground="{DynamicResource AccentBrush}"/>
-                                            <TextBlock Text="  /  "
-                                                       FontSize="{DynamicResource FontSize.Title}"
-                                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
-                                            <TextBlock Text="{Binding SubTitle, Mode=OneWay}"
-                                                       FontSize="{DynamicResource FontSize.Title}"
-                                                       FontWeight="{DynamicResource Weight.SemiBold}"
-                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                        </StackPanel>
-
-                                        <StackPanel Orientation="Horizontal">
-                                            <!-- FIX: Invoice count badge Runs need Mode=OneWay -->
-                                            <Border Background="{DynamicResource AccentBrush}"
-                                                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                    Padding="8,3"
-                                                    Margin="0,0,8,0">
-                                                <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
-                                                           FontWeight="{DynamicResource Weight.Bold}"
-                                                           Foreground="{DynamicResource OnAccentForegroundBrush}">
-                                                    <Run Text="{Binding InvoiceCount, Mode=OneWay}"/>
-                                                    <Run Text="{DynamicResource Reports.Inv}"/>
-                                                </TextBlock>
-                                            </Border>
-
-                                            <TextBlock Text="{Binding CreatedAtDisplay, Mode=OneWay}"
-                                                       FontSize="{DynamicResource FontSize.Body}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       VerticalAlignment="Center"
-                                                       Margin="0,0,8,0"/>
-
-                                            <Border Background="{DynamicResource SuccessBrush}"
-                                                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                    Padding="8,3"
-                                                    Visibility="{Binding HasAttachments,
-                                                        Converter={StaticResource BoolToVisibilityConverter}}">
-                                                <TextBlock Text="{DynamicResource DeliveryNote.Attachments}"
-                                                           FontSize="{DynamicResource FontSize.BodySmall}"
-                                                           FontWeight="{DynamicResource Weight.Bold}"
-                                                           Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                                            </Border>
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Border>
-
-                                <!-- COL 2: Invoiced -->
-                                <Border Grid.Column="2"
-                                        Background="{DynamicResource SuccessBrush}"
-                                        Margin="0,10,8,10"
-                                        CornerRadius="{DynamicResource ControlCornerRadius}"
-                                        Padding="12,10">
-                                    <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="{DynamicResource Common.Invoiced}"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   FontWeight="{DynamicResource Weight.Bold}"
-                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                                   Margin="0,0,0,4"/>
-                                        <TextBlock Text="{Binding TotalInvoicedDisplay, Mode=OneWay}"
+                                <StackPanel Grid.Column="1" Margin="14,12,8,12">
+                                    <StackPanel Orientation="Horizontal"
+                                                Margin="0,0,0,6">
+                                        <TextBlock Text="{Binding StatementNumber, Mode=OneWay}"
                                                    FontSize="{DynamicResource FontSize.Title}"
                                                    FontWeight="{DynamicResource Weight.Bold}"
-                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                                    </StackPanel>
-                                </Border>
-
-                                <!-- COL 3: Outstanding -->
-                                <Border Grid.Column="3"
-                                        Background="{DynamicResource WarningBrush}"
-                                        Margin="0,10,8,10"
-                                        CornerRadius="{DynamicResource ControlCornerRadius}"
-                                        Padding="12,10">
-                                    <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="{DynamicResource Common.Outstanding}"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   FontWeight="{DynamicResource Weight.Bold}"
-                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                                   Margin="0,0,0,4"/>
-                                        <TextBlock Text="{Binding TotalOutstandingDisplay, Mode=OneWay}"
+                                                   Foreground="{DynamicResource AccentBrush}"/>
+                                        <TextBlock Text="  /  "
                                                    FontSize="{DynamicResource FontSize.Title}"
-                                                   FontWeight="{DynamicResource Weight.Bold}"
-                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                                        <!-- FIX: Overdue Runs need Mode=OneWay -->
-                                        <TextBlock Visibility="{Binding HasOverdue,
-                                                       Converter={StaticResource BoolToVisibilityConverter}}"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                        <TextBlock Text="{Binding SubTitle, Mode=OneWay}"
+                                                   FontSize="{DynamicResource FontSize.Title}"
                                                    FontWeight="{DynamicResource Weight.SemiBold}"
-                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                                   Margin="0,4,0,0">
-                                            <Run Text="{DynamicResource Common.Overdue}"/>
-                                            <Run Text="{Binding OverdueAmountDisplay, Mode=OneWay}"/>
-                                        </TextBlock>
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"/>
                                     </StackPanel>
-                                </Border>
 
-                                <!-- COL 4: Status pill -->
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Background="{DynamicResource TintIndigoBrush}"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                Padding="8,3"
+                                                Margin="0,0,8,0">
+                                            <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
+                                                       FontWeight="{DynamicResource Weight.Bold}"
+                                                       Foreground="{DynamicResource AccentBrush}">
+                                                <Run Text="{Binding InvoiceCount, Mode=OneWay}"/>
+                                                <Run Text="{DynamicResource Reports.Inv}"/>
+                                            </TextBlock>
+                                        </Border>
+
+                                        <TextBlock Text="{Binding CreatedAtDisplay, Mode=OneWay}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,8,0"/>
+
+                                        <Border Background="{DynamicResource TintGreenBrush}"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                Padding="8,3"
+                                                Visibility="{Binding HasAttachments,
+                                                    Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <TextBlock Text="{DynamicResource DeliveryNote.Attachments}"
+                                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                                       FontWeight="{DynamicResource Weight.Bold}"
+                                                       Foreground="{DynamicResource SuccessBrush}"/>
+                                        </Border>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- COL 2: Invoiced (coloured text, right-aligned) -->
+                                <StackPanel Grid.Column="2"
+                                            HorizontalAlignment="Right"
+                                            Margin="0,12,16,12"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding TotalInvoicedDisplay, Mode=OneWay}"
+                                               FontSize="{DynamicResource FontSize.Title}"
+                                               FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                </StackPanel>
+
+                                <!-- COL 3: Outstanding (coloured text, right-aligned) -->
+                                <StackPanel Grid.Column="3"
+                                            HorizontalAlignment="Right"
+                                            Margin="0,12,16,12"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding TotalOutstandingDisplay, Mode=OneWay}"
+                                               FontSize="{DynamicResource FontSize.Title}"
+                                               FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource WarningBrush}"/>
+                                    <TextBlock Visibility="{Binding HasOverdue,
+                                                   Converter={StaticResource BoolToVisibilityConverter}}"
+                                               FontSize="{DynamicResource FontSize.BodySmall}"
+                                               FontWeight="{DynamicResource Weight.SemiBold}"
+                                               Foreground="{DynamicResource DangerBrush}"
+                                               Margin="0,3,0,0">
+                                        <Run Text="{DynamicResource Common.Overdue}"/>
+                                        <Run Text="{Binding OverdueAmountDisplay, Mode=OneWay}"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <!-- COL 4: Status pill (tinted, not solid) -->
                                 <Border Grid.Column="4"
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Left"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
-                                        Padding="12,6">
+                                        Padding="12,5"
+                                        Margin="8,0,0,0"
+                                        Background="{DynamicResource TintGreenBrush}"
+                                        BorderBrush="{DynamicResource SuccessBrush}"
+                                        BorderThickness="{DynamicResource Border.HairlineThickness}">
                                     <Border.Style>
-                                        <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
-                                            <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
+                                            <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding HasOverdue}"
-                                                             Value="True">
-                                                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                                <DataTrigger Binding="{Binding HasOverdue}" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource TintRedBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
-                                    <TextBlock FontSize="{DynamicResource FontSize.Body}"
+                                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
                                                FontWeight="{DynamicResource Weight.Bold}"
-                                               Foreground="{DynamicResource OnAccentForegroundBrush}">
+                                               Foreground="{DynamicResource SuccessBrush}">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Text" Value="Current"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding HasOverdue}"
-                                                                 Value="True">
+                                                    <DataTrigger Binding="{Binding HasOverdue}" Value="True">
                                                         <Setter Property="Text" Value="Overdue"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -752,162 +614,61 @@
                                     </TextBlock>
                                 </Border>
 
-                                <!-- COL 5: Actions -->
-                                <Border Grid.Column="5" Padding="8,0,16,0">
-                                    <StackPanel Orientation="Horizontal"
-                                                VerticalAlignment="Center">
+                                <!-- COL 5: Actions (ghost icon buttons) -->
+                                <StackPanel Grid.Column="5"
+                                            Orientation="Horizontal"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Right"
+                                            Margin="0,0,14,0">
 
-                                        <Button Command="{Binding DataContext.OpenPdfCommand,
-                                                    RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                CommandParameter="{Binding}"
-                                                Height="34"
-                                                Padding="12,0"
-                                                Margin="0,0,6,0"
-                                                FontSize="{DynamicResource FontSize.Body}"
-                                                FontWeight="{DynamicResource Weight.SemiBold}"
-                                                Cursor="Hand"
-                                                IsEnabled="{Binding HasPdf}"
-                                                Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                                BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
-                                            <Button.Template>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="bd"
-                                                            Background="{DynamicResource AccentBrush}"
-                                                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                            Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
-                                                        <TextBlock Text="PDF"
-                                                                   FontSize="{DynamicResource FontSize.Body}"
-                                                                   FontWeight="{DynamicResource Weight.Bold}"
-                                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                                                   VerticalAlignment="Center"
-                                                                   HorizontalAlignment="Center"/>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="bd" Property="Opacity" Value="0.84"/>
-                                                        </Trigger>
-                                                        <Trigger Property="IsPressed" Value="True">
-                                                            <Setter TargetName="bd" Property="Opacity" Value="0.70"/>
-                                                        </Trigger>
-                                                        <Trigger Property="IsEnabled" Value="False">
-                                                            <Setter TargetName="bd" Property="Opacity" Value="0.35"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Button.Template>
-                                        </Button>
+                                    <Button Style="{StaticResource StatementGhostActionStyle}"
+                                            Background="{DynamicResource TintIndigoBrush}"
+                                            Foreground="{DynamicResource AccentBrush}"
+                                            ToolTip="PDF"
+                                            Command="{Binding DataContext.OpenPdfCommand,
+                                                RelativeSource={RelativeSource AncestorType=ListView}}"
+                                            CommandParameter="{Binding}"
+                                            IsEnabled="{Binding HasPdf}">
+                                        <TextBlock Text="PDF"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   FontWeight="{DynamicResource Weight.Bold}"/>
+                                    </Button>
 
-                                        <Button Command="{Binding DataContext.ShareStatementCommand,
-                                                    RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                CommandParameter="{Binding}"
-                                                Height="34"
-                                                Padding="12,0"
-                                                Margin="0,0,6,0"
-                                                FontSize="{DynamicResource FontSize.Body}"
-                                                FontWeight="{DynamicResource Weight.SemiBold}"
-                                                Cursor="Hand"
-                                                IsEnabled="{Binding HasPdf}"
-                                                ToolTip="{DynamicResource Sharing.Share}"
-                                                Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                                BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
-                                            <Button.Template>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="bd"
-                                                            Background="{DynamicResource SuccessBrush}"
-                                                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                            Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
-                                                        <TextBlock Text="&#xE72D;"
-                                                                   FontFamily="{DynamicResource FontFamily.Icon}"
-                                                                   FontSize="{DynamicResource FontSize.Body}"
-                                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                                                   VerticalAlignment="Center"
-                                                                   HorizontalAlignment="Center"/>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="bd" Property="Opacity" Value="0.84"/>
-                                                        </Trigger>
-                                                        <Trigger Property="IsPressed" Value="True">
-                                                            <Setter TargetName="bd" Property="Opacity" Value="0.70"/>
-                                                        </Trigger>
-                                                        <Trigger Property="IsEnabled" Value="False">
-                                                            <Setter TargetName="bd" Property="Opacity" Value="0.35"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Button.Template>
-                                        </Button>
+                                    <Button Style="{StaticResource StatementGhostActionStyle}"
+                                            Background="{DynamicResource TintGreenBrush}"
+                                            Foreground="{DynamicResource SuccessBrush}"
+                                            ToolTip="{DynamicResource Sharing.Share}"
+                                            Command="{Binding DataContext.ShareStatementCommand,
+                                                RelativeSource={RelativeSource AncestorType=ListView}}"
+                                            CommandParameter="{Binding}"
+                                            IsEnabled="{Binding HasPdf}">
+                                        <TextBlock Text="&#xE72D;"
+                                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                                   FontSize="{DynamicResource FontSize.Body}"/>
+                                    </Button>
 
-                                        <Button Command="{Binding DataContext.EditStatementCommand,
-                                                    RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                CommandParameter="{Binding}"
-                                                Height="34"
-                                                Padding="12,0"
-                                                Margin="0,0,6,0"
-                                                FontSize="{DynamicResource FontSize.Body}"
-                                                FontWeight="{DynamicResource Weight.SemiBold}"
-                                                Cursor="Hand"
-                                                Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                                BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
-                                            <Button.Template>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="bd"
-                                                            Background="{DynamicResource WarningBrush}"
-                                                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                            Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
-                                                        <TextBlock Text="{DynamicResource Action.Edit}"
-                                                                   FontSize="{DynamicResource FontSize.Body}"
-                                                                   FontWeight="{DynamicResource Weight.Bold}"
-                                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                                                   VerticalAlignment="Center"
-                                                                   HorizontalAlignment="Center"/>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
-                                                        </Trigger>
-                                                        <Trigger Property="IsPressed" Value="True">
-                                                            <Setter TargetName="bd" Property="Opacity" Value="0.75"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Button.Template>
-                                        </Button>
+                                    <Button Style="{StaticResource StatementGhostActionStyle}"
+                                            Background="{DynamicResource TintAmberBrush}"
+                                            Foreground="{DynamicResource WarningBrush}"
+                                            Command="{Binding DataContext.EditStatementCommand,
+                                                RelativeSource={RelativeSource AncestorType=ListView}}"
+                                            CommandParameter="{Binding}">
+                                        <TextBlock Text="&#xE70F;"
+                                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                                   FontSize="{DynamicResource FontSize.Body}"/>
+                                    </Button>
 
-                                        <Button Command="{Binding DataContext.DeleteStatementCommand,
-                                                    RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                CommandParameter="{Binding}"
-                                                Width="34"
-                                                Height="34"
-                                                FontSize="{DynamicResource FontSize.Title}"
-                                                Cursor="Hand"
-                                                BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
-                                            <Button.Template>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="bd"
-                                                            Background="{DynamicResource DangerBrush}"
-                                                            CornerRadius="{DynamicResource ControlCornerRadius}" Style="{StaticResource SurfacePrimaryStyle}">
-                                                        <TextBlock Text="✕"
-                                                                   FontSize="{DynamicResource FontSize.Title}"
-                                                                   FontWeight="{DynamicResource Weight.Bold}"
-                                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                                                   HorizontalAlignment="Center"
-                                                                   VerticalAlignment="Center"/>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="bd" Property="Opacity" Value="0.84"/>
-                                                        </Trigger>
-                                                        <Trigger Property="IsPressed" Value="True">
-                                                            <Setter TargetName="bd" Property="Opacity" Value="0.70"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Button.Template>
-                                        </Button>
-
-                                    </StackPanel>
-                                </Border>
+                                    <Button Style="{StaticResource StatementGhostActionStyle}"
+                                            Background="{DynamicResource TintRedBrush}"
+                                            Foreground="{DynamicResource DangerBrush}"
+                                            Command="{Binding DataContext.DeleteStatementCommand,
+                                                RelativeSource={RelativeSource AncestorType=ListView}}"
+                                            CommandParameter="{Binding}">
+                                        <TextBlock Text="&#xE74D;"
+                                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                                   FontSize="{DynamicResource FontSize.Body}"/>
+                                    </Button>
+                                </StackPanel>
 
                             </Grid>
                         </Border>

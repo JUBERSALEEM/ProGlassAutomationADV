@@ -75,7 +75,7 @@
                 </StackPanel>
             </Grid>
 
-            <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="0,0,0,18">
+            <Border Style="{StaticResource AboutInsetStyle}" Margin="0,0,0,18">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1.3*"/>
@@ -105,7 +105,7 @@
                 </Grid>
             </Border>
 
-            <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="0,0,0,0">
+            <Border Style="{StaticResource AboutInsetStyle}" Margin="0,0,0,0">
                 <StackPanel>
                     <ItemsControl ItemsSource="{Binding Reports}">
                         <ItemsControl.ItemTemplate>

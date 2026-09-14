@@ -284,9 +284,10 @@
         <Setter Property="behaviors:BounceHover.IsEnabled"  Value="True"/>
         <Setter Property="behaviors:BounceHover.HoverScale" Value="1.035"/>
         <Setter Property="behaviors:BounceHover.PressScale" Value="0.97"/>
-        <!-- 2026-09-14: vertical rail spacing 2 → 4px so the nav buttons
-             read as separate rows instead of a stuck-together stack. -->
-        <Setter Property="Margin"              Value="10,4"/>
+        <!-- 2026-09-14: compact rows so all 12 options fit the rail on a
+             normal laptop screen (owner: "12 options but only 10 visible");
+             the ScrollViewer stays as a safety net for short windows. -->
+        <Setter Property="Margin"              Value="10,2"/>
         <Setter Property="Tag"                 Value="Inactive"/>
         <Setter Property="Background"          Value="Transparent"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -298,7 +299,7 @@
                     <Grid>
                         <Border x:Name="Bd"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Padding="12,10"
+                                Padding="12,7"
                                 Background="{TemplateBinding Background}"
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True">

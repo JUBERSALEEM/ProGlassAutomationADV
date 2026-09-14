@@ -145,7 +145,7 @@
                     </Border>
                 </Grid>
 
-                <Border Style="{StaticResource SurfaceSecondaryStyle}">
+                <Border Style="{StaticResource AboutInsetStyle}">
                     <StackPanel>
                         <Grid Margin="0,0,0,16">
                             <Grid.ColumnDefinitions>
@@ -179,7 +179,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource SurfaceSecondaryStyle}">
+                <Border Style="{StaticResource AboutInsetStyle}">
                     <StackPanel>
                         <Grid Margin="0,0,0,16">
                             <Grid.ColumnDefinitions>
@@ -220,7 +220,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="0,0,0,0">
+                <Border Style="{StaticResource AboutInsetStyle}" Margin="0,0,0,0">
                     <StackPanel>
                         <Grid Margin="0,0,0,16">
                             <Grid.ColumnDefinitions>

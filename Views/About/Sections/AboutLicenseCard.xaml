@@ -70,7 +70,7 @@
 
             <!-- 2026-09-14: this card sat inside the outer L1 card with its
                  OWN L1 chrome (card-in-card) → L2. -->
-            <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="0,0,0,18">
+            <Border Style="{StaticResource AboutInsetStyle}" Margin="0,0,0,18">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1.35*"/>
@@ -103,26 +103,31 @@
                 </Grid>
             </Border>
 
-            <UniformGrid Columns="4" Margin="-6,0,-6,12">
-                <Border Style="{StaticResource SurfaceKpiStyle}">
+            <!-- 2026-09-14: the row used Margin="-6,0,-6,12" expecting
+                 6px tile margins that SurfaceKpiStyle does not define —
+                 the four KPI tiles touched edge-to-edge and bled 6px
+                 past the card padding ("cards overlapping"). Proper
+                 6px gutters now, inside the card. -->
+            <UniformGrid Columns="4" Margin="0,0,0,12">
+                <Border Style="{StaticResource SurfaceKpiStyle}" Margin="0,0,6,0">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource About.Edition}" Style="{StaticResource Typography.Label}"/>
                         <TextBlock Text="{Binding EditionDisplay}" Style="{StaticResource Typography.Kpi}" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
-                <Border Style="{StaticResource SurfaceKpiStyle}">
+                <Border Style="{StaticResource SurfaceKpiStyle}" Margin="6,0,6,0">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource About.DAYSRemaining}" Style="{StaticResource Typography.Label}"/>
                         <TextBlock Text="{Binding DaysRemainingDisplay}" Style="{StaticResource Typography.Kpi}" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
-                <Border Style="{StaticResource SurfaceKpiStyle}">
+                <Border Style="{StaticResource SurfaceKpiStyle}" Margin="6,0,6,0">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource About.ActivationMODE}" Style="{StaticResource Typography.Label}"/>
                         <TextBlock Text="{Binding ActivationModeDisplay}" Style="{StaticResource Typography.Kpi}" FontSize="{DynamicResource FontSize.Title}" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
-                <Border Style="{StaticResource SurfaceKpiStyle}">
+                <Border Style="{StaticResource SurfaceKpiStyle}" Margin="6,0,0,0">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource About.LicenseWindow}" Style="{StaticResource Typography.Label}"/>
                         <TextBlock Text="{Binding LicenseWindowDisplay}" Style="{StaticResource Typography.Kpi}" FontSize="{DynamicResource FontSize.Title}" TextWrapping="Wrap"/>
@@ -138,7 +143,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Style="{StaticResource SurfaceSecondaryStyle}">
+                <Border Grid.Column="0" Style="{StaticResource AboutInsetStyle}">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource About.AccountWindow}"
                                    Style="{StaticResource AboutPanelKickerStyle}"/>
@@ -169,7 +174,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Column="2" Style="{StaticResource SurfaceSecondaryStyle}">
+                <Border Grid.Column="2" Style="{StaticResource AboutInsetStyle}">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource About.TrustEntitlements}"
                                    Style="{StaticResource AboutPanelKickerStyle}"/>
@@ -201,7 +206,7 @@
                 </Border>
             </Grid>
 
-            <Border Style="{StaticResource SurfaceSecondaryStyle}"
+            <Border Style="{StaticResource AboutInsetStyle}"
                     Visibility="{Binding HasPayloadDetails, Converter={StaticResource BoolToVisibilityConverter}}"
                     Margin="0,0,0,18">
                 <StackPanel>
@@ -243,7 +248,7 @@
                 </StackPanel>
             </Border>
 
-            <Border Style="{StaticResource SurfaceSecondaryStyle}"
+            <Border Style="{StaticResource AboutInsetStyle}"
                     Visibility="{Binding HasNotes, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource About.IssuerNotes}"
