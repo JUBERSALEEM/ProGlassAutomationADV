@@ -206,7 +206,8 @@ namespace ProGlassAutomation.Agent.Demo.Video
         /// save can possibly be.
         /// </summary>
         public static async Task<string?> MuxVideoWithAudioAsync(
-            string videoPath, string? wavPath, string mp4Path, CancellationToken ct)
+            string videoPath, string? wavPath, string mp4Path, CancellationToken ct,
+            double? limitSeconds = null)
         {
             if (string.IsNullOrWhiteSpace(videoPath) || !File.Exists(videoPath))
                 return null;
@@ -238,12 +239,20 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 try { if (File.Exists(packingPath)) File.Delete(packingPath); }
                 catch (Exception ex) { AppLogService.Debug("[Mux] stale packing delete: " + ex.Message); }
 
-                // -shortest: the WAV can outrun the video by a few frames
-                // because audio capture stops fractionally later.
+                // PHASE 3: -shortest → video-authoritative -t. The WAV can
+                // outrun the video by a few frames (audio stops
+                // fractionally later) — -t trims that tail. Crucially, a
+                // SHORT/dead audio track no longer cuts the video: the
+                // container runs to the video's own length. Without a
+                // limit (callers that pass none) the legacy -shortest is
+                // kept.
+                string limit = limitSeconds.HasValue
+                    ? $" -t {limitSeconds.Value.ToString("0.###", CultureInfo.InvariantCulture)}"
+                    : " -shortest";
                 string args =
                     $"-y -i \"{videoPath}\" -i \"{wavPath}\" " +
                     $"-c:v copy -c:a aac -b:a 320k -ar 48000 " +
-                    $"-shortest -movflags +faststart \"{packingPath}\"";
+                    $"{limit} -movflags +faststart \"{packingPath}\"";
 
                 string? packed = await RunComposeAsync(ffmpeg, args, packingPath, ct)
                     .ConfigureAwait(false);
@@ -433,7 +442,8 @@ namespace ProGlassAutomation.Agent.Demo.Video
         /// </summary>
         public static async Task<string?> RetimeCopyAsync(
             string videoPath, string? wavPath, string mp4Path,
-            double itsScale, CancellationToken ct)
+            double itsScale, CancellationToken ct,
+            double? authoritativeSeconds = null)
         {
             if (string.IsNullOrWhiteSpace(videoPath) || !File.Exists(videoPath))
                 return null;
@@ -443,13 +453,18 @@ namespace ProGlassAutomation.Agent.Demo.Video
             // the ordinary copy-mux path so we never pay for a no-op.
             bool needsRescale = itsScale > 0 && Math.Abs(itsScale - 1.0) > 0.015;
             if (!needsRescale)
-                return await MuxVideoWithAudioAsync(videoPath, wavPath, mp4Path, ct)
+                return await MuxVideoWithAudioAsync(videoPath, wavPath, mp4Path, ct, authoritativeSeconds)
                     .ConfigureAwait(false);
 
             string? ffmpeg = Find();
             if (ffmpeg == null) return null;
 
-            itsScale = Math.Clamp(itsScale, 0.02, 50.0);
+            // PHASE 3: bound now shared with WindowScreenRecorder
+            // (3600× — full correction up to an hour of wall time); the
+            // save path measures the result and refuses success if the
+            // final duration is materially wrong.
+            itsScale = Math.Clamp(itsScale, 0.02,
+                ProGlassAutomation.Agent.Demo.Recording.WindowScreenRecorder.MaxRetimeScale);
             bool hasAudio = !string.IsNullOrWhiteSpace(wavPath) && File.Exists(wavPath);
 
             try
@@ -466,10 +481,21 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 // left at real time. -c:v copy => timestamps only, no
                 // re-encode. -video_track_timescale keeps a clean CFR
                 // timebase after the scale.
+                //
+                // PHASE 3: the VIDEO duration is authoritative. -shortest
+                // used to trim the container to the shortest stream, so a
+                // dead or early-stopping audio track could cut a correct
+                // video down to seconds. -t <realDuration> instead bounds
+                // the output at the real recording length: a slightly long
+                // audio tail is trimmed, while a short/dead audio track
+                // can no longer truncate the video.
+                string limit = authoritativeSeconds.HasValue
+                    ? $" -t {authoritativeSeconds.Value.ToString("0.###", CultureInfo.InvariantCulture)}"
+                    : "";
                 string args = hasAudio
                     ? $"-y -itsscale {scale} -i \"{videoPath}\" -i \"{wavPath}\" " +
                       $"-map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 320k -ar 48000 " +
-                      $"-video_track_timescale 90000 -shortest -movflags +faststart \"{packingPath}\""
+                      $"-video_track_timescale 90000{limit} -movflags +faststart \"{packingPath}\""
                     : $"-y -itsscale {scale} -i \"{videoPath}\" " +
                       $"-map 0:v:0 -c:v copy -video_track_timescale 90000 " +
                       $"-movflags +faststart \"{packingPath}\"";

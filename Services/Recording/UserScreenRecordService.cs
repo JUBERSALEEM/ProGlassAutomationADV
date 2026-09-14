@@ -253,6 +253,24 @@ namespace ProGlassAutomation.Services.Recording
             {
                 recorder.Start(frames, rec);
 
+                // PHASE 3: if the capture loop ends for a FATAL reason
+                // mid-recording (encoder death, persistent blank output),
+                // stop + report the session immediately. The HUD must
+                // never keep showing REC over a dead pipeline. StopAndSaveAsync
+                // is idempotent-gated (IsRecording), so a user STOP racing
+                // this is a no-op.
+                recorder.CaptureLoopFatal += () =>
+                {
+                    AppLogService.Warning(
+                        "Capture loop reported a fatal stop; ending session.",
+                        new LogContext { Module = "Recording", Operation = "LoopFatal" });
+                    _ = Task.Run(async () =>
+                    {
+                        try { await StopAndSaveAsync().ConfigureAwait(false); }
+                        catch (Exception ex) { AppLogService.Debug($"[Recording] fatal-stop save: {ex.Message}"); }
+                    });
+                };
+
                 // Start() posts the capture loop and returns. If capture or
                 // the encoder could not initialise, the loop reports it via
                 // FatalStartError almost immediately. Surface that instead
@@ -350,6 +368,22 @@ namespace ProGlassAutomation.Services.Recording
                     return;
                 }
 
+                // PHASE 3: an encoder that DIED mid-recording must never
+                // produce a "SAVED" state — even if the partial file's
+                // duration happens to validate. Report the professional
+                // failure and keep the job folder (raw file + logs) for
+                // forensics.
+                if (!string.IsNullOrWhiteSpace(recorder.EncoderFailure))
+                {
+                    AppLogService.Warning(
+                        $"[RecSaved] REFUSED — encoder failure: {recorder.EncoderFailure} " +
+                        $"wall={recorder.Duration.TotalSeconds:0.###}s frames={recorder.EncodedFrames} folder={folder}",
+                        new LogContext { Module = "Recording", Operation = "StopSave" });
+                    Fail(recorder.EncoderFailure +
+                        " The captured data was kept in the recordings folder for diagnostics.");
+                    return;
+                }
+
                 recorder.EncodeStage = "Mixing audio…";
                 recorder.EncodePercent = 70;
                 DemoRecordingChrome.UpdateStage("Mixing audio… 70%");
@@ -405,22 +439,62 @@ namespace ProGlassAutomation.Services.Recording
                         ? recorder.EncodedFrames / (double)recorder.CaptureNominalFps
                         : -1;
                     bool willRescale = retime > 0 && Math.Abs(retime - 1.0) > 0.015;
-                    bool shortestActive = !string.IsNullOrWhiteSpace(liveMix) && File.Exists(liveMix);
+                    bool audioPresent = !string.IsNullOrWhiteSpace(liveMix) && File.Exists(liveMix);
                     AppLogService.Info(
                         $"[RecRetime] writtenFrames={recorder.EncodedFrames} nominalFps={recorder.CaptureNominalFps} " +
                         $"claimed={claimedSecs:0.###}s real={recorder.Duration.TotalSeconds:0.###}s " +
                         $"factor={retime:0.0000} rescale={willRescale} " +
                         $"method={willRescale ? "-itsscale + -c:v copy" : "plain mux (factor ~1)"} " +
-                        $"shortest={shortestActive} audio={(string.IsNullOrWhiteSpace(liveMix) ? "none" : Path.GetFileName(liveMix))}",
+                        $"audioLimit={(audioPresent ? recorder.Duration.TotalSeconds.ToString("0.###") + "s (video authoritative)" : "none")} " +
+                        $"audio={(string.IsNullOrWhiteSpace(liveMix) ? "none" : Path.GetFileName(liveMix))}",
                         new LogContext { Module = "Recording", Operation = "StopRetime" });
 
+                    // PHASE 3: pass the real duration as the mux authority
+                    // (-t) so a short/dead audio track cannot truncate the
+                    // video (the old -shortest could).
                     string? merged = await FfmpegMp4Composer
-                        .RetimeCopyAsync(recorder.RawVideoPath!, liveMix, mp4, retime, ct)
+                        .RetimeCopyAsync(recorder.RawVideoPath!, liveMix, mp4, retime, ct,
+                            recorder.Duration.TotalSeconds)
                         .ConfigureAwait(false);
 
                     if (merged != null && FfmpegMp4Composer.IsValidMp4(mp4))
                     {
-                        FinishSaved(mp4, recorder, rec, folder);
+                        // PHASE 3 — MANDATORY final-duration validation.
+                        // The delivered MP4 is MEASURED (bounded ffprobe)
+                        // and compared against the real wall-clock
+                        // recording duration. Tolerance = max(2 s, 10 %):
+                        // 2 s covers container/encoder timestamp
+                        // granularity on short clips, 10 % covers tail
+                        // jitter (audio trim, flush) on long ones. A
+                        // 5-second file from a 300-second recording fails
+                        // by any sane reading of these bounds; 250 s vs
+                        // 300 s is 16.7 % off, which exceeds the 10 %
+                        // tolerance and FAILs too (the old 50× clamp case).
+                        double? probedFast = FfmpegMp4Composer.TryReadDurationSeconds(mp4);
+                        double tolFast = Math.Max(2.0, recorder.Duration.TotalSeconds * 0.10);
+                        bool durationOkFast = probedFast.HasValue && probedFast.Value > 0 &&
+                            recorder.Duration.TotalSeconds > 0.05 &&
+                            Math.Abs(probedFast.Value - recorder.Duration.TotalSeconds) <= tolFast;
+                        AppLogService.Info(
+                            $"[RecValidate] real={recorder.Duration.TotalSeconds:0.###}s " +
+                            $"probed={(probedFast?.ToString("0.###") ?? "n/a")}s " +
+                            $"tolerance={tolFast:0.###}s frames={recorder.EncodedFrames} " +
+                            $"result={(durationOkFast ? "PASS" : "FAIL")}",
+                            new LogContext { Module = "Recording", Operation = "DurationValidate" });
+
+                        if (durationOkFast)
+                        {
+                            FinishSaved(mp4, recorder, rec, folder);
+                            return;
+                        }
+
+                        // Measured duration is materially wrong. Do NOT
+                        // claim success and do NOT fall back (the frame
+                        // path is dead in the current pipeline). Keep the
+                        // folder — capture.mp4 + logs — for forensics.
+                        Fail("The saved video's length does not match the recording length, " +
+                             "so it was not marked as saved successfully. " +
+                             "The files were kept in the recordings folder for diagnostics.");
                         return;
                     }
 
@@ -485,6 +559,25 @@ namespace ProGlassAutomation.Services.Recording
                 if (info.Length <= 0 || (probed.HasValue && probed.Value <= 0))
                 {
                     Fail("MP4 failed size/duration checks.");
+                    return;
+                }
+
+                // PHASE 3 — same mandatory duration gate as the fast path.
+                double tol = Math.Max(2.0, recorder.Duration.TotalSeconds * 0.10);
+                bool durationOk = probed.HasValue && probed.Value > 0 &&
+                    recorder.Duration.TotalSeconds > 0.05 &&
+                    Math.Abs(probed.Value - recorder.Duration.TotalSeconds) <= tol;
+                AppLogService.Info(
+                    $"[RecValidate] real={recorder.Duration.TotalSeconds:0.###}s " +
+                    $"probed={(probed?.ToString("0.###") ?? "n/a")}s " +
+                    $"tolerance={tol:0.###}s frames={recorder.EncodedFrames} " +
+                    $"result={(durationOk ? "PASS" : "FAIL")}",
+                    new LogContext { Module = "Recording", Operation = "DurationValidate" });
+                if (!durationOk)
+                {
+                    Fail("The saved video's length does not match the recording length, " +
+                         "so it was not marked as saved successfully. " +
+                         "The files were kept in the recordings folder for diagnostics.");
                     return;
                 }
 

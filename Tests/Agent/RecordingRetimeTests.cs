@@ -62,14 +62,32 @@ namespace ProGlassAutomation.Tests.Agent
                 6);
         }
 
+        // PHASE 3 (2026-09-14): the reported defect at full severity —
+        // 5 real minutes, ~300 frames written at nominal 60 (~1 fps
+        // sustained) → raw file claims 5 s, needs ×60. The old 50× clamp
+        // delivered 250 s (an acceptance-test FAILURE); the 3600× bound
+        // corrects it to the full 300 s.
+        [Fact]
+        public void Five_minutes_captured_as_five_is_rescaled_back_to_five()
+        {
+            double scale = WindowScreenRecorder.ComputeRetimeScale(
+                encodedFrames: 300, nominalFps: 60, realSeconds: 300.0);
+
+            Assert.Equal(60.0, scale, 3);
+
+            double claimed = 300 / 60.0;
+            Assert.Equal(300.0, claimed * scale, 3);
+        }
+
         [Fact]
         public void Scale_is_clamped_to_sane_bounds()
         {
             // Absurdly few frames for a long recording would imply a huge
-            // stretch; clamp keeps it at 50x.
+            // stretch; clamp keeps it at the 3600× bound (PHASE 3 — was
+            // 50×, which silently under-corrected the 5-min-as-5-s case).
             double hi = WindowScreenRecorder.ComputeRetimeScale(
                 encodedFrames: 1, nominalFps: 60, realSeconds: 100000.0);
-            Assert.Equal(50.0, hi, 6);
+            Assert.Equal(3600.0, hi, 6);
 
             // Far more frames than real time (impossible in practice) would
             // imply a tiny stretch; clamp floors it at 0.02.

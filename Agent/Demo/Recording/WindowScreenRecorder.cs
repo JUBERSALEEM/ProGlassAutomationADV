@@ -61,6 +61,39 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         /// </summary>
         public string? FatalStartError { get; private set; }
 
+        /// <summary>
+        /// PHASE 3 — non-null when the encoder DIED mid-recording (as
+        /// opposed to a start-time failure, which uses FatalStartError).
+        /// The save path must refuse to report SUCCESS while this is set:
+        /// a silent partial "SAVED" is exactly the failure the recorder
+        /// must no longer produce. The text is user-facing; technical
+        /// detail stays in the app log.
+        /// </summary>
+        public string? EncoderFailure { get; private set; }
+
+        /// <summary>
+        /// PHASE 3 — raised exactly once when the capture loop ends for a
+        /// FATAL reason (encoder death, persistent blank output). The
+        /// service stops + reports the session immediately so the HUD
+        /// never keeps showing REC over a dead pipeline.
+        /// </summary>
+        public event Action? CaptureLoopFatal;
+
+        private bool _loopFatalRaised;
+
+        /// <summary>
+        /// Raises <see cref="CaptureLoopFatal"/> once, from the capture
+        /// loop's thread. Handlers must not block (the service schedules
+        /// its teardown off-thread).
+        /// </summary>
+        private void NotifyCaptureLoopFatal()
+        {
+            if (_loopFatalRaised) return;
+            _loopFatalRaised = true;
+            try { CaptureLoopFatal?.Invoke(); }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+        }
+
         /// <summary>Final MP4 written directly by the raw pipeline, if any.</summary>
         public string? RawVideoPath => _rawActive ? _rawVideoPath : null;
 
@@ -107,11 +140,34 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         /// <paramref name="nominalFps"/>) must be stretched to match the
         /// real elapsed <paramref name="realSeconds"/>. Returns 1.0 (no
         /// change) whenever the inputs are not yet meaningful, and clamps
-        /// the result to [0.02, 50] so a pathological frame count can never
-        /// yield an absurd duration. Extracted static so the timing
-        /// contract behind the "3 minutes plays as 1 minute" fix is unit
-        /// testable without a live capture.
+        /// the result to [0.02, <see cref="MaxRetimeScale"/>] so a
+        /// pathological frame count can never yield an absurd duration.
+        /// PHASE 3: the upper bound was 50×, which silently under-
+        /// corrected the 5-minutes-as-5-seconds case (×60 needed); it is
+        /// now 3600×, and the save path MEASURES the final MP4 and
+        /// refuses success when the duration is materially wrong.
+        /// Extracted static so the timing contract behind the "3 minutes
+        /// plays as 1 minute" fix is unit testable without a live capture.
         /// </summary>
+        /// <summary>
+        /// Upper bound for the re-time correction factor (PHASE 3, 2026-09-14).
+        ///
+        /// History: this was 50×. On a machine sustaining ~1 fps at the
+        /// shipped 4K/60, a 5-minute recording produced a 5-second raw file
+        /// needing ×60 — the old clamp silently delivered 5 × 50 = 250 s
+        /// instead of 300 s. The clamp's original purpose is to keep
+        /// pathological inputs (e.g. one frame over a long wall time) from
+        /// producing absurd output. Phase 3 keeps that purpose but raises
+        /// the bound to 3600×, which fully corrects any recording up to an
+        /// hour as long as a handful of frames were written, AND the save
+        /// path now MEASURES the resulting MP4 and refuses to report
+        /// SUCCESS when the final duration is materially wrong (see
+        /// UserScreenRecordService's duration validation). A 1-frame file
+        /// can no longer be sold as a 5-minute video: the encoder-death
+        /// check (EncoderFailure) fires first and the save is refused.
+        /// </summary>
+        public const double MaxRetimeScale = 3600.0;
+
         public static double ComputeRetimeScale(
             int encodedFrames, int nominalFps, double realSeconds)
         {
@@ -121,7 +177,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             double claimed = encodedFrames / (double)nominalFps;
             if (claimed <= 0.001) return 1.0;
 
-            return Math.Clamp(realSeconds / claimed, 0.02, 50.0);
+            return Math.Clamp(realSeconds / claimed, 0.02, MaxRetimeScale);
         }
 
         // Incremented from BOTH the capture loop and thread-pool encode
@@ -367,6 +423,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                     $"audio loopback={(LoopbackAudioSeconds?.TotalSeconds.ToString("0.##") ?? "off")}s " +
                     $"mic={(MicAudioSeconds?.TotalSeconds.ToString("0.##") ?? "off")}s " +
                     $"audioError={(string.IsNullOrWhiteSpace(AudioError) ? "none" : AudioError)} " +
+                    $"encoderFailure={(string.IsNullOrWhiteSpace(EncoderFailure) ? "none" : EncoderFailure)} " +
                     $"retime={RetimeScale:0.0000} " +
                     $"rawActive={_rawActive}",
                     new Services.Logging.LogContext { Module = "Recording", Operation = "StopSummary" });
@@ -652,7 +709,20 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                     }
 
                     if (!_rawPipe.IsOpen)
+                    {
+                        // PHASE 3: encoder death mid-recording is FATAL and
+                        // must be visible. Set the user-facing failure,
+                        // end the session via the service, and break —
+                        // the HUD must not keep showing REC over a dead
+                        // encoder.
+                        AppLogService.Warning(
+                            "Video encoder died mid-recording; ending session.",
+                            new Services.Logging.LogContext { Module = "Recording", Operation = "RawLoop" });
+                        EncoderFailure =
+                            "The recording encoder stopped unexpectedly, so the recording was ended.";
+                        NotifyCaptureLoopFatal();
                         break;   // encoder died
+                    }
 
                     // A written frame consumes the "have a fresh frame"
                     // flag so a stalled capture does not re-pipe the same
@@ -705,6 +775,12 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
                     try { await _rawPipe.FinishAsync(TimeSpan.FromSeconds(2)).ConfigureAwait(false); }
                     catch (Exception ex) { AppLogService.Debug($"[RawLoop] finish: {ex.Message}"); }
+
+                    // PHASE 3: end the session now — do not leave the HUD
+                    // on REC over a pipeline that stopped capturing. The
+                    // save path already fails with FatalStartError (no
+                    // EncoderFailure: this is a capture, not encoder, death).
+                    NotifyCaptureLoopFatal();
                     return;
                 }
 
@@ -750,6 +826,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         public void Dispose()
         {
             try { Stop(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+            try { CaptureLoopFatal = null; } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             try { _cts?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             try { _pipe?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             try { _rawPipe?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
