@@ -69,7 +69,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     if (p is SavedCuttingSheet sheet)
                     {
                         // Jump to 2D VIEW tab and select sheet
-                        var matchingLayout = _flatSheets.FirstOrDefault(s => s.SheetNo == sheet.SheetNo.ToString());
+                        var matchingLayout = _flatSheets.FirstOrDefault(s => s.SheetIndex + 1 == sheet.SheetNo);
                         if (matchingLayout != null)
                         {
                             SelectedSheetIndex = _flatSheets.IndexOf(matchingLayout);

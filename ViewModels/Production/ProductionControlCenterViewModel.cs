@@ -338,7 +338,7 @@ namespace ProGlassAutomation.ViewModels.Production
             try
             {
                 var completeResult = await ProductionControlService.CompleteAsync(Selected.WorkItemId, Selected.Qty).ConfigureAwait(false);
-                ProgressLabel = completeResult.Ok ? $"Completed {completeResult.Applied}/{Selected.Qty} {Selected.JobRef} {completeResult.Message}" : $"Complete failed: {completeResult.Message}";
+                ProgressLabel = completeResult.Ok ? $"Completed {completeResult.AppliedQty}/{Selected.Qty} {Selected.JobRef} {completeResult.Message}" : $"Complete failed: {completeResult.Message}";
                 if (completeResult.Ok) await LoadAsync().ConfigureAwait(false);
             }
             catch (Exception ex) { ProgressLabel = $"Complete failed: {ex.Message}"; }
