@@ -423,12 +423,12 @@
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0">
                     <TextBlock Text="{Binding Title}"
-                               FontSize="{StaticResource TextBody}"
+                               FontSize="{DynamicResource FontSize.Body}"
                                FontWeight="SemiBold"
                                TextTrimming="CharacterEllipsis"
                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock Text="{Binding SubTitle}"
-                               FontSize="{StaticResource TextCaption}"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
                                Margin="0,2,0,0"
                                TextTrimming="CharacterEllipsis"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -436,7 +436,7 @@
 
                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
                     <TextBlock Text="{Binding ValueDisplay}"
-                               FontSize="{StaticResource TextBody}"
+                               FontSize="{DynamicResource FontSize.Body}"
                                FontWeight="Bold"
                                HorizontalAlignment="Right"
                                Foreground="{DynamicResource TextPrimaryBrush}"/>
@@ -589,7 +589,7 @@
                                              Converter={StaticResource BrushKeyConverter}}">
                             <TextBlock Text="{Binding Glyph}"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextCaption}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>

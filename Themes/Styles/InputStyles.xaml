@@ -167,7 +167,7 @@
                                           Cursor="Hand">
                                 <TextBlock Text="&#xE70D;"
                                            FontFamily="Segoe MDL2 Assets"
-                                           FontSize="{StaticResource TextCaption}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource TextTertiaryBrush}"/>
                             </ToggleButton>
@@ -286,7 +286,7 @@
                             <TextBlock Grid.Column="1"
                                        Text="&#xE70D;"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextCaption}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
                                        Margin="0,0,12,0"
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False"

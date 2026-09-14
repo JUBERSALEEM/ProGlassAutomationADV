@@ -117,7 +117,7 @@
                                 SnapsToDevicePixels="True">
                             <TextBlock Text="{TemplateBinding Content}"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextSubhead}"
+                                       FontSize="{DynamicResource FontSize.H3}"
                                        Foreground="{TemplateBinding Foreground}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
@@ -293,14 +293,14 @@
                                         <TextBlock x:Name="Icon"
                                                    Text="{TemplateBinding Tag}"
                                                    FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="{StaticResource TextSection}"
+                                                   FontSize="{DynamicResource FontSize.H3}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"/>
                                     </Border>
                                     <TextBlock x:Name="Label"
                                                Text="{TemplateBinding Content}"
-                                               FontSize="{StaticResource TextBodyLarge}"
+                                               FontSize="{DynamicResource FontSize.Title}"
                                                FontWeight="Medium"
                                                Foreground="{DynamicResource TextPrimaryBrush}"
                                                VerticalAlignment="Center"/>
@@ -392,14 +392,14 @@
                                         <TextBlock x:Name="Icon"
                                                    Text="{TemplateBinding Tag}"
                                                    FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="{StaticResource TextSection}"
+                                                   FontSize="{DynamicResource FontSize.H3}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"/>
                                     </Border>
                                     <TextBlock x:Name="Label"
                                                Text="{TemplateBinding Content}"
-                                               FontSize="{StaticResource TextBodyLarge}"
+                                               FontSize="{DynamicResource FontSize.Title}"
                                                FontWeight="Medium"
                                                Foreground="{DynamicResource TextPrimaryBrush}"
                                                VerticalAlignment="Center"/>
@@ -407,7 +407,7 @@
                                 <TextBlock x:Name="Chevron"
                                            Text="&#xE76C;"
                                            FontFamily="Segoe MDL2 Assets"
-                                           FontSize="{StaticResource TextBody}"
+                                           FontSize="{DynamicResource FontSize.Body}"
                                            Foreground="{DynamicResource TextTertiaryBrush}"
                                            HorizontalAlignment="Right"
                                            VerticalAlignment="Center"
@@ -504,7 +504,7 @@
                                             SnapsToDevicePixels="True"/>
                                     <TextBlock x:Name="Label"
                                                Text="{TemplateBinding Content}"
-                                               FontSize="{StaticResource TextBodyLarge}"
+                                               FontSize="{DynamicResource FontSize.Title}"
                                                FontWeight="Medium"
                                                Foreground="{DynamicResource TextPrimaryBrush}"
                                                VerticalAlignment="Center"/>

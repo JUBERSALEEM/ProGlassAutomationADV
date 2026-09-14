@@ -94,50 +94,50 @@
     <sys:Double x:Key="FontSize.Chip">11</sys:Double>
     <sys:Double x:Key="FontSize.Badge">10</sys:Double>
 
-    <!-- Aliases for existing TypeScaleTokens (DynamicResource so density can override) -->
-    <DynamicResource x:Key="TextXSmall" ResourceKey="FontSize.Caption"/>
-    <DynamicResource x:Key="TextCaption" ResourceKey="FontSize.BodySmall"/>
-    <DynamicResource x:Key="TextBody" ResourceKey="FontSize.Body"/>
-    <DynamicResource x:Key="TextBodyLarge" ResourceKey="FontSize.Title"/>
-    <DynamicResource x:Key="TextSection" ResourceKey="FontSize.H3"/>
-    <DynamicResource x:Key="TextSubhead" ResourceKey="FontSize.H3"/>
-    <DynamicResource x:Key="TextTitle" ResourceKey="FontSize.H2"/>
-    <DynamicResource x:Key="TextTitleLarge" ResourceKey="FontSize.H1"/>
-    <DynamicResource x:Key="TextHeadline" ResourceKey="FontSize.H1"/>
-    <DynamicResource x:Key="TextDisplay" ResourceKey="FontSize.Kpi"/>
-    <DynamicResource x:Key="TextDisplayLarge" ResourceKey="FontSize.Display"/>
+    <!-- Aliases for existing TypeScaleTokens — EMERGENCY UI RECOVERY: use StaticResource so Text* resolves to Double directly, not ResourceReferenceExpression, preventing FontSize crash inside templates. Previously DynamicResource caused ResourceReferenceExpression → ArgumentException in FrameworkTemplate.ReceivePropertySet. -->
+    <StaticResource x:Key="TextXSmall" ResourceKey="FontSize.Caption"/>
+    <StaticResource x:Key="TextCaption" ResourceKey="FontSize.BodySmall"/>
+    <StaticResource x:Key="TextBody" ResourceKey="FontSize.Body"/>
+    <StaticResource x:Key="TextBodyLarge" ResourceKey="FontSize.Title"/>
+    <StaticResource x:Key="TextSection" ResourceKey="FontSize.H3"/>
+    <StaticResource x:Key="TextSubhead" ResourceKey="FontSize.H3"/>
+    <StaticResource x:Key="TextTitle" ResourceKey="FontSize.H2"/>
+    <StaticResource x:Key="TextTitleLarge" ResourceKey="FontSize.H1"/>
+    <StaticResource x:Key="TextHeadline" ResourceKey="FontSize.H1"/>
+    <StaticResource x:Key="TextDisplay" ResourceKey="FontSize.Kpi"/>
+    <StaticResource x:Key="TextDisplayLarge" ResourceKey="FontSize.Display"/>
 
-    <!-- SemanticTypography aliases -->
-    <DynamicResource x:Key="TypographyDisplaySize" ResourceKey="FontSize.Display"/>
-    <DynamicResource x:Key="TypographyH1Size" ResourceKey="FontSize.H1"/>
-    <DynamicResource x:Key="TypographyH2Size" ResourceKey="FontSize.H2"/>
-    <DynamicResource x:Key="TypographyTitleSize" ResourceKey="FontSize.H2"/>
-    <DynamicResource x:Key="TypographySubtitleSize" ResourceKey="FontSize.Title"/>
-    <DynamicResource x:Key="TypographyBodySize" ResourceKey="FontSize.Body"/>
-    <DynamicResource x:Key="TypographyBodySmallSize" ResourceKey="FontSize.BodySmall"/>
-    <DynamicResource x:Key="TypographyCaptionSize" ResourceKey="FontSize.Caption"/>
-    <DynamicResource x:Key="TypographyLabelSize" ResourceKey="FontSize.Label"/>
-    <DynamicResource x:Key="TypographyKpiValueSize" ResourceKey="FontSize.Kpi"/>
-    <DynamicResource x:Key="TypographyMoneySize" ResourceKey="FontSize.Money"/>
-    <DynamicResource x:Key="TypographyIconSize" ResourceKey="FontSize.Icon"/>
+    <!-- SemanticTypography aliases — EMERGENCY: StaticResource for startup-safe double -->
+    <StaticResource x:Key="TypographyDisplaySize" ResourceKey="FontSize.Display"/>
+    <StaticResource x:Key="TypographyH1Size" ResourceKey="FontSize.H1"/>
+    <StaticResource x:Key="TypographyH2Size" ResourceKey="FontSize.H2"/>
+    <StaticResource x:Key="TypographyTitleSize" ResourceKey="FontSize.H2"/>
+    <StaticResource x:Key="TypographySubtitleSize" ResourceKey="FontSize.Title"/>
+    <StaticResource x:Key="TypographyBodySize" ResourceKey="FontSize.Body"/>
+    <StaticResource x:Key="TypographyBodySmallSize" ResourceKey="FontSize.BodySmall"/>
+    <StaticResource x:Key="TypographyCaptionSize" ResourceKey="FontSize.Caption"/>
+    <StaticResource x:Key="TypographyLabelSize" ResourceKey="FontSize.Label"/>
+    <StaticResource x:Key="TypographyKpiValueSize" ResourceKey="FontSize.Kpi"/>
+    <StaticResource x:Key="TypographyMoneySize" ResourceKey="FontSize.Money"/>
+    <StaticResource x:Key="TypographyIconSize" ResourceKey="FontSize.Icon"/>
 
-    <!-- Type.* aliases -->
-    <DynamicResource x:Key="Type.Caption" ResourceKey="FontSize.Caption"/>
-    <DynamicResource x:Key="Type.Small" ResourceKey="FontSize.BodySmall"/>
-    <DynamicResource x:Key="Type.Body" ResourceKey="FontSize.Body"/>
-    <DynamicResource x:Key="Type.BodyLarge" ResourceKey="FontSize.Title"/>
-    <DynamicResource x:Key="Type.Section" ResourceKey="FontSize.H3"/>
-    <DynamicResource x:Key="Type.Title" ResourceKey="FontSize.H2"/>
-    <DynamicResource x:Key="Type.H2" ResourceKey="FontSize.H2"/>
-    <DynamicResource x:Key="Type.H1" ResourceKey="FontSize.H1"/>
-    <DynamicResource x:Key="Type.Display" ResourceKey="FontSize.Display"/>
-    <DynamicResource x:Key="Type.NumericValue" ResourceKey="FontSize.Kpi"/>
-    <DynamicResource x:Key="Type.Money" ResourceKey="FontSize.Money"/>
+    <!-- Type.* aliases — EMERGENCY: StaticResource for startup-safe double -->
+    <StaticResource x:Key="Type.Caption" ResourceKey="FontSize.Caption"/>
+    <StaticResource x:Key="Type.Small" ResourceKey="FontSize.BodySmall"/>
+    <StaticResource x:Key="Type.Body" ResourceKey="FontSize.Body"/>
+    <StaticResource x:Key="Type.BodyLarge" ResourceKey="FontSize.Title"/>
+    <StaticResource x:Key="Type.Section" ResourceKey="FontSize.H3"/>
+    <StaticResource x:Key="Type.Title" ResourceKey="FontSize.H2"/>
+    <StaticResource x:Key="Type.H2" ResourceKey="FontSize.H2"/>
+    <StaticResource x:Key="Type.H1" ResourceKey="FontSize.H1"/>
+    <StaticResource x:Key="Type.Display" ResourceKey="FontSize.Display"/>
+    <StaticResource x:Key="Type.NumericValue" ResourceKey="FontSize.Kpi"/>
+    <StaticResource x:Key="Type.Money" ResourceKey="FontSize.Money"/>
 
-    <!-- Density aliases (for backward compat) -->
-    <DynamicResource x:Key="DensityBodyFontSize" ResourceKey="FontSize.Body"/>
-    <DynamicResource x:Key="DensityTitleFontSize" ResourceKey="FontSize.H2"/>
-    <DynamicResource x:Key="DensityKpiValueFontSize" ResourceKey="FontSize.Kpi"/>
+    <!-- Density aliases (for backward compat) — EMERGENCY: StaticResource for startup-safe double -->
+    <StaticResource x:Key="DensityBodyFontSize" ResourceKey="FontSize.Body"/>
+    <StaticResource x:Key="DensityTitleFontSize" ResourceKey="FontSize.H2"/>
+    <StaticResource x:Key="DensityKpiValueFontSize" ResourceKey="FontSize.Kpi"/>
 
     <!-- ═══════════════════════════════════════════════════════════════
          4. GEOMETRY — ONE CANONICAL RADIUS SCALE

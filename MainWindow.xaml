@@ -304,10 +304,10 @@
                     </Border>
                     <StackPanel VerticalAlignment="Center" Margin="10,0,0,0">
                         <TextBlock Text="{DynamicResource Shell.AppBrand}"
-                                   FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <TextBlock Text="{DynamicResource Shell.AppSuiteTagline}"
-                                   FontSize="{StaticResource TextXSmall}" FontWeight="SemiBold"
+                                   FontSize="{DynamicResource FontSize.Caption}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                    Margin="0,2,0,0"/>
                     </StackPanel>
@@ -402,7 +402,7 @@
                                     Margin="0,0,10,0">
                                 <TextBlock Text="&#xE787;"
                                            FontFamily="Segoe MDL2 Assets"
-                                           FontSize="{StaticResource TextBodyLarge}"
+                                           FontSize="{DynamicResource FontSize.Title}"
                                            Foreground="{DynamicResource OnAccentForegroundBrush}"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
@@ -413,7 +413,7 @@
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <TextBlock Text="{Binding CurrentTimeText}"
                                            Style="{StaticResource TopPillTitleStyle}"
-                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="Bold"
                                            Margin="0,1,0,0"/>
                             </StackPanel>
                         </StackPanel>
@@ -440,7 +440,7 @@
                         </Border.Style>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextBodyLarge}"
+                                       FontSize="{DynamicResource FontSize.Title}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,8,0">
@@ -542,7 +542,7 @@
                                                 Margin="0,0,10,0">
                                             <TextBlock Text="{Binding CurrentUserInitials, FallbackValue=&apos;?&apos;}"
                                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                                       FontSize="{StaticResource TextBody}"
+                                                       FontSize="{DynamicResource FontSize.Body}"
                                                        FontWeight="Bold"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"/>
@@ -550,7 +550,7 @@
                                         <StackPanel VerticalAlignment="Center">
                                             <TextBlock Text="{Binding CurrentUserDisplayName, FallbackValue=&apos;User&apos;}"
                                                        Style="{StaticResource TopPillTitleStyle}"
-                                                       FontSize="{StaticResource TextBody}"
+                                                       FontSize="{DynamicResource FontSize.Body}"
                                                        TextTrimming="CharacterEllipsis"
                                                        MaxWidth="120"/>
                                             <TextBlock Text="{Binding CurrentUserRole, FallbackValue=&apos;User&apos;}"
@@ -560,7 +560,7 @@
                                         </StackPanel>
                                         <TextBlock Text="&#xE70D;"
                                                    FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="{StaticResource TextCaption}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                                    VerticalAlignment="Center"
                                                    Margin="8,0,0,0"/>
@@ -696,18 +696,18 @@
                                 SnapsToDevicePixels="True">
                             <TextBlock Text="&#xE700;"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextBody}"
+                                       FontSize="{DynamicResource FontSize.Body}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="{DynamicResource Shell.Menu}"
-                                       FontSize="{StaticResource TextBody}"
+                                       FontSize="{DynamicResource FontSize.Body}"
                                        FontWeight="Bold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                             <TextBlock Text="{DynamicResource Shell.AppSuiteTagline}"
-                                       FontSize="{StaticResource TextXSmall}"
+                                       FontSize="{DynamicResource FontSize.Caption}"
                                        FontWeight="SemiBold"
                                        Foreground="{DynamicResource MutedForegroundBrush}"
                                        Margin="0,1,0,0"/>
@@ -1058,16 +1058,16 @@
                     <TextBlock Grid.Column="0"
                                Text="&#xE7BA;"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="{StaticResource TextTitle}"
+                               FontSize="{DynamicResource FontSize.H2}"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                VerticalAlignment="Center"
                                Margin="0,0,12,0"/>
 
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="{DynamicResource Shell.ReadOnly}"
-                                   FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Title}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock FontSize="{StaticResource TextBody}"
+                        <TextBlock FontSize="{DynamicResource FontSize.Body}"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    TextWrapping="Wrap"
                                    Text="{Binding StatusDescription,

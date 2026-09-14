@@ -220,7 +220,7 @@
                                                     Margin="0,0,14,0">
                                                 <TextBlock Text="{TemplateBinding DialogIcon}"
                                                            FontFamily="Segoe MDL2 Assets"
-                                                           FontSize="{StaticResource TextTitle}"
+                                                           FontSize="{DynamicResource FontSize.H2}"
                                                            Foreground="{TemplateBinding DialogIconBrush}"
                                                            HorizontalAlignment="Center"
                                                            VerticalAlignment="Center"/>
@@ -325,7 +325,7 @@
                             SnapsToDevicePixels="True"
                             Effect="{StaticResource Dialog.ToolTipShadow}">
                         <ContentPresenter TextElement.Foreground="{DynamicResource TextPrimaryBrush}"
-                                          TextElement.FontSize="{StaticResource TextBody}"
+                                          TextElement.FontSize="{DynamicResource FontSize.Body}"
                                           TextElement.FontFamily="{DynamicResource AppFontFamily}">
                             <ContentPresenter.Resources>
                                 <Style TargetType="TextBlock">

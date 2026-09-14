@@ -157,7 +157,7 @@
                         Background="{DynamicResource SurfacePrimaryBrush}"
                         VerticalAlignment="Center">
                     <TextBlock Text="{Binding Icon}"
-                               FontSize="{StaticResource TextTitle}"
+                               FontSize="{DynamicResource FontSize.H2}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
                 </Border>
@@ -166,12 +166,12 @@
                             Margin="12,0,0,0"
                             VerticalAlignment="Center">
                     <TextBlock Text="{Binding Value}"
-                               FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
+                               FontSize="{DynamicResource FontSize.H1}" FontWeight="Bold"
                                Foreground="{Binding ValueBrushKey,
                                             Converter={StaticResource BrushKeyConverter}}"
                                TextTrimming="CharacterEllipsis"/>
                     <TextBlock Text="{Binding Label}"
-                               FontSize="{StaticResource TextBody}"
+                               FontSize="{DynamicResource FontSize.Body}"
                                Margin="0,2,0,0"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                TextTrimming="CharacterEllipsis"/>

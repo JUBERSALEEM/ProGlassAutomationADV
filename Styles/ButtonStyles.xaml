@@ -64,7 +64,7 @@
                         <TextBlock x:Name="Icon"
                                    Text="{TemplateBinding Tag}"
                                    FontFamily="Segoe MDL2 Assets"
-                                   FontSize="{StaticResource TextBodyLarge}"
+                                   FontSize="{DynamicResource FontSize.Title}"
                                    Foreground="{TemplateBinding Foreground}"
                                    VerticalAlignment="Center"
                                    Margin="0,0,10,0">
@@ -82,7 +82,7 @@
                             </TextBlock.Style>
                         </TextBlock>
                         <ContentPresenter VerticalAlignment="Center"
-                                          TextElement.FontSize="{StaticResource TextBody}"
+                                          TextElement.FontSize="{DynamicResource FontSize.Body}"
                                           TextElement.FontWeight="Bold"
                                           TextElement.Foreground="{TemplateBinding Foreground}"/>
                     </StackPanel>
@@ -280,7 +280,7 @@
                             VerticalAlignment="Center">
                     <TextBlock Text="{TemplateBinding Tag}"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="{StaticResource TextCaption}"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
                                Foreground="{TemplateBinding Foreground}"
                                VerticalAlignment="Center"
                                Margin="0,0,6,0">
@@ -298,7 +298,7 @@
                         </TextBlock.Style>
                     </TextBlock>
                     <ContentPresenter VerticalAlignment="Center"
-                                      TextElement.FontSize="{StaticResource TextCaption}"
+                                      TextElement.FontSize="{DynamicResource FontSize.BodySmall}"
                                       TextElement.FontWeight="Bold"
                                       TextElement.Foreground="{TemplateBinding Foreground}"/>
                 </StackPanel>
