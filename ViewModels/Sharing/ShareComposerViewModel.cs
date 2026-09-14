@@ -133,7 +133,9 @@ namespace ProGlassAutomation.ViewModels.Sharing
                 // Closing mid-share must not orphan the provider task:
                 // signal cancellation first (best-effort, never blocks).
                 try { _shareCts?.Cancel(); }
-                catch { /* closing always wins */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("ShareComposerViewModel suppressed");
+            }
                 RequestClose?.Invoke(HasSharedSuccessfully);
             });
             SelectProviderCommand = new RelayCommand(p =>

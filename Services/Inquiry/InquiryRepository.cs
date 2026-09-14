@@ -225,7 +225,10 @@ namespace ProGlassAutomation.Services.Inquiry
             //     handles those inside a single attempt (with exponential
             //     back-off), so we don't double-count them here.
             //   • Any other error → surface immediately.
-            const int maxAttempts = 5;
+            // Phase 19R: concurrency hardening — 8 concurrent creates need up to 8 attempts sequentially.
+            // Previous maxAttempts=5 was insufficient for n=8 concurrent test (needs 8). Increased to 20 with jitter.
+            // Also catch SqliteException directly (not only DbUpdateException) — EF Core may surface raw SQLite error under contention.
+            const int maxAttempts = 20;
             InquiryRecord? saved = null;
 
             for (int attempt = 1; attempt <= maxAttempts; attempt++)
@@ -235,7 +238,7 @@ namespace ProGlassAutomation.Services.Inquiry
                 if (string.IsNullOrWhiteSpace(inquiry.InquiryNumber) || attempt > 1)
                     inquiry.InquiryNumber = await NextInquiryNumberAsync(db, ct).ConfigureAwait(false);
 
-                var now = DateTime.Now;
+                var now = DateTime.UtcNow;
                 inquiry.Status = InquiryStatuses.Normalize(inquiry.Status);
                 inquiry.CreatedAt = now;
                 inquiry.UpdatedAt = now;
@@ -249,12 +252,12 @@ namespace ProGlassAutomation.Services.Inquiry
                     saved = inquiry;
                     break;
                 }
-                catch (DbUpdateException ex) when (attempt < maxAttempts && SqliteErrorClassifier.IsUnique(ex))
+                catch (Exception ex) when (attempt < maxAttempts && SqliteErrorClassifier.IsUnique(ex))
                 {
-                    // Fresh context on next iteration will re-seed the
-                    // sequence number and re-attempt. Detach the current
-                    // entity so the retiring context disposes cleanly.
-                    db.Entry(inquiry).State = EntityState.Detached;
+                    // Fresh context on next iteration will re-seed the sequence number and re-attempt.
+                    try { db.Entry(inquiry).State = EntityState.Detached; } catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("for suppressed");
+            }
                     AppLogService.Debug(
                         $"[InquiryRepository] UNIQUE collision on '{inquiry.InquiryNumber}' " +
                         $"attempt {attempt}/{maxAttempts}. Regenerating number and retrying.",
@@ -264,6 +267,10 @@ namespace ProGlassAutomation.Services.Inquiry
                             Class = nameof(InquiryRepository),
                             Operation = nameof(CreateAsync)
                         });
+                    // Small jittered delay to reduce immediate re-collision under 8-way concurrency
+                    try { await Task.Delay(10 * attempt + Random.Shared.Next(0, 20), ct).ConfigureAwait(false); } catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("for suppressed");
+            }
                 }
             }
 

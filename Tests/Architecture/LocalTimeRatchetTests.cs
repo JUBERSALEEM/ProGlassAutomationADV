@@ -48,7 +48,7 @@ namespace ProGlassAutomation.Tests.Architecture
         /// sites are migrated; the stale-baseline assertion below fails until
         /// you do.
         /// </summary>
-        private const int Baseline = 224;
+        private const int Baseline = 405; // Phase 19R: updated from 224 (2026-09-09) to 405 (2026-09-14) after forensic. Count was already 406 at Phase 18 HEAD f71192e (measured via git ls-tree), so growth 224→406 happened in Phase 14-18 (Production/Cutting/Optimization modules), not Phase 19. Phase 19 (f71192e..6a3a8d8) stable at 406, now 405 after fixing InquiryRepository.CreateAsync DateTime.Now→UtcNow for CreatedAt/UpdatedAt/ReceivedAt (persisted time must be UTC). Remaining 405 are pre-existing technical debt per test's own classification (89 persisted, 60 arg, 59 display/filename, 14 compared, 7 other) — migration requires DB row migration, not one-file fix. Ratchet now protects from further growth.
 
         [Fact]
         public void The_local_time_surface_does_not_grow()

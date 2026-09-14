@@ -132,7 +132,7 @@ namespace ProGlassAutomation.Services.Licensing
             }
             catch
             {
-                // audit must never block startup
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("lock suppressed");
             }
 
             return _current;
@@ -143,7 +143,9 @@ namespace ProGlassAutomation.Services.Licensing
     {
         LicenseVerificationResult result = Initialize();
         try { StatusChanged?.Invoke(null, result); }
-        catch { /* subscribers must not break licensing */ }
+        catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("Reload suppressed");
+            }
         return result;
     }
 
@@ -334,7 +336,7 @@ namespace ProGlassAutomation.Services.Licensing
             }
             catch
             {
-                // audit must not block import
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
             }
         }
 
@@ -445,8 +447,8 @@ namespace ProGlassAutomation.Services.Licensing
         }
         catch
         {
-            // audit must not block installation
-        }
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("catch suppressed");
+            }
 
         return Reload();
     }
@@ -503,7 +505,7 @@ namespace ProGlassAutomation.Services.Licensing
             }
             catch
             {
-                // audit must not block import
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
             }
         }
 

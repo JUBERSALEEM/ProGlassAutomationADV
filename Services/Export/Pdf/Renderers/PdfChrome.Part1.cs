@@ -62,7 +62,7 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             }
             catch
             {
-                // invalid logo must never crash the document
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("Reset suppressed");
             }
             return null;
         }
@@ -104,7 +104,7 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             }
             catch
             {
-                // path probing is best effort only
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("unknown suppressed");
             }
 
             return null;

@@ -96,7 +96,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 foreach (var att in freshAttachments)
                 {
                     try { _attachmentService.DeleteFile(att.FilePath); }
-                    catch { /* file may already be gone */ }
+                    catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("foreach suppressed");
+            }
                 }
 
                 await _deliveryNotes.DeleteAsync(_entity.Id);

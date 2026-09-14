@@ -227,8 +227,12 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 lock (_writeGate)
                 {
                     IsOpen = false;
-                    try { _stdin?.Flush(); } catch { /* closing anyway */ }
-                    try { _stdin?.Dispose(); } catch { /* closing anyway */ }
+                    try { _stdin?.Flush(); } catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("lock suppressed");
+            }
+                    try { _stdin?.Dispose(); } catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("lock suppressed");
+            }
                     _stdin = null;
                 }
 
@@ -244,7 +248,9 @@ namespace ProGlassAutomation.Agent.Demo.Video
                     AppLogService.Warning(
                         "Video encoder did not finish in time; terminating.",
                         new LogContext { Module = "Recording", Operation = "RawPipeFinish" });
-                    try { proc.Kill(true); } catch { /* best effort */ }
+                    try { proc.Kill(true); } catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
                     return File.Exists(VideoPath);
                 }
 
@@ -272,7 +278,9 @@ namespace ProGlassAutomation.Agent.Demo.Video
             lock (_writeGate)
             {
                 IsOpen = false;
-                try { _stdin?.Dispose(); } catch { /* teardown */ }
+                try { _stdin?.Dispose(); } catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("lock suppressed");
+            }
                 _stdin = null;
             }
 
@@ -281,9 +289,13 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 if (_process != null && !_process.HasExited)
                     _process.Kill(true);
             }
-            catch { /* teardown */ }
+            catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("lock suppressed");
+            }
 
-            try { _process?.Dispose(); } catch { /* teardown */ }
+            try { _process?.Dispose(); } catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("lock suppressed");
+            }
             _process = null;
         }
     }

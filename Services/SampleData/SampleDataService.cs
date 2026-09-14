@@ -320,7 +320,9 @@ namespace ProGlassAutomation.Services.SampleData
                         }
                     }
                 }
-                catch { /* inquiries optional */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("foreach suppressed");
+            }
 
                 // Sheet Store
                 var sheetRepo = new SheetStoreRepository();

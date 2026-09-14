@@ -443,7 +443,9 @@ namespace ProGlassAutomation.Services.Theme
                     resources[key] is SolidColorBrush brush)
                     return brush.Color;
             }
-            catch { /* a token lookup must never break a paint */ }
+            catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("TokenColor suppressed");
+            }
             return fallback;
         }
 
@@ -462,7 +464,9 @@ namespace ProGlassAutomation.Services.Theme
                     resources[key] is SolidColorBrush brush)
                     return brush;
             }
-            catch { /* a token lookup must never break a paint */ }
+            catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("TokenBrush suppressed");
+            }
             return null;
         }
 

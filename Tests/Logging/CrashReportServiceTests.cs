@@ -162,29 +162,44 @@ namespace ProGlassAutomation.Tests.Logging
         [Fact]
         public void BuildReport_includes_license_summary()
         {
-            // Drop a Trial licence so the summary is
-            // meaningful.
-            string tempLic = Path.Combine(_tempDir, "license.lic");
+            // Phase 19R forensic: legacy LicenseSigner.SignToFile creates license.lic which is now treated as legacy artifact
+            // and returns Invalid with migration prompt, not Trial with LicenseId. So summary did not contain T-001.
+            // Root cause: LoadSecureOfflineLicense now checks legacy artifact and returns Invalid, not Trial.
+            // Fix: use new license key flow (ProGlass.Licensing) which is the primary 2026 flow and is readable by LicenseService.
+            // Generate a Trial license key, install armored block, reload, then verify summary contains LicenseId and Trial.
             string publicXml;
-            string privateKey;
-            (publicXml, privateKey) = LicenseSigner.GenerateKeyPair();
+            string privateXml;
+            (publicXml, privateXml) = ProGlass.Licensing.LicenseCrypto.GenerateKeyPair();
             SwapPublicKey(publicXml);
-            var payload = new LicensePayload
-            {
-                LicenseId = "T-001",
-                Edition = LicenseEdition.Trial,
-                IssuedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddDays(15),
-                Features = new[] { "Inquiry.*" }
-            };
-            LicenseSigner.SignToFile(payload, privateKey, tempLic);
+
+            var gen = ProGlass.Licensing.LicenseService.Create(
+                new ProGlass.Licensing.LicenseRequest
+                {
+                    CustomerId = "CUST-CRASH-001",
+                    LicenseType = "Trial",
+                    DaysValid = 15,
+                    Features = new() { "Inquiry.*" }
+                },
+                privateXml,
+                TrustedLicenseKeys.ProductionKeyId);
+
+            Assert.True(gen.Success, gen.Message);
+            Assert.NotNull(gen.Document);
+            string expectedLicenseId = gen.Document!.LicenseId ?? "";
+            Assert.False(string.IsNullOrWhiteSpace(expectedLicenseId));
+
+            string armored = ProGlass.Licensing.LicenseKeyArmor.Encode(gen.LicenseJson!);
+            var installResult = LicenseService.InstallKeyText(armored);
+            Assert.Equal(LicenseStatus.Valid, installResult.Status);
+            // Reload to ensure Current reflects installed key
             LicenseService.Reload();
 
             var report = CrashReportService.BuildReport(
                 "ERR-LIC", new Exception("dummy"));
 
-            Assert.Contains("Trial", report.LicenseSummary);
-            Assert.Contains("T-001", report.LicenseSummary);
+            // License summary must contain edition and the generated LicenseId
+            Assert.Contains("Trial", report.LicenseSummary, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(expectedLicenseId, report.LicenseSummary);
         }
 
         // ── ToText ────────────────────────────────────────────

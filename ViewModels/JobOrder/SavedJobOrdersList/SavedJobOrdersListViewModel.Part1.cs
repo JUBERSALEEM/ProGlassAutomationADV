@@ -816,7 +816,9 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                         .MasterDeliveryNoteService
                         .EnsureForJobOrderAsync(inserted);
                 }
-                catch { /* first real DN will retry */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
 
                 AuditService.Log(
                     AuditSections.JobOrder, "Job order created",

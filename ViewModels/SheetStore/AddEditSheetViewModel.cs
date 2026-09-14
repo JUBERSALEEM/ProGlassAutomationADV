@@ -294,7 +294,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             }
             catch
             {
-                // Offline or first run — fall through to the standards.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("LoadOptionsAsync suppressed");
             }
 
             // Real stocked sheets, kept WHOLE. The size cascade filters on

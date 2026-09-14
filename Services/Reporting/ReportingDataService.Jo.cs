@@ -16,6 +16,7 @@ using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.DeliveryNote.Database;
 using ProGlassAutomation.Services.JobOrder.Database;
+using ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus;
 using ProGlassAutomation.Services.JobOrder.Mapper;
 using ProGlassAutomation.Services.MasterData.Database;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
@@ -100,7 +101,7 @@ namespace ProGlassAutomation.Services.Reporting
             {
                 var st = filter.Status.Trim();
                 if (Eq(st, "In Production") || Eq(st, "InProduction"))
-                    query = query.Where(j => j.Status == "InProduction" || j.Status == "In Production");
+                    query = query.Where(j => JobOrderStatusValues.IsInProduction(j.Status));
                 else
                     query = query.Where(j => j.Status == st);
             }

@@ -151,7 +151,10 @@ namespace ProGlassAutomation.Services.Reporting
                             var compList = JsonSerializer.Deserialize<List<AssemblyComponent>>(assembly.ComponentsJson ?? "[]") ?? new List<AssemblyComponent>();
                             comps = string.Join(" + ", compList.Select(c => $"{c.Role} {c.PieceId} {c.GlassRef}"));
                         }
-                        catch { }
+                        catch
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
                     }
 
                     rows.Add(new PairingAssemblyTraceabilityRow

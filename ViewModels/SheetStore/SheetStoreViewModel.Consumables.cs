@@ -313,7 +313,9 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                         $"{item.FullDescription} — {vm.Quantity:N2} {item.UomDisplay}",
                         "ITEM", item.Id.ToString());
                 }
-                catch { /* best-effort */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
 
                 await LoadItemsAsync();
             }
@@ -364,7 +366,9 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                     AuditService.Log(AuditSections.SheetStore, "Inventory item deleted",
                         item.FullDescription, "ITEM", item.Id.ToString());
                 }
-                catch { /* best-effort */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
 
                 SelectedItem = null;
                 await LoadItemsAsync();
@@ -448,7 +452,9 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                         isNew ? "Inventory item added" : "Inventory item edited",
                         result.FullDescription, "ITEM", result.Id.ToString());
                 }
-                catch { /* best-effort */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("SaveItemEditorAsync suppressed");
+            }
 
                 await LoadItemsAsync();
             }

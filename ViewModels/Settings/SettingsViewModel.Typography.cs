@@ -574,7 +574,9 @@ namespace ProGlassAutomation.ViewModels.Settings
                         result.Error, LocalizationService.Instance.T("Msg.CapImportFont"),
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
-                catch { /* status still updated */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
                 return;
             }
 
@@ -594,7 +596,9 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Font imported: " + result.Value + "\nIt is now applied app-wide.",
                     LocalizationService.Instance.T("Msg.CapImportFont"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
-            catch { /* status still updated */ }
+            catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
         }
 
         /// <summary>Detected display tier for the Performance section.</summary>

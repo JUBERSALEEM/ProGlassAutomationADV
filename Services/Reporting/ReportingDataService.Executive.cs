@@ -26,6 +26,7 @@ using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Services.TaxInvoice.Database;
 using System;
 using System.Collections.Generic;
+using ProGlassAutomation.Models.TaxInvoice.Common.TaxInvoiceStatus;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -210,7 +211,7 @@ namespace ProGlassAutomation.Services.Reporting
 
                 invoiced = pairs.Select(p => p.ProformaId).Distinct().Count();
                 paid = pairs
-                    .Where(p => p.Status == "Paid")
+                    .Where(p => TaxInvoiceStatusValues.IsPaid(p.Status))
                     .Select(p => p.ProformaId)
                     .Distinct()
                     .Count();

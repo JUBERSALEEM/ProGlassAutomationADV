@@ -72,14 +72,18 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                             $"Removed from inventory. Lost {stockLost} sheets worth {valueLost:N2} AED.",
                             stockLost, valueLost);
                     }
-                    catch { /* history is best-effort */ }
+                    catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
                     try
                     {
                         AuditService.Log(AuditSections.SheetStore, "Sheet deleted",
                             $"{desc} — {stockLost} sheets removed",
                             "SHEET", sheet.Id.ToString());
                     }
-                    catch { /* audit is best-effort */ }
+                    catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
 
                     await LoadAsync();
                 }
@@ -123,14 +127,18 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                             $"Purchased {vm.Quantity} sheets. Stock: {oldStock} → {oldStock + vm.Quantity}. Value: {value:N2} AED.",
                             vm.Quantity, value);
                     }
-                    catch { /* best-effort */ }
+                    catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
                     try
                     {
                         AuditService.Log(AuditSections.SheetStore, "Stock purchased",
                             $"{DescribeSheet(sheet)} — +{vm.Quantity} sheets",
                             "SHEET", sheet.Id.ToString());
                     }
-                    catch { /* best-effort */ }
+                    catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
 
                     await LoadAsync();
                     RaiseStockLedgerChanged();
@@ -187,7 +195,9 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 }
 
                 try { await LoadAsync(); }
-                catch { /* list refresh is best-effort */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
 
                 RaiseStockLedgerChanged();
             }

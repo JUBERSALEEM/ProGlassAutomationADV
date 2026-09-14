@@ -244,7 +244,10 @@ namespace ProGlassAutomation.Services.Production.Cutting
                     map[res.GlassSheetId] = current + res.Quantity;
                 }
             }
-            catch { }
+            catch
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("foreach suppressed");
+            }
             return map;
         }
 
@@ -274,7 +277,10 @@ namespace ProGlassAutomation.Services.Production.Cutting
                     map[sheetId] = current + alloc.Quantity;
                 }
             }
-            catch { }
+            catch
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("foreach suppressed");
+            }
             return map;
         }
 

@@ -271,9 +271,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 }
                 catch
                 {
-                    // A stale page is recoverable by reopening it; throwing
-                    // here would kill the window after a SUCCESSFUL write.
-                }
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("RefreshAfterMovement suppressed");
+            }
             }, "SheetDetail RefreshAfterMovement");
         }
 

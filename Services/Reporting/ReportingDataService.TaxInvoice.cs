@@ -22,6 +22,7 @@ using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Models.Statement;
 using ProGlassAutomation.Services.Statement.Database;
 using ProGlassAutomation.Services.TaxInvoice.Database;
+using ProGlassAutomation.Models.TaxInvoice.Common.TaxInvoiceStatus;
 using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.Generic;
@@ -68,12 +69,12 @@ namespace ProGlassAutomation.Services.Reporting
             summary.TotalAmount = tiAmounts.Sum(x => x.GrandTotal);
             summary.TotalVat = tiAmounts.Sum(x => x.VatAmount);
 
-            summary.Issued = tiAmounts.Count(t => t.Status == "Issued");
-            summary.Paid = tiAmounts.Count(t => t.Status == "Paid");
-            summary.PartiallyPaid = tiAmounts.Count(t => t.Status == "PartiallyPaid" || t.Status == "Partially Paid");
-            summary.Overdue = tiAmounts.Count(t => t.Status == "Overdue" || (t.Status == "Issued" && t.DueDate < DateTime.Today));
-            summary.Draft = tiAmounts.Count(t => t.Status == "Draft");
-            summary.Outstanding = tiAmounts.Where(t => t.Status == "Issued" || t.Status == "Overdue" || t.Status == "PartiallyPaid" || t.Status == "Partially Paid").Sum(x => x.GrandTotal);
+            summary.Issued = tiAmounts.Count(t => t.Status == TaxInvoiceStatusValues.Issued);
+            summary.Paid = tiAmounts.Count(t => t.Status == TaxInvoiceStatusValues.Paid);
+            summary.PartiallyPaid = tiAmounts.Count(t => t.Status == TaxInvoiceStatusValues.PartiallyPaid || t.Status == TaxInvoiceStatusValues.PartiallyPaidDisplay);
+            summary.Overdue = tiAmounts.Count(t => t.Status == TaxInvoiceStatusValues.Overdue || (t.Status == TaxInvoiceStatusValues.Issued && t.DueDate < DateTime.Today));
+            summary.Draft = tiAmounts.Count(t => t.Status == TaxInvoiceStatusValues.Draft);
+            summary.Outstanding = tiAmounts.Where(t => t.Status == TaxInvoiceStatusValues.Issued || t.Status == TaxInvoiceStatusValues.Overdue || t.Status == TaxInvoiceStatusValues.PartiallyPaid || t.Status == TaxInvoiceStatusValues.PartiallyPaidDisplay).Sum(x => x.GrandTotal);
 
             return summary;
         }
@@ -100,7 +101,7 @@ namespace ProGlassAutomation.Services.Reporting
             {
                 var st = filter.Status.Trim();
                 if (Eq(st, "Partially Paid") || Eq(st, "PartiallyPaid"))
-                    query = query.Where(t => t.Status == "PartiallyPaid" || t.Status == "Partially Paid");
+                    query = query.Where(t => t.Status == TaxInvoiceStatusValues.PartiallyPaid || t.Status == TaxInvoiceStatusValues.PartiallyPaidDisplay);
                 else
                     query = query.Where(t => t.Status == st);
             }

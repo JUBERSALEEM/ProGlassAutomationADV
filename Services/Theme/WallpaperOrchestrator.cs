@@ -136,7 +136,9 @@ namespace ProGlassAutomation.Services.Theme
                     VisualThemeEngine.LastRequestedModule,
                     App.Config?.Appearance);
             }
-            catch { /* never break a theme path */ }
+            catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("RefreshScene suppressed");
+            }
         }
 
         // ── OS window backdrop (Windows 11 Mica/Acrylic — EXPERIMENTAL) ──
@@ -200,7 +202,9 @@ namespace ProGlassAutomation.Services.Theme
                     RefreshScene();
                 }
             }
-            catch { /* the painted stage is the safe default */ }
+            catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("ApplyBackdropPreference suppressed");
+            }
         }
 
         // ── User actions (Settings → Appearance → Wallpaper Studio) ──
@@ -278,7 +282,9 @@ namespace ProGlassAutomation.Services.Theme
                     global::ProGlassAutomation.Services.Audit.AuditSections.Settings,
                     action, detail);
             }
-            catch { /* wallpaper audit must never break the UI path */ }
+            catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("Audit suppressed");
+            }
         }
 
         private static double Clamp01(double v) =>

@@ -611,7 +611,9 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             {
                 System.Windows.Clipboard.SetText(number);
             }
-            catch { /* clipboard contention — ignore */ }
+            catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("CopyToClipboard suppressed");
+            }
         }
 
         private void InvokeStageOpen(object parameter,
@@ -639,7 +641,9 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             else if (!string.IsNullOrWhiteSpace(number))
             {
                 try { System.Windows.Clipboard.SetText(number); }
-                catch { /* ignore */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
             }
         }
 
@@ -674,7 +678,9 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                     token.ThrowIfCancellationRequested();
                     ResetAndReload();
                 }
-                catch (OperationCanceledException) { /* superseded keystroke */ }
+                catch (OperationCanceledException) {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("DebounceReload suppressed");
+            }
             }, "Inquiry search debounce");
         }
 
@@ -747,7 +753,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             }
             catch (OperationCanceledException)
             {
-                // S7 fix: superseded load — quiet, not an error.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("foreach suppressed");
             }
             catch (Exception ex)
             {
@@ -822,7 +828,9 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 row.IsDetailLoaded = true;
                 OnPropertyChanged(nameof(SelectedInquiry));
             }
-            catch (OperationCanceledException) { /* Superseded load — quiet by design (SilentCatchAuditTests). */ }
+            catch (OperationCanceledException) {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
             catch (Exception ex) { SetStatus("Detail unavailable: " + ExceptionMessages.Deep(ex)); }
         }
     }

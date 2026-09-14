@@ -135,7 +135,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
             catch
             {
-                // fall through
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
             }
             return ("PI", "", "");
         }

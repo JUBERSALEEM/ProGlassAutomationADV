@@ -113,7 +113,9 @@ namespace ProGlassAutomation.Services.Localization
                 loc.PhoneCountryIso = Current.CountryIso;
             if (string.IsNullOrEmpty(loc.CurrencyCode) && !string.IsNullOrEmpty(Current.CurrencyCode))
                 loc.CurrencyCode = Current.CurrencyCode;
-            try { ConfigService.Save(App.Config); } catch { /* config best-effort */ }
+            try { ConfigService.Save(App.Config); } catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("ApplyToConfig suppressed");
+            }
         }
 
         private static async Task<GeoResult> QueryIpWhoIsAsync()
@@ -206,7 +208,7 @@ namespace ProGlassAutomation.Services.Localization
             }
             catch
             {
-                // cache best-effort
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("WriteCache suppressed");
             }
         }
     }

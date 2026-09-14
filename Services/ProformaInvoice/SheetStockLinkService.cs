@@ -187,7 +187,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                         salesman: salesman,
                         panePosition: "").ConfigureAwait(false);
                 }
-                catch { /* history is best-effort, same as the dialog */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("CommitConsumptionAsync suppressed");
+            }
 
                 try
                 {
@@ -197,7 +199,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                         $"(via {origin}){jobTag}",
                         "SHEET", sheet.Id.ToString());
                 }
-                catch { /* audit is best-effort */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("unknown suppressed");
+            }
 
                 return new SheetStockLinkResult
                 {

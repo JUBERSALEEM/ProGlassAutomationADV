@@ -337,17 +337,23 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         {
             if (_memDc != IntPtr.Zero && _oldObj != IntPtr.Zero)
             {
-                try { SelectObject(_memDc, _oldObj); } catch { /* teardown */ }
+                try { SelectObject(_memDc, _oldObj); } catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
                 _oldObj = IntPtr.Zero;
             }
             if (_dib != IntPtr.Zero)
             {
-                try { DeleteObject(_dib); } catch { /* teardown */ }
+                try { DeleteObject(_dib); } catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
                 _dib = IntPtr.Zero;
             }
             if (_memDc != IntPtr.Zero)
             {
-                try { DeleteDC(_memDc); } catch { /* teardown */ }
+                try { DeleteDC(_memDc); } catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
                 _memDc = IntPtr.Zero;
             }
             _bits = IntPtr.Zero;

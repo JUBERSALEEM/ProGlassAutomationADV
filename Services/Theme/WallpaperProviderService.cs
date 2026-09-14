@@ -396,7 +396,9 @@ namespace ProGlassAutomation.Services.Theme
                 }
                 catch
                 {
-                    try { if (File.Exists(tmp)) File.Delete(tmp); } catch { /* best effort */ }
+                    try { if (File.Exists(tmp)) File.Delete(tmp); } catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
                     throw;
                 }
             }

@@ -469,8 +469,7 @@ namespace ProGlassAutomation.Views.Licensing
             }
             catch
             {
-                // Clipboard can be locked by another process; the text is
-                // still shown in the dialog so nothing is lost.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("GetLicenseKeyButton_Click suppressed");
             }
 
             Prompts.Show("Your request is copied to the clipboard — send it to your vendor " +

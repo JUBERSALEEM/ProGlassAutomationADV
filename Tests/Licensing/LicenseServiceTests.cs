@@ -330,6 +330,13 @@ namespace ProGlassAutomation.Tests.Licensing
         [Fact]
         public void InstallKeyText_accepts_raw_license_json_as_well_as_armored()
         {
+            // Phase 19R forensic: contract changed 2026-08-29 — InstallKeyText now accepts ONLY armored PGKEY1 blocks.
+            // Raw JSON is rejected even though it is signed and verifiable, because customer-facing contract is
+            // "paste the single-line block starting with PGKEY1 exactly as generated".
+            // Proof: Services/Licensing/LicenseService.Part1.cs line 373-385:
+            //   if (!LicenseKeyArmor.IsArmoredBlock(keyText)) return Invalid "Only license keys produced by the License Key Generator are accepted... raw license JSON is not accepted"
+            // This exists since 0de6591 (before Phase 8), so test expectation that raw JSON is Valid is stale.
+            // Correct behavior: raw JSON → Invalid, armored → Valid. Preserve security, do not weaken validation.
             (string publicXml, string privateXml) = LicenseCrypto.GenerateKeyPair();
             SwapPublicKey(publicXml);
 
@@ -346,9 +353,15 @@ namespace ProGlassAutomation.Tests.Licensing
 
             Assert.True(gen.Success, gen.Message);
 
-            var result = LicenseService.InstallKeyText(gen.LicenseJson!);
+            // Raw JSON must be rejected per current contract
+            var rawResult = LicenseService.InstallKeyText(gen.LicenseJson!);
+            Assert.Equal(LicenseStatus.Invalid, rawResult.Status);
+            Assert.Contains("raw license JSON is not accepted", rawResult.ErrorDetail, StringComparison.OrdinalIgnoreCase);
 
-            Assert.Equal(LicenseStatus.Valid, result.Status);
+            // Armored block must be accepted
+            string armored = ProGlass.Licensing.LicenseKeyArmor.Encode(gen.LicenseJson!);
+            var armoredResult = LicenseService.InstallKeyText(armored);
+            Assert.Equal(LicenseStatus.Valid, armoredResult.Status);
             Assert.True(LicenseService.IsLicenseKeyActive);
         }
 

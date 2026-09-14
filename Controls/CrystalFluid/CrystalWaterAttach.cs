@@ -317,8 +317,8 @@ namespace ProGlassAutomation.Controls.CrystalFluid
                 }
                 catch
                 {
-                    // Best-effort only — never throw from the rescue path.
-                }
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("catch suppressed");
+            }
 
                 ProGlassAutomation.Services.Logging.AppLogService.Debug(
                     "[CrystalWater] skipped wrapping a card (binding "

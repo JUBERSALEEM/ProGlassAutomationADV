@@ -155,6 +155,7 @@ namespace ProGlassAutomation.Services.Theme.Engine
             }
             catch (System.Exception)
             {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug($"[foreach] suppressed: {ex.Message}");
             }
             return null;
         }

@@ -153,7 +153,9 @@ namespace ProGlassAutomation.Services.Storage
                     if (File.Exists(p))
                         bytes += new FileInfo(p).Length;
                 }
-                catch { /* file vanished mid-walk — skip it */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("AddFile suppressed");
+            }
             }
             if (bytes <= 0) return;
             items.Add(new StorageBreakdownItem
@@ -202,10 +204,14 @@ namespace ProGlassAutomation.Services.Storage
                 foreach (var f in Directory.EnumerateFiles(dir, "*", SearchOption.AllDirectories))
                 {
                     try { total += new FileInfo(f).Length; }
-                    catch { /* locked/vanished file — skip */ }
+                    catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("SafeDirSize suppressed");
+            }
                 }
             }
-            catch { /* folder unreadable — report 0 */ }
+            catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("SafeDirSize suppressed");
+            }
             return total;
         }
     }

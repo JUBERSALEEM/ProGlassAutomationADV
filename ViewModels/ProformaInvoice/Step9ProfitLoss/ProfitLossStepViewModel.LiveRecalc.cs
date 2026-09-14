@@ -98,7 +98,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             foreach (var token in _groupSubscriptions.Values.SelectMany(v => v))
             {
                 try { token.Dispose(); }
-                catch { /* detach must never throw */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("UnsubscribeAll suppressed");
+            }
             }
 
             _groupSubscriptions.Clear();
@@ -154,7 +156,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 foreach (var token in _groupSubscriptions.Values.SelectMany(v => v))
                 {
                     try { token.Dispose(); }
-                    catch { /* detach must never throw */ }
+                    catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
                 }
 
                 _groupSubscriptions.Clear();
@@ -206,7 +210,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 foreach (var token in tokens)
                 {
                     try { token.Dispose(); }
-                    catch { /* detach must never throw */ }
+                    catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("foreach suppressed");
+            }
                 }
 
                 _groupSubscriptions.Remove(group);

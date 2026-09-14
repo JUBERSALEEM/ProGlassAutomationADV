@@ -734,7 +734,7 @@ namespace ProGlassAutomation.Services
             }
             catch
             {
-                // fallback below
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("ThemeDefaultAccent suppressed");
             }
 
             return _currentTheme == AppTheme.Dark

@@ -917,7 +917,9 @@ namespace ProGlassAutomation.ViewModels.Settings
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
                 }
-                catch { /* the dialog itself must never crash */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("catch suppressed");
+            }
             }
         }
     }

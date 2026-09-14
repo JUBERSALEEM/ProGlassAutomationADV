@@ -280,7 +280,7 @@ namespace ProGlassAutomation.Services.Licensing
             }
             catch
             {
-                // best effort
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("foreach suppressed");
             }
         }
 

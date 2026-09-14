@@ -356,7 +356,7 @@ namespace ProGlassAutomation.Services.Sharing
             }
             catch
             {
-                // Logging must never break the share flow.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
             }
         }
 

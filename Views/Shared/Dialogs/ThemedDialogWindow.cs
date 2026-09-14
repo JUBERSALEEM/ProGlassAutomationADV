@@ -273,9 +273,8 @@ namespace ProGlassAutomation.Views.Shared.Dialogs
                 }
                 catch (InvalidOperationException)
                 {
-                    // DragMove throws when the mouse button was released
-                    // during the call — harmless, nothing to recover.
-                }
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
             }
         }
 

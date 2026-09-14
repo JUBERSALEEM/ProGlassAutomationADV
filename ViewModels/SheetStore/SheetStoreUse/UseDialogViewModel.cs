@@ -154,7 +154,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreUse
             }
             catch
             {
-                // Never let a context probe stop the dialog opening.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("UseDialogViewModel suppressed");
             }
 
             Sheet = sheet;

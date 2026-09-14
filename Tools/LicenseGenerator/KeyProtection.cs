@@ -86,9 +86,8 @@ internal static class KeyProtection
         }
         catch
         {
-            // DPAPI failed (different user, corrupted blob, etc.)
-            // Fall through to the plain-text fallback.
-        }
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("GetPrivateKey suppressed");
+            }
 
         // Bootstrap: encrypt the plain-text key with DPAPI for future use
         try
@@ -97,8 +96,8 @@ internal static class KeyProtection
         }
         catch
         {
-            // Bootstrap failed — use the plain-text key this session
-        }
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("GetPrivateKey suppressed");
+            }
 
         return ProductionSigningKey.PrivateKeyXml;
     }
@@ -187,8 +186,8 @@ internal static class KeyProtection
         }
         catch
         {
-            // Audit failure must never block key generation
-        }
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("RecordGeneration suppressed");
+            }
     }
 
     private static List<RateLimitEntry> LoadRateLimitEntries()

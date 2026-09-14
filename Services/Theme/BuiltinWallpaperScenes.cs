@@ -120,7 +120,9 @@ namespace ProGlassAutomation.Services.Theme
                     resources[key] is System.Windows.Media.SolidColorBrush b)
                     return b.Color;
             }
-            catch { /* wallpaper must never take the app down */ }
+            catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("CrystalFluidScene suppressed");
+            }
             return fallback;
         }
 

@@ -199,7 +199,9 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 ResetAndReload();
             }
             catch (Services.Audit.PermissionDeniedException ex) { SetStatus(ExceptionMessages.Deep(ex)); }
-            catch (OperationCanceledException) { /* superseded import — user clicked again */ }
+            catch (OperationCanceledException) {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("catch suppressed");
+            }
             catch (Exception ex) { SetStatus("Import failed: " + ExceptionMessages.Deep(ex)); }
         }
 

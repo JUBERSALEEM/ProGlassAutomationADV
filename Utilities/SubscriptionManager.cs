@@ -65,7 +65,9 @@ namespace ProGlassAutomation.Utilities
             foreach (var unsubscribe in _unsubscribers)
             {
                 try { unsubscribe(); }
-                catch { /* detach must never throw */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("foreach suppressed");
+            }
             }
 
             _unsubscribers.Clear();
@@ -92,7 +94,9 @@ namespace ProGlassAutomation.Utilities
                 if (action != null)
                 {
                     try { action(); }
-                    catch { /* detach must never throw */ }
+                    catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
                 }
             }
         }

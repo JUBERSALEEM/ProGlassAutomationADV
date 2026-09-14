@@ -59,7 +59,7 @@ namespace ProGlassAutomation.Converters
             }
             catch
             {
-                // Resource lookup must never throw into a binding.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("Convert suppressed");
             }
 
             // Visible, greppable fallback — see header note.

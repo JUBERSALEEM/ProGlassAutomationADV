@@ -812,7 +812,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 if (_deliveryNotes != null)
                     dns = await _deliveryNotes.GetAllAsync();
             }
-            catch { /* picker still searches JO fields */ }
+            catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
 
             var dialog = _dialogs.Create<JobOrderPickerDialog>(jobOrdersWithBalance, dns);
 

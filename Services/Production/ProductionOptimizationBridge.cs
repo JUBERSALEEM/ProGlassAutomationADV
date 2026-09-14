@@ -297,7 +297,10 @@ namespace ProGlassAutomation.Services.Production
                                                      g.Balance > 0, ct).ConfigureAwait(false);
                         if (matchingSheet != null) glassSheetId = matchingSheet.Id;
                     }
-                    catch { }
+                    catch
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("foreach suppressed");
+            }
 
                     string reservationId = MaterialReservationService.BuildReservationId(
                         jobRef, 0, 0, glassSheetId, sessionId, sheet.SheetNo);
@@ -376,7 +379,10 @@ namespace ProGlassAutomation.Services.Production
                         await MaterialReservationService.ReleaseAsync(res.ReservationId, $"Compensation for failed bridge run {jobRef}", ct).ConfigureAwait(false);
                     }
                 }
-                catch { }
+                catch
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("foreach suppressed");
+            }
                 return result;
             }
         }

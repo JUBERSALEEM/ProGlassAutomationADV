@@ -906,9 +906,13 @@ namespace ProGlassAutomation.ViewModels.Specifications
             if (_disposed) return;
             _disposed = true;
             try { SpecCatalogNotifier.Changed -= OnCatalogChanged; }
-            catch { /* best-effort */ }
+            catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("Dispose suppressed");
+            }
             try { ProformaInvoiceRepository.SavedInvoicesChanged -= OnInvoicesChanged; }
-            catch { /* best-effort */ }
+            catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("Dispose suppressed");
+            }
             GC.SuppressFinalize(this);
         }
 

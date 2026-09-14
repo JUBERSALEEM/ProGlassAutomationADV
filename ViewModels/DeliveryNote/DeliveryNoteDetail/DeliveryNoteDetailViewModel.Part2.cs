@@ -440,7 +440,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                         .GetDeliveryCapsAsync(_entity.JobOrderId)
                         .ConfigureAwait(true);
                 }
-                catch { /* non-production jobs simply stay uncapped */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("unknown suppressed");
+            }
 
                 var rows = dedupedItems
                     .Select(i => new DnItemRowViewModel(i,

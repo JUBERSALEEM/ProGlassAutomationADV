@@ -188,15 +188,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             _disposed = true;
 
             try { Services.Features.Step9PricingDefaults.MarginDefaultChanged -= OnExpectedProfitMarginDefaultChanged; }
-            catch { /* teardown must never throw */ }
+            catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("Dispose suppressed");
+            }
 
             try { _subscriptions.Dispose(); }
-            catch { /* teardown must never throw */ }
+            catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("Dispose suppressed");
+            }
 
             foreach (var token in _groupSubscriptions.Values.SelectMany(v => v))
             {
                 try { token.Dispose(); }
-                catch { /* teardown must never throw */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("Dispose suppressed");
+            }
             }
 
             _groupSubscriptions.Clear();

@@ -216,7 +216,9 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory
                             $"({entry.Action} {entry.QuantityChanged})",
                             "SHEET", entry.SheetId.ToString());
                     }
-                    catch { /* best-effort, never blocks the undo */ }
+                    catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
 
                     MovementReversed?.Invoke();
                 }

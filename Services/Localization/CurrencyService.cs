@@ -212,7 +212,9 @@ namespace ProGlassAutomation.Services.Localization
             if (persist && App.Config != null)
             {
                 App.Config.Localization.CurrencyCode = info.Code;
-                try { ConfigService.Save(App.Config); } catch { /* config best-effort */ }
+                try { ConfigService.Save(App.Config); } catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
             }
         }
 
@@ -310,8 +312,8 @@ namespace ProGlassAutomation.Services.Localization
                 }
                 catch
                 {
-                    // try the next endpoint — offline/blocked must never throw
-                }
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("foreach suppressed");
+            }
             }
             return null;
         }
@@ -352,7 +354,9 @@ namespace ProGlassAutomation.Services.Localization
                     },
                     new JsonSerializerOptions { WriteIndented = true }));
             }
-            catch { /* cache best-effort */ }
+            catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("WriteCache suppressed");
+            }
         }
 
         private void NotifyRates()
@@ -390,7 +394,7 @@ namespace ProGlassAutomation.Services.Localization
             }
             catch
             {
-                // best-effort live refresh — never break the switch
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("RefreshAmountBindings suppressed");
             }
         }
 

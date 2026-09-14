@@ -410,8 +410,7 @@ namespace ProGlassAutomation.Services.Reporting
             }
             catch
             {
-                // Best-effort: an unparsed row is grouped as Unspecified
-                // rather than being attributed to a colour it may not have.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("ColourOf suppressed");
             }
 
             return "Unspecified";

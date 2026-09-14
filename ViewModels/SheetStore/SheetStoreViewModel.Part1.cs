@@ -928,14 +928,18 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                         $"Total value: {added.TotalPurchaseValue:N2} AED.",
                         added.Stock, added.TotalPurchaseValue);
                 }
-                catch { /* best-effort */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("PersistNewSheetAsync suppressed");
+            }
                 try
                 {
                     AuditService.Log(AuditSections.SheetStore, "Sheet added",
                         $"{DescribeSheet(added)} — stock {added.Stock}",
                         "SHEET", added.Id.ToString());
                 }
-                catch { /* best-effort */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("PersistNewSheetAsync suppressed");
+            }
 
                 await LoadAsync();
                 RaiseStockLedgerChanged();
@@ -1001,7 +1005,9 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 {
                     await _historyRepo.LogAsync(edited.Id, DescribeSheet(edited), "Edited", details);
                 }
-                catch { /* best-effort */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
                 try
                 {
                     AuditService.LogWithChanges(
@@ -1009,7 +1015,9 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                         $"{DescribeSheet(edited)} — {details}",
                         "SHEET", edited.Id.ToString(), diff);
                 }
-                catch { /* best-effort */ }
+                catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+            }
 
                 await LoadAsync();
                 RaiseStockLedgerChanged();

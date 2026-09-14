@@ -65,7 +65,7 @@ public class StatusLiteralRatchetTests
         // four places. Correct today (nothing stores the spaced form, verified
         // 2026-09-08), but that defence is what made the Job Order split hard
         // to spot. Should collapse onto TaxInvoiceStatusValues.
-        ["Services/Reporting/ReportingDataService.TaxInvoice.cs"] = 9,
+        ["Services/Reporting/ReportingDataService.TaxInvoice.cs"] = 3,
 
         // 5 — AI context prompt text. Lower risk: read-only narration.
         ["Services/AI/AIContext/AiContextBuilder.cs"] = 5,
@@ -84,7 +84,7 @@ public class StatusLiteralRatchetTests
         // 2 — ReportingDataService.Jo. Explicitly normalises the
         // "InProduction" ↔ "In Production" split; migrate to
         // JobOrderStatusValues.IsInProduction.
-        ["Services/Reporting/ReportingDataService.Jo.cs"] = 2,
+
         ["Services/TaxInvoice/Repository/TaxInvoiceRepository.cs"] = 2,
     };
 

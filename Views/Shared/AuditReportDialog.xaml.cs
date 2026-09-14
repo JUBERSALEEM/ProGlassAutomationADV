@@ -39,7 +39,7 @@ namespace ProGlassAutomation.Views.Shared
             }
             catch
             {
-                // Clipboard can be locked by another process; reporting must not crash.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("CopyReport_Click suppressed");
             }
         }
     }

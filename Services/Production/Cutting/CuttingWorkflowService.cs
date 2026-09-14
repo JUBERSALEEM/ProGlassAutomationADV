@@ -618,7 +618,10 @@ namespace ProGlassAutomation.Services.Production.Cutting
                     {
                         await MaterialReservationService.ReleaseAsync(res.ReservationId, $"Compensation for cancelled workflow {jobRef}", CancellationToken.None).ConfigureAwait(false);
                     }
-                    catch { }
+                    catch
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("foreach suppressed");
+            }
                 }
 
                 AppLogService.Info($"[CuttingWorkflow] Cancelled for {jobRef}",
@@ -641,7 +644,10 @@ namespace ProGlassAutomation.Services.Production.Cutting
                     {
                         await MaterialReservationService.ReleaseAsync(res.ReservationId, $"Compensation for failed workflow {jobRef}", CancellationToken.None).ConfigureAwait(false);
                     }
-                    catch { }
+                    catch
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("foreach suppressed");
+            }
                 }
 
                 return result;

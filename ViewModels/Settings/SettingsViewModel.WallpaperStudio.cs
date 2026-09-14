@@ -290,7 +290,9 @@ namespace ProGlassAutomation.ViewModels.Settings
                         if (string.Equals(f.FullName, active,
                                 StringComparison.OrdinalIgnoreCase))
                             continue; // never delete the live wallpaper
-                        try { f.Delete(); } catch { /* locked file — skip */ }
+                        try { f.Delete(); } catch {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("catch suppressed");
+            }
                     }
                     RefreshWallpaperLibrary();
                     WallpaperFetchStatus = "Library cleared (the active wallpaper was kept).";

@@ -369,7 +369,7 @@ internal static class OfflineActivationStore
         }
         catch
         {
-            // best effort — local cleanup must never crash activation flows
-        }
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("TryDelete suppressed");
+            }
     }
 }
