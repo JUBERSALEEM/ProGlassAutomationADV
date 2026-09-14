@@ -109,8 +109,7 @@
 
         <!-- ══ KPI CARDS ══ -->
         <UniformGrid Grid.Row="1" Columns="6" Margin="0,0,0,14">
-            <Border Style="{StaticResource InteractiveStatCardStyle}">
-                            Margin="0,0,12,0"
+            <Border Style="{StaticResource InteractiveStatCardStyle}" Margin="0,0,12,0">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Specifications.TotalSpecs}"
                                FontSize="{StaticResource TextBody}"
@@ -122,8 +121,7 @@
             </Border>
 
 
-                Margin="0,0,12,0"
-            <Border Style="{StaticResource InteractiveStatCardStyle}">
+            <Border Style="{StaticResource InteractiveStatCardStyle}" Margin="0,0,12,0">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Specifications.TotalUses}"
                                FontSize="{StaticResource TextBody}"
@@ -133,33 +131,29 @@
                                Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
-                            Margin="0,0,12,0"
-
-            <Border Style="{StaticResource InteractiveStatCardStyle}">
+            <Border Style="{StaticResource InteractiveStatCardStyle}" Margin="0,0,12,0">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Specifications.AvgRate}"
                                FontSize="{StaticResource TextBody}"
                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                     <TextBlock Text="{Binding AveragePricePerSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                                FontSize="{StaticResource TextSection}" FontWeight="Bold"
-                               Foreground="{DynamicResource SuccessBrush}" TextWrapping="Wrap"/>
+                                Foreground="{DynamicResource SuccessBrush}" TextWrapping="Wrap"/>
                 </StackPanel>
-                                Margin="0,0,12,0"
             </Border>
 
-            <Border Style="{StaticResource InteractiveStatCardStyle}">
+            <Border Style="{StaticResource InteractiveStatCardStyle}" Margin="0,0,12,0">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Specifications.SheetLinked}"
                                FontSize="{StaticResource TextBody}"
                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                     <TextBlock Text="{Binding LinkedSheetCount, Mode=OneWay}"
                                FontSize="{StaticResource TextSection}" FontWeight="Bold"
-                               Foreground="{DynamicResource InfoBrush}" TextWrapping="Wrap"/>
-                                               Margin="0,0,12,0"
+                                Foreground="{DynamicResource InfoBrush}" TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
 
-            <Border Style="{StaticResource InteractiveStatCardStyle}">
+            <Border Style="{StaticResource InteractiveStatCardStyle}" Margin="0,0,12,0">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Specifications.MostUsed}"
                                FontSize="{StaticResource TextBody}"
