@@ -384,7 +384,7 @@
     <Style x:Key="DbKpiBandStyle" TargetType="ItemsControl">
         <Setter Property="ItemContainerStyle">
             <Setter.Value>
-                <Style TargetType="ContentPresenter">
+                <Style TargetType="ContentControl">
                     <Setter Property="Margin" Value="{DynamicResource DbGutterHalfMargin}"/>
                     <Setter Property="HorizontalAlignment" Value="Stretch"/>
                 </Style>
@@ -455,7 +455,7 @@
     <Style x:Key="DbFeedItemsStyle" TargetType="ItemsControl">
         <Setter Property="ItemContainerStyle">
             <Setter.Value>
-                <Style TargetType="ContentPresenter">
+                <Style TargetType="ContentControl">
                     <Setter Property="HorizontalAlignment" Value="Stretch"/>
                 </Style>
             </Setter.Value>
@@ -625,7 +625,7 @@
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="ItemContainerStyle">
             <Setter.Value>
-                <Style TargetType="ContentPresenter">
+                <Style TargetType="ContentControl">
                     <Setter Property="HorizontalAlignment" Value="Stretch"/>
                     <Setter Property="MinWidth" Value="160"/>
                     <Setter Property="Margin" Value="0,0,8,8"/>
