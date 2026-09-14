@@ -79,6 +79,13 @@ namespace ProGlassAutomation.Tests.Sharing
 
             public Task<List<SavedSalesman>> SearchSalesmenAsync(string query) =>
                 Task.FromResult(new List<SavedSalesman>());
+
+            public Task InitializeAsync() => Task.CompletedTask;
+            public Task DeleteCompanyAsync(int id) => Task.CompletedTask;
+            public Task DeleteClientAsync(int id) => Task.CompletedTask;
+            public Task DeleteProjectAsync(int id) => Task.CompletedTask;
+            public Task DeleteSalesmanAsync(int id) => Task.CompletedTask;
+            public Task AutoSaveFromInvoiceAsync(string companyName, string companyTrn, string companyLocation, string customerName, string customerTrn, string customerReferenceCode, string salesRepresentative, string documentPreparedBy, string billingAddress, string attentionExecutiveName, string clientContactPhone, string projectIdentifierName, string projectContractNo, string projectReference, string siteDeliveryLocation, string lpoNumber, string? companyLogoPath = null, string? companyRepresentative = null, string? companyRepresentativeMobile = null, string? companyEmail = null, string? companyAccountNumber = null, string? companyBankName = null, CompanyLogoLayout companyLogoLayout = CompanyLogoLayout.None, double companyLogoWidthMm = 0, double companyLogoHeightMm = 0) => Task.CompletedTask;
         }
 
         [Fact]
