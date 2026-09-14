@@ -314,8 +314,20 @@
                         <ItemsControl ItemsSource="{Binding Messages}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
+                                    <!-- 2026-09-14: FIXED duplicated welcome
+                                         text. The three state bubbles were
+                                         stacked in ONE grid cell with no
+                                         visibility logic, so EVERY message
+                                         (first of all the "Hello I'm
+                                         ProGlass AI" greeting) rendered
+                                         3 times on top of itself. Each
+                                         border now shows only for its own
+                                         message state:
+                                         user / AI response / error. -->
                                     <Grid>
-                                        <Border>
+                                        <Border
+                                            Visibility="{Binding IsUser,
+                                                Converter={StaticResource BoolToVisibilityConverter}}">
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Text}"
                                                            Foreground="{DynamicResource OnAccentForegroundBrush}"
@@ -330,7 +342,9 @@
                                             </StackPanel>
                                         </Border>
 
-                                        <Border>
+                                        <Border
+                                            Visibility="{Binding IsAiResponse,
+                                                Converter={StaticResource BoolToVisibilityConverter}}">
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Text}"
                                                            Foreground="{DynamicResource TextPrimaryBrush}"
@@ -351,7 +365,9 @@
                                             </StackPanel>
                                         </Border>
 
-                                        <Border>
+                                        <Border
+                                            Visibility="{Binding IsError,
+                                                Converter={StaticResource BoolToVisibilityConverter}}">
                                             <TextBlock Text="{Binding Text}"
                                                        Foreground="{DynamicResource DangerBrush}"
                                                        FontSize="{DynamicResource FontSize.Body}"

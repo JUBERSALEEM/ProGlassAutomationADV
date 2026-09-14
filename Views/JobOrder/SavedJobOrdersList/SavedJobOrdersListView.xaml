@@ -214,7 +214,15 @@
                     </Grid>
                 </Border>
 
-                <Border Grid.Row="2">
+                <!-- 2026-09-14: header was a BARE border (no full-colour
+                     panel) and its labels sat 8px left of the row data
+                     (row cells carry 14/8px left margins the header
+                     ignored) — "left aligned, not in the same position".
+                     Now: ModuleListTableHeaderStyle (same full-colour
+                     standard as Tax Invoice / Delivery Note) and every
+                     header label carries the SAME margins as its row
+                     cell so label and data align per column. -->
+                <Border Grid.Row="2" Style="{StaticResource ModuleListTableHeaderStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="3"/>
@@ -227,10 +235,13 @@
                             <ColumnDefinition Width="100"/>
                             <ColumnDefinition Width="160"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="1" Text="{DynamicResource Common.JobOrder}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="2" Text="{DynamicResource Common.Customer}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="1" Text="{DynamicResource Common.JobOrder}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="14,0"/>
+                        <TextBlock Grid.Column="2" Text="{DynamicResource Common.Customer}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="8,0"/>
                         <TextBlock Grid.Column="3" Text="{DynamicResource Nav.Delivery}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="4" Text="{DynamicResource Common.Project}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="4" Text="{DynamicResource Common.Project}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="8,0"/>
                         <TextBlock Grid.Column="5" Text="{DynamicResource JobOrder.ValueAED}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    HorizontalAlignment="Right" Margin="0,0,12,0"/>
                         <TextBlock Grid.Column="6" Text="{DynamicResource Common.Status}" Style="{StaticResource ModuleListHeaderTextStyle}"

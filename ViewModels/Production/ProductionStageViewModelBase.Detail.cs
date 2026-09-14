@@ -511,17 +511,25 @@ namespace ProGlassAutomation.ViewModels.Production
             string jobRef = SelectedJobNo;
             if (string.IsNullOrWhiteSpace(jobRef) || OnCreateDeliveryNote == null) return;
 
-            // DONE ≠ DELIVERED: finished pieces only leave on a delivery
-            // note. With nothing ready, explain instead of doing nothing.
-            if (DispatchBalance <= 0)
+            // DONE ≠ DELIVERED: finished pieces are what SHOULD leave on a
+            // delivery note. 2026-09-14: the old hard block made the
+            // button appear dead ("not going to delivery note") whenever
+            // nothing was marked DONE at THIS stage yet — the note now
+            // opens with the full remaining balance (auto-selected) and
+            // the operator is told the tracking gap. It only refuses when
+            // the job has no pieces at this stage at all.
+            bool anyPieces = SelectedStageItems.Any() || CompletedStageItems.Any();
+            if (DispatchBalance <= 0 && !anyPieces)
             {
-                ActionWarning = "Nothing ready to deliver — pieces finished in production (DONE) are only marked DELIVERED once a delivery note ships them.";
+                ActionWarning = "Nothing to deliver — this job has no pieces at this stage yet.";
                 return;
             }
 
             string message = await OnCreateDeliveryNote(jobRef).ConfigureAwait(true);
             if (!string.IsNullOrWhiteSpace(message))
                 ActionWarning = message;
+            else if (DispatchBalance <= 0)
+                ActionWarning = "Delivery note opened with the full remaining balance (pieces pre-selected) — nothing is marked DONE at this stage yet, so delivery tracking starts from this note.";
         }
 
         private void ClearDetailPanel()

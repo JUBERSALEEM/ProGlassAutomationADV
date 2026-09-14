@@ -357,9 +357,13 @@
                 </StackPanel>
             </Border>
 
-            <!-- TOTAL INVENTORY — one row of KPI cards with 12px gutters.
-                 UniformGrid wrapping collapsed height; the 4px Pi strip
-                 hid the figures. MinHeight keeps the values readable. -->
+            <!-- TOTAL INVENTORY — one row of KPI cards.
+                 2026-09-14: cards OVERLAPPED because the cells had zero
+                 gutters (12px radii flush + Soft shadows on neighbours)
+                 and cells 6-7 lacked the SurfaceKpi chrome entirely.
+                 Now: uniform SurfaceKpiStyle on all 7 cells, 12px
+                 gutters (6px each side), and TextTrimming so narrow
+                 windows ellipsize instead of spilling into the neighbour. -->
             <Border Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
@@ -381,69 +385,83 @@
                                Text="{DynamicResource SheetStore.TotalInventory}"
                                Style="{StaticResource PiKpiCaptionStyle}"
                                VerticalAlignment="Center" Margin="0,0,14,0"/>
-                    <Border Grid.Column="1" Style="{StaticResource SurfaceKpiStyle}">
+                    <Border Grid.Column="1" Margin="6,0" Style="{StaticResource SurfaceKpiStyle}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource DeliveryNote.Items}"
-                                       Style="{StaticResource PiKpiCaptionStyle}"/>
+                                       Style="{StaticResource PiKpiCaptionStyle}"
+                                       TextTrimming="CharacterEllipsis"/>
                             <TextBlock Text="{Binding TotalItems}"
-                                       Style="{StaticResource PiKpiValueStyle}"/>
+                                       Style="{StaticResource PiKpiValueStyle}"
+                                       TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="2" Style="{StaticResource SurfaceKpiStyle}">
+                    <Border Grid.Column="2" Margin="6,0" Style="{StaticResource SurfaceKpiStyle}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource SheetStore.Stock}"
-                                       Style="{StaticResource PiKpiCaptionStyle}"/>
+                                       Style="{StaticResource PiKpiCaptionStyle}"
+                                       TextTrimming="CharacterEllipsis"/>
                             <TextBlock Text="{Binding TotalStock}"
                                        Style="{StaticResource PiKpiValueStyle}"
-                                       Foreground="{DynamicResource SuccessBrush}"/>
+                                       Foreground="{DynamicResource SuccessBrush}"
+                                       TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="3" Style="{StaticResource SurfaceKpiStyle}">
+                    <Border Grid.Column="3" Margin="6,0" Style="{StaticResource SurfaceKpiStyle}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource SheetStore.BuyingValue}"
-                                       Style="{StaticResource PiKpiCaptionStyle}"/>
+                                       Style="{StaticResource PiKpiCaptionStyle}"
+                                       TextTrimming="CharacterEllipsis"/>
                             <TextBlock Text="{Binding TotalBuyingValue, StringFormat={}{0:N0} AED}"
                                        Style="{StaticResource PiKpiValueStyle}"
-                                       Foreground="{DynamicResource DangerBrush}"/>
+                                       Foreground="{DynamicResource DangerBrush}"
+                                       TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="4" Style="{StaticResource SurfaceKpiStyle}">
+                    <Border Grid.Column="4" Margin="6,0" Style="{StaticResource SurfaceKpiStyle}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource SheetStore.SellingValue}"
-                                       Style="{StaticResource PiKpiCaptionStyle}"/>
+                                       Style="{StaticResource PiKpiCaptionStyle}"
+                                       TextTrimming="CharacterEllipsis"/>
                             <TextBlock Text="{Binding TotalSellingValue, StringFormat={}{0:N0} AED}"
                                        Style="{StaticResource PiKpiValueStyle}"
-                                       Foreground="{DynamicResource SuccessBrush}"/>
+                                       Foreground="{DynamicResource SuccessBrush}"
+                                       TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="5" Style="{StaticResource SurfaceKpiStyle}"
+                    <Border Grid.Column="5" Margin="6,0" Style="{StaticResource SurfaceKpiStyle}"
                             ToolTip="{DynamicResource SheetStore.UsedValueTip}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource SheetStore.UsedValue}"
-                                       Style="{StaticResource PiKpiCaptionStyle}"/>
+                                       Style="{StaticResource PiKpiCaptionStyle}"
+                                       TextTrimming="CharacterEllipsis"/>
                             <TextBlock Text="{Binding TotalUsedValue, StringFormat={}{0:N0} AED}"
                                        Style="{StaticResource PiKpiValueStyle}"
-                                       Foreground="{DynamicResource WarningBrush}"/>
+                                       Foreground="{DynamicResource WarningBrush}"
+                                       TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="6"
+                    <Border Grid.Column="6" Margin="6,0" Style="{StaticResource SurfaceKpiStyle}"
                             ToolTip="{DynamicResource SheetStore.BalanceValueTip}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource SheetStore.BalanceValue}"
-                                       Style="{StaticResource PiKpiCaptionStyle}"/>
+                                       Style="{StaticResource PiKpiCaptionStyle}"
+                                       TextTrimming="CharacterEllipsis"/>
                             <TextBlock Text="{Binding TotalBalanceValue, StringFormat={}{0:N0} AED}"
                                        Style="{StaticResource PiKpiValueStyle}"
-                                       Foreground="{DynamicResource InfoBrush}"/>
+                                       Foreground="{DynamicResource InfoBrush}"
+                                       TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="7" Margin="0"
+                    <Border Grid.Column="7" Margin="6,0" Style="{StaticResource SurfaceKpiStyle}"
                             ToolTip="{DynamicResource SheetStore.ExpectedProfitTip}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource SheetStore.ExpectedProfit}"
-                                       Style="{StaticResource PiKpiCaptionStyle}"/>
+                                       Style="{StaticResource PiKpiCaptionStyle}"
+                                       TextTrimming="CharacterEllipsis"/>
                             <TextBlock Text="{Binding ExpectedProfit, StringFormat={}{0:N0} AED}"
                                        Style="{StaticResource PiKpiValueStyle}"
-                                       Foreground="{DynamicResource AccentBrush}"/>
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
                     </Border>
                 </Grid>

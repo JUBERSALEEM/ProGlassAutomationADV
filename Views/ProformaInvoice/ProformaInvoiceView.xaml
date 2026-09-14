@@ -150,11 +150,16 @@
                                                     Padding="4,4"
                                                     SnapsToDevicePixels="True">
                                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                    <!-- 2026-09-14: the dot must NOT take SurfacePrimaryStyle —
+                                                         its Space.Card padding (12,9) on a 20px tile leaves a
+                                                         ZERO content area, so the step number (StationCode)
+                                                         rendered completely clipped and the step cards looked
+                                                         empty. Explicit size/radius/background are sufficient. -->
                                                     <Border x:Name="Dot"
                                                             Width="20" Height="20"
                                                             CornerRadius="{DynamicResource Radius.Medium}"
                                                             Background="{DynamicResource SurfaceTertiaryBrush}"
-                                                            Margin="0,0,6,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                                            Margin="0,0,6,0">
                                                         <TextBlock x:Name="Num"
                                                                    Text="{Binding StationCode}"
                                                                    FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"

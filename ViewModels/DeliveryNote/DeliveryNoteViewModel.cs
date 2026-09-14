@@ -321,10 +321,21 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             await SafeLoadListAsync();
         }
 
-        public async Task OpenDeliveryNoteAsync(int deliveryNoteId)
+        public async Task OpenDeliveryNoteAsync(int deliveryNoteId, bool autoSelectBalance = false)
         {
             await DetailVM.LoadAsync(deliveryNoteId);
             IsListView = false;
+            // 2026-09-14: a delivery note created FROM PRODUCTION
+            // ("Create Delivery Note" on the stage detail) opens with
+            // every remaining-balance row pre-selected, so the operator
+            // sees exactly the pieces to dispatch and can confirm
+            // immediately instead of ticking each row by hand.
+            if (autoSelectBalance)
+            {
+                foreach (var row in DetailVM.ItemRows)
+                    if (row != null && row.BalanceQty > 0)
+                        row.IsSelected = true;
+            }
             await SafeLoadListAsync();
         }
 

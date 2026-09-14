@@ -470,6 +470,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             ? "No confirmed job orders with cutting pieces yet."
                             : string.Format(CultureInfo.InvariantCulture,
                                 "{0} confirmed job order(s) ready.", options.Count);
+
+                        // 2026-09-14: AUTO-TRIGGER — as soon as the job
+                        // section has data, the reference calibration job
+                        // loads itself. The Pieces.Count guard keeps a
+                        // manual Refresh from clobbering a list the
+                        // operator already edited or cleared on purpose.
+                        if (options.Count > 0 && Pieces.Count == 0)
+                            LoadReferenceJob();
                     });
                 }
             }

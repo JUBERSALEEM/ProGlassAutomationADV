@@ -188,8 +188,12 @@
                     </Grid>
                 </Border>
 
-                <!-- Pale table header -->
-                <Border Grid.Row="2">
+                <!-- Table header — full-colour panel.
+                     2026-09-14: was a BARE border (no background) while the
+                     Tax Invoice / Delivery Note lists use
+                     ModuleListTableHeaderStyle (SurfaceTertiary full colour
+                     + divider). Now the same module-list standard. -->
+                <Border Grid.Row="2" Style="{StaticResource ModuleListTableHeaderStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="3"/>
@@ -202,15 +206,24 @@
                             <ColumnDefinition Width="120"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="1" Text="{DynamicResource ProformaInvoice.REF}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="2" Text="{DynamicResource Common.Company}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="3" Text="{DynamicResource Common.Customer}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="4" Text="{DynamicResource Common.Project}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <!-- 2026-09-14: row cells carry Padding 14,12 — the
+                             header labels carry the matching left margins
+                             so every column label sits exactly over its
+                             data (was flush-left, offset 14px). -->
+                        <TextBlock Grid.Column="1" Text="{DynamicResource ProformaInvoice.REF}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="14,0"/>
+                        <TextBlock Grid.Column="2" Text="{DynamicResource Common.Company}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="14,0"/>
+                        <TextBlock Grid.Column="3" Text="{DynamicResource Common.Customer}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="14,0"/>
+                        <TextBlock Grid.Column="4" Text="{DynamicResource Common.Project}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="14,0"/>
                         <TextBlock Grid.Column="5" Text="{DynamicResource Common.Status}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    HorizontalAlignment="Center"/>
                         <TextBlock Grid.Column="6" Text="{DynamicResource ProformaInvoice.GrandTotal}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    HorizontalAlignment="Right" Margin="0,0,12,0"/>
-                        <TextBlock Grid.Column="7" Text="{DynamicResource Common.Date}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="7" Text="{DynamicResource Common.Date}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="14,0"/>
                         <TextBlock Grid.Column="8" Text="" Style="{StaticResource ModuleListHeaderTextStyle}"/>
                     </Grid>
                 </Border>

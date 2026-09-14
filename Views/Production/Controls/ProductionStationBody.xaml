@@ -6,12 +6,14 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
     <Border Margin="24,0,24,20">
+        <!-- 2026-09-14: the detail is a FULL PAGE again. It used to render
+             as a 360px side panel, so double-clicking a row shrank the
+             list ("the sidebar data gets removed") and cramped the
+             OUTER/INNER grids. Now: double-click swaps the list for the
+             full-width detail page (CLOSE returns); the list keeps its
+             columns and width. -->
         <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0">
+            <Grid Visibility="{Binding IsDetailOpen, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -73,7 +75,7 @@
                             <DataGridTextColumn Header="LM" Binding="{Binding LmLabel}" Width="90"/>
                             <DataGridTextColumn Header="LOAD" Binding="{Binding LoadLabel}" Width="90"/>
                             <DataGridTextColumn Header="MATCH" Binding="{Binding MatchLabel}" Width="120"/>
-                            <DataGridTemplateColumn Header="IN" Width="72">
+                            <DataGridTemplateColumn Header="{Binding InColumnHeader}" Width="72">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding InflowLabel}" FontWeight="{DynamicResource Weight.SemiBold}"
@@ -167,8 +169,11 @@
                 </Grid>
             </Grid>
 
-            <Border Grid.Column="1" Width="360"
-                    Margin="14,0,0,0" VerticalAlignment="Stretch"
+            <!-- FULL-PAGE DETAIL — OUTER/INNER grids, SAVE DONE / COMPLETE
+                 ALL, COMPLETED section, recent entries and the dispatch
+                 panel all live here, at full width. CLOSE returns to the
+                 list. -->
+            <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                     Visibility="{Binding IsDetailOpen, Converter={StaticResource BoolToVisibilityConverter}}">
                 <production:ProductionUnitDetailControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
             </Border>

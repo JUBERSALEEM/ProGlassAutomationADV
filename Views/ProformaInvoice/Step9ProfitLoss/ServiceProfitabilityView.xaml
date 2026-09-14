@@ -55,20 +55,26 @@
             </StackPanel>
         </Grid>
 
-        <!-- Main result first -->
+        <!-- Main result first
+             2026-09-14: cards OVERLAPPED — three 200px SurfacePrimary
+             cards with zero gutters (12px radii flush + Soft shadows
+             bleeding onto neighbours). 12px gutters now; first card's
+             value takes KpiValueStyle like the other two. -->
         <StackPanel Grid.Row="1" Margin="0,0,0,16">
             <TextBlock Text="MAIN RESULT — SERVICE TOTALS" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,8"/>
             <StackPanel Orientation="Horizontal">
             <!-- Total Service Charge -->
-            <Border Style="{StaticResource SurfacePrimaryStyle}" Width="200">
+            <Border Style="{StaticResource SurfacePrimaryStyle}" Width="200" Margin="0,0,12,0">
                 <StackPanel>
-                    <TextBlock Text="TOTAL SERVICE CHARGE"/>
-                    <TextBlock Text="{Binding TotalServiceChargeDisplay}"/>
+                    <TextBlock Text="TOTAL SERVICE CHARGE"
+                               Style="{StaticResource PiKpiCaptionStyle}"/>
+                    <TextBlock Text="{Binding TotalServiceChargeDisplay}"
+                               Style="{StaticResource KpiValueStyle}"/>
                 </StackPanel>
             </Border>
 
             <!-- Total Service Profit -->
-            <Border Style="{StaticResource SurfacePrimaryStyle}" Width="200">
+            <Border Style="{StaticResource SurfacePrimaryStyle}" Width="200" Margin="0,0,12,0">
                 <StackPanel>
                     <TextBlock Text="TOTAL SERVICE PROFIT"/>
                     <TextBlock Text="{Binding TotalServiceProfitDisplay}">
@@ -86,7 +92,7 @@
             </Border>
 
             <!-- Overall Service Margin -->
-            <Border Style="{StaticResource SurfacePrimaryStyle}" Width="200">
+            <Border Style="{StaticResource SurfacePrimaryStyle}" Width="200" Margin="0,0,12,0">
                 <StackPanel>
                     <TextBlock Text="OVERALL SERVICE MARGIN"/>
                     <TextBlock Text="{Binding OverallServiceMarginDisplay}">
@@ -144,14 +150,22 @@
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="SPEC"/>
-                        <TextBlock Grid.Column="1" Text="SERVICE"/>
-                        <TextBlock Grid.Column="2" Text="DESCRIPTION"/>
-                        <TextBlock Grid.Column="3" Text="AREA" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="4" Text="CHARGE" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="5" Text="COST" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="6" Text="PROFIT" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="7" Text="MARGIN %" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="0" Text="SPEC"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.SemiBold}"/>
+                        <TextBlock Grid.Column="1" Text="SERVICE"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.SemiBold}"/>
+                        <TextBlock Grid.Column="2" Text="DESCRIPTION"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.SemiBold}"/>
+                        <TextBlock Grid.Column="3" Text="AREA" HorizontalAlignment="Right"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.SemiBold}"/>
+                        <TextBlock Grid.Column="4" Text="CHARGE" HorizontalAlignment="Right"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.SemiBold}"/>
+                        <TextBlock Grid.Column="5" Text="COST" HorizontalAlignment="Right"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.SemiBold}"/>
+                        <TextBlock Grid.Column="6" Text="PROFIT" HorizontalAlignment="Right"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.SemiBold}"/>
+                        <TextBlock Grid.Column="7" Text="MARGIN %" HorizontalAlignment="Right"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                     </Grid>
                 </Border>
 
@@ -160,7 +174,16 @@
                     <ItemsControl ItemsSource="{Binding ServiceBreakdown}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.BottomHairlineThickness}">
+                                <!-- 2026-09-14: rows had NO padding and no
+                                     min-height, so row heights were ragged
+                                     (cramped vs the 8px header) and column
+                                     text sat at different vertical
+                                     positions. Now: 10,8 cell padding,
+                                     38px min row height, everything
+                                     vertically centered, one TableCell
+                                     font contract across all columns. -->
+                                <Border Padding="10,8" MinHeight="38"
+                                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.BottomHairlineThickness}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="1.5*"/>
@@ -176,32 +199,44 @@
                                         <!-- Spec Name -->
                                         <TextBlock Grid.Column="0"
                                                    Text="{Binding SpecName}"
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   VerticalAlignment="Center"
                                                    FontWeight="{DynamicResource Weight.SemiBold}"
                                                    Foreground="{DynamicResource AccentBrush}"/>
 
                                         <!-- Service Name -->
                                         <TextBlock Grid.Column="1"
                                                    Text="{Binding ServiceName}"
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   VerticalAlignment="Center"
                                                    FontWeight="{DynamicResource Weight.SemiBold}"/>
 
                                         <!-- Description -->
                                         <TextBlock Grid.Column="2"
                                                    Text="{Binding Description}"
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   VerticalAlignment="Center"
                                                    TextWrapping="Wrap"/>
 
                                         <!-- Area -->
                                         <TextBlock Grid.Column="3"
                                                    Text="{Binding AreaDisplay}"
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   VerticalAlignment="Center"
                                                    HorizontalAlignment="Right"/>
 
                                         <!-- Charge -->
                                         <TextBlock Grid.Column="4"
                                                    Text="{Binding ChargeDisplay}"
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   VerticalAlignment="Center"
                                                    HorizontalAlignment="Right"/>
 
                                         <!-- Cost -->
                                         <TextBlock Grid.Column="5"
                                                    Text="{Binding CostDisplay}"
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   VerticalAlignment="Center"
                                                    HorizontalAlignment="Right"/>
 
                                         <!-- Profit -->

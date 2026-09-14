@@ -174,7 +174,9 @@ namespace ProGlassAutomation.ViewModels
                     case ProGlassAutomation.Services.DeliveryNote.DnCreateResult.Kind.OpenExisting:
                     case ProGlassAutomation.Services.DeliveryNote.DnCreateResult.Kind.Created:
                         Navigate("DeliveryNote");
-                        await DeliveryNoteVM.OpenDeliveryNoteAsync(result.DeliveryNoteDbId);
+                        // auto-select the remaining-balance pieces so the
+                        // note is ready to confirm (2026-09-14).
+                        await DeliveryNoteVM.OpenDeliveryNoteAsync(result.DeliveryNoteDbId, autoSelectBalance: true);
                         return "";
 
                     case ProGlassAutomation.Services.DeliveryNote.DnCreateResult.Kind.FullyDelivered:

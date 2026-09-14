@@ -25,6 +25,13 @@ namespace ProGlassAutomation.ViewModels.Production
         public bool IsPairingStation => Stage == ProductionStage.Pairing;
         public bool IsAssemblyStation => Stage == ProductionStage.DoublingLamination;
 
+        /// <summary>
+        /// Header of the IN column. The cutting sidebar is the slim
+        /// totals-only list (2026-09-14), so there the column reads
+        /// TOTAL — the pieces to cut at this stage.
+        /// </summary>
+        public string InColumnHeader => IsCuttingStation ? "TOTAL" : "IN";
+
         public bool ShowSizeColumn => IsCuttingStation || IsHolesStation || IsTemperingStation;
         public bool ShowGlassColumn => IsCuttingStation || IsEdgeDeletionStation || IsPairingStation || IsAssemblyStation;
         public bool ShowLmColumn => IsPolishStation || IsMitringStation;
