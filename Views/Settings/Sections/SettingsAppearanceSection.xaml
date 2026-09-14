@@ -166,10 +166,13 @@
                      seen, not a label they trust blindly. -->
                 <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,10">
                     <StackPanel>
-                        <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                        <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>
                             <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.PreviewTitle}"/>
                         </StackPanel>
+    </Border>
                         <TextBlock Style="{StaticResource Typography.BodySmall}"
                                    Text="{DynamicResource Settings.PreviewCaption}"/>
                         <Border CornerRadius="{DynamicResource CardCornerRadius}"
@@ -351,10 +354,13 @@
                     <!-- Visual theme -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.LblThemeFamily}"/>
                             </StackPanel>
+    </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.NormalMonetIos17pm}"/>
                             <ComboBox ItemsSource="{Binding VisualThemeOptions}"
@@ -369,10 +375,13 @@
                     <!-- Font Color (global text colour, 2026-08-25) -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE2B1;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.FontColor}"/>
                             </StackPanel>
+    </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.OneGlobalTextColourViewAutoFollowsThemeIos}"/>
                             <!-- Chips generated from SettingsViewModel.FontColorPalette
@@ -429,7 +438,9 @@
                     <!-- Defined card edges: on/off + edge weight (1–100) + colour plate -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE71B;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.DefinedCardEdges}"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
@@ -439,6 +450,7 @@
                                     <Run Text="{DynamicResource Settings.DIP}"/>
                                 </TextBlock>
                             </StackPanel>
+    </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.AddsStrongDarkOutlineRoundedCardsPillButtons}"/>
                             <ToggleButton HorizontalAlignment="Left" Margin="0,8,0,0"
@@ -505,10 +517,13 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border Grid.Row="0"
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7F4;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.GradientSurfaces}"/>
                             </StackPanel>
+    </Border>
                             <TextBlock Grid.Row="1"
                                        Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.RendersMonetGlassCardsWindowBackgroundAccent}"/>
@@ -522,7 +537,9 @@
                     <!-- Corner radius -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7B3;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.CardCornerRadius}"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
@@ -532,6 +549,7 @@
                                     <Run Text="{DynamicResource Settings.Px}"/>
                                 </TextBlock>
                             </StackPanel>
+    </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.HowRoundCardButtonDefault12Px0Sharp}"/>
                             <Slider Style="{StaticResource ModernSliderStyle}"
@@ -546,10 +564,13 @@
                     <!-- Display density -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE740;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.GrpDensity}"/>
                             </StackPanel>
+    </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.CompactFitsMoreLaptopComfortableGivesLarger}"/>
                             <ComboBox ItemsSource="{Binding DisplayDensityOptions}"
@@ -563,7 +584,9 @@
                     <!-- Module-skin frost: blur wallpaper + tinted glass cards -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE2B1;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="Frosted module cards"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
@@ -573,6 +596,7 @@
                                     <Run Text="/100"/>
                                 </TextBlock>
                             </StackPanel>
+    </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="Blurs the module wallpaper behind every screen. Cards stay sharp. 1 = light frost, 50 = professional, 100 = max. Colour plate tints the shared card fill."/>
                             <Slider Style="{StaticResource ModernSliderStyle}"
@@ -622,10 +646,13 @@
                     <!-- Semantic ERP surfaces: Primary / Secondary / Detail customization -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE771;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="ERP surface levels"/>
                             </StackPanel>
+    </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="Controls the three central card levels used by modules: Primary page regions, Secondary groups/KPIs, and Detail chips/facts."/>
 
@@ -709,7 +736,9 @@
                     <!-- UI scale -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A3;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.UIScale}"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
@@ -725,6 +754,7 @@
                                         Height="26" MinWidth="60" Padding="10,0"
                                         FontSize="{DynamicResource FontSize.BodySmall}"/>
                             </StackPanel>
+    </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.CtrlMouseWheelZoomsAppCtrl0Resets100}"/>
                             <Slider Style="{StaticResource ModernSliderStyle}"
@@ -739,10 +769,13 @@
                     <!-- PDF layout -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A5;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.PDFLayout}"/>
                             </StackPanel>
+    </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{Binding PdfLayoutHint}"/>
                             <ComboBox ItemsSource="{Binding PdfLayoutOptions}"
@@ -757,10 +790,13 @@
                     <!-- Motion & performance -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.MotionPerformance}"/>
                             </StackPanel>
+    </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{Binding PerformanceTierDisplay}"/>
                             <TextBlock Style="{StaticResource Typography.Caption}"
@@ -783,10 +819,13 @@
                     <!-- Accent palette (wide) -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.LblAccent}"/>
                             </StackPanel>
+    </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.ButtonsTintsHoverStatesMonetGlassSurfaces}"/>
                             <!-- Palette chips generated from SettingsViewModel.AccentPalette
@@ -841,10 +880,13 @@
                     <!-- Font family -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE185;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.FontFamily}"/>
                             </StackPanel>
+    </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.UsedScreenDialogTableIconsStaySegoeMDL2}"/>
                             <ComboBox ItemsSource="{Binding FontOptions}"
@@ -861,10 +903,13 @@
                     <!-- Weight + Style -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D2;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.FontWeightStyle}"/>
                             </StackPanel>
+    </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.TuneWeightStyleWithinSelectedFamily}"/>
                             <Grid>
@@ -921,10 +966,13 @@
                     <!-- Global wallpaper — one card, all controls on one line -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xEB9F;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.GlobalWallpaper}"/>
                             </StackPanel>
+    </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.AppliedSystemWideBehindModuleModuleOverrides}"/>
                             <!-- Single line: SET / CLEAR on the left, visibility
@@ -969,10 +1017,13 @@
                          the list no longer grows the page by 17 stacked rows. -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B9;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.ModuleWallpapers}"/>
                             </StackPanel>
+    </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
                                        Text="{DynamicResource Settings.GiveModuleBackgroundImageListSplitThree}"/>
 
@@ -1072,11 +1123,14 @@
                     <!-- Language (15 shipped, live switch, en-US primary) -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>
                                 <TextBlock
                                            Text="{DynamicResource Settings.LblLanguage}"/>
                             </StackPanel>
+    </Border>
                             <TextBlock
                                        Text="{DynamicResource Settings.HintLanguage}"/>
                             <ComboBox AutomationProperties.AutomationId="Settings.Language"
@@ -1090,11 +1144,14 @@
                     <!-- Currency (live FX, offline = last fetched) -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <TextBlock Text="&#xEAF1;"/>
                                 <TextBlock
                                            Text="{DynamicResource Settings.LblCurrency}"/>
                             </StackPanel>
+    </Border>
                             <TextBlock
                                        Text="{DynamicResource Settings.HintCurrency}"/>
                             <ComboBox AutomationProperties.AutomationId="Settings.Currency"
@@ -1108,11 +1165,14 @@
                     <!-- Phone country (from IP, editable) -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <TextBlock Text="&#xE717;"/>
                                 <TextBlock
                                            Text="{DynamicResource Settings.LblPhoneCountry}"/>
                             </StackPanel>
+    </Border>
                             <TextBlock
                                        Text="{DynamicResource Settings.HintPhoneCountry}"/>
                             <ComboBox AutomationProperties.AutomationId="Settings.PhoneCountry"
@@ -1130,11 +1190,14 @@
                      static. Persisted; survives family switches. -->
                 <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,10">
                     <StackPanel>
-                        <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                        <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                             <TextBlock Text="&#xE713;"/>
                             <TextBlock
                                        Text="{DynamicResource Settings.ReducedMotion}"/>
                         </StackPanel>
+    </Border>
                         <TextBlock
                                    Text="{DynamicResource Settings.ReducedMotionTip}"
                                    TextWrapping="Wrap"/>
@@ -1151,12 +1214,15 @@
                      persistent local library. -->
                 <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,10">
                     <StackPanel>
-                        <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                        <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                             <TextBlock
                                        Text="{DynamicResource Settings.WallpaperStudio}"/>
                             <TextBlock TextWrapping="Wrap"
                                        Text="{DynamicResource Settings.WallpaperStudioCaption}"/>
                         </StackPanel>
+    </Border>
 
                         <!-- Mode: dynamic / file / pinned scene -->
                         <TextBlock Text="{DynamicResource Settings.WallpaperMode}"
@@ -1322,11 +1388,14 @@
                      tile in this section. Bindings/AutomationIds unchanged. -->
                 <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,4,0,0">
                     <StackPanel>
-                        <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                        <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE774;"/>
                             <TextBlock Style="{StaticResource Typography.Title}"
                                        Text="{DynamicResource Settings.LocaleFallback}"/>
                         </StackPanel>
+    </Border>
                         <TextBlock Style="{StaticResource Typography.BodySmall}"
                                    Text="{DynamicResource Settings.LocaleFallbackCaption}"/>
                         <Grid Margin="0,8,0,0">

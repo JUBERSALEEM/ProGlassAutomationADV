@@ -93,7 +93,9 @@
                     <!-- About the Theme System -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <Border Style="{StaticResource InfoGlyphBadgeStyle}" Margin="0,0,10,0">
                                     <TextBlock Text="&#xE790;" Style="{StaticResource InfoGlyphTextStyle}"/>
                                 </Border>
@@ -101,6 +103,7 @@
                                            Style="{StaticResource Typography.Title}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
+    </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}">
                                 <Run Text="{DynamicResource Settings.ProglassAutomationShips}"/><Run Text="{DynamicResource Settings.TwoHandCraftedThemes}" FontWeight="{DynamicResource Weight.Bold}"/><Run Text="{DynamicResource Settings.LightDefaultDark}"/>
                             </TextBlock>
@@ -113,7 +116,9 @@
                     <!-- About the AI Assistant -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <Border Style="{StaticResource InfoGlyphBadgeStyle}" Margin="0,0,10,0">
                                     <TextBlock Text="&#xE8F2;" Style="{StaticResource InfoGlyphTextStyle}"/>
                                 </Border>
@@ -121,6 +126,7 @@
                                            Style="{StaticResource Typography.Title}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
+    </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}">
                                 <Run Text="{DynamicResource Settings.OptionalAIAssistantSupports}"/><Run Text="{DynamicResource Settings.GoogleGeminiGroqCohere}" FontWeight="{DynamicResource Weight.Bold}"/><Run Text="{DynamicResource Settings.FreeTiersTailoredUAEGlassManufacturing}"/>
                             </TextBlock>
@@ -133,7 +139,9 @@
                     <!-- About Your API Key & Privacy -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <Border Style="{StaticResource InfoGlyphBadgeStyle}" Margin="0,0,10,0">
                                     <TextBlock Text="&#xE72E;" Style="{StaticResource InfoGlyphTextStyle}"/>
                                 </Border>
@@ -141,6 +149,7 @@
                                            Style="{StaticResource Typography.Title}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
+    </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}">
                                 <Run Text="{DynamicResource Settings.APIKeyStored}"/><Run Text="{DynamicResource Settings.LocalMachine}" FontWeight="{DynamicResource Weight.Bold}"/><Run Text="{DynamicResource Settings.AppdataNeverLeavesPCExceptDirectHttps}"/>
                             </TextBlock>
@@ -152,7 +161,9 @@
                     <!-- About Voice Models -->
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource SurfaceDetailPanelStyle}">
+                            <Border 
+        Style="{StaticResource SurfaceDetailStyle}">
+            <StackPanel>
                                 <Border Style="{StaticResource InfoGlyphBadgeStyle}" Margin="0,0,10,0">
                                     <TextBlock Text="&#xE720;" Style="{StaticResource InfoGlyphTextStyle}"/>
                                 </Border>
@@ -160,6 +171,7 @@
                                            Style="{StaticResource Typography.Title}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
+    </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}">
                                 <Run Text="{DynamicResource Settings.ThreeWhisperModelSizesAvailable}"/><Run Text="{DynamicResource Settings.BaseRecommended}" FontWeight="{DynamicResource Weight.Bold}"/><Run Text="{DynamicResource Settings.MostUsersFastAccurate142MB}"/>
                             </TextBlock>

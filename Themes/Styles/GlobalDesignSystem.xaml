@@ -698,17 +698,16 @@
          other element families, so views keep their intended look
          without a TargetType crash.
     ═══════════════════════════════════════════════════════════════ -->
-    <!-- Panel family (StackPanel / UniformGrid / Grid). Panel has no
-         CornerRadius / Effect, so those setters are intentionally absent. -->
-    <Style x:Key="SurfacePrimaryPanelStyle" TargetType="Panel">
+    <!-- Panel-family surfaces. NOTE: WPF's Panel family (StackPanel /
+         UniformGrid / Grid) has NO Padding, CornerRadius or Border*
+         properties — those live on Border/Control. The ~136 view sites
+         that asked for a padded, filled panel are written as
+         <Border Surface*PanelTile/Detail/PrimaryStyle><StackPanel/>…</Border>
+         instead (see the 12b migration notes at each call site). -->
+    <Style x:Key="SurfacePanelTileStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Medium}"/>
         <Setter Property="Padding" Value="{DynamicResource Space.Card}"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="UseLayoutRounding" Value="True"/>
-    </Style>
-    <Style x:Key="SurfaceDetailPanelStyle" TargetType="Panel">
-        <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
-        <Setter Property="Padding" Value="{DynamicResource Space.Tile}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
     </Style>
