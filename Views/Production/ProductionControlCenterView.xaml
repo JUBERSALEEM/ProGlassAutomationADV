@@ -125,7 +125,7 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="JobRef" Binding="{Binding JobRef}" Width="90"/>
                             <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="110"/>
-                            <DataGridTextColumn Header="Spec" Binding="{Binding SpecName}" Width="120"/>
+                            <DataGridTextColumn Header="Spec" Binding="{Binding SpecName}" Width="*"/>
                             <DataGridTextColumn Header="Piece" Binding="{Binding Position}" Width="70"/>
                             <DataGridTextColumn Header="Process" Binding="{Binding StageLabel}" Width="90"/>
                             <DataGridTextColumn Header="Readiness" Binding="{Binding Readiness}" Width="90"/>
@@ -152,7 +152,7 @@
                             <DataGrid ItemsSource="{Binding ExecutableQueue}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="120">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="70"/>
-                                    <DataGridTextColumn Header="Process" Binding="{Binding StageLabel}" Width="80"/>
+                                    <DataGridTextColumn Header="Process" Binding="{Binding StageLabel}" Width="*"/>
                                     <DataGridTextColumn Header="Priority" Binding="{Binding Priority}" Width="60"/>
                                     <DataGridTextColumn Header="Due" Binding="{Binding DueDate, StringFormat=MM-dd}" Width="60"/>
                                 </DataGrid.Columns>
@@ -172,7 +172,7 @@
                             <DataGrid ItemsSource="{Binding QcQueue}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="120">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="70"/>
-                                    <DataGridTextColumn Header="Stage" Binding="{Binding StageLabel}" Width="80"/>
+                                    <DataGridTextColumn Header="Stage" Binding="{Binding StageLabel}" Width="*"/>
                                     <DataGridTextColumn Header="QC" Binding="{Binding QcResult}" Width="50"/>
                                 </DataGrid.Columns>
                             </DataGrid>
@@ -194,7 +194,7 @@
                         <TextBlock Text="Job Progress — Required Completed InProg Blocked Paused Rework QC Pend Fail OnHold Cancelled Progress%" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,8,0,4"/>
                         <DataGrid ItemsSource="{Binding JobProgress}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="140">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="JobRef" Binding="{Binding JobRef}" Width="80"/>
+                                <DataGridTextColumn Header="JobRef" Binding="{Binding JobRef}" Width="*"/>
                                 <DataGridTextColumn Header="Req" Binding="{Binding Required}" Width="40"/>
                                 <DataGridTextColumn Header="Done" Binding="{Binding Completed}" Width="40"/>
                                 <DataGridTextColumn Header="Rem" Binding="{Binding Remaining}" Width="40"/>
@@ -206,7 +206,7 @@
                         <TextBlock Text="Process Progress — physical pieces, work items, final assemblies appropriate metric" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,12,0,4"/>
                         <DataGrid ItemsSource="{Binding ProcessProgress}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="140">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Process" Binding="{Binding SpecName}" Width="100"/>
+                                <DataGridTextColumn Header="Process" Binding="{Binding SpecName}" Width="*"/>
                                 <DataGridTextColumn Header="Req" Binding="{Binding Required}" Width="40"/>
                                 <DataGridTextColumn Header="Done" Binding="{Binding Completed}" Width="40"/>
                                 <DataGridTextColumn Header="Prog%" Binding="{Binding ProgressPct}" Width="60"/>
@@ -220,7 +220,7 @@
                                 <DataGridTextColumn Header="Ready" Binding="{Binding ReadyQueue}" Width="50"/>
                                 <DataGridTextColumn Header="Blocked" Binding="{Binding BlockedQueue}" Width="50"/>
                                 <DataGridTextColumn Header="Total" Binding="{Binding Total}" Width="50"/>
-                                <DataGridTextColumn Header="Pressure" Binding="{Binding PressureLabel}" Width="100"/>
+                                <DataGridTextColumn Header="Pressure" Binding="{Binding PressureLabel}" Width="*"/>
                                 <DataGridTextColumn Header="AvgWaitH" Binding="{Binding AvgWaitHours}" Width="60"/>
                             </DataGrid.Columns>
                         </DataGrid>
@@ -229,7 +229,7 @@
                         <DataGrid ItemsSource="{Binding WorkstationLoad}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="140">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="80"/>
-                                <DataGridTextColumn Header="Process" Binding="{Binding ProcessName}" Width="80"/>
+                                <DataGridTextColumn Header="Process" Binding="{Binding ProcessName}" Width="*"/>
                                 <DataGridTextColumn Header="Assigned" Binding="{Binding AssignedCount}" Width="60"/>
                                 <DataGridTextColumn Header="Ready" Binding="{Binding ReadyCount}" Width="50"/>
                                 <DataGridTextColumn Header="InProg" Binding="{Binding InProgressCount}" Width="50"/>
@@ -240,7 +240,7 @@
                         <DataGrid ItemsSource="{Binding Workstations}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="120">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Id" Binding="{Binding WorkstationId}" Width="80"/>
-                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="120"/>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
                                 <DataGridTextColumn Header="Process" Binding="{Binding ProcessName}" Width="80"/>
                                 <DataGridTextColumn Header="Active" Binding="{Binding IsActive}" Width="50"/>
                             </DataGrid.Columns>

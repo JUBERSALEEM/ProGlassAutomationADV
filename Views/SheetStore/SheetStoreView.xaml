@@ -675,9 +675,9 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="ITEM" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Grid.Column="1" Text="BALANCE" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Grid.Column="2" Text="USED" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Grid.Column="3" Text="VALUE" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        <TextBlock Grid.Column="1" Text="BALANCE" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="2" Text="USED" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="3" Text="VALUE" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
                         <TextBlock Grid.Column="4" Text="ACTIONS" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     </Grid>
                 </Border>
@@ -751,7 +751,7 @@
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                                 </StackPanel>
                                             </StackPanel>
-                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
                                                 <TextBlock Text="{Binding BalanceDisplay}"
                                                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                            Foreground="{DynamicResource SuccessBrush}"/>
@@ -762,11 +762,11 @@
                                             <TextBlock Grid.Column="2" Text="{Binding Used, StringFormat={}{0:N2}}"
                                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource DangerBrush}"
-                                                       VerticalAlignment="Center"/>
+                                                       VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                             <TextBlock Grid.Column="3" Text="{Binding BalanceCostValue, StringFormat={}{0:N0} AED}"
                                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource AccentBrush}"
-                                                       VerticalAlignment="Center"/>
+                                                       VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                             <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
                                                 <Button Style="{StaticResource RowSuccessButton}"
                                                         Tag="&#xE7B8;" Content="BUY" MinWidth="92"

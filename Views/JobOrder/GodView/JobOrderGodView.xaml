@@ -132,30 +132,30 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="{DynamicResource God.JoNumber}"
                                         Binding="{Binding JobOrderId}"
-                                        Width="140"/>
+                                        Width="140" ElementStyle="{StaticResource GodViewLeftCellTextStyle}"/>
                     <DataGridTextColumn Header="{DynamicResource God.SourcePi}"
                                         Binding="{Binding SourceProformaId}"
-                                        Width="130"/>
+                                        Width="130" ElementStyle="{StaticResource GodViewLeftCellTextStyle}"/>
                     <DataGridTextColumn Header="{DynamicResource God.Customer}"
                                         Binding="{Binding CustomerName}"
-                                        Width="*"/>
+                                        Width="*" ElementStyle="{StaticResource GodViewLeftCellTextStyle}"/>
                     <DataGridTextColumn Header="{DynamicResource God.Project}"
                                         Binding="{Binding ProjectName}"
-                                        Width="*"/>
+                                        Width="*" ElementStyle="{StaticResource GodViewLeftCellTextStyle}"/>
                     <DataGridTextColumn Header="{DynamicResource God.Status}"
                                         Binding="{Binding Status}"
-                                        Width="110"/>
+                                        Width="110" HeaderStyle="{StaticResource GodViewCenterHeaderStyle}" ElementStyle="{StaticResource GodViewCenterCellTextStyle}"/>
                     <DataGridTextColumn Header="{DynamicResource God.Priority}"
                                         Binding="{Binding Priority}"
-                                        Width="85"/>
+                                        Width="85" HeaderStyle="{StaticResource GodViewCenterHeaderStyle}" ElementStyle="{StaticResource GodViewCenterCellTextStyle}"/>
                     <DataGridTextColumn Header="{DynamicResource God.ValueAed}"
                                         Binding="{Binding GrandTotalVatInclusive,
                                             StringFormat='N2'}"
-                                        Width="110"/>
+                                        Width="110" HeaderStyle="{StaticResource GodViewRightHeaderStyle}" ElementStyle="{StaticResource GodViewRightCellTextStyle}"/>
                     <DataGridTextColumn Header="{DynamicResource Nav.Delivery}"
                                         Binding="{Binding DeliveryDate,
                                             StringFormat='dd MMM yyyy'}"
-                                        Width="110"/>
+                                        Width="110" ElementStyle="{StaticResource GodViewLeftCellTextStyle}"/>
 
                     <DataGridTemplateColumn Header="" Width="80">
                         <DataGridTemplateColumn.CellTemplate>

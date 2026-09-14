@@ -132,31 +132,31 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="{DynamicResource God.InvoiceNumber}"
                                         Binding="{Binding InvoiceNumber}"
-                                        Width="140"/>
+                                        Width="140" ElementStyle="{StaticResource GodViewLeftCellTextStyle}"/>
                     <DataGridTextColumn Header="{DynamicResource God.Type}"
                                         Binding="{Binding InvoiceType}"
-                                        Width="80"/>
+                                        Width="80" ElementStyle="{StaticResource GodViewLeftCellTextStyle}"/>
                     <DataGridTextColumn Header="{DynamicResource God.Customer}"
                                         Binding="{Binding CustomerName}"
-                                        Width="*"/>
+                                        Width="*" ElementStyle="{StaticResource GodViewLeftCellTextStyle}"/>
                     <DataGridTextColumn Header="{DynamicResource God.Project}"
                                         Binding="{Binding ProjectName}"
-                                        Width="*"/>
+                                        Width="*" ElementStyle="{StaticResource GodViewLeftCellTextStyle}"/>
                     <DataGridTextColumn Header="{DynamicResource God.Status}"
                                         Binding="{Binding Status}"
-                                        Width="105"/>
+                                        Width="105" HeaderStyle="{StaticResource GodViewCenterHeaderStyle}" ElementStyle="{StaticResource GodViewCenterCellTextStyle}"/>
                     <DataGridTextColumn Header="{DynamicResource God.IssueDate}"
                                         Binding="{Binding IssueDate,
                                             StringFormat='dd MMM yyyy'}"
-                                        Width="105"/>
+                                        Width="105" ElementStyle="{StaticResource GodViewLeftCellTextStyle}"/>
                     <DataGridTextColumn Header="{DynamicResource God.DueDate}"
                                         Binding="{Binding DueDate,
                                             StringFormat='dd MMM yyyy'}"
-                                        Width="105"/>
+                                        Width="105" ElementStyle="{StaticResource GodViewLeftCellTextStyle}"/>
                     <DataGridTextColumn Header="{DynamicResource God.TotalAed}"
                                         Binding="{Binding GrandTotal,
                                             StringFormat='N2'}"
-                                        Width="110"/>
+                                        Width="110" HeaderStyle="{StaticResource GodViewRightHeaderStyle}" ElementStyle="{StaticResource GodViewRightCellTextStyle}"/>
 
                     <DataGridTemplateColumn Header="" Width="80">
                         <DataGridTemplateColumn.CellTemplate>

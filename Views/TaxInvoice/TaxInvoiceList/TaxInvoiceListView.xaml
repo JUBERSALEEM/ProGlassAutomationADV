@@ -428,11 +428,16 @@
                             <ColumnDefinition Width="110"/>
                             <ColumnDefinition Width="130"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="1" Text="{DynamicResource TaxInvoice.InvoiceFamilyPI}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="2" Text="{DynamicResource JobProfitability.CustomerProject}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <!-- 2026-09-14: header gutters match the row cells
+                             (14 / 8 / 8) — was flush-left, offset 8-14px. -->
+                        <TextBlock Grid.Column="1" Text="{DynamicResource TaxInvoice.InvoiceFamilyPI}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="14,0"/>
+                        <TextBlock Grid.Column="2" Text="{DynamicResource JobProfitability.CustomerProject}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="8,0"/>
                         <TextBlock Grid.Column="3" Text="{DynamicResource Common.Invoices}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="4" Text="{DynamicResource TaxInvoice.Invoiced}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="4" Text="{DynamicResource TaxInvoice.Invoiced}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="8,0"/>
                         <TextBlock Grid.Column="5" Text="{DynamicResource Common.Invoiced}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    HorizontalAlignment="Right" Margin="0,0,12,0"/>
                         <TextBlock Grid.Column="6" Text="{DynamicResource Common.Balance}" Style="{StaticResource ModuleListHeaderTextStyle}"

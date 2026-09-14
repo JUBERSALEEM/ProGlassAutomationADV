@@ -5,6 +5,26 @@
              FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
+    <!-- 2026-09-14: STANDARDIZED COLUMN ALIGNMENT for every station grid.
+         Rule (app-wide): header content alignment always matches cell
+         content alignment — counts center, free text left, both
+         vertically centered. The CUSTOMER column is the star filler so
+         the table spans the container width exactly (no left-bunching,
+         no dead right space). -->
+    <UserControl.Resources>
+        <Style x:Key="StationCenterHeaderStyle" TargetType="DataGridColumnHeader"
+               BasedOn="{StaticResource GodViewHeaderStyle}">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="StationCenterTextStyle" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="StationLeftTextStyle" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
     <Border Margin="24,0,24,20">
         <!-- 2026-09-14: the detail is a FULL PAGE again. It used to render
              as a 360px side panel, so double-clicking a row shrank the
@@ -46,7 +66,7 @@
                                           CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
                         </DataGrid.InputBindings>
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="#" Width="44">
+                            <DataGridTemplateColumn Header="#" Width="44" HeaderStyle="{StaticResource StationCenterHeaderStyle}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding IndexLabel}" FontWeight="{DynamicResource Weight.SemiBold}"
@@ -68,14 +88,19 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="CUSTOMER" Binding="{Binding Customer}" Width="160"/>
-                            <DataGridTextColumn Header="W×H" Binding="{Binding SizeLabel}" Width="140"/>
-                            <DataGridTextColumn Header="GLASS" Binding="{Binding GlassLabel}" Width="150"/>
-                            <DataGridTextColumn Header="TREATMENT" Binding="{Binding TreatmentLabel}" Width="120"/>
-                            <DataGridTextColumn Header="LM" Binding="{Binding LmLabel}" Width="90"/>
-                            <DataGridTextColumn Header="LOAD" Binding="{Binding LoadLabel}" Width="90"/>
-                            <DataGridTextColumn Header="MATCH" Binding="{Binding MatchLabel}" Width="120"/>
-                            <DataGridTemplateColumn Header="{Binding InColumnHeader}" Width="72">
+                            <!-- 2026-09-14: CUSTOMER is the star filler — every other column is
+                     fixed (stable numeric layout), the free-text column
+                     absorbs remaining width so the table fills the
+                     container exactly. Fixed 160 left the grid bunched
+                     left with dead space on wide screens. -->
+                            <DataGridTextColumn Header="CUSTOMER" Binding="{Binding Customer}" Width="*"/>
+                            <DataGridTextColumn Header="W×H" Binding="{Binding SizeLabel}" Width="140" ElementStyle="{StaticResource StationLeftTextStyle}"/>
+                            <DataGridTextColumn Header="GLASS" Binding="{Binding GlassLabel}" Width="150" ElementStyle="{StaticResource StationLeftTextStyle}"/>
+                            <DataGridTextColumn Header="TREATMENT" Binding="{Binding TreatmentLabel}" Width="120" ElementStyle="{StaticResource StationLeftTextStyle}"/>
+                            <DataGridTextColumn Header="LM" Binding="{Binding LmLabel}" Width="90" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"/>
+                            <DataGridTextColumn Header="LOAD" Binding="{Binding LoadLabel}" Width="90" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"/>
+                            <DataGridTextColumn Header="MATCH" Binding="{Binding MatchLabel}" Width="120" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"/>
+                            <DataGridTemplateColumn Header="{Binding InColumnHeader}" Width="72" HeaderStyle="{StaticResource StationCenterHeaderStyle}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding InflowLabel}" FontWeight="{DynamicResource Weight.SemiBold}"
@@ -84,7 +109,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="DONE" Width="72">
+                            <DataGridTemplateColumn Header="DONE" Width="72" HeaderStyle="{StaticResource StationCenterHeaderStyle}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding DoneLabel}" FontWeight="{DynamicResource Weight.SemiBold}"
@@ -93,7 +118,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="BAL" Width="72">
+                            <DataGridTemplateColumn Header="BAL" Width="72" HeaderStyle="{StaticResource StationCenterHeaderStyle}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding BalanceLabel}" FontWeight="{DynamicResource Weight.SemiBold}"

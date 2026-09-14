@@ -122,7 +122,7 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="80"/>
                             <DataGridTextColumn Header="Spec" Binding="{Binding SpecName}" Width="100"/>
-                            <DataGridTextColumn Header="Piece" Binding="{Binding PieceId}" Width="150"/>
+                            <DataGridTextColumn Header="Piece" Binding="{Binding PieceId}" Width="*"/>
                             <DataGridTextColumn Header="Process" Binding="{Binding ProcessType}" Width="70"/>
                             <DataGridTextColumn Header="Prev" Binding="{Binding PreviousStage}" Width="60"/>
                             <DataGridTextColumn Header="Next" Binding="{Binding NextStage}" Width="60"/>

@@ -215,6 +215,33 @@
         <Setter Property="BorderThickness" Value="0"/>
     </Style>
 
+    <!-- 2026-09-14: SEMANTIC COLUMN ALIGNMENT — the app-wide standard for
+         themed DataGrids (production stations, God Views). The header
+         alignment ALWAYS matches the cell alignment:
+           money  -> right,  counts/status/priority -> center, text -> left;
+         every cell vertically centered. Header styles override the base
+         GodViewHeaderStyle content alignment; cell styles set the TextBlock. -->
+    <Style x:Key="GodViewCenterHeaderStyle" TargetType="DataGridColumnHeader"
+           BasedOn="{StaticResource GodViewHeaderStyle}">
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="GodViewRightHeaderStyle" TargetType="DataGridColumnHeader"
+           BasedOn="{StaticResource GodViewHeaderStyle}">
+        <Setter Property="HorizontalContentAlignment" Value="Right"/>
+    </Style>
+    <Style x:Key="GodViewLeftCellTextStyle" TargetType="TextBlock">
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="GodViewCenterCellTextStyle" TargetType="TextBlock">
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="GodViewRightCellTextStyle" TargetType="TextBlock">
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
     <!-- ═══════════════════════════════════════════════════════════════
          UNIFIED TAB SYSTEM — for use by any module's tab navigation.
          Active tab: accent glass pill with bright foreground.

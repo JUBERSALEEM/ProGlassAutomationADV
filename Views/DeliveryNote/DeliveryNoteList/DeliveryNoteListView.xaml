@@ -102,7 +102,7 @@
                         </Border>
                     </StackPanel>
 
-                    <TextBlock Grid.Column="4" VerticalAlignment="Center" Margin="8,0"
+                    <TextBlock Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,12,0"
                                FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}">
                         <Run Text="{Binding TotalOrdered, Mode=OneWay}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                         <Run Text=" / "/>
@@ -113,7 +113,7 @@
                              Foreground="{DynamicResource WarningBrush}"/>
                     </TextBlock>
 
-                    <TextBlock Grid.Column="5" VerticalAlignment="Center" Margin="8,0"
+                    <TextBlock Grid.Column="5" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,12,0"
                                FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}">
                         <Run Text="{Binding TotalOrderedSqm, Mode=OneWay, StringFormat={}{0:0.000}}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                         <Run Text=" / "/>
@@ -124,7 +124,7 @@
                              Foreground="{DynamicResource WarningBrush}"/>
                     </TextBlock>
 
-                    <StackPanel Grid.Column="6" VerticalAlignment="Center" Margin="8,6">
+                    <StackPanel Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4,6">
                         <StackPanel Orientation="Horizontal">
                             <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2" Margin="0,0,4,0"
                                     Background="{Binding StatusTintKey,
@@ -172,7 +172,8 @@
 
                     <StackPanel Grid.Column="7"
                                 VerticalAlignment="Center"
-                                Margin="8,6,10,6">
+                                HorizontalAlignment="Center"
+                                Margin="4,6">
                         <Button Style="{StaticResource RowPrimaryButton}"
                                 Tag="&#xE710;" Content="{DynamicResource Dnl.NewDn}"
                                 ToolTip="{DynamicResource Dnl.NewDnHint}"
@@ -453,12 +454,22 @@
                             <ColumnDefinition Width="170"/>
                             <ColumnDefinition Width="130"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="1" Text="{DynamicResource Dnl.JobOrder}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="2" Text="{DynamicResource Dnl.CustomerProject}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="3" Text="{DynamicResource Dnl.Progress}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="4" Text="{DynamicResource Dnl.QtyOrdDelBal}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="5" Text="{DynamicResource God.Sqm}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="6" Text="{DynamicResource Dnl.Status}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <!-- 2026-09-14: header labels carry the same gutters +
+                             alignment as their row cells (text left, numbers
+                             right, status center) so every label sits exactly
+                             over its data. -->
+                        <TextBlock Grid.Column="1" Text="{DynamicResource Dnl.JobOrder}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="14,0"/>
+                        <TextBlock Grid.Column="2" Text="{DynamicResource Dnl.CustomerProject}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="8,0"/>
+                        <TextBlock Grid.Column="3" Text="{DynamicResource Dnl.Progress}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="8,0"/>
+                        <TextBlock Grid.Column="4" Text="{DynamicResource Dnl.QtyOrdDelBal}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   HorizontalAlignment="Right" Margin="0,0,12,0"/>
+                        <TextBlock Grid.Column="5" Text="{DynamicResource God.Sqm}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   HorizontalAlignment="Right" Margin="0,0,12,0"/>
+                        <TextBlock Grid.Column="6" Text="{DynamicResource Dnl.Status}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   HorizontalAlignment="Center"/>
                     </Grid>
                 </Border>
 

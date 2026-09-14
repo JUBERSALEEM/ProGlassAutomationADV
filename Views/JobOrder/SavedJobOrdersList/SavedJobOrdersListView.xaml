@@ -239,7 +239,8 @@
                                    Margin="14,0"/>
                         <TextBlock Grid.Column="2" Text="{DynamicResource Common.Customer}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Margin="8,0"/>
-                        <TextBlock Grid.Column="3" Text="{DynamicResource Nav.Delivery}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="3" Text="{DynamicResource Nav.Delivery}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="8,0"/>
                         <TextBlock Grid.Column="4" Text="{DynamicResource Common.Project}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Margin="8,0"/>
                         <TextBlock Grid.Column="5" Text="{DynamicResource JobOrder.ValueAED}" Style="{StaticResource ModuleListHeaderTextStyle}"
@@ -356,7 +357,8 @@
                                                    Text="{Binding DeliveryDisplay}"
                                                    FontSize="{StaticResource TextBody}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   VerticalAlignment="Center"/>
+                                                   VerticalAlignment="Center"
+                                                   Margin="8,0"/>
 
                                         <TextBlock Grid.Column="4"
                                                    Text="{Binding ProjectName}"

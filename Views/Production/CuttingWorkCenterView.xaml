@@ -195,7 +195,7 @@
                                   AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
                                   Style="{StaticResource SurfaceDataGrid}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Piece" Binding="{Binding PieceLabel}" Width="200"/>
+                                <DataGridTextColumn Header="Piece" Binding="{Binding PieceLabel}" Width="*"/>
                                 <DataGridTextColumn Header="Spec" Binding="{Binding SpecName}" Width="120"/>
                                 <DataGridTextColumn Header="Size" Binding="{Binding WidthMm}" Width="80"/>
                                 <DataGridTextColumn Header="Pos" Binding="{Binding Position}" Width="60"/>

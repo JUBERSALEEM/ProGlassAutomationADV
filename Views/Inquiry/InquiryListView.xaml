@@ -463,14 +463,20 @@
                         <TextBlock Grid.Column="0" Text="INQ#"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        <!-- 2026-09-14: header gutters/alignment match the
+                             row cells (status center, text 8px gutters,
+                             value right). -->
                         <TextBlock Grid.Column="1" Text="STATUS"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   HorizontalAlignment="Center"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock Grid.Column="2" Text="CUSTOMER"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="8,0"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock Grid.Column="3" Text="PROJECT"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="8,0"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock Grid.Column="4" Text="VALUE" Margin="0,0,8,0"
                                    HorizontalAlignment="Right"
@@ -478,9 +484,11 @@
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock Grid.Column="5" Text="RECEIVED"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="8,0"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock Grid.Column="6" Text="OWNER"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="8,0"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     </Grid>
                 </Border>
@@ -642,7 +650,7 @@
                                                    VerticalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis"
                                                    ToolTip="{Binding InquiryNumber}"/>
-                                        <Border Grid.Column="2" Margin="0,0,0,0"
+                                        <Border Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
                                                 Style="{StaticResource Chip.Primary}">
                                             <TextBlock Text="{Binding Status}"
                                                        FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
@@ -676,18 +684,18 @@
                                                    HorizontalAlignment="Right"
                                                    VerticalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Grid.Column="6" Margin="0,0,0,0"
+                                        <TextBlock Grid.Column="6" Margin="8,0,0,0"
                                                    Text="{Binding ReceivedDateText, Mode=OneWay}"
                                                    FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="7" Margin="0,0,0,0"
+                                        <TextBlock Grid.Column="7" Margin="8,0,0,0"
                                                    Text="{Binding Salesman, Mode=OneWay}"
                                                    FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource TextTertiaryBrush}"
                                                    VerticalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis"
-                                                   MaxWidth="58"
+                                                   MaxWidth="52"
                                                    ToolTip="{Binding Salesman}"/>
                                     </Grid>
                                 </Border>

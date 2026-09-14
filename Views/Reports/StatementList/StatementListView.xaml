@@ -330,13 +330,14 @@
                            Text="{DynamicResource Common.Outstanding}"
                            Style="{StaticResource ModuleListHeaderTextStyle}"
                            HorizontalAlignment="Right" Margin="0,0,16,0"/>
-                <TextBlock Grid.Column="4"
-                           Text="{DynamicResource Common.Status}"
-                           Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                <TextBlock Grid.Column="5"
-                           Text="{DynamicResource Common.Actions}"
-                           Style="{StaticResource ModuleListHeaderTextStyle}"
-                           HorizontalAlignment="Right" Margin="0,0,14,0"/>
+                    <TextBlock Grid.Column="4"
+                               Text="{DynamicResource Common.Status}"
+                               Style="{StaticResource ModuleListHeaderTextStyle}"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="5"
+                               Text="{DynamicResource Common.Actions}"
+                               Style="{StaticResource ModuleListHeaderTextStyle}"
+                               HorizontalAlignment="Center"/>
             </Grid>
         </Border>
 
@@ -576,10 +577,9 @@
                                 <!-- COL 4: Status pill (tinted, not solid) -->
                                 <Border Grid.Column="4"
                                         VerticalAlignment="Center"
-                                        HorizontalAlignment="Left"
+                                        HorizontalAlignment="Center"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="12,5"
-                                        Margin="8,0,0,0"
                                         Background="{DynamicResource TintGreenBrush}"
                                         BorderBrush="{DynamicResource SuccessBrush}"
                                         BorderThickness="{DynamicResource Border.HairlineThickness}">
@@ -618,8 +618,7 @@
                                 <StackPanel Grid.Column="5"
                                             Orientation="Horizontal"
                                             VerticalAlignment="Center"
-                                            HorizontalAlignment="Right"
-                                            Margin="0,0,14,0">
+                                            HorizontalAlignment="Center">
 
                                     <Button Style="{StaticResource StatementGhostActionStyle}"
                                             Background="{DynamicResource TintIndigoBrush}"
