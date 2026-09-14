@@ -736,4 +736,102 @@
     <SolidColorBrush x:Key="Splash.TealBrush.Alpha18.80" Color="#18808080"/>
     <SolidColorBrush x:Key="Splash.TealBrush.Alpha22.80" Color="#22808080"/>
 
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         COMPATIBILITY ALIASES — missing resources that cause runtime XamlParseException
+         These are aliases to canonical GDS styles to prevent crash ERR-A45BAD, ERR-9ED67E etc
+         Senior dev audit 2026-09-14 found 95 missing StaticResource keys — all aliased here
+    ═══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="AboutPanelKickerStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
+    <Style x:Key="DetailCombo" TargetType="ComboBox" BasedOn="{StaticResource Input.ComboBox}"/>
+    <Style x:Key="DetailDivider" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}"/>
+    <Style x:Key="DetailEntry" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="EditableTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="FieldError" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
+    <Style x:Key="FieldLabel" TargetType="TextBlock" BasedOn="{StaticResource FieldLabelStyle}"/>
+    <Style x:Key="FullCell" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="FullHeaderCell" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="FullKvLabel" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="FullSectionLabel" TargetType="TextBlock" BasedOn="{StaticResource Typography.Title}"/>
+    <Style x:Key="InfoGlyphBadgeStyle" TargetType="Border" BasedOn="{StaticResource Chip.Primary}"/>
+    <Style x:Key="InfoGlyphTextStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Icon}"/>
+    <Style x:Key="InqGhostActionStyle" TargetType="Button" BasedOn="{StaticResource Button.Secondary}"/>
+    <Style x:Key="InqHintStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
+    <Style x:Key="InventoryKpiCell" TargetType="Border" BasedOn="{StaticResource SurfaceKpiStyle}"/>
+    <Style x:Key="JoCompactComboStyle" TargetType="ComboBox" BasedOn="{StaticResource Input.ComboBox}"/>
+    <Style x:Key="JoCompactDateStyle" TargetType="DatePicker" BasedOn="{StaticResource Input.DatePicker}"/>
+    <Style x:Key="JoCompactInputStyle" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="JoCompactLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="JoCompactMultiInputStyle" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="JobListBoxItemStyle" TargetType="ListBoxItem"/>
+    <Style x:Key="JpCellStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="JpChipStyle" TargetType="Border" BasedOn="{StaticResource Chip.Primary}"/>
+    <Style x:Key="JpComboStyle" TargetType="ComboBox" BasedOn="{StaticResource Input.ComboBox}"/>
+    <Style x:Key="JpCompactButton" TargetType="Button" BasedOn="{StaticResource Button.Secondary}"/>
+    <Style x:Key="JpInputStyle" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="JpSectionHintStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
+    <Style x:Key="JpSectionLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="JpStatusPill" TargetType="Border" BasedOn="{StaticResource Chip.Primary}"/>
+    <Style x:Key="JpTileStyle" TargetType="Border" BasedOn="{StaticResource SurfaceKpiStyle}"/>
+    <Style x:Key="JpTileValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Kpi}"/>
+    <Style x:Key="KpiLabel" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="KpiValue" TargetType="TextBlock" BasedOn="{StaticResource Typography.Kpi}"/>
+    <Style x:Key="LabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="LicenseFieldLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="LicenseFieldValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="MasterHeroDividerStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}"/>
+    <Style x:Key="MasterHeroMetaLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
+    <Style x:Key="MasterHeroMetaValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="MasterHeroStripStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <Style x:Key="ModernToggleSwitch" TargetType="CheckBox"/>
+    <Style x:Key="MovementRowStyle" TargetType="DataGridRow"/>
+    <Style x:Key="OptionalDimStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
+    <Style x:Key="PlCellStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="PrintValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="ProfitableRowStyle" TargetType="DataGridRow"/>
+    <Style x:Key="ProformaStatusValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="RowLine" TargetType="Rectangle" BasedOn="{StaticResource HairlineStyle}"/>
+    <Style x:Key="ScTextBox" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="SectionCard" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <Style x:Key="ServiceExportButton" TargetType="Button" BasedOn="{StaticResource Button.Primary}"/>
+    <Style x:Key="SettingsActionRowStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <Style x:Key="SettingsFullRowTileStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <Style x:Key="SettingsGroupHeaderTextStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Title}"/>
+    <Style x:Key="SettingsGroupSeparatorStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}"/>
+    <Style x:Key="SettingsTileHeaderPanelStyle" TargetType="StackPanel"/>
+    <Style x:Key="SettingsTileTitleStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Title}"/>
+    <Style x:Key="SpecGroupHeaderStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Title}"/>
+    <Style x:Key="SpecLabel" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="SpecValue" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="StatLabel" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="StepDotStyle" TargetType="Ellipse"/>
+    <Style x:Key="StepNumberStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="StepTitleStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Title}"/>
+    <Style x:Key="SurfaceComboBox" TargetType="ComboBox" BasedOn="{StaticResource Input.ComboBox}"/>
+    <Style x:Key="SurfaceDataGrid" TargetType="DataGrid"/>
+    <Style x:Key="SurfaceTextBox" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="TableCellStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="TableSubTotalStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="TgtCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <Style x:Key="TgtExportButton" TargetType="Button" BasedOn="{StaticResource Button.Primary}"/>
+    <Style x:Key="TgtInsetStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}"/>
+    <Style x:Key="TgtKvLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="TgtKvValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="TgtMicroLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
+    <Style x:Key="TgtMicroValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <Style x:Key="TgtPillBase" TargetType="Border" BasedOn="{StaticResource Chip.Primary}"/>
+    <Style x:Key="TgtSectionLabel" TargetType="TextBlock" BasedOn="{StaticResource Typography.Title}"/>
+    <Style x:Key="TgtSideHeadingStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Title}"/>
+    <Style x:Key="TgtSideLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="TgtSideValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+    <DropShadowEffect x:Key="AboutCardEffect" BlurRadius="8" ShadowDepth="0" Opacity="0.08" Color="#FF0F172A"/>
+    <Style x:Key="DataRowStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <ContextMenu x:Key="EditorFieldContextMenu"/>
+    <Style x:Key="ErrorAwareEntry" TargetType="Border" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="FullBadgeText" TargetType="Border" BasedOn="{StaticResource Typography.Caption}"/>
+    <Style x:Key="FullCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <Style x:Key="FullKpiValue" TargetType="Border" BasedOn="{StaticResource Typography.Kpi}"/>
+    <Style x:Key="KpiValueStyle" TargetType="Border" BasedOn="{StaticResource Typography.Kpi}"/>
+    <Style x:Key="ModelOptionCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+
 </ResourceDictionary>

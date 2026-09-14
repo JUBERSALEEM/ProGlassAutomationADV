@@ -530,7 +530,7 @@ namespace ProGlassAutomation.Tests.Agent
             var items = Distribute(Snapshot(
                 Group(1,
                     "6mm Clear FT Glass + 12mm ASP + 6mm Clear Annealed Glass + 12mm ASP + 6mm Clear FT Glass",
-                    Row(1, "T-01", 900, 900, 4, w2: 890, h2: 890)));
+                    Row(1, "T-01", 900, 900, 4, w2: 890, h2: 890))));
 
             var cutting = Stage(items, ProductionStage.Cutting).ToList();
             Assert.Equal(2, cutting.Count);
