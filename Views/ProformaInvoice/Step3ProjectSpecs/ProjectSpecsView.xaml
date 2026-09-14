@@ -13,7 +13,11 @@
              UseLayoutRounding="True" SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+        <!-- 2026-09-14: Was BasedOn="{StaticResource {x:Type TextBox}}" — an implicit
+             TextBox style that does not exist anywhere in the app, so loading this
+             view threw when the PI wizard opened step 3. Base on the app's
+             canonical TextBox style instead. -->
+        <Style TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}">
             <Setter Property="Height" Value="34"/>
         </Style>
     </UserControl.Resources>

@@ -12,8 +12,12 @@
 
     
 
-    <Style x:Key="CrashPrimaryButton" TargetType="Button"
-           BasedOn="{StaticResource {x:Type Button}}">
+    <!-- 2026-09-14: Both styles were BasedOn="{StaticResource {x:Type Button}}" — an
+         implicit Button style that does not exist in this app, so this dictionary
+         threw at load time (the crash dialog could not open). Both styles are
+         self-contained (custom template + all visual properties), so the BasedOn
+         is removed rather than re-pointed. -->
+    <Style x:Key="CrashPrimaryButton" TargetType="Button">
         <Setter Property="Background"   Value="{DynamicResource DangerBrush}"/>
         <Setter Property="Foreground"   Value="White"/>
         <Setter Property="BorderThickness" Value="0"/>
@@ -34,8 +38,7 @@
         </Setter>
     </Style>
 
-    <Style x:Key="CrashOutlinedButton" TargetType="Button"
-           BasedOn="{StaticResource {x:Type Button}}">
+    <Style x:Key="CrashOutlinedButton" TargetType="Button">
         <Setter Property="Background"     Value="White"/>
         <Setter Property="Foreground"     Value="{DynamicResource SecondaryForegroundBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>

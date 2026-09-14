@@ -26,6 +26,15 @@
              SnapsToDevicePixels="True">
         <UserControl.Resources>
         <!-- Migrated StatusBadgeStyle to global SurfacePrimaryStyle -->
+        <!-- 2026-09-14: the shared Settings dictionary was missing here (every
+             other section merges it) — StaticResource lookups such as
+             DownloadProgressBarStyle failed at first render of this section
+             (ERR-56F1CC). -->
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </UserControl.Resources>
 
 
