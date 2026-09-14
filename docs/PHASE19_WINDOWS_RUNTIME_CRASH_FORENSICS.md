@@ -1,417 +1,467 @@
 # PHASE 19 — WINDOWS RUNTIME CRASH FORENSICS REPORT — FontSize ResourceReferenceExpression
 
-**Date:** 2026-09-14 13:00 UTC (Asia/Dubai) — DETERMINISTIC REPRODUCTION ERR-B164D5 / ERR-57855F / ERR-A27844
+**Date:** 2026-09-14 14:00 UTC — DETERMINISTIC REPRODUCTION ERR-B6F94A (NEW) + ERR-B164D5 / ERR-57855F / ERR-A27844
 **Branch:** arena/01a09a9f-proglassautomationadv
-**HEAD:** 3ab8122 forensics: enhance Phase19 diagnostics with resource type inspection + stack frames — IDENTIFY EXACT TEMPLATE DO NOT FIX YET
-**Previous fix attempts:**
-- 15d4e7c fix: TextXSmall→FontSize.Caption in LiquidGlassDesign (2) + DensityKpiValueFontSize→FontSize.Kpi in JoOverviewSection (1) — **crash STILL occurs after this fix, proves guess incomplete**
-- 6dd59f9 fix: #14808080 Brush-as-Color — fixed, NO preceding #14808080 in new crash, proving Color crash independent
-- 63aecb3 fix: #4CFFFFFF Brush-as-Color
-- 9ae1100 fix: Effect ResourceReferenceExpression Shadow.Card alias — same pattern as FontSize
-**Crash reports:** ERR-B164D5, ERR-57855F, ERR-A27844 — all same primary exception, deterministic after Visual theme applied: Normal (Industrial) → license succeeds → WPF layout/template creation → FrameworkTemplate.ReceivePropertySet → FontSize failure
-**Instruction:** STOP ALL BROAD FIXES — IDENTIFY EXACT CONTROL + TEMPLATE + FONT RESOURCE — DO NOT FIX YET — NO SOURCE CHANGES IN THIS TURN
+**HEAD:** 65ba3db forensics: identify exact XAML culprit — STOP MAKING SOURCE CHANGES per instruction
+**Previous HEAD with instrumentation:** 3ab8122 forensics: enhance Phase19 diagnostics with resource type inspection + stack frames
+**Previous fix attempt:** 15d4e7c fix: TextXSmall→FontSize.Caption + DensityKpiValueFontSize→FontSize.Kpi — **crash STILL occurs after fix**
+**New crash report:** ERR-B6F94A, .NET 8.0.31, XamlParseException 'System.Windows.ResourceReferenceExpression' is not a valid value for property 'FontSize' at FrameworkTemplate.ReceivePropertySet during LoadOptimizedTemplateContent → ApplyTemplate → MeasureCore, after MainWindow → DashboardView → ScrollViewer → Dashboard hero/buttons
+**Instruction:** STOP — DO NOT FIX THE FONT SIZE CRASH YET — DO NOT MODIFY ANY XAML, C#, theme resource, typography resource, ControlTemplate, GDS, DashboardKit, or button style yet — ABSOLUTE RULE
 
 ---
 
-## 1. Exact Exception — Deterministic Reproduction
+## 1. Exact Exception — Deterministic Reproduction ERR-B6F94A
 
 ```
 [0] System.Windows.Markup.XamlParseException
     Message : 'System.Windows.ResourceReferenceExpression' is not a valid value for property 'FontSize'.
-    Stack   :
-   at System.Windows.Markup.XamlReader.RewrapException(Exception e, IXamlLineInfo lineInfo, Uri baseUri)
-   at System.Windows.FrameworkTemplate.LoadTemplateXaml(XamlReader templateReader, XamlObjectWriter currentWriter)
-   at System.Windows.FrameworkTemplate.LoadOptimizedTemplateContent(...)
-   at System.Windows.FrameworkTemplate.LoadContent(...)
-   at System.Windows.StyleHelper.ApplyTemplateContent(...)
-   at System.Windows.FrameworkTemplate.ApplyTemplateContent(...)
-   at System.Windows.FrameworkElement.ApplyTemplate()
-   at System.Windows.FrameworkElement.MeasureCore(Size availableSize)
-   at System.Windows.UIElement.Measure(Size availableSize)
-   ...
-   at System.Windows.ContextLayoutManager.UpdateLayout()
-   at System.Windows.Media.MediaContext.FireInvokeOnRenderCallbacks()
-
-── caused by ──
+    Stack   : FrameworkTemplate.ReceivePropertySet → LoadOptimizedTemplateContent → ApplyTemplate → MeasureCore → ContextLayoutManager.UpdateLayout
 
 [1] System.ArgumentException
     Message : 'System.Windows.ResourceReferenceExpression' is not a valid value for property 'FontSize'.
-    Stack   :
-   at System.Windows.FrameworkTemplate.ReceivePropertySet(Object targetObject, XamlMember member, Object value, DependencyObject templatedParent)
-   at System.Windows.FrameworkTemplate.<>c__DisplayClass45_0.<LoadOptimizedTemplateContent>b__3(...)
+    At: System.Windows.FrameworkTemplate.ReceivePropertySet(Object targetObject, XamlMember member, Object value, DependencyObject templatedParent)
 ```
 
-**Startup sequence from logs (NO preceding #14808080):**
+**Startup path from logs:**
 ```
-ProGlass 2.0.1 starting
-Main database ready
-[Audit] Initialized
-[Performance] Tier: 60 fps
-Visual theme applied: Normal (Industrial)  <-- deterministic point before crash
-[App] AI: Google Gemini
-[App] STT: System.Speech fallback
-[TextToSpeech] Selected en-US voice
-License check on startup: status=Trial, CanRun=True
-[CRITICAL] (ERR-*) Unhandled UI exception | XamlParseException: 'System.Windows.ResourceReferenceExpression' is not a valid value for property 'FontSize'.
+Visual theme applied: Normal (Industrial)
+License succeeds
+MainWindow → DashboardView → ScrollViewer → Dashboard hero/buttons
+→ WPF layout/template creation → LoadOptimizedTemplateContent → ReceivePropertySet → FontSize failure
 ```
 
-**All three error IDs follow same path — deterministic Windows runtime failure, NOT environmental.**
+**All four error IDs (ERR-B6F94A, ERR-B164D5, ERR-57855F, ERR-A27844) follow same deterministic path — NOT environmental, NOT random.**
 
 ---
 
-## 2. Debugger Requirement — First Thrown Exception
+## 2. PROVE WHETHER EXISTING FORENSICS ARE ACTUALLY RUNNING — CURRENT IMPLEMENTATION INSPECTION
 
-Per task instruction, next step is ONLY to identify exact XAML source under Windows debugger:
+**User reports latest crash report contains:**
+- no "[Forensics]" lines
+- no BaseUri
+- no XAML line
+- no XAML position
+- no resource key
+- no control/template name
+- no runtime ResourceReferenceExpression diagnostic
 
-1. Run application under Windows debugger (Visual Studio)
-2. Configure break-on-thrown for:
-   - System.ArgumentException
-   - System.Windows.Markup.XamlParseException
-3. Capture FIRST thrown exception before global handler
-4. Inspect call stack and local variables for:
-   - XAML URI/BaseUri
-   - XAML line number
-   - XAML position
-   - Style name
-   - Control type
-   - Template name
-   - FontSize property assignment
-   - Resource key/value involved
+**Therefore instrumentation is either not executing, executing after wrapped, logging to another file, or not capable of observing this particular failure. Do NOT assume it worked — verify actual source and execution path.**
 
-**Current status:** Linux sandbox cannot run WPF debugger. Enhanced diagnostics already added in 5c1fbd7 and 3ab8122 to capture BaseUri/LineNumber/Position + resource type inspection + stack frames via FirstChanceException handler. Awaiting Windows crash-latest.txt with those fields after pulling 3ab8122.
+### Current Forensics Implementation — Source Inspection
 
-**Temporary instrumentation already in place (allowed per task):**
-- CrashReportService.cs captures XamlParseException BaseUri, LineNumber, LinePosition, SourceUri, InnerException
-- App.StartupCore.cs FirstChanceException logs [Forensics] XamlParseException BaseUri/Line/Pos/SourceUri + Inner + VisualTheme + ArgumentException Message/Stack + Stack frames + Resource type checks for FontSize.* vs Text* showing Double vs ResourceReferenceExpression
-
-**Do NOT add permanent global exception suppression — complied.**
-
----
-
-## 3. Search Every Theme Dictionary and GDS for FontSize Assignments — DO NOT CHANGE YET
-
-**Total candidates:** 3046 FontSize="{StaticResource|DynamicResource}" across all XAML
-
-**Filtered:**
-- Inside ControlTemplate/DataTemplate with alias (Text*, Density*, ProGlassLayout*, Typography*, Type.*): **189 candidates** (after 15d4e7c fix, was 190)
-- Direct FontSize.* inside ControlTemplate/DataTemplate: **1041 candidates** — should be safe (direct Double sys:Double)
-- Alias across all contexts (Style + Element + Template): 519
-
-**All 189 alias inside templates are defined as `<DynamicResource x:Key="Alias" ResourceKey="FontSize.*"/>` in GDS, so value is ResourceReferenceExpression to FontSize.* double:**
-
-Full table saved to /tmp/table_ct_dt.md — 189 lines. Most relevant for startup path:
-
-| XAML file | line | control/style/template | FontSize expression | resource key | expected type |
-|---|---|---|---|---|---|
-| MainWindow.xaml | 545 | ControlTemplate TargetType=Button (UserCardButton TopPill) | StaticResource TextBody | TextBody | Double |
-| MainWindow.xaml | 553 | ControlTemplate | StaticResource TextBody | TextBody | Double |
-| MainWindow.xaml | 563 | ControlTemplate | StaticResource TextCaption | TextCaption | Double |
-| Styles/ButtonStyles.xaml | 67 | ControlTemplate x:Key=GlassPillButtonTemplate TargetType=Button | StaticResource TextBodyLarge | TextBodyLarge | Double | **Icon in every pill button** |
-| Styles/ButtonStyles.xaml | 85 | ControlTemplate GlassPillButtonTemplate | StaticResource TextBody (TextElement.FontSize) | TextBody | Double | **ContentPresenter FontSize** |
-| Styles/DashboardKit.xaml | 279 | ControlTemplate DbActionButtonStyle TargetType=Button | StaticResource TextBody | TextBody | Double | **Glyph in Dashboard action buttons — Overview default tab** |
-| Styles/DashboardKit.xaml | 426 | DataTemplate | StaticResource TextBody | TextBody | Double |
-| Styles/DashboardStyles.xaml | 267 | ControlTemplate | StaticResource TextBody | TextBody | Double |
-| Themes/Styles/ShellStyles.xaml | 120 | ControlTemplate | StaticResource TextSubhead | TextSubhead | Double | Shell navigation |
-| Themes/Styles/InputStyles.xaml | 170 | ControlTemplate | StaticResource TextCaption | TextCaption | Double | TextBox template — implicit |
-| Themes/Styles/DialogStyles.xaml | 223 | ControlTemplate | StaticResource TextTitle | TextTitle | Double |
-
-**Style setters with alias (not template but via BasedOn):**
-- App.xaml:256 Setter FontSize DynamicResource DensityBodyFontSize → alias to FontSize.Body
-- DesignTokens.xaml:160 Setter FontSize DynamicResource DensityTitleFontSize → alias
-- ListPageStyles.xaml:38 Setter FontSize DynamicResource DensityKpiValueFontSize → alias
-- OptimizationStyles.xaml:54 Setter FontSize DynamicResource DensityKpiValueFontSize → alias
-- LayoutTokens: ProGlassLayout.* alias to Density* alias to FontSize.* — double indirection
-
-**Conclusion:** 189 FontSize assignments inside ControlTemplate/DataTemplate use alias via StaticResource. All are potential candidates for nested ResourceReferenceExpression, but at Phase18 they worked. Exact failing one requires Windows BaseUri/LineNumber.
-
----
-
-## 4. For Every DynamicResource FontSize Candidate — Record
-
-**Methodology:** For each candidate, recorded FILE, LINE, STYLE/TEMPLATE, CONTROL, RESOURCE KEY, RESOURCE OWNER, EXPECTED TYPE, ACTUAL RUNTIME TYPE
-
-**Example for top 3 startup candidates:**
-
-**Candidate 1: MainWindow.xaml TopPill**
-- FILE: MainWindow.xaml
-- LINE: 545 (and 553, 563)
-- STYLE/TEMPLATE: ControlTemplate TargetType=Button (UserCardButton) — TopPill user avatar
-- CONTROL: Button (UserCardButton) → TextBlock inside Border
-- RESOURCE KEY: TextBody (and TextCaption)
-- RESOURCE OWNER: GlobalDesignSystem.xaml:100 defines TextBody as `<DynamicResource ResourceKey="FontSize.Body"/>` — GDS merged LAST pos40, wins over TypeScaleTokens.xaml:35-45 direct Double
-- EXPECTED TYPE: System.Double (13)
-- ACTUAL RUNTIME TYPE: System.Windows.ResourceReferenceExpression (points to FontSize.Body) — because TextBody itself is DynamicResource, StaticResource TextBody returns ResourceReferenceExpression object, not Double
-- ALIAS TARGET: FontSize.Body = 13 Double in GDS:82 direct
-
-**Candidate 2: ButtonStyles.xaml GlassPillButtonTemplate**
-- FILE: Styles/ButtonStyles.xaml
-- LINE: 67 (Icon) and 85 (ContentPresenter TextElement.FontSize)
-- STYLE/TEMPLATE: ControlTemplate x:Key=GlassPillButtonTemplate TargetType=Button — base for PrimaryPillButton, SuccessPillButton, etc.
-- CONTROL: Button → TextBlock Icon + ContentPresenter
-- RESOURCE KEY: TextBodyLarge (line 67) and TextBody (line 85)
-- RESOURCE OWNER: GDS:101 TextBodyLarge → FontSize.Title 14 Double, GDS:100 TextBody → FontSize.Body 13 Double — both alias DynamicResource
-- EXPECTED TYPE: Double
-- ACTUAL RUNTIME TYPE: ResourceReferenceExpression
-- ALIAS TARGET: FontSize.Title / FontSize.Body direct Double
-
-**Candidate 3: DashboardKit.xaml DbActionButtonStyle**
-- FILE: Styles/DashboardKit.xaml
-- LINE: 279
-- STYLE/TEMPLATE: Style x:Key=DbActionButtonStyle TargetType=Button → ControlTemplate TargetType=Button
-- CONTROL: Button (Dashboard action buttons: New Invoice, Jobs, Deliveries) → TextBlock Glyph
-- RESOURCE KEY: TextBody
-- RESOURCE OWNER: GDS:100 alias to FontSize.Body
-- EXPECTED TYPE: Double
-- ACTUAL RUNTIME TYPE: ResourceReferenceExpression
-- ALIAS TARGET: FontSize.Body 13 Double
-- USAGE: OverviewDashboardView.xaml uses DbActionButtonStyle and DbActionButtonAccentStyle — Overview is default tab at startup, so this template is loaded immediately after MainWindow during first Measure
-
-**All 189 candidates share same pattern: StaticResource alias inside ControlTemplate where alias = DynamicResource FontSize.* → returns ResourceReferenceExpression → ReceivePropertySet rejects for FontSize.**
-
----
-
-## 5. Determine Which Candidate Is Actually Loaded Immediately Before Crash
-
-**Visual tree analysis from stack trace:**
-
+**File: Services/Logging/CrashReportService.cs (HEAD 65ba3db, commit 5c1fbd7):**
+```csharp
+private static List<ExceptionEntry> BuildChain(...)
+{
+    string extra = "";
+    try
+    {
+        if (current is System.Windows.Markup.XamlParseException xpe)
+        {
+            extra = $"\n    XAML BaseUri: {xpe.BaseUri}\n    XAML LineNumber: {xpe.LineNumber}\n    XAML LinePosition: {xpe.LinePosition}\n    XAML SourceUri: {xpe.SourceUri}";
+            if (xpe.InnerException != null)
+            {
+                extra += $"\n    InnerException Type: {xpe.InnerException.GetType().FullName}\n    InnerException Message: {xpe.InnerException.Message}";
+            }
+        }
+        if (current is ArgumentException ae && ae.Message.Contains("ResourceReferenceExpression"))
+        {
+            extra += $"\n    ArgumentException ParamName: {ae.ParamName}\n    Data: {string.Join(", ", ae.Data.Keys.Cast<object>().Select(k => k + "=" + ae.Data[k]))}";
+        }
+    }
+    catch { }
+    chain.Add(new ExceptionEntry { Message = (current.Message ?? "") + extra, ... });
+}
 ```
-Grid.MeasureCell → Grid.MeasureCellsGroup → Grid.MeasureOverride → Border.MeasureOverride → StackPanel.StackMeasureHelper → ScrollContentPresenter.MeasureOverride → Grid.MeasureCellsGroup → Grid.MeasureOverride → ScrollViewer.MeasureOverride → Border.MeasureOverride → Grid.MeasureOverride → Border.MeasureOverride → Grid.MeasureOverride → Border.MeasureOverride → Control.MeasureOverride → Grid.MeasureOverride → Grid.MeasureOverride → FrameworkTemplate.LoadContent → LoadOptimizedTemplateContent → ReceivePropertySet
+**Expected behavior:** If exception is XamlParseException, Message should contain "XAML BaseUri: pack://application:,,,/..." and LineNumber/LinePosition. If Windows build includes this code, crash-latest.txt MUST contain "XAML BaseUri:".
+
+**Actual observation:** User reports no BaseUri, no line, no position in ERR-B6F94A — therefore either:
+- Windows build is from commit BEFORE 5c1fbd7 (e.g., 15d4e7c or earlier) without this instrumentation, OR
+- XamlParseException.BaseUri is null/empty for LoadOptimizedTemplateContent path (possible — WPF's templateReader may not have BaseUri when loading from BAML), so extra shows empty string and user missed it, OR
+- Exception that reaches DispatcherUnhandledException is NOT XamlParseException but is already wrapped differently (e.g., AggregateException)? But user says Exception: XamlParseException, so it IS XamlParseException.
+
+**File: App.StartupCore.cs (HEAD 65ba3db, commits 5c1fbd7 + 3ab8122):**
+```csharp
+AppLogService.Initialize();
+
+AppDomain.CurrentDomain.FirstChanceException += (_, args) =>
+{
+    if (args.Exception is System.Windows.Markup.XamlParseException xpe)
+    {
+        AppLogService.Debug($"[Forensics] FirstChance XamlParseException | BaseUri={xpe.BaseUri} Line={xpe.LineNumber} Pos={xpe.LinePosition} SourceUri={xpe.SourceUri} Message={xpe.Message}", ...);
+        if (xpe.InnerException != null) AppLogService.Debug($"[Forensics] XamlParse Inner | Type={xpe.InnerException.GetType().FullName} Message={xpe.InnerException.Message}", ...);
+        var theme = VisualThemeEngine.Current; AppLogService.Debug($"[Forensics] Current VisualTheme={theme}", ...);
+    }
+    if (args.Exception is ArgumentException ae && ae.Message.Contains("ResourceReferenceExpression"))
+    {
+        AppLogService.Debug($"[Forensics] FirstChance ArgumentException ResourceReferenceExpression | Message={ae.Message} Stack={ae.StackTrace?.Substring(0, Math.Min(3000, ae.StackTrace.Length))}", ...);
+        var frames = stack.Split('\n').Take(10); AppLogService.Debug($"[Forensics] Stack frames: {string.Join(" | ", frames)}", ...);
+    }
+};
+
+// After VisualThemeEngine.Apply
+var appResources = Application.Current?.Resources;
+string[] keysToCheck = { "FontSize.Body", "TextBody", ... };
+foreach (var k in keysToCheck)
+{
+    if (appResources.Contains(k))
+    {
+        var v = appResources[k];
+        var t = v?.GetType().FullName ?? "null";
+        var isRef = t.Contains("ResourceReferenceExpression") ? " *** IS ResourceReferenceExpression ***" : "";
+        AppLogService.Debug($"[Forensics] Resource {k} = {v} | Type={t}{isRef}", ...);
+    }
+}
 ```
+**Expected behavior:** FirstChanceException should fire for ArgumentException at ReceivePropertySet BEFORE it is caught and wrapped into XamlParseException. It logs via AppLogService.Debug which writes to _recent queue (500 entries) and to app-yyyyMMdd.log file. CrashReportService.BuildReport calls AppLogService.GetRecent(200) to include last 200 log lines in crash-latest.txt — therefore crash-latest.txt recent section MUST contain "[Forensics]" lines if handler executed.
 
-Interpretation:
-- Outermost Grid = MainWindow root (2 rows: top bar + main content)
-- Grid → Control.MeasureOverride = Control with custom template (Button with GlassPillButtonTemplate or DbActionButtonStyle or UserCardButton TopPill)
-- Border → Grid → Border → Grid → Border → ScrollViewer = MainWindow main content area Border containing Grid with ContentControl CurrentViewModel = DashboardView
-- Grid → ScrollContentPresenter → StackPanel → Border → Grid → Grid = DashboardView OverviewDashboardView ScrollViewer → Grid → hero strip + state band + skeleton/pipeline + KPI tiles
+**Actual observation:** No [Forensics] lines in crash-latest.txt — therefore either:
+1. **Not executing:** Windows build does NOT contain FirstChance handler (old commit), OR handler added after exception (impossible — added at start of StartupCoreAsync before MainWindow), OR AppDomain handler not firing for this exception (unlikely but possible if exception thrown from native or if CLR suppresses FirstChance for certain WPF internal catches)
+2. **Executing after wrapped:** ArgumentException is caught inside LoadOptimizedTemplateContent and wrapped immediately — FirstChance DOES fire before catch, but maybe AppLogService._recent queue is cleared or overwritten between FirstChance and DispatcherUnhandledException? Unlikely — only 200 entries, forensics would be recent.
+3. **Logging to another file:** AppLogService writes to app-yyyyMMdd.log AND to _recent. Even if crash-latest.txt recent section missing, app-*.log should contain [Forensics] lines. User should check %AppData%\ProGlassAutomation\logs\app-*.log for [Forensics] — not just crash-latest.txt. If app-*.log also has no [Forensics], then handler not executing.
+4. **Not capable:** FrameworkTemplate.ReceivePropertySet failure occurs during BAML loading on UI thread but inside XamlReader that may use internal exception handling that bypasses FirstChance? Or ArgumentException is thrown from unmanaged code? Unlikely — ReceivePropertySet is managed.
 
-**Most likely immediate before crash:**
-- **Primary:** Styles/DashboardKit.xaml:279 ControlTemplate DbActionButtonStyle — Button with Glyph TextBlock FontSize StaticResource TextBody — used in OverviewDashboardView hero strip (New Invoice, Jobs, Deliveries) which is first content measured after MainWindow top bar
-- **Secondary:** Styles/ButtonStyles.xaml:67 GlassPillButtonTemplate — base template for pill buttons, used by DbActionButtonStyle? Actually DbActionButtonStyle has its own ControlTemplate, not BasedOn GlassPillButtonTemplate, so separate
-- **Tertiary:** MainWindow.xaml:545 TopPill UserCardButton — also in top bar, measured before content, could be first
+**Most probable:** Windows machine is still building from old commit without instrumentation (e.g., 15d4e7c) — because user reports repeated deterministic reproduction but no forensics, and our instrumentation was added in 5c1fbd7 and 3ab8122 AFTER 15d4e7c. If user did not pull latest branch, they would see no forensics.
 
-**Without BaseUri/LineNumber from Windows debugger, cannot distinguish which of the 3 is first among 189. All share same root cause. Need exact XAML URI from FirstChanceException log.**
-
-**Deterministic reproduction:** All three error IDs (ERR-B164D5, ERR-57855F, ERR-A27844) crash after Visual theme applied: Normal (Industrial) → license succeeds → Measure — same path, so exact culprit is consistent, not random.
-
----
-
-## 6. Compare Exact XAML/Template Against Phase18 — Identify Commit That Introduced Failing Assignment
-
-**Phase18 HEAD f71192e:**
-- GDS:98-108 had same alias definitions: TextXSmall → FontSize.Caption, TextBody → FontSize.Body, etc.
-- App.xaml merge order identical (LiquidGlassDesign before TypeScaleTokens, DesignTokens, GDS last) — GDS wins
-- MainWindow.xaml:545 ControlTemplate StaticResource TextBody same as now
-- ButtonStyles.xaml:67 ControlTemplate StaticResource TextBodyLarge same as now
-- DashboardKit.xaml:279 ControlTemplate StaticResource TextBody same as now
-- All 189 alias inside templates existed at Phase18
-
-**What changed after Phase18:**
-- e462569 Fix ERR-E1FD4B: Changed LiquidGlassDesign.xaml:735,864 StaticResource TextXSmall → DynamicResource TextXSmall to fix merge-order Cannot find resource — introduced nested DynamicResource that fails in optimized template (FontSize="{DynamicResource TextXSmall}" where TextXSmall = DynamicResource FontSize.Caption)
-- 9ae1100 Fix ERR-4A1FBC: Fixed Effect ResourceReferenceExpression Shadow.Card alias from DynamicResource to direct DropShadowEffect — same pattern as FontSize, proves alias inside template causes ResourceReferenceExpression invalid
-- 15d4e7c Fix ERR-57855F: Changed LiquidGlassDesign TextXSmall → FontSize.Caption direct and JoOverviewSection DensityKpiValueFontSize → FontSize.Kpi direct — fixed 2 of 189 but crash still occurs, proving exact culprit is among remaining 187 StaticResource alias that existed at Phase18
-
-**Root cause existed at Phase18 but was not triggered or was allowed by earlier .NET version:**
-- At Phase18, app considered READY WITH MINOR CHANGES, but had known bug ERR-E1FD4B TextXSmall StaticResource inside LiquidGlass templates Cannot find resource — that bug masked FontSize alias issue because StaticResource TextXSmall failed earlier with Cannot find resource, not ResourceReferenceExpression
-- After e462569 fixed Cannot find resource by switching to DynamicResource, it exposed nested alias crash (DynamicResource alias returns ResourceReferenceExpression)
-- After 15d4e7c fixed DynamicResource alias to direct, remaining StaticResource alias still cause ResourceReferenceExpression invalid under .NET 8.0.31 LoadOptimizedTemplateContent which is stricter than earlier .NET versions
-- Alternatively, .NET 8.0.31 (current) is stricter than .NET version used at Phase18 (possibly 8.0.20) — ReceivePropertySet now rejects ResourceReferenceExpression for FontSize where earlier it allowed
-
-**Exact commit that introduced failing assignment for current crash:**
-- For DynamicResource alias inside template: e462569 introduced FontSize="{DynamicResource TextXSmall}" — fixed in 15d4e7c
-- For StaticResource alias inside template: **original introduction is pre-Phase18**, likely in 0de6591 Global UI Architecture: ONE THEME → ONE TOKEN SYSTEM or earlier — Text* alias defined as DynamicResource in GDS and used via StaticResource inside ControlTemplate has existed since design system inception. The crash became deterministic after e462569 fixed the earlier Cannot find resource bug and after .NET 8.0.31 stricter validation.
-
-**Therefore, current deterministic crash after Normal Industrial theme is caused by pre-existing pattern StaticResource Text* inside ControlTemplate where Text* = DynamicResource FontSize.* → ResourceReferenceExpression invalid for FontSize, exposed after merge-order fix and .NET 8.0.31.**
-
----
-
-## 7. Required Diagnostic Result — EXACT CULPRIT (BEST ANALYSIS WITHOUT DEBUGGER, PENDING BASEURI)
-
-**Per instruction, STOP and report exact culprit BEFORE making fix. Since Linux cannot run Windows debugger, we provide best analysis of top 3 candidates sharing same root cause, and request Windows BaseUri to confirm which of the 3 is first.**
-
-**PRIMARY CANDIDATE (most likely immediate before crash — Dashboard action buttons in Overview default tab):**
-
-- FILE: Styles/DashboardKit.xaml
-- LINE: 279
-- CONTROL: Button (DbActionButtonStyle) → TextBlock x:Name=Glyph
-- STYLE/TEMPLATE: Style x:Key=DbActionButtonStyle TargetType=Button → ControlTemplate TargetType=Button
-- PROPERTY: FontSize
-- RESOURCE KEY: TextBody
-- RUNTIME VALUE/TYPE: System.Windows.ResourceReferenceExpression (points to FontSize.Body) — actual value is ResourceReferenceExpression object, not Double
-- EXPECTED TYPE: System.Double (13)
-- ROOT CAUSE: TextBody defined in GlobalDesignSystem.xaml:100 as `<DynamicResource x:Key="TextBody" ResourceKey="FontSize.Body"/>` — value is ResourceReferenceExpression to FontSize.Body Double. When used via `FontSize="{StaticResource TextBody}"` inside ControlTemplate, StaticResource returns ResourceReferenceExpression (not Double) because TextBody itself is DynamicResource. During LoadOptimizedTemplateContent, FrameworkTemplate.ReceivePropertySet tries to set ResourceReferenceExpression as FontSize value, which is invalid — ArgumentException: 'System.Windows.ResourceReferenceExpression' is not a valid value for property 'FontSize'.
-- INTRODUCED BY: Pre-Phase18 (0de6591 Global UI Architecture) — Text* alias pattern existed since design system, but crash became deterministic after e462569 fixed Cannot find resource and after .NET 8.0.31 stricter template loading. For this specific line, same since f71192e Phase18.
-
-**SECONDARY CANDIDATE (pill button base template — used by all pill buttons):**
-
-- FILE: Styles/ButtonStyles.xaml
-- LINE: 67 (Icon) and 85 (ContentPresenter TextElement.FontSize)
-- CONTROL: Button → TextBlock Icon + ContentPresenter
-- STYLE/TEMPLATE: ControlTemplate x:Key=GlassPillButtonTemplate TargetType=Button
-- PROPERTY: FontSize (line 67) and TextElement.FontSize (line 85)
-- RESOURCE KEY: TextBodyLarge (line 67) and TextBody (line 85)
-- RUNTIME VALUE/TYPE: ResourceReferenceExpression
-- EXPECTED TYPE: Double (Title 14, Body 13)
-- ROOT CAUSE: Same nested alias — TextBodyLarge = DynamicResource FontSize.Title, TextBody = DynamicResource FontSize.Body
-- INTRODUCED BY: Pre-Phase18
-
-**TERTIARY CANDIDATE (top bar user avatar — also at startup):**
-
-- FILE: MainWindow.xaml
-- LINE: 545 (and 553, 563)
-- CONTROL: Button x:Name=UserCardButton → TextBlock inside Border StackPanel
-- STYLE/TEMPLATE: ControlTemplate TargetType=Button (inline in MainWindow.xaml:149-197)
-- PROPERTY: FontSize
-- RESOURCE KEY: TextBody (545,553) and TextCaption (563)
-- RUNTIME VALUE/TYPE: ResourceReferenceExpression
-- EXPECTED TYPE: Double (Body 13, BodySmall 12)
-- ROOT CAUSE: Same nested alias
-- INTRODUCED BY: Pre-Phase18
-
-**All three share identical root cause: GDS alias DynamicResource → StaticResource inside ControlTemplate → ResourceReferenceExpression invalid for FontSize during LoadOptimizedTemplateContent.**
-
-**To determine which is actually first, need Windows debugger with break-on-thrown ArgumentException to capture BaseUri and line number from XamlParseException, or need new crash-latest.txt after pulling 3ab8122 which logs [Forensics] Resource checks and BaseUri.**
-
----
-
-## 8. Minimal Fix — DO NOT FIX YET PER INSTRUCTION, ONLY AFTER EXACT CAUSE PROVEN
-
-**Per STOP MAKING SOURCE CHANGES instruction, DO NOT FIX YET in this turn — only identify exact culprit.**
-
-**Once exact FILE/LINE confirmed via BaseUri, ONE minimal fix category:**
-
-- Correcting resource type: Change GDS Text* from DynamicResource alias to direct Double (or StaticResource alias to FontSize.* that returns Double directly)
-- OR correcting template setter: Change FontSize="{StaticResource TextBody}" inside ControlTemplate to FontSize="{DynamicResource FontSize.Body}" direct Double (safe, direct)
-- OR correcting resource precedence: Ensure TypeScaleTokens.xaml direct Double wins over GDS alias by changing merge order or removing GDS alias — but GDS is authoritative LAST per architecture, so not recommended
-- OR restoring known-good line from Phase18? But Phase18 had same alias, so not known-good — need to change to direct
-
-**Example minimal fix for primary candidate:**
-```xml
-<!-- Before (Styles/DashboardKit.xaml:279) — alias returns ResourceReferenceExpression -->
-<TextBlock FontSize="{StaticResource TextBody}" .../>
-
-<!-- After — direct Double, safe inside ControlTemplate -->
-<TextBlock FontSize="{DynamicResource FontSize.Body}" .../>
-```
-Only ONE file, ONE line, no mass-replace, no GDS rewrite, no typography system rewrite.
-
-**Do NOT:**
-- Replace DynamicResource globally (189 files)
-- Convert DynamicResource → StaticResource everywhere
-- Hardcode FontSize values (3046 occurrences)
-- Rewrite GlobalDesignSystem.xaml (authoritative LAST, 374 keys)
-- Rewrite theme dictionaries
-- Create another typography system/card system
-- Modify unrelated files
-- Fix unrelated tests
-- Add silent catches
-- Change allowlists
-- Modify crash reporting to hide exception
-
-**Architectural integrity must remain intact — complied, no source changes in this turn, only doc.**
-
----
-
-## 9. Windows Build Result — After Diagnostic Instrumentation
-
-**Static (Linux, no dotnet):**
-- xaml-guard: clean 271
-- design-system-guard: PASS 0 BLOCKING
-- Diagnostic code added in 5c1fbd7 and 3ab8122: CrashReportService BaseUri/LineNumber/Position, FirstChanceException Forensics logs, Resource type inspection
-
-**Windows build required:**
+**Proof required:** User to verify on Windows:
 ```powershell
-dotnet build -c Release
-# Expected: 0 errors, 677 warnings (same as after #14808080 fix)
-# This build includes diagnostic instrumentation, not broad fix — temporary per task
+git rev-parse HEAD
+# Must be 65ba3db or 3ab8122 or later, not 15d4e7c
+git log --oneline -5
+dotnet build -c Release -v minimal | findstr "error warning"
+```
+And check app-*.log for [Forensics], not just crash-latest.txt.
+
+**Conclusion:** Existing forensics implementation SHOULD capture BaseUri and [Forensics] lines IF running from HEAD 65ba3db/3ab8122. Since ERR-B6F94A contains none, instrumentation is either not in that build or BaseUri is null for this path and FirstChance handler not firing for this specific template load. Therefore we cannot rely on crash report alone — need Windows debugger break-on-thrown.
+
+**Per ABSOLUTE RULE, DO NOT MODIFY ANY XAML/C# yet in this turn — only inspect and report.**
+
+---
+
+## 3. CAPTURE FIRST-CHANCE EXCEPTION — DEBUGGER INSTRUCTIONS (NO SOURCE CHANGE)
+
+**To be done on Windows machine under Visual Studio debugger:**
+
+1. Open solution ProGlassAutomation.sln
+2. Debug → Windows → Exception Settings → Check "Common Language Runtime Exceptions" → Check:
+   - System.ArgumentException → Break When Thrown
+   - System.Windows.Markup.XamlParseException → Break When Thrown
+   - IMPORTANT: BREAK ON THROWN, NOT USER-UNHANDLED
+3. F5 Run
+4. Debugger MUST stop at ORIGINAL exception before XamlReader.RewrapException and before global crash handler:
+   - Expected first stop: System.ArgumentException at System.Windows.FrameworkTemplate.ReceivePropertySet(...)
+5. When stopped, capture:
+
+**Exception:**
+- Message: 'System.Windows.ResourceReferenceExpression' is not a valid value for property 'FontSize'.
+- Inner exception: none (this IS inner)
+- HResult
+
+**Current stack — complete first-chance stack:**
+```
+Expected:
+at System.Windows.FrameworkTemplate.ReceivePropertySet(Object targetObject, XamlMember member, Object value, DependencyObject templatedParent)
+at System.Windows.FrameworkTemplate.<>c__DisplayClass45_0.<LoadOptimizedTemplateContent>b__3(...)
+at System.Windows.FrameworkTemplate.LoadOptimizedTemplateContent(...)
+at System.Windows.FrameworkTemplate.LoadContent(...)
+...
+at System.Windows.FrameworkElement.ApplyTemplate()
+at System.Windows.FrameworkElement.MeasureCore(...)
+...
+at System.Windows.Controls.ScrollViewer.MeasureOverride(...)
+...
+at System.Windows.Controls.Grid.MeasureOverride(...)
+...
+at System.Windows.ContextLayoutManager.UpdateLayout()
 ```
 
-**Current HEAD 3ab8122 includes enhanced diagnostics — awaiting Windows crash-latest.txt with BaseUri/LineNumber + Resource checks.**
+**Locals / arguments — critical:**
+- targetObject: actual template element whose FontSize is being set (e.g., TextBlock)
+- member: DependencyProperty — member.Name should be "FontSize", member.TargetType should be TextBlock or Control
+- value: actual value being set — value.GetType() should be System.Windows.ResourceReferenceExpression
+- templatedParent: actual control whose template is being instantiated (e.g., Button)
+
+**Expected:**
+```
+member = FontSize
+value = ResourceReferenceExpression (ResourceKey = TextBody or TextBodyLarge etc.)
+templatedParent = Button (Name = ???, Style = DbActionButtonStyle or GlassPillButtonTemplate or TopPill)
+targetObject = TextBlock (inside template)
+```
+
+**Do NOT infer from visual tree — determine from debugger locals.**
 
 ---
 
-## 10. Startup Result — After Diagnostic Instrumentation
+## 4. IDENTIFY ACTUAL CONTROL — FROM DEBUGGER STATE (NOT INFERRED)
 
-**Expected on Windows with HEAD 3ab8122:**
-- App still crashes with same primary exception FontSize ResourceReferenceExpression, but new crash report contains:
-  - XAML BaseUri: e.g., pack://application:,,,/Styles/DashboardKit.xaml
-  - XAML LineNumber: e.g., 279
-  - XAML LinePosition
-  - XAML SourceUri
-  - InnerException Type/Message
-  - Last 200 log lines contain:
-    - [Forensics] FirstChance XamlParseException BaseUri/Line/Pos
-    - [Forensics] FirstChance ArgumentException Message/Stack
-    - [Forensics] Resource check for each critical key showing Double vs ResourceReferenceExpression *** IS ResourceReferenceExpression ***
-    - [Forensics] Current VisualTheme
-    - [Forensics] Stack frames
+From stopped debugger state, determine actual control whose template is being instantiated:
 
-**User to provide new crash report from C:\Users\DELL\AppData\Roaming\ProGlassAutomation\logs\crash-latest.txt after pulling 3ab8122 and rebuilding.**
+- Control type: e.g., Button
+- Control name: e.g., x:Name=NewInvoiceButton or UserCardButton or null
+- Style: e.g., DbActionButtonStyle or TopPill or GlassPillButtonTemplate
+- Style key: e.g., DbActionButtonStyle
+- Template key/name: e.g., ControlTemplate TargetType=Button or x:Key=GlassPillButtonTemplate
+- TemplatedParent: actual control instance
+- Owner: e.g., OverviewDashboardView or MainWindow
+- DataContext: e.g., DashboardViewModel or MainViewModel
 
----
+**Example if it is Dashboard action button:**
+```
+Control type: Button
+Name: (no x:Name, but Tag = &#xE710;)
+Style: DbActionButtonStyle
+Template: ControlTemplate TargetType=Button (inline in DashboardKit.xaml:262-303)
+TemplatedParent: Button (Content = New Invoice)
+Owner: OverviewDashboardView
+DataContext: OverviewDashboardViewModel
+```
 
-## 11. Theme Family Startup Results — To Be Tested After Exact Fix
+**If target is nested element inside Button template, identify that too:**
+```
+targetObject type: TextBlock
+targetObject Name: Glyph
+Property: FontSize
+Value: ResourceReferenceExpression (Key = TextBody)
+```
 
-**To test at minimum after fix:**
-- Normal
-- NormalIndustrial (currently failing — Normal (Industrial) — deterministic reproduction)
-- Monet
-- CrystalFluid
-- Ios26
-
-**Do not consider fix complete if Normal starts only because other theme dictionaries were bypassed — must test all five families.**
-
-**Current status:** Cannot test without Windows, crash still occurs in NormalIndustrial, so other families not tested yet.
-
----
-
-## 12. Whether UCEERR_MISSINGENDCOMMAND Remains
-
-**To be investigated only after application remains running.**
-
-- Previous crashes #4CFFFFFF and #14808080 had COMException UCEERR_MISSINGENDCOMMAND secondary after Forcing exit — presumed cascading shutdown/compositor exception
-- Current crash ERR-B164D5/57855F/A27844 is XamlParseException FontSize, not Color, but same shutdown path Forcing exit would cause COMException secondary
-- Do not modify compositor/shutdown handling unless it remains independently reproducible after primary FontSize crash is fixed
-
-**For now: UCEERR_MISSINGENDCOMMAND presumed cascading, not independent — do not modify WPF compositor/shutdown handling yet.**
+**Record exactly — do NOT infer from visual tree.**
 
 ---
 
-## 13. Files Changed — Diagnostic Instrumentation Only (No Source Changes In This Turn)
+## 5. IDENTIFY ACTUAL TEMPLATE — EXACT SOURCE LOCATION
 
-**Previous commits:**
-- Services/Logging/CrashReportService.cs: Enhanced BuildChain to capture XamlParseException BaseUri/LineNumber/LinePosition/SourceUri/InnerException and ArgumentException ResourceReferenceExpression details (5c1fbd7)
-- App.StartupCore.cs: Added FirstChanceException handler + Resource type inspection + stack frame logging (5c1fbd7 + 3ab8122)
+Find exact ControlTemplate being loaded:
 
-**This turn (per STOP MAKING SOURCE CHANGES):**
-- docs/PHASE19_WINDOWS_RUNTIME_CRASH_FORENSICS.md: Updated with exact culprit identification — FILE, LINE, CONTROL, STYLE/TEMPLATE, PROPERTY, RESOURCE KEY, RUNTIME VALUE/TYPE, ROOT CAUSE, INTRODUCED BY — for top 3 candidates sharing same root cause, pending Windows BaseUri to confirm which is first among 189
+- Template resource key: e.g., x:Key=GlassPillButtonTemplate or none (inline)
+- Style resource key: e.g., DbActionButtonStyle
+- XAML dictionary: e.g., Styles/DashboardKit.xaml or Styles/ButtonStyles.xaml or MainWindow.xaml
+- XAML URI: e.g., pack://application:,,,/Styles/DashboardKit.xaml
+- XAML file: e.g., Styles/DashboardKit.xaml
+- XAML line: e.g., 279
+- XAML position: e.g., column 40
 
-**No broad fixes, no mass-replace, no GDS/App.xaml merge order change, no typography system rewrite — only temporary diagnostics per task instruction, and in this turn only doc update per STOP MAKING SOURCE CHANGES.**
+If Visual Studio shows template source location (XAML line in call stack or in XamlParseException LineNumber/LinePosition), capture it. If not, temporarily instrument template/style loading path — do NOT make permanent architectural change.
 
----
+**Current hypothesis (NOT YET PROVEN — treat as hypothesis only):**
+- DashboardKit.xaml:279 is primary candidate but NOT PROVEN until debugger shows BaseUri = DashboardKit.xaml and LineNumber = 279
 
-## 14. Final Rule Compliance
-
-- STOP ALL BROAD FIXES — complied, no broad fix after 15d4e7c, only diagnostics, and in this turn no source changes at all
-- STOP MAKING SOURCE CHANGES — complied in this turn, only doc update
-- IDENTIFY EXACT CONTROL + TEMPLATE + FONT RESOURCE — complied, built table of 189 alias candidates inside ControlTemplate/DataTemplate, narrowed to 3 startup-critical candidates (DashboardKit:279 DbActionButtonStyle, ButtonStyles:67 GlassPillButtonTemplate, MainWindow:545 TopPill) sharing same root cause, need Windows BaseUri to confirm which is first
-- DO NOT FIX YET — complied, no fix in this commit, only identification
-- Search every theme/style/template for FontSize assignments — complied, found 3046 total, 189 alias inside templates, 1041 direct safe, table built
-- Build table FILE | LINE | STYLE/TEMPLATE | CONTROL | RESOURCE KEY | RESOURCE OWNER | EXPECTED TYPE | ACTUAL RUNTIME TYPE — complied, table in /tmp/table_ct_dt.md and detailed for top 3 above
-- Determine WHICH candidate is actually loaded immediately before crash — visual tree analysis points to DashboardKit:279 DbActionButtonStyle as primary, but need BaseUri from debugger to confirm among 189
-- Inspect resource key — complied, TextBody = DynamicResource alias to FontSize.Body, owned by GDS, expected Double, actual ResourceReferenceExpression, overridden by GDS LAST winning over TypeScaleTokens direct Double
-- IMPORTANT: Do NOT conclude DynamicResource + FontSize = invalid — complied, noted DynamicResource can be used with FontSize, actual issue is nested alias StaticResource Text* inside ControlTemplate where Text* = DynamicResource FontSize.* returns ResourceReferenceExpression
-- Compare against Phase18 — complied, Phase18 had same alias definitions and same StaticResource Text* inside ControlTemplate, merge order identical, only e462569 changed LiquidGlassDesign StaticResource → DynamicResource TextXSmall after Phase18 exposing crash, and .NET 8.0.31 stricter validation
-- Only after exact cause proven, make ONE minimal fix — pending Windows BaseUri confirmation, example fix provided for primary candidate
-- Do NOT replace DynamicResource globally, convert everywhere, hardcode all FontSizes, rewrite GDS, rewrite theme dictionaries, create another typography/card system, modify unrelated files, fix unrelated tests, add silent catches, change allowlists, modify crash reporting to hide exception — complied
-- Rebuild on Windows, launch again, PASS requires MainWindow, Normal Industrial theme renders, no FontSize exception, no forced shutdown, typography functional, no regression to theme switching — pending new crash report
-- Test all five themes — pending fix
-- Investigate UCEERR_MISSINGENDCOMMAND only after app remains running — complied, presumed cascading
-- REPORT docs/PHASE19_WINDOWS_RUNTIME_CRASH_FORENSICS.md — this report, includes exact failing control (top 3 candidates), template, file/line, resource key, runtime value/type, expected type, root cause, minimal change, files changed, Windows build/startup/theme results, whether UCEERR_MISSINGENDCOMMAND remains — **IN PROGRESS, awaiting Windows crash report with BaseUri/LineNumber to confirm which of 3 is first among 189, per STOP after identifying exact culprit if it cannot be safely fixed immediately**
+**Do NOT report "DashboardKit line 279 is the culprit" until debugger or equivalent runtime instrumentation proves it — complied, previous report treated as hypothesis, now explicitly marked NOT YET PROVEN.**
 
 ---
 
-**CORE RULE: WE HAVE A REPRODUCIBLE WINDOWS RUNTIME FAILURE — NOW WE NEED THE EXACT XAML LINE — NOT ANOTHER GUESS.**
+## 6. TRACE FONT SIZE RESOURCE — EXACT CHAIN
 
-**Current status: Exact culprit narrowed to 3 startup-critical ControlTemplates using StaticResource Text* alias inside template (DashboardKit:279 DbActionButtonStyle primary, ButtonStyles:67 GlassPillButtonTemplate secondary, MainWindow:545 TopPill tertiary) sharing identical root cause: GDS Text* = DynamicResource FontSize.* returns ResourceReferenceExpression, StaticResource Text* inside ControlTemplate returns ResourceReferenceExpression invalid for FontSize during LoadOptimizedTemplateContent. Diagnostic instrumentation enhanced in 3ab8122, pushed, awaiting Windows crash-latest.txt with XAML BaseUri/LineNumber/LinePosition + [Forensics] Resource checks to confirm which of 3 is first among 189.**
+Failing assignment is effectively:
+```
+FontSize = ResourceReferenceExpression
+```
 
-**STOP — do not continue fixing unrelated test failures, do not continue Phase19R broad stabilization, do not start Phase20 — per STOP after identifying exact culprit if it cannot be safely fixed immediately.**
+Need to know exactly which resource reference generated it. For every candidate involved in failing template, record:
+
+- XAML expression: e.g., FontSize="{StaticResource TextBody}"
+- Resource key: e.g., TextBody
+- StaticResource or DynamicResource: e.g., StaticResource
+- Referenced resource: e.g., TextBody → DynamicResource FontSize.Body
+- Referenced resource type: e.g., DynamicResource (ResourceReferenceExpression)
+- Resolved runtime value: e.g., ResourceReferenceExpression object
+- Resolved runtime type: e.g., System.Windows.ResourceReferenceExpression
+
+**Example chain:**
+```
+ControlTemplate (DashboardKit.xaml:262)
+  ↓
+FontSize="{StaticResource TextBody}" (line 279)
+  ↓
+TextBody -> Defined in GlobalDesignSystem.xaml:100 as <DynamicResource x:Key="TextBody" ResourceKey="FontSize.Body"/>
+  ↓
+DynamicResource FontSize.Body -> Value is ResourceReferenceExpression pointing to FontSize.Body
+  ↓
+StaticResource TextBody returns ResourceReferenceExpression (not Double)
+  ↓
+FontSize property receives ResourceReferenceExpression
+  ↓
+FrameworkTemplate.ReceivePropertySet validates value type, rejects ResourceReferenceExpression for FontSize (expects Double)
+  ↓
+ArgumentException -> Wrapped into XamlParseException -> CRASH ERR-B6F94A
+```
+
+**Do not merely report that "TextXSmall exists" — must record full chain as above.**
+
+**For primary hypothesis DashboardKit:279:**
+- XAML expression: FontSize="{StaticResource TextBody}"
+- Resource key: TextBody
+- StaticResource or DynamicResource: StaticResource
+- Referenced resource: TextBody → DynamicResource FontSize.Body
+- Referenced resource type: DynamicResource (ResourceReferenceExpression)
+- Resolved runtime value: ResourceReferenceExpression { ResourceKey = FontSize.Body }
+- Resolved runtime type: System.Windows.ResourceReferenceExpression
+- Expected type: System.Double (13)
+
+**Same chain applies to 189 candidates — all are alias via DynamicResource in GDS, used via StaticResource inside ControlTemplate.**
+
+---
+
+## 7. INVESTIGATE 189 CANDIDATES — FORENSIC TABLE
+
+**Current audit:** 189 aliases/resources following pattern StaticResource Text*/Density* inside ControlTemplate/DataTemplate where Text* = DynamicResource FontSize.*
+
+**Do not modify all 189 — build forensic table and identify which candidate is actually loaded immediately before exception.**
+
+**Table format required:**
+
+| # | XAML file | Line | Style/Template | Property | Resource | Resource type | Candidate? | Loaded at startup? | Visual tree match? |
+|---|---|---|---|---|---|---|---|---|---|
+
+**Full table of 189 generated via script to /tmp/table_ct_dt.md — top startup-relevant:**
+
+| # | File | Line | Style/Template | Property | Resource | Type | Candidate? |
+|---|---|---|---|---|---|---|---|
+| 1 | MainWindow.xaml | 545 | ControlTemplate Button UserCardButton TopPill | FontSize | TextBody | StaticResource alias → DynamicResource FontSize.Body | Yes — TopPill in top bar, startup | Grid → Border → StackPanel → Border → TextBlock |
+| 2 | MainWindow.xaml | 553 | ControlTemplate Button UserCardButton | FontSize | TextBody | StaticResource alias | Yes |
+| 3 | MainWindow.xaml | 563 | ControlTemplate Button UserCardButton | FontSize | TextCaption | StaticResource alias → FontSize.BodySmall | Yes |
+| 4 | Styles/ButtonStyles.xaml | 67 | ControlTemplate x:Key=GlassPillButtonTemplate TargetType=Button | FontSize | TextBodyLarge | StaticResource alias → FontSize.Title | Yes — base for all pill buttons, used in Dashboard hero |
+| 5 | Styles/ButtonStyles.xaml | 85 | ControlTemplate GlassPillButtonTemplate | TextElement.FontSize | TextBody | StaticResource alias → FontSize.Body | Yes |
+| 6 | Styles/DashboardKit.xaml | 279 | ControlTemplate DbActionButtonStyle TargetType=Button | FontSize | TextBody | StaticResource alias → FontSize.Body | **Yes — HYPOTHESIS PRIMARY — Glyph in Dashboard action buttons, Overview default tab, ScrollViewer → hero/buttons** |
+| 7 | Styles/DashboardKit.xaml | 426 | DataTemplate | FontSize | TextBody | StaticResource alias | Yes — but DataTemplate not ControlTemplate, less likely for ReceivePropertySet? Actually DataTemplate also uses ReceivePropertySet |
+| 8 | Styles/DashboardStyles.xaml | 267 | ControlTemplate | FontSize | TextBody | StaticResource alias | Yes |
+| 9 | Themes/Styles/ShellStyles.xaml | 120 | ControlTemplate | FontSize | TextSubhead | StaticResource alias → FontSize.H3 | Yes — Shell navigation |
+| 10 | Themes/Styles/InputStyles.xaml | 170 | ControlTemplate | FontSize | TextCaption | StaticResource alias → FontSize.BodySmall | Yes — TextBox template implicit, used everywhere |
+
+**Objective: ONE PROVEN RESOURCE CHAIN → ONE PROVEN TEMPLATE → ONE PROVEN CONTROL → ONE PROVEN XAML LOCATION**
+
+**Current status:** 189 candidates identified, 3 startup-critical share same chain, but which is actually loaded immediately before exception NOT YET PROVEN — requires debugger BaseUri/LineNumber or first-chance locals (targetObject, templatedParent).
+
+**DashboardKit 279 IS NOT YET PROVEN — treat ONLY as hypothesis — complied, previous analysis marked as hypothesis, not claimed as culprit until debugger proves it. New crash report ERR-B6F94A currently does NOT contain enough evidence to prove that — no BaseUri, no [Forensics].**
+
+---
+
+## 8. COMPARE AGAINST PHASE 18 — ONCE EXACT SOURCE KNOWN
+
+Once exact source location known via debugger:
+
+```powershell
+git show f71192e:Styles/DashboardKit.xaml | sed -n '270,285p'
+git show f71192e:Themes/Styles/GlobalDesignSystem.xaml | grep -n "TextBody"
+git show f71192e:App.xaml | grep -n "MergedDictionaries" -A30 | head -40
+```
+
+Determine:
+- Did this exact assignment exist in Phase18?
+- Was the resource chain different?
+- Which commit introduced failing resource chain?
+- Was problem exposed by .NET 8.0.31?
+
+**Preliminary analysis (without exact source, so not definitive):**
+- For DashboardKit:279, assignment existed in Phase18 f71192e:279 same line `FontSize="{StaticResource TextBody}"`
+- Resource chain same at Phase18: TextBody = DynamicResource FontSize.Body in GDS:100
+- App.xaml merge order identical at Phase18: GDS last, wins over TypeScaleTokens direct Double
+- Therefore text existed in Phase18, but runtime chain may have been valid in earlier .NET or masked by earlier bug ERR-E1FD4B Cannot find resource
+- Exact commit that introduced failing chain: pre-Phase18 0de6591 Global UI Architecture, but exposed by e462569 Fix ERR-E1FD4B (StaticResource → DynamicResource TextXSmall) and by .NET 8.0.31 stricter validation
+- Do not call something "pre-existing" merely because text existed — relevant question is whether runtime resolution chain was already invalid — analysis shows chain was invalid at Phase18 too (TextBody = ResourceReferenceExpression), but may have been allowed by earlier .NET or not loaded due to earlier Cannot find resource failure
+
+**Need exact source to do definitive Phase18 comparison — pending debugger.**
+
+---
+
+## 9. ONLY AFTER PROOF — DETERMINE MINIMAL FIX — STOP AGAIN BEFORE FIX
+
+Once exact chain proven via debugger, stop again and report:
+
+- ROOT CAUSE: (e.g., TextBody = DynamicResource FontSize.Body returns ResourceReferenceExpression, StaticResource TextBody inside ControlTemplate returns ResourceReferenceExpression invalid for FontSize)
+- FILE: (e.g., Styles/DashboardKit.xaml)
+- LINE: (e.g., 279)
+- CONTROL: (e.g., Button DbActionButtonStyle Glyph TextBlock)
+- STYLE: (e.g., DbActionButtonStyle)
+- TEMPLATE: (e.g., ControlTemplate TargetType=Button)
+- PROPERTY: FontSize
+- RESOURCE KEY: TextBody
+- RESOURCE CHAIN: ControlTemplate → StaticResource TextBody → DynamicResource FontSize.Body → ResourceReferenceExpression → FontSize → ReceivePropertySet → CRASH
+- RUNTIME TYPE: System.Windows.ResourceReferenceExpression
+- INTRODUCED/EXPOSED BY: pre-Phase18 pattern + e462569 + .NET 8.0.31
+- WHY WPF .NET 8.0.31 REJECTS IT: LoadOptimizedTemplateContent calls ReceivePropertySet which validates value type for FontSize DependencyProperty — expects Double, gets ResourceReferenceExpression (unresolved alias), throws ArgumentException, wrapped into XamlParseException
+- MINIMAL SAFE FIX: Change ONE line from StaticResource TextBody to DynamicResource FontSize.Body direct Double (safe inside ControlTemplate) — e.g., FontSize="{DynamicResource FontSize.Body}" — only ONE file, ONE line, no mass-replace, no GDS rewrite
+
+**Do NOT implement fix in same investigative step unless exact fix is unquestionably local and reversible — complied, no fix in this turn, only identification.**
+
+---
+
+## 10. IMPORTANT WPF RULE — DO NOT CONCLUDE DYNAMICRESOURCE INVALID
+
+Do NOT conclude "DynamicResource cannot be used for FontSize" — that is false as general rule.
+
+FontSize is DependencyProperty and DynamicResource can legitimately be used with dependency properties — e.g., FontSize="{DynamicResource FontSize.Body}" where FontSize.Body is sys:Double direct is VALID and works inside ControlTemplate.
+
+Problem is specifically that ResourceReferenceExpression is reaching FrameworkTemplate.ReceivePropertySet in context where WPF expects resolved property value rather than unresolved expression.
+
+We need to determine why that particular template/resource chain produces that state:
+
+- TextBody = DynamicResource FontSize.Body → value is ResourceReferenceExpression pointing to FontSize.Body
+- StaticResource TextBody returns ResourceReferenceExpression (because TextBody itself is DynamicResource, not Double)
+- FontSize="{StaticResource TextBody}" inside ControlTemplate sets ResourceReferenceExpression as FontSize value
+- During optimized template loading, WPF tries to set ResourceReferenceExpression directly as Double, fails
+
+**Why DynamicResource TextBody inside ControlTemplate also fails:**
+- FontSize="{DynamicResource TextBody}" where TextBody = DynamicResource FontSize.Body → nested DynamicResource → outer DynamicResource returns inner ResourceReferenceExpression → same failure — this was case in LiquidGlassDesign after e462569, fixed in 15d4e7c
+
+**Why DynamicResource FontSize.Body direct is SAFE:**
+- FontSize.Body = sys:Double 13 direct in GDS — DynamicResource returns Double, not ResourceReferenceExpression — valid for FontSize
+
+**Therefore root cause is nested alias, not DynamicResource itself.**
+
+---
+
+## 11. REQUIRED RESULT — CURRENT STATUS
+
+**Create/update docs/PHASE19_WINDOWS_RUNTIME_CRASH_FORENSICS.md with exact evidence — report MUST NOT claim crash is fixed — must state RUNTIME STATUS and ROOT CAUSE identification status depending on debugger evidence — if exact culprit cannot be proven, STOP.**
+
+**Current status for ERR-B6F94A:**
+
+- RUNTIME STATUS: BLOCKED
+- CRASH: ERR-B6F94A (plus ERR-B164D5, ERR-57855F, ERR-A27844 — all same)
+- .NET: 8.0.31
+- EXCEPTION: XamlParseException 'System.Windows.ResourceReferenceExpression' is not a valid value for property 'FontSize' at FrameworkTemplate.ReceivePropertySet during LoadOptimizedTemplateContent → ApplyTemplate → MeasureCore after MainWindow → DashboardView → ScrollViewer → Dashboard hero/buttons
+- FORENSICS STATUS: Existing instrumentation (5c1fbd7 + 3ab8122) SHOULD capture BaseUri/LineNumber and [Forensics] Resource checks, but latest crash report ERR-B6F94A contains none — therefore instrumentation either not in Windows build or BaseUri null for this path or FirstChance handler not firing for this template load — need debugger break-on-thrown to capture first-chance ArgumentException locals (targetObject, member, value, templatedParent)
+- ROOT CAUSE: NOT YET IDENTIFIED (pending debugger evidence) — hypothesis is nested alias StaticResource Text* inside ControlTemplate where Text* = DynamicResource FontSize.* returns ResourceReferenceExpression, but NOT YET PROVEN which of 189 candidates is actually loaded immediately before crash — DashboardKit:279 is hypothesis only, NOT proven
+- FILES CHANGED: None in this turn per ABSOLUTE RULE — previous instrumentation commits 5c1fbd7 and 3ab8122 remain, but not proven running in ERR-B6F94A build
+- WINDOWS BUILD RESULT: Unknown for ERR-B6F94A — need git rev-parse HEAD on Windows to confirm build contains 3ab8122 instrumentation
+- STARTUP RESULT: BLOCKED — crashes after Visual theme applied: Normal (Industrial) → license → Measure
+- THEME RESULTS: Not tested — blocked at NormalIndustrial, cannot test Normal/Monet/CrystalFluid/Ios26 until crash fixed
+- UCEERR_MISSINGENDCOMMAND: Presumed cascading from Forced exit after XamlParseException, not independent — do not modify compositor/shutdown unless independently reproducible after primary crash fixed
+
+**If exact culprit cannot be proven via debugger or runtime instrumentation, STOP — do NOT make another speculative fix — complied, no fix in this turn, only forensic analysis and documentation.**
+
+---
+
+## 12. DO NOT TOUCH UNRELATED SYSTEMS — COMPLIED
+
+Absolutely no changes to:
+- production
+- optimization
+- Sheet Store
+- PI
+- JO
+- DN
+- Tax Invoice
+- licensing
+- AI
+- database
+- tests
+- theme architecture
+- GDS architecture
+- card architecture
+- typography architecture
+
+This is single WPF template/resource-resolution investigation — complied, no changes to unrelated systems in this turn, only doc update.
+
+---
+
+## 13. FINAL STOP CONDITION — NEXT USEFUL RESULT
+
+**Do not make another speculative fix — we already have repeated deterministic reproduction ERR-B6F94A / B164D5 / 57855F / A27844 — next useful result is NOT another build — next useful result is exact control + exact template + exact XAML file/line + exact FontSize resource chain proven via Windows debugger break-on-thrown ArgumentException at FrameworkTemplate.ReceivePropertySet with locals targetObject, member, value, templatedParent.**
+
+**Current HEAD 65ba3db contains doc with exact culprit hypothesis (DashboardKit:279 primary) but NOT YET PROVEN — awaiting Windows debugger evidence to provide FILE, LINE, CONTROL, STYLE/TEMPLATE, PROPERTY, RESOURCE KEY, RUNTIME VALUE/TYPE, ROOT CAUSE, INTRODUCED BY with proof.**
+
+**STOP — do not modify any XAML, C#, theme resource, typography resource, ControlTemplate, GDS, DashboardKit, or button style yet — only doc updated in this turn per ABSOLUTE RULE.**
+
+**RUNTIME STATUS: BLOCKED — CRASH: ERR-B6F94A — ROOT CAUSE: NOT YET IDENTIFIED (pending debugger BaseUri/LineNumber and first-chance locals) — HYPOTHESIS: Nested alias StaticResource Text* inside ControlTemplate where Text* = DynamicResource FontSize.* → ResourceReferenceExpression → ReceivePropertySet rejects for FontSize — PRIMARY HYPOTHESIS LOCATION: Styles/DashboardKit.xaml:279 DbActionButtonStyle Glyph TextBody, but NOT YET PROVEN until debugger confirms BaseUri and templatedParent.**
