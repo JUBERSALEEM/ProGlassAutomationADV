@@ -55,9 +55,9 @@
                         <StackPanel Grid.Column="0">
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72D;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}"
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center"
                                            Text="{DynamicResource Sharing.Providers}"/>
                             </StackPanel>
     </Border>

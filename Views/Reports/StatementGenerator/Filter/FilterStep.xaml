@@ -828,7 +828,8 @@
                         <UniformGrid Grid.Row="1" Rows="2" Columns="3"
                                      Margin="20,0,20,20">
                             <Border Style="{StaticResource SurfacePrimaryStyle}"
-                                    ToolTip="{DynamicResource Reports.StatementGenerator.MergeTaxInvoicesDeliveryNotesProforma}">
+                                    ToolTip="{DynamicResource Reports.StatementGenerator.MergeTaxInvoicesDeliveryNotesProforma}"
+                                    Margin="0,0,12,12">
                                 <CheckBox IsChecked="{Binding IncludeAttachments}"
                                           Cursor="Hand"
                                           Padding="18,16"
@@ -846,7 +847,8 @@
                             </Border>
 
                             <Border Style="{StaticResource SurfacePrimaryStyle}"
-                                    ToolTip="{DynamicResource Reports.StatementGenerator.ShowDeliveryNoteLineItemDetails}">
+                                    ToolTip="{DynamicResource Reports.StatementGenerator.ShowDeliveryNoteLineItemDetails}"
+                                    Margin="0,0,12,12">
                                 <CheckBox IsChecked="{Binding IncludeDnDetails}"
                                           Cursor="Hand"
                                           Padding="18,16"
@@ -864,7 +866,8 @@
                             </Border>
 
                             <Border Style="{StaticResource SurfacePrimaryStyle}"
-                                    ToolTip="{DynamicResource Reports.StatementGenerator.AddOrderedVsDeliveredComparisonTable}">
+                                    ToolTip="{DynamicResource Reports.StatementGenerator.AddOrderedVsDeliveredComparisonTable}"
+                                    Margin="0,0,0,12">
                                 <CheckBox IsChecked="{Binding IncludeBalanceAnalysis}"
                                           Cursor="Hand"
                                           Padding="18,16"
@@ -882,7 +885,8 @@
                             </Border>
 
                             <Border Style="{StaticResource SurfacePrimaryStyle}"
-                                    ToolTip="{DynamicResource Reports.StatementGenerator.VisualBreakdown0303160619090Days}">
+                                    ToolTip="{DynamicResource Reports.StatementGenerator.VisualBreakdown0303160619090Days}"
+                                    Margin="0,0,12,0">
                                 <CheckBox IsChecked="{Binding IncludeAgingChart}"
                                           Cursor="Hand"
                                           Padding="18,16"
@@ -900,7 +904,8 @@
                             </Border>
 
                             <Border Style="{StaticResource SurfacePrimaryStyle}"
-                                    ToolTip="{DynamicResource Reports.StatementGenerator.AddPlaceholderPagesFailedRegenerations}">
+                                    ToolTip="{DynamicResource Reports.StatementGenerator.AddPlaceholderPagesFailedRegenerations}"
+                                    Margin="0,0,12,0">
                                 <CheckBox IsChecked="{Binding IncludeInsertPlaceholders}"
                                           Cursor="Hand"
                                           Padding="18,16"

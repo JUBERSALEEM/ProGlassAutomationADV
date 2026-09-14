@@ -83,12 +83,15 @@
             </StackPanel>
         </Border>
 
-        <!-- Auto-compact WrapPanel: hidden optional tiles vanish and the
-             rest re-flow to fill the row. -->
-        <WrapPanel>
+        <!-- 2026-09-14: was a WrapPanel of 300-460px content-sized
+             tiles — tiles never stretch in a WrapPanel, so rows rendered
+             left-aligned with uneven widths and a dead right side.
+             Now an equal-width 3-column grid (professional form layout);
+             hidden optional fields collapse their cell. -->
+        <UniformGrid Columns="3">
 
             <!-- Status (workflow control — always visible) -->
-            <Border Style="{StaticResource SurfaceDetailStyle}">
+            <Border Style="{StaticResource SurfaceDetailStyle}" Margin="0,0,12,12">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Common.Status}" Style="{StaticResource JoCompactLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding StatusOptions}"
@@ -98,7 +101,7 @@
             </Border>
 
             <!-- Priority -->
-            <Border Style="{StaticResource SurfaceDetailStyle}"
+            <Border Style="{StaticResource SurfaceDetailStyle}" Margin="0,0,12,12"
                     IsEnabled="{Binding IsBodyEditable}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Common.Priority}" Style="{StaticResource JoCompactLabelStyle}"/>
@@ -109,7 +112,7 @@
             </Border>
 
             <!-- Delivery date -->
-            <Border Style="{StaticResource SurfaceDetailStyle}"
+            <Border Style="{StaticResource SurfaceDetailStyle}" Margin="0,0,12,12"
                     IsEnabled="{Binding IsBodyEditable}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource JobOrder.DeliveryDATE}" Style="{StaticResource JoCompactLabelStyle}"/>
@@ -119,7 +122,7 @@
             </Border>
 
             <!-- Assigned to (optional) -->
-            <Border Style="{StaticResource SurfaceDetailStyle}"
+            <Border Style="{StaticResource SurfaceDetailStyle}" Margin="0,0,12,12"
                     IsEnabled="{Binding IsBodyEditable}"
                     Visibility="{Binding Path=ShowAssignedTo,
                         Source={x:Static features:JobOrderFieldVisibility.Instance},
@@ -132,7 +135,7 @@
             </Border>
 
             <!-- Site delivery contact (optional) -->
-            <Border Style="{StaticResource SurfaceDetailStyle}"
+            <Border Style="{StaticResource SurfaceDetailStyle}" Margin="0,0,12,12"
                     IsEnabled="{Binding IsBodyEditable}"
                     Visibility="{Binding Path=ShowSiteDeliveryContact,
                         Source={x:Static features:JobOrderFieldVisibility.Instance},
@@ -145,7 +148,7 @@
             </Border>
 
             <!-- Site delivery phone (optional) -->
-            <Border Style="{StaticResource SurfaceDetailStyle}"
+            <Border Style="{StaticResource SurfaceDetailStyle}" Margin="0,0,12,12"
                     IsEnabled="{Binding IsBodyEditable}"
                     Visibility="{Binding Path=ShowSiteDeliveryPhone,
                         Source={x:Static features:JobOrderFieldVisibility.Instance},
@@ -160,7 +163,7 @@
             </Border>
 
             <!-- Drawing reference (optional) -->
-            <Border Style="{StaticResource SurfaceDetailStyle}"
+            <Border Style="{StaticResource SurfaceDetailStyle}" Margin="0,0,12,12"
                     IsEnabled="{Binding IsBodyEditable}"
                     Visibility="{Binding Path=ShowDrawingReference,
                         Source={x:Static features:JobOrderFieldVisibility.Instance},
@@ -173,8 +176,8 @@
             </Border>
 
             <!-- Site delivery address (optional, wide) -->
-            <Border Style="{StaticResource SurfaceDetailStyle}"
-                    MinWidth="300" MaxWidth="460"
+            <Border Style="{StaticResource SurfaceDetailStyle}" Margin="0,0,12,12"
+                   
                     IsEnabled="{Binding IsBodyEditable}"
                     Visibility="{Binding Path=ShowSiteDeliveryAddress,
                         Source={x:Static features:JobOrderFieldVisibility.Instance},
@@ -187,8 +190,8 @@
             </Border>
 
             <!-- Cutting instructions (optional, wide) -->
-            <Border Style="{StaticResource SurfaceDetailStyle}"
-                    MinWidth="300" MaxWidth="460"
+            <Border Style="{StaticResource SurfaceDetailStyle}" Margin="0,0,12,12"
+                   
                     IsEnabled="{Binding IsBodyEditable}"
                     Visibility="{Binding Path=ShowCuttingInstructions,
                         Source={x:Static features:JobOrderFieldVisibility.Instance},
@@ -201,8 +204,8 @@
             </Border>
 
             <!-- Internal notes (optional, wide) -->
-            <Border Style="{StaticResource SurfaceDetailStyle}"
-                    MinWidth="300" MaxWidth="460"
+            <Border Style="{StaticResource SurfaceDetailStyle}" Margin="0,0,12,12"
+                   
                     IsEnabled="{Binding IsBodyEditable}"
                     Visibility="{Binding Path=ShowInternalNotes,
                         Source={x:Static features:JobOrderFieldVisibility.Instance},
@@ -214,7 +217,7 @@
                 </StackPanel>
             </Border>
 
-        </WrapPanel>
+        </UniformGrid>
 
         <!-- Last edited / audit hint -->
         <TextBlock Text="{Binding LastEditedDisplay}"

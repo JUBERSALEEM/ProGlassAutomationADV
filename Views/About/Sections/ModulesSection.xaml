@@ -90,21 +90,34 @@
                     VerticalAlignment="Top"
                     Visibility="{DynamicResource AboutGlassChromeVisibility}"
                     SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                <!-- 2026-09-14: default vertical ItemsPanel stacked the four
+                     scope chips vertically inside the capsule — now one row. -->
                 <ListBox ItemsSource="{Binding ModuleScopes}"
                          SelectedItem="{Binding SelectedScopeItem, Mode=TwoWay}"
                          DisplayMemberPath="Label"
                          Style="{StaticResource SurfaceSecondaryListBoxStyle}"
-                         ItemContainerStyle="{StaticResource ChipListItemStyle}"/>
+                         ItemContainerStyle="{StaticResource ChipListItemStyle}">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
             </Border>
         </Grid>
 
+        <!-- 2026-09-14: fixed 4-column UniformGrid → centered WrapPanel of
+             equal 280px slabs (ModuleChipTemplate carries the width).
+             12 modules render 4-up at normal widths exactly like the
+             approved mosaic, but reflow 4 → 3 → 2 as the window narrows
+             instead of every slab collapsing to one quarter of the
+             available width. -->
         <ItemsControl ItemsSource="{Binding FilteredModules}"
                       ItemTemplate="{StaticResource ModuleChipTemplate}"
                       Margin="0,0,0,14">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <!-- LG4 mosaic: 4 columns × 3 rows full-width -->
-                    <UniformGrid Columns="4"/>
+                    <WrapPanel HorizontalAlignment="Center"/>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ItemsControl>
@@ -188,6 +201,13 @@
                             </Border>
                         </Grid>
 
+                        <!-- Proportional 4-up grid (kept on purpose,
+                             2026-09-14): WorkflowCardTemplate is shared
+                             with the 3-up rows above/below, so the slabs
+                             stay fluid here; 4 × 196px cards remain
+                             usable down to the shell's minimum width.
+                             The 12-module mosaic above is the one that
+                             needed fixed-width WrapPanel reflow. -->
                         <ItemsControl ItemsSource="{Binding ProductionStages}"
                                       ItemTemplate="{StaticResource WorkflowCardTemplate}">
                             <ItemsControl.ItemsPanel>

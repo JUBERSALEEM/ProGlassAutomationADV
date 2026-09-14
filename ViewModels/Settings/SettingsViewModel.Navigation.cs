@@ -105,7 +105,11 @@ namespace ProGlassAutomation.ViewModels.Settings
                 new("Data",       "\uE74E", "Settings.SecData"),
                 new("Demo",       "\uE714", "Settings.SecDemo"),
                 new("License",    "\uE762", "Settings.SecLicense"),
-                new("Features",   "\uE192", "Settings.SecFeatures"),
+                // 2026-09-14: glyph was \uE192 — a Segoe UI Symbol (MDL1)
+                // code point that Segoe MDL2 Assets does not contain, so the
+                // rail rendered a broken .notdef box. E912 (Flag) is a valid
+                // MDL2 glyph fitting the feature-flags page.
+                new("Features",   "\uE912", "Settings.SecFeatures"),
                 new("Sharing",    "\uE72D", "Settings.SecSharing"),
                 new("About",      "\uE946", "Settings.SecAbout"),
             };

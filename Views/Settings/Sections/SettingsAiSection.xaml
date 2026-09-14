@@ -63,7 +63,7 @@
                 <UniformGrid Columns="3" Margin="0,0,0,6">
 
                     <!-- Master toggle -->
-                    <Border>
+                    <Border Margin="0,0,12,0">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -89,7 +89,7 @@
                     </Border>
 
                     <!-- Real business data -->
-                    <Border>
+                    <Border Margin="0,0,12,0">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -115,13 +115,13 @@
                     </Border>
 
                     <!-- Model readout -->
-                    <Border>
+                    <Border Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.ActiveModel}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.ActiveModel}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Text="{Binding AiModel}"
@@ -132,13 +132,13 @@
                     </Border>
 
                     <!-- Max tokens -->
-                    <Border>
+                    <Border Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE762;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.MaxTokens}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.MaxTokens}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Text="{Binding AiMaxTokens}"
@@ -153,9 +153,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE706;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.Temperature}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.Temperature}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Text="{Binding AiTemperature}"
@@ -233,6 +233,7 @@
                                        Style="{StaticResource Typography.BodySmall}"
                                        Margin="0,4,0,10"/>
                             <Button
+                                Style="{StaticResource SettingsActionButtonStyle}"
                                     Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
                                     Command="{Binding TestGeminiCommand}"
                                     HorizontalAlignment="Stretch"
@@ -303,6 +304,7 @@
                                        Style="{StaticResource Typography.BodySmall}"
                                        Margin="0,4,0,10"/>
                             <Button
+                                Style="{StaticResource SettingsActionButtonStyle}"
                                     Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
                                     Command="{Binding TestGroqCommand}"
                                     HorizontalAlignment="Stretch"
@@ -392,9 +394,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.KeysFile}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.KeysFile}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Text="{DynamicResource Settings.ProviderKeysEncryptedRestWindowsDpapiStored}"
@@ -421,7 +423,7 @@
                 <UniformGrid Columns="3" Margin="0,0,0,6">
 
                     <!-- Keep API keys saved -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -447,13 +449,13 @@
                     </Border>
 
                     <!-- Remove saved keys -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE74D;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.RemoveSavedKeys}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.RemoveSavedKeys}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
@@ -470,9 +472,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE81C;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.ClearAIMemory}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.ClearAIMemory}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"

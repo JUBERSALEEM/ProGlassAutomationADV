@@ -90,6 +90,7 @@
                             VerticalAlignment="Center">
 
                     <Button
+                        Style="{StaticResource PrimaryPillButton}"
                             Tag="&#xE74E;" Content="{DynamicResource Action.Save}"
                             Command="{Binding SaveCommand}"
                             Margin="0,0,8,0"
@@ -98,12 +99,13 @@
                                          Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                     <Button
+                        Style="{StaticResource OutlinedPillButton}"
                             Tag="&#xE7B8;" Content="{DynamicResource DeliveryNote.CreateBalance}"
                             Command="{Binding CreateNewDnFromMasterCommand}"
                             Margin="0,0,8,0"
                             ToolTip="{DynamicResource DeliveryNote.CreateNewDispatchingDNRemainingBalance}"/>
 
-                    <Button x:Name="ActionsMenuButton"
+                    <Button Style="{StaticResource OutlinedPillButton}" x:Name="ActionsMenuButton"
                            
                             Tag="&#xE712;" Content="{DynamicResource Common.Actions}"
                             ToolTip="{DynamicResource DeliveryNote.SaveDispatchExportMore}"
@@ -131,34 +133,41 @@
                             </Border.Effect>
                             <StackPanel>
                                 <Button
+                                    Style="{StaticResource PrimaryPillButton}"
                                         Tag="&#xE74E;" Content="{DynamicResource DeliveryNote.SaveDispatch}"
                                         Command="{Binding SaveCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Button
+                                    Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE81C;" Content="{DynamicResource Common.VersionHistory}"
                                         Command="{Binding ShowVersionsCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource BorderDefaultBrush}"/>
                                 <Button
+                                    Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE8A5;" Content="{DynamicResource DeliveryNote.ExportPDF}"
                                         Command="{Binding ExportPdfCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Button
+                                    Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE9F9;" Content="{DynamicResource DeliveryNote.ExportExcel}"
                                         Command="{Binding ExportExcelCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Button
+                                    Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE72D;" Content="{DynamicResource DeliveryNote.ExportCSV}"
                                         Command="{Binding ExportCsvCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Button
+                                    Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE72D;" Content="{DynamicResource Sharing.Share}"
                                         Command="{Binding ShareCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource BorderDefaultBrush}"/>
                                 <Button
+                                    Style="{StaticResource DangerButton}"
                                         Tag="&#xE74D;" Content="{DynamicResource DeliveryNote.DeleteDeliveryNote}"
                                         Command="{Binding DeleteDnCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>

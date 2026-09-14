@@ -228,35 +228,35 @@
                                                   Color="{DynamicResource LiquidShadowColor}"/>
                             </Border.Effect>
                             <StackPanel>
-                                <Button Style="{StaticResource Button.Secondary}"
+                                <Button Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE72C;" Content="{DynamicResource SheetStore.RefreshData}"
                                         Command="{Binding RefreshCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
-                                <Button Style="{StaticResource Button.Secondary}"
+                                <Button Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE896;" Content="{DynamicResource SheetStore.ImportCSV}"
                                         Command="{Binding ImportCsvCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource BorderDefaultBrush}"/>
-                                <Button Style="{StaticResource Button.Secondary}"
+                                <Button Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE72D;" Content="{DynamicResource DeliveryNote.ExportCSV}"
                                         Command="{Binding ExportCsvCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
-                                <Button Style="{StaticResource Button.Secondary}"
+                                <Button Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE9F9;" Content="{DynamicResource DeliveryNote.ExportExcel}"
                                         Command="{Binding ExportExcelCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
-                                <Button Style="{StaticResource Button.Secondary}"
+                                <Button Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE8A5;" Content="{DynamicResource SheetStore.ExportPDFReport}"
                                         Command="{Binding ExportPdfCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
-                                <Button Style="{StaticResource Button.Secondary}"
+                                <Button Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE72D;" Content="{DynamicResource Sharing.Share}"
                                         Command="{Binding ShareCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource BorderDefaultBrush}"/>
-                                <Button Style="{StaticResource Button.Secondary}"
+                                <Button Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE81C;" Content="{DynamicResource SheetStore.ShowHistory}"
                                         Command="{Binding ShowHistoryCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>

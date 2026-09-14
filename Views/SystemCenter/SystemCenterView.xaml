@@ -650,7 +650,7 @@
                     </Button>
 
                     <Button Command="{Binding SetScopeCommand}" CommandParameter="UsersSecurity"
-                            Tag="&#xE195;" Content="{DynamicResource SystemCenter.ScopeUsersSecurity}"
+                            Tag="&#xE716;" Content="{DynamicResource SystemCenter.ScopeUsersSecurity}"
                             ToolTip="{DynamicResource SystemCenter.ScopeUsersSecurityTooltip}" Margin="0,0,6,0">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
@@ -663,7 +663,7 @@
                         </Button.Style>
                     </Button>
                     <Button IsHitTestVisible="False" Focusable="False"
-                            Tag="&#xE195;" Content="{DynamicResource SystemCenter.ScopeUsersSecurity}"
+                            Tag="&#xE716;" Content="{DynamicResource SystemCenter.ScopeUsersSecurity}"
                             Margin="0,0,6,0">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">

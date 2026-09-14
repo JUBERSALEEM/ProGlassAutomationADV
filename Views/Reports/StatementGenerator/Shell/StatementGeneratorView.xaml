@@ -590,13 +590,13 @@
                                 Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                     <Button Command="{Binding NextStepCommand}"
-                            Style="{StaticResource Button.Primary}"
+                            Style="{StaticResource PrimaryPillButton}"
                             Tag="&#xE7E8;" Content="{DynamicResource Reports.StatementGenerator.GenerateStatement}"
                             Visibility="{Binding ShowGenerateButton,
                                 Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                     <Button Command="{Binding NextStepCommand}"
-                            Style="{StaticResource NavButtonSuccessStyle}"
+                            Style="{StaticResource SuccessPillButton}"
                             Tag="&#xE73E;" Content="{DynamicResource Reports.StatementGenerator.Finish}"
                             Visibility="{Binding ShowFinishButton,
                                 Converter={StaticResource BoolToVisibilityConverter}}"/>

@@ -284,7 +284,9 @@
         <Setter Property="behaviors:BounceHover.IsEnabled"  Value="True"/>
         <Setter Property="behaviors:BounceHover.HoverScale" Value="1.035"/>
         <Setter Property="behaviors:BounceHover.PressScale" Value="0.97"/>
-        <Setter Property="Margin"              Value="10,2"/>
+        <!-- 2026-09-14: vertical rail spacing 2 → 4px so the nav buttons
+             read as separate rows instead of a stuck-together stack. -->
+        <Setter Property="Margin"              Value="10,4"/>
         <Setter Property="Tag"                 Value="Inactive"/>
         <Setter Property="Background"          Value="Transparent"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -466,8 +468,32 @@
                             MinHeight="{TemplateBinding MinHeight}"
                             SnapsToDevicePixels="True"
                             UseLayoutRounding="True">
-                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                          VerticalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                    VerticalAlignment="Center">
+                            <!-- Optional Tag-glyph icon (matches Pill/Row button convention).
+                                 Collapses automatically when Tag is empty or unset. -->
+                            <TextBlock Text="{TemplateBinding Tag}"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                       Foreground="{TemplateBinding Foreground}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,6,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                            <Trigger Property="Text" Value="">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </Trigger>
+                                            <Trigger Property="Text" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </StackPanel>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">

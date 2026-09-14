@@ -237,11 +237,16 @@
                         </Border>
                     </Grid>
                     <Border Style="{StaticResource SurfaceSecondaryStyle}" Padding="14,14">
+                        <!-- 2026-09-14: fixed 2-column UniformGrid → centered
+                             WrapPanel of equal 300px tech tiles
+                             (TechItemTemplate carries the width). 2-up at
+                             normal widths, reflows 2 → 1 as the window
+                             narrows. -->
                         <ItemsControl ItemsSource="{Binding TechStack}"
                                       ItemTemplate="{StaticResource TechItemTemplate}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <UniformGrid Columns="2"/>
+                                    <WrapPanel HorizontalAlignment="Center"/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>

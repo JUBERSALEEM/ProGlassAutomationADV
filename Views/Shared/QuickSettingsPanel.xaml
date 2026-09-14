@@ -141,7 +141,10 @@
                             </Button>
                             <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="License">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE192;"/>
+                                    <!-- 2026-09-14: E192 was an MDL1 code point
+                                         (broken box) — E72E (Shield) is valid
+                                         MDL2 and fits license/activation. -->
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72E;" Margin="0,0,10,0"/>
                                     <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecLicense}"/>
                                 </StackPanel>
                             </Button>

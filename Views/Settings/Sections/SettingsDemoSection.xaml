@@ -59,9 +59,9 @@
                     <StackPanel>
                         <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7B8;"/>
-                            <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.Ffmpeg}"/>
+                            <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.Ffmpeg}"/>
                         </StackPanel>
     </Border>
                         <TextBlock Text="{Binding FfmpegStatus}"
@@ -156,9 +156,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE714;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.RecordSession}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.RecordSession}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Text="{Binding SessionRecordHint}"
@@ -211,13 +211,13 @@
                            Style="{StaticResource Typography.BodySmall}"/>
 
                 <UniformGrid Columns="3" Margin="0,0,0,6">
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7F8;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.Quality}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.Quality}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
@@ -232,13 +232,13 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE823;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.FrameRate}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.FrameRate}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
@@ -253,7 +253,7 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -323,9 +323,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE896;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.Module}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.Module}"/>
                             </StackPanel>
     </Border>
                             <!-- 2026-08-25 senior fix: the dropdown showed
@@ -400,9 +400,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7EB;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.DemoMode}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.DemoMode}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Text="{Binding IsolationText}"
@@ -445,9 +445,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9D2;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.State}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.State}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Text="{Binding StateText}"
@@ -463,9 +463,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7C1;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.LastOutput}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.LastOutput}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Text="{Binding LastMp4Text}"

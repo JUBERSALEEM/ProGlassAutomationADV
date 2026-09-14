@@ -12,7 +12,7 @@
       - FontFamily: App (Segoe UI Variable), Icon (Segoe MDL2 Assets)
       - FontWeight: Regular, Medium, SemiBold, Bold
       - FontSize: Display, H1, H2, H3, Title, Subtitle, Body, BodySmall, Label, Caption, Kpi, Button, Navigation, DataGrid, Money, Icon
-      - Radius: Small=6, Medium=10, Large=12, XLarge=16, 2XLarge=20, Full=999, Control=8, Card=12, Dialog=16, Chip=999, Tab=8, Input=8, Panel=14, etc.
+      - Radius: Small=6, Medium=10, Large=12, XLarge=16, 2XLarge=20, Full=999, Control=12, Card=12, Dialog=16, Chip=999, Tab=12, Input=12, Panel=14, etc. (standard control surface = 12px)
       - Border: Thin=1, Default=1, Strong=1.5
       - Spacing: Xs=4, Sm=8, Md=12, Lg=16, Xl=24, 2Xl=32, 3Xl=40, Page, Card, Tile, Gutter
       - Density: DbPageMargin, DbCardPadding, DbTilePadding, DbGutter, DbGutterHalfMargin, DbKpiTileMinHeight, DbChartMinHeight (published by ThemeManager.ApplyDisplayDensity)
@@ -167,15 +167,22 @@
     <CornerRadius x:Key="Radius.2XLarge">20</CornerRadius>
     <CornerRadius x:Key="Radius.Full">999</CornerRadius>
 
-    <!-- Semantic aliases -->
-    <CornerRadius x:Key="Radius.Control">8</CornerRadius>
+    <!-- Semantic aliases.
+         2026-09-14 visual-polish pass: the STANDARD control surface
+         (buttons, inputs, tabs) is 12px — matching Radius.Large /
+         Radius.Card / CardCornerRadius. Control/Input/Button/Tab were
+         8, which is what produced the "random 8px corners" look across
+         the redesigned UI. The hierarchy is preserved: XSmall 3 (micro
+         chips), Small 6, Medium 10 (detail surfaces), Card 12, Dialog
+         16, Hero 18, Pill/Chip 999. -->
+    <CornerRadius x:Key="Radius.Control">12</CornerRadius>
     <CornerRadius x:Key="Radius.Card">12</CornerRadius>
     <CornerRadius x:Key="Radius.Dialog">16</CornerRadius>
     <CornerRadius x:Key="Radius.Chip">999</CornerRadius>
-    <CornerRadius x:Key="Radius.Tab">8</CornerRadius>
-    <CornerRadius x:Key="Radius.Input">8</CornerRadius>
+    <CornerRadius x:Key="Radius.Tab">12</CornerRadius>
+    <CornerRadius x:Key="Radius.Input">12</CornerRadius>
     <CornerRadius x:Key="Radius.Panel">14</CornerRadius>
-    <CornerRadius x:Key="Radius.Button">8</CornerRadius>
+    <CornerRadius x:Key="Radius.Button">12</CornerRadius>
     <CornerRadius x:Key="Radius.Badge">999</CornerRadius>
     <CornerRadius x:Key="Radius.Pill">999</CornerRadius>
     <CornerRadius x:Key="Radius.Hero">18</CornerRadius>
@@ -195,7 +202,11 @@
          startup, and ApplySemanticSurfaces republishes Surface.*.CornerRadius
          from the saved appearance. -->
     <CornerRadius x:Key="CardCornerRadius">12</CornerRadius>
-    <CornerRadius x:Key="ControlCornerRadius">8</CornerRadius>
+    <!-- 2026-09-14: 8 → 12. GDS merges LAST in App.xaml, so this value
+         shadowed the theme dictionaries' 12 at every call site (~200),
+         which is why inputs/sidebars/controls rendered at 8px. The
+         canonical control radius is 12 (Radius.Large / CardCornerRadius). -->
+    <CornerRadius x:Key="ControlCornerRadius">12</CornerRadius>
     <CornerRadius x:Key="CardCornerRadiusLarge">16</CornerRadius>
     <CornerRadius x:Key="Surface.Primary.CornerRadius">12</CornerRadius>
     <CornerRadius x:Key="Surface.Secondary.CornerRadius">12</CornerRadius>
@@ -591,10 +602,20 @@
     <!-- ═══════════════════════════════════════════════════════════════
          11. BUTTONS — ONE CANONICAL SYSTEM
     ═══════════════════════════════════════════════════════════════ -->
+    <!-- 2026-09-14 visual-polish pass:
+         • The template now Binds BorderBrush/BorderThickness — before,
+           Button.Secondary's 1px border was set but never rendered
+           (the template ignored it), so secondary buttons had no edge.
+         • Primary carries a constant 2px TRANSPARENT border, so the
+           focus ring below changes colour without shifting layout.
+         • Keyboard focus now shows the canonical State.Focus ring
+           (the token existed since the "17. FOCUS" section but was
+           never wired into any button template). -->
     <Style x:Key="Button.Primary" TargetType="Button">
         <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="2"/>
         <Setter Property="Padding" Value="16,9"/>
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
         <Setter Property="FontSize" Value="{DynamicResource FontSize.Button}"/>
@@ -604,7 +625,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="Root" Background="{TemplateBinding Background}" CornerRadius="{DynamicResource Radius.Control}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                    <Border x:Name="Root" Background="{TemplateBinding Background}" CornerRadius="{DynamicResource Radius.Control}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -615,6 +636,11 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource State.Focus}"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
     <Style x:Key="Button.Secondary" TargetType="Button" BasedOn="{StaticResource Button.Primary}">
         <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
@@ -793,14 +819,17 @@
         </Setter>
     </Style>
     <Style x:Key="ChipListItemStyle" TargetType="ListBoxItem">
+        <!-- 2026-09-14: this style backs SELECTABLE tab-like chips (the
+             About scope capsule), which are buttons, not static chips —
+             radius follows the 12px control standard (was Radius.Chip 999). -->
         <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Border.Thin}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="Padding" Value="6,2"/>
+        <Setter Property="Padding" Value="8,4"/>
         <Setter Property="Margin" Value="0,0,6,0"/>
         <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
-        <Setter Property="FontSize" Value="{DynamicResource FontSize.Caption}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
         <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
@@ -809,7 +838,7 @@
                     <Border x:Name="Bg" Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource Radius.Chip}"
+                            CornerRadius="{DynamicResource Radius.Card}"
                             Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
                         <ContentPresenter VerticalAlignment="Center"/>
                     </Border>

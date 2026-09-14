@@ -181,9 +181,23 @@
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
+                                <!-- 2026-09-14: the glyph TextBlock had no
+                                     FontFamily — the MDL2 code point rendered
+                                     with the app font as a broken box before
+                                     the label. Icon font + size + explicit
+                                     icon↔text spacing (10px). -->
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Glyph}"/>
-                                    <TextBlock Text="{Binding Label}"/>
+                                    <TextBlock Text="{Binding Glyph}"
+                                               FontFamily="{DynamicResource FontFamily.Icon}"
+                                               FontSize="{DynamicResource FontSize.Title}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,10,0"
+                                               Width="18"
+                                               TextAlignment="Center"/>
+                                    <TextBlock Text="{Binding Label}"
+                                               VerticalAlignment="Center"
+                                               FontSize="{DynamicResource FontSize.Body}"
+                                               FontWeight="{DynamicResource Weight.SemiBold}"/>
                                 </StackPanel>
                             </Button>
                         </DataTemplate>

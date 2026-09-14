@@ -200,7 +200,7 @@
                             <ColumnDefinition Width="110"/>
                             <ColumnDefinition Width="1.4*"/>
                             <ColumnDefinition Width="120"/>
-                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="1" Text="{DynamicResource ProformaInvoice.REF}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
                         <TextBlock Grid.Column="2" Text="{DynamicResource Common.Company}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
@@ -269,7 +269,7 @@
                                             <ColumnDefinition Width="110"/>
                                             <ColumnDefinition Width="1.4*"/>
                                             <ColumnDefinition Width="120"/>
-                                            <ColumnDefinition Width="160"/>
+                                            <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
 
                                         <Border Grid.Column="0">
@@ -381,7 +381,7 @@
                                                     ToolTip="{DynamicResource ProformaInvoice.OpenEditRightClickMoreOptions}"
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
-                                                    Margin="6,0"
+                                                    Margin="4,0,0,0"
                                                     MinWidth="72"
                                                     Tag="&#xE8E5;" Content="{DynamicResource Action.Open}"/>
                                             <Button Style="{StaticResource RowOutlinedButton}"
@@ -410,10 +410,10 @@
                                                     ToolTip="{DynamicResource ProformaInvoice.ExportDossierTip}"
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
-                                                    Margin="0,0,8,0"
                                                     MinWidth="36"
                                                     Content="&#xE9F9;"
-                                                    FontFamily="{DynamicResource FontFamily.Icon}">
+                                                    FontFamily="{DynamicResource FontFamily.Icon}"
+                                                    Margin="4,0,0,0">
                                                 <!--
                                                     A ContextMenu is its own
                                                     visual tree, so it cannot

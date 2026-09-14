@@ -70,9 +70,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}"
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center"
                                            Text="{DynamicResource Settings.LblThemeFamily}"/>
                             </StackPanel>
     </Border>
@@ -93,9 +93,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE777;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}"
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center"
                                            Text="{DynamicResource Settings.ResetThemeFamily}"/>
                             </StackPanel>
     </Border>
@@ -123,9 +123,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A9;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}"
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center"
                                            Text="{DynamicResource Settings.GrpPresets}"/>
                             </StackPanel>
     </Border>
@@ -188,9 +188,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE771;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}"
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center"
                                            Text="{DynamicResource Settings.GrpCrystalMaterial}"/>
                             </StackPanel>
     </Border>
@@ -338,9 +338,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}"
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center"
                                            Text="{DynamicResource Settings.PreviewTitle}"/>
                             </StackPanel>
     </Border>
@@ -370,9 +370,9 @@
                     <StackPanel>
                         <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE946;"/>
-                            <TextBlock Style="{StaticResource Typography.Title}"
+                            <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center"
                                        Text="{DynamicResource Settings.SecThemes}"/>
                         </StackPanel>
     </Border>

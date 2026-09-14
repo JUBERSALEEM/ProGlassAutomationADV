@@ -80,9 +80,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72E;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{Binding LocalOnlyLabel}" TextWrapping="Wrap"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding LocalOnlyLabel}" TextWrapping="Wrap"/>
                             </StackPanel>
     </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
@@ -99,9 +99,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE774;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{Binding CloudConsentLabel}" TextWrapping="Wrap"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding CloudConsentLabel}" TextWrapping="Wrap"/>
                             </StackPanel>
     </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
@@ -119,9 +119,9 @@
                     <StackPanel>
                         <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE946;"/>
-                            <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.WhatMeans}"/>
+                            <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.WhatMeans}"/>
                         </StackPanel>
     </Border>
                         <TextBlock Text="{Binding PrivacySummary}"
@@ -138,9 +138,9 @@
                     <StackPanel>
                         <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE90F;"/>
-                            <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.LocalModelAdvice}"/>
+                            <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.LocalModelAdvice}"/>
                         </StackPanel>
     </Border>
                         <TextBlock Text="{Binding HardwareAdvice}"
@@ -157,9 +157,9 @@
                     <StackPanel>
                         <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE896;"/>
-                            <TextBlock Style="{StaticResource Typography.Title}" Text="Offline AI model (install once, works without internet)"/>
+                            <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="Offline AI model (install once, works without internet)"/>
                         </StackPanel>
     </Border>
 
@@ -270,7 +270,10 @@
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
             <StackPanel>
-                                <TextBlock Text="&#xE8B7;"/>
+                                <TextBlock Text="&#xE8B7;"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.Body}"
+                                           Margin="0,0,6,0"/>
                                 <TextBlock Text="{DynamicResource Settings.StoreAPIKey}"/>
                             </StackPanel>
     </Border>
@@ -425,9 +428,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F7;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.AgentData}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.AgentData}"/>
                             </StackPanel>
     </Border>
                             <Border 

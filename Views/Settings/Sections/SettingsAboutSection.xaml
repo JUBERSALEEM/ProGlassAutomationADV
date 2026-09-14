@@ -91,7 +91,7 @@
                 <UniformGrid Columns="3" Margin="0,0,0,6">
 
                     <!-- About the Theme System -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
@@ -114,7 +114,7 @@
                     </Border>
 
                     <!-- About the AI Assistant -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
@@ -137,7 +137,7 @@
                     </Border>
 
                     <!-- About Your API Key & Privacy -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">

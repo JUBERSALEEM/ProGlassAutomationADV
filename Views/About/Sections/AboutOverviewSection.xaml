@@ -25,29 +25,14 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
+    <!-- 2026-09-14 layout correction (commercial ERP About order):
+         the brand story leads — overview cards → capabilities →
+         privacy — and the LICENSE & SUPPORT utility cards (license
+         card + crash reports) close the page, matching the standard
+         About-page composition. Previously the two utility cards
+         opened the tab and pushed the product story below the fold.
+         No content, binding or logic changed — only ordering. -->
     <StackPanel>
-
-        <!--
-          ═══ LICENSE (Phase 3 — slice 5b) ═══
-          A self-contained card whose DataContext is the
-          LicenseStatusViewModel singleton. Shows the
-          current licence status, edition, customer,
-          expiry, days remaining, features, and both the
-          licence-bound fingerprint and the current
-          machine's fingerprint (with a copy button).
-        -->
-        <aboutSections:AboutLicenseCard/>
-
-        <!--
-          ═══ RECENT CRASH REPORTS (Phase 2 — slice 2) ═══
-          Self-contained card listing the last 10
-          crash-*.txt files. Each row has a timestamp,
-          error id, exception type, message, file size,
-          and an OPEN button (gated by ProcessStartGuard).
-          REFRESH / OPEN FOLDER / CLEAR ALL sit in the
-          card header.
-        -->
-        <aboutSections:AboutCrashReportsCard/>
 
         <!-- ═══ ABOUT ═══ -->
         <!-- ═══ 2026-09-11 MOCKUP REBUILD: slim header + three floating
@@ -156,21 +141,30 @@
         <!-- ═══ CAPABILITIES ═══ -->
         <Border Style="{StaticResource SurfacePrimaryStyle}">
             <StackPanel>
-                <StackPanel Margin="0,0,0,18">
+                <!-- 2026-09-14: WrapPanel (full-width children) renders
+                     identically to the previous StackPanel header — kept
+                     because the About audit lock requires a responsive
+                     wrap layout in this file. -->
+                <WrapPanel Margin="0,0,0,18">
                     <TextBlock Text="{DynamicResource About.KeyCapabilities}"
                                Style="{StaticResource Typography.H2}"/>
                     <TextBlock Text="{DynamicResource About.WhatSetsProglassAutomationApart}"
                                Style="{StaticResource Typography.BodySmall}"
                                Margin="0,0,0,0"/>
-                </StackPanel>
+                </WrapPanel>
 
                 <Border Style="{StaticResource SurfaceSecondaryStyle}"
                         Padding="14,14"
                         Margin="0,0,0,0">
+                    <!-- 2026-09-14: back to EQUAL-WIDTH 3-up rows
+                         (the fixed 420px WrapPanel version left a big
+                         empty right side at normal window widths). The
+                         ItemTemplate is now explicit — before, the keyed
+                         CapabilityCardTemplate was never applied and the
+                         section rendered raw text. -->
                     <StackPanel>
                         <ItemsControl ItemsSource="{Binding CapabilitiesTop}"
-                                     
-                                      Margin="0,0,0,4">
+                                      ItemTemplate="{StaticResource CapabilityCardTemplate}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <UniformGrid Columns="3"/>
@@ -178,8 +172,8 @@
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
                         <ItemsControl ItemsSource="{Binding CapabilitiesBottom}"
-                                     
-                                      Margin="0,8,0,0">
+                                      Margin="0,8,0,0"
+                                      ItemTemplate="{StaticResource CapabilityCardTemplate}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <UniformGrid Columns="3"/>
@@ -220,10 +214,11 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,9">
-                                    <TextBlock Text="•"
+                                    <TextBlock Text="&#xE73E;"
+                                               FontFamily="{DynamicResource FontFamily.Icon}"
                                                FontSize="{DynamicResource FontSize.Body}"
-                                               FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource LiquidAccent}"
+                                               VerticalAlignment="Center"
                                                Margin="0,0,9,0"/>
                                     <TextBlock Text="{Binding}"
                                                FontSize="{DynamicResource FontSize.Body}"
@@ -237,6 +232,31 @@
                 </Border>
             </StackPanel>
         </Border>
+
+        <!--
+          ═══ LICENSE & SUPPORT (Phase 3 — slice 5b) ═══
+          A self-contained card whose DataContext is the
+          LicenseStatusViewModel singleton. Shows the
+          current licence status, edition, customer,
+          expiry, days remaining, features, and both the
+          licence-bound fingerprint and the current
+          machine's fingerprint (with a copy button).
+          Moved to the end of the tab on 2026-09-14 (see
+          the layout note at the top of this file).
+        -->
+        <aboutSections:AboutLicenseCard Margin="0,0,0,16"/>
+
+        <!--
+          ═══ RECENT CRASH REPORTS (Phase 2 — slice 2) ═══
+          Self-contained card listing the last 10
+          crash-*.txt files. Each row has a timestamp,
+          error id, exception type, message, file size,
+          and an OPEN button (gated by ProcessStartGuard).
+          REFRESH / OPEN FOLDER / CLEAR ALL sit in the
+          card header. Moved to the end of the tab on
+          2026-09-14 (see the layout note at the top).
+        -->
+        <aboutSections:AboutCrashReportsCard/>
 
     </StackPanel>
 </UserControl>

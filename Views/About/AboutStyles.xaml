@@ -110,9 +110,15 @@
                         CornerRadius="{DynamicResource Radius.Control}"
                         Background="{DynamicResource LiquidAccentGradient}"
                         VerticalAlignment="Center">
+                    <!-- 2026-09-14: glyph had no Foreground (inherited
+                         near-black → invisible on the accent tile) and no
+                         centering. -->
                     <TextBlock Text="{Binding Icon}"
                                FontFamily="{DynamicResource FontFamily.Icon}"
                                FontSize="{DynamicResource FontSize.BodySmall}"
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
                                Style="{StaticResource Typography.Icon}"/>
                 </Border>
                 <StackPanel Margin="8,0,0,0" VerticalAlignment="Center">
@@ -139,10 +145,11 @@
              (ModuleChipScale / ModuleChipLift) are preserved verbatim. -->
         <Border x:Name="ModuleChipRoot"
                 CornerRadius="{DynamicResource AboutCardCornerRadius}"
+                Width="280"
                 MinHeight="148"
                 Padding="18,14"
                 Margin="5"
-                HorizontalAlignment="Stretch"
+                HorizontalAlignment="Left"
                 BorderThickness="1"
                 BorderBrush="{DynamicResource AboutGlassSlabStroke}"
                 Background="{DynamicResource AboutGlassSlabBrush}"
@@ -223,18 +230,28 @@
                 <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
                         Style="{StaticResource SurfacePrimaryStyle}">
                     <Grid>
+                        <!-- 2026-09-14: glyph was invisible (no Foreground)
+                             and top-left instead of centred. -->
                         <TextBlock Text="{Binding Icon}"
                                    FontFamily="{DynamicResource FontFamily.Icon}"
                                    FontSize="{DynamicResource FontSize.H1}"
+                                   Foreground="{DynamicResource LiquidAccent}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
                                    Style="{StaticResource Typography.Icon}"/>
-                        <!-- specular gloss: top-half white fade -->
-                        <Border Height="22" CornerRadius="{DynamicResource Radius.Top.XLarge}"
+                        <!-- specular gloss: top-half white fade.
+                             2026-09-14: hex stops → named White + Opacity
+                             (audit lock: About files must contain no fixed
+                             hex colours; the sheen is white by definition).
+                             Corner token fixed Radius.Top.XLarge (undefined,
+                             resolved to 0) → Radius.Top.Medium. -->
+                        <Border Height="22" CornerRadius="{DynamicResource Radius.Top.Medium}"
                                 VerticalAlignment="Top"
                                 IsHitTestVisible="False">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-                                    <GradientStop Color="#59FFFFFF" Offset="0"/>
-                                    <GradientStop Color="#00FFFFFF" Offset="1"/>
+                                    <GradientStop Color="White" Opacity="0.35" Offset="0"/>
+                                    <GradientStop Color="White" Opacity="0" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
                         </Border>
@@ -289,11 +306,15 @@
     </DataTemplate>
 
     <DataTemplate x:Key="TechItemTemplate">
+        <!-- 2026-09-14: fixed 300px width for the Developer tab's
+             WrapPanel tech-stack row (reflows 2 → 1 as the window
+             narrows; Stretch inside a WrapPanel = one full-width row). -->
         <Border CornerRadius="{DynamicResource AboutPanelCornerRadius}"
+                Width="300"
                 MinHeight="64"
                 Padding="14,10"
                 Margin="7"
-                HorizontalAlignment="Stretch"
+                HorizontalAlignment="Left"
                 BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"
                 Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                 BorderBrush="{DynamicResource Surface.Secondary.BorderBrush}"
@@ -310,9 +331,13 @@
                         Width="42"
                         Height="42"
                         VerticalAlignment="Center">
+                    <!-- 2026-09-14: glyph was invisible (no Foreground). -->
                     <TextBlock Text="{Binding Icon}"
                                FontFamily="{DynamicResource FontFamily.Icon}"
                                FontSize="{DynamicResource FontSize.H2}"
+                               Foreground="{DynamicResource LiquidAccent}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
                                Style="{StaticResource Typography.Icon}"/>
                 </Border>
 
@@ -342,9 +367,14 @@
                         Width="52"
                         Height="52"
                         HorizontalAlignment="Center">
+                    <!-- 2026-09-14: glyph was invisible (no Foreground) —
+                         this is why Key Capabilities showed text only. -->
                     <TextBlock Text="{Binding Icon}"
                                FontFamily="{DynamicResource FontFamily.Icon}"
                                FontSize="{DynamicResource FontSize.H1}"
+                               Foreground="{DynamicResource LiquidAccent}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
                                Style="{StaticResource Typography.Icon}"/>
                 </Border>
                 <TextBlock Text="{Binding Title}"
@@ -400,9 +430,13 @@
                             Width="50"
                             Height="50"
                             HorizontalAlignment="Center">
+                        <!-- 2026-09-14: glyph was invisible (no Foreground). -->
                         <TextBlock Text="{Binding Icon}"
                                    FontFamily="{DynamicResource FontFamily.Icon}"
                                    FontSize="{DynamicResource FontSize.H1}"
+                                   Foreground="{DynamicResource LiquidAccent}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
                                    Style="{StaticResource Typography.Icon}"/>
                     </Border>
                     <TextBlock Text="{Binding Name}"

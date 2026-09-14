@@ -290,6 +290,18 @@
                                                    Foreground="{DynamicResource LiquidAccent}"
                                                    IsHitTestVisible="False"/>
                                     </Border>
+                                    <!-- 2026-09-14: edition restored in the
+                                         hero (audit contract — AboutModuleAuditTests
+                                         requires the shared license binding here;
+                                         previously the edition only appeared in
+                                         the Developer tab). -->
+                                    <Border Style="{StaticResource Chip.Primary}" Margin="0,0,6,6">
+                                        <TextBlock Text="{Binding LicenseStatus.EditionDisplay}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                                   Foreground="{DynamicResource LiquidAccent}"
+                                                   IsHitTestVisible="False"/>
+                                    </Border>
                                     <Border Style="{StaticResource Chip.Primary}" Margin="0,0,0,6">
                                         <TextBlock Text="{Binding LicenseStatus.StatusBadge}"
                                                    FontSize="{DynamicResource FontSize.BodySmall}"
@@ -351,10 +363,21 @@
                         Padding="6,5"
                         Margin="0,2,0,20"
                         SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                    <!-- 2026-09-14: the ListBox defaulted to its VERTICAL
+                         ItemsPanel, so the three tabs stacked top-to-bottom
+                         at uneven widths. A 1×3 UniformGrid renders them in
+                         one row, equal width, in order About → Modules →
+                         Developer. -->
                     <ListBox ItemsSource="{Binding Tabs}"
                              SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
                              Style="{StaticResource SurfaceSecondaryListBoxStyle}"
-                             ItemContainerStyle="{StaticResource Tab.InactiveItem}"/>
+                             ItemContainerStyle="{StaticResource Tab.InactiveItem}">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="1"/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                    </ListBox>
                 </Border>
 
                 <!-- ═══ SECTION CONTENT (switched by SelectedTabIndex) ═══

@@ -65,7 +65,7 @@
                                Margin="0,2,0,0"/>
                 </StackPanel>
 
-                <Button Grid.Column="1"
+                <Button Style="{StaticResource OutlinedPillButton}" Grid.Column="1"
                        
                         Tag="&#xE711;" Content="{DynamicResource Action.Close}" MinWidth="110"
                         VerticalAlignment="Center"

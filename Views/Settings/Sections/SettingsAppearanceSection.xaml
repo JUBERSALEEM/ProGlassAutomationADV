@@ -168,78 +168,18 @@
                     <StackPanel>
                         <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>
-                            <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.PreviewTitle}"/>
+                            <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.PreviewTitle}"/>
                         </StackPanel>
     </Border>
                         <TextBlock Style="{StaticResource Typography.BodySmall}"
                                    Text="{DynamicResource Settings.PreviewCaption}"/>
-                        <Border CornerRadius="{DynamicResource CardCornerRadius}"
-                                Background="{DynamicResource SurfaceSecondaryBrush}"
-                                BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                Margin="0,8,0,0"
-                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
-                            <Grid>
-                                <!-- Crystal Fluid studio preview: a water
-                                     reservoir — WaterFlow moves the level
-                                     live (§60), the family gate keeps it
-                                     invisible under other families.
-                                     Ios-17pm P4e: AUTHORED water control
-                                     (interim CrystalWater retired P4b). -->
-                                <!-- Live CrystalWaterControl removed — TokenStore preview only. -->
-                            <StackPanel Margin="12,10">
-                                <TextBlock Text="{DynamicResource Settings.PreviewModuleCard}"
-                                           FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"
-                                           FontSize="{DynamicResource FontSize.Body}"/>
-                                <TextBlock Text="{DynamicResource Settings.PreviewBody}"
-                                           FontSize="{DynamicResource FontSize.BodySmall}"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                           TextWrapping="Wrap" Margin="0,2,0,8"/>
-                                <UniformGrid Columns="5">
-                                    <Border Padding="9,3" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0"
-                                            Background="{DynamicResource AccentBrush}" Style="{StaticResource SurfacePrimaryStyle}">
-                                        <TextBlock Text="{DynamicResource Settings.PreviewAction}"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                                   HorizontalAlignment="Center"/>
-                                    </Border>
-                                    <Border Padding="9,3" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0"
-                                            Background="{DynamicResource TintGreenBrush}" Style="{StaticResource SurfacePrimaryStyle}">
-                                        <TextBlock Text="{DynamicResource Settings.PreviewOk}"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                                   HorizontalAlignment="Center"/>
-                                    </Border>
-                                    <Border Padding="9,3" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0"
-                                            Background="{DynamicResource TintAmberBrush}" Style="{StaticResource SurfacePrimaryStyle}">
-                                        <TextBlock Text="{DynamicResource Settings.PreviewWarn}"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                                   HorizontalAlignment="Center"/>
-                                    </Border>
-                                    <Border Padding="9,3" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0"
-                                            Background="{DynamicResource TintRedBrush}" Style="{StaticResource SurfacePrimaryStyle}">
-                                        <TextBlock Text="{DynamicResource Settings.PreviewErr}"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                                   HorizontalAlignment="Center"/>
-                                    </Border>
-                                    <Border Padding="9,3" CornerRadius="{DynamicResource Radius.XSmall}"
-                                            Background="{DynamicResource SurfacePrimaryBrush}"
-                                            BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                            BorderThickness="{DynamicResource Border.HairlineThickness}" Style="{StaticResource SurfacePrimaryStyle}">
-                                        <TextBlock Text="{DynamicResource Settings.PreviewKeyline}"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                                   HorizontalAlignment="Center"/>
-                                    </Border>
-                                </UniformGrid>
-                            </StackPanel>
-                            </Grid>
-                        </Border>
+                        <!-- 2026-09-14: the fake sample "module card"
+                             (mock card + 5 demo chips) was removed from the
+                             live preview per owner feedback — the preview
+                             keeps its title + caption and the real controls
+                             below it are the live surface. -->
                     </StackPanel>
                 </Border>
 
@@ -352,13 +292,13 @@
                 <UniformGrid Columns="3" Margin="0,0,0,6">
 
                     <!-- Visual theme -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.LblThemeFamily}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.LblThemeFamily}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
@@ -373,13 +313,13 @@
                     </Border>
 
                     <!-- Font Color (global text colour, 2026-08-25) -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE2B1;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.FontColor}"/>
+            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE792;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.FontColor}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
@@ -436,13 +376,13 @@
                     </Border>
 
                     <!-- Defined card edges: on/off + edge weight (1–100) + colour plate -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE71B;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.DefinedCardEdges}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.DefinedCardEdges}"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
                                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AccentBrush}">
@@ -509,7 +449,7 @@
                     </Border>
 
                     <!-- Gradient surfaces (adaptive-theme depth) -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -535,13 +475,13 @@
                     </Border>
 
                     <!-- Corner radius -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7B3;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.CardCornerRadius}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.CardCornerRadius}"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
                                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AccentBrush}">
@@ -562,13 +502,13 @@
                     </Border>
 
                     <!-- Display density -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE740;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.GrpDensity}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.GrpDensity}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
@@ -582,13 +522,13 @@
 
 
                     <!-- Module-skin frost: blur wallpaper + tinted glass cards -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE2B1;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="Frosted module cards"/>
+            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE792;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="Frosted module cards"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
                                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AccentBrush}">
@@ -648,9 +588,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE771;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="ERP surface levels"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="ERP surface levels"/>
                             </StackPanel>
     </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
@@ -738,9 +678,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A3;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.UIScale}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.UIScale}"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
                                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AccentBrush}">
@@ -771,9 +711,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A5;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.PDFLayout}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.PDFLayout}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
@@ -792,9 +732,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.MotionPerformance}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.MotionPerformance}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
@@ -817,13 +757,13 @@
                 <UniformGrid Columns="3" Margin="0,0,0,6">
 
                     <!-- Accent palette (wide) -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.LblAccent}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.LblAccent}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
@@ -878,13 +818,13 @@
                     </Border>
 
                     <!-- Font family -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE185;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.FontFamily}"/>
+            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.FontFamily}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
@@ -905,9 +845,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D2;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.FontWeightStyle}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.FontWeightStyle}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
@@ -968,9 +908,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xEB9F;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.GlobalWallpaper}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.GlobalWallpaper}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
@@ -1019,9 +959,9 @@
                         <StackPanel>
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B9;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.ModuleWallpapers}"/>
+                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.ModuleWallpapers}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Style="{StaticResource Typography.BodySmall}"
@@ -1039,7 +979,7 @@
                                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                 BorderThickness="{DynamicResource Border.RightBottomHairlineThickness}"
                                                 Padding="4,7"
-                                                Margin="0,0,8,8" Style="{StaticResource SurfacePrimaryStyle}">
+                                                Margin="0,0,12,0" Style="{StaticResource SurfacePrimaryStyle}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
@@ -1124,7 +1064,7 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SurfaceDetailStyle}" Margin="0,0,12,0">
             <StackPanel>
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>
                                 <TextBlock
@@ -1145,9 +1085,12 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SurfaceDetailStyle}" Margin="0,0,12,0">
             <StackPanel>
-                                <TextBlock Text="&#xEAF1;"/>
+                                <TextBlock Text="&#xEAF1;"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.Body}"
+                                           Margin="0,0,6,0"/>
                                 <TextBlock
                                            Text="{DynamicResource Settings.LblCurrency}"/>
                             </StackPanel>
@@ -1168,7 +1111,10 @@
                             <Border 
         Style="{StaticResource SurfaceDetailStyle}">
             <StackPanel>
-                                <TextBlock Text="&#xE717;"/>
+                                <TextBlock Text="&#xE717;"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.Body}"
+                                           Margin="0,0,6,0"/>
                                 <TextBlock
                                            Text="{DynamicResource Settings.LblPhoneCountry}"/>
                             </StackPanel>
@@ -1193,7 +1139,10 @@
                         <Border 
         Style="{StaticResource SurfaceDetailStyle}">
             <StackPanel>
-                            <TextBlock Text="&#xE713;"/>
+                            <TextBlock Text="&#xE713;"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.Body}"
+                                           Margin="0,0,6,0"/>
                             <TextBlock
                                        Text="{DynamicResource Settings.ReducedMotion}"/>
                         </StackPanel>
@@ -1390,9 +1339,9 @@
                     <StackPanel>
                         <Border 
         Style="{StaticResource SurfaceDetailStyle}">
-            <StackPanel>
+            <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE774;"/>
-                            <TextBlock Style="{StaticResource Typography.Title}"
+                            <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center"
                                        Text="{DynamicResource Settings.LocaleFallback}"/>
                         </StackPanel>
     </Border>

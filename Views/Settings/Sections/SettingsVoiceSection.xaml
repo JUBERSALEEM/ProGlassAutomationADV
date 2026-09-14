@@ -72,7 +72,10 @@
                     <Border>
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Text="&#xE720;"/>
+                                <TextBlock Text="&#xE720;"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.Body}"
+                                           Margin="0,0,6,0"/>
                                 <TextBlock Text="{DynamicResource Settings.ChooseModel}"/>
                             </StackPanel>
                             <TextBlock
@@ -193,7 +196,10 @@
                                 </Border>
 
                                 <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                    <TextBlock Text="&#xE720;"/>
+                                    <TextBlock Text="&#xE720;"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.Body}"
+                                           Margin="0,0,6,0"/>
                                     <StackPanel>
                                         <!-- Style is set ONLY via the property-element <TextBlock.Style>.
                                              Do NOT also set Style="…" on the opening tag — WPF rejects

@@ -157,7 +157,7 @@
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
 
-                    <Button x:Name="ActionsMenuButton"
+                    <Button Style="{StaticResource OutlinedPillButton}" x:Name="ActionsMenuButton"
                            
                             Tag="&#xE712;" Content="{DynamicResource Common.Actions}"
                             ToolTip="{DynamicResource TaxInvoice.SaveIssueMarkPaidExportMore}"
@@ -185,40 +185,48 @@
                             </Border.Effect>
                             <StackPanel>
                                 <Button
+                                    Style="{StaticResource PrimaryPillButton}"
                                         Tag="&#xE74E;" Content="{DynamicResource TaxInvoice.SaveCtrlS}"
                                         Command="{Binding SaveCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Button
+                                    Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE72D;" Content="{DynamicResource TaxInvoice.IssueInvoice}"
                                         Command="{Binding IssueCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Button
+                                    Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE8FB;" Content="{DynamicResource TaxInvoice.IssueDrafts}"
                                         Command="{Binding IssueAllCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"
                                         Visibility="{Binding CanIssueAllDrafts,
                                             Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 <Button
+                                    Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE73E;" Content="{DynamicResource TaxInvoice.MarkPaid}"
                                         Command="{Binding MarkPaidCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Button
+                                    Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE81C;" Content="{DynamicResource Common.VersionHistory}"
                                         Command="{Binding ShowVersionsCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource BorderDefaultBrush}"/>
                                 <Button
+                                    Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE8A5;" Content="{DynamicResource DeliveryNote.ExportPDF}"
                                         Command="{Binding ExportPdfCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Button
+                                    Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE72D;" Content="{DynamicResource Sharing.Share}"
                                         Command="{Binding ShareCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource BorderDefaultBrush}"/>
                                 <Button
+                                    Style="{StaticResource DangerButton}"
                                         Tag="&#xE74D;" Content="{DynamicResource TaxInvoice.DeleteInvoice}"
                                         Command="{Binding DeleteCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
