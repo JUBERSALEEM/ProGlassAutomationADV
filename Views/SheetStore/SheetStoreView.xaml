@@ -130,8 +130,8 @@
                          Job Order and Delivery Note. TabPillButton clips. -->
                     <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
                         <Button Command="{Binding ShowGlassCommand}"
-                                Tag="&#xE7B8;" Content="GLASS SHEETS" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                                Tag="&#xE7B8;" Content="GLASS SHEETS" Margin="0,0,10,0">
+                            <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsGlassView}" Value="True">
@@ -142,8 +142,8 @@
                             </Button.Style>
                         </Button>
                         <Button Command="{Binding ShowGlassCommand}"
-                                Tag="&#xE7B8;" Content="GLASS SHEETS" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                                Tag="&#xE7B8;" Content="GLASS SHEETS" Margin="0,0,10,0">
+                            <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsGlassView}" Value="False">
@@ -154,8 +154,8 @@
                             </Button.Style>
                         </Button>
                         <Button Command="{Binding ShowConsumablesCommand}"
-                                Tag="&#xE71D;" Content="CONSUMABLES" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                                Tag="&#xE71D;" Content="CONSUMABLES" Margin="0,0,10,0">
+                            <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsConsumablesView}" Value="True">
@@ -166,8 +166,8 @@
                             </Button.Style>
                         </Button>
                         <Button Command="{Binding ShowConsumablesCommand}"
-                                Tag="&#xE71D;" Content="CONSUMABLES" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                                Tag="&#xE71D;" Content="CONSUMABLES" Margin="0,0,10,0">
+                            <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsConsumablesView}" Value="False">
@@ -474,7 +474,7 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="24,10"
-                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                        SnapsToDevicePixels="True">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="0.45*" MinWidth="36"/>
@@ -509,7 +509,7 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource Border.BoxNoTopThickness}"
                         CornerRadius="{DynamicResource Radius.Bottom.Medium}"
-                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                        SnapsToDevicePixels="True">
                     <Grid>
                         <ListBox ItemsSource="{Binding Sheets}"
                                  ItemContainerStyle="{StaticResource SheetListBoxItemStyle}"
@@ -603,17 +603,17 @@
                                                        VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                             <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="8" Margin="6,0"
                                                     Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                    Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                                    Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Stock}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
                                             </Border>
                                             <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="9" Margin="6,0"
                                                     Background="{DynamicResource TintRedBrush}" CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                    Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                                    Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Used}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource DangerBrush}"/>
                                             </Border>
                                             <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="10" Margin="6,0,0,0"
                                                     Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                    Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                                    Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Balance}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
                                             </Border>
                                         </Grid>
@@ -647,7 +647,7 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="24,10"
-                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                        SnapsToDevicePixels="True">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -668,7 +668,7 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource Border.BoxNoTopThickness}"
                         CornerRadius="{DynamicResource Radius.Bottom.Medium}"
-                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                        SnapsToDevicePixels="True">
                     <Grid>
                         <ListBox ItemsSource="{Binding Items}"
                                  ItemContainerStyle="{StaticResource SheetListBoxItemStyle}"

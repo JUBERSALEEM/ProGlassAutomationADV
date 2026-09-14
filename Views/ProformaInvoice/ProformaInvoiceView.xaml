@@ -141,7 +141,7 @@
                                         Cursor="Hand"
                                         FocusVisualStyle="{x:Null}"
                                         ToolTip="{Binding Subtitle}">
-                                    <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                                    <Button.Template>
                                         <ControlTemplate TargetType="Button">
                                             <Border x:Name="Chip"
                                                     Background="Transparent"

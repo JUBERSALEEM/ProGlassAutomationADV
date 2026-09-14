@@ -525,7 +525,7 @@
                                                             Command="{Binding DataContext.OpenWarningActionCommand,
                                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                             CommandParameter="{Binding}" Style="{StaticResource SecondaryButtonStyle}">
-                                                        <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                                                        <Button.Template>
                                                             <ControlTemplate TargetType="Button">
                                                                 <Border x:Name="bd"
                                                                         Background="{DynamicResource SurfacePrimaryBrush}"

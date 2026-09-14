@@ -71,7 +71,7 @@
                                 Background="Transparent"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="{TemplateBinding Padding}"
-                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                SnapsToDevicePixels="True">
                             <ContentPresenter
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"/>
@@ -113,7 +113,7 @@
         <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0"
                 Background="{DynamicResource SurfacePrimaryBrush}"
                 BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                BorderBrush="{DynamicResource BorderDefaultBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                BorderBrush="{DynamicResource BorderDefaultBrush}">
             <Grid Margin="20,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="38"/>
@@ -462,7 +462,7 @@
                         HorizontalAlignment="Center"
                         FocusVisualStyle="{x:Null}"
                         ToolTip="{DynamicResource Reports.StatementGenerator.CancelReturnStatementList}">
-                    <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                    <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="bd"
                                     Background="Transparent"

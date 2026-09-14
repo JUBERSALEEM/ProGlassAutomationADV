@@ -186,24 +186,24 @@
                                 </Grid.ColumnDefinitions>
 
                                 <!-- CARD 1 — REQUIRED TARGET VALUE -->
-                                <Border Grid.Column="0" Style="{StaticResource JpTileStyle}"
+                                <Border Grid.Column="0"
                                         ToolTip="Base-price required target (DGU formula × uplift). A U-insert covered by the given price or billed separately in Step 6 is shown as information and is never added to the target. Click a row to see that PI's own required target.">
                                     <StackPanel>
-                                        <TextBlock Text="REQUIRED TARGET VALUE" Style="{StaticResource JpTileCaptionStyle}"/>
+                                        <TextBlock Text="REQUIRED TARGET VALUE"/>
                                         <TextBlock Text="{Binding TopRequiredTargetValueDisplay}" FontSize="{StaticResource TextHeadline}"
-                                                   Style="{StaticResource JpTileValueStyle}"/>
-                                        <TextBlock Text="{Binding TopRequiredTargetScope}" Style="{StaticResource JpFootnoteStyle}"/>
+                                                  />
+                                        <TextBlock Text="{Binding TopRequiredTargetScope}"/>
                                     </StackPanel>
                                 </Border>
 
                                 <!-- CARD 2 — EXPECTED PROFIT MARGIN (company default, same as Step 9) -->
-                                <Border Grid.Column="2" Style="{StaticResource JpTileStyle}"
+                                <Border Grid.Column="2"
                                         ToolTip="The company base expected profit margin every PI's achieved margin is judged against (Settings > Features > Proforma Invoice > Step 9).">
                                     <StackPanel>
-                                        <TextBlock Text="EXPECTED PROFIT MARGIN" Style="{StaticResource JpTileCaptionStyle}"/>
+                                        <TextBlock Text="EXPECTED PROFIT MARGIN"/>
                                         <TextBlock Text="{Binding BaseExpectedMarginDisplay}" FontSize="{StaticResource TextHeadline}"
-                                                   Style="{StaticResource JpTileValueStyle}"/>
-                                        <TextBlock Style="{StaticResource JpFootnoteStyle}">
+                                                  />
+                                        <TextBlock>
                                             <Run Text="Uplift "/><Run Text="{Binding BaseExpectedMarginFactorLabel, Mode=OneWay}"/>
                                             <Run Text=" — company default (Step 9)"/>
                                         </TextBlock>
@@ -233,7 +233,7 @@
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="0" Text="MARGIN AGAINST TARGET"
-                                                       Style="{StaticResource JpTileCaptionStyle}"
+                                                      
                                                        VerticalAlignment="Center"/>
                                             <Border Grid.Column="1">
                                                 <Border.Style>
@@ -272,7 +272,7 @@
                                                 </Style>
                                             </TextBlock.Style>
                                         </TextBlock>
-                                        <TextBlock Style="{StaticResource JpFootnoteStyle}">
+                                        <TextBlock>
                                             <Run Text="Given judged vs base price · Step 9 KPI"/>
                                         </TextBlock>
                                     </StackPanel>
@@ -292,7 +292,7 @@
                                         </Style>
                                     </Border.Style>
                                     <StackPanel>
-                                        <TextBlock Text="OVERALL MARGIN" Style="{StaticResource JpTileCaptionStyle}"/>
+                                        <TextBlock Text="OVERALL MARGIN"/>
                                         <TextBlock Text="{Binding TopOverallMarginDisplay}" FontSize="{StaticResource TextHeadline}">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource JpTileValueStyle}">
@@ -362,28 +362,28 @@
                             <UniformGrid Columns="5" Margin="0,10,0,0">
                                 <Border Style="{StaticResource JpChipStyle}" Margin="0,0,4,0">
                                     <StackPanel>
-                                        <TextBlock Text="CONFIRMED JOBS" Style="{StaticResource Typography.Label}"/>
+                                        <TextBlock Text="CONFIRMED JOBS"/>
                                         <TextBlock Text="{Binding ConfirmedJobCountDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>
                                 <Border Style="{StaticResource JpChipStyle}" Margin="4,0">
                                     <StackPanel>
-                                        <TextBlock Text="REQUIRED TARGET" Style="{StaticResource Typography.Label}"/>
+                                        <TextBlock Text="REQUIRED TARGET"/>
                                         <TextBlock Text="{Binding TargetTotalRequiredValueDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>
                                 <Border Style="{StaticResource JpChipStyle}" Margin="4,0">
                                     <StackPanel>
-                                        <TextBlock Text="STEP 5 GIVEN VALUE" Style="{StaticResource Typography.Label}"/>
+                                        <TextBlock Text="STEP 5 GIVEN VALUE"/>
                                         <TextBlock Text="{Binding TargetTotalGivenValueDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>
                                 <Border Style="{StaticResource JpChipStyle}" Margin="4,0">
                                     <StackPanel>
-                                        <TextBlock Text="TOTAL DIFFERENCE" Style="{StaticResource Typography.Label}"/>
+                                        <TextBlock Text="TOTAL DIFFERENCE"/>
                                         <TextBlock Text="{Binding TargetTotalDifferenceValueDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="{DynamicResource Weight.Bold}">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
@@ -511,13 +511,13 @@
                                                 <ColumnDefinition Width="156"/>
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" Text="PROFORMA" Style="{StaticResource JpHeaderCellStyle}"/>
-                                                    <TextBlock Grid.Column="1" Text="CUSTOMER / PROJECT" Style="{StaticResource JpHeaderCellStyle}"/>
-                                                    <TextBlock Grid.Column="2" Text="CONFIRMED" Style="{StaticResource JpHeaderCellStyle}"/>
-                                                    <TextBlock Grid.Column="3" Text="NET" Style="{StaticResource JpHeaderCellStyle}" HorizontalAlignment="Right"/>
-                                                    <TextBlock Grid.Column="4" Text="COST" Style="{StaticResource JpHeaderCellStyle}" HorizontalAlignment="Right"/>
-                                                    <TextBlock Grid.Column="5" Text="PROFIT" Style="{StaticResource JpHeaderCellStyle}" HorizontalAlignment="Right"/>
-                                                    <TextBlock Grid.Column="6" Text="MARGIN VS TARGET" Style="{StaticResource JpHeaderCellStyle}" HorizontalAlignment="Right"/>
-                                                    <TextBlock Grid.Column="7" Text="STATUS" Style="{StaticResource JpHeaderCellStyle}"/>
+                                                    <TextBlock Grid.Column="1" Text="CUSTOMER / PROJECT"/>
+                                                    <TextBlock Grid.Column="2" Text="CONFIRMED"/>
+                                                    <TextBlock Grid.Column="3" Text="NET" HorizontalAlignment="Right"/>
+                                                    <TextBlock Grid.Column="4" Text="COST" HorizontalAlignment="Right"/>
+                                                    <TextBlock Grid.Column="5" Text="PROFIT" HorizontalAlignment="Right"/>
+                                                    <TextBlock Grid.Column="6" Text="MARGIN VS TARGET" HorizontalAlignment="Right"/>
+                                                    <TextBlock Grid.Column="7" Text="STATUS"/>
                                                 </Grid>
                                             </Border>
 
@@ -561,13 +561,13 @@
 
                                                                 <TextBlock Grid.Column="0"
                                                                            Text="{Binding ProformaId}"
-                                                                           Style="{StaticResource JpCellStyle}"
+                                                                          
                                                                            FontWeight="{DynamicResource Weight.SemiBold}"
                                                                            Foreground="{DynamicResource AccentBrush}"/>
 
                                                                 <StackPanel Grid.Column="1" Margin="0,0,8,0">
                                                                     <TextBlock Text="{Binding CustomerName}"
-                                                                               Style="{StaticResource JpCellStyle}"
+                                                                              
                                                                                FontWeight="{DynamicResource Weight.SemiBold}"
                                                                                MaxWidth="340"
                                                                                TextTrimming="CharacterEllipsis"/>
@@ -581,17 +581,17 @@
 
                                                                 <TextBlock Grid.Column="2"
                                                                            Text="{Binding IssueDateDisplay}"
-                                                                           Style="{StaticResource JpCellStyle}"
+                                                                          
                                                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
                                                                 <TextBlock Grid.Column="3"
                                                                            Text="{Binding NetDisplay}"
-                                                                           Style="{StaticResource JpCellStyle}"
+                                                                          
                                                                            HorizontalAlignment="Right"/>
 
                                                                 <TextBlock Grid.Column="4"
                                                                            Text="{Binding CostDisplay}"
-                                                                           Style="{StaticResource JpCellStyle}"
+                                                                          
                                                                            HorizontalAlignment="Right"/>
 
                                                                 <TextBlock Grid.Column="5"

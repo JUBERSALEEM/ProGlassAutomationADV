@@ -216,7 +216,7 @@
                                      the module slabs. -->
                                 <Border Width="64" Height="64"
                                         CornerRadius="{DynamicResource Radius.2XLarge}"
-                                        Background="{DynamicResource LiquidAccentGradient}"
+                                       
                                         BorderBrush="{DynamicResource AboutGlassSlabStroke}"
                                         BorderThickness="1"
                                         SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">

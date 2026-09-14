@@ -211,7 +211,7 @@
 
                             <Button Grid.Column="0" Command="{Binding ChangeViewModeCommand}" CommandParameter="Detail"
                                     Cursor="Hand" Height="40" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" FocusVisualStyle="{x:Null}">
-                                <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                                <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border Background="Transparent" Padding="8,0" SnapsToDevicePixels="True">
                                             <Grid>
@@ -240,7 +240,7 @@
 
                             <Button Grid.Column="1" Command="{Binding ChangeViewModeCommand}" CommandParameter="BySalesman"
                                     Cursor="Hand" Height="40" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" FocusVisualStyle="{x:Null}">
-                                <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                                <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border Background="Transparent" Padding="8,0" SnapsToDevicePixels="True">
                                             <Grid>
@@ -269,7 +269,7 @@
 
                             <Button Grid.Column="2" Command="{Binding ChangeViewModeCommand}" CommandParameter="ByCompany"
                                     Cursor="Hand" Height="40" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" FocusVisualStyle="{x:Null}">
-                                <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                                <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border Background="Transparent" Padding="8,0" SnapsToDevicePixels="True">
                                             <Grid>
@@ -298,7 +298,7 @@
 
                             <Button Grid.Column="3" Command="{Binding ChangeViewModeCommand}" CommandParameter="ByProject"
                                     Cursor="Hand" Height="40" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" FocusVisualStyle="{x:Null}">
-                                <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                                <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border Background="Transparent" Padding="8,0" SnapsToDevicePixels="True">
                                             <Grid>
@@ -358,9 +358,9 @@
                                 <TextBlock Grid.Column="3" Text="{DynamicResource Common.Customer}" Style="{StaticResource ReportHeaderTextStyle}"/>
                                 <TextBlock Grid.Column="4" Text="{DynamicResource Common.Project}" Style="{StaticResource ReportHeaderTextStyle}"/>
                                 <TextBlock Grid.Column="5" Text="{DynamicResource Common.Salesman}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="6" Text="{DynamicResource Common.Status}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="7" Text="{DynamicResource Reports.VatSubmission.NETAmount}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
-                                <TextBlock Grid.Column="8" Text="{DynamicResource Reports.VatSubmission.VAT5}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="6" Text="{DynamicResource Common.Status}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="7" Text="{DynamicResource Reports.VatSubmission.NETAmount}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="8" Text="{DynamicResource Reports.VatSubmission.VAT5}" HorizontalAlignment="Right"/>
                             </Grid>
                         </Border>
 
@@ -373,7 +373,7 @@
                         <!-- Error State -->
                         <Border Grid.Row="1" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
                                 Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20" Style="{StaticResource SurfacePrimaryStyle}">
+                                CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20">
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE783;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Display}" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
                                 <TextBlock Text="{DynamicResource Reports.DeliveryReport.UnableLoadRecords}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
@@ -388,7 +388,7 @@
                                  Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Style="{StaticResource ModuleListRowStyle}" Padding="14,9">
+                                    <Border Padding="14,9">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="0.9*"/>

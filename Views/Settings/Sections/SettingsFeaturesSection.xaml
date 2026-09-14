@@ -65,8 +65,8 @@
             <Button Content="{DynamicResource Module.ProformaInvoice}" Margin="0,0,8,8" MinWidth="130"
                     Command="{Binding DataContext.SwitchFeaturesModuleCommand,
                                 ElementName=SettingsFeaturesRoot}"
-                    CommandParameter="Proforma" Style="{StaticResource SecondaryButtonStyle}">
-                <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                    CommandParameter="Proforma">
+                <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding DataContext.IsProformaFeaturesModule,
@@ -82,8 +82,8 @@
             <Button Content="{DynamicResource Module.Inquiry}" Margin="0,0,8,8" MinWidth="110"
                     Command="{Binding DataContext.SwitchFeaturesModuleCommand,
                                 ElementName=SettingsFeaturesRoot}"
-                    CommandParameter="Inquiry" Style="{StaticResource SecondaryButtonStyle}">
-                <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                    CommandParameter="Inquiry">
+                <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding DataContext.IsInquiryFeaturesModule,
@@ -99,8 +99,8 @@
             <Button Content="{DynamicResource Common.JobOrder}" Margin="0,0,8,8" MinWidth="120"
                     Command="{Binding DataContext.SwitchFeaturesModuleCommand,
                                 ElementName=SettingsFeaturesRoot}"
-                    CommandParameter="JobOrder" Style="{StaticResource SecondaryButtonStyle}">
-                <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                    CommandParameter="JobOrder">
+                <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding DataContext.IsJobOrderFeaturesModule,
@@ -116,8 +116,8 @@
             <Button Content="{DynamicResource Module.DeliveryNote}" Margin="0,0,8,8" MinWidth="130"
                     Command="{Binding DataContext.SwitchFeaturesModuleCommand,
                                 ElementName=SettingsFeaturesRoot}"
-                    CommandParameter="DeliveryNote" Style="{StaticResource SecondaryButtonStyle}">
-                <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                    CommandParameter="DeliveryNote">
+                <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding DataContext.IsDeliveryNoteFeaturesModule,
@@ -133,8 +133,8 @@
             <Button Content="{DynamicResource Module.TaxInvoice}" Margin="0,0,8,8" MinWidth="120"
                     Command="{Binding DataContext.SwitchFeaturesModuleCommand,
                                 ElementName=SettingsFeaturesRoot}"
-                    CommandParameter="TaxInvoice" Style="{StaticResource SecondaryButtonStyle}">
-                <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                    CommandParameter="TaxInvoice">
+                <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding DataContext.IsTaxInvoiceFeaturesModule,

@@ -101,7 +101,7 @@
                             <Button AutomationProperties.AutomationId="Settings.ResetThemeFamily"
                                     Command="{Binding ResetThemeFamilyCommand}"
                                     Content="{DynamicResource Settings.ResetThemeFamily}"
-                                    Style="{StaticResource SettingsActionButtonStyle}"
+                                   
                                     HorizontalAlignment="Stretch"/>
                         </StackPanel>
                     </Border>
@@ -131,8 +131,8 @@
                                         Command="{Binding ApplyThemePresetCommand}"
                                         CommandParameter="Default"
                                         Content="{DynamicResource Settings.ThemePresetDefault}"
-                                        Margin="0,0,8,0" Style="{StaticResource PrimaryButtonStyle}">
-                                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                                        Margin="0,0,8,0">
+                                    <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding ActiveCrystalPreset}" Value="Default">
@@ -147,8 +147,8 @@
                                         Command="{Binding ApplyThemePresetCommand}"
                                         CommandParameter="Calm"
                                         Content="{DynamicResource Settings.ThemePresetCalm}"
-                                        Margin="0,0,8,0" Style="{StaticResource PrimaryButtonStyle}">
-                                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                                        Margin="0,0,8,0">
+                                    <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding ActiveCrystalPreset}" Value="Calm">
@@ -162,8 +162,8 @@
                                 <Button AutomationProperties.AutomationId="Settings.PresetIntense"
                                         Command="{Binding ApplyThemePresetCommand}"
                                         CommandParameter="Intense"
-                                        Content="{DynamicResource Settings.ThemePresetIntense}" Style="{StaticResource PrimaryButtonStyle}">
-                                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                                        Content="{DynamicResource Settings.ThemePresetIntense}">
+                                    <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding ActiveCrystalPreset}" Value="Intense">

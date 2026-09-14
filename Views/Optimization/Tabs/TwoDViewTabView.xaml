@@ -29,7 +29,7 @@
                         </Style>
                     </Grid.Style>
 
-                    <Border Style="{StaticResource OptPanelCard}">
+                    <Border>
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>

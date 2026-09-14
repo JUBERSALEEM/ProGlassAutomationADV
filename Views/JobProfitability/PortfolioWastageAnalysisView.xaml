@@ -89,7 +89,7 @@
 
             <Border Grid.Column="4" Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="TOTAL WASTAGE AREA" FontSize="{DynamicResource FontSize.BodySmall}"
                                FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
@@ -102,7 +102,7 @@
 
             <Border Grid.Column="6" Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="TOTAL WASTAGE CHARGE" FontSize="{DynamicResource FontSize.BodySmall}"
                                FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
@@ -115,7 +115,7 @@
 
             <Border Grid.Column="8" Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="OVERALL WASTAGE %" FontSize="{DynamicResource FontSize.BodySmall}"
                                FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
@@ -131,7 +131,7 @@
         <Border Grid.Row="2" Margin="16,12,16,0"
                 Background="{DynamicResource SurfacePrimaryBrush}"
                 BorderBrush="{DynamicResource BorderDefaultBrush}"
-                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Style="{StaticResource SurfacePrimaryStyle}">
+                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -140,7 +140,7 @@
 
                 <!-- Table Header -->
                 <Border Grid.Row="0" Background="{DynamicResource AccentBrush}"
-                        CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="16,10" Style="{StaticResource SurfacePrimaryStyle}">
+                        CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="16,10">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
@@ -150,11 +150,11 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="GLASS COLOR" Style="{StaticResource Typography.Title}"/>
-                        <TextBlock Grid.Column="1" Text="JOBS" Style="{StaticResource Typography.Title}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="2" Text="TOTAL AREA" Style="{StaticResource Typography.Title}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="3" Text="WASTAGE CHARGE" Style="{StaticResource Typography.Title}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="4" Text="WASTAGE %" Style="{StaticResource Typography.Title}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="0" Text="GLASS COLOR"/>
+                        <TextBlock Grid.Column="1" Text="JOBS" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="2" Text="TOTAL AREA" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="3" Text="WASTAGE CHARGE" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="4" Text="WASTAGE %" HorizontalAlignment="Right"/>
                     </Grid>
                 </Border>
 
@@ -176,16 +176,16 @@
                                         </Grid.ColumnDefinitions>
 
                                         <TextBlock Grid.Column="0" Text="{Binding ColorName}"
-                                                   Style="{StaticResource Typography.DataGrid}" FontWeight="{DynamicResource Weight.SemiBold}"/>
+                                                   FontWeight="{DynamicResource Weight.SemiBold}"/>
 
                                         <TextBlock Grid.Column="1" Text="{Binding JobCount}"
-                                                   Style="{StaticResource Typography.DataGrid}" HorizontalAlignment="Right"/>
+                                                   HorizontalAlignment="Right"/>
 
                                         <TextBlock Grid.Column="2" Text="{Binding TotalAreaDisplay}"
-                                                   Style="{StaticResource Typography.DataGrid}" HorizontalAlignment="Right"/>
+                                                   HorizontalAlignment="Right"/>
 
                                         <TextBlock Grid.Column="3" Text="{Binding TotalChargeDisplay}"
-                                                   Style="{StaticResource Typography.DataGrid}" HorizontalAlignment="Right"
+                                                   HorizontalAlignment="Right"
                                                    Foreground="{DynamicResource DangerBrush}" FontWeight="{DynamicResource Weight.Bold}"/>
 
                                         <TextBlock Grid.Column="4" Text="{Binding WastagePercentDisplay}"

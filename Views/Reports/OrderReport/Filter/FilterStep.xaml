@@ -119,7 +119,7 @@
 
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="REPORT SCOPE · STEP 01"
-                                   Style="{StaticResource SurfacePrimaryStyle}"/>
+                                  />
                         <TextBlock Text="Filter Criteria"
                                    FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
@@ -171,7 +171,7 @@
                                 <Border Width="4" Height="14" CornerRadius="{DynamicResource Radius.XSmall}"
                                         Background="{DynamicResource AccentBrush}"
                                         VerticalAlignment="Center" Margin="0,0,9,0" Style="{StaticResource SurfacePrimaryStyle}"/>
-                                <TextBlock Text="SOURCE SEQUENCE" Style="{StaticResource SurfacePrimaryStyle}"
+                                <TextBlock Text="SOURCE SEQUENCE"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                             <Border Grid.Column="1" Height="1" Background="{DynamicResource BorderDefaultBrush}"
@@ -211,7 +211,7 @@
                                           Text="{Binding FilterCompany, UpdateSourceTrigger=PropertyChanged}"
                                           IsTextSearchEnabled="True"/>
                                 <TextBlock Text="Issuing entity — pre-selected from the Company module."
-                                           Style="{StaticResource SurfacePrimaryStyle}"/>
+                                          />
                             </StackPanel>
 
                             <!-- connector -->
@@ -238,7 +238,7 @@
                                           Text="{Binding FilterSalesman, UpdateSourceTrigger=PropertyChanged}"
                                           IsTextSearchEnabled="True"/>
                                 <TextBlock Text="Scopes the customer list to this sales representative."
-                                           Style="{StaticResource SurfacePrimaryStyle}"/>
+                                          />
                             </StackPanel>
 
                             <!-- connector -->
@@ -265,7 +265,7 @@
                                           Text="{Binding FilterCustomer, UpdateSourceTrigger=PropertyChanged}"
                                           IsTextSearchEnabled="True"/>
                                 <TextBlock Text="Scopes the project list to this customer."
-                                           Style="{StaticResource SurfacePrimaryStyle}"/>
+                                          />
                             </StackPanel>
 
                             <!-- connector -->
@@ -292,7 +292,7 @@
                                           Text="{Binding FilterProject, UpdateSourceTrigger=PropertyChanged}"
                                           IsTextSearchEnabled="True"/>
                                 <TextBlock Text="Specific project — leave empty to include all."
-                                           Style="{StaticResource SurfacePrimaryStyle}"/>
+                                          />
                             </StackPanel>
                         </Grid>
                     </StackPanel>
@@ -317,7 +317,7 @@
                                 <Border Width="4" Height="14" CornerRadius="{DynamicResource Radius.XSmall}"
                                         Background="{DynamicResource AccentBrush}"
                                         VerticalAlignment="Center" Margin="0,0,9,0" Style="{StaticResource SurfacePrimaryStyle}"/>
-                                <TextBlock Text="DATE WINDOW" Style="{StaticResource SurfacePrimaryStyle}"
+                                <TextBlock Text="DATE WINDOW"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                             <Border Grid.Column="1" Height="1" Background="{DynamicResource BorderDefaultBrush}"
@@ -344,7 +344,7 @@
                         </Grid>
 
                         <TextBlock Text="Filters on the proforma issue date. Leave blank for an open-ended window."
-                                   Style="{StaticResource SurfacePrimaryStyle}"/>
+                                  />
                     </StackPanel>
                 </Border>
 
@@ -367,7 +367,7 @@
                                 <Border Width="4" Height="14" CornerRadius="{DynamicResource Radius.XSmall}"
                                         Background="{DynamicResource AccentBrush}"
                                         VerticalAlignment="Center" Margin="0,0,9,0" Style="{StaticResource SurfacePrimaryStyle}"/>
-                                <TextBlock Text="STATUS GATE" Style="{StaticResource SurfacePrimaryStyle}"
+                                <TextBlock Text="STATUS GATE"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                             <Border Grid.Column="1" Height="1" Background="{DynamicResource BorderDefaultBrush}"
@@ -390,7 +390,7 @@
                         </ItemsControl>
 
                         <TextBlock Text="Checked statuses are included. Leave all unchecked to ignore status."
-                                   Style="{StaticResource SurfacePrimaryStyle}" Margin="2,2,0,0"/>
+                                   Margin="2,2,0,0"/>
                     </StackPanel>
                 </Border>
 

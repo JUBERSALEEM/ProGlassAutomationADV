@@ -82,9 +82,9 @@
             <!-- ═══ STEP TITLE ═══ -->
             <StackPanel Grid.Row="0" Margin="0,0,0,20">
                 <TextBlock Text="{DynamicResource Reports.StatementGenerator.StatementReady}"
-                           Style="{StaticResource Typography.Title}"/>
+                          />
                 <TextBlock Text="{DynamicResource Reports.StatementGenerator.MergedPDFReportGeneratedDownloadReview}"
-                           Style="{StaticResource Typography.BodySmall}"/>
+                          />
             </StackPanel>
 
             <!-- ═══ SUCCESS/WARNING BANNER ═══ -->
@@ -346,7 +346,7 @@
                                 <TextBlock Text="{Binding LastAging.Days61To90, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="8" Background="{DynamicResource TintRedBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,8" Style="{StaticResource SurfacePrimaryStyle}">
+                        <Border Grid.Column="8" Background="{DynamicResource TintRedBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,8">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Reports.StatementGenerator.90DAYS}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource DangerBrush}"/>
                                 <TextBlock Text="{Binding LastAging.Days90Plus, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0"/>
@@ -390,9 +390,9 @@
                         <Button Margin="0,0,8,0" Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}"
                                 Command="{Binding PrepareDeliveryNoteCommand}"
                                 ToolTip="{DynamicResource Reports.StatementGenerator.CreateBalanceDeliveryNoteRelatedJobOrder}" Style="{StaticResource PrimaryButtonStyle}">
-                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border Background="{DynamicResource AccentBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,6" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                    <Border Background="{DynamicResource AccentBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,6" SnapsToDevicePixels="True">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="&#xE7F4;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
                                             <TextBlock Text="{DynamicResource Reports.StatementGenerator.PrepareDeliveryNote}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource OnAccentForegroundBrush}" VerticalAlignment="Center"/>
@@ -404,9 +404,9 @@
                         <Button Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}"
                                 Command="{Binding OpenJobOrderCommand}"
                                 ToolTip="{DynamicResource Reports.StatementGenerator.OpenRelatedJobOrderFullSpecificationRowData}" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,6" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                    <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,6" SnapsToDevicePixels="True">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="&#xE8B7;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource AccentBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
                                             <TextBlock Text="{DynamicResource Reports.StatementGenerator.ViewJobOrder}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
@@ -423,12 +423,12 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="14,12" Style="{StaticResource SurfacePrimaryStyle}">
+                        Padding="14,12">
                     <StackPanel>
                         <!-- Tabs -->
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                             <Button Command="{Binding SelectReconciliationTabCommand}" CommandParameter="Included" Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Margin="0,0,6,0" Style="{StaticResource SecondaryButtonStyle}">
-                                <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                                <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border x:Name="bd" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,7">
                                             <Border.Style>
@@ -474,7 +474,7 @@
                             </Button>
 
                             <Button Command="{Binding SelectReconciliationTabCommand}" CommandParameter="Due" Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
-                                <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                                <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border x:Name="bd" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,7">
                                             <Border.Style>
@@ -718,7 +718,7 @@
                             </Border.Background>
                             <StackPanel Orientation="Horizontal">
                                 <Border Width="40" Height="40"
-                                        Background="{DynamicResource SurfacePrimaryBrush}"
+                                       
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Margin="0,0,16,0" Style="{StaticResource SurfacePrimaryStyle}">
                                     <TextBlock Text="&#xE8A5;"
@@ -789,7 +789,7 @@
                             <StackPanel Orientation="Horizontal"
                                         HorizontalAlignment="Center"
                                         Margin="0,10,0,0">
-                                <Border Background="{DynamicResource TintIndigoBrush}"
+                                <Border
                                         BorderBrush="{DynamicResource TintIndigoBrush}"
                                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -799,7 +799,7 @@
                                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                Foreground="{DynamicResource AccentBrush}"/>
                                 </Border>
-                                <Border Background="{DynamicResource TintPurpleBrush}"
+                                <Border
                                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -816,7 +816,7 @@
                                 Command="{Binding DownloadLastPdfCommand}"
                                 Height="52" Margin="24,0,24,12"
                                 Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="bd" CornerRadius="{DynamicResource CardCornerRadius}">
                                         <Border.Background>
@@ -859,7 +859,7 @@
                                 Command="{Binding ShareLastPdfCommand}"
                                 Height="40" Margin="24,0,24,8"
                                 Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="bd"
                                             Background="{DynamicResource SuccessBrush}"
@@ -894,13 +894,13 @@
                                 Command="{Binding CopyPdfPathCommand}"
                                 Height="40" Margin="24,0,24,24"
                                 Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="bd"
                                             Background="{DynamicResource SurfacePrimaryBrush}"
                                             BorderBrush="{DynamicResource BorderDefaultBrush}"
                                             BorderThickness="{DynamicResource CardBorderThickness}"
-                                            CornerRadius="{DynamicResource ControlCornerRadius}" Style="{StaticResource SurfacePrimaryStyle}">
+                                            CornerRadius="{DynamicResource ControlCornerRadius}">
                                         <StackPanel Orientation="Horizontal"
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center">
@@ -928,7 +928,7 @@
                 <!-- ═════════════════════════════════════════════════
                      RIGHT: PDF SECTION BROWSER
                 ═════════════════════════════════════════════════ -->
-                <Border Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}" Padding="0">
+                <Border Grid.Column="2" Padding="0">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -937,12 +937,12 @@
                         </Grid.RowDefinitions>
 
                         <!-- Header -->
-                        <Border Grid.Row="0" Style="{StaticResource Typography.Title}">
+                        <Border Grid.Row="0">
                             <StackPanel Orientation="Horizontal">
                                 <Border Width="36" Height="36"
                                         Background="{DynamicResource SurfacePrimaryBrush}"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
-                                        Margin="0,0,16,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                        Margin="0,0,16,0">
                                     <TextBlock Text="&#xE8F1;"
                                                FontFamily="{DynamicResource FontFamily.Icon}"
                                                FontSize="{DynamicResource FontSize.H2}"
@@ -966,14 +966,14 @@
                         <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1"
                                 BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                Padding="16,10" Style="{StaticResource SurfacePrimaryStyle}">
+                                Padding="16,10">
                             <StackPanel Orientation="Horizontal">
 
                                 <!-- Merged tab -->
                                 <Button Command="{Binding SelectMergedTabCommand}"
                                         Height="36" Padding="14,0" Margin="0,0,6,0"
                                         Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
-                                    <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                                    <Button.Template>
                                         <ControlTemplate TargetType="Button">
                                             <Border x:Name="bd" CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="{TemplateBinding Padding}">
@@ -1049,7 +1049,7 @@
                                 <Button Command="{Binding SelectBalanceTabCommand}"
                                         Height="36" Padding="14,0" Margin="0,0,6,0"
                                         Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
-                                    <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                                    <Button.Template>
                                         <ControlTemplate TargetType="Button">
                                             <Border x:Name="bd" CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="{TemplateBinding Padding}">
@@ -1123,7 +1123,7 @@
                                 <Button Command="{Binding SelectAlertsTabCommand}"
                                         Height="36" Padding="14,0"
                                         Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
-                                    <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                                    <Button.Template>
                                         <ControlTemplate TargetType="Button">
                                             <Border x:Name="bd" CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="{TemplateBinding Padding}">

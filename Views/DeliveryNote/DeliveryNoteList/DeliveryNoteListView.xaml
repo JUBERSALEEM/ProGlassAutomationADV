@@ -18,7 +18,7 @@
         
 
         <DataTemplate x:Key="JoGroupRowTemplate">
-            <Border Style="{StaticResource ModuleListRowStyle}"
+            <Border
                     Cursor="Hand"
                     MinHeight="64"
                     MouseLeftButtonUp="OnGroupRowLeftClick"
@@ -80,7 +80,7 @@
                         </TextBlock>
                         <Border x:Name="ProgressTrack"
                                 CornerRadius="{DynamicResource Radius.XSmall}" Height="6"
-                                Background="{DynamicResource BorderBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                                Background="{DynamicResource BorderBrush}">
                             <Border CornerRadius="{DynamicResource Radius.XSmall}" HorizontalAlignment="Left">
                                 <Border.Style>
                                     <Style TargetType="Border">
@@ -247,7 +247,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <Border Grid.Row="0" Style="{StaticResource ModuleListKpiStripStyle}">
+                <Border Grid.Row="0">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -262,7 +262,7 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintBlueBrush}">
+                            <Border Background="{DynamicResource TintBlueBrush}">
                                 <TextBlock Text="&#xE7B8;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                            Foreground="{DynamicResource AccentBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -272,9 +272,9 @@
                                 <TextBlock Text="{Binding HeroCard1Value}" Style="{StaticResource ModuleListKpiValueStyle}"/>
                             </StackPanel>
                         </StackPanel>
-                        <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+                        <Border Grid.Column="1"/>
                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintAmberBrush}">
+                            <Border Background="{DynamicResource TintAmberBrush}">
                                 <TextBlock Text="&#xE81C;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                            Foreground="{DynamicResource WarningBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -284,9 +284,9 @@
                                 <TextBlock Text="{Binding HeroCard2Value}" Style="{StaticResource ModuleListKpiValueStyle}"/>
                             </StackPanel>
                         </StackPanel>
-                        <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+                        <Border Grid.Column="3"/>
                         <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintAmberBrush}">
+                            <Border Background="{DynamicResource TintAmberBrush}">
                                 <TextBlock Text="&#xE713;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                            Foreground="{DynamicResource WarningBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -296,9 +296,9 @@
                                 <TextBlock Text="{Binding HeroCard3Value}" Style="{StaticResource ModuleListKpiValueStyle}"/>
                             </StackPanel>
                         </StackPanel>
-                        <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+                        <Border Grid.Column="5"/>
                         <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintRedBrush}">
+                            <Border Background="{DynamicResource TintRedBrush}">
                                 <TextBlock Text="&#xE72C;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                            Foreground="{DynamicResource DangerBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -308,9 +308,9 @@
                                 <TextBlock Text="{Binding HeroCard4Value}" Style="{StaticResource ModuleListKpiValueStyle}"/>
                             </StackPanel>
                         </StackPanel>
-                        <Border Grid.Column="7" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+                        <Border Grid.Column="7"/>
                         <StackPanel Grid.Column="8" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintGreenBrush}">
+                            <Border Background="{DynamicResource TintGreenBrush}">
                                 <TextBlock Text="{Binding HeroCard5Icon}" FontSize="{DynamicResource FontSize.H3}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>

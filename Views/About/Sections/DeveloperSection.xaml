@@ -100,7 +100,7 @@
                         <StackPanel Orientation="Horizontal">
                             <!-- 84px vivid gradient squircle + the REAL product icon -->
                             <Border Width="84" Height="84" CornerRadius="{DynamicResource Radius.2XLarge}"
-                                    Background="{DynamicResource LiquidAccentGradient}"
+                                   
                                     BorderBrush="{DynamicResource AboutGlassSlabStroke}"
                                     BorderThickness="1"
                                     SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">

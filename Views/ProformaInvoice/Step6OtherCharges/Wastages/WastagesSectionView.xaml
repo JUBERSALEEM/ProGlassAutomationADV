@@ -63,7 +63,7 @@
 
     <StackPanel>
         <Grid Margin="0,16,0,6">
-            <TextBlock Text="{DynamicResource ProformaInvoice.WastageCharges}" Style="{StaticResource PiBandTitleStyle}" Margin="0"/>
+            <TextBlock Text="{DynamicResource ProformaInvoice.WastageCharges}" Margin="0"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <TextBlock Text="{DynamicResource ProformaInvoice.AutoUseInventory}"
                            FontSize="{DynamicResource FontSize.BodySmall}"
@@ -96,13 +96,13 @@
                     <ColumnDefinition Width="1.6*"/>
                     <ColumnDefinition Width="36"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="{DynamicResource ProformaInvoice.ON}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                <TextBlock Grid.Column="1" Text="{DynamicResource ProformaInvoice.Colour}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                <TextBlock Grid.Column="2" Text="{DynamicResource ProformaInvoice.Source}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                <TextBlock Grid.Column="3" Text="SQM" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                <TextBlock Grid.Column="4" Text="{DynamicResource Common.Rate}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                <TextBlock Grid.Column="5" Text="{DynamicResource ProformaInvoice.Setup}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                <TextBlock Grid.Column="6" Text="{DynamicResource Common.Amount}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                <TextBlock Grid.Column="0" Text="{DynamicResource ProformaInvoice.ON}"/>
+                <TextBlock Grid.Column="1" Text="{DynamicResource ProformaInvoice.Colour}" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Column="2" Text="{DynamicResource ProformaInvoice.Source}" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Column="3" Text="SQM"/>
+                <TextBlock Grid.Column="4" Text="{DynamicResource Common.Rate}"/>
+                <TextBlock Grid.Column="5" Text="{DynamicResource ProformaInvoice.Setup}"/>
+                <TextBlock Grid.Column="6" Text="{DynamicResource Common.Amount}" HorizontalAlignment="Right"/>
             </Grid>
         </Border>
 
@@ -141,7 +141,7 @@
                                                  Margin="0,0,8,0"/>
                                         <TextBlock Grid.Column="1"
                                                    Text="{Binding SideDisplay}"
-                                                   Style="{StaticResource PiFieldLabelStyle}"
+                                                  
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    VerticalAlignment="Center"/>
                                     </Grid>
@@ -394,7 +394,7 @@
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel>
                                                             <TextBlock Text="{DynamicResource ProformaInvoice.SheetWidth}"
-                                                                       Style="{StaticResource PiFieldLabelStyle}"
+                                                                      
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding SelectedSheetWidthText, Mode=OneWay}"
                                                                      Style="{StaticResource SurfacePrimaryStyle}"
@@ -402,7 +402,7 @@
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="2">
                                                             <TextBlock Text="{DynamicResource ProformaInvoice.SheetHeight}"
-                                                                       Style="{StaticResource PiFieldLabelStyle}"
+                                                                      
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding SelectedSheetHeightText, Mode=OneWay}"
                                                                      Style="{StaticResource SurfacePrimaryStyle}"
@@ -410,14 +410,14 @@
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="4">
                                                             <TextBlock Text="{DynamicResource ProformaInvoice.SheetQTY}"
-                                                                       Style="{StaticResource PiFieldLabelStyle}"
+                                                                      
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding SheetQuantityText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                      Style="{StaticResource SurfacePrimaryStyle}"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="6">
                                                             <TextBlock Text="{DynamicResource ProformaInvoice.SheetSQMPrice}"
-                                                                       Style="{StaticResource PiFieldLabelStyle}"
+                                                                      
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding FormulaPricePerSqmText, Mode=OneWay}"
                                                                      Style="{StaticResource SurfacePrimaryStyle}"
@@ -443,7 +443,7 @@
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel>
                                                             <TextBlock Text="{DynamicResource ProformaInvoice.OPT}"
-                                                                       Style="{StaticResource PiFieldLabelStyle}"
+                                                                      
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding OptimizationPercentText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                      Style="{StaticResource SurfacePrimaryStyle}"
@@ -451,7 +451,7 @@
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="2">
                                                             <TextBlock Text="{DynamicResource ProformaInvoice.UtilizedSQM}"
-                                                                       Style="{StaticResource PiFieldLabelStyle}"
+                                                                      
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding UtilizedSqm, StringFormat={}{0:0.00}, Mode=OneWay}"
                                                                      Style="{StaticResource SurfacePrimaryStyle}"

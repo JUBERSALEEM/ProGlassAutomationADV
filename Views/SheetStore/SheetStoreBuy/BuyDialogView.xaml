@@ -106,8 +106,8 @@
                                  VerticalContentAlignment="Center" Height="44"
                                  Background="{DynamicResource DialogInsetBrush}"
                                  Foreground="{DynamicResource TextPrimaryBrush}"
-                                 Margin="8,0" Style="{StaticResource TextBoxStyle}">
-                            <TextBox.Style Style="{StaticResource TextBoxStyle}">
+                                 Margin="8,0">
+                            <TextBox.Style>
                                 <Style TargetType="TextBox">
                                     <Setter Property="BorderThickness" Value="0"/>
                                     <Style.Triggers>

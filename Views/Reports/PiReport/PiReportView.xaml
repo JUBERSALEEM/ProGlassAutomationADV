@@ -244,7 +244,7 @@
                     <!-- Error State -->
                     <Border Grid.Row="1" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
                             Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20" Style="{StaticResource SurfacePrimaryStyle}">
+                            CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                             <TextBlock Text="&#xE783;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Display}" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
                             <TextBlock Text="{DynamicResource Reports.DeliveryReport.UnableLoadRecords}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
@@ -260,7 +260,7 @@
                             <DataTemplate>
                                 <StackPanel>
                                     <!-- Row -->
-                                    <Border Style="{StaticResource ModuleListRowStyle}" Padding="14,9">
+                                    <Border Padding="14,9">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="0.9*"/>
@@ -284,10 +284,10 @@
                                                 <TextBlock Text="{Binding IssueDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,1,0,0"/>
                                                 <!-- Compact warning chips so the state is legible without hover. -->
                                                 <StackPanel Orientation="Horizontal" Margin="0,2,0,0" Visibility="{Binding HasWarning, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                    <Border Background="{DynamicResource TintGrayBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Visibility="{Binding IsDraft, Converter={StaticResource BoolToVisibilityConverter}}" ToolTip="Draft — not yet sent or approved" Style="{StaticResource SurfacePrimaryStyle}">
+                                                    <Border Background="{DynamicResource TintGrayBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Visibility="{Binding IsDraft, Converter={StaticResource BoolToVisibilityConverter}}" ToolTip="Draft — not yet sent or approved">
                                                         <TextBlock Text="DRAFT" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                                     </Border>
-                                                    <Border Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Margin="4,0,0,0" Visibility="{Binding IsMissingLineItems, Converter={StaticResource BoolToVisibilityConverter}}" ToolTip="No glass line items — Step 5 not completed" Style="{StaticResource SurfacePrimaryStyle}">
+                                                    <Border Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Margin="4,0,0,0" Visibility="{Binding IsMissingLineItems, Converter={StaticResource BoolToVisibilityConverter}}" ToolTip="No glass line items — Step 5 not completed">
                                                         <TextBlock Text="NO ITEMS" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
                                                     </Border>
                                                 </StackPanel>

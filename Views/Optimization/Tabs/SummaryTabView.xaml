@@ -92,27 +92,27 @@
                                                                        Visibility="{Binding HasNote, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="1">
-                                                            <TextBlock Text="PIECES" Style="{StaticResource OptHeader}"/>
+                                                            <TextBlock Text="PIECES"/>
                                                             <TextBlock Text="{Binding PieceCount}" FontSize="{DynamicResource FontSize.Body}"
                                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="2">
-                                                            <TextBlock Text="SHEETS" Style="{StaticResource OptHeader}"/>
+                                                            <TextBlock Text="SHEETS"/>
                                                             <TextBlock Text="{Binding Sheets}" FontSize="{DynamicResource FontSize.Body}"
                                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="3">
-                                                            <TextBlock Text="UTILIZATION" Style="{StaticResource OptHeader}"/>
+                                                            <TextBlock Text="UTILIZATION"/>
                                                             <TextBlock Text="{Binding Utilization}" FontSize="{DynamicResource FontSize.Body}"
                                                                        Foreground="{DynamicResource SuccessBrush}"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="4">
-                                                            <TextBlock Text="OFFCUT" Style="{StaticResource OptHeader}"/>
+                                                            <TextBlock Text="OFFCUT"/>
                                                             <TextBlock Text="{Binding Waste}" FontSize="{DynamicResource FontSize.Body}"
                                                                        Foreground="{DynamicResource TextTertiaryBrush}"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="5">
-                                                            <TextBlock Text="UNPLACED" Style="{StaticResource OptHeader}"/>
+                                                            <TextBlock Text="UNPLACED"/>
                                                             <TextBlock Text="{Binding Unplaced}" FontSize="{DynamicResource FontSize.Body}"
                                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                         </StackPanel>
@@ -125,7 +125,7 @@
                                     <TextBlock Text="{Binding ResultStage}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
 
-                                    <TextBlock Text="SHEETS" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
+                                    <TextBlock Text="SHEETS" Margin="0,0,0,6"/>
                                     <Grid Margin="0,0,0,6">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="60"/>
@@ -135,12 +135,12 @@
                                             <ColumnDefinition Width="90"/>
                                             <ColumnDefinition Width="90"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="SHEET" Style="{StaticResource OptHeader}"/>
-                                        <TextBlock Grid.Column="1" Text="GLASS" Style="{StaticResource OptHeader}"/>
-                                        <TextBlock Grid.Column="2" Text="STOCK (MM)" Style="{StaticResource OptHeader}"/>
-                                        <TextBlock Grid.Column="3" Text="PIECES" Style="{StaticResource OptHeader}"/>
-                                        <TextBlock Grid.Column="4" Text="UTILIZATION" Style="{StaticResource OptHeader}"/>
-                                        <TextBlock Grid.Column="5" Text="OFFCUT" Style="{StaticResource OptHeader}"/>
+                                        <TextBlock Grid.Column="0" Text="SHEET"/>
+                                        <TextBlock Grid.Column="1" Text="GLASS"/>
+                                        <TextBlock Grid.Column="2" Text="STOCK (MM)"/>
+                                        <TextBlock Grid.Column="3" Text="PIECES"/>
+                                        <TextBlock Grid.Column="4" Text="UTILIZATION"/>
+                                        <TextBlock Grid.Column="5" Text="OFFCUT"/>
                                     </Grid>
                                     <ItemsControl ItemsSource="{Binding SheetRows}">
                                         <ItemsControl.ItemTemplate>
@@ -149,7 +149,7 @@
                                                         Command="{Binding DataContext.SelectSheetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding Index}"
                                                         ToolTip="Open this sheet in the 2D view" Style="{StaticResource SecondaryButtonStyle}">
-                                                    <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                                                    <Button.Template>
                                                         <ControlTemplate TargetType="Button">
                                                             <Border x:Name="Row" Padding="4,8" BorderThickness="0,0,0,1"
                                                                     BorderBrush="{DynamicResource DividerBrush}">

@@ -70,7 +70,7 @@
                                             CommandParameter="{Binding}"
                                             Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Padding="0"
                                             Margin="0,0,8,4" Cursor="Hand" Style="{StaticResource SecondaryButtonStyle}">
-                                        <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                                        <Button.Template>
                                             <ControlTemplate TargetType="Button">
                                                 <Border x:Name="ChipBorder"
                                                         CornerRadius="{DynamicResource CardCornerRadius}"
@@ -108,7 +108,7 @@
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="10,4"
-                                    Margin="0,0,8,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                    Margin="0,0,8,0">
                                 <TextBlock Text="{Binding CalculationSectionCount}"
                                            FontSize="{DynamicResource FontSize.Body}"
                                            FontWeight="{DynamicResource Weight.Bold}"
@@ -280,7 +280,7 @@
                                 Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Padding="0"
                                 Margin="0,0,8,0" Cursor="Hand" FocusVisualStyle="{x:Null}"
                                 ToolTip="{Binding Description}">
-                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card"
                                             Background="{DynamicResource SurfacePrimaryBrush}"

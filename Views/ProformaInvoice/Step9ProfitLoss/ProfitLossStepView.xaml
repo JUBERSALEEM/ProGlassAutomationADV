@@ -49,10 +49,10 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="09" Style="{StaticResource PiStationCodeStyle}"/>
-                            <TextBlock Text="{DynamicResource ProformaInvoice.ProfitLOSS}" Style="{StaticResource PiStationTitleStyle}"/>
+                            <TextBlock Text="09"/>
+                            <TextBlock Text="{DynamicResource ProformaInvoice.ProfitLOSS}"/>
                             <TextBlock Text="Read top to bottom: decision first, totals second, details last"
-                                       Style="{StaticResource PiStationHintStyle}"/>
+                                      />
                         </StackPanel>
                         <!-- Export toolbar for the cost breakdown (P&L lines) -->
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
@@ -84,20 +84,20 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel>
-                            <TextBlock Text="1 · DECISION" Style="{StaticResource TgtMicroLabelStyle}"/>
-                            <TextBlock Text="Is given price above target?" Style="{StaticResource TgtMicroValueStyle}" TextWrapping="Wrap"/>
+                            <TextBlock Text="1 · DECISION"/>
+                            <TextBlock Text="Is given price above target?" TextWrapping="Wrap"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Margin="14,0,0,0">
-                            <TextBlock Text="2 · MONEY" Style="{StaticResource TgtMicroLabelStyle}"/>
-                            <TextBlock Text="Revenue, glass cost and margin." Style="{StaticResource TgtMicroValueStyle}" TextWrapping="Wrap"/>
+                            <TextBlock Text="2 · MONEY"/>
+                            <TextBlock Text="Revenue, glass cost and margin." TextWrapping="Wrap"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2" Margin="14,0,0,0">
-                            <TextBlock Text="3 · SPEC CHECK" Style="{StaticResource TgtMicroLabelStyle}"/>
-                            <TextBlock Text="Each Step 5 spec stays separate." Style="{StaticResource TgtMicroValueStyle}" TextWrapping="Wrap"/>
+                            <TextBlock Text="3 · SPEC CHECK"/>
+                            <TextBlock Text="Each Step 5 spec stays separate." TextWrapping="Wrap"/>
                         </StackPanel>
                         <StackPanel Grid.Column="3" Margin="14,0,0,0">
-                            <TextBlock Text="4 · EXTRA DETAIL" Style="{StaticResource TgtMicroLabelStyle}"/>
-                            <TextBlock Text="Formulas, rows and exports after the answer." Style="{StaticResource TgtMicroValueStyle}" TextWrapping="Wrap"/>
+                            <TextBlock Text="4 · EXTRA DETAIL"/>
+                            <TextBlock Text="Formulas, rows and exports after the answer." TextWrapping="Wrap"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -118,7 +118,7 @@
 
                     <!-- Wastage % -->
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="{DynamicResource ProformaInvoice.Wastage2}" Style="{StaticResource PiFieldLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource ProformaInvoice.Wastage2}"/>
                         <StackPanel Orientation="Horizontal">
                             <TextBox Text="{Binding WastagePercent,
                                                     Converter={StaticResource DecimalTypingConverter},
@@ -138,7 +138,7 @@
                     <!-- Costing basis -->
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="Cost basis"
-                                   Style="{StaticResource PiFieldLabelStyle}"/>
+                                  />
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,4">
                             <ToggleButton Style="{StaticResource PiToggleSwitch}"
                                           IsChecked="{Binding CostAtSellingPrice}"
@@ -198,7 +198,7 @@
                     </StackPanel>
                 </Grid>
 
-                <TextBlock Text="MAIN DECISION — TARGET, EXPECTED MARGIN, RESULT" Style="{StaticResource TgtSectionLabel}" Margin="0,4,0,8"/>
+                <TextBlock Text="MAIN DECISION — TARGET, EXPECTED MARGIN, RESULT" Margin="0,4,0,8"/>
                 <!-- Main answer first: target price, expected margin, and red/green decision. -->
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -210,9 +210,9 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- CARD 1 — REQUIRED TARGET PRICE -->
-                    <Border Grid.Column="0" Style="{StaticResource TgtCardStyle}">
+                    <Border Grid.Column="0">
                         <StackPanel>
-                            <TextBlock Text="REQUIRED TARGET PRICE" Style="{StaticResource TgtCaptionStyle}"/>
+                            <TextBlock Text="REQUIRED TARGET PRICE"/>
                             <TextBlock Text="{Binding RequiredTargetPriceDisplay}"
                                        FontSize="{StaticResource TextDisplay}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
@@ -224,25 +224,25 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{Binding ExpectedProfitMarginFactorLabel, StringFormat='Specification target {0}'}" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="0" Text="{Binding ExpectedProfitMarginFactorLabel, StringFormat='Specification target {0}'}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding SpecificationTargetAverageDisplay}"
-                                               Style="{StaticResource TgtKvValueStyle}"/>
+                                              />
                                 </Grid>
                                 <Grid Margin="0,6,0,0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Base price (no uplift)" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="0" Text="Base price (no uplift)"/>
                                     <TextBlock Grid.Column="1" Text="{Binding BasePriceAverageDisplay}"
-                                               Style="{StaticResource TgtKvValueStyle}"/>
+                                              />
                                 </Grid>
                                 <Grid Margin="0,6,0,0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="U-insert treatment" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="0" Text="U-insert treatment"/>
                                     <TextBlock Grid.Column="1" Text="{Binding UInsertSummaryDisplay}"
                                                ToolTip="{Binding UInsertSummaryDetail}">
                                         <TextBlock.Style>
@@ -261,9 +261,9 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Basis" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="0" Text="Basis"/>
                                     <TextBlock Grid.Column="1" Text="Area-weighted across specifications"
-                                               Style="{StaticResource TgtKvValueStyle}"
+                                              
                                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                                 </Grid>
                             </StackPanel>
@@ -276,9 +276,9 @@
                          Settings → Features → Proforma Invoice → Step 9 owns
                          the company default; an invoice can pin its own value
                          (captured at creation) via the view-model. -->
-                    <Border Grid.Column="2" Style="{StaticResource TgtCardStyle}">
+                    <Border Grid.Column="2">
                         <StackPanel>
-                            <TextBlock Text="EXPECTED PROFIT MARGIN" Style="{StaticResource TgtCaptionStyle}"/>
+                            <TextBlock Text="EXPECTED PROFIT MARGIN"/>
                             <TextBlock Text="{Binding ExpectedProfitMarginDisplay}"
                                        FontSize="{StaticResource TextDisplay}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
@@ -290,18 +290,18 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Uplift applied to cost basis" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="0" Text="Uplift applied to cost basis"/>
                                     <TextBlock Grid.Column="1" Text="{Binding ExpectedProfitMarginFactorLabel}"
-                                               Style="{StaticResource TgtKvValueStyle}"/>
+                                              />
                                 </Grid>
                                 <Grid Margin="0,6,0,0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Source" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="0" Text="Source"/>
                                     <TextBlock Grid.Column="1" Text="{Binding ExpectedProfitMarginSourceLabel}"
-                                               Style="{StaticResource TgtKvValueStyle}"
+                                              
                                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                                 </Grid>
                             </StackPanel>
@@ -331,7 +331,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="PRICE BALANCE — BASE / TARGET" Style="{StaticResource TgtCaptionStyle}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="0" Text="PRICE BALANCE — BASE / TARGET" VerticalAlignment="Center"/>
                                 <!-- Status pill -->
                                 <Border Grid.Column="1">
                                     <Border.Style>
@@ -360,7 +360,7 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="BASE" Style="{StaticResource TgtMicroLabelStyle}"/>
+                                    <TextBlock Text="BASE"/>
                                     <TextBlock Text="{Binding BaseMarginPercentDisplay}"
                                                FontSize="{StaticResource TextDisplay}" FontWeight="{DynamicResource Weight.Bold}" TextWrapping="Wrap">
                                         <TextBlock.Style>
@@ -379,7 +379,7 @@
                                     </TextBlock>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
-                                    <TextBlock Text="TARGET" Style="{StaticResource TgtMicroLabelStyle}"/>
+                                    <TextBlock Text="TARGET"/>
                                     <TextBlock Text="{Binding TargetMarginPercentDisplay}"
                                                FontSize="{StaticResource TextDisplay}" FontWeight="{DynamicResource Weight.Bold}" TextWrapping="Wrap">
                                         <TextBlock.Style>
@@ -516,7 +516,7 @@
                 <Expander Header="EXTRA DETAIL · calculation summary and formula audit" Margin="0,14,0,0" IsExpanded="True">
                 <Border Style="{StaticResource TgtCardStyle}" Margin="0,8,0,0">
                     <StackPanel>
-                        <TextBlock Text="CALCULATION SUMMARY" Style="{StaticResource TgtCaptionStyle}"/>
+                        <TextBlock Text="CALCULATION SUMMARY"/>
                         <Grid Margin="0,8,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -530,32 +530,32 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel>
-                                <TextBlock Text="GIVEN PRICE SOURCE" Style="{StaticResource TgtMicroLabelStyle}"/>
+                                <TextBlock Text="GIVEN PRICE SOURCE"/>
                                 <TextBlock Text="{Binding GivenPriceSourceLabel}"
-                                           Style="{StaticResource TgtMicroValueStyle}"
+                                          
                                            TextWrapping="Wrap"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="SCOPE" Style="{StaticResource TgtMicroLabelStyle}"/>
+                                <TextBlock Text="SCOPE"/>
                                 <TextBlock Text="{Binding TargetScopeNote}"
-                                           Style="{StaticResource TgtMicroValueStyle}"
+                                          
                                            TextWrapping="Wrap"/>
                             </StackPanel>
                             <StackPanel Grid.Column="4">
-                                <TextBlock Text="TOTAL GIVEN VALUE" Style="{StaticResource TgtMicroLabelStyle}"/>
-                                <TextBlock Text="{Binding TotalGivenValueDisplay}" Style="{StaticResource TgtMicroValueStyle}"/>
+                                <TextBlock Text="TOTAL GIVEN VALUE"/>
+                                <TextBlock Text="{Binding TotalGivenValueDisplay}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="6">
-                                <TextBlock Text="TOTAL REQUIRED TARGET VALUE" Style="{StaticResource TgtMicroLabelStyle}"/>
-                                <TextBlock Text="{Binding TotalRequiredTargetValueDisplay}" Style="{StaticResource TgtMicroValueStyle}"/>
+                                <TextBlock Text="TOTAL REQUIRED TARGET VALUE"/>
+                                <TextBlock Text="{Binding TotalRequiredTargetValueDisplay}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="8">
-                                <TextBlock Text="TOTAL DIFFERENCE" Style="{StaticResource TgtMicroLabelStyle}"/>
-                                <TextBlock Text="{Binding TotalDifferenceValueDisplay}" Style="{StaticResource TgtMicroValueStyle}"/>
+                                <TextBlock Text="TOTAL DIFFERENCE"/>
+                                <TextBlock Text="{Binding TotalDifferenceValueDisplay}"/>
                             </StackPanel>
                         </Grid>
                         <Border Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,12,0,10"/>
-                        <TextBlock Text="SPECIFICATION FORMULAS — STEP 5 SPECS" Style="{StaticResource TgtMicroLabelStyle}" Margin="0,2,0,8"/>
+                        <TextBlock Text="SPECIFICATION FORMULAS — STEP 5 SPECS" Margin="0,2,0,8"/>
                         <Border Style="{StaticResource TgtInsetStyle}" Padding="14,12" Margin="0,0,0,8">
                             <TextBlock Text="{Binding TargetFormulaAllSpecsText}"
                                        FontFamily="Consolas" FontSize="{StaticResource TextBody}"
@@ -590,7 +590,7 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="ACTUAL GLASS COST &amp; RATE CHECK — STEP 4 / STEP 6 SHEET BASIS" Style="{StaticResource TgtSectionLabel}"/>
+                    <TextBlock Text="ACTUAL GLASS COST &amp; RATE CHECK — STEP 4 / STEP 6 SHEET BASIS"/>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
                         <Button Content="CSV" Command="{Binding ExportPnlCsvCommand}" Style="{StaticResource TgtExportButton}" ToolTip="Export only the actual P&amp;L cost rows as CSV."/>
                         <Button Content="EXCEL" Command="{Binding ExportPnlExcelCommand}" Style="{StaticResource TgtExportButton}" ToolTip="Export only the actual P&amp;L cost rows as Excel."/>
@@ -612,15 +612,15 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel>
-                            <TextBlock Text="NET REVENUE (ex-VAT)" Style="{StaticResource TgtMicroLabelStyle}"/>
-                            <TextBlock Text="{Binding NetDisplay}" Style="{StaticResource TgtMicroValueStyle}"/>
+                            <TextBlock Text="NET REVENUE (ex-VAT)"/>
+                            <TextBlock Text="{Binding NetDisplay}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1">
-                            <TextBlock Text="GLASS COST ONLY" Style="{StaticResource TgtMicroLabelStyle}"/>
-                            <TextBlock Text="{Binding TargetProfitabilityCostDisplay}" Style="{StaticResource TgtMicroValueStyle}"/>
+                            <TextBlock Text="GLASS COST ONLY"/>
+                            <TextBlock Text="{Binding TargetProfitabilityCostDisplay}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="{Binding TargetProfitabilityProfitLabel}" Style="{StaticResource TgtMicroLabelStyle}"/>
+                            <TextBlock Text="{Binding TargetProfitabilityProfitLabel}"/>
                             <TextBlock Text="{Binding TargetProfitabilityProfitDisplay}">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock" BasedOn="{StaticResource TgtMicroValueStyle}">
@@ -686,12 +686,12 @@
                                             <ColumnDefinition Width="110"/>
                                             <ColumnDefinition Width="110"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{DynamicResource ProformaInvoice.KIND}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                                        <TextBlock Grid.Column="1" Text="{DynamicResource Common.Description}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                                        <TextBlock Grid.Column="2" Text="{DynamicResource ProformaInvoice.SheetSIZE}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                                        <TextBlock Grid.Column="3" Text="QTY" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                                        <TextBlock Grid.Column="4" Text="{DynamicResource Common.Price}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
-                                        <TextBlock Grid.Column="5" Text="{DynamicResource Common.Amount}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="0" Text="{DynamicResource ProformaInvoice.KIND}" HorizontalAlignment="Left"/>
+                                        <TextBlock Grid.Column="1" Text="{DynamicResource Common.Description}" HorizontalAlignment="Left"/>
+                                        <TextBlock Grid.Column="2" Text="{DynamicResource ProformaInvoice.SheetSIZE}" HorizontalAlignment="Left"/>
+                                        <TextBlock Grid.Column="3" Text="QTY" HorizontalAlignment="Left"/>
+                                        <TextBlock Grid.Column="4" Text="{DynamicResource Common.Price}" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="5" Text="{DynamicResource Common.Amount}" HorizontalAlignment="Right"/>
                                     </Grid>
                                 </Border>
 
@@ -711,23 +711,23 @@
                                                         <ColumnDefinition Width="110"/>
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" Text="{Binding Kind}"
-                                                               Style="{StaticResource PlCellStyle}"
+                                                              
                                                                FontWeight="{DynamicResource Weight.SemiBold}"
                                                                Foreground="{DynamicResource AccentBrush}"/>
                                                     <TextBlock Grid.Column="1" Text="{Binding Description}"
-                                                               Style="{StaticResource PlCellStyle}"
+                                                              
                                                                TextWrapping="Wrap"
                                                                Margin="0,0,12,0"/>
                                                     <TextBlock Grid.Column="2" Text="{Binding SizeDisplay}"
-                                                               Style="{StaticResource PlCellStyle}"
+                                                              
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                                     <TextBlock Grid.Column="3" Text="{Binding QuantityDisplay}"
-                                                               Style="{StaticResource PlCellStyle}"/>
+                                                              />
                                                     <TextBlock Grid.Column="4" Text="{Binding PriceDisplay}"
-                                                               Style="{StaticResource PlCellStyle}"
+                                                              
                                                                HorizontalAlignment="Right"/>
                                                     <TextBlock Grid.Column="5" Text="{Binding AmountDisplay}"
-                                                               Style="{StaticResource PlCellStyle}"
+                                                              
                                                                FontWeight="{DynamicResource Weight.Bold}"
                                                                HorizontalAlignment="Right"/>
                                                 </Grid>
@@ -744,7 +744,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{DynamicResource ProformaInvoice.CheckRATESQM}"
-                                               Style="{StaticResource PiFieldLabelStyle}"
+                                              
                                                VerticalAlignment="Center"
                                                Margin="0,0,10,0"/>
                                     <TextBox Grid.Column="1"
@@ -909,14 +909,14 @@
                                    Foreground="{DynamicResource TextTertiaryBrush}"
                                    TextWrapping="Wrap" Margin="0,0,0,10"/>
 
-                        <Border Style="{StaticResource TgtCardStyle}" Padding="0"
+                        <Border Padding="0"
                                 Visibility="{Binding HasTargetSpecs, Converter={StaticResource BoolToVisibilityConverter}}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <Border Grid.Row="0" Style="{StaticResource PiTableHeaderStyle}">
+                                <Border Grid.Row="0">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="54"/>

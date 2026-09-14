@@ -93,7 +93,7 @@
                         <StackPanel>
 
                             <!-- ── JOB INFORMATION ── -->
-                            <TextBlock Text="JOB INFORMATION" Style="{StaticResource Typography.Label}"/>
+                            <TextBlock Text="JOB INFORMATION"/>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -108,29 +108,29 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Company" Style="{StaticResource Typography.Label}" Margin="0,3"/>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Company" Margin="0,3"/>
                                 <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CompanyName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="16,3" FontWeight="{DynamicResource Weight.SemiBold}"/>
 
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Customer" Style="{StaticResource Typography.Label}" Margin="0,3"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Customer" Margin="0,3"/>
                                 <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding CustomerName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="16,3"/>
 
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Project" Style="{StaticResource Typography.Label}" Margin="0,3"/>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Project" Margin="0,3"/>
                                 <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ProjectName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="16,3"/>
 
-                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Salesman" Style="{StaticResource Typography.Label}" Margin="0,3"/>
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Salesman" Margin="0,3"/>
                                 <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Salesman}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="16,3"/>
 
-                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Issued" Style="{StaticResource Typography.Label}" Margin="0,3"/>
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Issued" Margin="0,3"/>
                                 <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding IssueDateDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="16,3"/>
 
-                                <TextBlock Grid.Row="5" Grid.Column="0" Text="Glass Type" Style="{StaticResource Typography.Label}" Margin="0,3"/>
+                                <TextBlock Grid.Row="5" Grid.Column="0" Text="Glass Type" Margin="0,3"/>
                                 <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding GlassTypeSummary}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" Margin="16,3" FontWeight="{DynamicResource Weight.SemiBold}" TextTrimming="CharacterEllipsis"/>
                             </Grid>
 
-                            <Border Style="{StaticResource DetailDivider}"/>
+                            <Border/>
 
                             <!-- ── TARGET PRICE MODEL (approved KPI) ── -->
-                            <TextBlock Text="TARGET PRICE MODEL" Style="{StaticResource Typography.Label}"/>
+                            <TextBlock Text="TARGET PRICE MODEL"/>
 
                             <!-- Status pill -->
                             <Border HorizontalAlignment="Left" CornerRadius="{DynamicResource Radius.Medium}" Padding="10,4" Margin="0,0,0,10">
@@ -191,15 +191,15 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="Given price (Step 5)" Style="{StaticResource Typography.Label}"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding GivenPricePerSqmDisplay}" Style="{StaticResource Typography.Body}"/>
+                                        <TextBlock Grid.Column="0" Text="Given price (Step 5)"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding GivenPricePerSqmDisplay}"/>
                                     </Grid>
                                     <Grid Margin="0,4">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="Specification target ×1.15" Style="{StaticResource Typography.Label}"/>
+                                        <TextBlock Grid.Column="0" Text="Specification target ×1.15"/>
                                         <TextBlock Grid.Column="1" Text="{Binding SpecificationTargetPerSqmDisplay}"
                                                    FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -210,7 +210,7 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="U-insert applied to target" Style="{StaticResource Typography.Label}"/>
+                                        <TextBlock Grid.Column="0" Text="U-insert applied to target"/>
                                         <TextBlock Grid.Column="1" Text="{Binding AppliedUInsertPerSqmDisplay}"
                                                    FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -221,15 +221,15 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="Required target (final)" Style="{StaticResource Typography.Label}"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding RequiredTargetPerSqmDisplay}" Style="{StaticResource Typography.Body}"/>
+                                        <TextBlock Grid.Column="0" Text="Required target (final)"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding RequiredTargetPerSqmDisplay}"/>
                                     </Grid>
                                     <Grid Margin="0,4">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="U-insert treatment" Style="{StaticResource Typography.Label}"/>
+                                        <TextBlock Grid.Column="0" Text="U-insert treatment"/>
                                         <TextBlock Grid.Column="1" Text="{Binding UInsertTreatmentSummary}"
                                                    FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -242,7 +242,7 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="Difference" Style="{StaticResource Typography.Label}"/>
+                                        <TextBlock Grid.Column="0" Text="Difference"/>
                                         <TextBlock Grid.Column="1" Text="{Binding DifferencePerSqmDisplay}"
                                                    FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -415,10 +415,10 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
 
-                            <Border Style="{StaticResource DetailDivider}"/>
+                            <Border/>
 
                             <!-- ── REVENUE BREAKDOWN ── -->
-                            <TextBlock Text="REVENUE BREAKDOWN" Style="{StaticResource Typography.Label}"/>
+                            <TextBlock Text="REVENUE BREAKDOWN"/>
                             <Border Background="{DynamicResource SurfacePrimaryBrush}"
                                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Medium}" Padding="14,10">
@@ -434,11 +434,11 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
 
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Gross (incl. VAT)" Style="{StaticResource Typography.Label}"/>
-                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding GrossRevenueDisplay}" Style="{StaticResource Typography.Body}"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Gross (incl. VAT)"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding GrossRevenueDisplay}"/>
 
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Less: VAT (5%)" Style="{StaticResource Typography.Label}" Margin="0,4,0,0"/>
-                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding VatAmountDisplay}" Style="{StaticResource Typography.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,4,0,0"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Less: VAT (5%)" Margin="0,4,0,0"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding VatAmountDisplay}" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,4,0,0"/>
 
                                     <Border Grid.Row="2" Grid.ColumnSpan="2" Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,8"/>
 
@@ -448,7 +448,7 @@
                             </Border>
 
                             <!-- ── COST BREAKDOWN ── -->
-                            <TextBlock Text="COST BREAKDOWN" Style="{StaticResource Typography.Label}"/>
+                            <TextBlock Text="COST BREAKDOWN"/>
                             <Border Background="{DynamicResource SurfacePrimaryBrush}"
                                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Medium}" Padding="14,10">
@@ -464,11 +464,11 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
 
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Glass Cost (sheets)" Style="{StaticResource Typography.Label}"/>
-                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding TotalGlassCostDisplay}" Style="{StaticResource Typography.Body}"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Glass Cost (sheets)"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding TotalGlassCostDisplay}"/>
 
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Production Cost (ASP, cutting, tempering)" Style="{StaticResource Typography.Label}" Margin="0,4,0,0"/>
-                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TotalProductionCostDisplay}" Style="{StaticResource Typography.Body}" Margin="0,4,0,0"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Production Cost (ASP, cutting, tempering)" Margin="0,4,0,0"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TotalProductionCostDisplay}" Margin="0,4,0,0"/>
 
                                     <Border Grid.Row="2" Grid.ColumnSpan="2" Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,8"/>
 
@@ -533,7 +533,7 @@
                             </Border>
 
                             <!-- ── 3 MARGINS ── -->
-                            <TextBlock Text="MARGIN ANALYSIS" Style="{StaticResource Typography.Label}"/>
+                            <TextBlock Text="MARGIN ANALYSIS"/>
                             <Border Background="{DynamicResource SurfacePrimaryBrush}"
                                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Medium}" Padding="14,10">

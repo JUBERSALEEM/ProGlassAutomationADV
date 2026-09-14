@@ -114,7 +114,7 @@
                     FocusVisualStyle="{x:Null}"
                     ToolTip="{Binding TabSubtitle}"
                     AutomationProperties.Name="{Binding TabTitle}">
-                <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                <Button.Template>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Pill"
                                 Background="Transparent"

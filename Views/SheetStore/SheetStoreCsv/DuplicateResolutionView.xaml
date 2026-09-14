@@ -85,18 +85,18 @@
                                HorizontalAlignment="Center"/>
                 </Border>
                 <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0" Grid.Column="1" Background="{DynamicResource AccentBrush}" Padding="10,10">
-                    <TextBlock Text="{DynamicResource SheetStore.ExistingDB}" Style="{StaticResource Typography.Label}"/>
+                    <TextBlock Text="{DynamicResource SheetStore.ExistingDB}"/>
                 </Border>
                 <Border Grid.Row="0" Grid.Column="2" Background="{DynamicResource WarningBrush}" Padding="10,10"
                         CornerRadius="{DynamicResource Radius.Medium}">
-                    <TextBlock Text="{DynamicResource SheetStore.IncomingCSV}" Style="{StaticResource Typography.Label}"/>
+                    <TextBlock Text="{DynamicResource SheetStore.IncomingCSV}"/>
                 </Border>
 
                 <!-- Purchase Price -->
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource SheetStore.PurchaseSQM}" Style="{StaticResource Typography.Label}"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource SheetStore.PurchaseSQM}"/>
                 <TextBlock Grid.Row="1" Grid.Column="1"
                            Text="{Binding Existing.PurchasePricePerSqm, StringFormat={}{0:0.##}}"
-                           Style="{StaticResource Typography.Body}"/>
+                          />
                 <TextBlock Grid.Row="1" Grid.Column="2"
                            Text="{Binding Incoming.PurchasePricePerSqm, StringFormat={}{0:0.##}}">
                     <TextBlock.Style>
@@ -112,10 +112,10 @@
                 </TextBlock>
 
                 <!-- Sell Price -->
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource SheetStore.SELLSQM}" Style="{StaticResource Typography.Label}"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource SheetStore.SELLSQM}"/>
                 <TextBlock Grid.Row="2" Grid.Column="1"
                            Text="{Binding Existing.SellPricePerSqm, StringFormat={}{0:0.##}}"
-                           Style="{StaticResource Typography.Body}"/>
+                          />
                 <TextBlock Grid.Row="2" Grid.Column="2"
                            Text="{Binding Incoming.SellPricePerSqm, StringFormat={}{0:0.##}}">
                     <TextBlock.Style>
@@ -131,10 +131,10 @@
                 </TextBlock>
 
                 <!-- Stock -->
-                <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource SheetStore.Stock}" Style="{StaticResource Typography.Label}"/>
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource SheetStore.Stock}"/>
                 <TextBlock Grid.Row="3" Grid.Column="1"
                            Text="{Binding Existing.Stock}"
-                           Style="{StaticResource Typography.Body}"/>
+                          />
                 <TextBlock Grid.Row="3" Grid.Column="2"
                            Text="{Binding Incoming.Stock}">
                     <TextBlock.Style>

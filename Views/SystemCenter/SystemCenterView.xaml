@@ -189,23 +189,23 @@
                                        VerticalAlignment="Center"/>
                         </StackPanel>
 
-                        <TextBlock Text="{DynamicResource Login.Username}" Style="{StaticResource Typography.Label}"/>
+                        <TextBlock Text="{DynamicResource Login.Username}"/>
                         <TextBox Style="{StaticResource ScTextBox}"
                                  Text="{Binding NewUsername, UpdateSourceTrigger=PropertyChanged}"/>
 
-                        <TextBlock Text="{DynamicResource Login.DisplayNAME}" Style="{StaticResource Typography.Label}"
+                        <TextBlock Text="{DynamicResource Login.DisplayNAME}"
                                    Margin="0,8,0,4"/>
                         <TextBox Style="{StaticResource ScTextBox}"
                                  Text="{Binding NewDisplayName, UpdateSourceTrigger=PropertyChanged}"/>
 
-                        <TextBlock Text="{DynamicResource SystemCenter.ROLE}" Style="{StaticResource Typography.Label}"
+                        <TextBlock Text="{DynamicResource SystemCenter.ROLE}"
                                    Margin="0,8,0,4"/>
                         <ComboBox ItemsSource="{Binding RoleOptions}"
                                   SelectedItem="{Binding SelectedRole}"
                                   Padding="10,7"
                                   FontSize="{StaticResource TextBodyLarge}"/>
 
-                        <TextBlock Text="{DynamicResource Login.Password}" Style="{StaticResource Typography.Label}"
+                        <TextBlock Text="{DynamicResource Login.Password}"
                                    Margin="0,8,0,4"/>
                         <PasswordBox x:Name="NewPasswordBox"
                                      Padding="10,6"
@@ -254,11 +254,11 @@
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    Margin="0,0,0,8"/>
 
-                        <TextBlock Text="{DynamicResource Login.Username}" Style="{StaticResource Typography.Label}"/>
+                        <TextBlock Text="{DynamicResource Login.Username}"/>
                         <TextBox Style="{StaticResource ScTextBox}"
                                  Text="{Binding SwitchUsername, UpdateSourceTrigger=PropertyChanged}"/>
 
-                        <TextBlock Text="{DynamicResource Login.Password}" Style="{StaticResource Typography.Label}"
+                        <TextBlock Text="{DynamicResource Login.Password}"
                                    Margin="0,8,0,4"/>
                         <PasswordBox x:Name="SwitchPasswordBox"
                                      Padding="10,6"
@@ -385,13 +385,13 @@
                                 <ColumnDefinition Width="90"/>
                                 <ColumnDefinition Width="150"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{DynamicResource SystemCenter.USER}" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="0" Text="{DynamicResource SystemCenter.USER}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                             <TextBlock Grid.Column="1" Text="{DynamicResource SystemCenter.ROLEPermissions}"
-                                       Margin="12,0,0,0" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                       Margin="12,0,0,0" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                             <TextBlock Grid.Column="2" Text="{DynamicResource Common.Status}"
-                                       HorizontalAlignment="Center" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                       HorizontalAlignment="Center" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                             <TextBlock Grid.Column="3" Text="{DynamicResource Shared.Action}"
-                                       HorizontalAlignment="Center" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                       HorizontalAlignment="Center" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         </Grid>
                     </Border>
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"

@@ -61,9 +61,9 @@
                         SnapsToDevicePixels="True">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <TextBlock Text="QUANTITY" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBlock Text="QUANTITY"/>
                             <TextBlock Text="{Binding UomLabel}" Margin="6,0,0,0"
-                                       Style="{StaticResource FieldLabelStyle}"
+                                      
                                        Foreground="{DynamicResource AccentBrush}"/>
                         </StackPanel>
 
@@ -127,7 +127,7 @@
                         </Style>
                     </Border.Style>
                     <StackPanel>
-                        <TextBlock Text="UNIT PRICE (AED)" Style="{StaticResource FieldLabelStyle}"
+                        <TextBlock Text="UNIT PRICE (AED)"
                                    Margin="0,0,0,8"/>
                         <TextBox Text="{Binding UnitPriceText, UpdateSourceTrigger=PropertyChanged}"
                                  behaviors:TextBoxBehaviors.SelectAllOnFocus="True"

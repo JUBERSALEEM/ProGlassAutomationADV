@@ -106,12 +106,12 @@
                                                         <TextBlock Text="&#xE8A5;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                                                    VerticalAlignment="Center"/>
                                                         <TextBlock Text="{Binding InvoiceNumber}"
-                                                                   Style="{StaticResource FamilyInvoiceNumberStyle}"/>
+                                                                  />
 
                                                         <!-- Editing badge -->
                                                         <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="6,1"
                                                                 Margin="6,0,0,0"
-                                                                Background="{DynamicResource SuccessBrush}"
+                                                               
                                                                 VerticalAlignment="Center"
                                                                 Visibility="{Binding IsCurrentInvoice,
                                                                     Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
@@ -122,7 +122,7 @@
                                                         <!-- Attachment count badge -->
                                                         <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1"
                                                                 Margin="5,0,0,0"
-                                                                Background="{DynamicResource TintIndigoBrush}"
+                                                               
                                                                 VerticalAlignment="Center"
                                                                 Visibility="{Binding HasAttachments,
                                                                     Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">

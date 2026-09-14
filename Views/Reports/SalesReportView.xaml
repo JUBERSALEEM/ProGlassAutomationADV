@@ -207,7 +207,7 @@
                                 BorderThickness="{DynamicResource Border.NoneThickness}"
                                 Cursor="Hand"
                                 ToolTip="{DynamicResource Reports.CollapseNavigationRail}"
-                                Command="{Binding ToggleRailCommand}" Style="{StaticResource SecondaryButtonStyle}">
+                                Command="{Binding ToggleRailCommand}">
                             <TextBlock Text="&#xE76B;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Title}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Button>
                     </Grid>
@@ -219,7 +219,7 @@
 
                         <!-- ═══════════════════════════════════════════════
                              DATA-DRIVEN HUB RAIL (2026-09-02)
-                             Was SIX hand-copied ~26-line <Button Style="{StaticResource SecondaryButtonStyle}"> blocks that
+                             Was SIX hand-copied ~26-line <Button> blocks that
                              differed only by icon / title / subtitle / key.
                              They had already drifted from the view model's
                              NavItems list, which nothing was bound to: it
@@ -253,8 +253,8 @@
 
                                         <Button Command="{Binding DataContext.NavigateReportCommand,
                                                           RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding Key}" Style="{StaticResource SecondaryButtonStyle}">
-                                            <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                                                CommandParameter="{Binding Key}">
+                                            <Button.Style>
                                                 <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                                     <Style.Triggers>
                                                         <DataTrigger Value="True">
@@ -479,7 +479,7 @@
 
                         <!-- Proforma Invoice -->
                         <Button Grid.Column="0" Command="{Binding NavigateReportCommand}" CommandParameter="Pi" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenProformaInvoiceReport}" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                         <StackPanel>
@@ -507,7 +507,7 @@
 
                         <!-- Job Order -->
                         <Button Grid.Column="2" Command="{Binding NavigateReportCommand}" CommandParameter="Jo" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenJobOrderReport}" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                         <StackPanel>
@@ -535,7 +535,7 @@
 
                         <!-- Delivery -->
                         <Button Grid.Column="4" Command="{Binding NavigateReportCommand}" CommandParameter="Delivery" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenDeliveryReport}" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                         <StackPanel>
@@ -563,7 +563,7 @@
 
                         <!-- Tax Invoice -->
                         <Button Grid.Column="6" Command="{Binding NavigateReportCommand}" CommandParameter="TaxInvoice" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenTaxInvoiceReport}" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                         <StackPanel>
@@ -591,7 +591,7 @@
 
                         <!-- Statement -->
                         <Button Grid.Column="8" Command="{Binding NavigateReportCommand}" CommandParameter="Statement" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenStatementReport}" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                         <StackPanel>
@@ -635,7 +635,7 @@
 
                         <!-- Customers -->
                         <Button Grid.Column="0" Command="{Binding NavigateReportCommand}" CommandParameter="Customer" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.Nav.CustomersSub}" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                         <StackPanel>
@@ -662,7 +662,7 @@
 
                         <!-- Salesmen -->
                         <Button Grid.Column="2" Command="{Binding NavigateReportCommand}" CommandParameter="Salesman" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.Nav.SalesmenSub}" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                         <StackPanel>
@@ -689,7 +689,7 @@
 
                         <!-- Outstanding -->
                         <Button Grid.Column="4" Command="{Binding NavigateReportCommand}" CommandParameter="Customer" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Common.Outstanding}" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                         <StackPanel>
@@ -731,7 +731,7 @@
 
                         <!-- Companies -->
                         <Button Grid.Column="0" Command="{Binding NavigateReportCommand}" CommandParameter="Company" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.Nav.CompaniesSub}" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                         <StackPanel>
@@ -758,7 +758,7 @@
 
                         <!-- Projects -->
                         <Button Grid.Column="2" Command="{Binding NavigateReportCommand}" CommandParameter="Project" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.Nav.ProjectsSub}" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                         <StackPanel>

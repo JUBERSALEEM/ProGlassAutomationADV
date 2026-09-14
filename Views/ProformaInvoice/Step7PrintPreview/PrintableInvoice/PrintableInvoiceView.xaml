@@ -880,9 +880,9 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{DynamicResource ProformaInvoice.Discount}" Style="{StaticResource PrintValueStyle}" Foreground="{DynamicResource DangerBrush}"/>
+                        <TextBlock Grid.Column="0" Text="{DynamicResource ProformaInvoice.Discount}" Foreground="{DynamicResource DangerBrush}"/>
                         <TextBlock Grid.Column="1" Text="{Binding MainSummary.DiscountAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=minus}"
-                                   Style="{StaticResource PrintValueStyle}" Foreground="{DynamicResource DangerBrush}" Margin="16,0,0,0"/>
+                                   Foreground="{DynamicResource DangerBrush}" Margin="16,0,0,0"/>
                     </Grid>
 
                     <!-- VAT (conditional) -->
@@ -902,12 +902,12 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Orientation="Horizontal">
-                            <TextBlock Text="{DynamicResource ProformaInvoice.StandardUAEVAT}" Style="{StaticResource PrintValueStyle}"/>
-                            <TextBlock Text="{Binding MainSummary.VatPercent, StringFormat={}{0:0.##}}" Style="{StaticResource PrintValueStyle}"/>
-                            <TextBlock Text="%):" Style="{StaticResource PrintValueStyle}"/>
+                            <TextBlock Text="{DynamicResource ProformaInvoice.StandardUAEVAT}"/>
+                            <TextBlock Text="{Binding MainSummary.VatPercent, StringFormat={}{0:0.##}}"/>
+                            <TextBlock Text="%):"/>
                         </StackPanel>
                         <TextBlock Grid.Column="1" Text="{Binding MainSummary.VatAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=suffix}"
-                                   Style="{StaticResource PrintValueStyle}" Margin="16,0,0,0"/>
+                                   Margin="16,0,0,0"/>
                     </Grid>
 
                     <!-- Grand Total Bar -->
@@ -961,12 +961,12 @@
                                     </StackPanel.Style>
 
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Order}" Style="{StaticResource TncTitleStyle}"/>
-                                        <TextBlock Text=". " Style="{StaticResource TncTitleStyle}"/>
-                                        <TextBlock Text="{Binding Title}" Style="{StaticResource TncTitleStyle}"/>
+                                        <TextBlock Text="{Binding Order}"/>
+                                        <TextBlock Text=". "/>
+                                        <TextBlock Text="{Binding Title}"/>
                                     </StackPanel>
 
-                                    <TextBlock Text="{Binding Body}" Style="{StaticResource TncBodyStyle}"/>
+                                    <TextBlock Text="{Binding Body}"/>
 
                                     <ItemsControl ItemsSource="{Binding SubLines}" Margin="24,3,0,0">
                                         <ItemsControl.ItemTemplate>

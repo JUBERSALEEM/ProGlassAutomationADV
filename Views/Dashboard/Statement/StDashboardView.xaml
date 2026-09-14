@@ -363,9 +363,9 @@
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="{DynamicResource Dashboard.StatementPulse}"
-                                           Style="{StaticResource DbSectionTitleStyle}"/>
+                                          />
                                 <TextBlock Text="{DynamicResource Dashboard.StatementsInvoicedOutstandingOverdue}"
-                                           Style="{StaticResource DbSectionSubStyle}"/>
+                                          />
                             </StackPanel>
                             <ItemsControl Style="{StaticResource DbKpiBandStyle}"
                                           ItemsSource="{Binding KpiCards}"
@@ -378,9 +378,9 @@
                             Margin="0,0,18,0">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Dashboard.CollectionMix}"
-                                       Style="{StaticResource DbSectionTitleStyle}"/>
+                                      />
                             <TextBlock Text="{DynamicResource Dashboard.CollectedVsOutstandingVsOverdue}"
-                                       Style="{StaticResource DbSectionSubStyle}"/>
+                                      />
                             <donut:DonutChartControl Height="150"
                                                      Slices="{Binding BalanceMixSlices}"
                                                      HoleLabel="AED"
@@ -392,7 +392,7 @@
                     <Border Grid.Column="2" Style="{StaticResource DbCardStyle}" Padding="16,12">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Common.Overdue}"
-                                       Style="{StaticResource DbKpiLabelStyle}"/>
+                                      />
                             <Viewbox HorizontalAlignment="Left" Stretch="Uniform"
                                      StretchDirection="DownOnly" Margin="0,8,0,4">
                                 <TextBlock Text="{Binding OverdueAmountDisplay}" Margin="0">

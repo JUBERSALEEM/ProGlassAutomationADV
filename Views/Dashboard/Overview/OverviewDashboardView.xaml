@@ -175,7 +175,7 @@
                     <DockPanel>
                         <TextBlock DockPanel.Dock="Top"
                                    Text="{DynamicResource Dashboard.PipelineVolumeConfirmation}"
-                                   Style="{StaticResource DbSectionTitleStyle}"
+                                  
                                    Margin="0,0,0,12"/>
                         <ItemsControl Style="{StaticResource DbPipelineItemsStyle}"
                                       ItemsSource="{Binding WorkflowStages}"
@@ -202,15 +202,15 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Dashboard.FactoryPulse}"
-                                           Style="{StaticResource DbSectionTitleStyle}"/>
+                                          />
                                 <Viewbox HorizontalAlignment="Left" Stretch="Uniform"
                                          StretchDirection="DownOnly" Margin="0,8,12,4">
                                     <TextBlock Text="{Binding PulseDisplay}"
-                                               Style="{StaticResource DbKpiValueStyle}"
+                                              
                                                Margin="0"/>
                                 </Viewbox>
                                 <TextBlock Text="{Binding PulseHint}"
-                                           Style="{StaticResource DbKpiFootStyle}"/>
+                                          />
                             </StackPanel>
                             <mini:MiniBarChartControl Grid.Column="1"
                                                       Height="72"
@@ -226,9 +226,9 @@
                             Margin="0,0,18,0">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Dashboard.DeliveryMix}"
-                                       Style="{StaticResource DbSectionTitleStyle}"/>
+                                      />
                             <TextBlock Text="{DynamicResource Dashboard.NotesRemainingPcs}"
-                                       Style="{StaticResource DbSectionSubStyle}"/>
+                                      />
                             <donut:DonutChartControl Height="150"
                                                      Slices="{Binding DeliveryMixSlices}"
                                                      HoleLabel="MIX"
@@ -241,16 +241,16 @@
                         <Border Style="{StaticResource DbCardStyle}" Margin="0,0,0,18" Padding="16,12">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Dashboard.Production}"
-                                           Style="{StaticResource DbKpiLabelStyle}"/>
+                                          />
                                 <TextBlock Text="{Binding InProductionDisplay}"
-                                           Style="{StaticResource DbKpiValueStyle}"
+                                          
                                            Foreground="{DynamicResource InfoBrush}"/>
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource DbCardStyle}" Margin="0,0,0,18" Padding="16,12">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Common.Overdue}"
-                                           Style="{StaticResource DbKpiLabelStyle}"/>
+                                          />
                                 <TextBlock Text="{Binding OverdueDisplay}">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock" BasedOn="{StaticResource DbKpiValueStyle}">

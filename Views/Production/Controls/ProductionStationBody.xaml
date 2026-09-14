@@ -5,7 +5,7 @@
              FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
-    <Border Style="{StaticResource ModuleListShellStyle}" Margin="24,0,24,20">
+    <Border Margin="24,0,24,20">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -38,12 +38,12 @@
                               VirtualizingPanel.ScrollUnit="Pixel"
                               ScrollViewer.CanContentScroll="True"
                               ScrollViewer.ScrollChanged="MasterGrid_ScrollChanged">
-                        <DataGrid.InputBindings Style="{StaticResource DataGridStyle}">
+                        <DataGrid.InputBindings>
                             <MouseBinding MouseAction="LeftDoubleClick"
                                           Command="{Binding OpenUnitCommand}"
                                           CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
                         </DataGrid.InputBindings>
-                        <DataGrid.Columns Style="{StaticResource DataGridStyle}">
+                        <DataGrid.Columns>
                             <DataGridTemplateColumn Header="#" Width="44">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>

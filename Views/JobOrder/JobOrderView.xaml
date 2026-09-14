@@ -62,8 +62,8 @@
                 <Button Command="{Binding SwitchTabCommand}"
                         CommandParameter="Workspace"
                         Tag="&#xE8B7;" Content="{DynamicResource Common.Workspace}"
-                        ToolTip="{DynamicResource DeliveryNote.OpenDocumentWorkspace}" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                        ToolTip="{DynamicResource DeliveryNote.OpenDocumentWorkspace}" Margin="0,0,10,0">
+                    <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsWorkspaceTab}" Value="True">
@@ -76,8 +76,8 @@
                 <Button Command="{Binding SwitchTabCommand}"
                         CommandParameter="Workspace"
                         Tag="&#xE8B7;" Content="{DynamicResource Common.Workspace}"
-                        ToolTip="{DynamicResource DeliveryNote.OpenDocumentWorkspace}" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                        ToolTip="{DynamicResource DeliveryNote.OpenDocumentWorkspace}" Margin="0,0,10,0">
+                    <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsWorkspaceTab}" Value="False">
@@ -92,8 +92,8 @@
                 <Button Command="{Binding SwitchTabCommand}"
                         CommandParameter="GodView"
                         Tag="&#xE774;" Content="{DynamicResource DeliveryNote.GODVIEW}"
-                        ToolTip="{DynamicResource DeliveryNote.CrossDocumentOverview}" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                        ToolTip="{DynamicResource DeliveryNote.CrossDocumentOverview}" Margin="0,0,10,0">
+                    <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsGodViewTab}" Value="True">
@@ -106,8 +106,8 @@
                 <Button Command="{Binding SwitchTabCommand}"
                         CommandParameter="GodView"
                         Tag="&#xE774;" Content="{DynamicResource DeliveryNote.GODVIEW}"
-                        ToolTip="{DynamicResource DeliveryNote.CrossDocumentOverview}" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                        ToolTip="{DynamicResource DeliveryNote.CrossDocumentOverview}" Margin="0,0,10,0">
+                    <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsGodViewTab}" Value="False">
@@ -122,8 +122,8 @@
                 <Button Command="{Binding SwitchTabCommand}"
                         CommandParameter="Activity"
                         Tag="&#xE81C;" Content="{DynamicResource Common.Activity}"
-                        ToolTip="{DynamicResource DeliveryNote.ActivityTrailModule}" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                        ToolTip="{DynamicResource DeliveryNote.ActivityTrailModule}" Margin="0,0,10,0">
+                    <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsActivityTab}" Value="True">
@@ -136,8 +136,8 @@
                 <Button Command="{Binding SwitchTabCommand}"
                         CommandParameter="Activity"
                         Tag="&#xE81C;" Content="{DynamicResource Common.Activity}"
-                        ToolTip="{DynamicResource DeliveryNote.ActivityTrailModule}" Margin="0,0,10,0" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                        ToolTip="{DynamicResource DeliveryNote.ActivityTrailModule}" Margin="0,0,10,0">
+                    <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsActivityTab}" Value="False">

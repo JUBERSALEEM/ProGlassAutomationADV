@@ -255,7 +255,7 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <TextBlock Text="{DynamicResource ProformaInvoice.PredefinedCharges}" Style="{StaticResource PiBandTitleStyle}" Margin="0,4,0,6"/>
+                <TextBlock Text="{DynamicResource ProformaInvoice.PredefinedCharges}" Margin="0,4,0,6"/>
 
                 <Border Style="{StaticResource PiTableHeaderStyle}">
                     <Grid>
@@ -267,12 +267,12 @@
                             <ColumnDefinition Width="0.9*"/>
                             <ColumnDefinition Width="1.8*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{DynamicResource ProformaInvoice.ON}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="1" Text="{DynamicResource ProformaInvoice.Charge}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                        <TextBlock Grid.Column="2" Text="{DynamicResource ProformaInvoice.Basis}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                        <TextBlock Grid.Column="3" Text="QTY" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="4" Text="{DynamicResource Common.Rate}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="5" Text="{DynamicResource ProformaInvoice.Result}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="0" Text="{DynamicResource ProformaInvoice.ON}"/>
+                        <TextBlock Grid.Column="1" Text="{DynamicResource ProformaInvoice.Charge}" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Column="2" Text="{DynamicResource ProformaInvoice.Basis}" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Column="3" Text="QTY"/>
+                        <TextBlock Grid.Column="4" Text="{DynamicResource Common.Rate}"/>
+                        <TextBlock Grid.Column="5" Text="{DynamicResource ProformaInvoice.Result}" HorizontalAlignment="Right"/>
                     </Grid>
                 </Border>
 
@@ -356,8 +356,8 @@
                                                           IsEnabled="{Binding IsActive}"
                                                           Height="28"
                                                           VerticalContentAlignment="Center"
-                                                          Margin="0,0,0,4" Style="{StaticResource ComboBoxStyle}">
-                                                    <ComboBox.Style Style="{StaticResource ComboBoxStyle}">
+                                                          Margin="0,0,0,4">
+                                                    <ComboBox.Style>
                                                         <Style TargetType="ComboBox">
                                                             <Setter Property="Visibility" Value="Collapsed"/>
                                                             <Style.Triggers>
@@ -416,7 +416,7 @@
                                                                 </ItemsControl>
                                                                 <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,0,0,10"/>
                                                                 <TextBlock Text="{DynamicResource ProformaInvoice.SelectMetric}"
-                                                                           Style="{StaticResource PiSectionLabelStyle}"/>
+                                                                          />
                                                                 <ListBox ItemsSource="{Binding AvailableMetrics}"
                                                                          SelectedItem="{Binding SelectedMetric, Mode=TwoWay}"
                                                                          BorderThickness="{DynamicResource Border.NoneThickness}"

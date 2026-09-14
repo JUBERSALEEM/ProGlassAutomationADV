@@ -211,7 +211,6 @@
     <DynamicResource x:Key="BorderThin" ResourceKey="Border.Thin"/>
     <DynamicResource x:Key="BorderDefault" ResourceKey="Border.Default"/>
     <DynamicResource x:Key="BorderStrong" ResourceKey="Border.Strong"/>
-    <DynamicResource x:Key="Border.HairlineThickness" ResourceKey="Border.Hairline"/>
     <DynamicResource x:Key="Border.TopHairlineThickness" ResourceKey="Border.TopHairline"/>
     <DynamicResource x:Key="Border.BottomHairlineThickness" ResourceKey="Border.BottomHairline"/>
     <DynamicResource x:Key="Border.LeftHairlineThickness" ResourceKey="Border.LeftHairline"/>
@@ -385,12 +384,6 @@
     <DynamicResource x:Key="Surface.Primary.BorderBrush" ResourceKey="BorderDefaultBrush"/>
     <DynamicResource x:Key="Surface.Secondary.BorderBrush" ResourceKey="BorderDefaultBrush"/>
     <DynamicResource x:Key="Surface.Detail.BorderBrush" ResourceKey="BorderDefaultBrush"/>
-    <DynamicResource x:Key="Surface.Primary.CornerRadius" ResourceKey="Radius.Card"/>
-    <DynamicResource x:Key="Surface.Secondary.CornerRadius" ResourceKey="Radius.Card"/>
-    <DynamicResource x:Key="Surface.Detail.CornerRadius" ResourceKey="Radius.Medium"/>
-    <DynamicResource x:Key="Surface.Primary.Padding" ResourceKey="Space.Card"/>
-    <DynamicResource x:Key="Surface.Secondary.Padding" ResourceKey="Space.Card"/>
-    <DynamicResource x:Key="Surface.Detail.Padding" ResourceKey="Space.Tile"/>
 
     <!-- ═══════════════════════════════════════════════════════════════
          9. SURFACE STYLES — ONE CANONICAL CARD SYSTEM (6 levels)
@@ -601,7 +594,6 @@
     <Style x:Key="ModuleToolbarSecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource Button.Secondary}"/>
     <Style x:Key="AccentChip" TargetType="Button" BasedOn="{StaticResource Button.Primary}">
         <Setter Property="Padding" Value="10,4"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Chip}"/>
     </Style>
     <Style x:Key="OutlinedPill" TargetType="Button" BasedOn="{StaticResource Button.Secondary}">
         <Setter Property="Padding" Value="10,4"/>
@@ -621,8 +613,16 @@
         <Setter Property="MinHeight" Value="{DynamicResource Density.ControlHeight}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
-    <Style x:Key="Input.ComboBox" TargetType="ComboBox" BasedOn="{StaticResource Input.TextBox}">
+    <Style x:Key="Input.ComboBox" TargetType="ComboBox">
         <Setter Property="Background" Value="{DynamicResource SurfaceInputBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource InputBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.Thin}"/>
+        <Setter Property="Padding" Value="{DynamicResource Space.Control}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.App}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSize.Input}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Regular}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Density.ControlHeight}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <!-- Aliases -->

@@ -229,7 +229,7 @@
                                          Foreground="{DynamicResource AccentBrush}"
                                          Value="{Binding ModelProgress, Mode=OneWay}"/>
                             <TextBlock Grid.Row="1" Margin="0,4,0,0"
-                                       Style="{StaticResource Typography.BodySmall}"
+                                      
                                        Text="{Binding ModelBusyText, Mode=OneWay}"/>
                         </Grid>
 
@@ -241,7 +241,7 @@
                         </StackPanel>
 
                         <TextBlock TextWrapping="Wrap"
-                                   Style="{StaticResource Typography.Caption}"
+                                  
                                    Text="Nothing is uploaded — inference is local. Enabling only switches the agent's recognizer for future chat turns."/>
                     </StackPanel>
                 </Border>
@@ -250,16 +250,16 @@
 
                 <!-- ═══════ GROUP: PROVIDER CREDENTIALS ═══════ -->
                 <TextBlock Text="{DynamicResource Settings.ProviderCredentials}"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                          />
                 <TextBlock Text="{DynamicResource Settings.KeysEncryptedWindowsDpapiUserAccountNever}"
-                           Style="{StaticResource Typography.BodySmall}"/>
+                          />
 
                 <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SurfaceDetailStyle}">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.StoreAPIKey}"/>
+                                <TextBlock Text="&#xE8B7;"/>
+                                <TextBlock Text="{DynamicResource Settings.StoreAPIKey}"/>
                             </StackPanel>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -268,7 +268,7 @@
                                     <ColumnDefinition Width="*" MinWidth="160"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="{DynamicResource Settings.Provider}" Style="{StaticResource Typography.Label}"/>
+                                    <TextBlock Text="{DynamicResource Settings.Provider}"/>
                                     <ComboBox ItemsSource="{Binding ProviderOptions}"
                                               SelectedItem="{Binding SelectedProvider}"
                                               Height="38"
@@ -276,13 +276,13 @@
                                               VerticalContentAlignment="Center" Style="{StaticResource ComboBoxStyle}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
-                                    <TextBlock Text="{DynamicResource Settings.APIKEY}" Style="{StaticResource Typography.Label}"/>
+                                    <TextBlock Text="{DynamicResource Settings.APIKEY}"/>
                                     <PasswordBox x:Name="AgentKeyBox"
                                                  Style="{StaticResource RoundedPasswordBoxStyle}"/>
                                 </StackPanel>
                             </Grid>
                             <TextBlock Text="{Binding KeyStatus}"
-                                       Style="{StaticResource Typography.Caption}"/>
+                                      />
                             <!-- Full-width action row: buttons stretch evenly
                                  across the whole card. -->
                             <UniformGrid Columns="2" Style="{StaticResource SettingsActionRowStyle}" Margin="0,10,0,0">
@@ -305,9 +305,9 @@
 
                 <!-- ═══════ GROUP: TAUGHT PHRASES ═══════ -->
                 <TextBlock Text="{DynamicResource Settings.TaughtPhrases}"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                          />
                 <TextBlock Text="{DynamicResource Settings.TaughtPhraseNothingUntilApproveHere}"
-                           Style="{StaticResource Typography.BodySmall}"/>
+                          />
 
                 <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SurfacePrimaryStyle}">

@@ -31,7 +31,7 @@
 
         <!-- Ambient accent wash behind the hero, so the placeholder sits
              on the same soft tinted stage as the dashboards (theme-aware). -->
-        <Border Background="{DynamicResource DashAmbientBrush}"
+        <Border
                 Opacity="0.5"
                 IsHitTestVisible="False"/>
 

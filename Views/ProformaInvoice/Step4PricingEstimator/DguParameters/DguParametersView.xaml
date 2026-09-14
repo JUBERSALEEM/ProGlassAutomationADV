@@ -62,15 +62,15 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Common.Price}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding OuterBasePrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
+                                <TextBox Text="{Binding OuterBasePrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="{DynamicResource ProformaInvoice.SheetW}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding OuterSheetWidthMm, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
+                                <TextBox Text="{Binding OuterSheetWidthMm, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="4">
                                 <TextBlock Text="{DynamicResource ProformaInvoice.SheetH}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding OuterSheetHeightMm, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
+                                <TextBox Text="{Binding OuterSheetHeightMm, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
@@ -97,7 +97,7 @@
                             </StackPanel>
                             <StackPanel Grid.Column="4">
                                 <TextBlock Text="{DynamicResource ProformaInvoice.SpacerSQM}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding SpacerPrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
+                                <TextBox Text="{Binding SpacerPrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
                         </Grid>
                         <Grid Margin="0,8,0,0">
@@ -119,8 +119,8 @@
                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <TextBox Margin="0,4,0,0"
                                          Text="{Binding CustomPanelExtra, UpdateSourceTrigger=PropertyChanged}"
-                                         ToolTip="Example: With Fanhole and Argon Gas As Per DWG" Style="{StaticResource TextBoxStyle}">
-                                    <TextBox.Style Style="{StaticResource TextBoxStyle}">
+                                         ToolTip="Example: With Fanhole and Argon Gas As Per DWG">
+                                    <TextBox.Style>
                                         <Style TargetType="TextBox" BasedOn="{StaticResource Step4InputStyle}">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>

@@ -139,7 +139,7 @@
                                 BorderThickness="{DynamicResource Border.NoneThickness}"
                                 Cursor="Hand"
                                 ToolTip="{DynamicResource ToolTip.ToggleMenu}"
-                                Command="{Binding ToggleSettingsRailCommand}" Style="{StaticResource SecondaryButtonStyle}">
+                                Command="{Binding ToggleSettingsRailCommand}">
                             <TextBlock Text="&#xE76B;" FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource FontSize.Title}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
@@ -168,8 +168,8 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Button Command="{Binding DataContext.SwitchSettingsPageCommand, ElementName=SettingsRoot}"
-                                    CommandParameter="{Binding Key}" Style="{StaticResource SecondaryButtonStyle}">
-                                <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                                    CommandParameter="{Binding Key}">
+                                <Button.Style>
                                     <Style TargetType="Button"
                                            BasedOn="{StaticResource SettingsNavButtonStyle}">
                                         <Setter Property="FocusVisualStyle"
@@ -182,8 +182,8 @@
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource NavGlyphStyle}" Text="{Binding Glyph}"/>
-                                    <TextBlock Style="{StaticResource NavLabelStyle}" Text="{Binding Label}"/>
+                                    <TextBlock Text="{Binding Glyph}"/>
+                                    <TextBlock Text="{Binding Label}"/>
                                 </StackPanel>
                             </Button>
                         </DataTemplate>
@@ -280,7 +280,7 @@
                             BorderThickness="{DynamicResource Border.NoneThickness}"
                             ToolTip="{DynamicResource ToolTip.ToggleMenu}"
                             Command="{Binding ToggleSettingsRailCommand}" Style="{StaticResource SecondaryButtonStyle}">
-                        <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                        <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <StackPanel VerticalAlignment="Center"
                                             HorizontalAlignment="Center">

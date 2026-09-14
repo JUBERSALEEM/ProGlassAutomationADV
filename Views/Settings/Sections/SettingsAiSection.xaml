@@ -65,7 +65,7 @@
                 <UniformGrid Columns="3" Margin="0,0,0,6">
 
                     <!-- Master toggle -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border>
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -88,7 +88,7 @@
                     </Border>
 
                     <!-- Real business data -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border>
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -111,14 +111,14 @@
                     </Border>
 
                     <!-- Model readout -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border>
                         <StackPanel>
                             <StackPanel Style="{StaticResource SurfaceDetailStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.ActiveModel}"/>
                             </StackPanel>
                             <TextBlock Text="{Binding AiModel}"
-                                       Style="{StaticResource SurfaceKpiStyle}"
+                                      
                                        TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
                             <TextBlock Style="{StaticResource Typography.Caption}"
                                        Text="{DynamicResource Settings.ModelIdentifierCurrentlySelectedProvider}"/>
@@ -126,28 +126,28 @@
                     </Border>
 
                     <!-- Max tokens -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border>
                         <StackPanel>
                             <StackPanel Style="{StaticResource SurfaceDetailStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE762;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.MaxTokens}"/>
                             </StackPanel>
                             <TextBlock Text="{Binding AiMaxTokens}"
-                                       Style="{StaticResource SurfaceKpiStyle}" TextWrapping="Wrap"/>
+                                       TextWrapping="Wrap"/>
                             <TextBlock Style="{StaticResource Typography.Caption}"
                                        Text="{DynamicResource Settings.ResponseLengthCeilingCallAdjustConfigJsonNow}"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Temperature -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border>
                         <StackPanel>
                             <StackPanel Style="{StaticResource SurfaceDetailStyle}">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE706;"/>
                                 <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.Temperature}"/>
                             </StackPanel>
                             <TextBlock Text="{Binding AiTemperature}"
-                                       Style="{StaticResource SurfaceKpiStyle}" TextWrapping="Wrap"/>
+                                       TextWrapping="Wrap"/>
                             <TextBlock Style="{StaticResource Typography.Caption}"
                                        Text="{DynamicResource Settings.HigherMoreCreativeLowerMoreDeterministicRead}"/>
                         </StackPanel>
@@ -155,7 +155,7 @@
 
                 </UniformGrid>
 
-                <Border Style="{StaticResource SurfaceDetailStyle}"/>
+                <Border/>
 
                 <!-- ═════════ GROUP: PROVIDERS ═════════ -->
                 <TextBlock Text="{DynamicResource Settings.Providers}"
@@ -197,8 +197,8 @@
                                 </StackPanel>
                                 <Button DockPanel.Dock="Right"
                                         HorizontalAlignment="Right"
-                                        Command="{Binding SelectGeminiCommand}" Style="{StaticResource SecondaryButtonStyle}">
-                                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                                        Command="{Binding SelectGeminiCommand}">
+                                    <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource ProviderSelectButtonStyle}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsGeminiActive}" Value="True">
@@ -220,7 +220,7 @@
                             <TextBlock Text="{DynamicResource Settings.GetKeyAistudioGoogleCom}"
                                        Style="{StaticResource Typography.BodySmall}"
                                        Margin="0,4,0,10"/>
-                            <Button Style="{StaticResource PrimaryPillButton}"
+                            <Button
                                     Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
                                     Command="{Binding TestGeminiCommand}"
                                     HorizontalAlignment="Stretch"
@@ -267,8 +267,8 @@
                                 </StackPanel>
                                 <Button DockPanel.Dock="Right"
                                         HorizontalAlignment="Right"
-                                        Command="{Binding SelectGroqCommand}" Style="{StaticResource SecondaryButtonStyle}">
-                                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                                        Command="{Binding SelectGroqCommand}">
+                                    <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource ProviderSelectButtonStyle}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsGroqActive}" Value="True">
@@ -290,7 +290,7 @@
                             <TextBlock Text="{DynamicResource Settings.GetKeyConsoleGroqCom}"
                                        Style="{StaticResource Typography.BodySmall}"
                                        Margin="0,4,0,10"/>
-                            <Button Style="{StaticResource PrimaryPillButton}"
+                            <Button
                                     Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
                                     Command="{Binding TestGroqCommand}"
                                     HorizontalAlignment="Stretch"
@@ -337,8 +337,8 @@
                                 </StackPanel>
                                 <Button DockPanel.Dock="Right"
                                         HorizontalAlignment="Right"
-                                        Command="{Binding SelectCohereCommand}" Style="{StaticResource SecondaryButtonStyle}">
-                                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                                        Command="{Binding SelectCohereCommand}">
+                                    <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource ProviderSelectButtonStyle}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsCohereActive}" Value="True">

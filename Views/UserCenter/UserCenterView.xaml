@@ -40,7 +40,7 @@
                     BorderBrush="{DynamicResource WarningBrush}"
                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                     Visibility="{Binding IsDefaultPasswordInUse,
-                                 Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                                 Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE7BA;"
                                FontFamily="{DynamicResource FontFamily.Icon}"
@@ -113,7 +113,7 @@
                                     <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Width="44" Height="44"
                                             CornerRadius="{DynamicResource CardCornerRadius}"
                                             VerticalAlignment="Center"
-                                            Background="{DynamicResource TintIndigoBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                                            Background="{DynamicResource TintIndigoBrush}">
                                         <TextBlock Text="&#xE77B;"
                                                    FontFamily="{DynamicResource FontFamily.Icon}"
                                                    FontSize="{DynamicResource FontSize.H2}"

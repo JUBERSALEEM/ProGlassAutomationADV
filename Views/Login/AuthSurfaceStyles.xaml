@@ -181,7 +181,7 @@
                         <Border x:Name="Box"
                                 Width="18" Height="18"
                                 CornerRadius="{DynamicResource Radius.Small}"
-                                Background="{DynamicResource SurfacePrimaryBrush}"
+                               
                                 BorderBrush="{DynamicResource BorderSubtleBrush}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 VerticalAlignment="Center"

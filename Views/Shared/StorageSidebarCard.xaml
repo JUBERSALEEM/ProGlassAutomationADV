@@ -19,7 +19,7 @@
             Padding="0"
             HorizontalContentAlignment="Stretch"
             ToolTip="{DynamicResource Storage.TapForDetails}">
-        <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+        <Button.Template>
             <ControlTemplate TargetType="Button">
                 <Border x:Name="Card"
                         CornerRadius="{DynamicResource CardCornerRadius}"

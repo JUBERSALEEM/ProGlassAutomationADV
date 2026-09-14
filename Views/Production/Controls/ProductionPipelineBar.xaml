@@ -55,7 +55,7 @@
                                           RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                 CommandParameter="{Binding NavKey}"
                                 ToolTip="{Binding CountLabel}" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="ChipBorder"
                                             CornerRadius="{DynamicResource ControlCornerRadius}"

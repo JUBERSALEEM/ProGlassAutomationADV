@@ -56,7 +56,7 @@
                         <Border x:Name="bd"
                                 Background="{TemplateBinding Background}"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
-                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
                         </Border>
@@ -85,7 +85,7 @@
                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                 Background="{DynamicResource ChatBrand}"
                                 SnapsToDevicePixels="True"
-                                UseLayoutRounding="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                UseLayoutRounding="True">
                             <TextBlock Text="&#xE724;"
                                        FontFamily="{DynamicResource FontFamily.Icon}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
@@ -273,7 +273,7 @@
                         <ItemsControl ItemsSource="{Binding Suggestions}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Style="{StaticResource SuggChip}"
+                                    <Border
                                             Tag="{Binding}"
                                             behaviors:ClickToCommandBehavior.Command="{Binding SuggestionCommand}"
                                             behaviors:ClickToCommandBehavior.CommandParameter="{Binding Tag, RelativeSource={RelativeSource Self}}">
@@ -313,7 +313,7 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Grid>
-                                        <Border Style="{StaticResource SurfacePrimaryStyle}">
+                                        <Border>
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Text}"
                                                            Foreground="{DynamicResource OnAccentForegroundBrush}"
@@ -328,7 +328,7 @@
                                             </StackPanel>
                                         </Border>
 
-                                        <Border Style="{StaticResource SurfaceSecondaryStyle}">
+                                        <Border>
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Text}"
                                                            Foreground="{DynamicResource TextPrimaryBrush}"
@@ -349,7 +349,7 @@
                                             </StackPanel>
                                         </Border>
 
-                                        <Border Style="{StaticResource SurfaceDetailStyle}">
+                                        <Border>
                                             <TextBlock Text="{Binding Text}"
                                                        Foreground="{DynamicResource DangerBrush}"
                                                        FontSize="{DynamicResource FontSize.Body}"
@@ -602,7 +602,7 @@
                         Background="{DynamicResource SideMenuBackgroundBrush}"
                         CornerRadius="{DynamicResource Radius.Bottom.Medium}"
                         Padding="12"
-                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                        SnapsToDevicePixels="True">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -620,7 +620,7 @@
                                 BorderThickness="{DynamicResource Border.NoneThickness}"
                                 Margin="0,0,4,0"
                                 SnapsToDevicePixels="True" Style="{StaticResource SecondaryButtonStyle}">
-                            <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                            <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="bd"
                                             CornerRadius="{DynamicResource CardCornerRadius}"
@@ -753,7 +753,7 @@
                                     Cursor="Hand"
                                     BorderThickness="{DynamicResource Border.NoneThickness}"
                                     SnapsToDevicePixels="True" Style="{StaticResource SecondaryButtonStyle}">
-                                <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                                <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border x:Name="bd"
                                                 CornerRadius="{DynamicResource CardCornerRadius}"
@@ -832,7 +832,7 @@
                                      FontSize="{DynamicResource FontSize.Title}"
                                      Foreground="{DynamicResource TextPrimaryBrush}"
                                      VerticalAlignment="Center" Style="{StaticResource TextBoxStyle}">
-                                <TextBox.InputBindings Style="{StaticResource TextBoxStyle}">
+                                <TextBox.InputBindings>
                                     <KeyBinding Key="Enter" Command="{Binding SendCommand}"/>
                                 </TextBox.InputBindings>
                             </TextBox>

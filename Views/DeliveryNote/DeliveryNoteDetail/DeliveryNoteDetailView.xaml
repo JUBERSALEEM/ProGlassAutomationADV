@@ -89,7 +89,7 @@
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
 
-                    <Button Style="{StaticResource PrimaryPillButton}"
+                    <Button
                             Tag="&#xE74E;" Content="{DynamicResource Action.Save}"
                             Command="{Binding SaveCommand}"
                             Margin="0,0,8,0"
@@ -97,14 +97,14 @@
                             Visibility="{Binding IsNotMasterDn,
                                          Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-                    <Button Style="{StaticResource CreateFromMasterButtonStyle}"
+                    <Button
                             Tag="&#xE7B8;" Content="{DynamicResource DeliveryNote.CreateBalance}"
                             Command="{Binding CreateNewDnFromMasterCommand}"
                             Margin="0,0,8,0"
                             ToolTip="{DynamicResource DeliveryNote.CreateNewDispatchingDNRemainingBalance}"/>
 
                     <Button x:Name="ActionsMenuButton"
-                            Style="{StaticResource OutlinedPillButton}"
+                           
                             Tag="&#xE712;" Content="{DynamicResource Common.Actions}"
                             ToolTip="{DynamicResource DeliveryNote.SaveDispatchExportMore}"
                             behaviors:DropdownButtonBehavior.Popup="{Binding ElementName=ActionsMenuPopup}"/>
@@ -130,35 +130,35 @@
                                                   Color="{DynamicResource LiquidShadowColor}"/>
                             </Border.Effect>
                             <StackPanel>
-                                <Button Style="{StaticResource DnMenuRealOnlyItem}"
+                                <Button
                                         Tag="&#xE74E;" Content="{DynamicResource DeliveryNote.SaveDispatch}"
                                         Command="{Binding SaveCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
-                                <Button Style="{StaticResource DnMenuActionItem}"
+                                <Button
                                         Tag="&#xE81C;" Content="{DynamicResource Common.VersionHistory}"
                                         Command="{Binding ShowVersionsCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource BorderDefaultBrush}"/>
-                                <Button Style="{StaticResource DnMenuActionItem}"
+                                <Button
                                         Tag="&#xE8A5;" Content="{DynamicResource DeliveryNote.ExportPDF}"
                                         Command="{Binding ExportPdfCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
-                                <Button Style="{StaticResource DnMenuActionItem}"
+                                <Button
                                         Tag="&#xE9F9;" Content="{DynamicResource DeliveryNote.ExportExcel}"
                                         Command="{Binding ExportExcelCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
-                                <Button Style="{StaticResource DnMenuActionItem}"
+                                <Button
                                         Tag="&#xE72D;" Content="{DynamicResource DeliveryNote.ExportCSV}"
                                         Command="{Binding ExportCsvCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
-                                <Button Style="{StaticResource DnMenuActionItem}"
+                                <Button
                                         Tag="&#xE72D;" Content="{DynamicResource Sharing.Share}"
                                         Command="{Binding ShareCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource BorderDefaultBrush}"/>
-                                <Button Style="{StaticResource DnMenuRealOnlyItem}"
+                                <Button
                                         Tag="&#xE74D;" Content="{DynamicResource DeliveryNote.DeleteDeliveryNote}"
                                         Command="{Binding DeleteDnCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>

@@ -143,7 +143,7 @@
                         </WrapPanel>
 
                         <StackPanel Grid.Column="1" Grid.Row="0" VerticalAlignment="Bottom" Margin="8,0,0,6">
-                            <TextBlock Text="{DynamicResource Action.Export}" Style="{StaticResource ModuleFieldLabelStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Text="{DynamicResource Action.Export}" HorizontalAlignment="Right"/>
                             <StackPanel Orientation="Horizontal">
                                 <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="Export filtered P&amp;L to CSV"/>
                                 <Button Content="{DynamicResource JobOrder.Excel}" Command="{Binding ExportExcelCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="Export to Excel (.xlsx)"/>
@@ -173,13 +173,13 @@
                             <ColumnDefinition Width="76"/>
                             <ColumnDefinition Width="1.25*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="PROFORMA" Style="{StaticResource ReportHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="1" Text="{DynamicResource Reports.JoReport.QTYSQM}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="2" Text="REVENUE" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right" Margin="0,0,16,0"/>
-                        <TextBlock Grid.Column="3" Text="COST" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right" Margin="0,0,16,0"/>
-                        <TextBlock Grid.Column="4" Text="PROFIT" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right" Margin="0,0,16,0"/>
-                        <TextBlock Grid.Column="5" Text="MARGIN" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right" Margin="0,0,16,0"/>
-                        <TextBlock Grid.Column="6" Text="COST BASIS" Style="{StaticResource ReportHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="0" Text="PROFORMA"/>
+                        <TextBlock Grid.Column="1" Text="{DynamicResource Reports.JoReport.QTYSQM}" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="2" Text="REVENUE" HorizontalAlignment="Right" Margin="0,0,16,0"/>
+                        <TextBlock Grid.Column="3" Text="COST" HorizontalAlignment="Right" Margin="0,0,16,0"/>
+                        <TextBlock Grid.Column="4" Text="PROFIT" HorizontalAlignment="Right" Margin="0,0,16,0"/>
+                        <TextBlock Grid.Column="5" Text="MARGIN" HorizontalAlignment="Right" Margin="0,0,16,0"/>
+                        <TextBlock Grid.Column="6" Text="COST BASIS"/>
                     </Grid>
                 </Border>
 

@@ -68,7 +68,7 @@
                 </StackPanel>
 
                 <Button Grid.Column="1"
-                        Style="{StaticResource OutlinedPillButton}"
+                       
                         Tag="&#xE711;" Content="{DynamicResource Action.Close}" MinWidth="110"
                         VerticalAlignment="Center"
                         Command="{Binding CloseCommand}"/>
@@ -800,29 +800,29 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" MinHeight="92">
-                                <TextBlock Text="WIDTH (mm)" Style="{StaticResource FieldLabel}"/>
+                                <TextBlock Text="WIDTH (mm)"/>
                                 <ComboBox ItemsSource="{Binding WidthOptions}"
                                           Text="{Binding WidthText, UpdateSourceTrigger=PropertyChanged}"
                                           Style="{StaticResource DetailCombo}"/>
-                                <TextBlock Text="{Binding WidthError}" Style="{StaticResource FieldError}"
+                                <TextBlock Text="{Binding WidthError}"
                                            Visibility="{Binding HasWidthError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2" MinHeight="92">
-                                <TextBlock Text="HEIGHT (mm)" Style="{StaticResource FieldLabel}"/>
+                                <TextBlock Text="HEIGHT (mm)"/>
                                 <ComboBox ItemsSource="{Binding HeightOptions}"
                                           Text="{Binding HeightText, UpdateSourceTrigger=PropertyChanged}"
                                           Style="{StaticResource DetailCombo}"/>
-                                <TextBlock Text="{Binding HeightError}" Style="{StaticResource FieldError}"
+                                <TextBlock Text="{Binding HeightError}"
                                            Visibility="{Binding HasHeightError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="4" MinHeight="92">
-                                <TextBlock Text="SUPPLIER" Style="{StaticResource FieldLabel}"/>
+                                <TextBlock Text="SUPPLIER"/>
                                 <ComboBox ItemsSource="{Binding SupplierOptions}"
                                           Text="{Binding Supplier, UpdateSourceTrigger=PropertyChanged}"
                                           Style="{StaticResource DetailCombo}"/>
-                                <TextBlock Text="{Binding SupplierError}" Style="{StaticResource FieldError}"
+                                <TextBlock Text="{Binding SupplierError}"
                                            Visibility="{Binding HasSupplierError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
@@ -832,7 +832,7 @@
 
                     <Border Style="{StaticResource SectionCard}">
                         <StackPanel>
-                            <TextBlock Text="PRICING &amp; STOCK" Style="{StaticResource StatLabel}" Margin="0,0,0,14"/>
+                            <TextBlock Text="PRICING &amp; STOCK" Margin="0,0,0,14"/>
                             <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -842,29 +842,29 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" MinHeight="92">
-                                <TextBlock Text="PURCHASE / SQM" Style="{StaticResource FieldLabel}"/>
+                                <TextBlock Text="PURCHASE / SQM"/>
                                 <TextBox Text="{Binding PurchasePriceText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.AcceptDecimals="True"
                                          Style="{StaticResource DetailEntry}"/>
-                                <TextBlock Text="{Binding PurchasePriceError}" Style="{StaticResource FieldError}"
+                                <TextBlock Text="{Binding PurchasePriceError}"
                                            Visibility="{Binding HasPurchasePriceError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2" MinHeight="92">
-                                <TextBlock Text="SELL / SQM" Style="{StaticResource FieldLabel}"/>
+                                <TextBlock Text="SELL / SQM"/>
                                 <TextBox Text="{Binding SellPriceText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.AcceptDecimals="True"
                                          Style="{StaticResource DetailEntry}"/>
-                                <TextBlock Text="{Binding SellPriceError}" Style="{StaticResource FieldError}"
+                                <TextBlock Text="{Binding SellPriceError}"
                                            Visibility="{Binding HasSellPriceError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="4" MinHeight="92">
-                                <TextBlock Text="STOCK (SHEETS)" Style="{StaticResource FieldLabel}"/>
+                                <TextBlock Text="STOCK (SHEETS)"/>
                                 <TextBox Text="{Binding StockText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
                                          Style="{StaticResource DetailEntry}"/>
-                                <TextBlock Text="{Binding StockError}" Style="{StaticResource FieldError}"
+                                <TextBlock Text="{Binding StockError}"
                                            Visibility="{Binding HasStockError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
@@ -1114,23 +1114,23 @@
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
-                                <TextBlock Text="BALANCE AT COST" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="BALANCE AT COST"/>
                                 <TextBlock Text="{Binding BalanceValueAtCost, StringFormat={}{0:N2} AED}"
-                                           Style="{StaticResource PiKpiValueStyle}"/>
+                                          />
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="1" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
-                                <TextBlock Text="BALANCE AT SELL" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="BALANCE AT SELL"/>
                                 <TextBlock Text="{Binding BalanceValueAtSell, StringFormat={}{0:N2} AED}"
-                                           Style="{StaticResource PiKpiValueStyle}"/>
+                                          />
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="2" Style="{StaticResource InventoryKpiCell}" Margin="0">
                             <StackPanel>
-                                <TextBlock Text="POTENTIAL PROFIT" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="POTENTIAL PROFIT"/>
                                 <TextBlock Text="{Binding PotentialProfit, StringFormat={}{0:N2} AED}"
-                                           Style="{StaticResource PiKpiValueStyle}"
+                                          
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
@@ -1138,7 +1138,7 @@
 
                     <Border Style="{StaticResource SectionCard}">
                         <StackPanel>
-                            <TextBlock Text="MARGIN" Style="{StaticResource StatLabel}" Margin="0,0,0,10"/>
+                            <TextBlock Text="MARGIN" Margin="0,0,0,10"/>
                             <TextBlock Text="{Binding MarginDisplay}"
                                        FontSize="{StaticResource TextDisplayLarge}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource AccentBrush}"/>

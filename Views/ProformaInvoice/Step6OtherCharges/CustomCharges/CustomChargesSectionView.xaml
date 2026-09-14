@@ -131,7 +131,7 @@
                 <TextBlock Text="QTY" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,3"/>
                 <TextBox beh:TextBoxBehaviors.AcceptDecimals="True"
                          Style="{StaticResource SurfacePrimaryStyle}">
-                    <TextBox.Text Style="{StaticResource TextBoxStyle}">
+                    <TextBox.Text>
                         <Binding Path="InputQty" Mode="TwoWay"
                                  UpdateSourceTrigger="LostFocus"
                                  ConverterCulture="en-US"/>
@@ -149,7 +149,7 @@
                 <TextBlock Text="{DynamicResource Common.Rate}" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,3"/>
                 <TextBox beh:TextBoxBehaviors.AcceptDecimals="True"
                          Style="{StaticResource SurfacePrimaryStyle}">
-                    <TextBox.Text Style="{StaticResource TextBoxStyle}">
+                    <TextBox.Text>
                         <Binding Path="InputRate" Mode="TwoWay"
                                  UpdateSourceTrigger="LostFocus"
                                  ConverterCulture="en-US"/>

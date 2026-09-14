@@ -60,14 +60,14 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                Background="{DynamicResource SurfacePrimaryBrush}"
+               
                 BorderBrush="{DynamicResource BorderSubtleBrush}"
                 BorderThickness="{DynamicResource Border.HairlineThickness}"
-                Effect="{StaticResource CardShadow}"
+               
                 SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
             <Grid>
                 <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                        Background="{DynamicResource CardSheen}"
+                       
                         IsHitTestVisible="False" Style="{StaticResource SurfacePrimaryStyle}"/>
                 <Border Padding="28,24"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}">

@@ -173,8 +173,8 @@
                         <TextBlock Grid.Column="3" Text="TIs" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
                         <TextBlock Grid.Column="4" Text="PI VALUE" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
                         <TextBlock Grid.Column="5" Text="INVOICED" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="6" Text="OUTSTANDING" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="7" Text="" Style="{StaticResource ReportHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="6" Text="OUTSTANDING" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="7" Text=""/>
                     </Grid>
                 </Border>
 

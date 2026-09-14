@@ -136,19 +136,19 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}">
+                <Border Grid.Column="0">
                     <StackPanel>
-                        <TextBlock Text="NET REVENUE" Style="{StaticResource FullKpiCaption}"/>
-                        <TextBlock Text="{Binding NetRevenueDisplay}" Style="{StaticResource FullKpiValue}"/>
-                        <TextBlock Text="ex-VAT · Step 9 snapshot" Style="{StaticResource FullKpiSub}"/>
+                        <TextBlock Text="NET REVENUE"/>
+                        <TextBlock Text="{Binding NetRevenueDisplay}"/>
+                        <TextBlock Text="ex-VAT · Step 9 snapshot"/>
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}">
+                <Border Grid.Column="2">
                     <StackPanel>
-                        <TextBlock Text="TOTAL COST" Style="{StaticResource FullKpiCaption}"/>
-                        <TextBlock Text="{Binding TotalCostDisplay}" Style="{StaticResource FullKpiValue}"/>
-                        <TextBlock Text="glass + production" Style="{StaticResource FullKpiSub}"/>
+                        <TextBlock Text="TOTAL COST"/>
+                        <TextBlock Text="{Binding TotalCostDisplay}"/>
+                        <TextBlock Text="glass + production"/>
                     </StackPanel>
                 </Border>
 
@@ -164,7 +164,7 @@
                         </Style>
                     </Border.Style>
                     <StackPanel>
-                        <TextBlock Text="{Binding ProfitLabel}" Style="{StaticResource FullKpiCaption}"/>
+                        <TextBlock Text="{Binding ProfitLabel}"/>
                         <TextBlock Text="{Binding ProfitDisplay}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock" BasedOn="{StaticResource FullKpiValue}">
@@ -177,13 +177,13 @@
                                 </Style>
                             </TextBlock.Style>
                         </TextBlock>
-                        <TextBlock Text="revenue − total cost" Style="{StaticResource FullKpiSub}"/>
+                        <TextBlock Text="revenue − total cost"/>
                     </StackPanel>
                 </Border>
 
                 <Border Grid.Column="6" Style="{StaticResource SurfacePrimaryStyle}">
                     <StackPanel>
-                        <TextBlock Text="OVERALL MARGIN" Style="{StaticResource FullKpiCaption}"/>
+                        <TextBlock Text="OVERALL MARGIN"/>
                         <TextBlock Text="{Binding OverallMarginDisplay}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock" BasedOn="{StaticResource FullKpiValue}">
@@ -196,7 +196,7 @@
                                 </Style>
                             </TextBlock.Style>
                         </TextBlock>
-                        <TextBlock Text="with U-insert · (Revenue − Total Cost) ÷ Total Cost" Style="{StaticResource FullKpiSub}"/>
+                        <TextBlock Text="with U-insert · (Revenue − Total Cost) ÷ Total Cost"/>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -213,7 +213,7 @@
                 <StackPanel Grid.Column="0">
 
                     <!-- 1 · JOB INFORMATION -->
-                    <TextBlock Text="1 · JOB INFORMATION" Style="{StaticResource FullSectionLabel}"/>
+                    <TextBlock Text="1 · JOB INFORMATION"/>
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -229,30 +229,30 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Company" Style="{StaticResource FullKvLabel}"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CompanyName}" Style="{StaticResource FullKvValue}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Company"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CompanyName}"/>
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Customer" Style="{StaticResource FullKvLabel}"/>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding CustomerName}" Style="{StaticResource FullKvValue}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Customer"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding CustomerName}"/>
 
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Project" Style="{StaticResource FullKvLabel}"/>
-                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ProjectName}" Style="{StaticResource FullKvValue}"/>
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Project"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ProjectName}"/>
 
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Salesman" Style="{StaticResource FullKvLabel}"/>
-                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Salesman}" Style="{StaticResource FullKvValue}"/>
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Salesman"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Salesman}"/>
 
-                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Issued" Style="{StaticResource FullKvLabel}"/>
-                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding IssueDateDisplay}" Style="{StaticResource FullKvValue}"/>
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Issued"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding IssueDateDisplay}"/>
 
-                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Glass type" Style="{StaticResource FullKvLabel}"/>
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Glass type"/>
                             <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding GlassTypeSummary}"
                                        Foreground="{DynamicResource AccentBrush}"
-                                       Style="{StaticResource FullKvValue}"/>
+                                      />
                         </Grid>
                     </Border>
 
                     <!-- 2 · TARGET PRICE MODEL -->
-                    <TextBlock Text="2 · TARGET PRICE MODEL" Style="{StaticResource FullSectionLabel}" Margin="0,14,0,8"/>
+                    <TextBlock Text="2 · TARGET PRICE MODEL" Margin="0,14,0,8"/>
                     <Border Style="{StaticResource SurfacePrimaryStyle}"
                             Visibility="{Binding TargetPanelVisibility}">
                         <StackPanel>
@@ -271,32 +271,32 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Given price (Step 5)" Style="{StaticResource FullKvLabel}"/>
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding GivenPricePerSqmDisplay}" Style="{StaticResource FullKvValue}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Given price (Step 5)"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding GivenPricePerSqmDisplay}"/>
 
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Spec target ×1.15" Style="{StaticResource FullKvLabel}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Spec target ×1.15"/>
                                 <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SpecificationTargetPerSqmDisplay}"
                                            FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            HorizontalAlignment="Right" Margin="10,3,0,3"/>
 
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="U-insert (target)" Style="{StaticResource FullKvLabel}"/>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="U-insert (target)"/>
                                 <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding AppliedUInsertPerSqmDisplay}"
                                            FontSize="{StaticResource TextCaption}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            HorizontalAlignment="Right" Margin="10,3,0,3"/>
 
-                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Required target" Style="{StaticResource FullKvLabel}"/>
-                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding RequiredTargetPerSqmDisplay}" Style="{StaticResource FullKvValue}"/>
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Required target"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding RequiredTargetPerSqmDisplay}"/>
 
-                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Given value" Style="{StaticResource FullKvLabel}"/>
-                                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding GivenValueDisplay}" Style="{StaticResource FullKvValue}"/>
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Given value"/>
+                                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding GivenValueDisplay}"/>
 
-                                <TextBlock Grid.Row="5" Grid.Column="0" Text="Required value" Style="{StaticResource FullKvLabel}"/>
-                                <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding RequiredTargetValueDisplay}" Style="{StaticResource FullKvValue}"/>
+                                <TextBlock Grid.Row="5" Grid.Column="0" Text="Required value"/>
+                                <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding RequiredTargetValueDisplay}"/>
 
-                                <TextBlock Grid.Row="6" Grid.Column="0" Text="Difference" Style="{StaticResource FullKvLabel}"/>
-                                <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding DifferenceValueDisplay}" Style="{StaticResource FullKvValue}"/>
+                                <TextBlock Grid.Row="6" Grid.Column="0" Text="Difference"/>
+                                <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding DifferenceValueDisplay}"/>
                             </Grid>
 
                             <Border Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,10,0,8"/>
@@ -428,7 +428,7 @@
                 <StackPanel Grid.Column="2">
 
                     <!-- 3 · REVENUE BREAKDOWN -->
-                    <TextBlock Text="3 · REVENUE BREAKDOWN" Style="{StaticResource FullSectionLabel}"/>
+                    <TextBlock Text="3 · REVENUE BREAKDOWN"/>
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -442,13 +442,13 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Gross (incl. VAT)" Style="{StaticResource FullKvLabel}"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding GrossRevenueDisplay}" Style="{StaticResource FullKvValue}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Gross (incl. VAT)"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding GrossRevenueDisplay}"/>
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Less: VAT (5%)" Style="{StaticResource FullKvLabel}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Less: VAT (5%)"/>
                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding VatAmountDisplay}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       Style="{StaticResource FullKvValue}"/>
+                                      />
 
                             <Border Grid.Row="2" Grid.ColumnSpan="2" Height="1"
                                     Background="{DynamicResource BorderDefaultBrush}" Margin="0,8"/>
@@ -465,7 +465,7 @@
                     </Border>
 
                     <!-- 4 · COST BREAKDOWN -->
-                    <TextBlock Text="4 · COST BREAKDOWN" Style="{StaticResource FullSectionLabel}" Margin="0,14,0,8"/>
+                    <TextBlock Text="4 · COST BREAKDOWN" Margin="0,14,0,8"/>
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -479,11 +479,11 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Glass cost (sheets)" Style="{StaticResource FullKvLabel}"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding TotalGlassCostDisplay}" Style="{StaticResource FullKvValue}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Glass cost (sheets)"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding TotalGlassCostDisplay}"/>
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Production cost" Style="{StaticResource FullKvLabel}"/>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TotalProductionCostDisplay}" Style="{StaticResource FullKvValue}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Production cost"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TotalProductionCostDisplay}"/>
 
                             <Border Grid.Row="2" Grid.ColumnSpan="2" Height="1"
                                     Background="{DynamicResource BorderDefaultBrush}" Margin="0,8"/>
@@ -500,7 +500,7 @@
                     </Border>
 
                     <!-- 5 · MARGIN ANALYSIS -->
-                    <TextBlock Text="5 · MARGIN ANALYSIS" Style="{StaticResource FullSectionLabel}" Margin="0,14,0,8"/>
+                    <TextBlock Text="5 · MARGIN ANALYSIS" Margin="0,14,0,8"/>
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <Grid>

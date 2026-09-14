@@ -275,7 +275,7 @@
                         <ColumnDefinition Width="8"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Style="{StaticResource CompactStatTileStyle}" MinHeight="56" Padding="12,8">
+                    <Border Grid.Column="0" MinHeight="56" Padding="12,8">
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Text="{Binding SubtotalDisplay}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                        HorizontalAlignment="Center"
@@ -285,7 +285,7 @@
                                        Foreground="{DynamicResource TextTertiaryBrush}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="2" Style="{StaticResource CompactStatTileStyle}" MinHeight="56" Padding="12,8">
+                    <Border Grid.Column="2" MinHeight="56" Padding="12,8">
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Text="{Binding VatDisplay}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                        HorizontalAlignment="Center"
@@ -295,7 +295,7 @@
                                        Foreground="{DynamicResource TextTertiaryBrush}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="4" Style="{StaticResource CompactStatTileStyle}"
+                    <Border Grid.Column="4"
                             Background="{DynamicResource TintAmberBrush}" MinHeight="56" Padding="12,8">
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Text="{Binding DiscountAmountDisplay}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
@@ -306,7 +306,7 @@
                                        Foreground="{DynamicResource WarningBrush}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="6" Style="{StaticResource CompactStatTileStyle}"
+                    <Border Grid.Column="6"
                             Background="{DynamicResource TintGreenBrush}" MinHeight="56" Padding="12,8">
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Text="{Binding GrandTotalDisplay}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
@@ -322,7 +322,7 @@
         </Border>
 
         <!-- ══ LINE ITEMS — PI Step 5 columns ════════════════════════ -->
-        <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,8">
+        <Border Margin="0,0,0,8">
             <StackPanel Margin="12,10,12,10">
 
                 <Grid Margin="0,0,0,10">

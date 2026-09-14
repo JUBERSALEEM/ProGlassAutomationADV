@@ -72,8 +72,8 @@
                         ToolTip="{DynamicResource Settings.RestoreThemeAccentCardShapeDensityZoomFont}"
                         HorizontalAlignment="Left"
                         Padding="0"
-                        Margin="0,2,0,10" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                        Margin="0,2,0,10">
+                    <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource SettingsActionButtonStyle}">
                             <Setter Property="Content">
                                 <Setter.Value>
@@ -340,7 +340,7 @@
                                       RowHeaderWidth="0" CanUserAddRows="False"
                                       CanUserResizeColumns="False"
                                       MaxHeight="86">
-                                <DataGrid.Columns Style="{StaticResource DataGridStyle}">
+                                <DataGrid.Columns>
                                     <DataGridTextColumn Header="Material" Width="*"/>
                                     <DataGridTextColumn Header="Qty" Width="*"/>
                                     <DataGridTextColumn Header="Status" Width="*"/>
@@ -1113,11 +1113,11 @@
                     <Border Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SurfaceDetailStyle}">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE717;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}"
+                                <TextBlock Text="&#xE717;"/>
+                                <TextBlock
                                            Text="{DynamicResource Settings.LblPhoneCountry}"/>
                             </StackPanel>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock
                                        Text="{DynamicResource Settings.HintPhoneCountry}"/>
                             <ComboBox AutomationProperties.AutomationId="Settings.PhoneCountry"
                                       ItemsSource="{Binding PhoneCountries}"
@@ -1135,11 +1135,11 @@
                 <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,10">
                     <StackPanel>
                         <StackPanel Style="{StaticResource SurfaceDetailStyle}">
-                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE713;"/>
-                            <TextBlock Style="{StaticResource Typography.Title}"
+                            <TextBlock Text="&#xE713;"/>
+                            <TextBlock
                                        Text="{DynamicResource Settings.ReducedMotion}"/>
                         </StackPanel>
-                        <TextBlock Style="{StaticResource Typography.BodySmall}"
+                        <TextBlock
                                    Text="{DynamicResource Settings.ReducedMotionTip}"
                                    TextWrapping="Wrap"/>
                         <CheckBox AutomationProperties.AutomationId="Settings.ReducedMotion"
@@ -1156,9 +1156,9 @@
                 <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,10">
                     <StackPanel>
                         <StackPanel Style="{StaticResource SurfaceDetailStyle}">
-                            <TextBlock Style="{StaticResource Typography.Title}"
+                            <TextBlock
                                        Text="{DynamicResource Settings.WallpaperStudio}"/>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}" TextWrapping="Wrap"
+                            <TextBlock TextWrapping="Wrap"
                                        Text="{DynamicResource Settings.WallpaperStudioCaption}"/>
                         </StackPanel>
 

@@ -36,7 +36,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg" Background="Transparent"
                                 CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,9"
-                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                SnapsToDevicePixels="True">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{TemplateBinding Tag}"
                                            FontFamily="{DynamicResource FontFamily.Icon}"
@@ -97,7 +97,7 @@
 
         <!-- ══ ROW 0 — ACTION BAR ════════════════════════════════════ -->
         <Border Grid.Row="0"
-                Style="{StaticResource ModuleDetailActionBarStyle}">
+               >
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -120,7 +120,7 @@
 
                     <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,3"
                             Margin="10,0,0,0" VerticalAlignment="Center"
-                            Background="{DynamicResource TintIndigoBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                            Background="{DynamicResource TintIndigoBrush}">
                         <TextBlock Text="{Binding Status}"
                                    FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
@@ -158,7 +158,7 @@
                             VerticalAlignment="Center">
 
                     <Button x:Name="ActionsMenuButton"
-                            Style="{StaticResource OutlinedPillButton}"
+                           
                             Tag="&#xE712;" Content="{DynamicResource Common.Actions}"
                             ToolTip="{DynamicResource TaxInvoice.SaveIssueMarkPaidExportMore}"
                             behaviors:DropdownButtonBehavior.Popup="{Binding ElementName=ActionsMenuPopup}"/>
@@ -184,41 +184,41 @@
                                                   Color="{DynamicResource LiquidShadowColor}"/>
                             </Border.Effect>
                             <StackPanel>
-                                <Button Style="{StaticResource Button.Secondary}"
+                                <Button
                                         Tag="&#xE74E;" Content="{DynamicResource TaxInvoice.SaveCtrlS}"
                                         Command="{Binding SaveCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
-                                <Button Style="{StaticResource Button.Secondary}"
+                                <Button
                                         Tag="&#xE72D;" Content="{DynamicResource TaxInvoice.IssueInvoice}"
                                         Command="{Binding IssueCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
-                                <Button Style="{StaticResource Button.Secondary}"
+                                <Button
                                         Tag="&#xE8FB;" Content="{DynamicResource TaxInvoice.IssueDrafts}"
                                         Command="{Binding IssueAllCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"
                                         Visibility="{Binding CanIssueAllDrafts,
                                             Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                <Button Style="{StaticResource Button.Secondary}"
+                                <Button
                                         Tag="&#xE73E;" Content="{DynamicResource TaxInvoice.MarkPaid}"
                                         Command="{Binding MarkPaidCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
-                                <Button Style="{StaticResource Button.Secondary}"
+                                <Button
                                         Tag="&#xE81C;" Content="{DynamicResource Common.VersionHistory}"
                                         Command="{Binding ShowVersionsCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource BorderDefaultBrush}"/>
-                                <Button Style="{StaticResource Button.Secondary}"
+                                <Button
                                         Tag="&#xE8A5;" Content="{DynamicResource DeliveryNote.ExportPDF}"
                                         Command="{Binding ExportPdfCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
-                                <Button Style="{StaticResource Button.Secondary}"
+                                <Button
                                         Tag="&#xE72D;" Content="{DynamicResource Sharing.Share}"
                                         Command="{Binding ShareCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource BorderDefaultBrush}"/>
-                                <Button Style="{StaticResource Button.Secondary}"
+                                <Button
                                         Tag="&#xE74D;" Content="{DynamicResource TaxInvoice.DeleteInvoice}"
                                         Command="{Binding DeleteCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
@@ -272,8 +272,8 @@
         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,4,0,14">
             <Button Content="{DynamicResource Nav.Overview}" Tag="&#xE8A5;" Margin="0,0,8,0"
                     ToolTip="{DynamicResource TaxInvoice.InvoiceContentFinancials}"
-                    Command="{Binding SwitchDetailTabCommand}" CommandParameter="Overview" Style="{StaticResource SecondaryButtonStyle}">
-                <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                    Command="{Binding SwitchDetailTabCommand}" CommandParameter="Overview">
+                <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsOverviewTab}" Value="True">
@@ -286,8 +286,8 @@
             </Button>
             <Button Content="{DynamicResource DeliveryNote.Attachments}" Tag="&#xE723;" Margin="0,0,8,0"
                     ToolTip="{DynamicResource TaxInvoice.AttachedImagesPdfs}"
-                    Command="{Binding SwitchDetailTabCommand}" CommandParameter="Attachments" Style="{StaticResource SecondaryButtonStyle}">
-                <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                    Command="{Binding SwitchDetailTabCommand}" CommandParameter="Attachments">
+                <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsAttachmentsTab}" Value="True">
@@ -300,8 +300,8 @@
             </Button>
             <Button Content="{DynamicResource TaxInvoice.Family}" Tag="&#xE716;"
                     ToolTip="{DynamicResource TaxInvoice.InvoiceFamilyMembers}"
-                    Command="{Binding SwitchDetailTabCommand}" CommandParameter="Family" Style="{StaticResource SecondaryButtonStyle}">
-                <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                    Command="{Binding SwitchDetailTabCommand}" CommandParameter="Family">
+                <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsFamilyTab}" Value="True">

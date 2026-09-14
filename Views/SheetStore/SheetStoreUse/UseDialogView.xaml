@@ -67,7 +67,7 @@
                              Foreground="{DynamicResource TextPrimaryBrush}"
                              BorderThickness="1"
                              BorderBrush="{DynamicResource SurfaceTertiaryBrush}"
-                             ToolTip="{DynamicResource SheetStore.EGJO2025001CustomerName}" Style="{StaticResource TextBoxStyle}"/>
+                             ToolTip="{DynamicResource SheetStore.EGJO2025001CustomerName}"/>
                     <TextBlock Text="{DynamicResource SheetStore.TrackWhichJobOrderCustomerConsumingSheets}"
                                FontSize="{DynamicResource FontSize.BodySmall}" FontStyle="Italic" Margin="4,4,0,0"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -108,13 +108,13 @@
                                  Height="40" Padding="10,4" VerticalContentAlignment="Center"
                                  Background="{DynamicResource DialogInsetBrush}"
                                  Foreground="{DynamicResource TextPrimaryBrush}"
-                                 BorderThickness="1" BorderBrush="{DynamicResource SurfaceTertiaryBrush}" Style="{StaticResource TextBoxStyle}"/>
+                                 BorderThickness="1" BorderBrush="{DynamicResource SurfaceTertiaryBrush}"/>
                         <TextBox behaviors:TextBoxBehaviors.SelectAllOnFocus="True" Grid.Row="1" Grid.Column="2"
                                  Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}"
                                  Height="40" Padding="10,4" VerticalContentAlignment="Center"
                                  Background="{DynamicResource DialogInsetBrush}"
                                  Foreground="{DynamicResource TextPrimaryBrush}"
-                                 BorderThickness="1" BorderBrush="{DynamicResource SurfaceTertiaryBrush}" Style="{StaticResource TextBoxStyle}"/>
+                                 BorderThickness="1" BorderBrush="{DynamicResource SurfaceTertiaryBrush}"/>
 
                         <TextBlock Grid.Row="2" Grid.Column="0"
                                    Text="{DynamicResource SheetStore.Salesman}"
@@ -130,7 +130,7 @@
                                  Height="40" Padding="10,4" VerticalContentAlignment="Center"
                                  Background="{DynamicResource DialogInsetBrush}"
                                  Foreground="{DynamicResource TextPrimaryBrush}"
-                                 BorderThickness="1" BorderBrush="{DynamicResource SurfaceTertiaryBrush}" Style="{StaticResource TextBoxStyle}"/>
+                                 BorderThickness="1" BorderBrush="{DynamicResource SurfaceTertiaryBrush}"/>
                         <ComboBox Grid.Row="3" Grid.Column="2"
                                   Text="{Binding PanePosition, UpdateSourceTrigger=PropertyChanged}"
                                   Style="{StaticResource ModernEditableComboBoxStyle}"
@@ -173,8 +173,8 @@
                                  VerticalContentAlignment="Center" Height="44"
                                  Background="{DynamicResource DialogInsetBrush}"
                                  Foreground="{DynamicResource TextPrimaryBrush}"
-                                 Margin="8,0" Style="{StaticResource TextBoxStyle}">
-                            <TextBox.Style Style="{StaticResource TextBoxStyle}">
+                                 Margin="8,0">
+                            <TextBox.Style>
                                 <Style TargetType="TextBox">
                                     <Setter Property="BorderThickness" Value="0"/>
                                     <Style.Triggers>

@@ -154,12 +154,12 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="GLASS TYPE" Style="{StaticResource Typography.Title}"/>
-                        <TextBlock Grid.Column="1" Text="JOBS" Style="{StaticResource Typography.Title}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="2" Text="REVENUE" Style="{StaticResource Typography.Title}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="3" Text="COST" Style="{StaticResource Typography.Title}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="4" Text="PROFIT" Style="{StaticResource Typography.Title}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="5" Text="MARGIN %" Style="{StaticResource Typography.Title}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="0" Text="GLASS TYPE"/>
+                        <TextBlock Grid.Column="1" Text="JOBS" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="2" Text="REVENUE" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="3" Text="COST" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="4" Text="PROFIT" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="5" Text="MARGIN %" HorizontalAlignment="Right"/>
                     </Grid>
                 </Border>
 
@@ -195,13 +195,13 @@
                                         </TextBlock>
 
                                         <TextBlock Grid.Column="1" Text="{Binding JobCount}"
-                                                   Style="{StaticResource Typography.DataGrid}" HorizontalAlignment="Right"/>
+                                                   HorizontalAlignment="Right"/>
 
                                         <TextBlock Grid.Column="2" Text="{Binding TotalRevenueDisplay}"
-                                                   Style="{StaticResource Typography.DataGrid}" HorizontalAlignment="Right"/>
+                                                   HorizontalAlignment="Right"/>
 
                                         <TextBlock Grid.Column="3" Text="{Binding TotalCostDisplay}"
-                                                   Style="{StaticResource Typography.DataGrid}" HorizontalAlignment="Right"
+                                                   HorizontalAlignment="Right"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
                                         <TextBlock Grid.Column="4" Text="{Binding TotalProfitDisplay}"

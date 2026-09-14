@@ -124,14 +124,14 @@
                       VirtualizingPanel.CacheLength="400,800"
                       VirtualizingPanel.CacheLengthUnit="Pixel"
                       ScrollViewer.CanContentScroll="True">
-                <DataGrid.InputBindings Style="{StaticResource DataGridStyle}">
+                <DataGrid.InputBindings>
                     <MouseBinding MouseAction="LeftDoubleClick"
                                   Command="{Binding OpenCommand}"
                                   CommandParameter="{Binding SelectedItem,
                                       RelativeSource={RelativeSource
                                           AncestorType=DataGrid}}"/>
                 </DataGrid.InputBindings>
-                <DataGrid.Columns Style="{StaticResource DataGridStyle}">
+                <DataGrid.Columns>
                     <DataGridTextColumn Header="{DynamicResource God.DnNumber}"
                                         Binding="{Binding DeliveryNoteId}"
                                         Width="150"/>

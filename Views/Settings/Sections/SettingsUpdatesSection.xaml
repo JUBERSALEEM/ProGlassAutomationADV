@@ -93,7 +93,7 @@
                                 <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="1"
                                         Background="{DynamicResource TintBlueBrush}"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
-                                        Padding="14,10" Margin="6,0,0,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                        Padding="14,10" Margin="6,0,0,0">
                                     <StackPanel>
                                         <TextBlock Text="{DynamicResource Settings.LatestRelease}"
                                                    FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
@@ -122,7 +122,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <Button Grid.Column="0"
-                                        Style="{StaticResource PrimaryPillButton}"
+                                       
                                         Tag="&#xE72C;" Content="{DynamicResource About.Update}"
                                         Command="{Binding CheckForUpdatesCommand}"
                                         HorizontalAlignment="Stretch"/>
@@ -130,8 +130,8 @@
                                         Tag="&#xE896;" Content="{DynamicResource Settings.DownloadUpdate}"
                                         Command="{Binding DownloadUpdateCommand}"
                                         Margin="10,0,0,0"
-                                        HorizontalAlignment="Stretch" Style="{StaticResource SecondaryButtonStyle}">
-                                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                                        HorizontalAlignment="Stretch">
+                                    <Button.Style>
                                         <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>
@@ -194,7 +194,7 @@
                     </Border>
                 </StackPanel>
 
-                <Border Style="{StaticResource SurfaceDetailStyle}"/>
+                <Border/>
 
                 <!-- ═══════ GROUP: RELEASE NOTES ═══════ -->
                 <TextBlock Text="{DynamicResource Settings.ReleaseNotes}"
@@ -243,7 +243,7 @@
                     </Border>
                 </StackPanel>
 
-                <Border Style="{StaticResource SurfaceDetailStyle}"/>
+                <Border/>
 
                 <!-- ═══════ GROUP: UPDATE HISTORY ═══════ -->
                 <TextBlock Text="{DynamicResource Settings.UpdateHistory}"
@@ -252,7 +252,7 @@
                            Style="{StaticResource Typography.BodySmall}"/>
 
                 <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border>
                         <StackPanel>
                             <StackPanel>
                                 <StackPanel.Style>
@@ -271,7 +271,7 @@
                                         <DataTemplate>
                                             <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                     BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                                                    Padding="2,7" Style="{StaticResource SurfacePrimaryStyle}">
+                                                    Padding="2,7">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="150"/>

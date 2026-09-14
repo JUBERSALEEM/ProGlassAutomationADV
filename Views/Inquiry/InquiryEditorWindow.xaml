@@ -40,7 +40,7 @@
         </Grid.RowDefinitions>
 
         <!-- ══ HEADER ═════════════════════════════════════════════════ -->
-        <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="16,12">
+        <Border Padding="16,12">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.09" Color="{DynamicResource LiquidShadowColor}"/>
             </Border.Effect>
@@ -88,13 +88,13 @@
             </Grid.ColumnDefinitions>
 
             <!-- LEFT · workflow rail -->
-            <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="16,14">
+            <Border Padding="16,14">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Inquiry.Workflow}" Style="{StaticResource ModuleColumnHeaderStyle}" Margin="2,0,0,10"/>
 
                     <!-- Step 1 · Received (always active) -->
                     <StackPanel Orientation="Horizontal">
-                        <Border Style="{StaticResource StepDotStyle}" Background="{DynamicResource AccentBrush}"
+                        <Border Background="{DynamicResource AccentBrush}"
                                 BorderBrush="{DynamicResource AccentBrush}">
                             <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
@@ -105,7 +105,7 @@
                             <TextBlock Text="{DynamicResource Inquiry.CapturedCustomer}" Style="{StaticResource InqHintStyle}"/>
                         </StackPanel>
                     </StackPanel>
-                    <Border Style="{StaticResource InqTimelineLineStyle}" Height="14"/>
+                    <Border Height="14"/>
 
                     <!-- Step 2 · Prepared -->
                     <StackPanel Orientation="Horizontal">
@@ -135,7 +135,7 @@
                             <TextBlock Text="{Binding PreparedDateText, Mode=OneWay}" Style="{StaticResource InqHintStyle}"/>
                         </StackPanel>
                     </StackPanel>
-                    <Border Style="{StaticResource InqTimelineLineStyle}" Height="14"/>
+                    <Border Height="14"/>
 
                     <!-- Step 3 · Sent -->
                     <StackPanel Orientation="Horizontal">
@@ -161,7 +161,7 @@
                             <TextBlock Text="{Binding SentDateText, Mode=OneWay}" Style="{StaticResource InqHintStyle}"/>
                         </StackPanel>
                     </StackPanel>
-                    <Border Style="{StaticResource InqTimelineLineStyle}" Height="14"/>
+                    <Border Height="14"/>
 
                     <!-- Step 4 · Confirmed -->
                     <StackPanel Orientation="Horizontal">
@@ -257,7 +257,7 @@
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                <TextBlock Text="{DynamicResource Common.Project}" Style="{StaticResource ModuleColumnHeaderStyle}"/>
+                                <TextBlock Text="{DynamicResource Common.Project}"/>
                                 <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
                                            VerticalAlignment="Center" Margin="9,0,0,0"/>
                             </StackPanel>
@@ -268,7 +268,7 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel>
-                                    <TextBlock Text="{DynamicResource Inquiry.Project}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Inquiry.Project}"/>
                                     <TextBox Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource ModernTextBoxStyle}"/>
                                 </StackPanel>
@@ -276,7 +276,7 @@
                                             Visibility="{Binding Path=ShowInquiryReference,
                                                 Source={x:Static features:InquiryFieldVisibility.Instance},
                                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <TextBlock Text="{DynamicResource Inquiry.InquiryReference}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Inquiry.InquiryReference}"/>
                                     <TextBox Text="{Binding Reference, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource ModernTextBoxStyle}"/>
                                 </StackPanel>
@@ -285,7 +285,7 @@
                                         Visibility="{Binding Path=ShowProjectDescription,
                                             Source={x:Static features:InquiryFieldVisibility.Instance},
                                             Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="{DynamicResource Inquiry.DescriptionSubject}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Inquiry.DescriptionSubject}"/>
                                 <TextBox Text="{Binding ProjectDescription, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource ModernTextBoxStyle}" Height="66" AcceptsReturn="True"
                                          TextWrapping="Wrap" VerticalContentAlignment="Top" Padding="11,9"/>
@@ -297,7 +297,7 @@
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                <TextBlock Text="{DynamicResource Inquiry.Commercial}" Style="{StaticResource ModuleColumnHeaderStyle}"/>
+                                <TextBlock Text="{DynamicResource Inquiry.Commercial}"/>
                                 <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
                                            VerticalAlignment="Center" Margin="9,0,0,0"/>
                             </StackPanel>
@@ -310,17 +310,17 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel>
-                                    <TextBlock Text="{DynamicResource Inquiry.ReceivedDate}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Inquiry.ReceivedDate}"/>
                                     <DatePicker SelectedDate="{Binding ReceivedDate}" Height="34" FontSize="{StaticResource TextBodyLarge}"
                                                 VerticalContentAlignment="Center"/>
                                     <TextBlock Text="{Binding ReceivedHint, Mode=OneWay}"
-                                               Style="{StaticResource InqHintStyle}" Margin="2,5,0,0"/>
+                                               Margin="2,5,0,0"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2"
                                             Visibility="{Binding Path=ShowSalesman,
                                                 Source={x:Static features:InquiryFieldVisibility.Instance},
                                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <TextBlock Text="{DynamicResource Common.Salesman}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Common.Salesman}"/>
                                     <ComboBox ItemsSource="{Binding Salesmen}"
                                               Text="{Binding SalesmanName, UpdateSourceTrigger=PropertyChanged}"
                                               Style="{StaticResource ModernEditableComboBoxStyle}"
@@ -332,7 +332,7 @@
                                             Visibility="{Binding Path=ShowPriority,
                                                 Source={x:Static features:InquiryFieldVisibility.Instance},
                                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <TextBlock Text="{DynamicResource Common.Priority}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Common.Priority}"/>
                                     <ComboBox ItemsSource="{Binding Priorities}" SelectedItem="{Binding Priority}"
                                               Style="{StaticResource ModernComboBoxStyle}"/>
                                 </StackPanel>
@@ -341,7 +341,7 @@
                                         Visibility="{Binding Path=ShowInquiryValue,
                                             Source={x:Static features:InquiryFieldVisibility.Instance},
                                             Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="{DynamicResource Inquiry.InquiryValueAED}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Inquiry.InquiryValueAED}"/>
                                 <TextBox x:Name="ValueInput"
                                          Text="{Binding ValueText, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource ModernTextBoxStyle}" TextAlignment="Right"
@@ -561,7 +561,7 @@
                                                            FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,9,0,0" HorizontalAlignment="Center"
                                                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <TextBlock Text="{DynamicResource Inquiry.NewInquirySavedAutomaticallyBeforeFirstFile}"
-                                                           Style="{StaticResource InqHintStyle}" Margin="0,4,0,0"
+                                                           Margin="0,4,0,0"
                                                            HorizontalAlignment="Center" TextAlignment="Center"/>
                                             </StackPanel>
                                         </Grid>

@@ -18,7 +18,7 @@
     <Grid>
 <!-- ── ATTACHMENTS CARD (right) — auto-switches per family entry ── -->
             <Border Grid.Column="2"
-                    Style="{StaticResource SurfacePrimaryStyle}"
+                   
                     >
                 <Grid>
                     <Grid.RowDefinitions>
@@ -28,7 +28,7 @@
                     </Grid.RowDefinitions>
 
                     <Border Grid.Row="0"
-                            Style="{StaticResource SectionHeaderStyle}">
+                           >
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                                 <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>

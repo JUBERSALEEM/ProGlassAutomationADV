@@ -175,12 +175,12 @@
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource ProformaInvoice.SoldSqm}" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                 <TextBox Text="{Binding InterlayerSellPrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource Step4InputStyle}" ToolTip="{DynamicResource ProformaInvoice.SoldSqm}"/>
+                                         ToolTip="{DynamicResource ProformaInvoice.SoldSqm}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="{DynamicResource ProformaInvoice.BoughtSqm}" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                 <TextBox Text="{Binding InterlayerBuyPrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource Step4InputStyle}" ToolTip="{DynamicResource ProformaInvoice.BoughtSqm}"/>
+                                         ToolTip="{DynamicResource ProformaInvoice.BoughtSqm}"/>
                             </StackPanel>
                         </Grid>
                         <TextBlock Text="{Binding InterlayerMarginDisplay}"
@@ -220,7 +220,7 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Common.Price}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding LamInnerBasePrice, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                                <TextBox Text="{Binding LamInnerBasePrice, StringFormat={}{0:0.##}}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
@@ -238,11 +238,11 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource ProformaInvoice.Yield}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                                <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="{DynamicResource ProformaInvoice.Margin}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding MarginProfitPercent, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                                <TextBox Text="{Binding MarginProfitPercent, StringFormat={}{0:0.##}}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="4">
                                 <TextBlock Text="{DynamicResource ProformaInvoice.PanelExtra}" Style="{StaticResource ModuleFieldLabelStyle}"/>
@@ -253,8 +253,8 @@
                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <TextBox Margin="0,4,0,0"
                                          Text="{Binding CustomPanelExtra, UpdateSourceTrigger=PropertyChanged}"
-                                         ToolTip="Example: With Fanhole and Argon Gas As Per DWG" Style="{StaticResource TextBoxStyle}">
-                                    <TextBox.Style Style="{StaticResource TextBoxStyle}">
+                                         ToolTip="Example: With Fanhole and Argon Gas As Per DWG">
+                                    <TextBox.Style>
                                         <Style TargetType="TextBox" BasedOn="{StaticResource Step4InputStyle}">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>

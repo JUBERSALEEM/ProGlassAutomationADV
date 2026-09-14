@@ -292,17 +292,17 @@
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Grid.Column="0" Text="{DynamicResource Specifications.ColType}"
-                                       Style="{StaticResource SpecColumnHeaderStyle}"/>
+                                      />
                             <TextBlock Grid.Column="1" Text="{DynamicResource Specifications.ColSpecification}"
-                                       Style="{StaticResource SpecColumnHeaderStyle}" Margin="12,0,10,0"/>
+                                       Margin="12,0,10,0"/>
                             <TextBlock Grid.Column="2" Text="{DynamicResource Specifications.ColUsed}"
-                                       Style="{StaticResource SpecColumnHeaderStyle}"
+                                      
                                        HorizontalAlignment="Center"/>
                             <TextBlock Grid.Column="3" Text="{DynamicResource Specifications.ColRate}"
-                                       Style="{StaticResource SpecColumnHeaderStyle}"
+                                      
                                        HorizontalAlignment="Right"/>
                             <TextBlock Grid.Column="4" Text=""
-                                       Style="{StaticResource SpecColumnHeaderStyle}"/>
+                                      />
                         </Grid>
                     </Border>
 

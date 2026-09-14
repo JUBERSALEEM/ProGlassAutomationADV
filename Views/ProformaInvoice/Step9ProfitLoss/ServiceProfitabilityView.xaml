@@ -44,9 +44,9 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel>
-                <TextBlock Text="SERVICE PROFITABILITY ANALYSIS" Style="{StaticResource Typography.Title}"/>
+                <TextBlock Text="SERVICE PROFITABILITY ANALYSIS"/>
                 <TextBlock Text="Simple order: service totals first, then detailed service rows, then recommendation/status. Use this after the Overview decision."
-                           Style="{StaticResource Typography.BodySmall}"/>
+                          />
             </StackPanel>
             <!-- Export toolbar (multi-generation report output) -->
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="12,0,0,0">
@@ -59,20 +59,20 @@
 
         <!-- Main result first -->
         <StackPanel Grid.Row="1" Margin="0,0,0,16">
-            <TextBlock Text="MAIN RESULT — SERVICE TOTALS" Style="{StaticResource Typography.Label}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,8"/>
+            <TextBlock Text="MAIN RESULT — SERVICE TOTALS" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,8"/>
             <StackPanel Orientation="Horizontal">
             <!-- Total Service Charge -->
             <Border Style="{StaticResource SurfacePrimaryStyle}" Width="200">
                 <StackPanel>
-                    <TextBlock Text="TOTAL SERVICE CHARGE" Style="{StaticResource Typography.Label}"/>
-                    <TextBlock Text="{Binding TotalServiceChargeDisplay}" Style="{StaticResource Typography.Body}"/>
+                    <TextBlock Text="TOTAL SERVICE CHARGE"/>
+                    <TextBlock Text="{Binding TotalServiceChargeDisplay}"/>
                 </StackPanel>
             </Border>
 
             <!-- Total Service Profit -->
             <Border Style="{StaticResource SurfacePrimaryStyle}" Width="200">
                 <StackPanel>
-                    <TextBlock Text="TOTAL SERVICE PROFIT" Style="{StaticResource Typography.Label}"/>
+                    <TextBlock Text="TOTAL SERVICE PROFIT"/>
                     <TextBlock Text="{Binding TotalServiceProfitDisplay}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource KpiValueStyle}">
@@ -90,7 +90,7 @@
             <!-- Overall Service Margin -->
             <Border Style="{StaticResource SurfacePrimaryStyle}" Width="200">
                 <StackPanel>
-                    <TextBlock Text="OVERALL SERVICE MARGIN" Style="{StaticResource Typography.Label}"/>
+                    <TextBlock Text="OVERALL SERVICE MARGIN"/>
                     <TextBlock Text="{Binding OverallServiceMarginDisplay}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource KpiValueStyle}">
@@ -146,14 +146,14 @@
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="SPEC" Style="{StaticResource Typography.Label}"/>
-                        <TextBlock Grid.Column="1" Text="SERVICE" Style="{StaticResource Typography.Label}"/>
-                        <TextBlock Grid.Column="2" Text="DESCRIPTION" Style="{StaticResource Typography.Label}"/>
-                        <TextBlock Grid.Column="3" Text="AREA" Style="{StaticResource Typography.Label}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="4" Text="CHARGE" Style="{StaticResource Typography.Label}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="5" Text="COST" Style="{StaticResource Typography.Label}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="6" Text="PROFIT" Style="{StaticResource Typography.Label}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="7" Text="MARGIN %" Style="{StaticResource Typography.Label}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="0" Text="SPEC"/>
+                        <TextBlock Grid.Column="1" Text="SERVICE"/>
+                        <TextBlock Grid.Column="2" Text="DESCRIPTION"/>
+                        <TextBlock Grid.Column="3" Text="AREA" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="4" Text="CHARGE" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="5" Text="COST" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="6" Text="PROFIT" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="7" Text="MARGIN %" HorizontalAlignment="Right"/>
                     </Grid>
                 </Border>
 
@@ -178,38 +178,38 @@
                                         <!-- Spec Name -->
                                         <TextBlock Grid.Column="0"
                                                    Text="{Binding SpecName}"
-                                                   Style="{StaticResource Typography.Body}"
+                                                  
                                                    FontWeight="{DynamicResource Weight.SemiBold}"
                                                    Foreground="{DynamicResource AccentBrush}"/>
 
                                         <!-- Service Name -->
                                         <TextBlock Grid.Column="1"
                                                    Text="{Binding ServiceName}"
-                                                   Style="{StaticResource Typography.Body}"
+                                                  
                                                    FontWeight="{DynamicResource Weight.SemiBold}"/>
 
                                         <!-- Description -->
                                         <TextBlock Grid.Column="2"
                                                    Text="{Binding Description}"
-                                                   Style="{StaticResource Typography.Body}"
+                                                  
                                                    TextWrapping="Wrap"/>
 
                                         <!-- Area -->
                                         <TextBlock Grid.Column="3"
                                                    Text="{Binding AreaDisplay}"
-                                                   Style="{StaticResource Typography.Body}"
+                                                  
                                                    HorizontalAlignment="Right"/>
 
                                         <!-- Charge -->
                                         <TextBlock Grid.Column="4"
                                                    Text="{Binding ChargeDisplay}"
-                                                   Style="{StaticResource Typography.Body}"
+                                                  
                                                    HorizontalAlignment="Right"/>
 
                                         <!-- Cost -->
                                         <TextBlock Grid.Column="5"
                                                    Text="{Binding CostDisplay}"
-                                                   Style="{StaticResource Typography.Body}"
+                                                  
                                                    HorizontalAlignment="Right"/>
 
                                         <!-- Profit -->
@@ -294,17 +294,17 @@
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0" Text=""
-                                   Style="{StaticResource Typography.Body}"/>
+                                  />
                         <TextBlock Grid.Column="1" Text="TOTAL"
-                                   Style="{StaticResource Typography.Body}" FontWeight="{DynamicResource Weight.Bold}"/>
+                                   FontWeight="{DynamicResource Weight.Bold}"/>
                         <TextBlock Grid.Column="2" Text="{Binding TotalServiceCountDisplay}"
-                                   Style="{StaticResource Typography.Body}"/>
+                                  />
                         <TextBlock Grid.Column="3" Text="{Binding TotalServiceAreaDisplay}"
-                                   Style="{StaticResource Typography.Body}" HorizontalAlignment="Right"/>
+                                   HorizontalAlignment="Right"/>
                         <TextBlock Grid.Column="4" Text="{Binding TotalServiceChargeDisplay}"
-                                   Style="{StaticResource Typography.Body}" HorizontalAlignment="Right" FontWeight="{DynamicResource Weight.SemiBold}"/>
+                                   HorizontalAlignment="Right" FontWeight="{DynamicResource Weight.SemiBold}"/>
                         <TextBlock Grid.Column="5" Text="{Binding TotalServiceCostDisplay}"
-                                   Style="{StaticResource Typography.Body}" HorizontalAlignment="Right" FontWeight="{DynamicResource Weight.SemiBold}"/>
+                                   HorizontalAlignment="Right" FontWeight="{DynamicResource Weight.SemiBold}"/>
                         <TextBlock Grid.Column="6" Text="{Binding TotalServiceProfitDisplay}"
                                    HorizontalAlignment="Right" FontWeight="{DynamicResource Weight.SemiBold}">
                             <TextBlock.Style>

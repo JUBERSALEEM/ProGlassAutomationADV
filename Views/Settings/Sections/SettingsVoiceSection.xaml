@@ -53,20 +53,20 @@
 
                 <!-- ═════════ GROUP: WHISPER MODEL ═════════ -->
                 <TextBlock Text="{DynamicResource Settings.WhisperModel}"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                          />
                 <TextBlock Text="{DynamicResource Settings.PickModelSizeDownloadOnceLargerModelsMore}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                          />
 
                 <StackPanel Margin="0,0,0,6">
 
                     <!-- Model picker (full row) -->
-                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
+                    <Border>
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE720;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.ChooseModel}"/>
+                                <TextBlock Text="&#xE720;"/>
+                                <TextBlock Text="{DynamicResource Settings.ChooseModel}"/>
                             </StackPanel>
-                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                            <TextBlock
                                        Text="{DynamicResource Settings.ClickCardSelectOneModelActiveTimeSwitch}"/>
 
                             <ItemsControl ItemsSource="{Binding WhisperModelOptions}">
@@ -139,9 +139,9 @@
 
                 <!-- ═════════ GROUP: STATUS ═════════ -->
                 <TextBlock Text="{DynamicResource Common.Status}"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                          />
                 <TextBlock Text="{DynamicResource Settings.WhereSelectedModelStandsDownloadCancelDelete}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                          />
 
                 <StackPanel Margin="0,0,0,6">
 
@@ -184,7 +184,7 @@
                                 </Border>
 
                                 <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                    <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE720;"/>
+                                    <TextBlock Text="&#xE720;"/>
                                     <StackPanel>
                                         <!-- Style is set ONLY via the property-element <TextBlock.Style>.
                                              Do NOT also set Style="…" on the opening tag — WPF rejects

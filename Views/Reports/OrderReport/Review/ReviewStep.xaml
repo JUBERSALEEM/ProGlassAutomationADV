@@ -568,27 +568,27 @@
                                             <ColumnDefinition Width="12"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}">
+                                        <Border Grid.Column="0">
                                             <StackPanel>
                                                 <TextBlock Text="Ordered Weight (kg)" Style="{StaticResource KpiLabel}"/>
                                                 <TextBlock Text="{Binding Totals.OrderedWeightKg, StringFormat={}{0:N1}}" Style="{StaticResource KpiValue}"/>
                                             </StackPanel>
                                         </Border>
-                                        <Border Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}">
+                                        <Border Grid.Column="2">
                                             <StackPanel>
                                                 <TextBlock Text="Delivered Weight (kg)" Style="{StaticResource KpiLabel}"/>
                                                 <TextBlock Text="{Binding Totals.DeliveredWeightKg, StringFormat={}{0:N1}}" Style="{StaticResource KpiValue}"
                                                            Foreground="{DynamicResource SuccessBrush}"/>
                                             </StackPanel>
                                         </Border>
-                                        <Border Grid.Column="4" Style="{StaticResource SurfacePrimaryStyle}">
+                                        <Border Grid.Column="4">
                                             <StackPanel>
                                                 <TextBlock Text="Balance Weight (kg)" Style="{StaticResource KpiLabel}"/>
                                                 <TextBlock Text="{Binding Totals.BalanceWeightKg, StringFormat={}{0:N1}}" Style="{StaticResource KpiValue}"
                                                            Foreground="{DynamicResource WarningBrush}"/>
                                             </StackPanel>
                                         </Border>
-                                        <Border Grid.Column="6" Style="{StaticResource SurfacePrimaryStyle}">
+                                        <Border Grid.Column="6">
                                             <StackPanel>
                                                 <TextBlock Text="Invoiced Value" Style="{StaticResource KpiLabel}"/>
                                                 <TextBlock Text="{Binding Totals.InvoicedValue, StringFormat=AED {0:N2}}" Style="{StaticResource KpiValue}"

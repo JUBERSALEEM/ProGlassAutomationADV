@@ -28,7 +28,7 @@
                   Height="34"
                   VerticalContentAlignment="Center"
                   ScrollViewer.CanContentScroll="True" Style="{StaticResource ComboBoxStyle}">
-            <ComboBox.ItemTemplate Style="{StaticResource ComboBoxStyle}">
+            <ComboBox.ItemTemplate>
                 <DataTemplate DataType="{x:Type loc:CountryInfo}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{Binding Flag}" FontFamily="Segoe UI Emoji"

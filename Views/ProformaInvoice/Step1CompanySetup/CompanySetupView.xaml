@@ -37,17 +37,17 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="01" Style="{StaticResource PiStationCodeStyle}"/>
-                        <TextBlock Grid.Column="1" Text="{DynamicResource Common.Company}" Style="{StaticResource PiStationTitleStyle}"/>
+                        <TextBlock Text="01"/>
+                        <TextBlock Grid.Column="1" Text="{DynamicResource Common.Company}"/>
                         <TextBlock Grid.Column="2" Text="{DynamicResource ProformaInvoice.LetterheadTRNBankDetailsQuotation}"
-                                   Style="{StaticResource PiStationHintStyle}"/>
+                                  />
                         <Button Grid.Column="3" Command="{Binding GoToGridCommand}"
                                 Style="{StaticResource PiViewAllLinkStyle}" ToolTip="{DynamicResource ProformaInvoice.SkipGlassDataGridStep5}">
                             <TextBlock Text="{DynamicResource ProformaInvoice.SkipGrid}" TextDecorations="Underline"/>
                         </Button>
                     </Grid>
                 </Border>
-                <TextBlock Text="{DynamicResource ProformaInvoice.Identity}" Style="{StaticResource PiSectionLabelStyle}"/>
+                <TextBlock Text="{DynamicResource ProformaInvoice.Identity}"/>
 
                 <Grid Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
@@ -56,7 +56,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Style="{StaticResource PiFieldLabelStyle}">
+                        <TextBlock>
                             <Run Text="{DynamicResource ProformaInvoice.RegisteredNAME}"/><Run Text=" *" Foreground="{DynamicResource DangerBrush}"/>
                         </TextBlock>
                         <TextBox Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}"
@@ -79,7 +79,7 @@
                                 Visibility="{Binding Path=ShowCompanyTrn,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="{DynamicResource ProformaInvoice.FederalTRN}" Style="{StaticResource PiFieldLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource ProformaInvoice.FederalTRN}"/>
                         <TextBox Text="{Binding CompanyTrn, UpdateSourceTrigger=PropertyChanged}" MaxLength="15"
                                  AutomationProperties.AutomationId="ProformaInvoice.CompanyTrn"
                                  AutomationProperties.Name="Company TRN" Style="{StaticResource TextBoxStyle}"/>
@@ -100,7 +100,7 @@
                                 Visibility="{Binding Path=ShowCompanyLocation,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="{DynamicResource ProformaInvoice.Headquarters}" Style="{StaticResource PiFieldLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource ProformaInvoice.Headquarters}"/>
                         <TextBox Text="{Binding CompanyLocation, UpdateSourceTrigger=PropertyChanged}"
                                  AutomationProperties.AutomationId="ProformaInvoice.CompanyLocation"
                                  AutomationProperties.Name="Company headquarters" Style="{StaticResource TextBoxStyle}"/>
@@ -154,7 +154,7 @@
                             </Grid>
                         </Border>
                         <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock Style="{StaticResource PiFieldLabelStyle}" Margin="0">
+                            <TextBlock Margin="0">
                                 <Run Text="{DynamicResource CompanyCenter.ChooseLOGO}"/>
                                 <Run Text=" — "/>
                                 <Run Text="{Binding LogoLayoutLabel, Mode=OneWay}" FontWeight="{DynamicResource Weight.Bold}"/>
@@ -184,7 +184,7 @@
                     <StackPanel Visibility="{Binding Path=ShowRepresentative,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="{DynamicResource CompanyCenter.Representative}" Style="{StaticResource PiFieldLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource CompanyCenter.Representative}"/>
                         <TextBox Text="{Binding Representative, UpdateSourceTrigger=PropertyChanged}"
                                  AutomationProperties.AutomationId="ProformaInvoice.Representative"
                                  AutomationProperties.Name="Representative" Style="{StaticResource TextBoxStyle}"/>
@@ -193,7 +193,7 @@
                                 Visibility="{Binding Path=ShowRepresentativeMobile,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="{DynamicResource Phone.Label}" Style="{StaticResource PiFieldLabelStyle}"
+                        <TextBlock Text="{DynamicResource Phone.Label}"
                                    TextOptions.TextFormattingMode="Display"/>
                         <shared:CountryPhoneControl
                                  PhoneText="{Binding RepresentativeMobile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -204,7 +204,7 @@
                                 Visibility="{Binding Path=ShowCompanyEmail,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="{DynamicResource Common.Email}" Style="{StaticResource PiFieldLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Common.Email}"/>
                         <TextBox Text="{Binding CompanyEmail, UpdateSourceTrigger=PropertyChanged}"
                                  AutomationProperties.AutomationId="ProformaInvoice.CompanyEmail"
                                  AutomationProperties.Name="Company email" Style="{StaticResource TextBoxStyle}"/>
@@ -218,7 +218,7 @@
                     <StackPanel Visibility="{Binding Path=ShowBankName,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="{DynamicResource ProformaInvoice.BANK}" Style="{StaticResource PiFieldLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource ProformaInvoice.BANK}"/>
                         <TextBox Text="{Binding BankName, UpdateSourceTrigger=PropertyChanged}"
                                  AutomationProperties.AutomationId="ProformaInvoice.BankName"
                                  AutomationProperties.Name="Bank name" Style="{StaticResource TextBoxStyle}"/>
@@ -227,7 +227,7 @@
                                 Visibility="{Binding Path=ShowAccountNumber,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="{DynamicResource ProformaInvoice.AccountIBAN}" Style="{StaticResource PiFieldLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource ProformaInvoice.AccountIBAN}"/>
                         <TextBox Text="{Binding AccountNumber, UpdateSourceTrigger=PropertyChanged}" FontFamily="{DynamicResource FontFamily.Code}"
                                  AutomationProperties.AutomationId="ProformaInvoice.AccountNumber"
                                  AutomationProperties.Name="Account or IBAN" Style="{StaticResource TextBoxStyle}"/>
@@ -244,7 +244,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Style="{StaticResource PiFieldLabelStyle}">
+                        <TextBlock>
                             <Run Text="{DynamicResource ProformaInvoice.ProformaID}"/><Run Text=" *" Foreground="{DynamicResource DangerBrush}"/>
                         </TextBlock>
                         <TextBox Text="{Binding ProformaId, UpdateSourceTrigger=PropertyChanged}" FontFamily="{DynamicResource FontFamily.Code}"
@@ -267,7 +267,7 @@
                                 Visibility="{Binding Path=ShowIssueDate,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="{DynamicResource ProformaInvoice.IssueDATE}" Style="{StaticResource PiFieldLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource ProformaInvoice.IssueDATE}"/>
                         <DatePicker SelectedDate="{Binding IssueDate}" Style="{StaticResource PiDatePickerStyle}"
                                     AutomationProperties.AutomationId="ProformaInvoice.IssueDate"
                                     AutomationProperties.Name="Issue date"/>
@@ -276,7 +276,7 @@
                                 Visibility="{Binding Path=ShowValidUntil,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="{DynamicResource ProformaInvoice.ValidUntil}" Style="{StaticResource PiFieldLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource ProformaInvoice.ValidUntil}"/>
                         <DatePicker SelectedDate="{Binding ValidUntil}" Style="{StaticResource PiDatePickerStyle}"
                                     AutomationProperties.AutomationId="ProformaInvoice.ValidUntil"
                                     AutomationProperties.Name="Valid until"/>
@@ -285,7 +285,7 @@
                                 Visibility="{Binding Path=ShowProformaStatus,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="{DynamicResource Common.Status}" Style="{StaticResource PiFieldLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Common.Status}"/>
                         <ComboBox ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding ProformaStatus}" Style="{StaticResource PiComboBoxStyle}"
                                   AutomationProperties.AutomationId="ProformaInvoice.ProformaStatus"
                                   AutomationProperties.Name="Proforma status"/>
@@ -312,9 +312,9 @@
 
         <DockPanel Grid.Column="2">
             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                <TextBlock Text="{DynamicResource ProformaInvoice.Saved}" Style="{StaticResource PiSectionLabelStyle}" Margin="0" VerticalAlignment="Center"/>
+                <TextBlock Text="{DynamicResource ProformaInvoice.Saved}" Margin="0" VerticalAlignment="Center"/>
                 <Button HorizontalAlignment="Right" Command="{Binding RefreshCardsCommand}"
-                        Style="{StaticResource PiIconButtonStyle}" ToolTip="{DynamicResource ProformaInvoice.RefreshSavedCompaniesDatabase}">
+                        ToolTip="{DynamicResource ProformaInvoice.RefreshSavedCompaniesDatabase}">
                     <TextBlock Text="&#xE72C;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Title}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </Button>
@@ -359,8 +359,8 @@
                 </TextBlock.Style>
             </TextBlock>
             <Button DockPanel.Dock="Bottom" HorizontalAlignment="Left" Margin="0,8,0,0"
-                    Command="{Binding ShowAllCompaniesCommand}" Style="{StaticResource SecondaryButtonStyle}">
-                <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                    Command="{Binding ShowAllCompaniesCommand}">
+                <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource PiViewAllLinkStyle}">
                         <Setter Property="Visibility" Value="Collapsed"/>
                         <Style.Triggers>

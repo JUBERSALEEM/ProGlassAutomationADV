@@ -20,8 +20,8 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="08" Style="{StaticResource PiStationCodeStyle}"/>
-                        <TextBlock Style="{StaticResource PiStationTitleStyle}">
+                        <TextBlock Text="08"/>
+                        <TextBlock>
                             <TextBlock.Inlines>
                                 <Run Text="{DynamicResource Attachments.FilesTitle}"/>
                                 <Run Text="  ·  "/>

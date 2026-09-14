@@ -46,7 +46,7 @@
                                 Background="Transparent"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="{TemplateBinding Padding}"
-                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
                         </Border>
@@ -95,7 +95,7 @@
                 <!-- Module title -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
                     <Border Width="6" Height="26" CornerRadius="{DynamicResource Radius.XSmall}"
-                            Background="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0" Style="{StaticResource SurfacePrimaryStyle}"/>
+                            Background="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <StackPanel>
                         <TextBlock Text="Report Generator" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AccentBrush}"/>
@@ -473,7 +473,7 @@
                         Width="38" Height="38" Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}"
                         Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Center"
                         FocusVisualStyle="{x:Null}" ToolTip="Back to saved reports">
-                    <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                    <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="bd" Background="Transparent"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"

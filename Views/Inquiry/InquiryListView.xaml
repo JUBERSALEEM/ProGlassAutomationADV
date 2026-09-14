@@ -715,7 +715,7 @@
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="20"
-                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                        SnapsToDevicePixels="True">
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="22" ShadowDepth="5"
                                           Direction="270" Opacity="0.18"
@@ -734,7 +734,7 @@
                                 <Border Width="40" Height="40"
                                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                                         Background="{DynamicResource AccentBrush}"
-                                        Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}">
+                                        Grid.Column="0">
                                     <TextBlock Text="INQ"
                                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource OnAccentForegroundBrush}"
@@ -778,22 +778,22 @@
                                        Margin="0,18,0,8"/>
 
                             <!-- Stage 1 · INQUIRY (always exists) -->
-                            <Border Style="{StaticResource SurfacePrimaryStyle}">
+                            <Border>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}"
+                                    <Border Grid.Column="0"
                                             Background="{DynamicResource AccentBrush}"
                                             Margin="0,0,10,0"/>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="INQUIRY" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                        <TextBlock Text="INQUIRY"/>
                                         <TextBlock Text="{Binding SelectedInquiry.InquiryNumber}"
                                                    Style="{StaticResource Typography.Body}"/>
                                         <TextBlock Text="{Binding SelectedInquiry.Status}"
-                                                   Style="{StaticResource SurfacePrimaryStyle}"/>
+                                                  />
                                     </StackPanel>
                                     <TextBlock Grid.Column="2" Text="active"
                                                FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
@@ -836,7 +836,7 @@
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                         <TextBlock Text="PROFORMA INVOICE"
-                                                   Style="{StaticResource SurfacePrimaryStyle}"/>
+                                                  />
                                         <TextBlock Text="{Binding SelectedInquiry.ProformaCellText}"
                                                    Style="{StaticResource Typography.Body}"/>
                                     </StackPanel>
@@ -915,7 +915,7 @@
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                         <TextBlock Text="JOB ORDER"
-                                                   Style="{StaticResource SurfacePrimaryStyle}"/>
+                                                  />
                                         <TextBlock Text="{Binding SelectedInquiry.JobOrderCellText}"
                                                    Style="{StaticResource Typography.Body}"/>
                                     </StackPanel>
@@ -993,7 +993,7 @@
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                         <TextBlock Text="DELIVERY NOTE"
-                                                   Style="{StaticResource SurfacePrimaryStyle}"/>
+                                                  />
                                         <TextBlock Text="{Binding SelectedInquiry.DeliveryNoteCellText}"
                                                    Style="{StaticResource Typography.Body}"/>
                                     </StackPanel>
@@ -1071,7 +1071,7 @@
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                         <TextBlock Text="TAX INVOICE"
-                                                   Style="{StaticResource SurfacePrimaryStyle}"/>
+                                                  />
                                         <TextBlock Text="{Binding SelectedInquiry.TaxInvoiceCellText}"
                                                    Style="{StaticResource Typography.Body}"/>
                                     </StackPanel>
@@ -1137,9 +1137,9 @@
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                         <TextBlock Text="STATEMENT"
-                                                   Style="{StaticResource SurfacePrimaryStyle}"/>
+                                                  />
                                         <TextBlock Text="Generated from Tax Invoices"
-                                                   Style="{StaticResource SurfacePrimaryStyle}"/>
+                                                  />
                                     </StackPanel>
                                     <Button Grid.Column="2"
                                             Content="Open"

@@ -482,9 +482,9 @@
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="{DynamicResource Dashboard.CollectionsPulse}"
-                                           Style="{StaticResource DbSectionTitleStyle}"/>
+                                          />
                                 <TextBlock Text="{DynamicResource Dashboard.InvoicedVATPaidPending}"
-                                           Style="{StaticResource DbSectionSubStyle}"/>
+                                          />
                             </StackPanel>
                             <ItemsControl Style="{StaticResource DbKpiBandStyle}"
                                           ItemsSource="{Binding KpiTiles}"
@@ -497,9 +497,9 @@
                             Margin="0,0,18,0">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Dashboard.AgeingMix}"
-                                       Style="{StaticResource DbSectionTitleStyle}"/>
+                                      />
                             <TextBlock Text="{DynamicResource Dashboard.OverdueAmountsBracket}"
-                                       Style="{StaticResource DbSectionSubStyle}"/>
+                                      />
                             <donut:DonutChartControl Height="150"
                                                      Slices="{Binding AgingMixSlices}"
                                                      HoleLabel="AGE"
@@ -512,7 +512,7 @@
                         <Border Style="{StaticResource DbCardStyle}" Margin="0,0,0,18" Padding="16,12">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Common.Overdue}"
-                                           Style="{StaticResource DbKpiLabelStyle}"/>
+                                          />
                                 <TextBlock Text="{Binding OverdueCount}">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock" BasedOn="{StaticResource DbKpiValueStyle}">

@@ -69,7 +69,7 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                        ClipToBounds="True" Style="{StaticResource SurfacePrimaryStyle}">
+                        ClipToBounds="True">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -81,7 +81,7 @@
                                 Background="{DynamicResource AccentBrush}"
                                 BorderBrush="{DynamicResource AccentBrush}"
                                 BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                                Padding="14,8" Style="{StaticResource SurfacePrimaryStyle}">
+                                Padding="14,8">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="95"/>
@@ -96,10 +96,10 @@
                                            Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                            ToolTip="{DynamicResource Diagnostics.SeverityINFOWARNErrorCritical}"/>
                                 <TextBlock Grid.Column="2" Text="{DynamicResource Diagnostics.ModuleFunction}"
-                                           Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
                                            ToolTip="{DynamicResource Diagnostics.ModuleClassMethodWhereHappened}"/>
                                 <TextBlock Grid.Column="3" Text="{DynamicResource CrashReports.Message}"
-                                           Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
                                            Margin="10,0,0,0"
                                            ToolTip="{DynamicResource Diagnostics.WhatHappened}"/>
                             </Grid>
@@ -155,7 +155,7 @@
                                         <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,8"
                                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                 BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                                                ToolTip="{Binding RowTooltip}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                ToolTip="{Binding RowTooltip}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="95"/>
@@ -330,8 +330,8 @@
                                     Tag="{Binding Icon, Converter={StaticResource EmojiToGlyph}}"
                                     Content="{Binding Label}"
                                     ToolTip="{Binding Label}"
-                                    Margin="0,0,8,0" Style="{StaticResource SecondaryButtonStyle}">
-                                <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                                    Margin="0,0,8,0">
+                                <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsActive}" Value="True">
@@ -348,8 +348,8 @@
                                     Tag="{Binding Icon, Converter={StaticResource EmojiToGlyph}}"
                                     Content="{Binding Label}"
                                     ToolTip="{Binding Label}"
-                                    Margin="0,0,8,0" Style="{StaticResource SecondaryButtonStyle}">
-                                <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                                    Margin="0,0,8,0">
+                                <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsActive}" Value="False">

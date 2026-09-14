@@ -98,7 +98,7 @@
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="8,3"
                             VerticalAlignment="Center"
-                            HorizontalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                            HorizontalAlignment="Center">
                         <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}">
                             <Run Text="{Binding InvoiceCount, Mode=OneWay}"/>
@@ -115,7 +115,7 @@
                         </TextBlock>
                         <Border x:Name="ProgressTrack"
                                 CornerRadius="{DynamicResource Radius.XSmall}" Height="6"
-                                Background="{DynamicResource BorderBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                                Background="{DynamicResource BorderBrush}">
                             <Border CornerRadius="{DynamicResource Radius.XSmall}" HorizontalAlignment="Left">
                                 <Border.Style>
                                     <Style TargetType="Border">

@@ -169,7 +169,7 @@
                         Margin="0,0,0,0">
                     <StackPanel>
                         <ItemsControl ItemsSource="{Binding CapabilitiesTop}"
-                                      ItemTemplate="{StaticResource CapabilityCardTemplate}"
+                                     
                                       Margin="0,0,0,4">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -178,7 +178,7 @@
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
                         <ItemsControl ItemsSource="{Binding CapabilitiesBottom}"
-                                      ItemTemplate="{StaticResource CapabilityCardTemplate}"
+                                     
                                       Margin="0,8,0,0">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>

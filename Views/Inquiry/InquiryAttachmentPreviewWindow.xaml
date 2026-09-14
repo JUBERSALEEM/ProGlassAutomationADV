@@ -32,7 +32,7 @@
 
         <!-- Command strip -->
         <Border Padding="16,10" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                Background="{DynamicResource SurfaceSecondaryBrush}">
+               >
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -40,7 +40,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Border Width="38" Height="38" CornerRadius="{DynamicResource Radius.Medium}"
-                        Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                        VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
                     <TextBlock x:Name="IconGlyph" Text="&#xE7C3;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                Foreground="{DynamicResource AccentBrush}"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>

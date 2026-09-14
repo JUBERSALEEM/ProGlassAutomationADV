@@ -113,12 +113,12 @@
                                         <TextBlock Text="{Binding Title, Mode=OneWay}"
                                                    FontSize="{DynamicResource FontSize.Title}"
                                                    FontWeight="{DynamicResource Weight.Bold}"
-                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                  />
 
                                         <!-- Description (subtitle) -->
                                         <TextBlock Text="{Binding Description, Mode=OneWay}"
                                                    FontSize="{DynamicResource FontSize.Body}"
-                                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                                  
                                                    Margin="0,2,0,0"/>
 
                                         <!-- Current message (colored by status) -->
@@ -143,7 +143,7 @@
                                                 <DataTemplate>
                                                     <TextBlock Text="{Binding}"
                                                                FontSize="{DynamicResource FontSize.BodySmall}"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                              
                                                                Margin="0,1,0,1"
                                                                TextWrapping="Wrap"
                                                                FontFamily="{DynamicResource FontFamily.Code}"/>
@@ -152,7 +152,7 @@
                                         </ItemsControl>
 
                                         <!-- Warning badge -->
-                                        <Border Background="{DynamicResource WarningBrush}"
+                                        <Border
                                                 CornerRadius="{DynamicResource Radius.Small}"
                                                 Padding="6,2"
                                                 Margin="0,6,0,0"
@@ -161,7 +161,7 @@
                                                     Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
                                             <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
                                                        FontWeight="{DynamicResource Weight.Bold}"
-                                                       Foreground="{DynamicResource OnAccentForegroundBrush}">
+                                                      >
                                                 <Run Text="&#xE7BA; " FontFamily="{DynamicResource FontFamily.Icon}"/>
                                                 <Run Text="{Binding Warnings.Count, Mode=OneWay}"/>
                                                 <Run Text="{DynamicResource Reports.StatementGenerator.WarningS}"/>
@@ -261,7 +261,7 @@
                             Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}"
                             Visibility="{Binding HasWarnings,
                                 Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SecondaryButtonStyle}">
-                        <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                        <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="bd"
                                         Background="{DynamicResource WarningBrush}"
@@ -313,7 +313,7 @@
                             Height="38" Padding="24,0"
                             Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}"
                             IsDefault="True" Style="{StaticResource SecondaryButtonStyle}">
-                        <Button.Template Style="{StaticResource SecondaryButtonStyle}">
+                        <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="bd"
                                         Background="{DynamicResource AccentBrush}"

@@ -29,18 +29,18 @@
             <StackPanel>
                 <Border Style="{StaticResource PiStationIdentityStyle}">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="03" Style="{StaticResource PiStationCodeStyle}"/>
-                        <TextBlock Text="{DynamicResource Common.Project}" Style="{StaticResource PiStationTitleStyle}"/>
+                        <TextBlock Text="03"/>
+                        <TextBlock Text="{DynamicResource Common.Project}"/>
                         <TextBlock Text="{DynamicResource ProformaInvoice.ProjectNameProjectReferenceStaySeparate}"
-                                   Style="{StaticResource PiStationHintStyle}"/>
+                                  />
                     </StackPanel>
                 </Border>
-                <TextBlock Text="{DynamicResource ProformaInvoice.SITE}" Style="{StaticResource PiSectionLabelStyle}"/>
+                <TextBlock Text="{DynamicResource ProformaInvoice.SITE}"/>
 
                 <StackPanel Visibility="{Binding Path=ShowProjectName,
                                 Source={x:Static features:ProformaFieldVisibility.Instance},
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="{DynamicResource ProformaInvoice.ProjectNAME}" Style="{StaticResource PiFieldLabelStyle}"
+                    <TextBlock Text="{DynamicResource ProformaInvoice.ProjectNAME}"
                                ToolTip="{DynamicResource ProformaInvoice.ProjectNameAppearsListsInvoices}"/>
                     <TextBox Text="{Binding ProjectIdentifierName, UpdateSourceTrigger=PropertyChanged}"
                              ToolTip="{DynamicResource ProformaInvoice.EGIMADHabib}" Margin="0,0,0,12"
@@ -51,7 +51,7 @@
                 <StackPanel Visibility="{Binding Path=ShowProjectReference,
                                 Source={x:Static features:ProformaFieldVisibility.Instance},
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="{DynamicResource ProformaInvoice.ProjectReference}" Style="{StaticResource PiFieldLabelStyle}"
+                    <TextBlock Text="{DynamicResource ProformaInvoice.ProjectReference}"
                                ToolTip="{DynamicResource ProformaInvoice.FullDescriptiveProjectReference}"/>
                     <TextBox Text="{Binding ProjectReference, UpdateSourceTrigger=PropertyChanged}"
                              ToolTip="{DynamicResource ProformaInvoice.EGHouseIMADHabib}" Margin="0,0,0,12"
@@ -62,7 +62,7 @@
                 <StackPanel Visibility="{Binding Path=ShowContractNo,
                                 Source={x:Static features:ProformaFieldVisibility.Instance},
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="{DynamicResource ProformaInvoice.ContractNO}" Style="{StaticResource PiFieldLabelStyle}"/>
+                    <TextBlock Text="{DynamicResource ProformaInvoice.ContractNO}"/>
                     <TextBox Text="{Binding ProjectContractNo, UpdateSourceTrigger=PropertyChanged}"
                              ToolTip="{DynamicResource ProformaInvoice.EG428IMADHabib}" Margin="0,0,0,12"
                              AutomationProperties.AutomationId="ProformaInvoice.ContractNo"
@@ -72,7 +72,7 @@
                 <StackPanel Visibility="{Binding Path=ShowLpoNumber,
                                 Source={x:Static features:ProformaFieldVisibility.Instance},
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="{DynamicResource ProformaInvoice.LPOPONumber}" Style="{StaticResource PiFieldLabelStyle}"/>
+                    <TextBlock Text="{DynamicResource ProformaInvoice.LPOPONumber}"/>
                     <TextBox Text="{Binding LpoNumber, UpdateSourceTrigger=PropertyChanged}"
                              ToolTip="{DynamicResource ProformaInvoice.EG2680}" Margin="0,0,0,12"
                              AutomationProperties.AutomationId="ProformaInvoice.LpoNumber"
@@ -82,7 +82,7 @@
                 <StackPanel Visibility="{Binding Path=ShowSiteDeliveryLocation,
                                 Source={x:Static features:ProformaFieldVisibility.Instance},
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="{DynamicResource ProformaInvoice.SITEDeliveryLocation}" Style="{StaticResource PiFieldLabelStyle}"/>
+                    <TextBlock Text="{DynamicResource ProformaInvoice.SITEDeliveryLocation}"/>
                     <TextBox Text="{Binding SiteDeliveryLocation, UpdateSourceTrigger=PropertyChanged}"
                              ToolTip="{DynamicResource ProformaInvoice.EGAjman}" Margin="0,0,0,12"
                              AutomationProperties.AutomationId="ProformaInvoice.SiteDeliveryLocation"
@@ -103,7 +103,7 @@
                     <TextBlock Text="{Binding FilterBannerText}" FontSize="{DynamicResource FontSize.Body}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
                     <Button Margin="12,0,0,0" Command="{Binding ClearClientFilterCommand}"
-                            Style="{StaticResource PiViewAllLinkStyle}">
+                           >
                         <TextBlock Text="{DynamicResource ProformaInvoice.ClearFilter}" TextDecorations="Underline"/>
                     </Button>
                 </StackPanel>
@@ -129,11 +129,11 @@
         <DockPanel Grid.Column="2">
             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
                 <StackPanel>
-                    <TextBlock Text="{DynamicResource ProformaInvoice.Saved}" Style="{StaticResource PiSectionLabelStyle}" Margin="0"/>
-                    <TextBlock Text="{DynamicResource ProformaInvoice.FilteredSelectedClient}" Style="{StaticResource PiInlineMetaStyle}"/>
+                    <TextBlock Text="{DynamicResource ProformaInvoice.Saved}" Margin="0"/>
+                    <TextBlock Text="{DynamicResource ProformaInvoice.FilteredSelectedClient}"/>
                 </StackPanel>
                 <Button HorizontalAlignment="Right" Command="{Binding RefreshCardsCommand}"
-                        Style="{StaticResource PiIconButtonStyle}" ToolTip="{DynamicResource ProformaInvoice.RefreshSavedProjectsDatabase}">
+                        ToolTip="{DynamicResource ProformaInvoice.RefreshSavedProjectsDatabase}">
                     <TextBlock Text="&#xE72C;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Title}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </Button>
@@ -178,8 +178,8 @@
                 </TextBlock.Style>
             </TextBlock>
             <Button DockPanel.Dock="Bottom" HorizontalAlignment="Left" Margin="0,8,0,0"
-                    Command="{Binding ShowAllProjectsCommand}" Style="{StaticResource SecondaryButtonStyle}">
-                <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                    Command="{Binding ShowAllProjectsCommand}">
+                <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource PiViewAllLinkStyle}">
                         <Setter Property="Visibility" Value="Collapsed"/>
                         <Style.Triggers>

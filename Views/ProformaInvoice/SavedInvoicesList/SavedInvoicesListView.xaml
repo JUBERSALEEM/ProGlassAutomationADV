@@ -189,7 +189,7 @@
                 </Border>
 
                 <!-- Pale table header -->
-                <Border Grid.Row="2" Style="{StaticResource ModuleListTableHeaderStyle}">
+                <Border Grid.Row="2">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="3"/>
@@ -257,7 +257,7 @@
                         </ListBox.ItemsPanel>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource ModuleListRowStyle}"
+                                <Border
                                         MouseRightButtonUp="OnRowRightClick"
                                         MinHeight="48">
                                     <Grid>
@@ -427,11 +427,11 @@
                                                     takes the row from
                                                     PlacementTarget.DataContext.
                                                 -->
-                                                <Button.Tag Style="{StaticResource SecondaryButtonStyle}">
+                                                <Button.Tag>
                                                     <Binding Path="DataContext"
                                                              RelativeSource="{RelativeSource AncestorType=UserControl}"/>
                                                 </Button.Tag>
-                                                <Button.ContextMenu Style="{StaticResource SecondaryButtonStyle}">
+                                                <Button.ContextMenu>
                                                     <ContextMenu>
                                                         <MenuItem Header="{DynamicResource ProformaInvoice.ExportDossier}"
                                                                   Command="{Binding PlacementTarget.Tag.ExportDossierCommand,

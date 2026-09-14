@@ -64,12 +64,12 @@
                     <StackPanel HorizontalAlignment="Center">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding TotalPreviouslyDeliveredQty}"
-                                       Style="{StaticResource Typography.Kpi}"
+                                      
                                        Foreground="{DynamicResource AccentBrush}"/>
-                            <TextBlock Text=" pcs" Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Text=" pcs"
                                        Foreground="{DynamicResource AccentBrush}" Opacity="0.75"/>
                         </StackPanel>
-                        <TextBlock Style="{StaticResource PrevDeliveredLabelStyle}"/>
+                        <TextBlock/>
                     </StackPanel>
                 </Border>
 
@@ -82,12 +82,12 @@
                     <StackPanel HorizontalAlignment="Center">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding TotalDeliveredQty}"
-                                       Style="{StaticResource Typography.Kpi}"
+                                      
                                        Foreground="{DynamicResource SuccessBrush}"/>
-                            <TextBlock Text=" pcs" Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Text=" pcs"
                                        Foreground="{DynamicResource SuccessBrush}" Opacity="0.75"/>
                         </StackPanel>
-                        <TextBlock Style="{StaticResource ThisDnLabelStyle}"/>
+                        <TextBlock/>
                     </StackPanel>
                 </Border>
 
@@ -100,13 +100,13 @@
                     <StackPanel HorizontalAlignment="Center">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding TotalBalanceQty}"
-                                       Style="{StaticResource Typography.Kpi}"
+                                      
                                        Foreground="{DynamicResource WarningBrush}"/>
-                            <TextBlock Text=" pcs" Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Text=" pcs"
                                        Foreground="{DynamicResource WarningBrush}" Opacity="0.75"/>
                         </StackPanel>
                         <TextBlock Text="{DynamicResource Common.Balance}"
-                                   Style="{StaticResource Typography.Label}"
+                                  
                                    Foreground="{DynamicResource WarningBrush}"/>
                     </StackPanel>
                 </Border>
@@ -177,12 +177,12 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource Typography.Label}"/>
+                                    <TextBlock/>
                                     <TextBlock Text="{Binding CustomerName}"
-                                               Style="{StaticResource MasterHeroTitleStyle}"/>
+                                              />
                                 </StackPanel>
                                 <TextBlock Text="{Binding ProjectName}"
-                                           Style="{StaticResource MasterHeroSubtitleStyle}"
+                                          
                                            MaxWidth="500" Margin="0,2,0,0"/>
                                 <TextBlock Text="{Binding ProjectReference}"
                                            FontSize="{DynamicResource FontSize.Body}"
@@ -509,16 +509,16 @@
                                                                    Margin="6,8,10,8"
                                                                    ToolTip="{DynamicResource DeliveryNote.WeightPieceKg}"/>
                                                         <TextBlock Grid.Column="11" Text="{DynamicResource DeliveryNote.TotalWT}"
-                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                  
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"
                                                                    ToolTip="{DynamicResource DeliveryNote.TotalWeightKg}"/>
                                                         <TextBlock Grid.Column="12" Text="{DynamicResource Common.Delivered}"
-                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                  
                                                                    HorizontalAlignment="Center"
                                                                    Margin="6,8,10,8"/>
                                                         <TextBlock Grid.Column="13" Text="{DynamicResource Common.Balance}"
-                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                  
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"/>
                                                     </Grid>
@@ -572,18 +572,18 @@
                                                                     </Grid.ColumnDefinitions>
                                                                     <TextBlock Grid.Column="0"
                                                                                Text="{Binding SerialNumber}"
-                                                                               Style="{StaticResource GridDataCell}"
+                                                                              
                                                                                HorizontalAlignment="Center"/>
                                                                     <TextBlock Grid.Column="1"
                                                                                Text="{Binding GlassRef}"
-                                                                               Style="{StaticResource GridDataCell}"
+                                                                              
                                                                                FontWeight="{DynamicResource Weight.SemiBold}"
                                                                                TextTrimming="CharacterEllipsis"
                                                                                ToolTip="{Binding GlassRef}"/>
                                                                     <TextBlock Grid.Column="2" Text="{Binding W1}"
-                                                                               Style="{StaticResource GridNumericCell}"/>
+                                                                              />
                                                                     <TextBlock Grid.Column="3" Text="{Binding H1}"
-                                                                               Style="{StaticResource GridNumericCell}"/>
+                                                                              />
                                                                     <TextBlock Grid.Column="4">
                                                                         <TextBlock.Style>
                                                                             <Style TargetType="TextBlock"

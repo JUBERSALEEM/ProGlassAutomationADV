@@ -64,7 +64,7 @@
                             <ComboBox ItemsSource="{Binding RecipientOptions}"
                                       SelectedItem="{Binding SelectedRecipient, Mode=TwoWay}"
                                       IsEnabled="{Binding IsNotBusy}" Style="{StaticResource ComboBoxStyle}">
-                                <ComboBox.ItemTemplate Style="{StaticResource ComboBoxStyle}">
+                                <ComboBox.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel>
                                             <TextBlock Text="{Binding DisplayLine}"
@@ -115,7 +115,7 @@
                             Background="{DynamicResource SurfaceSecondaryBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            Padding="14,10" Style="{StaticResource SurfacePrimaryStyle}">
+                            Padding="14,10">
                         <ItemsControl ItemsSource="{Binding Artifacts}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -147,7 +147,7 @@
                             Background="{DynamicResource SurfaceSecondaryBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            Padding="14,10" Style="{StaticResource SurfacePrimaryStyle}">
+                            Padding="14,10">
                         <StackPanel>
                             <TextBox Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}"
                                      FontSize="{DynamicResource FontSize.Body}"
@@ -185,8 +185,8 @@
                                         IsEnabled="{Binding IsAvailable}"
                                         ToolTip="{Binding DisabledReason}"
                                         Margin="0,0,8,0"
-                                        Cursor="Hand" Style="{StaticResource SecondaryButtonStyle}">
-                                    <Button.Style Style="{StaticResource SecondaryButtonStyle}">
+                                        Cursor="Hand">
+                                    <Button.Style>
                                         <Style TargetType="Button"
                                                BasedOn="{StaticResource OutlinedPillButton}">
                                             <Style.Triggers>
