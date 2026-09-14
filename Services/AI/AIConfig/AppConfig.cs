@@ -511,6 +511,16 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// </summary>
         public int Fps { get; set; } = 60;
 
+        /// <summary>
+        /// Encoder quality tier (PHASE 4, 2026-09-14): 0 = Standard,
+        /// 1 = High (default), 2 = Very High. Maps to an x264 CRF
+        /// baseline — High keeps ERP UI text sharp at reasonable file
+        /// size; Very High reproduces the pre-Phase-4 CRFs exactly.
+        /// Legacy configs without this field hydrate to the property
+        /// default (1 = High); out-of-range values are clamped on load.
+        /// </summary>
+        public int QualityTier { get; set; } = 1;
+
         /// <summary>Capture internal system audio via WASAPI loopback.</summary>
         public bool CaptureLiveAudio { get; set; } = true;
 

@@ -26,8 +26,14 @@ namespace ProGlassAutomation.Tests.Agent
         {
             var prefs = new RecordingPreferences();
 
-            Assert.Equal(1080, prefs.QualityHeight);
-            Assert.Equal(30,   prefs.Fps);
+            // 2026-09-04: seed defaults raised to 4K/60 on the user's
+            // explicit quality-first instruction (AppConfig.cs documents
+            // the codec-ladder math). This test previously pinned the
+            // pre-2026-09-04 values (1080/30) and was stale-red.
+            Assert.Equal(2160, prefs.QualityHeight);
+            Assert.Equal(60,   prefs.Fps);
+            // PHASE 4 (2026-09-14): quality tier defaults to High (1).
+            Assert.Equal(1,    prefs.QualityTier);
             Assert.True(prefs.CaptureLiveAudio);
             Assert.True(prefs.CaptureMicrophone);
             Assert.False(prefs.Supersample);
@@ -40,6 +46,7 @@ namespace ProGlassAutomation.Tests.Agent
             var original = new RecordingPreferences
             {
                 QualityHeight        = 1440,
+                QualityTier          = 2,
                 Fps                  = 60,
                 CaptureLiveAudio     = false,
                 CaptureMicrophone    = false,
@@ -52,11 +59,26 @@ namespace ProGlassAutomation.Tests.Agent
 
             Assert.NotNull(back);
             Assert.Equal(1440, back!.QualityHeight);
+            Assert.Equal(2,    back.QualityTier);
             Assert.Equal(60,   back.Fps);
             Assert.False(back.CaptureLiveAudio);
             Assert.False(back.CaptureMicrophone);
             Assert.True(back.Supersample);
             Assert.False(back.AutoCloseHudAfterSave);
+        }
+
+        [Fact]
+        public void Legacy_JSON_without_QualityTier_hydrates_to_default()
+        {
+            // A config saved before Phase 4 has no QualityTier field;
+            // the property initializer (1 = High) must win, so legacy
+            // configs do not silently drop to the smallest tier.
+            string legacyJson =
+                "{ \"QualityHeight\": 2160, \"Fps\": 60, \"CaptureLiveAudio\": true }";
+            var back = JsonSerializer.Deserialize<RecordingPreferences>(legacyJson);
+
+            Assert.NotNull(back);
+            Assert.Equal(1, back!.QualityTier);
         }
 
         [Fact]

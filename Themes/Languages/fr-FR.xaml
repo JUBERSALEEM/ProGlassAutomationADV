@@ -2065,6 +2065,7 @@
     <sys:String x:Key="Settings.Published">publié</sys:String>
     <sys:String x:Key="Settings.Px">px</sys:String>
     <sys:String x:Key="Settings.Quality">Qualité</sys:String>
+    <sys:String x:Key="Settings.Resolution">Résolution</sys:String>
     <sys:String x:Key="Settings.QuotationExpiryDate">Date d&#x27;expiration de la cotation.</sys:String>
     <sys:String x:Key="Settings.RebuildDatabasesEmergency">RECONSTRUIRE TOUTES LES BASES (URGENCE)</sys:String>
     <sys:String x:Key="Settings.Recheck">REVÉRIFIER</sys:String>

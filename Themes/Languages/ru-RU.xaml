@@ -2065,6 +2065,7 @@
     <sys:String x:Key="Settings.Published">опубликовано</sys:String>
     <sys:String x:Key="Settings.Px">px</sys:String>
     <sys:String x:Key="Settings.Quality">Качество</sys:String>
+    <sys:String x:Key="Settings.Resolution">Разрешение</sys:String>
     <sys:String x:Key="Settings.QuotationExpiryDate">Дата истечения котировки.</sys:String>
     <sys:String x:Key="Settings.RebuildDatabasesEmergency">ПЕРЕСОЗДАТЬ ВСЕ БАЗЫ (АВАРИЙНО)</sys:String>
     <sys:String x:Key="Settings.Recheck">ПРОВЕРИТЬ ПОВТОРНО</sys:String>

@@ -60,6 +60,8 @@ namespace ProGlassAutomation.Services.Recording
                         2160 => ScreenRecordQuality.Uhd4K,
                         _    => ScreenRecordQuality.FullHd
                     },
+                    QualityTier = (ProGlassAutomation.Agent.Demo.Recording.ScreenRecordQualityTier)
+                        System.Math.Clamp(prefs.QualityTier, 0, 2),
                     Fps = prefs.Fps,
                     CaptureLiveAudio = prefs.CaptureLiveAudio,
                     CaptureMicrophone = prefs.CaptureMicrophone,
@@ -106,6 +108,7 @@ namespace ProGlassAutomation.Services.Recording
                 if (App.Config == null) return;
                 App.Config.Recording ??= new RecordingPreferences();
                 App.Config.Recording.QualityHeight = (int)rec.Quality;
+                App.Config.Recording.QualityTier = (int)rec.QualityTier;
                 App.Config.Recording.Fps = rec.Fps;
                 App.Config.Recording.CaptureLiveAudio = rec.CaptureLiveAudio;
                 App.Config.Recording.CaptureMicrophone = rec.CaptureMicrophone;
@@ -159,11 +162,18 @@ namespace ProGlassAutomation.Services.Recording
 
             // PHASE-2 DIAGNOSTIC: the delivered file vs wall clock — the
             // final comparison line for the "5 minutes → 5 seconds" question.
+            // PHASE 4: + measured average bitrate, so quality/filesize
+            // tuning can use real recordings ([RecSummary] carries the
+            // encoder parameters that produced it).
+            double? avgKbps = (probed ?? recorder.Duration.TotalSeconds) > 0
+                ? info.Length * 8.0 / 1000.0 / (probed ?? recorder.Duration.TotalSeconds)
+                : null;
             AppLogService.Info(
                 $"[RecSaved] {Path.GetFileName(mp4)} size={info.Length} bytes " +
                 $"probed={(probed?.ToString("0.###") ?? "n/a")}s " +
                 $"recorderWall={recorder.Duration.TotalSeconds:0.###}s " +
-                $"frames={recorder.EncodedFrames} retime={recorder.RetimeScale:0.0000} audio={audioNote}",
+                $"frames={recorder.EncodedFrames} retime={recorder.RetimeScale:0.0000} " +
+                $"avgKbps={(avgKbps?.ToString("0.#") ?? "n/a")} audio={audioNote}",
                 new LogContext { Module = "Recording", Operation = "FinishSaved" });
 
             try
@@ -243,6 +253,31 @@ namespace ProGlassAutomation.Services.Recording
 
             var rec = (settings ?? _settings ?? new ScreenRecordSettings()).Clone().Clamp();
             _settings = rec;
+
+            // PHASE 4 — pre-flight disk check (Step 15). A nearly-full
+            // drive is the classic "recording dies halfway for no
+            // visible reason"; refuse to START when even a short
+            // recording cannot be saved, and log the headroom estimate
+            // for the chosen settings otherwise. The in-recording
+            // [RecStorage] watcher (recorder side) covers the drive
+            // filling up later.
+            long freeBytes = FfmpegMp4Composer.FreeDiskBytes(OutputRoot);
+            if (freeBytes >= 0 && freeBytes < FfmpegMp4Composer.MinFreeDiskBytes)
+            {
+                return "There is not enough free disk space to start a " +
+                       "recording. Free up space and try again.";
+            }
+
+            double worstMbps = EstimateWorstCaseMbps(rec.Quality, rec.QualityTier);
+            if (freeBytes >= 0)
+            {
+                double est30min = worstMbps * 1e6 / 8 * 1800;
+                AppLogService.Info(
+                    $"[RecStorage] preflight free={freeBytes}B " +
+                    $"est30min={(long)est30min}B worstCase={worstMbps:0.#}Mbps " +
+                    $"lowSpace={freeBytes < est30min}",
+                    new LogContext { Module = "Recording", Operation = "DiskPreflight" });
+            }
 
             string folder = NewJobFolder();
             string frames = Path.Combine(folder, "frames");
@@ -373,13 +408,20 @@ namespace ProGlassAutomation.Services.Recording
                 // duration happens to validate. Report the professional
                 // failure and keep the job folder (raw file + logs) for
                 // forensics.
-                if (!string.IsNullOrWhiteSpace(recorder.EncoderFailure))
+                // PHASE 4: a disk that filled up mid-recording is the
+                // same contract (StorageFailure, set by the in-recording
+                // [RecStorage] watcher).
+                string? fatalReason =
+                    string.IsNullOrWhiteSpace(recorder.EncoderFailure)
+                        ? recorder.StorageFailure
+                        : recorder.EncoderFailure;
+                if (!string.IsNullOrWhiteSpace(fatalReason))
                 {
                     AppLogService.Warning(
-                        $"[RecSaved] REFUSED — encoder failure: {recorder.EncoderFailure} " +
+                        $"[RecSaved] REFUSED — {(recorder.EncoderFailure != null ? "encoder" : "storage")} failure: {fatalReason} " +
                         $"wall={recorder.Duration.TotalSeconds:0.###}s frames={recorder.EncodedFrames} folder={folder}",
                         new LogContext { Module = "Recording", Operation = "StopSave" });
-                    Fail(recorder.EncoderFailure +
+                    Fail(fatalReason +
                         " The captured data was kept in the recordings folder for diagnostics.");
                     return;
                 }
@@ -682,6 +724,46 @@ namespace ProGlassAutomation.Services.Recording
             Directory.CreateDirectory(dir);
             return dir;
         }
+
+        // ── PHASE 4 STORAGE GUARDS (2026-09-14) ─────────────────────────
+        // File-size math is 64-bit end to end (FileInfo.Length is long,
+        // drive probes below are long). The floor itself lives on
+        // FfmpegMp4Composer (FfmpegMp4Composer.MinFreeDiskBytes) so the
+        // capture loop and the service share ONE threshold.
+
+        /// <summary>
+        /// CRF cannot predict a bitrate, so for space planning we use a
+        /// worst-case ceiling per (resolution, tier) — motion-heavy
+        /// 4K content at the chosen tier. Static ERP UI encodes far
+        /// below these; the numbers only feed the pre-flight headroom
+        /// warning and the [RecStorage] estimate, never the encoder.
+        /// </summary>
+        public static double EstimateWorstCaseMbps(
+            ScreenRecordQuality quality, ScreenRecordQualityTier tier)
+            => tier switch
+            {
+                ScreenRecordQualityTier.Standard => quality switch
+                {
+                    ScreenRecordQuality.Hd720 => 3,
+                    ScreenRecordQuality.FullHd => 6,
+                    ScreenRecordQuality.Qhd2K => 10,
+                    _ => 16
+                },
+                ScreenRecordQualityTier.VeryHigh => quality switch
+                {
+                    ScreenRecordQuality.Hd720 => 10,
+                    ScreenRecordQuality.FullHd => 16,
+                    ScreenRecordQuality.Qhd2K => 25,
+                    _ => 45
+                },
+                _ => quality switch
+                {
+                    ScreenRecordQuality.Hd720 => 6,
+                    ScreenRecordQuality.FullHd => 10,
+                    ScreenRecordQuality.Qhd2K => 18,
+                    _ => 30
+                }
+            };
 
         private void Fail(string message)
         {

@@ -2065,6 +2065,7 @@
     <sys:String x:Key="Settings.Published">published</sys:String>
     <sys:String x:Key="Settings.Px">px</sys:String>
     <sys:String x:Key="Settings.Quality">Quality</sys:String>
+    <sys:String x:Key="Settings.Resolution">Resolution</sys:String>
     <sys:String x:Key="Settings.QuotationExpiryDate">Quotation expiry date.</sys:String>
     <sys:String x:Key="Settings.RebuildDatabasesEmergency">REBUILD ALL DATABASES (EMERGENCY)</sys:String>
     <sys:String x:Key="Settings.Recheck">RECHECK</sys:String>

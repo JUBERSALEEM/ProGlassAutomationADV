@@ -55,6 +55,16 @@ namespace ProGlassAutomation.Agent.Demo.Video
         public long BytesPiped { get; private set; }
         public string? Error { get; private set; }
 
+        // ── PHASE 4 TELEMETRY (2026-09-14) ─────────────────────────────
+        // The EXACT parameters the encoder was started with, so the
+        // recorder's [RecEncode] line and [RecSaved]'s measured bitrate
+        // can be attributed to a concrete configuration.
+        public string EncodePreset { get; private set; } = "";
+        public int EncodeCrfUsed { get; private set; }
+        public int NominalFps { get; private set; }
+        public int OutputWidth { get; private set; }
+        public int OutputHeight { get; private set; }
+
         // ── ENCODER HEALTH (Phase-2 diagnostics, 2026-09-14) ──────────
         // Observation only: process identity, liveness and exit state so a
         // mid-recording ffmpeg death shows up in the log instead of leaving
@@ -172,7 +182,14 @@ namespace ProGlassAutomation.Agent.Demo.Video
                     _process = p,
                     _stdin = p.StandardInput.BaseStream,
                     IsOpen = true,
-                    ProcessStartedUtc = DateTime.UtcNow
+                    ProcessStartedUtc = DateTime.UtcNow,
+                    // PHASE 4: record the ACTUAL values used (post-clamp,
+                    // post-even-rounding), not the requested ones.
+                    EncodePreset = preset,
+                    EncodeCrfUsed = crf,
+                    NominalFps = fps,
+                    OutputWidth = outW,
+                    OutputHeight = outH
                 };
 
                 // stderr MUST be drained. ffmpeg writes progress there and

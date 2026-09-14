@@ -2065,6 +2065,7 @@
     <sys:String x:Key="Settings.Published">প্রকাশিত</sys:String>
     <sys:String x:Key="Settings.Px">পিক্সেল</sys:String>
     <sys:String x:Key="Settings.Quality">মান</sys:String>
+    <sys:String x:Key="Settings.Resolution">রেজোলিউশন</sys:String>
     <sys:String x:Key="Settings.QuotationExpiryDate">কোটার মেয়াদ শেষের তারিখ।</sys:String>
     <sys:String x:Key="Settings.RebuildDatabasesEmergency">সব ডেটাবেস পুনর্নির্মাণ করুন (জরুরি)</sys:String>
     <sys:String x:Key="Settings.Recheck">পুনরায় যাচাই</sys:String>

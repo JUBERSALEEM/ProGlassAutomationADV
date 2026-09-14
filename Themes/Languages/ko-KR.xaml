@@ -2065,6 +2065,7 @@
     <sys:String x:Key="Settings.Published">게시됨</sys:String>
     <sys:String x:Key="Settings.Px">px</sys:String>
     <sys:String x:Key="Settings.Quality">품질</sys:String>
+    <sys:String x:Key="Settings.Resolution">해상도</sys:String>
     <sys:String x:Key="Settings.QuotationExpiryDate">견적 만료 날짜.</sys:String>
     <sys:String x:Key="Settings.RebuildDatabasesEmergency">모든 데이터베이스 재빌드(긴급)</sys:String>
     <sys:String x:Key="Settings.Recheck">다시 확인</sys:String>

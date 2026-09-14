@@ -2065,6 +2065,7 @@
     <sys:String x:Key="Settings.Published">diterbitkan</sys:String>
     <sys:String x:Key="Settings.Px">px</sys:String>
     <sys:String x:Key="Settings.Quality">Kualitas</sys:String>
+    <sys:String x:Key="Settings.Resolution">Resolusi</sys:String>
     <sys:String x:Key="Settings.QuotationExpiryDate">Tanggal kedaluwarsa penawaran.</sys:String>
     <sys:String x:Key="Settings.RebuildDatabasesEmergency">BANGUN ULANG SEMUA BASIS DATA (DARURAT)</sys:String>
     <sys:String x:Key="Settings.Recheck">PERIKSA ULANG</sys:String>

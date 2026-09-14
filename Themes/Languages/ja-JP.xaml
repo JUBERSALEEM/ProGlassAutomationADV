@@ -2065,6 +2065,7 @@
     <sys:String x:Key="Settings.Published">公開済み</sys:String>
     <sys:String x:Key="Settings.Px">px</sys:String>
     <sys:String x:Key="Settings.Quality">品質</sys:String>
+    <sys:String x:Key="Settings.Resolution">解像度</sys:String>
     <sys:String x:Key="Settings.QuotationExpiryDate">見積有効期限。</sys:String>
     <sys:String x:Key="Settings.RebuildDatabasesEmergency">すべてのデータベースを再構築（緊急）</sys:String>
     <sys:String x:Key="Settings.Recheck">再チェック</sys:String>

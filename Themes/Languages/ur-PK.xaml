@@ -2065,6 +2065,7 @@
     <sys:String x:Key="Settings.Published">شائع شدہ</sys:String>
     <sys:String x:Key="Settings.Px">پکسل</sys:String>
     <sys:String x:Key="Settings.Quality">معیار</sys:String>
+    <sys:String x:Key="Settings.Resolution">ریزولیوشن</sys:String>
     <sys:String x:Key="Settings.QuotationExpiryDate">کوٹیشن کی میعاد ختم ہونے کی تاریخ۔</sys:String>
     <sys:String x:Key="Settings.RebuildDatabasesEmergency">تمام ڈیٹا بیس دوبارہ بنائیں (ایمرجنسی)</sys:String>
     <sys:String x:Key="Settings.Recheck">دوبارہ جانچیں</sys:String>

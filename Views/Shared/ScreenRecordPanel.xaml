@@ -42,10 +42,26 @@
             </Border>
 
             <StackPanel Grid.Row="1" Margin="14,12,14,14">
+                <!-- PHASE 4 (2026-09-14): encoder quality tier (CRF).
+                     Standard = smallest files, High (default) = sharp
+                     ERP text at reasonable size, Very High = the
+                     near-lossless setting the recorder shipped with. -->
                 <TextBlock Text="{DynamicResource Settings.Quality}"
                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            Margin="0,0,0,4"/>
+                <ComboBox ItemsSource="{Binding QualityTiers}"
+                          SelectedItem="{Binding SelectedQualityTier, Mode=TwoWay}"
+                          DisplayMemberPath="Title"
+                          IsEnabled="{Binding IsIdle}"
+                          IsSynchronizedWithCurrentItem="False"
+                          Padding="10,7"
+                          FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+
+                <TextBlock Text="{DynamicResource Settings.Resolution}"
+                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Margin="0,12,0,4"/>
                 <ComboBox ItemsSource="{Binding Qualities}"
                           SelectedItem="{Binding SelectedQuality, Mode=TwoWay}"
                           DisplayMemberPath="Title"

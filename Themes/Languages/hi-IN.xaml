@@ -2065,6 +2065,7 @@
     <sys:String x:Key="Settings.Published">प्रकाशित</sys:String>
     <sys:String x:Key="Settings.Px">पिक्सेल</sys:String>
     <sys:String x:Key="Settings.Quality">गुणवत्ता</sys:String>
+    <sys:String x:Key="Settings.Resolution">रेज़ोल्यूशन</sys:String>
     <sys:String x:Key="Settings.QuotationExpiryDate">उद्धरण समाप्ति तिथि।</sys:String>
     <sys:String x:Key="Settings.RebuildDatabasesEmergency">सभी डेटाबेस पुनर्निर्मित करें (आपातकाल)</sys:String>
     <sys:String x:Key="Settings.Recheck">पुनः जाँचें</sys:String>

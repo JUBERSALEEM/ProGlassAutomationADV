@@ -72,6 +72,16 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         public string? EncoderFailure { get; private set; }
 
         /// <summary>
+        /// PHASE 4 — non-null when the DISK ran out of space mid-
+        /// recording (the in-loop [RecStorage] watcher saw the free
+        /// space drop below the recorder's minimum floor). Same
+        /// contract as <see cref="EncoderFailure"/>: the save path must
+        /// refuse SUCCESS while this is set, with the professional
+        /// message, files retained. Technical detail stays in the log.
+        /// </summary>
+        public string? StorageFailure { get; private set; }
+
+        /// <summary>
         /// PHASE 3 — raised exactly once when the capture loop ends for a
         /// FATAL reason (encoder death, persistent blank output). The
         /// service stops + reports the session immediately so the HUD
@@ -406,8 +416,20 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                 if (!string.IsNullOrWhiteSpace(pipeError) && pipeError.Length > 200)
                     pipeError = "…" + pipeError[^200..];
 
+                // PHASE 4: raw file size + free disk at stop, so a
+                // failure can be correlated with a filling drive.
+                long rawSizeAtStop = -1;
+                try
+                {
+                    if (_rawActive && !string.IsNullOrWhiteSpace(_rawVideoPath) && File.Exists(_rawVideoPath))
+                        rawSizeAtStop = new FileInfo(_rawVideoPath).Length;
+                }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WindowScreenRecorder] StopAsync: raw size probe optional: " + ex.Message); }
+                long diskFreeAtStop = FfmpegMp4Composer.FreeDiskBytes(_rawVideoPath);
+
                 AppLogService.Info(
                     $"[RecSummary] wall={Duration.TotalSeconds:F1}s " +
+                    $"rawSize={rawSizeAtStop}B diskFree={diskFreeAtStop}B " +
                     $"nominal={_settings.Fps}fps effective={FinalEffectiveFps}fps " +
                     $"captured={Volatile.Read(ref _capturedFrames)} " +
                     $"written={Volatile.Read(ref _encodedFrames)} " +
@@ -424,6 +446,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                     $"mic={(MicAudioSeconds?.TotalSeconds.ToString("0.##") ?? "off")}s " +
                     $"audioError={(string.IsNullOrWhiteSpace(AudioError) ? "none" : AudioError)} " +
                     $"encoderFailure={(string.IsNullOrWhiteSpace(EncoderFailure) ? "none" : EncoderFailure)} " +
+                    $"storageFailure={(string.IsNullOrWhiteSpace(StorageFailure) ? "none" : StorageFailure)} " +
                     $"retime={RetimeScale:0.0000} " +
                     $"rawActive={_rawActive}",
                     new Services.Logging.LogContext { Module = "Recording", Operation = "StopSummary" });
@@ -545,11 +568,34 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             var buffer = new byte[srcW * 4 * srcH];
             int frameBytes = buffer.Length;
 
+            // PHASE 4 — one-shot encoder telemetry (Step 17): the exact
+            // parameters that produced this recording, so [RecSaved]'s
+            // measured bitrate can be attributed. One line, never
+            // periodic.
+            try
+            {
+                AppLogService.Info(
+                    $"[RecEncode] codec=libx264 preset={_rawPipe.EncodePreset} " +
+                    $"crf={_rawPipe.EncodeCrfUsed} tune=stillimage " +
+                    $"in={srcW}x{srcH} out={outW}x{outH} fps={fps} " +
+                    $"tier={_settings.QualityTier} " +
+                    $"frameBuffer={frameBytes}B (single reused buffer, streamed)",
+                    new Services.Logging.LogContext { Module = "Recording", Operation = "EncodeStart" });
+            }
+            catch (Exception ex) { AppLogService.Debug($"[RawLoop] encode log: {ex.Message}"); }
+
             var epoch = DateTime.UtcNow;
             long slot = 0;
             bool haveFrame = false;
             int blankStreak = 0;
             bool warnedFallback = false;
+
+            // PHASE 4 — periodic storage telemetry (Steps 15/16): raw
+            // file size, estimated final size and free disk space every
+            // 20 s. One FileInfo + one DriveInfo probe per interval —
+            // never per frame.
+            var storageLogAt = DateTime.UtcNow;
+            bool diskLowReported = false;
 
             // ── ONE-FRAME-PER-CAPTURE + RE-TIME-AT-SAVE (2026-09-10) ─
             //
@@ -754,6 +800,55 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                         $"ffmpeg={(rp == null ? "n/a" : rp.ProcessAlive ? "alive" : "DEAD (code=" + (rp.ExitCode?.ToString() ?? "?") + ")")} " +
                         $"pid={rp?.ProcessId ?? -1}",
                         new Services.Logging.LogContext { Module = "Recording", Operation = "Health" });
+                }
+
+                // ── PHASE 4: storage telemetry + disk-low guard ─────────
+                // Every 20 s: where is this recording heading (raw size,
+                // estimated final size) and is the drive still healthy?
+                // Free space below the floor is FATAL — a partial file on
+                // a full disk is exactly the "silent corruption" this
+                // phase must not produce. The broken-pipe path (encoder
+                // dies when its write fails) is the backstop if this
+                // interval misses it.
+                if (DateTime.UtcNow - storageLogAt >= TimeSpan.FromSeconds(20))
+                {
+                    storageLogAt = DateTime.UtcNow;
+                    long rawSize = -1;
+                    long availDisk = -1;
+                    try
+                    {
+                        if (_rawActive && !string.IsNullOrWhiteSpace(_rawVideoPath) && File.Exists(_rawVideoPath))
+                            rawSize = new FileInfo(_rawVideoPath).Length;
+                        availDisk = FfmpegMp4Composer.FreeDiskBytes(_rawVideoPath ?? framesFolder);
+                    }
+                    catch (Exception ex) { AppLogService.Debug($"[RawLoop] storage probe: {ex.Message}"); }
+
+                    // Final size ≈ raw video (the remux is a stream copy,
+                    // no re-encode) + audio (WAV→AAC shrinks ~10×, so a
+                    // small margin covers it).
+                    long estFinal = rawSize > 0 ? (long)(rawSize * 1.05) : -1;
+
+                    try
+                    {
+                        AppLogService.Info(
+                            $"[RecStorage] t={(DateTime.UtcNow - _started).TotalSeconds:F0}s " +
+                            $"rawSize={rawSize}B estFinal={estFinal}B availDisk={availDisk}B",
+                            new Services.Logging.LogContext { Module = "Recording", Operation = "Storage" });
+                    }
+                    catch (Exception ex) { AppLogService.Debug($"[RawLoop] storage log: {ex.Message}"); }
+
+                    if (!diskLowReported && availDisk >= 0
+                        && availDisk < FfmpegMp4Composer.MinFreeDiskBytes)
+                    {
+                        diskLowReported = true;
+                        AppLogService.Warning(
+                            $"Disk space critically low during recording (avail={availDisk}B); ending session.",
+                            new Services.Logging.LogContext { Module = "Recording", Operation = "DiskLow" });
+                        StorageFailure =
+                            "Free disk space ran out during the recording, so it was ended.";
+                        NotifyCaptureLoopFatal();
+                        break;
+                    }
                 }
 
                 // Persistent black output means the driver ignored

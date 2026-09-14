@@ -5,6 +5,7 @@ using ProGlassAutomation.Services.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,6 +13,43 @@ namespace ProGlassAutomation.Agent.Demo.Video
 {
     public static class FfmpegMp4Composer
     {
+        // ── PHASE 4 STORAGE GUARDS (2026-09-14) ────────────────────────
+        // Shared by the capture loop (in-recording watcher) and the
+        // service (pre-flight check) so there is ONE threshold, not two.
+        // The floor is small on purpose: even a 30-second 4K clip is
+        // tens of MB, so 256 MB is the "nothing worth saving will fit"
+        // line, not a size opinion. File-size math is 64-bit end to
+        // end (long), so >2 GB / >4 GB recordings are represented
+        // correctly everywhere in the pipeline.
+
+        /// <summary>Below this free space, starting a recording is refused.</summary>
+        public const long MinFreeDiskBytes = 256L * 1024 * 1024;
+
+        /// <summary>
+        /// Free bytes on the drive holding <paramref name="path"/>;
+        /// -1 when the drive cannot be determined (callers treat that
+        /// as "unknown", never as "empty").
+        /// </summary>
+        public static long FreeDiskBytes(string? path)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(path)) return -1;
+                string root = Path.GetPathRoot(path);
+                var match = DriveInfo.GetDriveInfo(root)
+                    .FirstOrDefault(d =>
+                        string.Equals(d.RootDirectory?.FullName, root,
+                            StringComparison.OrdinalIgnoreCase)
+                        && d.IsReady);
+                return match?.AvailableFreeSpace ?? -1;
+            }
+            catch (System.Exception ex)
+            {
+                AppLogService.Debug($"[RecStorage] disk probe: {ex.Message}");
+                return -1;
+            }
+        }
+
         /// <summary>Official FFmpeg download index.</summary>
         public const string OfficialDownloadPageUrl = "https://ffmpeg.org/download.html";
 
@@ -249,9 +287,10 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 string limit = limitSeconds.HasValue
                     ? $" -t {limitSeconds.Value.ToString("0.###", CultureInfo.InvariantCulture)}"
                     : " -shortest";
+                // PHASE 4 (Step 12): 160k AAC-LC — see RetimeCopyAsync.
                 string args =
                     $"-y -i \"{videoPath}\" -i \"{wavPath}\" " +
-                    $"-c:v copy -c:a aac -b:a 320k -ar 48000 " +
+                    $"-c:v copy -c:a aac -b:a 160k -ar 48000 " +
                     $"{limit} -movflags +faststart \"{packingPath}\"";
 
                 string? packed = await RunComposeAsync(ffmpeg, args, packingPath, ct)
@@ -492,9 +531,14 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 string limit = authoritativeSeconds.HasValue
                     ? $" -t {authoritativeSeconds.Value.ToString("0.###", CultureInfo.InvariantCulture)}"
                     : "";
+                // PHASE 4 (Step 12): 320k → 160k. The recorder's audio is
+                // speech (tutorials, ERP demos, voice explanations);
+                // AAC-LC 160 kbps at 48 kHz is well beyond speech
+                // transparency (OBS ships 160k as its standard), while
+                // halving the audio's storage (~288 MB/hour at 320k).
                 string args = hasAudio
                     ? $"-y -itsscale {scale} -i \"{videoPath}\" -i \"{wavPath}\" " +
-                      $"-map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 320k -ar 48000 " +
+                      $"-map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 160k -ar 48000 " +
                       $"-video_track_timescale 90000{limit} -movflags +faststart \"{packingPath}\""
                     : $"-y -itsscale {scale} -i \"{videoPath}\" " +
                       $"-map 0:v:0 -c:v copy -video_track_timescale 90000 " +

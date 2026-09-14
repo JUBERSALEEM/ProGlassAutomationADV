@@ -45,6 +45,9 @@ namespace ProGlassAutomation.ViewModels.Shared
                 ?? new DialogService();
             _ = initialize; // discriminator only — keeps the two ctors distinct
 
+            SelectedQualityTier = ScreenRecordSettings.QualityTiers
+                .FirstOrDefault(t => t.Tier == _svc.Settings.QualityTier)
+                ?? ScreenRecordSettings.QualityTiers[1];
             SelectedQuality = ScreenRecordSettings.Qualities
                 .FirstOrDefault(q => q.Quality == _svc.Settings.Quality)
                 ?? ScreenRecordSettings.Qualities[1];
@@ -93,11 +96,29 @@ namespace ProGlassAutomation.ViewModels.Shared
             _svc.Changed += RaiseStatus;
         }
 
+        public IReadOnlyList<ScreenRecordQualityTierOption> QualityTiers =>
+            ScreenRecordSettings.QualityTiers;
+
         public IReadOnlyList<ScreenRecordQualityOption> Qualities =>
             ScreenRecordSettings.Qualities;
 
         public IReadOnlyList<ScreenRecordFpsOption> FpsChoices =>
             ScreenRecordSettings.FpsOptions;
+
+        private ScreenRecordQualityTierOption _selectedQualityTier =
+            ScreenRecordSettings.QualityTiers[1];
+        public ScreenRecordQualityTierOption SelectedQualityTier
+        {
+            get => _selectedQualityTier;
+            set
+            {
+                if (value == null || ReferenceEquals(_selectedQualityTier, value)) return;
+                _selectedQualityTier = value;
+                PushSettings();
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(Hint));
+            }
+        }
 
         private ScreenRecordQualityOption _selectedQuality = ScreenRecordSettings.Qualities[1];
         public ScreenRecordQualityOption SelectedQuality
@@ -169,7 +190,8 @@ namespace ProGlassAutomation.ViewModels.Shared
         public string Hint =>
             "Records only this app window at " +
             (SelectedQuality?.Title ?? "1080p") + " / " +
-            (SelectedFps?.Title ?? "30 fps") +
+            (SelectedFps?.Title ?? "30 fps") + " / " +
+            (SelectedQualityTier?.Title ?? "High") + " quality" +
             ". A REC bar with duration and STOP appears on the window." +
             (CaptureLiveAudio ? " Internal audio on." : "") +
             (CaptureMicrophone ? " Microphone on." : "");
@@ -205,6 +227,7 @@ namespace ProGlassAutomation.ViewModels.Shared
         {
             var next = (_svc.Settings ?? new ScreenRecordSettings()).Clone();
 
+            next.QualityTier = SelectedQualityTier?.Tier ?? ScreenRecordQualityTier.High;
             next.Quality = SelectedQuality?.Quality ?? ScreenRecordQuality.FullHd;
             next.Fps = SelectedFps?.Fps ?? 30;
             next.CaptureLiveAudio = CaptureLiveAudio;

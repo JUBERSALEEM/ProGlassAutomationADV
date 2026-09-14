@@ -2065,6 +2065,7 @@
     <sys:String x:Key="Settings.Published">yayınlandı</sys:String>
     <sys:String x:Key="Settings.Px">px</sys:String>
     <sys:String x:Key="Settings.Quality">Kalite</sys:String>
+    <sys:String x:Key="Settings.Resolution">Çözünürlük</sys:String>
     <sys:String x:Key="Settings.QuotationExpiryDate">Teklif son kullanma tarihi.</sys:String>
     <sys:String x:Key="Settings.RebuildDatabasesEmergency">TÜM VERİTABANLARINI YENİDEN OLUŞTUR (ACİL)</sys:String>
     <sys:String x:Key="Settings.Recheck">YENİDEN KONTROL ET</sys:String>

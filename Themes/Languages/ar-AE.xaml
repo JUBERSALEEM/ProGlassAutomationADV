@@ -2065,6 +2065,7 @@
     <sys:String x:Key="Settings.Published">منشور</sys:String>
     <sys:String x:Key="Settings.Px">بكسل</sys:String>
     <sys:String x:Key="Settings.Quality">الجودة</sys:String>
+    <sys:String x:Key="Settings.Resolution">الدقة</sys:String>
     <sys:String x:Key="Settings.QuotationExpiryDate">تاريخ انتهاء عرض السعر.</sys:String>
     <sys:String x:Key="Settings.RebuildDatabasesEmergency">إعادة بناء جميع قواعد البيانات (طوارئ)</sys:String>
     <sys:String x:Key="Settings.Recheck">إعادة الفحص</sys:String>
