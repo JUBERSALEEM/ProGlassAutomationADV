@@ -160,6 +160,27 @@ namespace ProGlassAutomation.Services.Recording
 
             Status = $"Saved {Path.GetFileName(mp4)} ({info.Length} bytes). {durationNote}.";
 
+            // PHASE 4B — one consolidated quality/size telemetry line per
+            // saved recording (Step 17): every future tuning decision
+            // (CRF, preset, profile default) can be made from these
+            // measured values. One bounded ffprobe extra, at stop only.
+            double? durationSec = probed ?? (recorder.Duration.TotalSeconds > 0 ? recorder.Duration.TotalSeconds : null);
+            double? videoKbps = FfmpegMp4Composer.TryReadVideoBitrateKbps(mp4);
+            double? finalKbps = durationSec != null && durationSec > 0
+                ? info.Length * 8.0 / 1000.0 / durationSec.Value
+                : null;
+            bool audioOn = recorder.LiveAudioStarted || recorder.MicAudioStarted;
+            var (outW, outH) = rec.OutputSize;
+            AppLogService.Info(
+                $"[RecQuality] resolution={outW}x{outH} capture={recorder.CaptureWidth}x{recorder.CaptureHeight} " +
+                $"fps={rec.Fps} codec=h264 encoder=libx264 preset={recorder.EncodePreset} " +
+                $"rateControl=CRF crf={recorder.EncodeCrfUsed} tier={rec.QualityTier} " +
+                $"videoKbps={(videoKbps?.ToString("0.#") ?? "n/a")} " +
+                $"audioKbps={(audioOn ? "160" : "none")} " +
+                $"finalKbps={(finalKbps?.ToString("0.#") ?? "n/a")} " +
+                $"fileSize={info.Length}B duration={(durationSec?.ToString("0.###") ?? "n/a")}s",
+                new LogContext { Module = "Recording", Operation = "QualityTelemetry" });
+
             // PHASE-2 DIAGNOSTIC: the delivered file vs wall clock — the
             // final comparison line for the "5 minutes → 5 seconds" question.
             // PHASE 4: + measured average bitrate, so quality/filesize

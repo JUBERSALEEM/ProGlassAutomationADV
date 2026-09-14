@@ -222,6 +222,15 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         public bool LiveEncodeActive => _pipe != null && _pipe.IsOpen;
         public int LiveFramesPiped => _pipe?.FramesPiped ?? 0;
         public long LiveBytesPiped => _pipe?.BytesPiped ?? 0;
+
+        // PHASE 4B — the ACTUAL encoder parameters the raw pipe started
+        // with (post-clamp), so the service's [RecQuality] line can
+        // attribute the measured final bitrate to a concrete config.
+        public string EncodePreset => _rawPipe?.EncodePreset ?? "";
+        public int EncodeCrfUsed => _rawPipe?.EncodeCrfUsed ?? 0;
+        public int CaptureNominalFpsUsed => _rawPipe?.NominalFps ?? 0;
+        public int CaptureWidth { get; private set; }
+        public int CaptureHeight { get; private set; }
         public string? LiveVideoPath => _liveVideoPath;
         public string? LiveEncodeError => _pipe?.Error;
         public int EncodePercent { get; set; }
@@ -565,6 +574,8 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             _rawActive = true;
             CaptureNominalFps = fps;
             int srcW = capture.Width, srcH = capture.Height;
+            CaptureWidth = srcW;   // PHASE 4B: actual captured geometry for [RecQuality]
+            CaptureHeight = srcH;
             var buffer = new byte[srcW * 4 * srcH];
             int frameBytes = buffer.Length;
 

@@ -149,11 +149,24 @@ namespace ProGlassAutomation.Agent.Demo.Video
             //   rather than film grain — correct for UI capture.
             // -g: one keyframe per second, so seeking/scrubbing is usable.
             // -threads 0: let x264 use every core; 4K needs all of them.
+            // -bf 3: PHASE 4B (2026-09-14) — the ultrafast/superfast
+            //   presets DISABLE B-frames, which is the single biggest
+            //   compression headroom left on the table for screen
+            //   content. Three B-frames (x264's own default for most
+            //   presets) cuts the encoded bitrate at the SAME CRF, which
+            //   does two things at once: smaller files for identical
+            //   visual quality, and a faster-draining pipe — the encoder
+            //   emits fewer bytes per frame, so more distinct frames
+            //   land during a recording (frame starvation was the
+            //   dominant cause of the "30 MB / looks thin on Android"
+            //   report). Standard H.264 High profile; plays everywhere
+            //   including Android. No rate-control change: CRF stays
+            //   the quality authority.
             string args =
                 $"-y -f rawvideo -pix_fmt bgra -s {srcW}x{srcH} -framerate {fps} " +
                 $"-use_wallclock_as_timestamps 0 -i - " +
                 $"-an -vf \"{vf}\" -c:v libx264 -preset {preset} -tune stillimage " +
-                $"-threads 0 -crf {crf} -g {fps} -pix_fmt yuv420p " +
+                $"-threads 0 -crf {crf} -g {fps} -bf 3 -pix_fmt yuv420p " +
                 // Explicit BT.709 tagging: screen capture IS sRGB (≈709).
                 // Untagged files leave the primaries to guesswork, and a
                 // 4K upscale interpreted as BT.2020 / flat-range

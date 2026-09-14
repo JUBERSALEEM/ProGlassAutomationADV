@@ -722,7 +722,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 var psi = new ProcessStartInfo
                 {
                     FileName = probe,
-                    Arguments = "-v error -select_streams v:0 -show_entries stream=time_base,avg_frame_rate,nb_frames,duration -of default=noprint_wrappers=1 \"" + path + "\"",
+                    Arguments = "-v error -select_streams v:0 -show_entries stream=time_base,avg_frame_rate,nb_frames,duration,bit_rate -of default=noprint_wrappers=1 \"" + path + "\"",
                     UseShellExecute = false,
                     CreateNoWindow = true,
                     RedirectStandardOutput = true,
@@ -783,6 +783,43 @@ namespace ProGlassAutomation.Agent.Demo.Video
                     return sec;
             }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[FfmpegMp4Composer] TryReadDurationSeconds: unmeasured: " + ex.Message); }
+            return null;
+        }
+
+        /// <summary>
+        /// Measured kbps of the first video stream (PHASE 4B —
+        /// [RecQuality] telemetry). Bounded 5 s probe, same pattern as
+        /// <see cref="TryReadDurationSeconds"/>; null when unmeasured.
+        /// </summary>
+        public static double? TryReadVideoBitrateKbps(string path)
+        {
+            string? probe = FindProbe();
+            if (probe == null || string.IsNullOrWhiteSpace(path) || !File.Exists(path)) return null;
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = probe,
+                    Arguments = "-v error -select_streams v:0 -show_entries stream=bit_rate -of default=noprint_wrappers=1:nokey=1 \"" + path + "\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                };
+                var toolResult = ProcessStartGuard.TryStartTool(psi.FileName, psi.Arguments, CorrelationContext.NewId());
+                using var p = toolResult.IsSuccess ? toolResult.Value : null;
+                if (p == null) return null;
+
+                var errTask = p.StandardError.ReadToEndAsync();
+                string text = p.StandardOutput.ReadToEnd();
+
+                if (!p.WaitForExit(5000)) { try { p.Kill(); } catch { } return null; }
+                try { errTask.Wait(500); } catch { }
+                text = (text ?? "").Trim();
+                return double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double bps)
+                    && bps > 0 ? bps / 1000.0 : null;
+            }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[FfmpegMp4Composer] TryReadVideoBitrateKbps: unmeasured: " + ex.Message); }
             return null;
         }
     }
