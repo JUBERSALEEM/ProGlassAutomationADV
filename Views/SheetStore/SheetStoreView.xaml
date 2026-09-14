@@ -392,7 +392,7 @@
                                        TextTrimming="CharacterEllipsis"/>
                             <TextBlock Text="{Binding TotalItems}"
                                        Style="{StaticResource PiKpiValueStyle}"
-                                       TextTrimming="CharacterEllipsis"/>
+                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding TotalItems}"/>
                         </StackPanel>
                     </Border>
                     <Border Grid.Column="2" Margin="6,0" Style="{StaticResource SurfaceKpiStyle}">
@@ -403,7 +403,7 @@
                             <TextBlock Text="{Binding TotalStock}"
                                        Style="{StaticResource PiKpiValueStyle}"
                                        Foreground="{DynamicResource SuccessBrush}"
-                                       TextTrimming="CharacterEllipsis"/>
+                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding TotalStock}"/>
                         </StackPanel>
                     </Border>
                     <Border Grid.Column="3" Margin="6,0" Style="{StaticResource SurfaceKpiStyle}">
@@ -414,7 +414,7 @@
                             <TextBlock Text="{Binding TotalBuyingValue, StringFormat={}{0:N0} AED}"
                                        Style="{StaticResource PiKpiValueStyle}"
                                        Foreground="{DynamicResource DangerBrush}"
-                                       TextTrimming="CharacterEllipsis"/>
+                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding TotalBuyingValue}"/>
                         </StackPanel>
                     </Border>
                     <Border Grid.Column="4" Margin="6,0" Style="{StaticResource SurfaceKpiStyle}">
@@ -425,7 +425,7 @@
                             <TextBlock Text="{Binding TotalSellingValue, StringFormat={}{0:N0} AED}"
                                        Style="{StaticResource PiKpiValueStyle}"
                                        Foreground="{DynamicResource SuccessBrush}"
-                                       TextTrimming="CharacterEllipsis"/>
+                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding TotalSellingValue}"/>
                         </StackPanel>
                     </Border>
                     <Border Grid.Column="5" Margin="6,0" Style="{StaticResource SurfaceKpiStyle}"
@@ -437,7 +437,7 @@
                             <TextBlock Text="{Binding TotalUsedValue, StringFormat={}{0:N0} AED}"
                                        Style="{StaticResource PiKpiValueStyle}"
                                        Foreground="{DynamicResource WarningBrush}"
-                                       TextTrimming="CharacterEllipsis"/>
+                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding TotalUsedValue}"/>
                         </StackPanel>
                     </Border>
                     <Border Grid.Column="6" Margin="6,0" Style="{StaticResource SurfaceKpiStyle}"
@@ -449,7 +449,7 @@
                             <TextBlock Text="{Binding TotalBalanceValue, StringFormat={}{0:N0} AED}"
                                        Style="{StaticResource PiKpiValueStyle}"
                                        Foreground="{DynamicResource InfoBrush}"
-                                       TextTrimming="CharacterEllipsis"/>
+                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding TotalBalanceValue}"/>
                         </StackPanel>
                     </Border>
                     <Border Grid.Column="7" Margin="6,0" Style="{StaticResource SurfaceKpiStyle}"
@@ -461,7 +461,7 @@
                             <TextBlock Text="{Binding ExpectedProfit, StringFormat={}{0:N0} AED}"
                                        Style="{StaticResource PiKpiValueStyle}"
                                        Foreground="{DynamicResource AccentBrush}"
-                                       TextTrimming="CharacterEllipsis"/>
+                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding ExpectedProfit}"/>
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -495,18 +495,18 @@
                         SnapsToDevicePixels="True">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="0.45*" MinWidth="36"/>
-                            <ColumnDefinition Width="1.6*" MinWidth="120"/>
+                            <ColumnDefinition Width="236"/>
+                            <ColumnDefinition Width="236"/>
+                            <ColumnDefinition Width="236"/>
+                            <ColumnDefinition Width="236"/>
+                            <ColumnDefinition Width="236"/>
+                            <ColumnDefinition Width="236"/>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="120"/>
                             <ColumnDefinition Width="64"/>
-                            <ColumnDefinition Width="1.2*" MinWidth="100"/>
-                            <ColumnDefinition Width="1.3*" MinWidth="112"/>
-                            <ColumnDefinition Width="1.6*" MinWidth="130"/>
-                            <ColumnDefinition Width="1.3*" MinWidth="116"/>
-                            <ColumnDefinition Width="1.4*" MinWidth="124"/>
                             <ColumnDefinition Width="64"/>
                             <ColumnDefinition Width="64"/>
-                            <ColumnDefinition Width="64"/>
-                        </Grid.ColumnDefinitions>
+                            </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Padding="0,0,6,0" Text="#" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock Grid.Column="1" Padding="6,0" Text="{DynamicResource SheetStore.Category}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock Grid.Column="2" Padding="6,0" Text="{DynamicResource SheetStore.Thick}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
@@ -542,9 +542,9 @@
                                  ScrollViewer.PanningMode="None"
                                  VirtualizingStackPanel.IsVirtualizing="True"
                                  VirtualizingStackPanel.VirtualizationMode="Recycling"
-                                 VirtualizingStackPanel.ScrollUnit="Item"
-                                 VirtualizingStackPanel.CacheLength="1,2"
-                                 VirtualizingStackPanel.CacheLengthUnit="Page"
+                                 VirtualizingStackPanel.ScrollUnit="Pixel"
+                                 VirtualizingStackPanel.CacheLength="200,400"
+                                 VirtualizingStackPanel.CacheLengthUnit="Pixel"
                                  behaviors:SmoothScrollBehavior.IsEnabled="True"
                                  Visibility="{Binding HasSheets, Converter={StaticResource BoolToVisibilityConverter}}">
                             <ListBox.ItemsPanel>
@@ -584,19 +584,19 @@
                                         </Border.Style>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="0.45*" MinWidth="36"/>
-                                                <ColumnDefinition Width="1.6*" MinWidth="120"/>
+                                                <ColumnDefinition Width="236"/>
+                                                <ColumnDefinition Width="236"/>
+                                                <ColumnDefinition Width="236"/>
+                                                <ColumnDefinition Width="236"/>
+                                                <ColumnDefinition Width="236"/>
+                                                <ColumnDefinition Width="236"/>
+                                                <ColumnDefinition Width="120"/>
+                                                <ColumnDefinition Width="120"/>
                                                 <ColumnDefinition Width="64"/>
-                                                <ColumnDefinition Width="1.2*" MinWidth="100"/>
-                                                <ColumnDefinition Width="1.3*" MinWidth="112"/>
-                                                <ColumnDefinition Width="1.6*" MinWidth="130"/>
-                                                <ColumnDefinition Width="1.3*" MinWidth="116"/>
-                                                <ColumnDefinition Width="1.4*" MinWidth="124"/>
                                                 <ColumnDefinition Width="64"/>
                                                 <ColumnDefinition Width="64"/>
-                                                <ColumnDefinition Width="64"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Padding="0,0,6,0" Text="{Binding Id}" FontSize="{DynamicResource FontSize.Body}"
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Padding="0,0,6,0" Text="{Binding Id}" FontSize="{DynamicResource FontSize.Body}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
                                             <TextBlock Grid.Column="1" Padding="6,0" Text="{Binding Category}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                        Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"
@@ -668,12 +668,12 @@
                         SnapsToDevicePixels="True">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="130"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="370"/>
+                            <ColumnDefinition Width="370"/>
+                            <ColumnDefinition Width="370"/>
+                            <ColumnDefinition Width="370"/>
+                            <ColumnDefinition Width="370"/>
+                            </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="ITEM" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock Grid.Column="1" Text="BALANCE" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
                         <TextBlock Grid.Column="2" Text="USED" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
@@ -703,7 +703,7 @@
                                  VirtualizingStackPanel.CacheLength="400,800"
                                  VirtualizingStackPanel.CacheLengthUnit="Pixel"
                                  behaviors:SmoothScrollBehavior.IsEnabled="True"
-                                 Visibility="{Binding HasItems, Converter={StaticResource BoolToVisibilityConverter}}">
+                                 Visibility="{Binding HasItems, Converter={StaticResource BoolToVisibilityConverter}}" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="None">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <VirtualizingStackPanel/>
@@ -730,17 +730,17 @@
                                             </Style>
                                         </Border.Style>
                                         <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="150"/>
-                                                <ColumnDefinition Width="110"/>
-                                                <ColumnDefinition Width="130"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
+                                       <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="370"/>
+                                                <ColumnDefinition Width="370"/>
+                                                <ColumnDefinition Width="370"/>
+                                                <ColumnDefinition Width="370"/>
+                                                <ColumnDefinition Width="370"/>
+                                                </Grid.ColumnDefinitions>ions>
                                             <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding FullDescription}"
                                                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                                           TextTrimming="CharacterEllipsis"
+                                                           TextTrimming="CharacterEllipsis" ToolTip="{Binding FullDescription}"
                                                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
                                                     <TextBlock Text="{Binding CategoryDisplay}"
@@ -853,7 +853,7 @@
                                                FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                Foreground="{DynamicResource TextPrimaryBrush}"
                                                TextTrimming="CharacterEllipsis"
-                                               Margin="0,2,0,0"/>
+                                               Margin="0,2,0,0" ToolTip="{Binding SelectionLabel}"/>
                                 </StackPanel>
                                 <Button Grid.Column="2"
                                         Style="{StaticResource RowOutlinedButton}"

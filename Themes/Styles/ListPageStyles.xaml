@@ -139,7 +139,12 @@
         <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
-        <Setter Property="Padding" Value="16,11"/>
+        <!-- 2026-09-14: NO horizontal padding — the header grid carries the
+             same rail (3px) + per-column gutters as the row template, so
+             every label sits EXACTLY over its data. The old 16px padding
+             shifted all labels 16px right of the row content (the
+             "header vs data misaligned / left offset" defect). -->
+        <Setter Property="Padding" Value="0,11"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 

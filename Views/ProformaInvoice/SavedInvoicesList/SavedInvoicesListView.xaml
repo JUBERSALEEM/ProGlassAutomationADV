@@ -197,15 +197,15 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="3"/>
-                            <ColumnDefinition Width="1.2*"/>
-                            <ColumnDefinition Width="1.8*"/>
-                            <ColumnDefinition Width="1.5*"/>
-                            <ColumnDefinition Width="1.5*"/>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="1.4*"/>
-                            <ColumnDefinition Width="120"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            </Grid.ColumnDefinitions>
                         <!-- 2026-09-14: row cells carry Padding 14,12 — the
                              header labels carry the matching left margins
                              so every column label sits exactly over its
@@ -275,15 +275,15 @@
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="3"/>
-                                            <ColumnDefinition Width="1.2*"/>
-                                            <ColumnDefinition Width="1.8*"/>
-                                            <ColumnDefinition Width="1.5*"/>
-                                            <ColumnDefinition Width="1.5*"/>
-                                            <ColumnDefinition Width="110"/>
-                                            <ColumnDefinition Width="1.4*"/>
-                                            <ColumnDefinition Width="120"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="231"/>
+                                            <ColumnDefinition Width="231"/>
+                                            <ColumnDefinition Width="231"/>
+                                            <ColumnDefinition Width="231"/>
+                                            <ColumnDefinition Width="231"/>
+                                            <ColumnDefinition Width="231"/>
+                                            <ColumnDefinition Width="231"/>
+                                            <ColumnDefinition Width="231"/>
+                                            </Grid.ColumnDefinitions>
 
                                         <Border Grid.Column="0">
                                             <Border.Style>
@@ -364,6 +364,7 @@
                                                        FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                        HorizontalAlignment="Center"
+                                                       ToolTip="{Binding DisplayStatus}"
                                                        TextTrimming="CharacterEllipsis"/>
                                         </Border>
 

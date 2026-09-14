@@ -38,15 +38,15 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="3"/>
-                        <ColumnDefinition Width="1.5*"/>
-                        <ColumnDefinition Width="1.5*"/>
-                        <ColumnDefinition Width="90"/>
-                        <ColumnDefinition Width="140"/>
-                        <ColumnDefinition Width="130"/>
-                        <ColumnDefinition Width="130"/>
-                        <ColumnDefinition Width="110"/>
-                        <ColumnDefinition Width="130"/>
-                    </Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="231"/>
+                        <ColumnDefinition Width="231"/>
+                        <ColumnDefinition Width="231"/>
+                        <ColumnDefinition Width="231"/>
+                        <ColumnDefinition Width="231"/>
+                        <ColumnDefinition Width="231"/>
+                        <ColumnDefinition Width="231"/>
+                        <ColumnDefinition Width="231"/>
+                        </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0">
                         <Border.Style>
@@ -73,7 +73,7 @@
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" Margin="0,3,0,0"
                                    Foreground="{DynamicResource TextTertiaryBrush}"
-                                   TextTrimming="CharacterEllipsis">
+                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding LatestInvoiceNumber, Mode=OneWay}">
                             <Run Text="{DynamicResource DeliveryNote.Latest}"/><Run Text="{Binding LatestIssueDateDisplay, Mode=OneWay}"/>
                             <Run Text="  ·  "/><Run Text="{Binding LatestInvoiceNumber, Mode=OneWay}"/>
                             <Run Text="  "/><Run Text="{Binding LatestInvoiceStatus, Mode=OneWay}"/>
@@ -84,11 +84,11 @@
                         <TextBlock Text="{Binding CustomerName}"
                                    FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
-                                   TextTrimming="CharacterEllipsis"/>
+                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding CustomerName, Mode=OneWay}"/>
                         <TextBlock Text="{Binding ProjectName}"
                                    FontSize="{DynamicResource FontSize.Body}" Margin="0,2,0,0"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   TextTrimming="CharacterEllipsis"/>
+                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding ProjectName, Mode=OneWay}"/>
                     </StackPanel>
 
                     <Border Grid.Column="3"
@@ -351,7 +351,7 @@
                                    Text="{Binding SelectedFamilyMetaLine}"
                                    FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    VerticalAlignment="Center"
-                                   TextTrimming="CharacterEllipsis"
+                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedFamilyMetaLine}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <Button Grid.Column="2" Style="{StaticResource RowOutlinedButton}"
                                 Tag="&#xE711;" Content="{DynamicResource Action.Clear}"
@@ -419,15 +419,15 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="3"/>
-                            <ColumnDefinition Width="1.5*"/>
-                            <ColumnDefinition Width="1.5*"/>
-                            <ColumnDefinition Width="90"/>
-                            <ColumnDefinition Width="140"/>
-                            <ColumnDefinition Width="130"/>
-                            <ColumnDefinition Width="130"/>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="130"/>
-                        </Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            </Grid.ColumnDefinitions>
                         <!-- 2026-09-14: header gutters match the row cells
                              (14 / 8 / 8) — was flush-left, offset 8-14px. -->
                         <TextBlock Grid.Column="1" Text="{DynamicResource TaxInvoice.InvoiceFamilyPI}" Style="{StaticResource ModuleListHeaderTextStyle}"

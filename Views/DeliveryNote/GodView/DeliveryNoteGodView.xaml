@@ -140,10 +140,10 @@
                                         Width="130" ElementStyle="{StaticResource GodViewLeftCellTextStyle}"/>
                     <DataGridTextColumn Header="{DynamicResource God.Customer}"
                                         Binding="{Binding CustomerName}"
-                                        Width="*" ElementStyle="{StaticResource GodViewLeftCellTextStyle}"/>
+                                        Width="420" ElementStyle="{StaticResource GodViewLeftCellTextStyle}"/>
                     <DataGridTextColumn Header="{DynamicResource God.Project}"
                                         Binding="{Binding ProjectName}"
-                                        Width="*" ElementStyle="{StaticResource GodViewLeftCellTextStyle}"/>
+                                        Width="420" ElementStyle="{StaticResource GodViewLeftCellTextStyle}"/>
                     <DataGridTextColumn Header="{DynamicResource God.Status}"
                                         Binding="{Binding Status}"
                                         Width="100" HeaderStyle="{StaticResource GodViewCenterHeaderStyle}" ElementStyle="{StaticResource GodViewCenterCellTextStyle}"/>

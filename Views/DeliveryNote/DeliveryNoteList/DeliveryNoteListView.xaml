@@ -26,14 +26,14 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="3"/>
-                        <ColumnDefinition Width="1.5*"/>
-                        <ColumnDefinition Width="1.4*"/>
-                        <ColumnDefinition Width="130"/>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="170"/>
-                        <ColumnDefinition Width="130"/>
-                    </Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="264"/>
+                        <ColumnDefinition Width="264"/>
+                        <ColumnDefinition Width="264"/>
+                        <ColumnDefinition Width="264"/>
+                        <ColumnDefinition Width="264"/>
+                        <ColumnDefinition Width="264"/>
+                        <ColumnDefinition Width="264"/>
+                        </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0">
                         <Border.Style>
@@ -54,7 +54,7 @@
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" Margin="0,3,0,0"
                                    Foreground="{DynamicResource TextTertiaryBrush}"
-                                   TextTrimming="CharacterEllipsis">
+                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding LatestDnId, Mode=OneWay}">
                             <Run Text="{DynamicResource DeliveryNote.Latest}"/><Run Text="{Binding LatestDeliveryDateDisplay, Mode=OneWay}"/>
                             <Run Text="  ·  "/><Run Text="{Binding LatestDriverName, Mode=OneWay}"/>
                             <Run Text="  ·  "/><Run Text="{Binding LatestDnId, Mode=OneWay}"/>
@@ -65,11 +65,11 @@
                         <TextBlock Text="{Binding CustomerName}"
                                    FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
-                                   TextTrimming="CharacterEllipsis"/>
+                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding CustomerName, Mode=OneWay}"/>
                         <TextBlock Text="{Binding ProjectName}"
                                    FontSize="{DynamicResource FontSize.Body}" Margin="0,2,0,0"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   TextTrimming="CharacterEllipsis"/>
+                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding ProjectName, Mode=OneWay}"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="8,0">
@@ -341,7 +341,7 @@
                                    Text="{Binding SelectedDnMetaLine}"
                                    FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    VerticalAlignment="Center"
-                                   TextTrimming="CharacterEllipsis"
+                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedDnMetaLine}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <Button Grid.Column="2" Style="{StaticResource RowOutlinedButton}"
                                 Tag="&#xE711;" Content="{DynamicResource God.Clear}"
@@ -446,14 +446,14 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="3"/>
-                            <ColumnDefinition Width="1.5*"/>
-                            <ColumnDefinition Width="1.4*"/>
-                            <ColumnDefinition Width="130"/>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="170"/>
-                            <ColumnDefinition Width="130"/>
-                        </Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="264"/>
+                            <ColumnDefinition Width="264"/>
+                            <ColumnDefinition Width="264"/>
+                            <ColumnDefinition Width="264"/>
+                            <ColumnDefinition Width="264"/>
+                            <ColumnDefinition Width="264"/>
+                            <ColumnDefinition Width="264"/>
+                            </Grid.ColumnDefinitions>
                         <!-- 2026-09-14: header labels carry the same gutters +
                              alignment as their row cells (text left, numbers
                              right, status center) so every label sits exactly
@@ -499,7 +499,7 @@
                                  VirtualizingStackPanel.ScrollUnit="Pixel"
                                  VirtualizingStackPanel.CacheLength="200,400"
                                  VirtualizingStackPanel.CacheLengthUnit="Pixel"
-                                 behaviors:SmoothScrollBehavior.IsEnabled="True">
+                                 behaviors:SmoothScrollBehavior.IsEnabled="True" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="None">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <VirtualizingStackPanel/>
@@ -553,7 +553,7 @@
                                  VirtualizingStackPanel.CacheLength="200,400"
                                  VirtualizingStackPanel.CacheLengthUnit="Pixel"
                                  VirtualizingStackPanel.ScrollUnit="Pixel"
-                                 behaviors:SmoothScrollBehavior.IsEnabled="True">
+                                 behaviors:SmoothScrollBehavior.IsEnabled="True" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="None">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <VirtualizingStackPanel/>
@@ -603,7 +603,7 @@
                                  VirtualizingStackPanel.CacheLength="200,400"
                                  VirtualizingStackPanel.CacheLengthUnit="Pixel"
                                  VirtualizingStackPanel.ScrollUnit="Pixel"
-                                 behaviors:SmoothScrollBehavior.IsEnabled="True">
+                                 behaviors:SmoothScrollBehavior.IsEnabled="True" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="None">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <VirtualizingStackPanel/>
@@ -652,7 +652,7 @@
                                  VirtualizingStackPanel.CacheLength="200,400"
                                  VirtualizingStackPanel.CacheLengthUnit="Pixel"
                                  VirtualizingStackPanel.ScrollUnit="Pixel"
-                                 behaviors:SmoothScrollBehavior.IsEnabled="True">
+                                 behaviors:SmoothScrollBehavior.IsEnabled="True" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="None">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <VirtualizingStackPanel/>
@@ -754,7 +754,7 @@
                                  VirtualizingStackPanel.CacheLength="200,400"
                                  VirtualizingStackPanel.CacheLengthUnit="Pixel"
                                  VirtualizingStackPanel.ScrollUnit="Pixel"
-                                 behaviors:SmoothScrollBehavior.IsEnabled="True">
+                                 behaviors:SmoothScrollBehavior.IsEnabled="True" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="None">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <VirtualizingStackPanel/>
@@ -804,7 +804,7 @@
                                  VirtualizingStackPanel.CacheLength="200,400"
                                  VirtualizingStackPanel.CacheLengthUnit="Pixel"
                                  VirtualizingStackPanel.ScrollUnit="Pixel"
-                                 behaviors:SmoothScrollBehavior.IsEnabled="True">
+                                 behaviors:SmoothScrollBehavior.IsEnabled="True" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="None">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <VirtualizingStackPanel/>

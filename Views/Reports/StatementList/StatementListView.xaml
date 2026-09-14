@@ -312,12 +312,12 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="3"/>
-                    <ColumnDefinition Width="1.6*"/>
-                    <ColumnDefinition Width="1.3*"/>
-                    <ColumnDefinition Width="1.3*"/>
-                    <ColumnDefinition Width="110"/>
-                    <ColumnDefinition Width="170"/>
-                </Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="369"/>
+                    <ColumnDefinition Width="369"/>
+                    <ColumnDefinition Width="369"/>
+                    <ColumnDefinition Width="369"/>
+                    <ColumnDefinition Width="369"/>
+                    </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="1"
                            Text="{DynamicResource Reports.StatementCustomer}"
                            Style="{StaticResource ModuleListHeaderTextStyle}"
@@ -434,7 +434,7 @@
                       ScrollViewer.IsDeferredScrollingEnabled="False"
                       behaviors:SmoothScrollBehavior.IsEnabled="True"
                       Visibility="{Binding IsListVisible,
-                          Converter={StaticResource BoolToVisibilityConverter}}">
+                          Converter={StaticResource BoolToVisibilityConverter}}" ScrollViewer.PanningMode="None">
 
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
@@ -471,12 +471,12 @@
                                 <!-- SAME column grid as the header band -->
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="3"/>
-                                    <ColumnDefinition Width="1.6*"/>
-                                    <ColumnDefinition Width="1.3*"/>
-                                    <ColumnDefinition Width="1.3*"/>
-                                    <ColumnDefinition Width="110"/>
-                                    <ColumnDefinition Width="170"/>
-                                </Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="369"/>
+                                    <ColumnDefinition Width="369"/>
+                                    <ColumnDefinition Width="369"/>
+                                    <ColumnDefinition Width="369"/>
+                                    <ColumnDefinition Width="369"/>
+                                    </Grid.ColumnDefinitions>
 
                                 <!-- Accent rail (red when overdue) -->
                                 <Border Grid.Column="0">
@@ -506,6 +506,7 @@
                                         <TextBlock Text="{Binding SubTitle, Mode=OneWay}"
                                                    FontSize="{DynamicResource FontSize.Title}"
                                                    FontWeight="{DynamicResource Weight.SemiBold}"
+                                                   ToolTip="{Binding SubTitle, Mode=OneWay}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                                    TextTrimming="CharacterEllipsis"
                                                    VerticalAlignment="Center"/>

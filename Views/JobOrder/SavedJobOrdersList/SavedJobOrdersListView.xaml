@@ -226,15 +226,15 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="3"/>
-                            <ColumnDefinition Width="1.6*"/>
-                            <ColumnDefinition Width="1.3*"/>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="1.3*"/>
-                            <ColumnDefinition Width="120"/>
-                            <ColumnDefinition Width="120"/>
-                            <ColumnDefinition Width="100"/>
-                            <ColumnDefinition Width="160"/>
-                        </Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            <ColumnDefinition Width="231"/>
+                            </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="1" Text="{DynamicResource Common.JobOrder}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Margin="14,0"/>
                         <TextBlock Grid.Column="2" Text="{DynamicResource Common.Customer}" Style="{StaticResource ModuleListHeaderTextStyle}"
@@ -282,15 +282,15 @@
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="3"/>
-                                            <ColumnDefinition Width="1.6*"/>
-                                            <ColumnDefinition Width="1.3*"/>
-                                            <ColumnDefinition Width="110"/>
-                                            <ColumnDefinition Width="1.3*"/>
-                                            <ColumnDefinition Width="120"/>
-                                            <ColumnDefinition Width="120"/>
-                                            <ColumnDefinition Width="100"/>
-                                            <ColumnDefinition Width="160"/>
-                                        </Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="231"/>
+                                            <ColumnDefinition Width="231"/>
+                                            <ColumnDefinition Width="231"/>
+                                            <ColumnDefinition Width="231"/>
+                                            <ColumnDefinition Width="231"/>
+                                            <ColumnDefinition Width="231"/>
+                                            <ColumnDefinition Width="231"/>
+                                            <ColumnDefinition Width="231"/>
+                                            </Grid.ColumnDefinitions>
 
                                         <Border Grid.Column="0"
                                                 Background="{Binding PriorityBrushKey,
@@ -310,8 +310,8 @@
                                                     <TextBlock Text="{Binding ProjectName}"
                                                                FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                                Foreground="{DynamicResource TextPrimaryBrush}"
-                                                               TextTrimming="CharacterEllipsis"
-                                                               MaxWidth="140"/>
+                                                               TextTrimming="CharacterEllipsis" ToolTip="{Binding ProjectName}"
+                                                               MaxWidth="105"/>
                                                 </Border>
                                                 <Border Background="{DynamicResource TintBlueBrush}"
                                                         BorderBrush="{DynamicResource BorderDefaultBrush}"
@@ -320,7 +320,9 @@
                                                         Padding="8,2"
                                                         Margin="0,0,6,0">
                                                     <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                                               Foreground="{DynamicResource AccentBrush}">
+                                                               Foreground="{DynamicResource AccentBrush}"
+                                                               TextTrimming="CharacterEllipsis" MaxWidth="90"
+                                                               ToolTip="{Binding SourceProformaId, Mode=OneWay}">
                                                         <Run Text="{DynamicResource Common.From}"/><Run Text="{Binding SourceProformaId, Mode=OneWay}"/>
                                                     </TextBlock>
                                                 </Border>

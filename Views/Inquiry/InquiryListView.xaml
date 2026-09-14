@@ -30,6 +30,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:inq="clr-namespace:ProGlassAutomation.Models.Inquiry"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              x:Name="Root"
              FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Ideal"
@@ -448,18 +449,19 @@
                         Background="{DynamicResource AccentBrush}"
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="14,10"
+                        CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="0,10"
                         SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="120"/>
-                            <ColumnDefinition Width="96"/>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="120"/>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="60"/>
-                        </Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="3"/>
+                                            <ColumnDefinition Width="264"/>
+                                            <ColumnDefinition Width="264"/>
+                                            <ColumnDefinition Width="264"/>
+                                            <ColumnDefinition Width="264"/>
+                                            <ColumnDefinition Width="264"/>
+                                            <ColumnDefinition Width="264"/>
+                                            <ColumnDefinition Width="264"/>
+                                            </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="INQ#"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
@@ -516,7 +518,7 @@
                              VirtualizingStackPanel.CacheLength="400,800"
                              VirtualizingStackPanel.CacheLengthUnit="Pixel"
                              ScrollViewer.CanContentScroll="True"
-                             MouseDoubleClick="OnRowDoubleClick">
+                             MouseDoubleClick="OnRowDoubleClick" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="None" behaviors:SmoothScrollBehavior.IsEnabled="True">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Border Style="{StaticResource ModuleListRowStyle}"
@@ -634,14 +636,14 @@
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="3"/>
-                                            <ColumnDefinition Width="117"/>
-                                            <ColumnDefinition Width="96"/>
-                                            <ColumnDefinition Width="2*"/>
-                                            <ColumnDefinition Width="2*"/>
-                                            <ColumnDefinition Width="120"/>
-                                            <ColumnDefinition Width="110"/>
-                                            <ColumnDefinition Width="60"/>
-                                        </Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="264"/>
+                                            <ColumnDefinition Width="264"/>
+                                            <ColumnDefinition Width="264"/>
+                                            <ColumnDefinition Width="264"/>
+                                            <ColumnDefinition Width="264"/>
+                                            <ColumnDefinition Width="264"/>
+                                            <ColumnDefinition Width="264"/>
+                                            </Grid.ColumnDefinitions>
                                         <Border Grid.Column="0" Style="{StaticResource SurfaceDetailStyle}"/>
                                         <TextBlock Grid.Column="1" Margin="12,0,0,0"
                                                    Text="{Binding InquiryNumber}"
@@ -683,7 +685,7 @@
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                                    HorizontalAlignment="Right"
                                                    VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis"/>
+                                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding ValueText, Mode=OneWay}"/>
                                         <TextBlock Grid.Column="6" Margin="8,0,0,0"
                                                    Text="{Binding ReceivedDateText, Mode=OneWay}"
                                                    FontSize="{DynamicResource FontSize.Body}"
@@ -695,7 +697,7 @@
                                                    Foreground="{DynamicResource TextTertiaryBrush}"
                                                    VerticalAlignment="Center"
                                                    TextTrimming="CharacterEllipsis"
-                                                   MaxWidth="52"
+                                                   MaxWidth="250"
                                                    ToolTip="{Binding Salesman}"/>
                                     </Grid>
                                 </Border>
@@ -752,7 +754,7 @@
                                     <TextBlock Text="{Binding SelectedInquiry.InquiryNumber}"
                                                FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource TextPrimaryBrush}"
-                                               TextTrimming="CharacterEllipsis"/>
+                                               TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedInquiry.InquiryNumber}"/>
                                 </StackPanel>
                                 <Button Grid.Column="2"
                                         Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
