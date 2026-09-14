@@ -87,16 +87,16 @@
         <SolidColorBrush x:Key="SplashCeruleanDeep"  Color="{DynamicResource AccentDarkColor}"/>
         <SolidColorBrush x:Key="SplashOutline"       Color="{DynamicResource BorderColor}"/>
         <!-- Translucent glass surfaces so the stage shows through -->
-        <SolidColorBrush x:Key="SplashPillBg"        Color="{DynamicResource Splash.TealBrush.Alpha22.80}"/>
-        <SolidColorBrush x:Key="SplashTrackBg"       Color="{DynamicResource Splash.TealBrush.Alpha22.80}"/>
+        <SolidColorBrush x:Key="SplashPillBg"        Color="#22808080"/>
+        <SolidColorBrush x:Key="SplashTrackBg"       Color="#22808080"/>
 
         <!-- ═══ MODULE-TILE GLASS ═══ frosted, theme-aware, with a soft
              top sheen so each chip reads as a raised glass tile (matches
              the approved mockup's chunky frosted modules). ═══ -->
         <LinearGradientBrush x:Key="TileGlassBg" StartPoint="0,0" EndPoint="0.4,1">
             <GradientStop Color="#33FFFFFF" Offset="0.0"/>
-            <GradientStop Color="{DynamicResource Splash.DarkTealBrush.Alpha14.80}" Offset="0.45"/>
-            <GradientStop Color="{DynamicResource Black.Alpha0D}" Offset="1.0"/>
+            <GradientStop Color="#14808080" Offset="0.45"/>
+            <GradientStop Color="#0D000000" Offset="1.0"/>
         </LinearGradientBrush>
         <!-- Icon-badge fill: accent-tinted frosted square behind each glyph -->
         <LinearGradientBrush x:Key="TileIconBadgeBg" StartPoint="0,0" EndPoint="1,1">
@@ -105,7 +105,7 @@
         </LinearGradientBrush>
         <SolidColorBrush x:Key="SplashTextPrimary"   Color="{DynamicResource PrimaryForegroundColor}"/>
         <SolidColorBrush x:Key="SplashTextSecondary" Color="{DynamicResource SecondaryForegroundColor}"/>
-        <SolidColorBrush x:Key="SplashOnAccent"      Color="{DynamicResource PaperBrush}"/>
+        <SolidColorBrush x:Key="SplashOnAccent"      Color="#FFFFFF"/>
 
         <!-- ═══ STAGE — a rich theme-aware diagonal mesh built from the
              theme's own background + accent Color tokens ═══ -->
