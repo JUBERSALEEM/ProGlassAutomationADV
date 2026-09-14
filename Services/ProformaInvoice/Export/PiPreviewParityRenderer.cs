@@ -774,17 +774,27 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         {
             table.ColumnsDefinition(c =>
             {
-                c.ConstantColumn(Px(28));      // #
-                c.RelativeColumn(1.4f);        // GLASS REF / DESCRIPTION
-                c.ConstantColumn(Px(32));      // W1
-                c.ConstantColumn(Px(32));      // H1
-                c.ConstantColumn(Px(32));      // W2
-                c.ConstantColumn(Px(32));      // H2
-                c.ConstantColumn(Px(36));      // QTY
-                c.RelativeColumn(0.70f);       // SQM
-                c.RelativeColumn(0.85f);       // TOTAL SQM
-                c.RelativeColumn(0.70f);       // RATE
-                c.RelativeColumn(0.90f);       // VALUE
+                // 2026-09-14 (owner report: "PDF export width/height
+                // issue"): the old fixed 32 DIP dimension columns left
+                // only ~13 pt of text space after cell padding, so
+                // 4-digit sizes ("1200") and money values
+                // ("AED 9,999.99") wrapped mid-value — doubled row
+                // heights and numbers spilling across column borders.
+                // Auto columns size to the WIDEST cell of the column
+                // (padding included), so values render on one line in
+                // every theme; GLASS REF absorbs the remaining width,
+                // exactly like the preview's 1.4* column.
+                c.AutoColumn();                 // #
+                c.RelativeColumn(1.4f);         // GLASS REF / DESCRIPTION
+                c.AutoColumn();                 // W1
+                c.AutoColumn();                 // H1
+                c.AutoColumn();                 // W2
+                c.AutoColumn();                 // H2
+                c.AutoColumn();                 // QTY
+                c.AutoColumn();                 // SQM
+                c.AutoColumn();                 // TOTAL SQM
+                c.AutoColumn();                 // RATE
+                c.AutoColumn();                 // VALUE
             });
         }
 

@@ -178,18 +178,29 @@
                             Command="{Binding CompleteUnitCommand}"/>
                 </Grid>
 
-                <!-- ══ Grids: OUTER (left) · INNER (right), SGU centered ═ -->
-                <StackPanel Margin="0,14,0,0">
-                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource OuterGridTemplate}"
+                <!-- ══ Grids: OUTER (left) · INNER (right) — half-half,
+                     SIDE BY SIDE, so related glasses (outer sheet ↔ inner
+                     cuts) can be tracked row against row. Single-glass
+                     jobs render one full-width grid. ═ -->
+                <Grid Margin="0,14,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <ContentControl Grid.Column="0" Grid.ColumnSpan="3"
+                                    Content="{Binding}" ContentTemplate="{StaticResource OuterGridTemplate}"
                                     HorizontalContentAlignment="Stretch"
                                     Visibility="{Binding IsSingleGlass, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource OuterGridTemplate}"
+                    <ContentControl Grid.Column="0"
+                                    Content="{Binding}" ContentTemplate="{StaticResource OuterGridTemplate}"
                                     HorizontalContentAlignment="Stretch"
                                     Visibility="{Binding HasInnerGrid, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource InnerGridTemplate}"
-                                    HorizontalContentAlignment="Stretch" Margin="0,12,0,0"
+                    <ContentControl Grid.Column="2"
+                                    Content="{Binding}" ContentTemplate="{StaticResource InnerGridTemplate}"
+                                    HorizontalContentAlignment="Stretch"
                                     Visibility="{Binding HasInnerGrid, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                </StackPanel>
+                </Grid>
 
                 <!-- ══ COMPLETED — panes that finished this stage ═══════ -->
                 <Border Background="{DynamicResource TintGreenBrush}"
