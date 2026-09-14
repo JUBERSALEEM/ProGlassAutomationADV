@@ -276,7 +276,7 @@
                             <TextBlock x:Name="Glyph"
                                        Text="{TemplateBinding Tag}"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextBody}"
+                                       FontSize="{DynamicResource FontSize.Body}"
                                        Margin="0,0,8,0"
                                        VerticalAlignment="Center"
                                        Foreground="{TemplateBinding Foreground}"/>
