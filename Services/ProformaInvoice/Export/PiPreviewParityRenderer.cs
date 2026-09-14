@@ -713,7 +713,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
                 col.Item().Table(table =>
                 {
-                    DefineSpecColumns(table);
+                    DefineSpecColumns(table, group);
 
                     table.Header(header =>
                     {
@@ -770,7 +770,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             });
         }
 
-        private static void DefineSpecColumns(TableDescriptor table)
+        private static void DefineSpecColumns(TableDescriptor table, PiSpecGroupModel group)
         {
             table.ColumnsDefinition(c =>
             {
@@ -780,22 +780,103 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 // 4-digit sizes ("1200") and money values
                 // ("AED 9,999.99") wrapped mid-value — doubled row
                 // heights and numbers spilling across column borders.
-                // Auto columns size to the WIDEST cell of the column
-                // (padding included), so values render on one line in
-                // every theme; GLASS REF absorbs the remaining width,
-                // exactly like the preview's 1.4* column.
-                c.AutoColumn();                 // #
-                c.RelativeColumn(1.4f);         // GLASS REF / DESCRIPTION
-                c.AutoColumn();                 // W1
-                c.AutoColumn();                 // H1
-                c.AutoColumn();                 // W2
-                c.AutoColumn();                 // H2
-                c.AutoColumn();                 // QTY
-                c.AutoColumn();                 // SQM
-                c.AutoColumn();                 // TOTAL SQM
-                c.AutoColumn();                 // RATE
-                c.AutoColumn();                 // VALUE
+                // Each numeric column now gets a ConstantColumn sized
+                // to the WIDEST cell of that column (rows AND sub-total,
+                // padding included) — values render on one line in every
+                // theme; GLASS REF absorbs the remaining width, exactly
+                // like the preview's 1.4* column.
+                float pad = 2f * T.CellPadH + 4f;
+                float availablePt = (210f - 2f * T.MarginMm) * 72f / 25.4f;
+                float[] widths = new[]
+                {
+                    FitColumn(group, M.TableFont,
+                        r => r.Serial.ToString(CultureInfo.InvariantCulture)) + pad,                       // #
+                    30f,                                                                                   // (ref = relative)
+                    FitColumn(group, M.TableFont, r => r.W1.ToString(CultureInfo.InvariantCulture)) + pad,  // W1
+                    FitColumn(group, M.TableFont, r => r.H1.ToString(CultureInfo.InvariantCulture)) + pad,  // H1
+                    FitColumn(group, M.TableFont, r => r.W2.ToString(CultureInfo.InvariantCulture)) + pad,  // W2
+                    FitColumn(group, M.TableFont, r => r.H2.ToString(CultureInfo.InvariantCulture)) + pad,  // H2
+                    FitColumn(group, M.TableFont, r => r.Qty.ToString(CultureInfo.InvariantCulture),
+                        group.TotalQty.ToString(CultureInfo.InvariantCulture)) + pad,                       // QTY
+                    FitColumn(group, M.TableFont, r => Sqm(r.UnitArea)) + pad,                              // SQM
+                    FitColumn(group, M.TableFont, r => Sqm(r.TotalArea),
+                        Sqm(group.TotalArea)) + pad,                                                       // TOTAL SQM
+                    FitColumn(group, M.TableFont, r => Money(r.Rate)) + pad,                               // RATE
+                    FitColumn(group, M.TableFont, r => Money(r.Total),
+                        Money(group.TotalValue)) + pad                                                     // VALUE
+                };
+
+                // Keep the numeric block inside the printable width even
+                // for extreme values — the GLASS REF column keeps at least
+                // its header's widest word.
+                float fixedSum = 0;
+                for (int i = 0; i < widths.Length; i++)
+                    if (i != 1) fixedSum += Math.Max(widths[i], MinNumericColumn(i));
+                float budget = availablePt - 70f;
+                if (fixedSum > budget && fixedSum > 0)
+                {
+                    float scale = budget / fixedSum;
+                    for (int i = 0; i < widths.Length; i++)
+                        if (i != 1) widths[i] = Math.Max(widths[i] * scale, MinNumericColumn(i) * 0.85f);
+                }
+
+                c.ConstantColumn(widths[0]);   // #
+                c.RelativeColumn(1.4f);        // GLASS REF / DESCRIPTION
+                c.ConstantColumn(widths[2]);   // W1
+                c.ConstantColumn(widths[3]);   // H1
+                c.ConstantColumn(widths[4]);   // W2
+                c.ConstantColumn(widths[5]);   // H2
+                c.ConstantColumn(widths[6]);   // QTY
+                c.ConstantColumn(widths[7]);   // SQM
+                c.ConstantColumn(widths[8]);   // TOTAL SQM
+                c.ConstantColumn(widths[9]);   // RATE
+                c.ConstantColumn(widths[10]);  // VALUE
             });
+        }
+
+        /// <summary>Minimum sensible width per numeric column (index 1 is
+        /// the relative GLASS REF column).</summary>
+        private static float MinNumericColumn(int i) => i switch
+        {
+            0 => 24f,
+            2 or 3 or 4 or 5 => 28f,
+            6 => 28f,
+            7 => 34f,
+            8 => 40f,
+            9 => 46f,
+            10 => 52f,
+            _ => 24f
+        };
+
+        /// <summary>Widest cell of a column (rows + optional sub-total
+        /// value), measured for the table font. Segoe UI advances
+        /// approximated per character class, +15% safety margin.</summary>
+        private static float FitColumn(
+            PiSpecGroupModel group, float font,
+            Func<PiGlassRowModel, string> rowText, params string[] extra)
+        {
+            float maxPt = 0;
+            foreach (var r in group.Rows)
+                maxPt = Math.Max(maxPt, MeasurePt(rowText(r), font));
+            foreach (var e in extra)
+                maxPt = Math.Max(maxPt, MeasurePt(e, font));
+            return Math.Max(maxPt, font * 2f); // at least "88"
+        }
+
+        private static float MeasurePt(string text, float font)
+        {
+            float w = 0;
+            foreach (var ch in text)
+            {
+                w += ch switch
+                {
+                    >= '0' and <= '9' => font * 0.56f,
+                    ',' or '.' => font * 0.30f,
+                    ' ' => font * 0.32f,
+                    _ => font * 0.60f
+                };
+            }
+            return w * 1.15f;
         }
 
         private static void SpecHeaderCell(
