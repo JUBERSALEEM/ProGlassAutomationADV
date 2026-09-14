@@ -83,7 +83,7 @@ namespace ProGlassAutomation
                         if (args.Exception is System.Windows.Markup.XamlParseException xpe)
                         {
                             AppLogService.Debug(
-                                $"[Forensics] FirstChance XamlParseException | BaseUri={xpe.BaseUri} Line={xpe.LineNumber} Pos={xpe.LinePosition} SourceUri={xpe.SourceUri} Message={xpe.Message}",
+                                $"[Forensics] FirstChance XamlParseException | BaseUri={xpe.BaseUri} Line={xpe.LineNumber} Pos={xpe.LinePosition} Message={xpe.Message}",
                                 new LogContext { Operation = "Forensics_XamlParse" });
                             // Also log inner
                             if (xpe.InnerException != null)

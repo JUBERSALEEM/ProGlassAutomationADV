@@ -276,7 +276,7 @@ namespace ProGlassAutomation.Services.Logging
                 {
                     if (current is System.Windows.Markup.XamlParseException xpe)
                     {
-                        extra = $"\n    XAML BaseUri: {xpe.BaseUri}\n    XAML LineNumber: {xpe.LineNumber}\n    XAML LinePosition: {xpe.LinePosition}\n    XAML SourceUri: {xpe.SourceUri}";
+                        extra = $"\n    XAML BaseUri: {xpe.BaseUri}\n    XAML LineNumber: {xpe.LineNumber}\n    XAML LinePosition: {xpe.LinePosition}";
                         // Also try to get inner exception details for template
                         if (xpe.InnerException != null)
                         {
