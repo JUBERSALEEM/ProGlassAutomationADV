@@ -1092,7 +1092,20 @@
     <Style x:Key="SpecLabel" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
     <Style x:Key="SpecValue" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
     <Style x:Key="StatLabel" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
-    <Style x:Key="StepDotStyle" TargetType="Ellipse"/>
+    <!-- 2026-09-14: was an EMPTY Ellipse style; three Border-based consumers in
+         InquiryEditorWindow crashed at load ("Can only base on a Style with
+         target type that is base type 'Border'"). Now a real Border dot:
+         26px circle, neutral rest state, active state via DataTriggers. -->
+    <Style x:Key="StepDotStyle" TargetType="Border">
+        <Setter Property="Width" Value="26"/>
+        <Setter Property="Height" Value="26"/>
+        <Setter Property="CornerRadius" Value="13"/>
+        <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
     <Style x:Key="StepNumberStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
     <Style x:Key="StepTitleStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Title}"/>
     <Style x:Key="SurfaceComboBox" TargetType="ComboBox" BasedOn="{StaticResource Input.ComboBox}"/>
@@ -1115,11 +1128,15 @@
     <DropShadowEffect x:Key="AboutCardEffect" BlurRadius="8" ShadowDepth="0" Opacity="0.08" Color="#FF0F172A"/>
     <Style x:Key="DataRowStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
     <ContextMenu x:Key="EditorFieldContextMenu"/>
-    <Style x:Key="ErrorAwareEntry" TargetType="Border" BasedOn="{StaticResource Input.TextBox}"/>
-    <Style x:Key="FullBadgeText" TargetType="Border" BasedOn="{StaticResource Typography.Caption}"/>
+    <!-- 2026-09-14: alias targets fixed (were TargetType=Border based on
+         TextBox/TextBlock styles — invalid BasedOn chain, crash on first use).
+         Every consumer bases a TextBox/TextBlock style on these, so the alias
+         must match the base style's target type. -->
+    <Style x:Key="ErrorAwareEntry" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="FullBadgeText" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
     <Style x:Key="FullCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
-    <Style x:Key="FullKpiValue" TargetType="Border" BasedOn="{StaticResource Typography.Kpi}"/>
-    <Style x:Key="KpiValueStyle" TargetType="Border" BasedOn="{StaticResource Typography.Kpi}"/>
+    <Style x:Key="FullKpiValue" TargetType="TextBlock" BasedOn="{StaticResource Typography.Kpi}"/>
+    <Style x:Key="KpiValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Kpi}"/>
     <Style x:Key="ModelOptionCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
 
 </ResourceDictionary>

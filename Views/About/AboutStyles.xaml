@@ -240,18 +240,23 @@
                                    VerticalAlignment="Center"
                                    Style="{StaticResource Typography.Icon}"/>
                         <!-- specular gloss: top-half white fade.
-                             2026-09-14: hex stops → named White + Opacity
-                             (audit lock: About files must contain no fixed
-                             hex colours; the sheen is white by definition).
-                             Corner token fixed Radius.Top.XLarge (undefined,
+                             2026-09-14 (2nd pass): reverted to hex-ARGB stops.
+                             The White+Opacity form failed the user's VS build
+                             (MC3072/XLS0413 "Opacity not found in GradientStop"
+                             at these lines); the hex form is what ships in the
+                             working 2.0.1 build. Visuals identical:
+                             alpha 0x59 = 35%, 0x00 = 0%. Sheen is white by
+                             definition (theme-agnostic highlight, not a brand
+                             colour).
+                             Corner token: Radius.Top.XLarge (undefined,
                              resolved to 0) → Radius.Top.Medium. -->
                         <Border Height="22" CornerRadius="{DynamicResource Radius.Top.Medium}"
                                 VerticalAlignment="Top"
                                 IsHitTestVisible="False">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-                                    <GradientStop Color="White" Opacity="0.35" Offset="0"/>
-                                    <GradientStop Color="White" Opacity="0" Offset="1"/>
+                                    <GradientStop Color="#59FFFFFF" Offset="0"/>
+                                    <GradientStop Color="#00FFFFFF" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
                         </Border>
