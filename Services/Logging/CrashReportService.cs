@@ -269,10 +269,32 @@ namespace ProGlassAutomation.Services.Logging
                     stack = stack.Substring(0, stackBudgetPerLevel) +
                             "\n…(truncated)";
                 }
+
+                // Enhanced diagnostics for XamlParseException — capture BaseUri, LineNumber, LinePosition
+                string extra = "";
+                try
+                {
+                    if (current is System.Windows.Markup.XamlParseException xpe)
+                    {
+                        extra = $"\n    XAML BaseUri: {xpe.BaseUri}\n    XAML LineNumber: {xpe.LineNumber}\n    XAML LinePosition: {xpe.LinePosition}\n    XAML SourceUri: {xpe.SourceUri}";
+                        // Also try to get inner exception details for template
+                        if (xpe.InnerException != null)
+                        {
+                            extra += $"\n    InnerException Type: {xpe.InnerException.GetType().FullName}\n    InnerException Message: {xpe.InnerException.Message}";
+                        }
+                    }
+                    // For ArgumentException that says ResourceReferenceExpression not valid for FontSize, capture more
+                    if (current is ArgumentException ae && ae.Message.Contains("ResourceReferenceExpression"))
+                    {
+                        extra += $"\n    ArgumentException ParamName: {ae.ParamName}\n    Data: {string.Join(", ", ae.Data.Keys.Cast<object>().Select(k => k + "=" + ae.Data[k]))}";
+                    }
+                }
+                catch { /* best-effort */ }
+
                 chain.Add(new ExceptionEntry
                 {
                     TypeName = current.GetType().FullName ?? current.GetType().Name,
-                    Message = current.Message ?? "",
+                    Message = (current.Message ?? "") + extra,
                     StackTrace = stack
                 });
                 current = current.InnerException;

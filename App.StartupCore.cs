@@ -70,6 +70,41 @@ namespace ProGlassAutomation
             // 0) Technical logging first — everything after can report here.
             AppLogService.Initialize();
 
+            // TEMPORARY DIAGNOSTIC — Phase 19 FontSize ResourceReferenceExpression crash forensics
+            // Hook FirstChanceException to capture XamlParseException BaseUri/LineNumber/LinePosition and ArgumentException ResourceReferenceExpression
+            // This is temporary instrumentation per task instruction to identify exact control/template/font resource.
+            // Do not permanently add noisy diagnostics unless needed — remove after fix verified.
+            try
+            {
+                AppDomain.CurrentDomain.FirstChanceException += (_, args) =>
+                {
+                    try
+                    {
+                        if (args.Exception is System.Windows.Markup.XamlParseException xpe)
+                        {
+                            AppLogService.Debug(
+                                $"[Forensics] FirstChance XamlParseException | BaseUri={xpe.BaseUri} Line={xpe.LineNumber} Pos={xpe.LinePosition} SourceUri={xpe.SourceUri} Message={xpe.Message}",
+                                new LogContext { Operation = "Forensics_XamlParse" });
+                            // Also log inner
+                            if (xpe.InnerException != null)
+                            {
+                                AppLogService.Debug(
+                                    $"[Forensics] XamlParse Inner | Type={xpe.InnerException.GetType().FullName} Message={xpe.InnerException.Message}",
+                                    new LogContext { Operation = "Forensics_XamlParseInner" });
+                            }
+                        }
+                        if (args.Exception is ArgumentException ae && ae.Message.Contains("ResourceReferenceExpression"))
+                        {
+                            AppLogService.Debug(
+                                $"[Forensics] FirstChance ArgumentException ResourceReferenceExpression | Message={ae.Message} Stack={ae.StackTrace?.Substring(0, Math.Min(2000, ae.StackTrace.Length))}",
+                                new LogContext { Operation = "Forensics_FontSize" });
+                        }
+                    }
+                    catch { /* best-effort */ }
+                };
+            }
+            catch { /* best-effort */ }
+
             // ── Global unhandled exception catcher ──────────────────────
             // Writes a FULL crash report (logs\crash-latest.txt) and shows
             // a user-safe dialog with the ErrorId, so any crash can be
