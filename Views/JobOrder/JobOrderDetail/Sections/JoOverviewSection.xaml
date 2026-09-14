@@ -129,7 +129,7 @@
                             <StackPanel Grid.Column="6" VerticalAlignment="Center" MinWidth="120">
                                 <TextBlock Text="{DynamicResource JobOrder.InvoiceValue}" Style="{StaticResource Typography.Label}"/>
                                 <TextBlock Text="{Binding GrandTotalDisplay}"
-                                           FontSize="{DynamicResource DensityKpiValueFontSize}"
+                                           FontSize="{DynamicResource FontSize.Kpi}"
                                            FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
