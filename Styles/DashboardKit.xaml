@@ -384,7 +384,7 @@
     <Style x:Key="DbKpiBandStyle" TargetType="ItemsControl">
         <Setter Property="ItemContainerStyle">
             <Setter.Value>
-                <Style TargetType="ContentControl">
+                <Style TargetType="ContentPresenter">
                     <Setter Property="Margin" Value="{DynamicResource DbGutterHalfMargin}"/>
                     <Setter Property="HorizontalAlignment" Value="Stretch"/>
                 </Style>
@@ -455,7 +455,7 @@
     <Style x:Key="DbFeedItemsStyle" TargetType="ItemsControl">
         <Setter Property="ItemContainerStyle">
             <Setter.Value>
-                <Style TargetType="ContentControl">
+                <Style TargetType="ContentPresenter">
                     <Setter Property="HorizontalAlignment" Value="Stretch"/>
                 </Style>
             </Setter.Value>
@@ -625,7 +625,7 @@
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="ItemContainerStyle">
             <Setter.Value>
-                <Style TargetType="ContentControl">
+                <Style TargetType="ContentPresenter">
                     <Setter Property="HorizontalAlignment" Value="Stretch"/>
                     <Setter Property="MinWidth" Value="160"/>
                     <Setter Property="Margin" Value="0,0,8,8"/>
@@ -643,6 +643,25 @@
                         <ItemsPresenter/>
                     </ScrollViewer>
                 </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- SKELETON variant of the pipeline band. The loading band hosts
+         explicit <ContentControl> children instead of a bound ItemsSource;
+         a UIElement item is its OWN container (ItemsControl uses the item
+         directly), so the container style must target ContentControl —
+         targeting the generated ContentPresenter throws
+         "A style intended for type X cannot be applied to type Y". -->
+    <Style x:Key="DbPipelineSkeletonItemsStyle" TargetType="ItemsControl"
+           BasedOn="{StaticResource DbPipelineItemsStyle}">
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="ContentControl">
+                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                    <Setter Property="MinWidth" Value="160"/>
+                    <Setter Property="Margin" Value="0,0,8,8"/>
+                </Style>
             </Setter.Value>
         </Setter>
     </Style>

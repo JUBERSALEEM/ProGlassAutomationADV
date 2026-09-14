@@ -113,7 +113,7 @@
                     <Border Style="{StaticResource DbSkeletonBandStyle}">
                         <StackPanel>
                             <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="14" Width="160" HorizontalAlignment="Left" Margin="0,0,0,12"/>
-                            <ItemsControl Style="{StaticResource DbPipelineItemsStyle}" ItemsPanel="{StaticResource DbPipelinePanel}">
+                            <ItemsControl Style="{StaticResource DbPipelineSkeletonItemsStyle}" ItemsPanel="{StaticResource DbPipelinePanel}">
                                 <ContentControl ContentTemplate="{StaticResource DbSkeletonPipelineStageTemplate}"/>
                                 <ContentControl ContentTemplate="{StaticResource DbSkeletonPipelineStageTemplate}"/>
                                 <ContentControl ContentTemplate="{StaticResource DbSkeletonPipelineStageTemplate}"/>
