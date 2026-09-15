@@ -604,7 +604,7 @@ namespace ProGlassAutomation.Services.Recording
                         $"[RecRetime] writtenFrames={recorder.EncodedFrames} nominalFps={recorder.CaptureNominalFps} " +
                         $"claimed={claimedSecs:0.###}s real={recorder.Duration.TotalSeconds:0.###}s " +
                         $"factor={retime:0.0000} rescale={willRescale} " +
-                        $"method={willRescale ? "-itsscale + -c:v copy" : "plain mux (factor ~1)"} " +
+                        $"method={(willRescale ? "-itsscale + -c:v copy" : "plain mux (factor ~1)")} " +
                         $"audioLimit={(audioPresent ? recorder.Duration.TotalSeconds.ToString("0.###") + "s (video authoritative)" : "none")} " +
                         $"audio={(string.IsNullOrWhiteSpace(liveMix) ? "none" : Path.GetFileName(liveMix))}",
                         new LogContext { Module = "Recording", Operation = "StopRetime" });

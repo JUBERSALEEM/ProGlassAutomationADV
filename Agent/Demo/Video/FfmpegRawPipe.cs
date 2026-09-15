@@ -111,7 +111,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
             int srcW, int srcH,
             int outW, int outH,
             int crf,
-            VideoEncoderSelection encoder = VideoEncoderSelection.Libx264)
+            VideoEncoderSelection? encoder = null)
         {
             string? ffmpeg = FfmpegMp4Composer.Find();
             if (string.IsNullOrWhiteSpace(ffmpeg)) return null;
@@ -171,20 +171,23 @@ namespace ProGlassAutomation.Agent.Demo.Video
             //   -bf 3: B-frames (x264's own default for most presets,
             //     disabled at ultrafast/superfast) — smaller files at
             //     the same CRF AND a faster-draining pipe.
-            (string encoderArgs, string encoderPreset) = encoder.Name switch
+            // Plain if/else (not a switch expression with block arms):
+            // the arm-block form with local declarations is rejected by
+            // some compiler versions — this form is unambiguous.
+            string encoderArgs;
+            string encoderPreset;
+            if (encoder == VideoEncoderSelection.Libx264)
             {
-                "libx264" =>
-                {
-                    string q = VideoEncoder.BuildQualityArgs(encoder, crf).Args;
-                    ($"-c:v libx264 -preset {preset} -tune stillimage -threads 0 {q} -g {fps} -bf 3", preset)
-                },
-                _ =>
-                {
-                    string q = VideoEncoder.BuildQualityArgs(encoder, crf).Args;
-                    ($"-c:v {encoder.Name} {q} -g {fps}",
-                        encoder.Name == "h264_nvenc" ? "p5" : "default")
-                }
-            };
+                string q = VideoEncoder.BuildQualityArgs(encoder, crf).Args;
+                encoderArgs = $"-c:v libx264 -preset {preset} -tune stillimage -threads 0 {q} -g {fps} -bf 3";
+                encoderPreset = preset;
+            }
+            else
+            {
+                string q = VideoEncoder.BuildQualityArgs(encoder, crf).Args;
+                encoderArgs = $"-c:v {encoder.Name} {q} -g {fps}";
+                encoderPreset = encoder.Name == "h264_nvenc" ? "p5" : "default";
+            }
 
             string args =
                 $"-y -f rawvideo -pix_fmt bgra -s {srcW}x{srcH} -framerate {fps} " +

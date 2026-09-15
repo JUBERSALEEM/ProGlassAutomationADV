@@ -154,20 +154,22 @@ namespace ProGlassAutomation.Agent.Demo.Video
         /// </summary>
         public static (string Args, string RateControl, int QualityValue) BuildQualityArgs(
             VideoEncoderSelection enc, int crf)
-            => enc.Name switch
+        {
+            // Plain if/else (not a switch expression with block arms):
+            // the arm-block form with local declarations is rejected by
+            // some compiler versions — this form is unambiguous.
+            if (enc == VideoEncoderSelection.Nvenc)
             {
-                "h264_nvenc" =>
-                {
-                    int cq = Math.Clamp(crf + 2, 8, 46);
-                    ($"-rc vbr -b:v 0 -cq {cq} -preset p5", "VBR+CQ", cq)
-                },
-                "h264_qsv" =>
-                {
-                    int gq = Math.Clamp(crf + 3, 5, 50);
-                    ($"-rc cqp -global_quality {gq}", "CQP", gq)
-                },
-                _ => ($"-crf {crf}", "CRF", crf)
-            };
+                int cq = Math.Clamp(crf + 2, 8, 46);
+                return ($"-rc vbr -b:v 0 -cq {cq} -preset p5", "VBR+CQ", cq);
+            }
+            if (enc == VideoEncoderSelection.Qsv)
+            {
+                int gq = Math.Clamp(crf + 3, 5, 50);
+                return ($"-rc cqp -global_quality {gq}", "CQP", gq);
+            }
+            return ($"-crf {crf}", "CRF", crf);
+        }
 
         /// <summary>
         /// Estimate the sustained encode fps at (width×height) from a
