@@ -64,6 +64,13 @@
     <sys:String x:Key="About.LIVEModules">ライブモジュール</sys:String>
     <sys:String x:Key="About.Last10LocallyStoredCrashFilesShareErrorID">ローカルに保存された直近10件のクラッシュファイル。エラーIDをサポートと共有してください。</sys:String>
     <sys:String x:Key="About.License">ライセンス</sys:String>
+    <sys:String x:Key="About.Identity">アイデンティティ</sys:String>
+    <sys:String x:Key="About.Tagline">タグライン</sys:String>
+    <sys:String x:Key="About.CopyrightHeading">著作権</sys:String>
+    <sys:String x:Key="About.ActivationStatus">アクティベーション状態</sys:String>
+    <sys:String x:Key="About.DaysRemainingLabel">残り日数</sys:String>
+    <sys:String x:Key="About.ModulesProduction">生産モジュール</sys:String>
+    <sys:String x:Key="About.SearchModules">検索</sys:String>
     <sys:String x:Key="About.LicenseHealth">ライセンスの健全性</sys:String>
     <sys:String x:Key="About.LicenseID">ライセンスID</sys:String>
     <sys:String x:Key="About.LicenseSource">ライセンスソース</sys:String>

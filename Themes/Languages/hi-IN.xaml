@@ -64,6 +64,13 @@
     <sys:String x:Key="About.LIVEModules">लाइव मॉड्यूल</sys:String>
     <sys:String x:Key="About.Last10LocallyStoredCrashFilesShareErrorID">स्थानीय रूप से संग्रहीत अंतिम 10 क्रैश फ़ाइलें। समर्थन के साथ त्रुटि ID साझा करें।</sys:String>
     <sys:String x:Key="About.License">लाइसेंस</sys:String>
+    <sys:String x:Key="About.Identity">पहचान</sys:String>
+    <sys:String x:Key="About.Tagline">टैगलाइन</sys:String>
+    <sys:String x:Key="About.CopyrightHeading">कॉपीराइट</sys:String>
+    <sys:String x:Key="About.ActivationStatus">सक्रियण स्थिति</sys:String>
+    <sys:String x:Key="About.DaysRemainingLabel">शेष दिन</sys:String>
+    <sys:String x:Key="About.ModulesProduction">प्रोडक्शन मॉड्यूल्स</sys:String>
+    <sys:String x:Key="About.SearchModules">खोजें</sys:String>
     <sys:String x:Key="About.LicenseHealth">लाइसेंस स्वास्थ्य</sys:String>
     <sys:String x:Key="About.LicenseID">लाइसेंस ID</sys:String>
     <sys:String x:Key="About.LicenseSource">लाइसेंस स्रोत</sys:String>

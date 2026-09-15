@@ -64,6 +64,13 @@
     <sys:String x:Key="About.LIVEModules">لائیو ماڈیولز</sys:String>
     <sys:String x:Key="About.Last10LocallyStoredCrashFilesShareErrorID">آخری 10 مقامی طور پر محفوظ کریش فائلیں۔ ایرر ID سپورٹ کے ساتھ شیئر کریں۔</sys:String>
     <sys:String x:Key="About.License">لائسنس</sys:String>
+    <sys:String x:Key="About.Identity">شناخت</sys:String>
+    <sys:String x:Key="About.Tagline">ٹیگ لائن</sys:String>
+    <sys:String x:Key="About.CopyrightHeading">کاپی رائٹ</sys:String>
+    <sys:String x:Key="About.ActivationStatus">اکٹیویشن اسٹیٹس</sys:String>
+    <sys:String x:Key="About.DaysRemainingLabel">باقی ماندہ دن</sys:String>
+    <sys:String x:Key="About.ModulesProduction">پروڈکشن ماڈیولز</sys:String>
+    <sys:String x:Key="About.SearchModules">تلاش</sys:String>
     <sys:String x:Key="About.LicenseHealth">لائسنس ہیلتھ</sys:String>
     <sys:String x:Key="About.LicenseID">لائسنس ID</sys:String>
     <sys:String x:Key="About.LicenseSource">لائسنس کا ذریعہ</sys:String>

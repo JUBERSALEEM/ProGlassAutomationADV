@@ -64,6 +64,13 @@
     <sys:String x:Key="About.LIVEModules">MÓDULOS EN VIVO</sys:String>
     <sys:String x:Key="About.Last10LocallyStoredCrashFilesShareErrorID">Los últimos 10 archivos de error almacenados localmente. Comparta el ID de error con el soporte.</sys:String>
     <sys:String x:Key="About.License">Licencia</sys:String>
+    <sys:String x:Key="About.Identity">Identidad</sys:String>
+    <sys:String x:Key="About.Tagline">Eslogan</sys:String>
+    <sys:String x:Key="About.CopyrightHeading">Derechos de autor</sys:String>
+    <sys:String x:Key="About.ActivationStatus">Estado de activación</sys:String>
+    <sys:String x:Key="About.DaysRemainingLabel">Días restantes</sys:String>
+    <sys:String x:Key="About.ModulesProduction">Módulos de producción</sys:String>
+    <sys:String x:Key="About.SearchModules">Buscar</sys:String>
     <sys:String x:Key="About.LicenseHealth">SALUD DE LICENCIA</sys:String>
     <sys:String x:Key="About.LicenseID">ID de licencia</sys:String>
     <sys:String x:Key="About.LicenseSource">Fuente de licencia</sys:String>

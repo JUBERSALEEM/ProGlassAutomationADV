@@ -50,22 +50,79 @@
                                Margin="0,0,0,0"/>
                 </StackPanel>
 
-                <!-- 2026-09-14: status badge keeps its own chrome — the
-                     SurfacePrimaryStyle on top of it was double chrome. -->
-                <Border Grid.Column="1"
-                        MinWidth="168"
-                        Padding="16,8"
-                        CornerRadius="{DynamicResource Surface.Detail.CornerRadius}"
-                        Background="{DynamicResource Surface.Detail.BackgroundBrush}"
-                        BorderBrush="{DynamicResource Surface.Primary.BorderBrush}"
-                        BorderThickness="{DynamicResource Surface.Detail.BorderThickness}"
-                        VerticalAlignment="Top">
-                    <TextBlock Text="{Binding StatusBadge}"
-                               FontSize="{DynamicResource FontSize.Body}"
-                               FontWeight="{DynamicResource Weight.Bold}"
-                               TextAlignment="Center"
-                               Foreground="{DynamicResource LiquidAccent}"/>
-                </Border>
+                <!-- 2026-09-15 Part 1 mockup: the header now mirrors the
+                     approved License screen — status badge up top, and
+                     beneath it (trials only) the "Activation status"
+                     countdown bar + days-remaining readout. All values
+                     come from the LicenseStatusViewModel singleton
+                     (DaysRemaining / TrialTotalDays / IsTrial); no new
+                     data is invented. -->
+                <Grid Grid.Column="1"
+                      MinWidth="232"
+                      VerticalAlignment="Top">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 2026-09-14: status badge keeps its own chrome — the
+                         SurfacePrimaryStyle on top of it was double chrome. -->
+                    <Border Grid.Row="0"
+                            Padding="16,8"
+                            CornerRadius="{DynamicResource Surface.Detail.CornerRadius}"
+                            Background="{DynamicResource Surface.Detail.BackgroundBrush}"
+                            BorderBrush="{DynamicResource Surface.Primary.BorderBrush}"
+                            BorderThickness="{DynamicResource Surface.Detail.BorderThickness}"
+                            HorizontalAlignment="Right">
+                        <TextBlock Text="{Binding StatusBadge}"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   TextAlignment="Center"
+                                   Foreground="{DynamicResource LiquidAccent}"/>
+                    </Border>
+
+                    <!-- Trial countdown strip (mockup "Activation status"
+                         bar). Only trials count days down, so the strip
+                         is trial-only; permanent licences keep the chip. -->
+                    <StackPanel Grid.Row="1"
+                                Margin="0,10,0,0"
+                                Visibility="{Binding IsTrial, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Grid Margin="0,0,0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0"
+                                       Text="{DynamicResource About.ActivationStatus}"
+                                       Style="{StaticResource Typography.Label}"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock Text="{DynamicResource About.DaysRemainingLabel}"
+                                           Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Text="{Binding DaysRemaining}"
+                                           FontSize="{DynamicResource FontSize.Body}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource LiquidSnow}"
+                                           Margin="6,0,0,0"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                        <!-- 2026-09-15 crash fix (ERR-3C0789): ProgressBar.Value
+                             defaults to a TwoWay binding, and DaysRemaining is
+                             a READ-ONLY property — WPF throws
+                             InvalidOperationException ("cannot work on the
+                             read-only property 'DaysRemaining'") the moment
+                             the binding attaches, taking the About page down.
+                             Value/Maximum are display-only here: bind OneWay. -->
+                        <ProgressBar Height="6"
+                                     Minimum="0"
+                                     Maximum="{Binding TrialTotalDays, Mode=OneWay}"
+                                     Value="{Binding DaysRemaining, Mode=OneWay}"
+                                     BorderThickness="0"
+                                     Foreground="{DynamicResource LiquidAccent}"
+                                     Background="{DynamicResource AboutDividerBrush}"
+                                     IsHitTestVisible="False"/>
+                    </StackPanel>
+                </Grid>
             </Grid>
 
             <!-- 2026-09-14: this card sat inside the outer L1 card with its

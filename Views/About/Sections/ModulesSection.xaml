@@ -21,6 +21,160 @@
             <!-- LG4 scope capsule (2026-09-10): All / Operations / Finance /
                  Platform, iOS segmented style — selected segment = accent pill. -->
             
+            <!-- ═══ 2026-09-15 Part 1 mockup — MODULE LIST LANGUAGE ═══
+                 Search box + list rows for the "Production Modules"
+                 card: 40px icon tile · name + description · optional
+                 live stat chip · green "ACTIVE" pill (Success tokens —
+                 the mockup's green comes from the theme, never hex). -->
+            <Style x:Key="ModuleSearchBoxStyle" TargetType="TextBox">
+                <Setter Property="Width" Value="216"/>
+                <Setter Property="Padding" Value="12,8"/>
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
+                <Setter Property="Foreground" Value="{DynamicResource LiquidSnow}"/>
+                <Setter Property="CaretBrush" Value="{DynamicResource LiquidAccent}"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TextBox">
+                            <Border x:Name="SearchBg"
+                                    Background="{DynamicResource SurfaceTertiaryBrush}"
+                                    BorderBrush="{DynamicResource AboutCardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="{DynamicResource Radius.Control}"
+                                    SnapsToDevicePixels="True">
+                                <Grid>
+                                    <ScrollViewer x:Name="PART_ContentHost"
+                                                  Margin="0"
+                                                  VerticalAlignment="Center"/>
+                                    <!-- Placeholder (shown while empty).
+                                         Template.Triggers — no Storyboard,
+                                         so it is Freezable-safe. -->
+                                    <TextBlock x:Name="SearchPlaceholder"
+                                               Text="{DynamicResource About.SearchModules}"
+                                               Foreground="{DynamicResource LiquidMuted}"
+                                               FontSize="{DynamicResource FontSize.Body}"
+                                               VerticalAlignment="Center"
+                                               Margin="13,0,0,0"
+                                               IsHitTestVisible="False"
+                                               Visibility="Collapsed"/>
+                                </Grid>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="Text" Value="">
+                                    <Setter TargetName="SearchPlaceholder"
+                                            Property="Visibility"
+                                            Value="Visible"/>
+                                </Trigger>
+                                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                    <Setter TargetName="SearchBg"
+                                            Property="BorderBrush"
+                                            Value="{DynamicResource LiquidAccent}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <DataTemplate x:Key="ModuleRowTemplate">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Row body — hover tint via its own Style (no
+                         TargetName, no Storyboard — Freezable-safe). -->
+                    <Border Grid.Row="0">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}"/>
+                                <Setter Property="Padding" Value="12,10"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0"
+                                    Style="{StaticResource SurfaceDetailStyle}"
+                                    Width="40"
+                                    Height="40"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Icon}"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.H2}"
+                                           Foreground="{DynamicResource LiquidAccent}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Style="{StaticResource Typography.Icon}"/>
+                            </Border>
+
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Name}"
+                                           FontSize="{DynamicResource FontSize.Body}"
+                                           FontWeight="{DynamicResource Weight.SemiBold}"
+                                           Foreground="{DynamicResource LiquidSnow}"
+                                           IsHitTestVisible="False"/>
+                                <TextBlock Text="{Binding Description}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                           Foreground="{DynamicResource AboutGlassCaptionBrush}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,2,0,0"
+                                           IsHitTestVisible="False"/>
+                            </StackPanel>
+
+                            <!-- Optional live stat chip (Sheet Store
+                                 "N SHEETS") — visible only when present. -->
+                            <Border Grid.Column="3"
+                                    Style="{StaticResource SurfaceDetailStyle}"
+                                    Padding="8,3"
+                                    Margin="0,0,10,0"
+                                    VerticalAlignment="Center"
+                                    Visibility="{Binding StatChip, Converter={StaticResource StringToVisibilityConverter}}">
+                                <TextBlock Text="{Binding StatChip}"
+                                           FontSize="{DynamicResource FontSize.Caption}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource LiquidAccent}"
+                                           IsHitTestVisible="False"/>
+                            </Border>
+
+                            <!-- Approved mockup: green "ACTIVE" pill.
+                                 TintGreen/Success are theme tokens, so
+                                 the green re-tints live with the theme. -->
+                            <Border Grid.Column="4"
+                                    Background="{DynamicResource TintGreenBrush}"
+                                    CornerRadius="{DynamicResource Radius.Control}"
+                                    Padding="12,4"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource About.Active}"
+                                           FontSize="{DynamicResource FontSize.Caption}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource SuccessBrush}"
+                                           IsHitTestVisible="False"/>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- Hairline divider between rows. -->
+                    <Border Grid.Row="1"
+                            Height="1"
+                            Margin="12,0"
+                            Background="{DynamicResource AboutDividerBrush}"/>
+                </Grid>
+            </DataTemplate>
+
             <Style x:Key="ScopePillItemStyle" TargetType="ListBoxItem">
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
@@ -102,26 +256,52 @@
                          ItemContainerStyle="{StaticResource ChipListItemStyle}">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal"/>
+                            <!-- 2026-09-15: WrapPanel (audit lock
+                                 About_sections_use_responsive_wrap_layouts
+                                 requires a responsive wrap layout here —
+                                 the 2026-09-14 StackPanel had silently
+                                 dropped it and left the test red). -->
+                            <WrapPanel Orientation="Horizontal"/>
                         </ItemsPanelTemplate>
                     </ListBox.ItemsPanel>
                 </ListBox>
             </Border>
         </Grid>
 
-        <!-- 2026-09-14: the fixed 280px WrapPanel slabs overflowed the
-             content column on narrow windows (text ran out of the boxes).
-             Fluid 4-up UniformGrid instead: slabs always fit, text wraps
-             inside, 12 modules render 4-up like the approved mosaic. -->
-        <ItemsControl ItemsSource="{Binding FilteredModules}"
-                      ItemTemplate="{StaticResource ModuleChipTemplate}"
-                      Margin="0,0,0,14">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <UniformGrid Columns="4"/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl>
+        <!-- ═══ PRODUCTION MODULES LIST (2026-09-15, approved Part 1
+             mockup) — replaces the 4-up crystal mosaic: one card with
+             a "Production Modules" header + LIVE search box, and one
+             row per module (icon + name + description + optional live
+             stat chip + green ACTIVE pill). The scope capsule above
+             still filters the same list; search COMBINES with scope
+             (AboutViewModel.ModuleSearch). Same FilteredModules
+             source — no content removed, only re-composed. ═══ -->
+        <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,14">
+            <StackPanel>
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="{DynamicResource About.ModulesProduction}"
+                               Style="{StaticResource Typography.H2}"
+                               VerticalAlignment="Center"/>
+                    <TextBox Grid.Column="1"
+                             Style="{StaticResource ModuleSearchBoxStyle}"
+                             Text="{Binding ModuleSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
+
+                <ItemsControl ItemsSource="{Binding FilteredModules}"
+                              ItemTemplate="{StaticResource ModuleRowTemplate}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
 
         <Border Style="{StaticResource SurfacePrimaryStyle}">
             <StackPanel>

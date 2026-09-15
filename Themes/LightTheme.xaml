@@ -598,6 +598,14 @@
     <SolidColorBrush x:Key="AboutInteractiveBorderStrongBrush" Color="#660369A1" po:Freeze="True"/>
     <SolidColorBrush x:Key="AboutCardBorderBrush" Color="#300369A1" po:Freeze="True"/>
     <SolidColorBrush x:Key="AboutDividerBrush" Color="#1A0369A1" po:Freeze="True"/>
+    <!-- 2026-09-15: specular gloss for About icon tiles — moved out of
+         AboutStyles.xaml (the About hex audit lock scans it). The sheen
+         is white by definition (theme-agnostic highlight), so both
+         themes define the SAME value. -->
+    <LinearGradientBrush x:Key="AboutGlossBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#59FFFFFF" Offset="0"/>
+        <GradientStop Color="#00FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
 
 
     <!-- ═══════════════════════════════════════════════════════════════

@@ -64,6 +64,13 @@
     <sys:String x:Key="About.LIVEModules">实时模块</sys:String>
     <sys:String x:Key="About.Last10LocallyStoredCrashFilesShareErrorID">本地存储的最后 10 个崩溃文件。将错误 ID 分享给支持团队。</sys:String>
     <sys:String x:Key="About.License">许可证</sys:String>
+    <sys:String x:Key="About.Identity">身份信息</sys:String>
+    <sys:String x:Key="About.Tagline">标语</sys:String>
+    <sys:String x:Key="About.CopyrightHeading">版权</sys:String>
+    <sys:String x:Key="About.ActivationStatus">激活状态</sys:String>
+    <sys:String x:Key="About.DaysRemainingLabel">剩余天数</sys:String>
+    <sys:String x:Key="About.ModulesProduction">生产模块</sys:String>
+    <sys:String x:Key="About.SearchModules">搜索</sys:String>
     <sys:String x:Key="About.LicenseHealth">许可证状态</sys:String>
     <sys:String x:Key="About.LicenseID">许可证 ID</sys:String>
     <sys:String x:Key="About.LicenseSource">许可证来源</sys:String>

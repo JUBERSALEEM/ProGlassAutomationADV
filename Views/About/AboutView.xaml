@@ -36,47 +36,9 @@
                 <ResourceDictionary Source="AboutStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- ═══ SEGMENTED GLASS TAB STRIP ═══ -->
-            
-
-            <Style x:Key="AboutTabItemStyle" TargetType="ListBoxItem">
-                <Setter Property="Cursor" Value="Hand"/>
-                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-                <Setter Property="Foreground" Value="{DynamicResource LiquidFrost}"/>
-                <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
-                <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
-                <Setter Property="Margin" Value="0,0,4,0"/>
-                <Setter Property="Padding" Value="0"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="ListBoxItem">
-                        <!-- 2026-09-14: 16px pill corner + conflicting
-                             SurfacePrimaryStyle → 10px standard corner, no
-                             double chrome (the template owns this Border). -->
-                        <Border x:Name="TabBg"
-                                Background="Transparent"
-                                BorderBrush="Transparent"
-                                BorderThickness="1"
-                                CornerRadius="{DynamicResource Radius.Medium}"
-                                Padding="18,7"
-                                SnapsToDevicePixels="True">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="TabBg" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
-                                </Trigger>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter TargetName="TabBg" Property="Background" Value="{DynamicResource LiquidAccentDeep}"/>
-                                    <Setter TargetName="TabBg" Property="BorderBrush" Value="{DynamicResource LiquidAccent}"/>
-                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
+            <!-- 2026-09-15 Part 1 mockup: the segmented top tab strip is
+                 gone — navigation is the LEFT NAV RAIL (see below). Its
+                 item style (AboutTabItemStyle) was removed with it. -->
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -156,19 +118,174 @@
         </Ellipse>
 
 
-        <ScrollViewer x:Name="RootScrollViewer"
-                      VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled"
-                      CanContentScroll="False"
-                      PanningMode="VerticalOnly"
-                      Focusable="False"
-                      FocusVisualStyle="{x:Null}"
-                      Background="Transparent"
-                      behaviors:SmoothScrollBehavior.IsEnabled="True">
-            <StackPanel Margin="26,22,26,26">
+        <!-- ═══ SHELL LAYOUT (2026-09-15, approved Part 1 mockup) ═══
+             Fixed left nav rail (full height, does NOT scroll) +
+             scrollable content column. The rail owns navigation
+             (Tabs / SelectedTabIndex — same binding surface as the
+             removed top tab strip); the content column owns the page
+             title, the Overview-only hero and the four sections. -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="232"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-                <!-- ═══ HERO — frosted identity strip ═══ -->
-                <Border Style="{StaticResource SurfaceElevatedStyle}">
+            <!-- ═══ LEFT NAV RAIL ═══
+                 Brand block + vertical nav list. 12px corner
+                 (Radius.Control) on items, accent fill + on-accent
+                 text on the active item — the approved skin. Same
+                 Freezable-safe pattern as everything else on this
+                 page: template + simple triggers, NO Storyboard
+                 (ERR-D71810). -->
+            <Border Grid.Column="0"
+                    Background="{DynamicResource SurfacePrimaryBrush}"
+                    BorderBrush="{DynamicResource AboutCardBorderBrush}"
+                    BorderThickness="0,0,1,0"
+                    SnapsToDevicePixels="True">
+                <DockPanel Margin="14,16,14,16">
+                    <!-- Brand -->
+                    <StackPanel DockPanel.Dock="Top"
+                                Orientation="Horizontal"
+                                Margin="8,0,0,18">
+                        <Border Width="36" Height="36"
+                                Style="{StaticResource SurfaceDetailStyle}">
+                            <Border.Background>
+                                <ImageBrush ImageSource="{x:Static viewsAbout:AppIconResource.Icon}"
+                                            Stretch="UniformToFill"
+                                            RenderOptions.BitmapScalingMode="HighQuality"/>
+                            </Border.Background>
+                        </Border>
+                        <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding AppName}"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource LiquidSnow}"
+                                       TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Text="{Binding AppTagline}"
+                                       FontSize="{DynamicResource FontSize.Caption}"
+                                       Foreground="{DynamicResource LiquidMuted}"
+                                       Margin="0,1,0,0"
+                                       TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Nav list (Overview / License / Modules / Developer) -->
+                    <ListBox ItemsSource="{Binding Tabs}"
+                             SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             Focusable="False"
+                             FocusVisualStyle="{x:Null}">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="Foreground" Value="{DynamicResource LiquidFrost}"/>
+                                <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
+                                <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+                                <Setter Property="Margin" Value="0,0,0,6"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <Border x:Name="RailBg"
+                                                    Background="Transparent"
+                                                    BorderBrush="Transparent"
+                                                    BorderThickness="1"
+                                                    CornerRadius="{DynamicResource Radius.Control}"
+                                                    Padding="13,10"
+                                                    SnapsToDevicePixels="True">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock x:Name="RailIcon"
+                                                               Grid.Column="0"
+                                                               FontFamily="{DynamicResource FontFamily.Icon}"
+                                                               Text="&#xE80F;"
+                                                               FontSize="16"
+                                                               VerticalAlignment="Center"
+                                                               Margin="0,1,12,0"
+                                                               IsHitTestVisible="False"/>
+                                                    <ContentPresenter Grid.Column="1"
+                                                                       VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <!-- Default glyph E80F (home) =
+                                                     Overview; the other labels
+                                                     swap it. -->
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content}" Value="License">
+                                                    <Setter TargetName="RailIcon" Property="Text" Value="&#xE72E;"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content}" Value="Modules">
+                                                    <Setter TargetName="RailIcon" Property="Text" Value="&#xE80A;"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content}" Value="Developer">
+                                                    <Setter TargetName="RailIcon" Property="Text" Value="&#xE90A;"/>
+                                                </DataTrigger>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="RailBg" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource LiquidSnow}"/>
+                                                </Trigger>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="RailBg" Property="Background" Value="{DynamicResource LiquidAccentDeep}"/>
+                                                    <Setter TargetName="RailBg" Property="BorderBrush" Value="{DynamicResource LiquidAccent}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+
+            <!-- ═══ CONTENT COLUMN (scrolls; rail stays fixed) ═══ -->
+            <ScrollViewer x:Name="RootScrollViewer"
+                          Grid.Column="1"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          CanContentScroll="False"
+                          PanningMode="VerticalOnly"
+                          Focusable="False"
+                          FocusVisualStyle="{x:Null}"
+                          Background="Transparent"
+                          behaviors:SmoothScrollBehavior.IsEnabled="True">
+                <StackPanel Margin="32,26,32,32">
+
+                    <!-- Page title — the active screen's headline
+                         (Overview / License / Modules / Developer). -->
+                    <TextBlock Text="{Binding CurrentTabTitle}"
+                               FontSize="{DynamicResource FontSize.Kpi}"
+                               FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource LiquidIce}"
+                               Margin="0,0,0,16"
+                               IsHitTestVisible="False"/>
+
+                    <!-- ═══ HERO — brand card, Overview tab only ═══
+                         2026-09-15 Part 1 mockup: the other screens
+                         (License / Modules / Developer) open straight
+                         into their content, so the hero is shown only
+                         when the Overview tab is active. The wrapper
+                         Border owns the visibility trigger (setters
+                         only — Freezable-safe, ERR-D71810); the inner
+                         Border keeps its SurfaceElevatedStyle (a
+                         second Style attribute would throw MC3024). -->
+                    <Border Margin="0,0,0,18">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="0">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <Border Style="{StaticResource SurfaceElevatedStyle}">
                     <Grid>
                         <!-- 2026-09-14: sheen overlay must not carry a second
                              surface style (double chrome). -->
@@ -348,39 +465,13 @@
                             </Grid>
                         </Grid>
                     </Grid>
-                </Border>
+                        </Border>
+                    </Border>
 
-                <!-- ═══ TAB STRIP — segmented control. FUNCTIONAL
-                     NAVIGATION: never visibility-gated (2026-09-11 — the
-                     chrome gate hid the ONLY path to Modules/Developer in
-                     non-iOS26 families and under a dead engine; the owner
-                     literally could not find the screens). Centered per the
-                     approved mockup.
-                     2026-09-14: the 999-radius glass capsule (Radius.Full) is
-                     gone — standard 12px segmented control on the surface
-                     system, matching every other module. ═══ -->
-                <Border HorizontalAlignment="Center"
-                        Style="{StaticResource SurfaceSecondaryStyle}"
-                        CornerRadius="{DynamicResource Radius.Control}"
-                        Padding="6,5"
-                        Margin="0,2,0,20"
-                        SnapsToDevicePixels="True">
-                    <!-- 2026-09-14: the ListBox defaulted to its VERTICAL
-                         ItemsPanel, so the three tabs stacked top-to-bottom
-                         at uneven widths. A 1×3 UniformGrid renders them in
-                         one row, equal width, in order About → Modules →
-                         Developer. -->
-                    <ListBox ItemsSource="{Binding Tabs}"
-                             SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
-                             Style="{StaticResource SurfaceSecondaryListBoxStyle}"
-                             ItemContainerStyle="{StaticResource Tab.InactiveItem}">
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <UniformGrid Rows="1"/>
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
-                    </ListBox>
-                </Border>
+                <!-- 2026-09-15 Part 1 mockup: the centered top tab strip is
+                     replaced by the LEFT NAV RAIL (Grid.Column 0). The rail
+                     is always visible next to the content, so navigation is
+                     still never visibility-gated. -->
 
                 <!-- ═══ SECTION CONTENT (switched by SelectedTabIndex) ═══
                      2026-09-10 fluid upgrade: each section now fades and
@@ -420,6 +511,30 @@
                         </aboutSections:AboutOverviewSection.Style>
                     </aboutSections:AboutOverviewSection>
 
+                    <!-- License (index 1 — 2026-09-15 Part 1 mockup).
+                         The existing self-contained license card becomes
+                         its own screen: its constructor already points
+                         the DataContext at LicenseStatusViewModel.
+                         Instance, so no extra wiring is needed. Same
+                         unnamed-RenderTransform rule as the other
+                         sections (MC3093 — sealed NameScope). -->
+                    <aboutSections:AboutLicenseCard x:Name="LicenseSectionHost"
+                                                    RenderTransformOrigin="0.5,0.5">
+                        <aboutSections:AboutLicenseCard.RenderTransform>
+                            <TranslateTransform Y="0"/>
+                        </aboutSections:AboutLicenseCard.RenderTransform>
+                        <aboutSections:AboutLicenseCard.Style>
+                            <Style TargetType="UserControl">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="1">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </aboutSections:AboutLicenseCard.Style>
+                    </aboutSections:AboutLicenseCard>
+
                     <aboutSections:ModulesSection x:Name="ModulesSectionHost"
                                                   RenderTransformOrigin="0.5,0.5">
                         <aboutSections:ModulesSection.RenderTransform>
@@ -429,7 +544,7 @@
                             <Style TargetType="UserControl">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="1">
+                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="2">
                                         <Setter Property="Visibility" Value="Visible"/>
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -446,7 +561,7 @@
                             <Style TargetType="UserControl">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="2">
+                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="3">
                                         <Setter Property="Visibility" Value="Visible"/>
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -455,7 +570,8 @@
                     </aboutSections:DeveloperSection>
                 </Grid>
 
-            </StackPanel>
-        </ScrollViewer>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </UserControl>

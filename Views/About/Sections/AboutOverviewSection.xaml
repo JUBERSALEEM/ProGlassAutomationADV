@@ -34,6 +34,110 @@
          No content, binding or logic changed — only ordering. -->
     <StackPanel>
 
+        <!-- ═══ IDENTITY + COPYRIGHT (2026-09-15, approved Part 1
+             mockup) — the two label/value cards under the hero.
+             Company + Tagline reuse the shared brand bindings; the
+             edition badge binds the shared license surface (no
+             hard-coded edition text — audit contract). ═══ -->
+        <Grid Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Identity card -->
+            <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   Text="{DynamicResource About.Identity}"
+                                   Style="{StaticResource Typography.H2}"/>
+                        <Border Grid.Column="1" Style="{StaticResource Badge.Primary}">
+                            <TextBlock Style="{StaticResource Typography.Caption}"
+                                       Text="{Binding LicenseStatus.EditionDisplay}"/>
+                        </Border>
+                    </Grid>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="112"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0"
+                                   Text="{DynamicResource Common.Company}"
+                                   Style="{StaticResource Typography.Body}"
+                                   Foreground="{DynamicResource LiquidMuted}"
+                                   Margin="0,0,0,10"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                   Text="{Binding AppName}"
+                                   Style="{StaticResource Typography.Body}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Margin="0,0,0,10"
+                                   VerticalAlignment="Center"/>
+                        <Border Grid.Row="0" Grid.ColumnSpan="2"
+                                Height="1" VerticalAlignment="Bottom"
+                                Background="{DynamicResource AboutDividerBrush}"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0"
+                                   Text="{DynamicResource About.Product}"
+                                   Style="{StaticResource Typography.Body}"
+                                   Foreground="{DynamicResource LiquidMuted}"
+                                   Margin="0,10,0,10"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1"
+                                   Text="{Binding AppName}"
+                                   Style="{StaticResource Typography.Body}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Margin="0,10,0,10"
+                                   VerticalAlignment="Center"/>
+                        <Border Grid.Row="1" Grid.ColumnSpan="2"
+                                Height="1" VerticalAlignment="Bottom"
+                                Background="{DynamicResource AboutDividerBrush}"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0"
+                                   Text="{DynamicResource About.Tagline}"
+                                   Style="{StaticResource Typography.Body}"
+                                   Foreground="{DynamicResource LiquidMuted}"
+                                   Margin="0,10,0,0"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1"
+                                   Text="{Binding AppTagline}"
+                                   Style="{StaticResource Typography.Body}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Margin="0,10,0,0"
+                                   VerticalAlignment="Center"
+                                   TextWrapping="Wrap"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Copyright card -->
+            <Border Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource About.CopyrightHeading}"
+                               Style="{StaticResource Typography.H2}"
+                               Margin="0,0,0,12"/>
+                    <TextBlock Text="{Binding Copyright}"
+                               Style="{StaticResource Typography.Body}"
+                               Foreground="{DynamicResource LiquidFrost}"
+                               TextWrapping="Wrap"
+                               LineHeight="20"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
         <!-- ═══ ABOUT ═══ -->
         <!-- ═══ 2026-09-11 MOCKUP REBUILD: slim header + three floating
              cards in one row (Overview · Engineering · Compliance+Future).
@@ -234,17 +338,12 @@
         </Border>
 
         <!--
-          ═══ LICENSE & SUPPORT (Phase 3 — slice 5b) ═══
-          A self-contained card whose DataContext is the
-          LicenseStatusViewModel singleton. Shows the
-          current licence status, edition, customer,
-          expiry, days remaining, features, and both the
-          licence-bound fingerprint and the current
-          machine's fingerprint (with a copy button).
-          Moved to the end of the tab on 2026-09-14 (see
-          the layout note at the top of this file).
+          2026-09-15 Part 1 mockup: the license card no longer
+          closes this tab — it is now the dedicated "License"
+          screen in the left nav rail (AboutView.xaml,
+          LicenseSectionHost). Only the crash-reports card
+          remains at the bottom of Overview.
         -->
-        <aboutSections:AboutLicenseCard Margin="0,0,0,16"/>
 
         <!--
           ═══ RECENT CRASH REPORTS (Phase 2 — slice 2) ═══

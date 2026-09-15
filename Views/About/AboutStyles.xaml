@@ -234,26 +234,23 @@
                                    VerticalAlignment="Center"
                                    Style="{StaticResource Typography.Icon}"/>
                         <!-- specular gloss: top-half white fade.
-                             2026-09-14 (2nd pass): reverted to hex-ARGB stops.
-                             The White+Opacity form failed the user's VS build
-                             (MC3072/XLS0413 "Opacity not found in GradientStop"
-                             at these lines); the hex form is what ships in the
-                             working 2.0.1 build. Visuals identical:
-                             alpha 0x59 = 35%, 0x00 = 0%. Sheen is white by
-                             definition (theme-agnostic highlight, not a brand
-                             colour).
+                             2026-09-15: the hex-ARGB gradient stops moved into
+                             the theme dictionaries as AboutGlossBrush — the
+                             About hex audit lock
+                             (About_views_do_not_use_fixed_hex_colors_or_
+                             literal_corner_radii) scans AboutStyles.xaml and
+                             went RED on 2026-09-14 when the White+Opacity
+                             form was reverted to hex-ARGB to dodge an
+                             MC3072 build error. The sheen is white by
+                             definition (theme-agnostic highlight), so both
+                             themes define the SAME value (alpha 0x59=35% →
+                             0x00=0%). Visuals identical to the 2.0.1 build.
                              Corner token: Radius.Top.XLarge (undefined,
                              resolved to 0) → Radius.Top.Medium. -->
                         <Border Height="22" CornerRadius="{DynamicResource Radius.Top.Medium}"
                                 VerticalAlignment="Top"
-                                IsHitTestVisible="False">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-                                    <GradientStop Color="#59FFFFFF" Offset="0"/>
-                                    <GradientStop Color="#00FFFFFF" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                        </Border>
+                                Background="{DynamicResource AboutGlossBrush}"
+                                IsHitTestVisible="False"/>
                     </Grid>
                 </Border>
 

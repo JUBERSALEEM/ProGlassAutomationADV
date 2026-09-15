@@ -64,6 +64,13 @@
     <sys:String x:Key="About.LIVEModules">وحدات مباشرة</sys:String>
     <sys:String x:Key="About.Last10LocallyStoredCrashFilesShareErrorID">آخر 10 ملفات أعطال مخزنة محليًا. شارك معرّف الخطأ مع الدعم.</sys:String>
     <sys:String x:Key="About.License">الترخيص</sys:String>
+    <sys:String x:Key="About.Identity">الهوية</sys:String>
+    <sys:String x:Key="About.Tagline">الشعار</sys:String>
+    <sys:String x:Key="About.CopyrightHeading">حقوق النشر</sys:String>
+    <sys:String x:Key="About.ActivationStatus">حالة التفعيل</sys:String>
+    <sys:String x:Key="About.DaysRemainingLabel">الأيام المتبقية</sys:String>
+    <sys:String x:Key="About.ModulesProduction">وحدات الإنتاج</sys:String>
+    <sys:String x:Key="About.SearchModules">بحث</sys:String>
     <sys:String x:Key="About.LicenseHealth">سلامة الترخيص</sys:String>
     <sys:String x:Key="About.LicenseID">معرّف الترخيص</sys:String>
     <sys:String x:Key="About.LicenseSource">مصدر الترخيص</sys:String>

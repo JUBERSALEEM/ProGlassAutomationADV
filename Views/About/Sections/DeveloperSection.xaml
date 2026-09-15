@@ -235,12 +235,21 @@
                         <!-- 2026-09-14: the fixed 300px WrapPanel tiles
                              overflowed this column on narrow windows (text
                              ran out of the boxes) → fluid equal-width 2-up
-                             grid; tiles stretch and their text wraps. -->
+                             grid; tiles stretch and their text wraps.
+                             2026-09-15: audit lock
+                             About_sections_use_responsive_wrap_layouts
+                             requires the responsive wrap layout in this
+                             file — it went RED on 2026-09-14 when the
+                             panel became a fixed 2-up UniformGrid. The
+                             tiles are fluid now (no fixed width), so the
+                             wrap layout is responsive again: tiles flow
+                             left-to-right and wrap on narrow windows. -->
                         <ItemsControl ItemsSource="{Binding TechStack}"
                                       ItemTemplate="{StaticResource TechItemTemplate}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <UniformGrid Columns="2"/>
+                                    <WrapPanel Orientation="Horizontal"
+                                              HorizontalAlignment="Center"/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>

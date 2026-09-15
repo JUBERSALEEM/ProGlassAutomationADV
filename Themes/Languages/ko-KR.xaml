@@ -64,6 +64,13 @@
     <sys:String x:Key="About.LIVEModules">라이브 모듈</sys:String>
     <sys:String x:Key="About.Last10LocallyStoredCrashFilesShareErrorID">로컬에 저장된 최근 10개의 크래시 파일. 지원팀과 오류 ID를 공유하세요.</sys:String>
     <sys:String x:Key="About.License">라이선스</sys:String>
+    <sys:String x:Key="About.Identity">신원</sys:String>
+    <sys:String x:Key="About.Tagline">슬로건</sys:String>
+    <sys:String x:Key="About.CopyrightHeading">저작권</sys:String>
+    <sys:String x:Key="About.ActivationStatus">활성화 상태</sys:String>
+    <sys:String x:Key="About.DaysRemainingLabel">남은 일수</sys:String>
+    <sys:String x:Key="About.ModulesProduction">생산 모듈</sys:String>
+    <sys:String x:Key="About.SearchModules">검색</sys:String>
     <sys:String x:Key="About.LicenseHealth">라이선스 상태</sys:String>
     <sys:String x:Key="About.LicenseID">라이선스 ID</sys:String>
     <sys:String x:Key="About.LicenseSource">라이선스 소스</sys:String>

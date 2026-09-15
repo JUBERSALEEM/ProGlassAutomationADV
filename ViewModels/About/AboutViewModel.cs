@@ -133,12 +133,48 @@ public sealed class AboutViewModel : ViewModelBase
     /// <summary>Modules currently surfaced by the scope capsule.</summary>
     public ObservableCollection<ModuleInfo> FilteredModules { get; } = new();
 
+    // ══════════════════════════════════════════════════════════════
+    //  2026-09-15 Part 1 mockup — MODULE SEARCH
+    //  The approved Modules screen has a live search box in the list
+    //  header. It COMBINES with the scope capsule: a module is shown
+    //  only when it matches the selected scope AND the search text
+    //  (name or description, case-insensitive). Typing never clears
+    //  the scope; clearing the search restores the scoped list.
+    // ══════════════════════════════════════════════════════════════
+
+    private string _moduleSearch = string.Empty;
+
+    /// <summary>Search text for the module list (2026-09-15).</summary>
+    public string ModuleSearch
+    {
+        get => _moduleSearch;
+        set
+        {
+            if (_moduleSearch == value) return;
+            _moduleSearch = value ?? string.Empty;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(ModuleSearchIsEmpty));
+            RefilterModules();
+        }
+    }
+
+    /// <summary>
+    /// True when the search box is empty — drives the placeholder
+    /// TextBlock (bound through BoolToVisibilityConverter).
+    /// </summary>
+    public bool ModuleSearchIsEmpty =>
+        string.IsNullOrEmpty(_moduleSearch);
+
     private void RefilterModules()
     {
         var key = _selectedScopeItem?.Key ?? "All";
+        var search = _moduleSearch?.Trim() ?? string.Empty;
         FilteredModules.Clear();
         foreach (var m in Modules.Where(m =>
-                     key == "All" || m.Category == key))
+                     (key == "All" || m.Category == key) &&
+                     (search.Length == 0 ||
+                      m.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                      m.Description.Contains(search, StringComparison.OrdinalIgnoreCase))))
             FilteredModules.Add(m);
         OnPropertyChanged(nameof(FilteredModules));
     }
@@ -190,23 +226,34 @@ public sealed class AboutViewModel : ViewModelBase
     // ══════════════════════════════════════════════════════════════════
 
     /// <summary>
-    /// Top tab labels. Each tab maps to a separate section UserControl in
-    /// Views/About/Sections, so a section can be edited on its own.
+    /// Left rail navigation labels (2026-09-15, approved Part 1 mockup).
+    /// Each tab maps to a separate section in Views/About/Sections, so a
+    /// section can be edited on its own.
     /// </summary>
     public IReadOnlyList<string> Tabs { get; } = new[]
     {
-        "About",
+        "Overview",
+        "License",
         "Modules",
         "Developer"
     };
 
     /// <summary>
-    /// Index of the visible tab (0 = About, 1 = Modules, 2 = Developer).
+    /// Large page title shown above the content (2026-09-15 Part 1
+    /// mockup — each screen has its own headline). Mirrors the active
+    /// tab label; raises PropertyChanged with SelectedTabIndex.
+    /// </summary>
+    public string CurrentTabTitle =>
+        Tabs[Math.Max(0, Math.Min(_selectedTabIndex, Tabs.Count - 1))];
+
+    /// <summary>
+    /// Index of the visible tab (0 = Overview, 1 = License,
+    /// 2 = Modules, 3 = Developer).
     /// Raises PropertyChanged so the section views can switch visibility.
     ///
     /// 2026-08-25 freeze/blank-page fix: the value is CLAMPED to the tab
     /// range. The section views default to Collapsed and only become
-    /// visible through DataTriggers on the values 0 / 1 / 2 — so if the
+    /// visible through DataTriggers on the values 0 / 1 / 2 / 3 — so if the
     /// TwoWay SelectedIndex binding ever pushed -1 (the ListBox's
     /// "no selection" state) or any out-of-range value, EVERY section
     /// stayed collapsed: a hero with an empty tab strip and a content
@@ -224,6 +271,7 @@ public sealed class AboutViewModel : ViewModelBase
             if (_selectedTabIndex == clamped) return;
             _selectedTabIndex = clamped;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(CurrentTabTitle));
         }
     }
     private int _selectedTabIndex;

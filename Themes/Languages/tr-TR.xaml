@@ -64,6 +64,13 @@
     <sys:String x:Key="About.LIVEModules">CANLI MODÜLLER</sys:String>
     <sys:String x:Key="About.Last10LocallyStoredCrashFilesShareErrorID">Yerel olarak saklanan son 10 çökme dosyası. Hata kimliğini destek ile paylaşın.</sys:String>
     <sys:String x:Key="About.License">Lisans</sys:String>
+    <sys:String x:Key="About.Identity">Kimlik</sys:String>
+    <sys:String x:Key="About.Tagline">Slogan</sys:String>
+    <sys:String x:Key="About.CopyrightHeading">Telif Hakkı</sys:String>
+    <sys:String x:Key="About.ActivationStatus">Etkinleştirme durumu</sys:String>
+    <sys:String x:Key="About.DaysRemainingLabel">Kalan gün</sys:String>
+    <sys:String x:Key="About.ModulesProduction">Üretim Modülleri</sys:String>
+    <sys:String x:Key="About.SearchModules">Ara</sys:String>
     <sys:String x:Key="About.LicenseHealth">LİSANS DURUMU</sys:String>
     <sys:String x:Key="About.LicenseID">Lisans kimliği</sys:String>
     <sys:String x:Key="About.LicenseSource">Lisans kaynağı</sys:String>

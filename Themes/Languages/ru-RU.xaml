@@ -64,6 +64,13 @@
     <sys:String x:Key="About.LIVEModules">ЖИВЫЕ МОДУЛИ</sys:String>
     <sys:String x:Key="About.Last10LocallyStoredCrashFilesShareErrorID">Последние 10 файлов сбоев, хранящихся локально. Поделитесь ID ошибки со службой поддержки.</sys:String>
     <sys:String x:Key="About.License">Лицензия</sys:String>
+    <sys:String x:Key="About.Identity">Идентичность</sys:String>
+    <sys:String x:Key="About.Tagline">Слоган</sys:String>
+    <sys:String x:Key="About.CopyrightHeading">Авторские права</sys:String>
+    <sys:String x:Key="About.ActivationStatus">Статус активации</sys:String>
+    <sys:String x:Key="About.DaysRemainingLabel">Оставшиеся дни</sys:String>
+    <sys:String x:Key="About.ModulesProduction">Модули производства</sys:String>
+    <sys:String x:Key="About.SearchModules">Поиск</sys:String>
     <sys:String x:Key="About.LicenseHealth">СОСТОЯНИЕ ЛИЦЕНЗИИ</sys:String>
     <sys:String x:Key="About.LicenseID">ID лицензии</sys:String>
     <sys:String x:Key="About.LicenseSource">Источник лицензии</sys:String>

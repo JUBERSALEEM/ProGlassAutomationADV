@@ -64,6 +64,13 @@
     <sys:String x:Key="About.LIVEModules">লাইভ মডিউল</sys:String>
     <sys:String x:Key="About.Last10LocallyStoredCrashFilesShareErrorID">স্থানীয়ভাবে সংরক্ষিত শেষ ১০টি ক্র্যাশ ফাইল। সাপোর্টের সাথে এরর ID শেয়ার করুন।</sys:String>
     <sys:String x:Key="About.License">লাইসেন্স</sys:String>
+    <sys:String x:Key="About.Identity">পরিচয়</sys:String>
+    <sys:String x:Key="About.Tagline">ট্যাগলাইন</sys:String>
+    <sys:String x:Key="About.CopyrightHeading">কপিরাইট</sys:String>
+    <sys:String x:Key="About.ActivationStatus">অ্যাক্টিভেশন অবস্থা</sys:String>
+    <sys:String x:Key="About.DaysRemainingLabel">অবশিষ্ট দিন</sys:String>
+    <sys:String x:Key="About.ModulesProduction">প্রোডাকশন মডিউল</sys:String>
+    <sys:String x:Key="About.SearchModules">খুঁজুন</sys:String>
     <sys:String x:Key="About.LicenseHealth">লাইসেন্স স্বাস্থ্য</sys:String>
     <sys:String x:Key="About.LicenseID">লাইসেন্স ID</sys:String>
     <sys:String x:Key="About.LicenseSource">লাইসেন্সের উৎস</sys:String>

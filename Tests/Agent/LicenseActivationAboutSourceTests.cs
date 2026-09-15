@@ -41,7 +41,14 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("ActivationModeDisplay", xaml);
             Assert.Contains("LicenseSourceDisplay", xaml);
             Assert.Contains("TrustedIssuerDisplay", xaml);
-            Assert.Contains("COPY ID", xaml);
+            // 2026-09-15: the copy-button captions were localized on
+            // 2026-09-14 (About.COPYID / About.COPYFingerprint in the
+            // language files), so the literal "COPY ID" no longer exists
+            // in the XAML. The lock now asserts the RESOURCED copy
+            // actions — same intent (the card exposes both copy buttons),
+            // following the app's actual mechanism.
+            Assert.Contains("About.COPYID", xaml);
+            Assert.Contains("About.COPYFingerprint", xaml);
             Assert.Contains("CopyLicenseIdButton_Click", code);
             Assert.Contains("HasPayloadDetails", vm);
             Assert.Contains("FeatureSummaryDisplay", vm);
