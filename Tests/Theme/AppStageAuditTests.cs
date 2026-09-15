@@ -28,7 +28,9 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using ProGlassAutomation.Services.Theme;
 using Xunit;
@@ -124,6 +126,122 @@ namespace ProGlassAutomation.Tests.Theme
                 {
                     Assert.DoesNotContain($"x:Key=\"{key}\"", theme);
                 }
+            }
+        }
+
+        // ── 1b. THE PALETTE MUST ACTUALLY BE THEME-DEPENDENT ─────────────
+
+        [Fact]
+        public void About_palette_differs_between_light_and_dark()
+        {
+            var root = LocateProjectRoot();
+            var light = BrushColors(Path.Combine(root, Light));
+            var dark = BrushColors(Path.Combine(root, Dark));
+
+            // The regression this catches: a palette copied into both themes
+            // with the SAME value. Every key exists, every lock passes, and
+            // switching to Dark changes nothing on the About page — which is
+            // exactly what the owner reported.
+            int differing = 0;
+            foreach (var key in AboutModuleTokenGuard.PaletteKeys)
+            {
+                Assert.True(light.ContainsKey(key), $"LightTheme.xaml does not define {key}.");
+                Assert.True(dark.ContainsKey(key), $"DarkTheme.xaml does not define {key}.");
+
+                if (!string.Equals(light[key], dark[key], StringComparison.OrdinalIgnoreCase))
+                {
+                    differing++;
+                }
+            }
+
+            // Two keys are intentionally identical (ink on accent is white in
+            // both modes; the danger dot already is the dark tone). Everything
+            // else has to move.
+            Assert.True(differing >= AboutModuleTokenGuard.PaletteKeys.Length - 2,
+                $"Only {differing} of {AboutModuleTokenGuard.PaletteKeys.Length} About " +
+                "palette keys differ between Light and Dark, so the About module " +
+                "cannot be following the theme.");
+
+            // The three the eye notices first.
+            foreach (var key in new[]
+                     {
+                         "Ios26CardBrush", "Ios26CardBorderBrush", "Ios26TextTitleBrush",
+                     })
+            {
+                Assert.NotEqual(light[key], dark[key]);
+            }
+        }
+
+        [Fact]
+        public void About_card_edge_is_visible_and_not_pure_white_alpha()
+        {
+            var root = LocateProjectRoot();
+
+            // 2026-09-16 owner report: "no border lines on cards". A 60 % white
+            // edge on a white card is invisible by construction, so the light
+            // column must not go back to a white-with-alpha value for the card
+            // edge, and the two columns must not hold the same value.
+            var light = BrushColors(Path.Combine(root, Light));
+            var dark = BrushColors(Path.Combine(root, Dark));
+
+            var lightEdge = light["Ios26CardBorderBrush"];
+            Assert.False(
+                string.Equals(lightEdge, "#99FFFFFF", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(lightEdge, "#FFFFFFFF", StringComparison.OrdinalIgnoreCase),
+                "Ios26CardBorderBrush is a white-with-alpha value again, which is " +
+                "invisible on the white card in Light mode.");
+
+            Assert.NotEqual(lightEdge, dark["Ios26CardBorderBrush"]);
+        }
+
+        // ── 1c. THE RUNTIME GUARD MUST BE ABLE TO REPAIR ─────────────────
+
+        [Fact]
+        public void About_guard_tables_match_the_dictionaries_they_protect()
+        {
+            var root = LocateProjectRoot();
+
+            // The guard repairs missing About tokens from live theme tokens.
+            // If its tables drift from the real dictionaries it would repair
+            // with the wrong key — which is worse than doing nothing.
+            var light = File.ReadAllText(Path.Combine(root, Light));
+            var dark = File.ReadAllText(Path.Combine(root, Dark));
+            var stage = File.ReadAllText(Path.Combine(root, StageFile));
+
+            foreach (var key in AboutModuleTokenGuard.PaletteKeys)
+            {
+                Assert.Contains($"x:Key=\"{key}\"", light);
+                Assert.Contains($"x:Key=\"{key}\"", dark);
+            }
+
+            Assert.Equal(AboutModuleTokenGuard.PaletteKeys.Length,
+                AboutModuleTokenGuard.PaletteKeys.Distinct().Count());
+
+            // Stage colours: the guard's table must equal AppStage.xaml.
+            Assert.Equal(AboutModuleTokenGuard.StageKeys.Length,
+                AboutModuleTokenGuard.StageColors.Length);
+            for (int i = 0; i < AboutModuleTokenGuard.StageKeys.Length; i++)
+            {
+                Assert.Contains($"x:Key=\"{AboutModuleTokenGuard.StageKeys[i]}\"", stage);
+                Assert.Contains($"Color=\"{AboutModuleTokenGuard.StageColors[i]}\"", stage);
+            }
+        }
+
+        [Fact]
+        public void About_guard_fallback_tokens_all_exist_in_both_themes()
+        {
+            var root = LocateProjectRoot();
+            var light = File.ReadAllText(Path.Combine(root, Light));
+            var dark = File.ReadAllText(Path.Combine(root, Dark));
+
+            // A fallback that does not exist in the theme dictionaries would
+            // make the repair a no-op — the exact silent failure the guard is
+            // there to prevent. Reflection-free: the table is internal and
+            // visible to this assembly.
+            foreach (var token in AboutModuleTokenGuard.FallbackTokenKeys)
+            {
+                Assert.Contains($"x:Key=\"{token}\"", light);
+                Assert.Contains($"x:Key=\"{token}\"", dark);
             }
         }
 
@@ -243,6 +361,20 @@ namespace ProGlassAutomation.Tests.Theme
         }
 
         // ── helpers ──────────────────────────────────────────────────────
+
+        /// <summary>x:Key -> Color for every SolidColorBrush in a theme file.</summary>
+        private static Dictionary<string, string> BrushColors(string path)
+        {
+            var map = new Dictionary<string, string>(StringComparer.Ordinal);
+            var pattern = new Regex(
+                "<SolidColorBrush x:Key=\"([^\"]+)\"\\s+Color=\"(#[0-9A-Fa-f]{6,8})\"");
+            foreach (Match m in pattern.Matches(File.ReadAllText(path)))
+            {
+                map[m.Groups[1].Value] = m.Groups[2].Value;
+            }
+
+            return map;
+        }
 
         /// <summary>Returns the full text of the element that declares
         /// <paramref name="key"/>, trimmed, so two files can be compared.</summary>

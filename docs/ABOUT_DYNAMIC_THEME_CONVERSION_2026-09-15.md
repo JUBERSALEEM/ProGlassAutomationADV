@@ -372,6 +372,70 @@ confirmed by the owner's Visual Studio build — the two things to look at are
 (a) Light theme / default density renders About pixel-identically and (b) Dark
 theme now re-skins the cards and type while the stage stays pastel.
 
+---
+
+## 7. Follow-up: "cards not accepting dynamic colors … no border lines on cards"
+
+Reported 2026-09-16, after the first rebuild. The three symptoms — nothing
+re-tints, fonts unchanged, **cards with no edges** — are the signature of ONE
+failure mode, and it is worth naming precisely because the cause is not where
+the eye looks:
+
+> An unresolvable `{DynamicResource}` **does not throw**. The property keeps its
+> default: `Border.BorderBrush` = null and `Border.Background` = null (a card
+> renders as a bare shadow with no edge and no fill), `TextBlock.FontSize` falls
+> back to the inherited 12 px. Every lock in the repository still passes,
+> because every key exists *on paper* — it just never reached the running build.
+
+So the module read "frozen" while the static analysis was green. §2.3 moved the
+palette out of the local dictionary (mandatory — a locally merged key shadows
+`Application.Resources`), which means the keys now arrive from three separate
+places: both theme dictionaries, `AppStage.xaml`, `AboutTypeScale.xaml`. Any one
+of them absent at runtime produces exactly those symptoms, silently.
+
+### 7.1 The three fixes
+
+1. **The card edge is visible again.** The light value was `#99FFFFFF` — 60 %
+   white on an 80 % white card, i.e. invisible by construction in Light mode.
+   It now wears the theme hairline tone (`#E2E8F0`, the same value the light
+   `DividerBrush` uses; dark keeps 30 % white on dark glass). This is the
+   "no border lines on cards" fix, and it is a *theme-owned* value, so the edge
+   visibly changes on a Dark switch — proof of dynamism at a glance. Reverting
+   to the pure specular edge is a one-line change in `LightTheme.xaml`.
+2. **A runtime guarantee, so this can never be silent again.**
+   `Services/Theme/AboutModuleTokenGuard.cs` runs after every theme apply
+   (`ThemeManager.ApplyTheme`), checks all 45 About keys, repairs any that are
+   absent from live semantic theme tokens (popup surface, hairline, ink, accent,
+   tint — the same trick `SeedNeutralAboutTokens` already uses) and writes **one
+   warning line naming the missing keys**. A repaired About looks like a themed
+   card rather than the mockup; the point is that it is never border-less and
+   never silent.
+3. **The About dictionaries are merged last in `App.xaml`.** They are consumed
+   only through `{DynamicResource}`, so nothing needs them at parse time — but
+   merging them last means a problem in an earlier dictionary cannot strand the
+   About palette.
+
+### 7.2 New locks
+
+| Lock | Catches |
+|---|---|
+| `About_palette_differs_between_light_and_dark` | a palette copied into both themes with the **same** values (24 of 25 keys must differ; only ink-on-accent and the danger dot are intentionally equal) |
+| `About_card_edge_is_visible_and_not_pure_white_alpha` | the invisible white edge coming back |
+| `About_guard_tables_match_the_dictionaries_they_protect` | the guard's tables drifting from the real theme columns / stage file |
+| `About_guard_fallback_tokens_all_exist_in_both_themes` | a repair target that does not exist, which would make the guard a no-op |
+
+### 7.3 How to tell us which layer failed, in 60 seconds
+
+1. **Switch the density** (Settings → Compact → Spacious) with About open.
+   *If the About fonts grow, the code path is fine and the theme dictionaries are
+   the suspect. If they do not grow, the running build does not contain these
+   changes at all.*
+2. **Switch Light → Dark** with About open: cards, tiles, pills and type must
+   switch to the dark column while the pastel stage stays.
+3. **Check the log** for `About tokens repaired:`.
+   *Absent = every key resolved. Present = it lists exactly which keys were
+   missing, which names the dictionary that never arrived.*
+
 ### 6.1 What to check by eye after the rebuild
 
 1. **About on Light, Compact (default):** must be indistinguishable from before

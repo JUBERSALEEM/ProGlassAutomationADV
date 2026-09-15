@@ -19,22 +19,6 @@
                      app. Declare new converters in this file, not inline. ── -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ConverterResources.xaml"/>
 
-                <!-- ── App stage + About type scale (2026-09-15).
-                     Merged BEFORE the theme dictionary and deliberately NOT
-                     part of the theme swap:
-                       • AppStage.xaml — the About page stage (pastel canvas +
-                         four orbs). The page background is theme-INVARIANT
-                         by owner directive ("Background page dont make it
-                         dynamic"), so it must not live in a theme file.
-                       • AboutTypeScale.xaml — the About module type scale,
-                         declared at application level so
-                         ThemeManager.ApplyDisplayDensity can rewrite it in
-                         place. Inside Views/About it would shadow
-                         Application.Resources and stay frozen.
-                     ── -->
-                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/AppStage.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/AboutTypeScale.xaml"/>
-
                 <!-- ── Theme (must be first so styles can reference brushes) ── -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/LightTheme.xaml"/>
 
@@ -215,6 +199,29 @@
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/GlobalDesignSystem.xaml"/>
 
                 <ResourceDictionary Source="pack://application:,,,/Themes/Languages/en-US.xaml"/>
+
+                <!-- ── App stage + About type scale (2026-09-15/16).
+                     LAST on purpose, and deliberately NOT part of the theme
+                     swap:
+                       • AppStage.xaml — the About page stage (pastel canvas +
+                         four orbs). The page background is theme-INVARIANT
+                         by owner directive ("Background page dont make it
+                         dynamic"), so it must not live in a theme file.
+                       • AboutTypeScale.xaml — the About module type scale,
+                         declared at application level so
+                         ThemeManager.ApplyDisplayDensity can rewrite it in
+                         place. Inside Views/About it would shadow
+                         Application.Resources and stay frozen.
+                     Merged last so that a problem in an earlier dictionary
+                     cannot strand the About palette: WPF resolves merged
+                     dictionaries in order, and everything below is consumed
+                     through {DynamicResource} only — nothing needs them at
+                     parse time. (Reported symptom of getting this wrong:
+                     About cards with no edge and no fill, silently, because
+                     an unresolved DynamicResource leaves a Border with a
+                     null BorderBrush instead of throwing.) ── -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/AppStage.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/AboutTypeScale.xaml"/>
 
             </ResourceDictionary.MergedDictionaries>
 

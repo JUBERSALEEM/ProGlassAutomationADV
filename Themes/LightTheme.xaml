@@ -687,7 +687,14 @@
          ═══════════════════════════════════════════════════════════════ -->
 
     <SolidColorBrush x:Key="Ios26CardBrush"               Color="#CCFFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26CardBorderBrush"         Color="#99FFFFFF" po:Freeze="True"/>
+    <!-- 2026-09-16: a 60 % WHITE edge is invisible on a white card, so card
+         outlines could not be seen in Light mode at all (owner report: "no
+         border lines on cards"). The edge now wears the theme hairline tone —
+         the same value the light DividerBrush uses — which is visible on both
+         the white card and the pastel stage, and visibly changes on a Dark
+         switch because it is theme-owned. Revert to #99FFFFFF here if the pure
+         specular edge is preferred; nothing else has to change. -->
+    <SolidColorBrush x:Key="Ios26CardBorderBrush"         Color="#E2E8F0" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26RailBrush"               Color="#99FFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26TileBrush"               Color="#FFFFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26TileBorderBrush"         Color="#E8EDF3" po:Freeze="True"/>

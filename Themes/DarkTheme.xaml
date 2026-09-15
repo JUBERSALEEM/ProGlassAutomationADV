@@ -634,6 +634,8 @@
          ═══════════════════════════════════════════════════════════════ -->
 
     <SolidColorBrush x:Key="Ios26CardBrush"               Color="#CC17181D" po:Freeze="True"/>
+    <!-- 2026-09-16: 30 % white edging on dark glass — visible against the card
+         and against the invariant light stage (see the Light column note). -->
     <SolidColorBrush x:Key="Ios26CardBorderBrush"         Color="#4DFFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26RailBrush"               Color="#B3141519" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26TileBrush"               Color="#FF21222A" po:Freeze="True"/>

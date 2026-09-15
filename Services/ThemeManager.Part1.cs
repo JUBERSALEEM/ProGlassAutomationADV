@@ -158,6 +158,18 @@ namespace ProGlassAutomation.Services
             OverlayThemeDictionary(palette);
             _currentTheme = theme;
 
+            // 2026-09-16 (owner report: "cards not accepting dynamic colors …
+            // no border lines on cards"): an unresolvable {DynamicResource}
+            // does not throw — a Border renders with a null BorderBrush and a
+            // null Background, and a TextBlock keeps the inherited size. That
+            // is invisible in every log. The About module reads 45 keys from
+            // three different dictionaries, so verify them here after every
+            // apply and repair anything absent with live theme tokens, then
+            // name the repaired keys in one warning line.
+            var aboutScope = Application.Current?.Resources;
+            if (aboutScope != null)
+                Theme.AboutModuleTokenGuard.Ensure(aboutScope);
+
             if (!deferPostProcessing)
             {
                 ApplyThemePostProcessing(theme);
