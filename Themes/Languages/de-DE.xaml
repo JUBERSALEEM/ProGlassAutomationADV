@@ -2680,6 +2680,8 @@
     <sys:String x:Key="Void.ThisDocument">dieses Dokument</sys:String>
     <sys:String x:Key="Void.Title">Dokument stornieren</sys:String>
 
+    <sys:String x:Key="About.LicenseDetails">Lizenzdetails</sys:String>
+    <sys:String x:Key="About.MachineFingerprint">Maschinenkennung</sys:String>
     <!-- 2026-09-15 About iOS-26 restyle: System / Diagnostics tab keys -->
     <sys:String x:Key="About.Environment">Umgebung</sys:String>
     <sys:String x:Key="About.OperatingSystem">Betriebssystem</sys:String>

@@ -1,22 +1,27 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/About/AboutView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: About — tabbed glass shell (v6)
-     Glass identity (matches Splash / Login):
-       • deep-navy aurora stage with soft orbs
-       • frosted glass hero + segmented tabs + section cards
-       • light glass text (Ice / Frost / Cerulean / Snow)
-     Structure:
-       • compact glass hero (icon + identity + version/build)
-       • segmented top tab strip: About · Modules · Developer
-       • content area switches between three section UserControls
-         (one XAML file per section, edited independently)
-     PRESERVED:
-       • AboutViewModel bindings (AppName, AppTagline, Version, Build,
-         DeveloperName, Email, Copyright, PrivacyLines,
-         LeftPillars, RightPillars, SalesCycle, ProductionStages,
-         DispatchBilling, Modules, TechStack, CapabilitiesTop/Bottom)
-       • RootScrollViewer x:Name + SmoothScrollBehavior
+     MODULE: About — iOS-26 Liquid Glass shell (2026-09-15 full
+     restyle, approved mockups 01–06)
+
+     Self-contained look (owner directive: "I want exactly liquid
+     glass style ... ignore the current theme"): fixed pastel canvas
+     + frosted rail + frosted 26 px cards, all from the Ios26*
+     palette in AboutIos26Theme.xaml — NOT the live app theme.
+
+     PRESERVED (crash-safety + audit contracts):
+       • NO inline Storyboards (ERR-D71810 — optimised template load);
+         all motion is driven imperatively from AboutView.xaml.cs.
+       • Named transforms OrbAScale/OrbATranslate/OrbBScale/
+         OrbBTranslate + IconRingRotate (ambient motion targets).
+       • RootScrollViewer x:Name + SmoothScrollBehavior.
+       • Section hosts OverviewSection / LicenseSectionHost /
+         ModulesSectionHost / DeveloperSectionHost /
+         SystemSectionHost / DiagnosticsSectionHost (unnamed
+         RenderTransforms — MC3093 sealed NameScope rule).
+       • Hero bindings ItemsSource LeftPillars / RightPillars and
+         Text="{Binding LicenseStatus.EditionDisplay}" (audit lock).
+       • Rail glyph DataTriggers for all six tabs.
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.About.AboutView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -35,67 +40,23 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="AboutStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-
-            <!-- 2026-09-15 Part 1 mockup: the segmented top tab strip is
-                 gone — navigation is the LEFT NAV RAIL (see below). Its
-                 item style (AboutTabItemStyle) was removed with it. -->
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <!-- ═══ ROOT — DYNAMIC glass stage (2026-08-25) ═══
-         The stage is deliberately TRANSPARENT: the content card in
-         MainWindow already paints, behind every module's content,
-           • ModuleWallpaperBrush  — the per-module wallpaper when one
-                                     is configured for "About" in
-                                     Settings → Appearance, otherwise the
-                                     system-wide wallpaper (or nothing)
-           • ModuleBackgroundBrush — the theme/family module surface,
-                                     made translucent by the theme engine
-                                     when a wallpaper is active.
-         So the About page now behaves exactly like every other module:
-         Light/Dark swap, visual family (Normal / Monet / Ios-17pm),
-         accent changes and wallpaper layering all re-tint the page live
-         through DynamicResource — in ALL THREE sections
-         (About / Modules / Developer share the Liquid* palette).
-
-         The only stage-specific decoration is the two soft aurora orbs
-         (theme-aware brushes LiquidOrbA / LiquidOrbB, defined per theme
-         in Themes/DarkTheme.xaml + LightTheme.xaml).
-
-         Transparency is safe by construction: the host card ALWAYS
-         paints ModuleBackgroundBrush underneath, so the page can never
-         render empty. (The old fixed-navy inline gradient was a
-         stopgap from the "make transparency impossible" pass — it is
-         also exactly what made the page ignore Settings → Appearance.)
-         -->
+    <!-- ═══ ROOT — fixed iOS-26 pastel stage (2026-09-15) ═══
+         The stage is now OPAQUE: the mockups show the About page as a
+         self-contained liquid-glass surface, independent of the app
+         theme / wallpaper. Two orbs are named so the code-behind can
+         keep animating them (imperative, Freezable-safe); the other
+         two are static fillers for the mesh. -->
     <Grid>
-        <!-- 2026-09-10 fluid upgrade — CRASH-SAFE REWRITE (ERR-D71810).
-             AboutView is instantiated inside a DataTemplate (MainWindow
-             L147) and therefore loads through WPF's OPTIMISED template path
-             (LoadOptimizedTemplateContent), which wraps the whole subtree in
-             a single BeginInit/EndInit. ANY Storyboard/BeginStoryboard placed
-             inline in this visual tree — whether via <Ellipse.Triggers> OR an
-             inline <Ellipse.Style> Style.Triggers — is a Freezable that the
-             loader tries to BeginInit while the subtree is already mid-init,
-             throwing "Cannot have nested BeginInit calls on the same instance"
-             (plus a TypeConverterMarkupExtension failure). The earlier attempt
-             to move the loops into inline Styles did NOT help for exactly this
-             reason. The robust fix: NO inline storyboards at all. Every
-             ambient/entrance animation is now started imperatively from the
-             code-behind Loaded handler (AboutView.xaml.cs), wrapped in
-             try/catch so it can never crash the page. The transforms below are
-             named so the code-behind can drive them. -->
-        <!-- 2026-09-10 iOS-26 stage: full-bleed pastel mesh (light) /
-             deep-navy aurora (dark) behind the glass. Theme-token driven
-             (AboutWallpaperBrush) so Light / Dark / dynamic families all
-             re-tint it live. Painted under the orbs and the glass slabs. -->
-        <Border Background="{DynamicResource AboutWallpaperBrush}"
+        <Border Background="{DynamicResource Ios26CanvasBrush}"
                 IsHitTestVisible="False"/>
 
         <Ellipse Width="560" Height="560"
                  HorizontalAlignment="Right" VerticalAlignment="Top"
                  Margin="0,-180,-140,0" IsHitTestVisible="False"
-                 Fill="{DynamicResource LiquidOrbA}"
+                 Fill="{DynamicResource Ios26OrbTealBrush}"
                  RenderTransformOrigin="0.5,0.5">
             <Ellipse.RenderTransform>
                 <TransformGroup>
@@ -107,7 +68,7 @@
         <Ellipse Width="420" Height="420"
                  HorizontalAlignment="Left" VerticalAlignment="Bottom"
                  Margin="-120,0,0,-120" IsHitTestVisible="False"
-                 Fill="{DynamicResource LiquidOrbB}"
+                 Fill="{DynamicResource Ios26OrbBlueBrush}"
                  RenderTransformOrigin="0.5,0.5">
             <Ellipse.RenderTransform>
                 <TransformGroup>
@@ -116,39 +77,39 @@
                 </TransformGroup>
             </Ellipse.RenderTransform>
         </Ellipse>
+        <Ellipse Width="480" Height="480"
+                 HorizontalAlignment="Left" VerticalAlignment="Top"
+                 Margin="-170,-170,0,0" IsHitTestVisible="False"
+                 Fill="{DynamicResource Ios26OrbLavenderBrush}"/>
+        <Ellipse Width="400" Height="400"
+                 HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                 Margin="0,-150,-150,0" IsHitTestVisible="False"
+                 Fill="{DynamicResource Ios26OrbGreenBrush}"/>
 
-
-        <!-- ═══ SHELL LAYOUT (2026-09-15, approved Part 1 mockup) ═══
-             Fixed left nav rail (full height, does NOT scroll) +
-             scrollable content column. The rail owns navigation
-             (Tabs / SelectedTabIndex — same binding surface as the
-             removed top tab strip); the content column owns the page
-             title, the Overview-only hero and the four sections. -->
+        <!-- ═══ SHELL — frosted left rail (fixed) + scroll content ═══ -->
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="232"/>
+                <ColumnDefinition Width="264"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- ═══ LEFT NAV RAIL ═══
-                 Brand block + vertical nav list. 12px corner
-                 (Radius.Control) on items, accent fill + on-accent
-                 text on the active item — the approved skin. Same
-                 Freezable-safe pattern as everything else on this
-                 page: template + simple triggers, NO Storyboard
-                 (ERR-D71810). -->
+            <!-- ═══ LEFT NAV RAIL (mockup 01) ═══
+                 Frosted panel + brand block + six nav pills.
+                 Active item = deep-blue pill + white text + ACTIVE
+                 chip. Simple triggers only — no Storyboard. -->
             <Border Grid.Column="0"
-                    Background="{DynamicResource SurfacePrimaryBrush}"
-                    BorderBrush="{DynamicResource AboutCardBorderBrush}"
+                    Background="{DynamicResource Ios26RailBrush}"
+                    BorderBrush="{DynamicResource Ios26HairlineBrush}"
                     BorderThickness="0,0,1,0"
                     SnapsToDevicePixels="True">
-                <DockPanel Margin="14,16,14,16">
+                <DockPanel Margin="16,18,16,18">
                     <!-- Brand -->
                     <StackPanel DockPanel.Dock="Top"
                                 Orientation="Horizontal"
-                                Margin="8,0,0,18">
-                        <Border Width="36" Height="36"
-                                Style="{StaticResource SurfaceDetailStyle}">
+                                Margin="6,0,0,20">
+                        <Border Width="40" Height="40"
+                                Style="{StaticResource Ios26IconTileStyle}"
+                                CornerRadius="{DynamicResource Ios26RadiusInner}">
                             <Border.Background>
                                 <ImageBrush ImageSource="{x:Static viewsAbout:AppIconResource.Icon}"
                                             Stretch="UniformToFill"
@@ -157,19 +118,20 @@
                         </Border>
                         <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="{Binding AppName}"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource LiquidSnow}"
+                                       FontSize="15"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource Ios26TextTitleBrush}"
                                        TextTrimming="CharacterEllipsis"/>
                             <TextBlock Text="{Binding AppTagline}"
-                                       FontSize="{DynamicResource FontSize.Caption}"
-                                       Foreground="{DynamicResource LiquidMuted}"
+                                       FontSize="11.5"
+                                       Foreground="{DynamicResource Ios26TextMutedBrush}"
                                        Margin="0,1,0,0"
                                        TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
                     </StackPanel>
 
-                    <!-- Nav list (Overview / License / Modules / Developer) -->
+                    <!-- Nav list (Overview / License / Modules /
+                         Developer / System / Diagnostics) -->
                     <ListBox ItemsSource="{Binding Tabs}"
                              SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
                              Background="Transparent"
@@ -179,9 +141,9 @@
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="Cursor" Value="Hand"/>
-                                <Setter Property="Foreground" Value="{DynamicResource LiquidFrost}"/>
-                                <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
-                                <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Ios26TextBodyBrush}"/>
+                                <Setter Property="FontSize" Value="15"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
                                 <Setter Property="Margin" Value="0,0,0,6"/>
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                                 <Setter Property="Template">
@@ -191,30 +153,50 @@
                                                     Background="Transparent"
                                                     BorderBrush="Transparent"
                                                     BorderThickness="1"
-                                                    CornerRadius="{DynamicResource Radius.Control}"
+                                                    CornerRadius="{DynamicResource Ios26RadiusInner}"
                                                     Padding="13,10"
                                                     SnapsToDevicePixels="True">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="Auto"/>
                                                         <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock x:Name="RailIcon"
                                                                Grid.Column="0"
                                                                FontFamily="{DynamicResource FontFamily.Icon}"
                                                                Text="&#xE80F;"
                                                                FontSize="16"
+                                                               Foreground="{DynamicResource Ios26TextSecondaryBrush}"
                                                                VerticalAlignment="Center"
                                                                Margin="0,1,12,0"
                                                                IsHitTestVisible="False"/>
                                                     <ContentPresenter Grid.Column="1"
-                                                                       VerticalAlignment="Center"/>
+                                                                      VerticalAlignment="Center"/>
+                                                    <!-- "ACTIVE" chip —
+                                                         visible on the
+                                                         selected pill
+                                                         only (mockup). -->
+                                                    <Border x:Name="ActiveChip"
+                                                            Grid.Column="2"
+                                                            Background="{DynamicResource Ios26OnAccentChipBrush}"
+                                                            CornerRadius="{DynamicResource Ios26RadiusPill}"
+                                                            Padding="8,2"
+                                                            Margin="10,0,0,0"
+                                                            VerticalAlignment="Center"
+                                                            Visibility="Collapsed">
+                                                        <TextBlock Text="ACTIVE"
+                                                                   FontSize="10"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="{DynamicResource Ios26OnAccentBrush}"
+                                                                   VerticalAlignment="Center"/>
+                                                    </Border>
                                                 </Grid>
                                             </Border>
                                             <ControlTemplate.Triggers>
-                                                <!-- Default glyph E80F (home) =
-                                                     Overview; the other labels
-                                                     swap it. -->
+                                                <!-- Default glyph E80F (home)
+                                                     = Overview; the other
+                                                     labels swap it. -->
                                                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content}" Value="License">
                                                     <Setter TargetName="RailIcon" Property="Text" Value="&#xE72E;"/>
                                                 </DataTrigger>
@@ -231,13 +213,14 @@
                                                     <Setter TargetName="RailIcon" Property="Text" Value="&#xE9A9;"/>
                                                 </DataTrigger>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="RailBg" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
-                                                    <Setter Property="Foreground" Value="{DynamicResource LiquidSnow}"/>
+                                                    <Setter TargetName="RailBg" Property="Background" Value="{DynamicResource Ios26HoverBrush}"/>
                                                 </Trigger>
                                                 <Trigger Property="IsSelected" Value="True">
-                                                    <Setter TargetName="RailBg" Property="Background" Value="{DynamicResource LiquidAccentDeep}"/>
-                                                    <Setter TargetName="RailBg" Property="BorderBrush" Value="{DynamicResource LiquidAccent}"/>
-                                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                                    <Setter TargetName="RailBg" Property="Background" Value="{DynamicResource Ios26AccentBrush}"/>
+                                                    <Setter TargetName="RailBg" Property="BorderBrush" Value="{DynamicResource Ios26AccentBrush}"/>
+                                                    <Setter TargetName="RailIcon" Property="Foreground" Value="{DynamicResource Ios26OnAccentBrush}"/>
+                                                    <Setter TargetName="ActiveChip" Property="Visibility" Value="Visible"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource Ios26OnAccentBrush}"/>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
@@ -262,24 +245,20 @@
                           behaviors:SmoothScrollBehavior.IsEnabled="True">
                 <StackPanel Margin="32,26,32,32">
 
-                    <!-- Page title — the active screen's headline
-                         (Overview / License / Modules / Developer). -->
-                    <TextBlock Text="{Binding CurrentTabTitle}"
-                               FontSize="{DynamicResource FontSize.Kpi}"
-                               FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource LiquidIce}"
+                    <!-- Page title — "About → {active tab}" (mockups). -->
+                    <TextBlock FontSize="24"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource Ios26TextTitleBrush}"
                                Margin="0,0,0,16"
-                               IsHitTestVisible="False"/>
+                               IsHitTestVisible="False">
+                        <Run Text="About → "/><Run Text="{Binding CurrentTabTitle}"/>
+                    </TextBlock>
 
-                    <!-- ═══ HERO — brand card, Overview tab only ═══
-                         2026-09-15 Part 1 mockup: the other screens
-                         (License / Modules / Developer) open straight
-                         into their content, so the hero is shown only
-                         when the Overview tab is active. The wrapper
-                         Border owns the visibility trigger (setters
-                         only — Freezable-safe, ERR-D71810); the inner
-                         Border keeps its SurfaceElevatedStyle (a
-                         second Style attribute would throw MC3024). -->
+                    <!-- ═══ HERO — brand card, Overview tab only
+                         (mockup 01: centered icon + title + tagline +
+                         hairline + centered stat row). Wrapper Border
+                         owns the visibility trigger (setters only —
+                         Freezable-safe, ERR-D71810). -->
                     <Border Margin="0,0,0,18">
                         <Border.Style>
                             <Style TargetType="Border">
@@ -291,222 +270,153 @@
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
-                        <Border Style="{StaticResource SurfaceElevatedStyle}">
-                    <Grid>
-                        <!-- 2026-09-14: sheen overlay must not carry a second
-                             surface style (double chrome). -->
-                        <Border Background="{DynamicResource LiquidSheen}"
-                                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                                IsHitTestVisible="False"/>
+                        <Border Style="{StaticResource Ios26CardStyle}">
+                            <StackPanel HorizontalAlignment="Center">
+                                <!-- Brand tile (orbit ring kept but
+                                     invisible — its name feeds the
+                                     code-behind ambient motion). -->
+                                <Grid HorizontalAlignment="Center" Margin="0,8,0,0">
+                                    <Ellipse Width="80" Height="80"
+                                             StrokeThickness="0"
+                                             IsHitTestVisible="False"
+                                             RenderTransformOrigin="0.5,0.5">
+                                        <Ellipse.RenderTransform>
+                                            <RotateTransform x:Name="IconRingRotate" Angle="0"/>
+                                        </Ellipse.RenderTransform>
+                                    </Ellipse>
+                                    <Border Width="64" Height="64"
+                                            Style="{StaticResource Ios26IconTileStyle}"
+                                            CornerRadius="{DynamicResource Ios26RadiusInner}">
+                                        <Border.Background>
+                                            <ImageBrush ImageSource="{x:Static viewsAbout:AppIconResource.Icon}"
+                                                        Stretch="UniformToFill"
+                                                        RenderOptions.BitmapScalingMode="HighQuality"/>
+                                        </Border.Background>
+                                    </Border>
+                                </Grid>
 
-                        <Grid Margin="24,18">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="210"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- App icon — larger frosted brand tile with a
-                                 soft accent halo + slow dashed orbit ring, so
-                                 the About hero mirrors the splash brand moment. -->
-                            <Grid Grid.Row="0" Grid.Column="0" Margin="0,0,22,0">
-                                <!-- accent halo bloom -->
-                                <Ellipse Width="86" Height="86"
-                                         Fill="{DynamicResource LiquidAccent}"
-                                         Opacity="0.22" IsHitTestVisible="False">
-                                    <Ellipse.Effect>
-                                        <BlurEffect Radius="26"/>
-                                    </Ellipse.Effect>
-                                </Ellipse>
-                                <Ellipse Width="80" Height="80"
-                                         Stroke="{DynamicResource LiquidAccent}"
-                                         StrokeThickness="1" StrokeDashArray="4 6"
-                                         Opacity="0.5" IsHitTestVisible="False"
-                                         RenderTransformOrigin="0.5,0.5">
-                                    <!-- Slow orbit ring. Animated imperatively from
-                                         the code-behind Loaded handler (see the
-                                         crash note on the aurora orbs above): no
-                                         inline storyboard, so the optimised template
-                                         load can never hit nested BeginInit. -->
-                                    <Ellipse.RenderTransform>
-                                        <RotateTransform x:Name="IconRingRotate" Angle="0"/>
-                                    </Ellipse.RenderTransform>
-                                </Ellipse>
-                                <!-- 2026-09-14: was a 64px card wrapping a 54px
-                                     card (two overlapping tiles) → ONE 64px L3
-                                     tile with the icon paint. -->
-                                <Border Width="64" Height="64"
-                                        Style="{StaticResource SurfaceDetailStyle}">
-                                    <!--
-                                      Shared frozen app icon
-                                      (AppIconResource): decoded once
-                                      per process instead of per
-                                      About open — see the freeze
-                                      note in AppIconResource.cs.
-                                    -->
-                                    <Border.Background>
-                                        <ImageBrush ImageSource="{x:Static viewsAbout:AppIconResource.Icon}"
-                                                    Stretch="UniformToFill"
-                                                    RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    </Border.Background>
-                                </Border>
-                            </Grid>
-
-                            <!-- Identity -->
-                            <StackPanel Grid.Row="0"
-                                        Grid.Column="1"
-                                        VerticalAlignment="Center"
-                                        MaxWidth="560">
                                 <TextBlock Text="{Binding AppName}"
-                                           FontSize="{DynamicResource FontSize.Kpi}"
-                                           FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource LiquidSnow}"
+                                           FontSize="30"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource Ios26TextTitleBrush}"
+                                           HorizontalAlignment="Center"
                                            TextWrapping="Wrap"
+                                           Margin="0,14,0,0"
                                            IsHitTestVisible="False"/>
                                 <TextBlock Text="{Binding AppTagline}"
-                                           FontSize="{DynamicResource FontSize.Title}"
-                                           Margin="0,5,0,0"
-                                           Foreground="{DynamicResource LiquidCerulean}"
+                                           FontSize="14.5"
+                                           Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                           HorizontalAlignment="Center"
                                            TextWrapping="Wrap"
+                                           Margin="0,6,0,0"
                                            IsHitTestVisible="False"/>
-                            </StackPanel>
 
-                            <!-- Version / build / edition — iOS-26: one compact
-                                 version pill + a horizontal flow of glass chips
-                                 (was a 210px vertical stack of 5 boxes). -->
-                            <StackPanel Grid.Row="0"
-                                        Grid.Column="2"
-                                        VerticalAlignment="Center"
-                                        HorizontalAlignment="Right">
-                                <!-- 2026-09-14: accent badge keeps its own
-                                     chrome — the SurfacePrimaryStyle on top of
-                                     it was double chrome. -->
-                                <Border Background="{DynamicResource LiquidAccentDeep}"
-                                        CornerRadius="{DynamicResource Radius.Card}"
-                                        Padding="14,6"
-                                        HorizontalAlignment="Right"
-                                        BorderBrush="{DynamicResource AboutGlassSlabStroke}"
-                                        BorderThickness="1"
-                                        SnapsToDevicePixels="True">
-                                    <TextBlock Text="{Binding Version}"
-                                               FontSize="{DynamicResource FontSize.Body}"
-                                               FontWeight="{DynamicResource Weight.Bold}"
-                                               TextAlignment="Center"
-                                               TextTrimming="CharacterEllipsis"
-                                               Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                               IsHitTestVisible="False"/>
-                                </Border>
-                                <WrapPanel HorizontalAlignment="Right" Margin="0,8,0,0">
-                                    <Border Style="{StaticResource Chip.Primary}" Margin="0,0,6,6">
-                                        <TextBlock Text="{Binding WhatsNew}"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   FontWeight="{DynamicResource Weight.SemiBold}"
-                                                   Foreground="{DynamicResource LiquidAccent}"
-                                                   IsHitTestVisible="False"/>
-                                    </Border>
-                                    <Border Style="{StaticResource Chip.Primary}" Margin="0,0,6,6">
-                                        <TextBlock Text="{Binding Build}"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   FontWeight="{DynamicResource Weight.SemiBold}"
-                                                   Foreground="{DynamicResource LiquidAccent}"
-                                                   IsHitTestVisible="False"/>
-                                    </Border>
-                                    <!-- 2026-09-14: edition restored in the
-                                         hero (audit contract — AboutModuleAuditTests
-                                         requires the shared license binding here;
-                                         previously the edition only appeared in
-                                         the Developer tab). -->
-                                    <Border Style="{StaticResource Chip.Primary}" Margin="0,0,6,6">
-                                        <TextBlock Text="{Binding LicenseStatus.EditionDisplay}"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   FontWeight="{DynamicResource Weight.SemiBold}"
-                                                   Foreground="{DynamicResource LiquidAccent}"
-                                                   IsHitTestVisible="False"/>
-                                    </Border>
-                                    <Border Style="{StaticResource Chip.Primary}" Margin="0,0,0,6">
-                                        <TextBlock Text="{Binding LicenseStatus.StatusBadge}"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   FontWeight="{DynamicResource Weight.Bold}"
-                                                   Foreground="{DynamicResource LiquidSnow}"
-                                                   IsHitTestVisible="False"/>
-                                    </Border>
+                                <!-- Hairline -->
+                                <Border Height="1"
+                                        Background="{DynamicResource Ios26HairlineBrush}"
+                                        Margin="32,18,32,0"/>
+
+                                <!-- Centered stat row: Version · Build ·
+                                     Edition (the edition value binds the
+                                     shared license surface — audit). -->
+                                <WrapPanel HorizontalAlignment="Center"
+                                           Margin="0,16,0,4">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,28,10">
+                                        <Border Width="26" Height="26"
+                                                Style="{StaticResource Ios26IconTileStyle}"
+                                                VerticalAlignment="Center">
+                                            <TextBlock Text="&#xE946;"
+                                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                                       FontSize="12"
+                                                       Foreground="{DynamicResource Ios26AccentBrush}"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Border>
+                                        <StackPanel Margin="9,0,0,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{DynamicResource About.Version}"
+                                                       FontSize="11.5"
+                                                       Foreground="{DynamicResource Ios26TextMutedBrush}"/>
+                                            <TextBlock Text="{Binding Version}"
+                                                       FontSize="15"
+                                                       FontWeight="Bold"
+                                                       Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,28,10">
+                                        <Border Width="26" Height="26"
+                                                Style="{StaticResource Ios26IconTileStyle}"
+                                                VerticalAlignment="Center">
+                                            <TextBlock Text="&#xE713;"
+                                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                                       FontSize="12"
+                                                       Foreground="{DynamicResource Ios26AccentBrush}"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Border>
+                                        <StackPanel Margin="9,0,0,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{DynamicResource About.Build}"
+                                                       FontSize="11.5"
+                                                       Foreground="{DynamicResource Ios26TextMutedBrush}"/>
+                                            <TextBlock Text="{Binding Build}"
+                                                       FontSize="15"
+                                                       FontWeight="Bold"
+                                                       Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
+                                        <Border Width="26" Height="26"
+                                                Style="{StaticResource Ios26IconTileStyle}"
+                                                VerticalAlignment="Center">
+                                            <TextBlock Text="&#xE7F4;"
+                                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                                       FontSize="12"
+                                                       Foreground="{DynamicResource Ios26AccentBrush}"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Border>
+                                        <StackPanel Margin="9,0,0,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{DynamicResource About.Edition}"
+                                                       FontSize="11.5"
+                                                       Foreground="{DynamicResource Ios26TextMutedBrush}"/>
+                                            <TextBlock Text="{Binding LicenseStatus.EditionDisplay}"
+                                                       FontSize="15"
+                                                       FontWeight="Bold"
+                                                       Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
+                                        <Border Width="26" Height="26"
+                                                Style="{StaticResource Ios26IconTileStyle}"
+                                                VerticalAlignment="Center">
+                                            <TextBlock Text="&#xE73E;"
+                                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                                       FontSize="12"
+                                                       Foreground="{DynamicResource Ios26SuccessBrush}"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Border>
+                                        <StackPanel Margin="9,0,0,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{DynamicResource Common.Status}"
+                                                       FontSize="11.5"
+                                                       Foreground="{DynamicResource Ios26TextMutedBrush}"/>
+                                            <TextBlock Text="{Binding LicenseStatus.StatusBadge}"
+                                                       FontSize="15"
+                                                       FontWeight="Bold"
+                                                       Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                                        </StackPanel>
+                                    </StackPanel>
                                 </WrapPanel>
                             </StackPanel>
-
-                            <!-- Hero metrics restored: bind the shared pillar collections
-                                 so the header once again exposes module count, databases,
-                                 offline-first posture and AI readiness. -->
-                            <Grid Grid.Row="1" Grid.ColumnSpan="3" Margin="0,18,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="24"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-
-                                <ItemsControl Grid.Column="0"
-                                              ItemsSource="{Binding LeftPillars}"
-                                              ItemTemplate="{StaticResource HeroPillarTemplate}"
-                                              HorizontalAlignment="Left">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel HorizontalAlignment="Left"/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                </ItemsControl>
-
-                                <ItemsControl Grid.Column="2"
-                                              ItemsSource="{Binding RightPillars}"
-                                              ItemTemplate="{StaticResource HeroPillarTemplate}"
-                                              HorizontalAlignment="Right">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel HorizontalAlignment="Right"/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                </ItemsControl>
-                            </Grid>
-                        </Grid>
-                    </Grid>
                         </Border>
                     </Border>
 
-                <!-- 2026-09-15 Part 1 mockup: the centered top tab strip is
-                     replaced by the LEFT NAV RAIL (Grid.Column 0). The rail
-                     is always visible next to the content, so navigation is
-                     still never visibility-gated. -->
-
-                <!-- ═══ SECTION CONTENT (switched by SelectedTabIndex) ═══
-                     2026-09-10 fluid upgrade: each section now fades and
-                     slides up smoothly as it becomes the selected tab
-                     (IsVisible-driven storyboard on a per-section
-                     TranslateTransform + Opacity). The switch is instant
-                     to the user's click but reads as a polished, gentle
-                     reveal instead of a hard cut. -->
-                <!-- Each section is shown/hidden by SelectedTabIndex through a
-                     plain DataTrigger Setter (a Style with only setters is not a
-                     Freezable, so it is safe under the optimised template load).
-                     The gentle fade+slide reveal is applied imperatively in the
-                     code-behind (AboutView.xaml.cs) via IsVisibleChanged — NO
-                     inline Storyboard, which is what crashed the page before
-                     (ERR-D71810). Transforms are named so code-behind can drive
-                     them. -->
-                <Grid>
-                    <aboutSections:AboutOverviewSection x:Name="OverviewSection"
-                                                        RenderTransformOrigin="0.5,0.5">
-                        <!-- The RenderTransform is NOT named: a section is a
-                             UserControl with its own (sealed) NameScope, so
-                             naming a transform set as its RenderTransform throws
-                             MC3093. Code-behind reaches it via
-                             OverviewSection.RenderTransform instead. -->
-                        <aboutSections:AboutOverviewSection.RenderTransform>
-                            <TranslateTransform Y="0"/>
-                        </aboutSections:AboutOverviewSection.RenderTransform>
-                        <aboutSections:AboutOverviewSection.Style>
-                            <Style TargetType="UserControl">
+                    <!-- Hero pillar chips — the live Left/Right pillar
+                         metrics (audit bindings), centered between the
+                         hero and the first card row (mockup chip
+                         language). Overview tab only. -->
+                    <StackPanel HorizontalAlignment="Center" Margin="0,0,0,18">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding SelectedTabIndex}" Value="0">
@@ -514,111 +424,143 @@
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
-                        </aboutSections:AboutOverviewSection.Style>
-                    </aboutSections:AboutOverviewSection>
+                        </StackPanel.Style>
+                        <WrapPanel HorizontalAlignment="Center">
+                            <ItemsControl ItemsSource="{Binding LeftPillars}"
+                                          ItemTemplate="{StaticResource HeroPillarTemplate}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel HorizontalAlignment="Center"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                            <ItemsControl ItemsSource="{Binding RightPillars}"
+                                          ItemTemplate="{StaticResource HeroPillarTemplate}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel HorizontalAlignment="Center"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </WrapPanel>
+                    </StackPanel>
 
-                    <!-- License (index 1 — 2026-09-15 Part 1 mockup).
-                         The existing self-contained license card becomes
-                         its own screen: its constructor already points
-                         the DataContext at LicenseStatusViewModel.
-                         Instance, so no extra wiring is needed. Same
-                         unnamed-RenderTransform rule as the other
-                         sections (MC3093 — sealed NameScope). -->
-                    <aboutSections:AboutLicenseCard x:Name="LicenseSectionHost"
-                                                    RenderTransformOrigin="0.5,0.5">
-                        <aboutSections:AboutLicenseCard.RenderTransform>
-                            <TranslateTransform Y="0"/>
-                        </aboutSections:AboutLicenseCard.RenderTransform>
-                        <aboutSections:AboutLicenseCard.Style>
-                            <Style TargetType="UserControl">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="1">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </aboutSections:AboutLicenseCard.Style>
-                    </aboutSections:AboutLicenseCard>
+                    <!-- ═══ SECTION CONTENT (switched by SelectedTabIndex) ═══
+                         Show/hide = plain DataTrigger Setters (Freezable-safe,
+                         ERR-D71810); the gentle fade+slide reveal is driven
+                         imperatively from AboutView.xaml.cs (IsVisibleChanged).
+                         Transforms are NOT named — MC3093 sealed NameScope. -->
+                    <Grid>
+                        <aboutSections:AboutOverviewSection x:Name="OverviewSection"
+                                                            RenderTransformOrigin="0.5,0.5">
+                            <aboutSections:AboutOverviewSection.RenderTransform>
+                                <TranslateTransform Y="0"/>
+                            </aboutSections:AboutOverviewSection.RenderTransform>
+                            <aboutSections:AboutOverviewSection.Style>
+                                <Style TargetType="UserControl">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedTabIndex}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </aboutSections:AboutOverviewSection.Style>
+                        </aboutSections:AboutOverviewSection>
 
-                    <aboutSections:ModulesSection x:Name="ModulesSectionHost"
-                                                  RenderTransformOrigin="0.5,0.5">
-                        <aboutSections:ModulesSection.RenderTransform>
-                            <TranslateTransform Y="0"/>
-                        </aboutSections:ModulesSection.RenderTransform>
-                        <aboutSections:ModulesSection.Style>
-                            <Style TargetType="UserControl">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="2">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </aboutSections:ModulesSection.Style>
-                    </aboutSections:ModulesSection>
+                        <!-- License (index 1). The card's constructor
+                             points its DataContext at
+                             LicenseStatusViewModel.Instance — no extra
+                             wiring. -->
+                        <aboutSections:AboutLicenseCard x:Name="LicenseSectionHost"
+                                                        RenderTransformOrigin="0.5,0.5">
+                            <aboutSections:AboutLicenseCard.RenderTransform>
+                                <TranslateTransform Y="0"/>
+                            </aboutSections:AboutLicenseCard.RenderTransform>
+                            <aboutSections:AboutLicenseCard.Style>
+                                <Style TargetType="UserControl">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedTabIndex}" Value="1">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </aboutSections:AboutLicenseCard.Style>
+                        </aboutSections:AboutLicenseCard>
 
-                    <aboutSections:DeveloperSection x:Name="DeveloperSectionHost"
-                                                    RenderTransformOrigin="0.5,0.5">
-                        <aboutSections:DeveloperSection.RenderTransform>
-                            <TranslateTransform Y="0"/>
-                        </aboutSections:DeveloperSection.RenderTransform>
-                        <aboutSections:DeveloperSection.Style>
-                            <Style TargetType="UserControl">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="3">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </aboutSections:DeveloperSection.Style>
-                    </aboutSections:DeveloperSection>
-
-                    <!-- System (index 4 — 2026-09-15 iOS-26 redesign).
-                         Live data only: OS / runtime / architecture /
-                         visual theme / perf tier (Environment,
-                         VisualThemeEngine, PerformanceProfileService),
-                         encoder probe snapshot (EncoderProbe),
-                         storage paths (AppDataRoot). -->
-                    <aboutSections:SystemSection x:Name="SystemSectionHost"
-                                                 RenderTransformOrigin="0.5,0.5">
-                        <aboutSections:SystemSection.RenderTransform>
-                            <TranslateTransform Y="0"/>
-                        </aboutSections:SystemSection.RenderTransform>
-                        <aboutSections:SystemSection.Style>
-                            <Style TargetType="UserControl">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="4">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </aboutSections:SystemSection.Style>
-                    </aboutSections:SystemSection>
-
-                    <!-- Diagnostics (index 5 — 2026-09-15 iOS-26
-                         redesign): the self-contained crash-reports
-                         card (moved here from Overview) + recording
-                         health markers + app log location. -->
-                    <aboutSections:DiagnosticsSection x:Name="DiagnosticsSectionHost"
+                        <aboutSections:ModulesSection x:Name="ModulesSectionHost"
                                                       RenderTransformOrigin="0.5,0.5">
-                        <aboutSections:DiagnosticsSection.RenderTransform>
-                            <TranslateTransform Y="0"/>
-                        </aboutSections:DiagnosticsSection.RenderTransform>
-                        <aboutSections:DiagnosticsSection.Style>
-                            <Style TargetType="UserControl">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="5">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </aboutSections:DiagnosticsSection.Style>
-                    </aboutSections:DiagnosticsSection>
-                </Grid>
+                            <aboutSections:ModulesSection.RenderTransform>
+                                <TranslateTransform Y="0"/>
+                            </aboutSections:ModulesSection.RenderTransform>
+                            <aboutSections:ModulesSection.Style>
+                                <Style TargetType="UserControl">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedTabIndex}" Value="2">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </aboutSections:ModulesSection.Style>
+                        </aboutSections:ModulesSection>
+
+                        <aboutSections:DeveloperSection x:Name="DeveloperSectionHost"
+                                                        RenderTransformOrigin="0.5,0.5">
+                            <aboutSections:DeveloperSection.RenderTransform>
+                                <TranslateTransform Y="0"/>
+                            </aboutSections:DeveloperSection.RenderTransform>
+                            <aboutSections:DeveloperSection.Style>
+                                <Style TargetType="UserControl">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedTabIndex}" Value="3">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </aboutSections:DeveloperSection.Style>
+                        </aboutSections:DeveloperSection>
+
+                        <!-- System (index 4) — live machine / runtime /
+                             theme / perf / encoder / storage data. -->
+                        <aboutSections:SystemSection x:Name="SystemSectionHost"
+                                                     RenderTransformOrigin="0.5,0.5">
+                            <aboutSections:SystemSection.RenderTransform>
+                                <TranslateTransform Y="0"/>
+                            </aboutSections:SystemSection.RenderTransform>
+                            <aboutSections:SystemSection.Style>
+                                <Style TargetType="UserControl">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedTabIndex}" Value="4">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </aboutSections:SystemSection.Style>
+                        </aboutSections:SystemSection>
+
+                        <!-- Diagnostics (index 5) — crash reports +
+                             recording health + app log. -->
+                        <aboutSections:DiagnosticsSection x:Name="DiagnosticsSectionHost"
+                                                          RenderTransformOrigin="0.5,0.5">
+                            <aboutSections:DiagnosticsSection.RenderTransform>
+                                <TranslateTransform Y="0"/>
+                            </aboutSections:DiagnosticsSection.RenderTransform>
+                            <aboutSections:DiagnosticsSection.Style>
+                                <Style TargetType="UserControl">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedTabIndex}" Value="5">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </aboutSections:DiagnosticsSection.Style>
+                        </aboutSections:DiagnosticsSection>
+                    </Grid>
 
                 </StackPanel>
             </ScrollViewer>

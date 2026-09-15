@@ -2680,6 +2680,8 @@
     <sys:String x:Key="Void.ThisDocument">یہ دستاویز</sys:String>
     <sys:String x:Key="Void.Title">دستاویز منسوخ کریں</sys:String>
 
+    <sys:String x:Key="About.LicenseDetails">لائسنس تفصیلات</sys:String>
+    <sys:String x:Key="About.MachineFingerprint">مشین فنگر پرنٹ</sys:String>
     <!-- 2026-09-15 About iOS-26 restyle: System / Diagnostics tab keys -->
     <sys:String x:Key="About.Environment">ماحول</sys:String>
     <sys:String x:Key="About.OperatingSystem">آپریٹنگ سسٹم</sys:String>

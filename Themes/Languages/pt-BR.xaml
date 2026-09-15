@@ -2680,6 +2680,8 @@
     <sys:String x:Key="Void.ThisDocument">este documento</sys:String>
     <sys:String x:Key="Void.Title">Cancelar documento</sys:String>
 
+    <sys:String x:Key="About.LicenseDetails">Detalhes da licença</sys:String>
+    <sys:String x:Key="About.MachineFingerprint">Identificação da máquina</sys:String>
     <!-- 2026-09-15 About iOS-26 restyle: System / Diagnostics tab keys -->
     <sys:String x:Key="About.Environment">Ambiente</sys:String>
     <sys:String x:Key="About.OperatingSystem">Sistema operacional</sys:String>

@@ -263,6 +263,7 @@ namespace ProGlassAutomation.ViewModels.Licensing
             OnPropertyChanged(nameof(TrialStatusText));
             OnPropertyChanged(nameof(IsValid));
             OnPropertyChanged(nameof(IsTrial));
+            OnPropertyChanged(nameof(IsNotTrial));
             OnPropertyChanged(nameof(IsExpired));
             OnPropertyChanged(nameof(IsGracePeriod));
             OnPropertyChanged(nameof(IsExpiringSoon));
@@ -348,6 +349,11 @@ namespace ProGlassAutomation.ViewModels.Licensing
         public int TrialTotalDays => _trialTotalDays;
         public bool IsValid => _isValid;
         public bool IsTrial => _isTrial;
+        // 2026-09-15 (About iOS-26 restyle): inverse flag so the License
+        // screen can show the permanent-license row without an
+        // inverse-bool converter. Refresh() raises IsTrial; raise this
+        // alongside it (done in the notification block below).
+        public bool IsNotTrial => !_isTrial;
         public bool IsExpired => _isExpired;
         public bool IsGracePeriod => _isGracePeriod;
         public bool IsExpiringSoon => _isExpiringSoon;

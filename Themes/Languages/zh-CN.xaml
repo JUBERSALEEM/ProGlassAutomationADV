@@ -2680,6 +2680,8 @@
     <sys:String x:Key="Void.ThisDocument">此单据</sys:String>
     <sys:String x:Key="Void.Title">作废单据</sys:String>
 
+    <sys:String x:Key="About.LicenseDetails">许可证详情</sys:String>
+    <sys:String x:Key="About.MachineFingerprint">机器指纹</sys:String>
     <!-- 2026-09-15 About iOS-26 restyle: System / Diagnostics tab keys -->
     <sys:String x:Key="About.Environment">环境</sys:String>
     <sys:String x:Key="About.OperatingSystem">操作系统</sys:String>

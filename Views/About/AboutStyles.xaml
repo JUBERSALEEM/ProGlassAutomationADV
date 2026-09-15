@@ -1,489 +1,187 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/About/AboutStyles.xaml
      PROJECT: ProGlassAutomation
-     MODULE: About — shared glass visual language (v6)
+     MODULE: About — shared item templates (iOS-26 Liquid Glass)
 
-     ONE source of truth for the About page. Merged by:
-       • AboutView.xaml                       (shell: glass stage + hero + tabs)
-       • Sections/AboutOverviewSection.xaml
-       • Sections/ModulesSection.xaml
-       • Sections/DeveloperSection.xaml
+     Merged by: AboutView.xaml + every About section UserControl
+     (and by Themes/LightTheme.xaml + Themes/DarkTheme.xaml — see the
+     2026-09-15 note in AboutIos26Theme.xaml: the About module is now
+     rendered from its OWN fixed palette instead of the live app
+     theme, per the owner's approved mockups).
 
-     Glass identity (matches the Splash / Login glass stage):
-       • deep-navy aurora backdrop + soft orbs
-       • frosted glass cards (translucent white gradient, 1px light border,
-         top sheen, soft shadow)
-       • light glass text (Ice / Frost / Cerulean)
-       • accent-aware glass highlights that follow the live theme family
+     This file holds only the shared ITEM TEMPLATES. All brushes,
+     radii, card / chip / button / bar styles live in
+     AboutIos26Theme.xaml (merged first, below).
 
-     All corners are the canonical 12px (CardCornerRadius etc). No pill.
+     Token discipline: no hex colours and no literal CornerRadius
+     values in any About view file (audit lock) — everything resolves
+     to an Ios26* key.
 ═══════════════════════════════════════════════════════════════════════ -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- ═══ PALETTE — lives in the THEME dictionaries (2026-08-25) ═══
-         LiquidIce / LiquidFrost / LiquidCerulean / LiquidSnow /
-         LiquidAccent / LiquidAccentDeep / LiquidMuted / LiquidCard /
-         LiquidSheen / LiquidOrbA / LiquidOrbB are defined in
-         Themes/DarkTheme.xaml (light-frost values) and
-         Themes/LightTheme.xaml (dark-ink values).
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="AboutIos26Theme.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
 
-         They were moved out of this dictionary on purpose: a palette
-         defined HERE (merged per-view) shadows the app-level theme
-         keys, which is exactly why the About page used to stay fixed
-         navy regardless of Settings → Appearance. Every reference
-         below uses {DynamicResource Liquid...} so the whole page —
-         all three sections — re-tints live on Light/Dark swap,
-         visual-family change and wallpaper layering.
-
-         (GlassPageBg was removed with the fixed stage; GlassShadow
-         was removed — pixel-shader effects forced software rendering
-         and froze the About tabs.) -->
-
-    <!-- ═══ SHARED STYLES (glass) ═══ -->
-    <!--
-      2026-08-25 senior fix — the Modules/Developer tab freeze:
-      every About card carried a DropShadowEffect (BlurRadius 28).
-      Pixel-shader effects force WPF to software-render those
-      subtrees, and a fresh tab realises ~15-20 shadowed cards in one
-      layout pass — on GPUs without headroom that is a multi-second
-      UI freeze on every tab click. The glass identity survives via
-      the gradient fill + 1px light border; the shadow is removed.
-    -->
-    <!-- 2026-09-10 iOS-26 upgrade: cards are now FROSTED GLASS SLABS —
-         translucent gradient fill over the pastel wallpaper, 1px rim light,
-         rounded 20 (the mockup radius). One shared mechanism: every section
-         that uses AboutCardStyle / AboutSectionPanelStyle inherits the glass
-         look without per-file edits. No DropShadowEffect (software-render
-         freeze guard from 2026-08-25 still applies). -->
-    <!-- Migrated AboutCardStyle to global SurfacePrimaryStyle -->
-    
-
-    
-
-    
-
-    <!-- Migrated SectionTitleStyle to global SurfacePrimaryStyle / Typography -->
-
-    <!-- Migrated SectionSubtitleStyle to global SurfacePrimaryStyle / Typography -->
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <!-- ═══ iOS-26 GLASS PRIMITIVES (2026-09-10) ═══
-         Module icon squircle: 46px, rounded 14, per-module vivid gradient
-         (AboutIcon.* keyed by module name — icons stay vivid in dark),
-         white specular gloss strip across the top half. -->
-    
-
-    <!-- Icon tile — glossy accent-gradient badge (mirrors the splash module
-         tile badges) with a soft accent glow, so every About glyph reads as
-         a raised brand badge instead of a flat panel. -->
-    
-
-    
-
-    <!-- ═══ TEMPLATES (glass) ═══ -->
-
+    <!-- ═══ HERO PILLAR — soft chip: icon tile + value + label
+         (mockup hero stat row). Item = HeroPillar(Icon, Value, Label). -->
     <DataTemplate x:Key="HeroPillarTemplate">
-        <!-- 2026-09-14: glass-palette chrome (AboutGlassPanelBrush +
-             AboutGlassSlabStroke) replaced with the global surface system —
-             one card language across the app (SurfaceDetail = L3 chip). -->
-        <Border Style="{StaticResource SurfaceDetailStyle}"
-                Padding="12,7"
+        <Border Style="{StaticResource Ios26InnerTileStyle}"
+                Padding="10,7"
                 Margin="0,0,8,8">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <Border Width="22" Height="22"
-                        CornerRadius="{DynamicResource Radius.Control}"
-                        Background="{DynamicResource LiquidAccentGradient}"
+                        Style="{StaticResource Ios26IconTileStyle}"
                         VerticalAlignment="Center">
-                    <!-- 2026-09-14: glyph had no Foreground (inherited
-                         near-black → invisible on the accent tile) and no
-                         centering. -->
                     <TextBlock Text="{Binding Icon}"
                                FontFamily="{DynamicResource FontFamily.Icon}"
-                               FontSize="{DynamicResource FontSize.BodySmall}"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"
+                               FontSize="11"
+                               Foreground="{DynamicResource Ios26AccentBrush}"
                                HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Style="{StaticResource Typography.Icon}"/>
+                               VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel Margin="8,0,0,0" VerticalAlignment="Center">
                     <TextBlock Text="{Binding Value}"
-                               FontSize="{DynamicResource FontSize.Body}"
-                               FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource LiquidSnow}"
+                               FontSize="13"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource Ios26TextTitleBrush}"
                                IsHitTestVisible="False"/>
                     <TextBlock Text="{Binding Label}"
-                               FontSize="{DynamicResource FontSize.Caption}"
-                               FontWeight="{DynamicResource Weight.SemiBold}"
-                               Foreground="{DynamicResource AboutGlassCaptionBrush}"
+                               FontSize="10"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource Ios26TextMutedBrush}"
                                IsHitTestVisible="False"/>
                 </StackPanel>
             </StackPanel>
         </Border>
     </DataTemplate>
 
-    <DataTemplate x:Key="ModuleChipTemplate">
-        <!-- 2026-09-14: fixed 280px glass slab → fluid L1 card on the global
-             surface system (SurfacePrimaryStyle); width is now driven by the
-             UniformGrid cell in ModulesSection, so slabs can never overflow
-             the content column. -->
-        <Border x:Name="ModuleChipRoot"
-                MinHeight="148"
-                Padding="18,14"
-                Margin="5"
-                CacheMode="BitmapCache"
-                RenderTransformOrigin="0.5,0.5">
-            <Border.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform x:Name="ModuleChipScale" ScaleX="1" ScaleY="1"/>
-                    <TranslateTransform x:Name="ModuleChipLift" Y="0"/>
-                </TransformGroup>
-            </Border.RenderTransform>
-            <Border.Style>
-                <!-- Hover-lift micro-interaction. A Style trigger has no
-                     NameScope, so Storyboard.TargetName is illegal here
-                     (WPF MC4011). Instead the animations target the styled
-                     Border ITSELF via a property path into its own
-                     RenderTransform: Children[0] is the ScaleTransform,
-                     Children[1] the TranslateTransform declared above.
-                     2026-09-14: L1 chrome comes from BasedOn (SurfacePrimary)
-                     — the Style attribute was removed to avoid MC3024
-                     (Style set twice). -->
-                <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
-                    <Setter Property="Effect" Value="{StaticResource AboutCardEffect}"/>
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="BorderBrush" Value="{DynamicResource LiquidAccent}"/>
-                            <Trigger.EnterActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"
-                                                         To="1.02" Duration="0:0:0.18">
-                                            <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
-                                        </DoubleAnimation>
-                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"
-                                                         To="1.02" Duration="0:0:0.18">
-                                            <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
-                                        </DoubleAnimation>
-                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)"
-                                                         To="-3" Duration="0:0:0.18">
-                                            <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
-                                        </DoubleAnimation>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.EnterActions>
-                            <Trigger.ExitActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"
-                                                         To="1" Duration="0:0:0.22">
-                                            <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
-                                        </DoubleAnimation>
-                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"
-                                                         To="1" Duration="0:0:0.22">
-                                            <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
-                                        </DoubleAnimation>
-                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)"
-                                                         To="0" Duration="0:0:0.22">
-                                            <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
-                                        </DoubleAnimation>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.ExitActions>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="14"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- Vivid gradient squircle + white gloss strip.
-                     2026-09-14: icon tile is L3 (SurfaceDetail), not a
-                     second L1 card inside the slab. -->
-                <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"
-                        Style="{StaticResource SurfaceDetailStyle}">
-                    <Grid>
-                        <!-- 2026-09-14: glyph was invisible (no Foreground)
-                             and top-left instead of centred. -->
-                        <TextBlock Text="{Binding Icon}"
-                                   FontFamily="{DynamicResource FontFamily.Icon}"
-                                   FontSize="{DynamicResource FontSize.H1}"
-                                   Foreground="{DynamicResource LiquidAccent}"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   Style="{StaticResource Typography.Icon}"/>
-                        <!-- specular gloss: top-half white fade.
-                             2026-09-15: the hex-ARGB gradient stops moved into
-                             the theme dictionaries as AboutGlossBrush — the
-                             About hex audit lock
-                             (About_views_do_not_use_fixed_hex_colors_or_
-                             literal_corner_radii) scans AboutStyles.xaml and
-                             went RED on 2026-09-14 when the White+Opacity
-                             form was reverted to hex-ARGB to dodge an
-                             MC3072 build error. The sheen is white by
-                             definition (theme-agnostic highlight), so both
-                             themes define the SAME value (alpha 0x59=35% →
-                             0x00=0%). Visuals identical to the 2.0.1 build.
-                             Corner token: Radius.Top.XLarge (undefined,
-                             resolved to 0) → Radius.Top.Medium. -->
-                        <Border Height="22" CornerRadius="{DynamicResource Radius.Top.Medium}"
-                                VerticalAlignment="Top"
-                                Background="{DynamicResource AboutGlossBrush}"
-                                IsHitTestVisible="False"/>
-                    </Grid>
+    <!-- ═══ CAPABILITY ROW — icon-left tile (mockup 01 left card).
+         Item = CapabilityInfo(Icon, Title, Description). -->
+    <DataTemplate x:Key="CapabilityRowTemplate">
+        <Border Style="{StaticResource Ios26InnerTileStyle}"
+                Margin="0,0,10,10">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Width="34" Height="34"
+                        Style="{StaticResource Ios26IconTileStyle}"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Icon}"
+                               FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="15"
+                               Foreground="{DynamicResource Ios26AccentBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
                 </Border>
-
-                <StackPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Name}"
-                               FontSize="{DynamicResource FontSize.Title}"
-                               FontWeight="{DynamicResource Weight.SemiBold}"
-                               Foreground="{DynamicResource LiquidSnow}"
-                               TextTrimming="CharacterEllipsis"
+                <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Title}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource Ios26TextTitleBrush}"
+                               TextWrapping="Wrap"
                                IsHitTestVisible="False"/>
                     <TextBlock Text="{Binding Description}"
-                               FontSize="{DynamicResource FontSize.BodySmall}"
-                               Foreground="{DynamicResource AboutGlassCaptionBrush}"
+                               FontSize="11"
+                               Foreground="{DynamicResource Ios26TextMutedBrush}"
                                TextWrapping="Wrap"
-                               Margin="0,3,0,0"
+                               Margin="0,2,0,0"
                                IsHitTestVisible="False"/>
                 </StackPanel>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
 
-                <!-- LG4 stat chip: small L3 capsule right of the text
-                     (LIVE SHEET COUNT for Sheet Store — INPC-backed). -->
-                <Border Grid.Row="1" Grid.Column="2"
-                        Style="{StaticResource SurfaceDetailStyle}"
-                        Padding="8,3"
+    <!-- ═══ CAPABILITY TILE — icon-top tile (mockup 01 right card).
+         Item = CapabilityInfo(Icon, Title, Description). -->
+    <DataTemplate x:Key="CapabilityTileTemplate">
+        <Border Style="{StaticResource Ios26InnerTileStyle}"
+                Margin="0,0,10,10">
+            <StackPanel>
+                <Border Width="34" Height="34"
+                        Style="{StaticResource Ios26IconTileStyle}"
                         HorizontalAlignment="Left"
-                        Margin="0,12,0,2"
-                        VerticalAlignment="Center"
-                        Visibility="{DynamicResource AboutGlassChromeVisibility}">
-                    <TextBlock Text="{Binding StatChip}"
-                               FontSize="{DynamicResource FontSize.Caption}"
-                               FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource LiquidAccent}"
-                               IsHitTestVisible="False"/>
-                </Border>
-
-                <!-- iOS-chrome chevron (iOS 26 family only), bottom-right -->
-                <TextBlock Grid.Row="1" Grid.Column="3" Text="&#xE76C;"
-                           FontFamily="{DynamicResource FontFamily.Icon}"
-                           FontSize="{DynamicResource FontSize.Body}"
-                           Foreground="{DynamicResource AboutGlassCaptionBrush}"
-                           Visibility="{DynamicResource AboutGlassChromeVisibility}"
-                           VerticalAlignment="Center"
-                           IsHitTestVisible="False"/>
-            </Grid>
-        </Border>
-    </DataTemplate>
-
-    <DataTemplate x:Key="TechItemTemplate">
-        <!-- 2026-09-14: fixed 300px glass tile (overflowed its column on
-             narrow windows) → fluid L2 tile (SurfaceSecondary) sized by the
-             UniformGrid cell in DeveloperSection; icon is L3. -->
-        <Border Style="{StaticResource SurfaceSecondaryStyle}"
-                MinHeight="64"
-                Padding="14,10"
-                Margin="7">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="14"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <Border Grid.Column="0"
-                        Style="{StaticResource SurfaceDetailStyle}"
-                        Width="42"
-                        Height="42"
-                        VerticalAlignment="Center">
-                    <!-- 2026-09-14: glyph was invisible (no Foreground). -->
+                        Margin="0,0,0,10">
                     <TextBlock Text="{Binding Icon}"
                                FontFamily="{DynamicResource FontFamily.Icon}"
-                               FontSize="{DynamicResource FontSize.H2}"
-                               Foreground="{DynamicResource LiquidAccent}"
+                               FontSize="15"
+                               Foreground="{DynamicResource Ios26AccentBrush}"
                                HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Style="{StaticResource Typography.Icon}"/>
-                </Border>
-
-                <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Label}"
-                               Style="{StaticResource Typography.Label}"/>
-                    <TextBlock Text="{Binding Value}"
-                               Style="{StaticResource Typography.Body}"
-                               TextWrapping="Wrap"/>
-                </StackPanel>
-            </Grid>
-        </Border>
-    </DataTemplate>
-
-    <DataTemplate x:Key="CapabilityCardTemplate">
-        <!-- 2026-09-14: glass + Surface.* double chrome → one L2 tile;
-             icon is L3 (no card-in-card). -->
-        <Border Style="{StaticResource SurfaceSecondaryStyle}"
-                MinHeight="132"
-                Padding="16,14"
-                Margin="8"
-                HorizontalAlignment="Stretch">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Border Style="{StaticResource SurfaceDetailStyle}"
-                        Width="52"
-                        Height="52"
-                        HorizontalAlignment="Center">
-                    <!-- 2026-09-14: glyph was invisible (no Foreground) —
-                         this is why Key Capabilities showed text only. -->
-                    <TextBlock Text="{Binding Icon}"
-                               FontFamily="{DynamicResource FontFamily.Icon}"
-                               FontSize="{DynamicResource FontSize.H1}"
-                               Foreground="{DynamicResource LiquidAccent}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Style="{StaticResource Typography.Icon}"/>
+                               VerticalAlignment="Center"/>
                 </Border>
                 <TextBlock Text="{Binding Title}"
-                           FontSize="{DynamicResource FontSize.H3}"
-                           FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource LiquidSnow}"
-                           HorizontalAlignment="Center"
-                           TextAlignment="Center"
+                           FontSize="13"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource Ios26TextTitleBrush}"
                            TextWrapping="Wrap"
-                           Margin="0,12,0,6"
-                           IsHitTestVisible="False"/>
-                <TextBlock Text="{Binding Description}"
-                           FontSize="{DynamicResource FontSize.Body}"
-                           Foreground="{DynamicResource LiquidFrost}"
-                           HorizontalAlignment="Center"
-                           TextAlignment="Center"
-                           TextWrapping="Wrap"
-                           LineHeight="18"
                            IsHitTestVisible="False"/>
             </StackPanel>
         </Border>
     </DataTemplate>
 
-    <DataTemplate x:Key="WorkflowCardTemplate">
-        <!-- 2026-09-14: glass + Surface.* double chrome → one L2 tile;
-             icon is L3. -->
-        <Border Style="{StaticResource SurfaceSecondaryStyle}"
-                MinHeight="196"
-                Padding="20,18"
-                Margin="7"
-                HorizontalAlignment="Stretch">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <TextBlock Grid.Row="0"
-                           Text="{DynamicResource About.WorkflowStage}"
-                           FontSize="{DynamicResource FontSize.BodySmall}"
-                           FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource LiquidMuted}"
-                           HorizontalAlignment="Center"
-                           IsHitTestVisible="False"/>
-
-                <StackPanel Grid.Row="1"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Margin="0,12,0,0">
-                    <Border Style="{StaticResource SurfaceDetailStyle}"
-                            Width="50"
-                            Height="50"
-                            HorizontalAlignment="Center">
-                        <!-- 2026-09-14: glyph was invisible (no Foreground). -->
-                        <TextBlock Text="{Binding Icon}"
-                                   FontFamily="{DynamicResource FontFamily.Icon}"
-                                   FontSize="{DynamicResource FontSize.H1}"
-                                   Foreground="{DynamicResource LiquidAccent}"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   Style="{StaticResource Typography.Icon}"/>
-                    </Border>
-                    <TextBlock Text="{Binding Name}"
-                               FontSize="{DynamicResource FontSize.Title}"
-                               FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource LiquidSnow}"
+    <!-- ═══ TECH TILE — icon + kicker + value (mockup 04 Tech Stack).
+         Item = TechItem(Icon, Label, Value). -->
+    <DataTemplate x:Key="TechItemTemplate">
+        <Border Style="{StaticResource Ios26InnerTileStyle}"
+                Margin="0,0,10,10">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Width="30" Height="30"
+                        Style="{StaticResource Ios26IconTileStyle}"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Icon}"
+                               FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="14"
+                               Foreground="{DynamicResource Ios26AccentBrush}"
                                HorizontalAlignment="Center"
-                               TextAlignment="Center"
-                               TextWrapping="Wrap"
-                               Margin="0,12,0,6"
+                               VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Label}"
+                               FontSize="10"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource Ios26TextMutedBrush}"
                                IsHitTestVisible="False"/>
-                    <TextBlock Text="{Binding Description}"
-                               FontSize="{DynamicResource FontSize.Body}"
-                               Foreground="{DynamicResource LiquidFrost}"
-                               HorizontalAlignment="Center"
-                               TextAlignment="Center"
-                               TextWrapping="Wrap"
-                               LineHeight="18"
+                    <TextBlock Text="{Binding Value}"
+                               FontSize="13"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource Ios26TextTitleBrush}"
+                               TextTrimming="CharacterEllipsis"
                                IsHitTestVisible="False"/>
                 </StackPanel>
-            </Grid>
+            </StackPanel>
         </Border>
     </DataTemplate>
 
-    <!--
-      ═══════════════════════════════════════════════════════
-      LICENSE CARD STYLES (Phase 3 — AboutLicenseCard.xaml)
-
-      FieldLabelStyle + FieldValueStyle would have
-      collided with every other section that defines
-      its own FieldLabelStyle with a different font /
-      margin. We use License-prefixed names so the
-      About license card is self-contained.
-      ═══════════════════════════════════════════════════════
-    -->
-    
-
-    
-
-    <!--
-      Action button used on the license card (COPY actions) and the
-      crash-reports card (Refresh / Open folder / Clear / Open file).
-
-      2026-09-14: the custom pill template (the "999 rounded" look) is
-      gone — these now use the app-standard 12px button (Button.Secondary).
-      Key name kept so the six consumer sites need no view edits.
-    -->
-    <Style x:Key="AboutPillButtonStyle" TargetType="Button"
-           BasedOn="{StaticResource Button.Secondary}"/>
-
-    <!--
-      2026-09-14 (owner: "about section cards are overlapping" /
-      "license section cards also overlapping"): every L1 card nested a
-      full L2 card (SurfaceSecondaryStyle = background + border +
-      corner + padding) a few px inside its own border — two frames
-      stacked on top of each other. Sub-panels inside an L1 card must
-      read as INSETS, not as a second card: one quiet background,
-      standard corner, padding — NO border of their own. This style is
-      the only chrome an About sub-panel may carry.
-    -->
-    <Style x:Key="AboutInsetStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource Surface.Detail.BackgroundBrush}"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Control}"/>
-        <Setter Property="Padding" Value="14,12"/>
-    </Style>
+    <!-- ═══ WORKFLOW TILE — icon + title + description (Modules →
+         end-to-end workflow card). Item = WorkflowStage(Icon, Title, Description). -->
+    <DataTemplate x:Key="WorkflowCardTemplate">
+        <Border Style="{StaticResource Ios26InnerTileStyle}"
+                Margin="0,0,10,10">
+            <StackPanel>
+                <Border Width="30" Height="30"
+                        Style="{StaticResource Ios26IconTileStyle}"
+                        HorizontalAlignment="Left"
+                        Margin="0,0,0,10">
+                    <TextBlock Text="{Binding Icon}"
+                               FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="14"
+                               Foreground="{DynamicResource Ios26AccentBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock Text="{Binding Title}"
+                           FontSize="13"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource Ios26TextTitleBrush}"
+                           TextWrapping="Wrap"
+                           IsHitTestVisible="False"/>
+                <TextBlock Text="{Binding Description}"
+                           FontSize="11"
+                           Foreground="{DynamicResource Ios26TextMutedBrush}"
+                           TextWrapping="Wrap"
+                           Margin="0,3,0,0"
+                           IsHitTestVisible="False"/>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
 
 </ResourceDictionary>

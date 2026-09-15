@@ -610,6 +610,40 @@ public sealed class AboutViewModel : ViewModelBase
         return rows;
     }
 
+    /// <summary>
+    /// 0–100 for the Recording Engine bar: measured encoder fps as a
+    /// share of the performance target. Pure probe data — never a
+    /// guess. 0 until a test encode has been measured.
+    /// </summary>
+    public double EngineBarValue
+    {
+        get
+        {
+            var s = Agent.Demo.Video.EncoderProbe.GetSnapshot();
+            if (!s.MeasuredFps.HasValue) return 0;
+            double target = Services.Performance
+                .PerformanceProfileService.TargetFps;
+            if (target <= 0) target = 60;
+            return Math.Clamp(s.MeasuredFps.Value / target * 100.0, 0, 100);
+        }
+    }
+
+    /// <summary>Live caption under the Recording Engine bar.</summary>
+    public string EngineBarCaption
+    {
+        get
+        {
+            var s = Agent.Demo.Video.EncoderProbe.GetSnapshot();
+            double target = Services.Performance
+                .PerformanceProfileService.TargetFps;
+            if (target <= 0) target = 60;
+            return s.MeasuredFps.HasValue
+                ? "Measured " + s.MeasuredFps.Value.ToString("0.0")
+                    + " fps of " + target + " fps target"
+                : "No measured test encode yet";
+        }
+    }
+
     // ══════════════════════════════════════════════════════════════════
     //  DIAGNOSTICS SCREEN (2026-09-15 iOS-26 redesign)
     //  Crash reports are hosted by the self-contained

@@ -2680,6 +2680,8 @@
     <sys:String x:Key="Void.ThisDocument">هذا المستند</sys:String>
     <sys:String x:Key="Void.Title">إلغاء المستند</sys:String>
 
+    <sys:String x:Key="About.LicenseDetails">تفاصيل الترخيص</sys:String>
+    <sys:String x:Key="About.MachineFingerprint">بصمة الآلة</sys:String>
     <!-- 2026-09-15 About iOS-26 restyle: System / Diagnostics tab keys -->
     <sys:String x:Key="About.Environment">البيئة</sys:String>
     <sys:String x:Key="About.OperatingSystem">نظام التشغيل</sys:String>

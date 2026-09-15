@@ -1,10 +1,16 @@
 <!--
-  AboutCrashReportsCard — final balanced crash-report summary for the About page.
-  Layout goals:
-    • full-width header with a cleaner action area
-    • support-oriented summary strip
-    • balanced crash rows with stable left/meta, center/detail, right/action zones
-    • improved empty state without changing report logic
+  AboutCrashReportsCard — 2026-09-15 iOS-26 restyle (approved
+  mockup 06).
+
+  Exact mockup layout:
+    • header: title + three ghost pill buttons (Refresh ·
+      Open Folder · Clear All),
+    • one row per report: rose dot · ERROR-ID + exception type ·
+      message (with file size) · timestamp · OPEN button,
+    • hairlines between rows, quiet centered empty state.
+  All report logic (VM, commands, file opening via
+  ProcessStartGuard) is untouched — chrome only. Self-contained
+  Ios26 palette; no hex, no literal corner radii.
 -->
 <UserControl x:Class="ProGlassAutomation.Views.About.Sections.AboutCrashReportsCard"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -20,182 +26,132 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../AboutStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-
-            
-
-            
-
-            
-
-            
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border Style="{StaticResource SurfacePrimaryStyle}">
+    <Border Style="{StaticResource Ios26CardStyle}">
         <StackPanel>
-            <Grid Margin="0,0,0,18">
+            <Grid Margin="0,0,0,14">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="{DynamicResource About.Crash}"
-                               Style="{StaticResource Typography.H2}"/>
-                    <TextBlock Text="{DynamicResource About.Last10LocallyStoredCrashFilesShareErrorID}"
-                               Style="{StaticResource Typography.BodySmall}"
-                               Margin="0,0,0,0"/>
-                </StackPanel>
+                <TextBlock Grid.Column="0"
+                           Text="{DynamicResource About.Crash}"
+                           FontSize="17"
+                           FontWeight="Bold"
+                           Foreground="{DynamicResource Ios26TextTitleBrush}"
+                           VerticalAlignment="Center"/>
 
                 <StackPanel Grid.Column="1"
-                            HorizontalAlignment="Right">
-                    <Border Style="{StaticResource Badge.Primary}"
+                            Orientation="Horizontal"
                             HorizontalAlignment="Right"
-                            Margin="0,0,0,10">
-                        <TextBlock Style="{StaticResource Typography.Caption}">
-                            <Run Text="{DynamicResource Module.Reports}"/>
-                            <Run Text="{Binding Reports.Count, Mode=OneWay}"/>
-                        </TextBlock>
-                    </Border>
-                    <WrapPanel HorizontalAlignment="Right">
-                        <Button Style="{StaticResource AboutPillButtonStyle}"
-                                Content="{DynamicResource Action.Refresh}"
-                                Margin="0,0,8,0"
-                                Command="{Binding RefreshCommand}"/>
-                        <Button Style="{StaticResource AboutPillButtonStyle}"
-                                Content="{DynamicResource About.OPENFolder}"
-                                Margin="0,0,8,0"
-                                Command="{Binding OpenFolderCommand}"/>
-                        <Button x:Name="ClearAllButton"
-                                Style="{StaticResource AboutPillButtonStyle}"
-                                Content="{DynamicResource About.Clear}"
-                                Foreground="{DynamicResource LiquidMuted}"
-                                Command="{Binding ClearAllCommand}"/>
-                    </WrapPanel>
+                            VerticalAlignment="Center">
+                    <Button Style="{StaticResource AboutPillButtonStyle}"
+                            Content="{DynamicResource Action.Refresh}"
+                            Margin="0,0,8,0"
+                            Command="{Binding RefreshCommand}"/>
+                    <Button Style="{StaticResource AboutPillButtonStyle}"
+                            Content="{DynamicResource About.OPENFolder}"
+                            Margin="0,0,8,0"
+                            Command="{Binding OpenFolderCommand}"/>
+                    <Button Style="{StaticResource AboutPillButtonStyle}"
+                            Content="{DynamicResource About.Clear}"
+                            Command="{Binding ClearAllCommand}"/>
                 </StackPanel>
             </Grid>
 
-            <Border Style="{StaticResource AboutInsetStyle}" Margin="0,0,0,18">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1.3*"/>
-                        <ColumnDefinition Width="24"/>
-                        <ColumnDefinition Width="0.9*"/>
-                    </Grid.ColumnDefinitions>
+            <!-- Report rows -->
+            <ItemsControl ItemsSource="{Binding Reports}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
 
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="{DynamicResource About.WHATCARDShows}"
-                                   Style="{StaticResource AboutPanelKickerStyle}"/>
-                        <TextBlock Text="{DynamicResource About.MostRecentCrashFilesSurfacedHereOpenReport}"
-                                   Style="{StaticResource Typography.Body}"/>
-                    </StackPanel>
+                            <Border Grid.Row="0" Padding="2,11">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="14"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="2"
-                            Style="{StaticResource SurfaceDetailStyle}"
-                            Margin="0,0,0,0">
-                        <StackPanel>
-                            <TextBlock Text="{DynamicResource About.SupportAction}"
-                                       Style="{StaticResource Typography.Label}"/>
-                            <TextBlock Text="{DynamicResource About.ShareErrorIDFirstThenSendReportFileWhen}"
-                                       Style="{StaticResource Typography.Body}"
-                                       Margin="0,8,0,0"
-                                       TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </Border>
-                </Grid>
-            </Border>
+                                    <!-- Status dot -->
+                                    <Ellipse Grid.Column="0"
+                                             Width="10" Height="10"
+                                             Fill="{DynamicResource Ios26DangerDotBrush}"
+                                             VerticalAlignment="Center"/>
 
-            <Border Style="{StaticResource AboutInsetStyle}" Margin="0,0,0,0">
-                <StackPanel>
-                    <ItemsControl ItemsSource="{Binding Reports}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Style="{StaticResource SurfaceDetailStyle}">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="180"/>
-                                            <ColumnDefinition Width="18"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="16"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
+                                    <!-- Error id + type + message -->
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                        <TextBlock FontSize="14" IsHitTestVisible="False">
+                                            <Run Text="{Binding ErrorId, Mode=OneWay, FallbackValue='(no id)'}"
+                                                 FontWeight="Bold"
+                                                 Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                                            <Run Text="&#x2009;"/>
+                                            <Run Text="{Binding TopExceptionType, Mode=OneWay, FallbackValue=''}"
+                                                 FontSize="12.5"
+                                                 Foreground="{DynamicResource Ios26TextMutedBrush}"/>
+                                        </TextBlock>
+                                        <TextBlock FontSize="12"
+                                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                                   Margin="0,2,0,0"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   IsHitTestVisible="False">
+                                            <Run Text="{Binding TopExceptionMessage, FallbackValue='(no message)'}"/>
+                                            <Run Text=" · "/>
+                                            <Run Text="{Binding SizeDisplay, FallbackValue=''}"/>
+                                        </TextBlock>
+                                    </StackPanel>
 
-                                        <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="0">
-                                            <TextBlock Text="{DynamicResource About.Recorded}"
-                                                       Style="{StaticResource Typography.Label}"/>
-                                            <TextBlock Text="{Binding TimestampDisplay}"
-                                                       Style="{StaticResource Typography.Body}"/>
-                                            <TextBlock Text="{DynamicResource About.FILESIZE}"
-                                                       Style="{StaticResource Typography.Label}"
-                                                       Margin="0,14,0,0"/>
-                                            <TextBlock Text="{Binding SizeDisplay}"
-                                                       FontSize="{DynamicResource FontSize.Body}"
-                                                       Foreground="{DynamicResource LiquidFrost}"
-                                                       Margin="0,5,0,0"/>
-                                        </StackPanel>
+                                    <!-- Timestamp -->
+                                    <TextBlock Grid.Column="3"
+                                               Text="{Binding TimestampDisplay}"
+                                               FontSize="12.5"
+                                               Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,12,0"
+                                               IsHitTestVisible="False"/>
 
-                                        <Border Grid.Row="0" Grid.Column="2"
-                                                Style="{StaticResource SurfaceDetailStyle}"
-                                                Margin="0,0,0,10">
-                                            <TextBlock Text="{Binding ErrorId, Mode=OneWay, FallbackValue='(no id)'}"
-                                                       Style="{StaticResource Typography.Caption}"/>
-                                        </Border>
+                                    <Button Grid.Column="4"
+                                            Style="{StaticResource AboutPillButtonStyle}"
+                                            Content="{DynamicResource Action.Open}"
+                                            Command="{Binding OpenFileCommand}"
+                                            CommandParameter="{Binding FilePath}"
+                                            VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
 
-                                        <StackPanel Grid.Row="1" Grid.Column="2">
-                                            <TextBlock Text="{Binding TopExceptionType, Mode=OneWay, FallbackValue=''}"
-                                                       FontSize="{DynamicResource FontSize.Body}"
-                                                       FontWeight="{DynamicResource Weight.Bold}"
-                                                       Foreground="{DynamicResource LiquidMuted}"
-                                                       TextWrapping="Wrap"
-                                                       IsHitTestVisible="False"/>
-                                            <TextBlock Text="{Binding TopExceptionMessage, FallbackValue='(no message)'}"
-                                                       FontSize="{DynamicResource FontSize.Body}"
-                                                       Foreground="{DynamicResource LiquidIce}"
-                                                       TextWrapping="Wrap"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       MaxHeight="38"
-                                                       Margin="0,6,0,0"
-                                                       IsHitTestVisible="False"/>
-                                        </StackPanel>
+                            <Border Grid.Row="1"
+                                    Height="1"
+                                    Margin="12,0"
+                                    Background="{DynamicResource Ios26HairlineBrush}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
-                                        <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="4"
-                                                    VerticalAlignment="Center">
-                                            <Button Style="{StaticResource AboutPillButtonStyle}"
-                                                    Content="{DynamicResource Action.Open}"
-                                                    Command="{Binding OpenFileCommand}"
-                                                    CommandParameter="{Binding FilePath}"
-                                                    VerticalAlignment="Center"/>
-                                            <TextBlock Text="{DynamicResource About.TEXTFILE}"
-                                                       Style="{StaticResource Typography.Label}"
-                                                       HorizontalAlignment="Center"
-                                                       Margin="0,8,0,0"/>
-                                        </StackPanel>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <Border Style="{StaticResource SurfaceDetailStyle}"
-                            Margin="0,2,0,0"
-                            Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="{DynamicResource About.NOCrashReportsDISK}"
-                                       Style="{StaticResource Typography.Label}"
-                                       HorizontalAlignment="Center"/>
-                            <TextBlock Text="{DynamicResource About.SupportLogAreaCurrentlyCleanNewCrashFiles}"
-                                       Style="{StaticResource Typography.Body}"
-                                       TextAlignment="Center"
-                                       TextWrapping="Wrap"
-                                       Margin="0,8,0,0"/>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-            </Border>
+            <!-- Empty state -->
+            <StackPanel Margin="0,6,0,2"
+                        Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock Text="{DynamicResource About.NOCrashReportsDISK}"
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource Ios26TextMutedBrush}"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="{DynamicResource About.SupportLogAreaCurrentlyCleanNewCrashFiles}"
+                           FontSize="12.5"
+                           Foreground="{DynamicResource Ios26TextFaintBrush}"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           Margin="0,6,0,0"/>
+            </StackPanel>
         </StackPanel>
     </Border>
 </UserControl>

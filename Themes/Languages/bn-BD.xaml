@@ -2680,6 +2680,8 @@
     <sys:String x:Key="Void.ThisDocument">এই নথি</sys:String>
     <sys:String x:Key="Void.Title">নথি বাতিল করুন</sys:String>
 
+    <sys:String x:Key="About.LicenseDetails">লাইসেন্সের বিবরণ</sys:String>
+    <sys:String x:Key="About.MachineFingerprint">মেশিন ফিঙ্গারপ্রিন্ট</sys:String>
     <!-- 2026-09-15 About iOS-26 restyle: System / Diagnostics tab keys -->
     <sys:String x:Key="About.Environment">পরিবেশ</sys:String>
     <sys:String x:Key="About.OperatingSystem">অপারেটিং সিস্টেম</sys:String>

@@ -2680,6 +2680,8 @@
     <sys:String x:Key="Void.ThisDocument">este documento</sys:String>
     <sys:String x:Key="Void.Title">Anular documento</sys:String>
 
+    <sys:String x:Key="About.LicenseDetails">Detalles de la licencia</sys:String>
+    <sys:String x:Key="About.MachineFingerprint">Huella de la máquina</sys:String>
     <!-- 2026-09-15 About iOS-26 restyle: System / Diagnostics tab keys -->
     <sys:String x:Key="About.Environment">Entorno</sys:String>
     <sys:String x:Key="About.OperatingSystem">Sistema operativo</sys:String>

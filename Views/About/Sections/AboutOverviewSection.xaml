@@ -1,16 +1,23 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/About/Sections/AboutOverviewSection.xaml
      PROJECT: ProGlassAutomation
-     MODULE: About → "About" tab (overview + principles + compliance +
-             data ownership + capabilities + privacy)
+     MODULE: About → "Overview" tab
 
-     Glass identity. Edited independently of the other About sections;
-     uses the shared glass styles/templates in ../AboutStyles.xaml.
+     2026-09-15 iOS-26 full restyle (approved mockup 01):
+       • Identity card (edition pill + Company/Product/Tagline rows)
+         beside the Copyright card,
+       • two Key Capabilities cards (icon-left rows / icon-top tiles),
+       • the product story card (overview · data ownership ·
+         engineering · compliance · extensibility — all original
+         content preserved),
+       • the privacy card.
+     Self-contained Ios26 palette; DynamicResource-only; no hex, no
+     literal corner radii. Audit contracts kept: responsive WrapPanel
+     header + {Binding Modules.Count, Mode=OneWay}.
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.About.Sections.AboutOverviewSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:aboutSections="clr-namespace:ProGlassAutomation.Views.About.Sections"
              FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -22,44 +29,46 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../AboutStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- Edition pill on the Identity card (mockup "Trial"). -->
+            <Style x:Key="IdentityEditionPillStyle" TargetType="Border">
+                <Setter Property="Background" Value="{DynamicResource Ios26AccentBrush}"/>
+                <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusPill}"/>
+                <Setter Property="Padding" Value="14,6"/>
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <!-- 2026-09-14 layout correction (commercial ERP About order):
-         the brand story leads — overview cards → capabilities →
-         privacy — and the LICENSE & SUPPORT utility cards (license
-         card + crash reports) close the page, matching the standard
-         About-page composition. Previously the two utility cards
-         opened the tab and pushed the product story below the fold.
-         No content, binding or logic changed — only ordering. -->
     <StackPanel>
 
-        <!-- ═══ IDENTITY + COPYRIGHT (2026-09-15, approved Part 1
-             mockup) — the two label/value cards under the hero.
-             Company + Tagline reuse the shared brand bindings; the
-             edition badge binds the shared license surface (no
-             hard-coded edition text — audit contract). ═══ -->
-        <Grid Margin="0,0,0,16">
+        <!-- ═══ ROW 1 · IDENTITY + COPYRIGHT (mockup 01) ═══ -->
+        <Grid Margin="0,0,0,14">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="1.15*"/>
                 <ColumnDefinition Width="14"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
 
             <!-- Identity card -->
-            <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}">
+            <Border Grid.Column="0" Style="{StaticResource Ios26CardStyle}">
                 <StackPanel>
-                    <Grid Margin="0,0,0,12">
+                    <Grid Margin="0,0,0,14">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0"
                                    Text="{DynamicResource About.Identity}"
-                                   Style="{StaticResource Typography.H2}"/>
-                        <Border Grid.Column="1" Style="{StaticResource Badge.Primary}">
-                            <TextBlock Style="{StaticResource Typography.Caption}"
-                                       Text="{Binding LicenseStatus.EditionDisplay}"/>
+                                   FontSize="17"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource Ios26TextTitleBrush}"
+                                   VerticalAlignment="Center"/>
+                        <Border Grid.Column="1" Style="{StaticResource IdentityEditionPillStyle}">
+                            <TextBlock Text="{Binding LicenseStatus.EditionDisplay}"
+                                       FontSize="12"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource Ios26OnAccentBrush}"/>
                         </Border>
                     </Grid>
 
@@ -75,260 +84,256 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0" Grid.Column="0"
-                                   Text="{DynamicResource Common.Company}"
-                                   Style="{StaticResource Typography.Body}"
-                                   Foreground="{DynamicResource LiquidMuted}"
-                                   Margin="0,0,0,10"
-                                   VerticalAlignment="Center"/>
+                                   FontSize="13.5"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   Margin="0,0,0,11" VerticalAlignment="Center">
+                            <Run Text="{DynamicResource Common.Company}"/><Run Text=" →"/>
+                        </TextBlock>
                         <TextBlock Grid.Row="0" Grid.Column="1"
                                    Text="{Binding AppName}"
-                                   Style="{StaticResource Typography.Body}"
-                                   FontWeight="{DynamicResource Weight.SemiBold}"
-                                   Margin="0,0,0,10"
-                                   VerticalAlignment="Center"/>
-                        <Border Grid.Row="0" Grid.ColumnSpan="2"
-                                Height="1" VerticalAlignment="Bottom"
-                                Background="{DynamicResource AboutDividerBrush}"/>
+                                   FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Ios26TextBodyBrush}"
+                                   HorizontalAlignment="Right"
+                                   Margin="0,0,0,11" VerticalAlignment="Center"/>
+                        <Border Grid.Row="0" Grid.ColumnSpan="2" Height="1" VerticalAlignment="Bottom"
+                                Background="{DynamicResource Ios26HairlineBrush}"/>
 
                         <TextBlock Grid.Row="1" Grid.Column="0"
-                                   Text="{DynamicResource About.Product}"
-                                   Style="{StaticResource Typography.Body}"
-                                   Foreground="{DynamicResource LiquidMuted}"
-                                   Margin="0,10,0,10"
-                                   VerticalAlignment="Center"/>
+                                   FontSize="13.5"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   Margin="0,11,0,11" VerticalAlignment="Center">
+                            <Run Text="{DynamicResource About.Product}"/><Run Text=" →"/>
+                        </TextBlock>
                         <TextBlock Grid.Row="1" Grid.Column="1"
                                    Text="{Binding AppName}"
-                                   Style="{StaticResource Typography.Body}"
-                                   FontWeight="{DynamicResource Weight.SemiBold}"
-                                   Margin="0,10,0,10"
-                                   VerticalAlignment="Center"/>
-                        <Border Grid.Row="1" Grid.ColumnSpan="2"
-                                Height="1" VerticalAlignment="Bottom"
-                                Background="{DynamicResource AboutDividerBrush}"/>
+                                   FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Ios26TextBodyBrush}"
+                                   HorizontalAlignment="Right"
+                                   Margin="0,11,0,11" VerticalAlignment="Center"/>
+                        <Border Grid.Row="1" Grid.ColumnSpan="2" Height="1" VerticalAlignment="Bottom"
+                                Background="{DynamicResource Ios26HairlineBrush}"/>
 
                         <TextBlock Grid.Row="2" Grid.Column="0"
-                                   Text="{DynamicResource About.Tagline}"
-                                   Style="{StaticResource Typography.Body}"
-                                   Foreground="{DynamicResource LiquidMuted}"
-                                   Margin="0,10,0,0"
-                                   VerticalAlignment="Center"/>
+                                   FontSize="13.5"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   Margin="0,11,0,0" VerticalAlignment="Center">
+                            <Run Text="{DynamicResource About.Tagline}"/><Run Text=" →"/>
+                        </TextBlock>
                         <TextBlock Grid.Row="2" Grid.Column="1"
                                    Text="{Binding AppTagline}"
-                                   Style="{StaticResource Typography.Body}"
-                                   FontWeight="{DynamicResource Weight.SemiBold}"
-                                   Margin="0,10,0,0"
-                                   VerticalAlignment="Center"
+                                   FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Ios26TextBodyBrush}"
+                                   HorizontalAlignment="Right"
+                                   Margin="0,11,0,0" VerticalAlignment="Center"
                                    TextWrapping="Wrap"/>
                     </Grid>
                 </StackPanel>
             </Border>
 
             <!-- Copyright card -->
-            <Border Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}">
+            <Border Grid.Column="2" Style="{StaticResource Ios26CardStyle}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource About.CopyrightHeading}"
-                               Style="{StaticResource Typography.H2}"
+                               FontSize="17"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource Ios26TextTitleBrush}"
                                Margin="0,0,0,12"/>
                     <TextBlock Text="{Binding Copyright}"
-                               Style="{StaticResource Typography.Body}"
-                               Foreground="{DynamicResource LiquidFrost}"
+                               FontSize="13.5"
+                               Foreground="{DynamicResource Ios26TextSecondaryBrush}"
                                TextWrapping="Wrap"
                                LineHeight="20"/>
                 </StackPanel>
             </Border>
         </Grid>
 
-        <!-- ═══ ABOUT ═══ -->
-        <!-- ═══ 2026-09-11 MOCKUP REBUILD: slim header + three floating
-             cards in one row (Overview · Engineering · Compliance+Future).
-             Every DynamicResource Run preserved verbatim from the previous
-             two-column text wall. ═══ -->
+        <!-- ═══ ROW 2 · KEY CAPABILITIES (mockup 01: two cards —
+             icon-left rows | icon-top tiles) ═══ -->
         <Grid Margin="0,0,0,14">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0">
-                <TextBlock Text="{DynamicResource ToolTip.About}"
-                           Style="{StaticResource Typography.H2}"/>
-                <TextBlock Text="{DynamicResource About.PurposeBuiltERPUAEGlassManufacturing}"
-                           Style="{StaticResource Typography.BodySmall}"
-                           Margin="0,0,0,0"/>
-            </StackPanel>
-            <Border Grid.Column="1"
-                    Style="{StaticResource Badge.Primary}">
-                <TextBlock Style="{StaticResource Typography.Caption}">
-                    <Run Text="{DynamicResource About.LIVEModules}"/>
-                    <Run Text="{Binding Modules.Count, Mode=OneWay}"/>
-                </TextBlock>
-            </Border>
-        </Grid>
-
-        <Grid Margin="0,0,0,16">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="1.15*"/>
                 <ColumnDefinition Width="14"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="14"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- CARD A · Overview + Data ownership -->
-            <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}">
+            <Border Grid.Column="0" Style="{StaticResource Ios26CardStyle}">
                 <StackPanel>
-                    <Border Style="{StaticResource AboutInsetStyle}">
-                        <StackPanel>
-                            <TextBlock Text="{DynamicResource Nav.Overview}" Style="{StaticResource AboutPanelKickerStyle}"/>
-                            <TextBlock Style="{StaticResource Typography.Body}">
-                                <Run Text="{DynamicResource About.ProglassAutomationPurposeBuiltWindowsDesktop}"/>
-                                <Run Text="{DynamicResource About.UAEBasedGlassManufacturingCompanies}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource LiquidSnow}"/>
-                                <Run Text="{DynamicResource About.ReplacesSpreadsheetDrivenWorkflowsFully}"/>
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-                    <Border Style="{StaticResource AboutInsetStyle}" Margin="0,12,0,0">
-                        <StackPanel>
-                            <TextBlock Text="{DynamicResource About.DATAOwnershipDeployment}" Style="{StaticResource AboutPanelKickerStyle}"/>
-                            <TextBlock Style="{StaticResource Typography.Body}"
-                                       Text="{DynamicResource About.StandaloneWindowsDeploymentNoCloudDependency}"/>
-                        </StackPanel>
-                    </Border>
+                    <!-- WrapPanel header (audit lock: responsive wrap
+                         layout in this file). -->
+                    <WrapPanel Margin="0,0,0,14">
+                        <TextBlock Text="{DynamicResource About.KeyCapabilities}"
+                                   FontSize="17"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                        <TextBlock Text="{DynamicResource About.WhatSetsProglassAutomationApart}"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   Margin="12,2,0,0"
+                                   VerticalAlignment="Center"/>
+                    </WrapPanel>
+                    <UniformGrid Columns="2">
+                        <ItemsControl ItemsSource="{Binding CapabilitiesTop}"
+                                      ItemTemplate="{StaticResource CapabilityRowTemplate}"/>
+                    </UniformGrid>
                 </StackPanel>
             </Border>
 
-            <!-- CARD B · Engineering principles -->
-            <Border Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}">
+            <Border Grid.Column="2" Style="{StaticResource Ios26CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource About.KeyCapabilities}"
+                               FontSize="17"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource Ios26TextTitleBrush}"
+                               Margin="0,0,0,14"/>
+                    <UniformGrid Columns="2">
+                        <ItemsControl ItemsSource="{Binding CapabilitiesBottom}"
+                                      ItemTemplate="{StaticResource CapabilityTileTemplate}"/>
+                    </UniformGrid>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ═══ PRODUCT STORY (all original content, mockup card
+             language: one card, three quiet inset blocks) ═══ -->
+        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
+            <StackPanel>
+                <TextBlock Text="{DynamicResource ToolTip.About}"
+                           FontSize="17"
+                           FontWeight="Bold"
+                           Foreground="{DynamicResource Ios26TextTitleBrush}"
+                           Margin="0,0,0,4"/>
+                <TextBlock Text="{DynamicResource About.PurposeBuiltERPUAEGlassManufacturing}"
+                           FontSize="12.5"
+                           Foreground="{DynamicResource Ios26TextMutedBrush}"
+                           Margin="0,0,0,14"/>
+
                 <Border Style="{StaticResource AboutInsetStyle}">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource About.EngineeringPrinciples}" Style="{StaticResource AboutPanelKickerStyle}"/>
-                        <TextBlock Style="{StaticResource Typography.Body}">
-                            <Run Text="{DynamicResource About.DeterministicCalculations}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource LiquidSnow}"/>
+                        <TextBlock Text="{DynamicResource Nav.Overview}"
+                                   FontSize="10.5"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   Margin="0,0,0,6"/>
+                        <TextBlock FontSize="13.5"
+                                   Foreground="{DynamicResource Ios26TextSecondaryBrush}"
+                                   TextWrapping="Wrap"
+                                   LineHeight="20">
+                            <Run Text="{DynamicResource About.ProglassAutomationPurposeBuiltWindowsDesktop}"/>
+                            <Run Text="{DynamicResource About.UAEBasedGlassManufacturingCompanies}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                            <Run Text="{DynamicResource About.ReplacesSpreadsheetDrivenWorkflowsFully}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource AboutInsetStyle}" Margin="0,10,0,0">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource About.DATAOwnershipDeployment}"
+                                   FontSize="10.5"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   Margin="0,0,0,6"/>
+                        <TextBlock FontSize="13.5"
+                                   Foreground="{DynamicResource Ios26TextSecondaryBrush}"
+                                   TextWrapping="Wrap"
+                                   LineHeight="20">
+                            <Run Text="{DynamicResource About.StandaloneWindowsDeploymentNoCloudDependency}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource AboutInsetStyle}" Margin="0,10,0,0">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource About.EngineeringPrinciples}"
+                                   FontSize="10.5"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   Margin="0,0,0,6"/>
+                        <TextBlock FontSize="13.5"
+                                   Foreground="{DynamicResource Ios26TextSecondaryBrush}"
+                                   TextWrapping="Wrap"
+                                   LineHeight="20">
+                            <Run Text="{DynamicResource About.DeterministicCalculations}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ios26TextTitleBrush}"/>
                             <Run Text="{DynamicResource About.FormulaProducesResultTimeNoHiddenStateRace}"/>
                             <LineBreak/><LineBreak/>
-                            <Run Text="{DynamicResource About.ModularIsolation}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource LiquidSnow}"/>
+                            <Run Text="{DynamicResource About.ModularIsolation}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ios26TextTitleBrush}"/>
                             <Run Text="{DynamicResource About.BusinessDomainDataBoundaryLimitingBlast}"/>
                             <LineBreak/><LineBreak/>
-                            <Run Text="{DynamicResource About.AISafeArchitecture}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource LiquidSnow}"/>
+                            <Run Text="{DynamicResource About.AISafeArchitecture}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ios26TextTitleBrush}"/>
                             <Run Text="{DynamicResource About.StrictMVVMConventionsKeepCodebase}"/>
                         </TextBlock>
                     </StackPanel>
                 </Border>
-            </Border>
 
-            <!-- CARD C · Financial compliance + extensibility -->
-            <Border Grid.Column="4" Style="{StaticResource SurfacePrimaryStyle}">
-                <StackPanel>
-                    <Border Style="{StaticResource AboutInsetStyle}">
-                        <StackPanel>
-                            <TextBlock Text="{DynamicResource About.FinancialCompliance}" Style="{StaticResource AboutPanelKickerStyle}"/>
-                            <TextBlock Style="{StaticResource Typography.Body}">
-                                <Run Text="{DynamicResource About.MonetaryValuesStoredDisplayed}"/>
-                                <Run Text="{DynamicResource About.CurrencyUAE}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource LiquidSnow}"/>
-                                <Run Text="{DynamicResource About.FullPrecisionUAE5VATZeroRatedExportSupport}"/>
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-                    <Border Style="{StaticResource AboutInsetStyle}" Margin="0,12,0,0">
-                        <StackPanel>
-                            <TextBlock Text="{DynamicResource About.ExtensibilityFuture}" Style="{StaticResource AboutPanelKickerStyle}"/>
-                            <TextBlock Style="{StaticResource Typography.Body}">
-                                <Run Text="{DynamicResource About.CurrentReleaseShips}"/>
-                                <Run Text="{Binding Modules.Count, Mode=OneWay}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource LiquidSnow}"/>
-                                <Run Text="{DynamicResource About.ActiveModulesCommercialProductionLifecycle}"/>
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-            </Border>
-        </Grid>
-
-        <!-- ═══ CAPABILITIES ═══ -->
-        <Border Style="{StaticResource SurfacePrimaryStyle}">
-            <StackPanel>
-                <!-- 2026-09-14: WrapPanel (full-width children) renders
-                     identically to the previous StackPanel header — kept
-                     because the About audit lock requires a responsive
-                     wrap layout in this file. -->
-                <WrapPanel Margin="0,0,0,18">
-                    <TextBlock Text="{DynamicResource About.KeyCapabilities}"
-                               Style="{StaticResource Typography.H2}"/>
-                    <TextBlock Text="{DynamicResource About.WhatSetsProglassAutomationApart}"
-                               Style="{StaticResource Typography.BodySmall}"
-                               Margin="0,0,0,0"/>
-                </WrapPanel>
-
-                <Border Style="{StaticResource AboutInsetStyle}"
-                        Padding="14,14"
-                        Margin="0,0,0,0">
-                    <!-- 2026-09-14: back to EQUAL-WIDTH 3-up rows
-                         (the fixed 420px WrapPanel version left a big
-                         empty right side at normal window widths). The
-                         ItemTemplate is now explicit — before, the keyed
-                         CapabilityCardTemplate was never applied and the
-                         section rendered raw text. -->
+                <Border Style="{StaticResource AboutInsetStyle}" Margin="0,10,0,0">
                     <StackPanel>
-                        <ItemsControl ItemsSource="{Binding CapabilitiesTop}"
-                                      ItemTemplate="{StaticResource CapabilityCardTemplate}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <UniformGrid Columns="3"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                        </ItemsControl>
-                        <ItemsControl ItemsSource="{Binding CapabilitiesBottom}"
-                                      Margin="0,8,0,0"
-                                      ItemTemplate="{StaticResource CapabilityCardTemplate}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <UniformGrid Columns="3"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                        </ItemsControl>
+                        <TextBlock Text="{DynamicResource About.FinancialCompliance}"
+                                   FontSize="10.5"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   Margin="0,0,0,6"/>
+                        <TextBlock FontSize="13.5"
+                                   Foreground="{DynamicResource Ios26TextSecondaryBrush}"
+                                   TextWrapping="Wrap"
+                                   LineHeight="20">
+                            <Run Text="{DynamicResource About.MonetaryValuesStoredDisplayed}"/>
+                            <Run Text="{DynamicResource About.CurrencyUAE}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                            <Run Text="{DynamicResource About.FullPrecisionUAE5VATZeroRatedExportSupport}"/>
+                        </TextBlock>
+                        <TextBlock FontSize="13.5"
+                                   Foreground="{DynamicResource Ios26TextSecondaryBrush}"
+                                   TextWrapping="Wrap"
+                                   LineHeight="20"
+                                   Margin="0,10,0,0">
+                            <Run Text="{DynamicResource About.ExtensibilityFuture}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                            <Run Text="{DynamicResource About.CurrentReleaseShips}"/>
+                            <Run Text="{Binding Modules.Count, Mode=OneWay}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                            <Run Text="{DynamicResource About.ActiveModulesCommercialProductionLifecycle}"/>
+                        </TextBlock>
                     </StackPanel>
                 </Border>
             </StackPanel>
         </Border>
 
         <!-- ═══ PRIVACY ═══ -->
-        <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,16">
+        <Border Style="{StaticResource Ios26CardStyle}">
             <StackPanel>
-                <StackPanel Margin="0,0,0,16">
+                <StackPanel Margin="0,0,0,14">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="&#xE72E;"
                                    FontFamily="{DynamicResource FontFamily.Icon}"
-                                   FontSize="{DynamicResource FontSize.H3}"
-                                   Foreground="{DynamicResource LiquidAccent}"
+                                   FontSize="17"
+                                   Foreground="{DynamicResource Ios26AccentBrush}"
                                    VerticalAlignment="Center"
                                    Margin="0,0,8,0"/>
                         <TextBlock Text="{DynamicResource About.Privacy}"
-                                   FontSize="{DynamicResource FontSize.H3}"
-                                   FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource LiquidSnow}"
+                                   FontSize="17"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource Ios26TextTitleBrush}"
                                    VerticalAlignment="Center"/>
                     </StackPanel>
                     <TextBlock Text="{DynamicResource About.LocalFirstDataHandlingOperatorControl}"
-                               FontSize="{DynamicResource FontSize.Body}"
-                               Foreground="{DynamicResource LiquidCerulean}"
+                               FontSize="13"
+                               Foreground="{DynamicResource Ios26TextMutedBrush}"
                                TextWrapping="Wrap"
-                               Margin="0,8,0,0"/>
+                               Margin="0,6,0,0"/>
                 </StackPanel>
 
-                <Border Style="{StaticResource AboutInsetStyle}" Margin="0,0,0,0">
+                <Border Style="{StaticResource AboutInsetStyle}">
                     <ItemsControl ItemsSource="{Binding PrivacyLines}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,9">
                                     <TextBlock Text="&#xE73E;"
                                                FontFamily="{DynamicResource FontFamily.Icon}"
-                                               FontSize="{DynamicResource FontSize.Body}"
-                                               Foreground="{DynamicResource LiquidAccent}"
+                                               FontSize="13"
+                                               Foreground="{DynamicResource Ios26SuccessBrush}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,9,0"/>
                                     <TextBlock Text="{Binding}"
-                                               FontSize="{DynamicResource FontSize.Body}"
+                                               FontSize="13.5"
+                                               Foreground="{DynamicResource Ios26TextSecondaryBrush}"
                                                TextWrapping="Wrap"
-                                               LineHeight="20"
-                                               Foreground="{DynamicResource LiquidFrost}"/>
+                                               LineHeight="20"/>
                                 </StackPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -336,15 +341,6 @@
                 </Border>
             </StackPanel>
         </Border>
-
-        <!--
-          2026-09-15 (iOS-26 full restyle): the license card is the
-          dedicated "License" screen in the left nav rail
-          (AboutView.xaml, LicenseSectionHost) and the crash-reports
-          card moved to the dedicated "Diagnostics" tab
-          (DiagnosticsSection) with the other support surfaces.
-          Nothing else on this tab changed.
-        -->
 
     </StackPanel>
 </UserControl>

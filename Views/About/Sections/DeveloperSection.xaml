@@ -3,11 +3,17 @@
      PROJECT: ProGlassAutomation
      MODULE: About → "Developer" tab
 
-     2026-09-15 iOS-26 full restyle (approved mockup 04): single-width
-     card stack — identity (avatar + email pill) → product facts →
-     technology stack → engineering principles → capabilities → footer.
-     Every binding and the email click handler are preserved; the
-     responsive tech-stack WrapPanel (audit lock) is kept.
+     2026-09-15 iOS-26 full restyle (approved mockup 04), single
+     card language, two rows:
+       row 1: identity (avatar · name · role · Made in India ·
+              email pill)   |   technology stack (2-up tiles)
+       row 2: product facts (2×2 tiles: version · build · edition ·
+              status)       |   principles (numbered rows)
+     Capabilities live on the Overview tab (mockup 01); copyright
+     lives in the Overview copyright card — so nothing is duplicated
+     here. The email click handler and the shared license bindings
+     are preserved. Self-contained Ios26 palette; no hex, no literal
+     corner radii; responsive WrapPanel (audit lock) kept.
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.About.Sections.DeveloperSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -25,294 +31,251 @@
                 <ResourceDictionary Source="../AboutStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- 2026-09-11 mockup rebuild templates (SINGLE Resources block —
-                 WPF forbids setting UserControl.Resources twice, MC3024) -->
-<!-- STACK pill -->
-                <DataTemplate x:Key="DevStackPillTemplate">
-                    <!-- 2026-09-14: glass + SurfacePrimary double chrome →
-                         one L3 chip. -->
-                    <Border Margin="0,0,8,8"
-                            Padding="12,5"
-                            HorizontalAlignment="Left"
-                            Style="{StaticResource SurfaceDetailStyle}">
-                        <TextBlock Text="{Binding Name}"
-                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                   FontWeight="{DynamicResource Weight.SemiBold}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                   IsHitTestVisible="False"/>
-                    </Border>
-                </DataTemplate>
-                <!-- CAPABILITIES check row -->
-                <DataTemplate x:Key="DevCapabilityRowTemplate">
-                    <StackPanel Orientation="Horizontal" Margin="0,5">
-                        <TextBlock Text="&#xE73E;"
-                                   FontFamily="{DynamicResource FontFamily.Icon}"
-                                   FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource SuccessBrush}"
-                                   VerticalAlignment="Center"
-                                   IsHitTestVisible="False"/>
-                        <TextBlock Text="{Binding Title}"
-                                   FontSize="{DynamicResource FontSize.Body}"
-                                   FontWeight="{DynamicResource Weight.Medium}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                   Margin="9,0,0,0"
-                                   VerticalAlignment="Center"
-                                   TextTrimming="CharacterEllipsis"
-                                   IsHitTestVisible="False"/>
-                    </StackPanel>
-                </DataTemplate>
+            <!-- Email pill (handler preserved from the original
+                 section — Email_MouseLeftButtonDown). -->
+            <Style x:Key="DevEmailPillStyle" TargetType="Border">
+                <Setter Property="Background" Value="{DynamicResource Ios26TileBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource Ios26TileBorderBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusPill}"/>
+                <Setter Property="Padding" Value="14,8"/>
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
 
     <StackPanel>
 
-        <!-- ═══ IDENTITY ═══ -->
-        <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,14">
-            <StackPanel>
-                <Grid Margin="0,0,0,14">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="{DynamicResource About.Developer}"
-                                   Style="{StaticResource Typography.H2}"/>
-                        <TextBlock Text="{DynamicResource About.CraftsmanshipWorkflowEngineeringProduct}"
-                                   Style="{StaticResource Typography.BodySmall}"/>
-                    </StackPanel>
-                    <Border Grid.Column="1" Style="{StaticResource Badge.Primary}">
-                        <TextBlock Style="{StaticResource Typography.Caption}"
-                                   Text="{DynamicResource About.CraftedGlassERP}"/>
-                    </Border>
-                </Grid>
+        <!-- ═══ ROW 1 · IDENTITY | TECHNOLOGY STACK ═══ -->
+        <Grid Margin="0,0,0,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.2*"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
 
-                <Border Style="{StaticResource AboutInsetStyle}" Padding="16,14">
-                    <StackPanel Orientation="Horizontal">
-                        <!-- 2026-09-14: was an 84px card wrapping a 76px
-                             card (two overlapping tiles) → ONE 84px L3
-                             tile with the icon paint. -->
-                        <Border Width="84" Height="84"
-                                Style="{StaticResource SurfaceDetailStyle}">
+            <Border Grid.Column="0" Style="{StaticResource Ios26CardStyle}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0"
+                                Width="72" Height="72"
+                                Style="{StaticResource Ios26IconTileStyle}"
+                                CornerRadius="{DynamicResource Ios26RadiusInner}"
+                                VerticalAlignment="Center">
                             <Border.Background>
                                 <ImageBrush ImageSource="{x:Static viewsAbout:AppIconResource.Icon}"
                                             Stretch="UniformToFill"
                                             RenderOptions.BitmapScalingMode="HighQuality"/>
                             </Border.Background>
                         </Border>
-                        <StackPanel Margin="18,0,0,0" VerticalAlignment="Center">
+
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
                             <TextBlock Text="{Binding DeveloperName}"
-                                       FontSize="{DynamicResource FontSize.H1}"
-                                       FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       FontSize="20"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource Ios26TextTitleBrush}"
                                        TextWrapping="Wrap"
                                        IsHitTestVisible="False"/>
                             <TextBlock Text="{DynamicResource About.PrincipalDeveloperProductDesignWorkflow}"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource AboutGlassCaptionBrush}"
-                                       Margin="0,6,0,0"
+                                       FontSize="13"
+                                       Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                       Margin="0,5,0,0"
                                        TextWrapping="Wrap"
                                        IsHitTestVisible="False"/>
                             <!-- Owner directive 2026-09-10: country branding run only -->
-                            <TextBlock FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource LiquidCerulean}"
-                                       Margin="0,6,0,0"
-                                       TextWrapping="Wrap"
+                            <TextBlock FontSize="13"
+                                       Margin="0,5,0,0"
                                        IsHitTestVisible="False">
-                                <Run Text="{DynamicResource About.MadeInIndia}"/>
+                                <Run Text="—" FontWeight="Bold" Foreground="{DynamicResource Ios26AccentBrush}"/>
+                                <Run Text=" "/>
+                                <Run Text="{DynamicResource About.MadeInIndia}" Foreground="{DynamicResource Ios26TextSecondaryBrush}"/>
                             </TextBlock>
                         </StackPanel>
-                    </StackPanel>
-                </Border>
+                    </Grid>
 
-                <!-- email chip (handler preserved) — 2026-09-14: glass +
-                     SurfacePrimary double chrome → one L3 chip. -->
-                <Border Margin="0,14,0,0"
-                        Padding="14,8"
-                        HorizontalAlignment="Left"
-                        Cursor="Hand"
-                        MouseLeftButtonDown="Email_MouseLeftButtonDown"
-                        Style="{StaticResource SurfaceDetailStyle}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE715;"
-                                   FontFamily="{DynamicResource FontFamily.Icon}"
-                                   FontSize="{DynamicResource FontSize.Body}"
-                                   VerticalAlignment="Center"
-                                   Foreground="{DynamicResource LiquidAccent}"
-                                   Margin="0,0,8,0"/>
-                        <TextBlock Text="{Binding Email}"
-                                   FontSize="{DynamicResource FontSize.Body}"
-                                   FontWeight="{DynamicResource Weight.SemiBold}"
-                                   Foreground="{DynamicResource LiquidAccent}"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </Border>
+                    <Border Style="{StaticResource DevEmailPillStyle}"
+                            HorizontalAlignment="Left"
+                            Cursor="Hand"
+                            MouseLeftButtonDown="Email_MouseLeftButtonDown">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE715;"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="13"
+                                       Foreground="{DynamicResource Ios26AccentBrush}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,8,0"/>
+                            <TextBlock Text="{Binding Email}"
+                                       FontSize="13.5"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource Ios26TextBodyBrush}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
 
-        <!-- ═══ PRODUCT FACTS ═══ -->
-        <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,14">
-            <StackPanel>
-                <TextBlock Text="{DynamicResource About.ProductFacts}"
-                           Style="{StaticResource Typography.H2}"
-                           Margin="0,0,0,14"/>
-                <UniformGrid Columns="2" Rows="2">
-                    <Border Style="{StaticResource AboutInsetStyle}" Margin="0,0,10,10" Padding="14,12">
-                        <StackPanel>
-                            <TextBlock Text="{DynamicResource About.Version}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
-                            <TextBlock Text="{Binding Version}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0"
-                                       TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Style="{StaticResource AboutInsetStyle}" Margin="0,0,0,10" Padding="14,12">
-                        <StackPanel>
-                            <TextBlock Text="{DynamicResource About.Build}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
-                            <TextBlock Text="{Binding Build}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0"
-                                       TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Style="{StaticResource AboutInsetStyle}" Margin="0,10,10,0" Padding="14,12">
-                        <StackPanel>
-                            <TextBlock Text="{DynamicResource About.Edition}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
-                            <TextBlock Text="{Binding LicenseStatus.EditionDisplay}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Style="{StaticResource AboutInsetStyle}" Margin="0,10,0,0" Padding="14,12">
-                        <StackPanel>
-                            <TextBlock Text="{DynamicResource Common.Status}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
-                            <TextBlock Text="{Binding LicenseStatus.StatusBadge}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
-                    </Border>
-                </UniformGrid>
-            </StackPanel>
-        </Border>
-
-        <!-- ═══ TECHNOLOGY STACK ═══ -->
-        <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,14">
-            <StackPanel>
-                <Grid Margin="0,0,0,14">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="{DynamicResource About.TechnologyStack}"
-                                   Style="{StaticResource Typography.H2}"/>
-                        <TextBlock Text="{DynamicResource About.BattleTestedMicrosoftOpenSourceFoundation}"
-                                   Style="{StaticResource Typography.BodySmall}"/>
-                    </StackPanel>
-                    <Border Grid.Column="1" Style="{StaticResource Badge.Primary}">
-                        <TextBlock Style="{StaticResource Typography.Caption}">
-                            <Run Text="{DynamicResource About.StackItems}"/>
-                            <Run Text="{Binding TechStack.Count, Mode=OneWay}"/>
-                        </TextBlock>
-                    </Border>
-                </Grid>
-                <Border Style="{StaticResource AboutInsetStyle}" Padding="14,14">
-                    <!-- 2026-09-14: the fixed 300px WrapPanel tiles
-                         overflowed this column on narrow windows (text
-                         ran out of the boxes) → fluid equal-width 2-up
-                         grid; tiles stretch and their text wraps.
-                         2026-09-15: audit lock
-                         About_sections_use_responsive_wrap_layouts
-                         requires the responsive wrap layout in this
-                         file — it went RED on 2026-09-14 when the
-                         panel became a fixed 2-up UniformGrid. The
-                         tiles are fluid now (no fixed width), so the
-                         wrap layout is responsive again: tiles flow
-                         left-to-right and wrap on narrow windows. -->
+            <Border Grid.Column="2" Style="{StaticResource Ios26CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource About.TechnologyStack}"
+                               FontSize="17"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource Ios26TextTitleBrush}"
+                               Margin="0,0,0,14"/>
                     <ItemsControl ItemsSource="{Binding TechStack}"
                                   ItemTemplate="{StaticResource TechItemTemplate}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
+                                <!-- Responsive wrap layout (audit lock):
+                                     fluid tiles flow and wrap on narrow
+                                     windows. -->
                                 <WrapPanel Orientation="Horizontal"
-                                          HorizontalAlignment="Center"/>
+                                          HorizontalAlignment="Left"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
-                </Border>
-            </StackPanel>
-        </Border>
+                </StackPanel>
+            </Border>
+        </Grid>
 
-        <!-- ═══ ENGINEERING PRINCIPLES ═══ -->
-        <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,14">
-            <StackPanel>
-                <TextBlock Text="{DynamicResource About.EngineeringPrinciples}"
-                           Style="{StaticResource Typography.H2}"
-                           Margin="0,0,0,14"/>
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                    <TextBlock Text="01" FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource AboutGlassCaptionBrush}" VerticalAlignment="Center"/>
-                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="Clean Code" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <TextBlock Text="Readable and maintainable" FontSize="{DynamicResource FontSize.BodySmall}"
-                                   Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
+        <!-- ═══ ROW 2 · PRODUCT FACTS | PRINCIPLES ═══ -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.2*"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource Ios26CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource About.ProductFacts}"
+                               FontSize="17"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource Ios26TextTitleBrush}"
+                               Margin="0,0,0,14"/>
+                    <UniformGrid Columns="2" Rows="2">
+                        <Border Style="{StaticResource Ios26InnerTileStyle}" Margin="0,0,10,10">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border Width="30" Height="30" Style="{StaticResource Ios26IconTileStyle}" VerticalAlignment="Center">
+                                    <TextBlock Text="&#xE946;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="14"
+                                               Foreground="{DynamicResource Ios26AccentBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="{DynamicResource About.Version}" FontSize="10" FontWeight="Bold"
+                                               Foreground="{DynamicResource Ios26TextMutedBrush}"/>
+                                    <TextBlock Text="{Binding Version}" FontSize="14" FontWeight="Bold"
+                                               Foreground="{DynamicResource Ios26TextTitleBrush}"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Ios26InnerTileStyle}" Margin="0,0,0,10">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border Width="30" Height="30" Style="{StaticResource Ios26IconTileStyle}" VerticalAlignment="Center">
+                                    <TextBlock Text="&#xE713;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="14"
+                                               Foreground="{DynamicResource Ios26AccentBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="{DynamicResource About.Build}" FontSize="10" FontWeight="Bold"
+                                               Foreground="{DynamicResource Ios26TextMutedBrush}"/>
+                                    <TextBlock Text="{Binding Build}" FontSize="14" FontWeight="Bold"
+                                               Foreground="{DynamicResource Ios26TextTitleBrush}"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Ios26InnerTileStyle}" Margin="0,10,10,0">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border Width="30" Height="30" Style="{StaticResource Ios26IconTileStyle}" VerticalAlignment="Center">
+                                    <TextBlock Text="&#xE7F4;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="14"
+                                               Foreground="{DynamicResource Ios26AccentBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="{DynamicResource About.Edition}" FontSize="10" FontWeight="Bold"
+                                               Foreground="{DynamicResource Ios26TextMutedBrush}"/>
+                                    <TextBlock Text="{Binding LicenseStatus.EditionDisplay}" FontSize="14" FontWeight="Bold"
+                                               Foreground="{DynamicResource Ios26TextTitleBrush}"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Ios26InnerTileStyle}" Margin="0,10,0,0">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border Width="30" Height="30" Style="{StaticResource Ios26IconTileStyle}" VerticalAlignment="Center">
+                                    <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="14"
+                                               Foreground="{DynamicResource Ios26SuccessBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="{DynamicResource Common.Status}" FontSize="10" FontWeight="Bold"
+                                               Foreground="{DynamicResource Ios26TextMutedBrush}"/>
+                                    <TextBlock Text="{Binding LicenseStatus.StatusBadge}" FontSize="14" FontWeight="Bold"
+                                               Foreground="{DynamicResource Ios26TextTitleBrush}"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2" Style="{StaticResource Ios26CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource About.EngineeringPrinciples}"
+                               FontSize="17"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource Ios26TextTitleBrush}"
+                               Margin="0,0,0,14"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                        <TextBlock Text="01"
+                                   FontSize="26" FontWeight="Bold"
+                                   Foreground="{DynamicResource Ios26NumberBrush}"
+                                   VerticalAlignment="Center"/>
+                        <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Clean Code" FontSize="14.5" FontWeight="Bold"
+                                       Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                            <TextBlock Text="— Readable and maintainable" FontSize="12.5"
+                                       Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                       Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                        <TextBlock Text="02"
+                                   FontSize="26" FontWeight="Bold"
+                                   Foreground="{DynamicResource Ios26NumberBrush}"
+                                   VerticalAlignment="Center"/>
+                        <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Test Driven" FontSize="14.5" FontWeight="Bold"
+                                       Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                            <TextBlock Text="— Unit tests always" FontSize="12.5"
+                                       Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                       Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="03"
+                                   FontSize="26" FontWeight="Bold"
+                                   Foreground="{DynamicResource Ios26NumberBrush}"
+                                   VerticalAlignment="Center"/>
+                        <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Continuous" FontSize="14.5" FontWeight="Bold"
+                                       Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                            <TextBlock Text="— Deployment automated" FontSize="12.5"
+                                       Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                       Margin="0,2,0,0"/>
+                        </StackPanel>
                     </StackPanel>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                    <TextBlock Text="02" FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource AboutGlassCaptionBrush}" VerticalAlignment="Center"/>
-                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="Test Driven" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <TextBlock Text="Unit tests always" FontSize="{DynamicResource FontSize.BodySmall}"
-                                   Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
-                    </StackPanel>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="03" FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource AboutGlassCaptionBrush}" VerticalAlignment="Center"/>
-                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="Continuous" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <TextBlock Text="Deployment automated" FontSize="{DynamicResource FontSize.BodySmall}"
-                                   Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
-                    </StackPanel>
-                </StackPanel>
-            </StackPanel>
-        </Border>
-
-        <!-- ═══ CAPABILITIES ═══ -->
-        <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,14">
-            <StackPanel>
-                <TextBlock Text="{DynamicResource About.KeyCapabilities}"
-                           Style="{StaticResource Typography.H2}"
-                           Margin="0,0,0,12"/>
-                <ItemsControl ItemsSource="{Binding CapabilitiesTop}"
-                              ItemTemplate="{StaticResource DevCapabilityRowTemplate}"/>
-                <ItemsControl ItemsSource="{Binding CapabilitiesBottom}"
-                              ItemTemplate="{StaticResource DevCapabilityRowTemplate}"/>
-            </StackPanel>
-        </Border>
-
-        <!-- ═══ FOOTER STRIP (original product line + copyright) ═══ -->
-        <Border Style="{StaticResource SurfacePrimaryStyle}" Padding="22,14">
-            <StackPanel HorizontalAlignment="Center">
-                <TextBlock Text="{DynamicResource About.ProglassAutomationEnterpriseERPUAEGlass}"
-                           FontSize="{DynamicResource FontSize.Title}"
-                           FontWeight="{DynamicResource Weight.Bold}"
-                           HorizontalAlignment="Center"
-                           TextAlignment="Center"
-                           Foreground="{DynamicResource TextPrimaryBrush}"
-                           IsHitTestVisible="False"/>
-                <TextBlock Text="{Binding Copyright}"
-                           FontSize="{DynamicResource FontSize.BodySmall}"
-                           Foreground="{DynamicResource AboutGlassCaptionBrush}"
-                           HorizontalAlignment="Center"
-                           TextAlignment="Center"
-                           TextWrapping="Wrap"
-                           Margin="0,6,0,0"
-                           IsHitTestVisible="False"/>
-            </StackPanel>
-        </Border>
+            </Border>
+        </Grid>
 
     </StackPanel>
 </UserControl>
