@@ -52,7 +52,7 @@
                       behaviors:SmoothScrollBehavior.IsEnabled="True"
                       Focusable="False"
                       FocusVisualStyle="{x:Null}">
-            <StackPanel Margin="18,14,18,18">
+            <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══ CARD — VISUAL THEME (always visible) ═══ -->
                 <Border Style="{StaticResource SettingsPageCardStyle}">
@@ -61,12 +61,12 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.NormalMonetIos17pm}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <UniformGrid Columns="2" Margin="0,0,0,6">
+                        <UniformGrid Columns="2" Margin="{StaticResource SettingsRowMargin}">
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
                                                    Text="{DynamicResource Settings.LblThemeFamily}"/>
                                     </StackPanel>
                                     <ComboBox AutomationProperties.AutomationId="Settings.VisualTheme"
@@ -86,7 +86,7 @@
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE777;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
                                                    Text="{DynamicResource Settings.ResetThemeFamily}"/>
                                     </StackPanel>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
@@ -116,7 +116,7 @@
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A9;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
                                                    Text="{DynamicResource Settings.GrpPresets}"/>
                                     </StackPanel>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
@@ -126,7 +126,7 @@
                                                 Command="{Binding ApplyThemePresetCommand}"
                                                 CommandParameter="Default"
                                                 Content="{DynamicResource Settings.ThemePresetDefault}"
-                                                Margin="0,0,8,0">
+                                                Margin="{StaticResource SettingsInlineGap8R}">
                                             <Button.Style>
                                                 <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                                                     <Style.Triggers>
@@ -142,7 +142,7 @@
                                                 Command="{Binding ApplyThemePresetCommand}"
                                                 CommandParameter="Calm"
                                                 Content="{DynamicResource Settings.ThemePresetCalm}"
-                                                Margin="0,0,8,0">
+                                                Margin="{StaticResource SettingsInlineGap8R}">
                                             <Button.Style>
                                                 <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                                                     <Style.Triggers>
@@ -178,11 +178,11 @@
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE771;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
                                                    Text="{DynamicResource Settings.GrpCrystalMaterial}"/>
                                     </StackPanel>
 
-                                    <Grid Margin="0,4,0,10">
+                                    <Grid Margin="{StaticResource SettingsNoteMargin}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="150"/>
                                             <ColumnDefinition Width="*"/>
@@ -204,7 +204,7 @@
                                                    Text="{Binding CrystalWaterOpacity, Mode=OneWay, StringFormat={}{0:0.00}}"/>
                                     </Grid>
 
-                                    <Grid Margin="0,4,0,10">
+                                    <Grid Margin="{StaticResource SettingsNoteMargin}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="150"/>
                                             <ColumnDefinition Width="*"/>
@@ -226,7 +226,7 @@
                                                    Text="{Binding CrystalWaterSpeed, Mode=OneWay, StringFormat={}{0:0.00}}"/>
                                     </Grid>
 
-                                    <Grid Margin="0,4,0,10">
+                                    <Grid Margin="{StaticResource SettingsNoteMargin}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="150"/>
                                             <ColumnDefinition Width="*"/>
@@ -248,7 +248,7 @@
                                                    Text="{Binding CrystalWaveAmplitude, Mode=OneWay, StringFormat={}{0:0.0}}"/>
                                     </Grid>
 
-                                    <Grid Margin="0,4,0,10">
+                                    <Grid Margin="{StaticResource SettingsNoteMargin}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="150"/>
                                             <ColumnDefinition Width="*"/>
@@ -270,7 +270,7 @@
                                                    Text="{Binding CrystalCausticIntensity, Mode=OneWay, StringFormat={}{0:0.00}}"/>
                                     </Grid>
 
-                                    <Grid Margin="0,4,0,10">
+                                    <Grid Margin="{StaticResource SettingsNoteMargin}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="150"/>
                                             <ColumnDefinition Width="*"/>
@@ -292,7 +292,7 @@
                                                    Text="{Binding CrystalBubbleIntensity, Mode=OneWay, StringFormat={}{0:0.00}}"/>
                                     </Grid>
 
-                                    <Grid Margin="0,4,0,0">
+                                    <Grid Margin="{StaticResource SettingsStackGap4}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="150"/>
                                             <ColumnDefinition Width="*"/>
@@ -325,7 +325,7 @@
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
                                                    Text="{DynamicResource Settings.PreviewTitle}"/>
                                     </StackPanel>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
@@ -334,7 +334,7 @@
                                             Background="{DynamicResource SurfaceSecondaryBrush}"
                                             BorderBrush="{DynamicResource BorderDefaultBrush}"
                                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                            Margin="0,8,0,0"
+                                            Margin="{StaticResource SettingsStackGap8}"
                                             Height="150"
                                             SnapsToDevicePixels="True" Style="{StaticResource SettingsInnerTileStyle}">
                                         <crystal:CrystalWaterControl
@@ -359,7 +359,7 @@
         Style="{StaticResource SettingsInnerTileStyle}">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE946;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
                                        Text="{DynamicResource Settings.SecThemes}"/>
                             </StackPanel>
                         </Border>

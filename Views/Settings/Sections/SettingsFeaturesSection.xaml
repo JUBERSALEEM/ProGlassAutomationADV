@@ -55,7 +55,7 @@
              their own DataContext, so a plain {Binding} here would break).
              This mirrors the Settings shell navigation pattern. -->
         <WrapPanel Grid.Row="0" Margin="32,4,32,0">
-            <Button Content="{DynamicResource Module.ProformaInvoice}" Margin="0,0,8,8" MinWidth="130"
+            <Button Content="{DynamicResource Module.ProformaInvoice}" Margin="{StaticResource SettingsTileWrapMargin}" MinWidth="130"
                     Command="{Binding DataContext.SwitchFeaturesModuleCommand,
                                 ElementName=SettingsFeaturesRoot}"
                     CommandParameter="Proforma">
@@ -72,7 +72,7 @@
                 </Button.Style>
             </Button>
 
-            <Button Content="{DynamicResource Module.Inquiry}" Margin="0,0,8,8" MinWidth="110"
+            <Button Content="{DynamicResource Module.Inquiry}" Margin="{StaticResource SettingsTileWrapMargin}" MinWidth="110"
                     Command="{Binding DataContext.SwitchFeaturesModuleCommand,
                                 ElementName=SettingsFeaturesRoot}"
                     CommandParameter="Inquiry">
@@ -89,7 +89,7 @@
                 </Button.Style>
             </Button>
 
-            <Button Content="{DynamicResource Common.JobOrder}" Margin="0,0,8,8" MinWidth="120"
+            <Button Content="{DynamicResource Common.JobOrder}" Margin="{StaticResource SettingsTileWrapMargin}" MinWidth="120"
                     Command="{Binding DataContext.SwitchFeaturesModuleCommand,
                                 ElementName=SettingsFeaturesRoot}"
                     CommandParameter="JobOrder">
@@ -106,7 +106,7 @@
                 </Button.Style>
             </Button>
 
-            <Button Content="{DynamicResource Module.DeliveryNote}" Margin="0,0,8,8" MinWidth="130"
+            <Button Content="{DynamicResource Module.DeliveryNote}" Margin="{StaticResource SettingsTileWrapMargin}" MinWidth="130"
                     Command="{Binding DataContext.SwitchFeaturesModuleCommand,
                                 ElementName=SettingsFeaturesRoot}"
                     CommandParameter="DeliveryNote">
@@ -123,7 +123,7 @@
                 </Button.Style>
             </Button>
 
-            <Button Content="{DynamicResource Module.TaxInvoice}" Margin="0,0,8,8" MinWidth="120"
+            <Button Content="{DynamicResource Module.TaxInvoice}" Margin="{StaticResource SettingsTileWrapMargin}" MinWidth="120"
                     Command="{Binding DataContext.SwitchFeaturesModuleCommand,
                                 ElementName=SettingsFeaturesRoot}"
                     CommandParameter="TaxInvoice">
@@ -149,7 +149,7 @@
                       behaviors:SmoothScrollBehavior.IsEnabled="True"
                       Focusable="False"
                       FocusVisualStyle="{x:Null}">
-            <StackPanel Margin="18,14,18,18">
+            <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══════════ SESSION ═══════════
                      Bound to the parent SettingsViewModel via
@@ -163,12 +163,12 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.SignShiftHandoverForgetAutoSignCredentials}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <StackPanel Margin="0,0,0,6">
+                        <StackPanel Margin="{StaticResource SettingsRowMargin}">
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE77B;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.SessionSecurity}"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.SessionSecurity}"/>
                                     </StackPanel>
                                     <!-- Full-width action row: buttons stretch evenly
                                          across the whole card (no left-cramped gap). -->
@@ -214,12 +214,12 @@
                         <!-- ── STEP 1 · COMPANY ─────────────────────── -->
                             <TextBlock Text="{DynamicResource Settings.STEP1Company}"
                                    Style="{StaticResource SettingsGroupCaptionStyle}"
-                                   Margin="0,18,0,0"/>
+                                   Margin="{StaticResource SettingsStackGap18}"/>
                             <TextBlock Text="{DynamicResource Settings.CompanyNameProformaIDStayVisibleRequired}"
                                    Style="{StaticResource SettingsRowMetaStyle}"/>
 
-                            <UniformGrid Columns="4" Margin="0,0,0,6">
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                            <UniformGrid Columns="4" Margin="{StaticResource SettingsRowMargin}">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -234,7 +234,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -249,7 +249,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -264,7 +264,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -279,7 +279,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -294,7 +294,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -309,7 +309,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -324,7 +324,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -339,7 +339,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -373,12 +373,12 @@
                         <!-- ── STEP 2 · CLIENT ─────────────────────── -->
                             <TextBlock Text="{DynamicResource Settings.STEP2Client}"
                                    Style="{StaticResource SettingsGroupCaptionStyle}"
-                                   Margin="0,18,0,0"/>
+                                   Margin="{StaticResource SettingsStackGap18}"/>
                             <TextBlock Text="{DynamicResource Settings.CustomerNameStaysVisibleRequiredDatabase}"
                                    Style="{StaticResource SettingsRowMetaStyle}"/>
 
-                            <UniformGrid Columns="4" Margin="0,0,0,6">
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                            <UniformGrid Columns="4" Margin="{StaticResource SettingsRowMargin}">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -393,7 +393,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -408,7 +408,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -423,7 +423,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -438,7 +438,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -453,7 +453,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -487,10 +487,10 @@
                         <!-- ── STEP 3 · PROJECT ─────────────────────── -->
                             <TextBlock Text="{DynamicResource Settings.STEP3Project}"
                                    Style="{StaticResource SettingsGroupCaptionStyle}"
-                                   Margin="0,18,0,0"/>
+                                   Margin="{StaticResource SettingsStackGap18}"/>
 
-                            <UniformGrid Columns="3" Margin="0,0,0,6">
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                            <UniformGrid Columns="3" Margin="{StaticResource SettingsRowMargin}">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -505,7 +505,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -520,7 +520,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -535,7 +535,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -578,9 +578,9 @@
                              and the live mirror Step9PricingDefaults. -->
                             <TextBlock Text="STEP 9 · TARGET PRICING"
                                    Style="{StaticResource SettingsGroupCaptionStyle}"
-                                   Margin="0,18,0,0"/>
+                                   Margin="{StaticResource SettingsStackGap18}"/>
 
-                            <UniformGrid Columns="3" Margin="0,0,0,6">
+                            <UniformGrid Columns="3" Margin="{StaticResource SettingsRowMargin}">
                                 <Border Style="{StaticResource SettingsInnerTileStyle}">
                                     <Grid>
                                         <Grid.RowDefinitions>
@@ -598,25 +598,25 @@
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="Global default expected profit margin applied to every NEW invoice: Step 9's required-target formula adds it (15% default → ×1.15) and Step 4 margin boxes seed from it. Job Profitability judges every job against this base."/>
-                                        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,8,0,0">
+                                        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="{StaticResource SettingsStackGap8}">
                                             <TextBox Text="{Binding ExpectedProfitMarginPercent, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
                                                  Style="{StaticResource ModernTextBoxStyle}"
                                                  Width="88"
                                                  VerticalAlignment="Center"
                                                  AutomationProperties.Name="Expected profit margin percent"/>
                                             <TextBlock Text="%" FontSize="{DynamicResource FontSize.Title}"
-                                                   VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                                   VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap6}"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
                             </UniformGrid>
 
-                            <StackPanel Margin="0,0,0,6">
+                            <StackPanel Margin="{StaticResource SettingsRowMargin}">
                                 <Border Style="{StaticResource SettingsInnerTileStyle}">
                                     <StackPanel>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A5;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.BulkActions}"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.BulkActions}"/>
                                         </StackPanel>
                                         <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.FlipOptionalFieldOnceRestoreBoxLayout}"/>
@@ -665,12 +665,12 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                             <TextBlock Text="{DynamicResource Settings.TurnOptionalFieldsInquiryEditorCustomerName}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                            <StackPanel Margin="0,0,0,6">
+                            <StackPanel Margin="{StaticResource SettingsRowMargin}">
                                 <Border Style="{StaticResource SettingsInnerTileStyle}">
                                     <StackPanel>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9D2;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.BulkActions}"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.BulkActions}"/>
                                         </StackPanel>
                                         <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.FlipInquiryFieldOnce}"/>
@@ -695,10 +695,10 @@
 
                             <TextBlock Text="{DynamicResource Settings.InquiryEditor}"
                                    Style="{StaticResource SettingsGroupCaptionStyle}"
-                                   Margin="0,18,0,0"/>
+                                   Margin="{StaticResource SettingsStackGap18}"/>
 
-                            <UniformGrid Columns="4" Margin="0,0,0,6">
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                            <UniformGrid Columns="4" Margin="{StaticResource SettingsRowMargin}">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -713,7 +713,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -728,7 +728,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -743,7 +743,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -758,7 +758,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -773,7 +773,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -788,7 +788,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -840,12 +840,12 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                             <TextBlock Text="{DynamicResource Settings.TurnOptionalProductionFieldsStatusPriority}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                            <StackPanel Margin="0,0,0,6">
+                            <StackPanel Margin="{StaticResource SettingsRowMargin}">
                                 <Border Style="{StaticResource SettingsInnerTileStyle}">
                                     <StackPanel>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE713;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.BulkActions}"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.BulkActions}"/>
                                         </StackPanel>
                                         <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.FlipJobOrderFieldOnce}"/>
@@ -870,10 +870,10 @@
 
                             <TextBlock Text="{DynamicResource Settings.ProductionPanel}"
                                    Style="{StaticResource SettingsGroupCaptionStyle}"
-                                   Margin="0,18,0,0"/>
+                                   Margin="{StaticResource SettingsStackGap18}"/>
 
-                            <UniformGrid Columns="4" Margin="0,0,0,6">
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                            <UniformGrid Columns="4" Margin="{StaticResource SettingsRowMargin}">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -888,7 +888,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -903,7 +903,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -918,7 +918,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -933,7 +933,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -948,7 +948,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -999,12 +999,12 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                             <TextBlock Text="{DynamicResource Settings.TurnOptionalDispatchFieldsStatusCannotHidden}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                            <StackPanel Margin="0,0,0,6">
+                            <StackPanel Margin="{StaticResource SettingsRowMargin}">
                                 <Border Style="{StaticResource SettingsInnerTileStyle}">
                                     <StackPanel>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE718;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.BulkActions}"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.BulkActions}"/>
                                         </StackPanel>
                                         <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.FlipDeliveryNoteFieldOnce}"/>
@@ -1029,10 +1029,10 @@
 
                             <TextBlock Text="{DynamicResource Settings.DeliveryDetails}"
                                    Style="{StaticResource SettingsGroupCaptionStyle}"
-                                   Margin="0,18,0,0"/>
+                                   Margin="{StaticResource SettingsStackGap18}"/>
 
-                            <UniformGrid Columns="3" Margin="0,0,0,6">
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                            <UniformGrid Columns="3" Margin="{StaticResource SettingsRowMargin}">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -1047,7 +1047,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -1062,7 +1062,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -1077,7 +1077,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -1128,12 +1128,12 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                             <TextBlock Text="{DynamicResource Settings.TurnOptionalAccountingFieldsIssueDateCannot}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                            <StackPanel Margin="0,0,0,6">
+                            <StackPanel Margin="{StaticResource SettingsRowMargin}">
                                 <Border Style="{StaticResource SettingsInnerTileStyle}">
                                     <StackPanel>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7B8;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.BulkActions}"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.BulkActions}"/>
                                         </StackPanel>
                                         <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.FlipTaxInvoiceFieldOnce}"/>
@@ -1158,10 +1158,10 @@
 
                             <TextBlock Text="{DynamicResource Settings.InvoiceDetails}"
                                    Style="{StaticResource SettingsGroupCaptionStyle}"
-                                   Margin="0,18,0,0"/>
+                                   Margin="{StaticResource SettingsStackGap18}"/>
 
-                            <UniformGrid Columns="3" Margin="0,0,0,6">
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                            <UniformGrid Columns="3" Margin="{StaticResource SettingsRowMargin}">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -1176,7 +1176,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -1191,7 +1191,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"
@@ -1206,7 +1206,7 @@
                                     </Grid>
                                 </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <Border Grid.Row="0"

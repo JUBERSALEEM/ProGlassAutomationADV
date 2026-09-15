@@ -62,7 +62,7 @@
                       CanContentScroll="False"
                       PanningMode="VerticalOnly"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
-            <StackPanel Margin="18,14,18,18">
+            <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══ CARD — PRIVACY ═══ -->
                 <Border Style="{StaticResource SettingsPageCardStyle}">
@@ -71,13 +71,13 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.ControlWhetherAgentTalksInternetWhatAllowed}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <UniformGrid Columns="2" Margin="0,0,0,6">
+                        <UniformGrid Columns="2" Margin="{StaticResource SettingsRowMargin}">
                             <!-- Local only -->
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72E;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding LocalOnlyLabel}" TextWrapping="Wrap"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{Binding LocalOnlyLabel}" TextWrapping="Wrap"/>
                                     </StackPanel>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.WhenAgentNeverContactsInternetDefault}"/>
@@ -93,7 +93,7 @@
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE774;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding CloudConsentLabel}" TextWrapping="Wrap"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{Binding CloudConsentLabel}" TextWrapping="Wrap"/>
                                     </StackPanel>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.SeparateExplicitAgreementSendQuestionsOnline}"/>
@@ -110,7 +110,7 @@
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE946;"/>
-                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.WhatMeans}"/>
+                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.WhatMeans}"/>
                                 </StackPanel>
                                 <TextBlock Text="{Binding PrivacySummary}"
                                            Style="{StaticResource SettingsRowMetaStyle}"/>
@@ -126,7 +126,7 @@
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE90F;"/>
-                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.LocalModelAdvice}"/>
+                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.LocalModelAdvice}"/>
                                 </StackPanel>
                                 <TextBlock Text="{Binding HardwareAdvice}"
                                            Style="{StaticResource SettingsRowMetaStyle}"/>
@@ -142,14 +142,14 @@
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE896;"/>
-                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="Offline AI model (install once, works without internet)"/>
+                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="Offline AI model (install once, works without internet)"/>
                                 </StackPanel>
 
                                 <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                            TextWrapping="Wrap"
                                            Text="These models run 100% on this computer after the one-time download — no messages ever leave the machine. Licences are linked before install; only permissive Apache-2.0 / MIT models are offered."/>
 
-                                <Grid Margin="0,10,0,0">
+                                <Grid Margin="{StaticResource SettingsStackGap10}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" MinWidth="240"/>
                                         <ColumnDefinition Width="14"/>
@@ -161,7 +161,7 @@
                                               FontSize="{DynamicResource FontSize.Title}"
                                               VerticalContentAlignment="Center" DisplayMemberPath="Title" Style="{StaticResource ComboBoxStyle}"/>
                                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Margin="10,0,0,0" VerticalAlignment="Center"
+                                        <TextBlock Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
                                                    FontSize="{DynamicResource FontSize.BodySmall}"
                                                    Foreground="{DynamicResource TextSecondaryBrush}">
                                             <Run Text="{Binding SelectedModel.SizeText, Mode=OneWay}"/>
@@ -173,12 +173,12 @@
                                         <Button Style="{StaticResource OutlinedPillButton}"
                                                 Content="License"
                                                 ToolTip="{Binding SelectedModel.LicenseUrl, Mode=OneWay}"
-                                                Margin="8,0,0,0"
+                                                Margin="{StaticResource SettingsInlineGap8}"
                                                 Click="OpenModelLicense_Click"/>
                                     </StackPanel>
                                 </Grid>
 
-                                <TextBlock Margin="0,8,0,0"
+                                <TextBlock Margin="{StaticResource SettingsStackGap8}"
                                            TextWrapping="Wrap"
                                            Style="{StaticResource SettingsRowMetaStyle}"
                                            Text="{Binding SelectedModel.Description, Mode=OneWay}"/>
@@ -189,7 +189,7 @@
                                            Style="{StaticResource SettingsRowMetaStyle}"
                                            Text="{Binding SelectedModel.DisplayStatus, Mode=OneWay}"/>
 
-                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackGap10}">
                                     <Button Style="{StaticResource SuccessPillButton}"
                                             Content="Install / Update"
                                             Tag="&#xE896;"
@@ -199,21 +199,21 @@
                                     <Button Style="{StaticResource OutlinedPillButton}"
                                             Content="Verify integrity"
                                             Command="{Binding VerifyModelCommand}"
-                                            Margin="10,0,0,0"
+                                            Margin="{StaticResource SettingsIconTextMargin}"
                                             Visibility="{Binding SelectedModel.IsInstalled, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"/>
                                     <Button Style="{StaticResource DangerButton}"
                                             Content="Uninstall"
                                             Command="{Binding UninstallModelCommand}"
-                                            Margin="10,0,0,0"
+                                            Margin="{StaticResource SettingsIconTextMargin}"
                                             Visibility="{Binding SelectedModel.IsInstalled, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"/>
                                     <Button Style="{StaticResource OutlinedPillButton}"
                                             Content="Cancel"
                                             Command="{Binding CancelInstallCommand}"
-                                            Margin="10,0,0,0"
+                                            Margin="{StaticResource SettingsIconTextMargin}"
                                             Visibility="{Binding IsModelBusy, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"/>
                                 </StackPanel>
 
-                                <Grid Margin="0,10,0,0"
+                                <Grid Margin="{StaticResource SettingsStackGap10}"
                                       Visibility="{Binding IsModelBusy, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -222,11 +222,11 @@
                                     <ProgressBar Minimum="0" Maximum="100" Height="10"
                                                  Foreground="{DynamicResource AccentBrush}"
                                                  Value="{Binding ModelProgress, Mode=OneWay}"/>
-                                    <TextBlock Grid.Row="1" Margin="0,4,0,0"
+                                    <TextBlock Grid.Row="1" Margin="{StaticResource SettingsStackGap4}"
                                                Text="{Binding ModelBusyText, Mode=OneWay}"/>
                                 </Grid>
 
-                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackGap10}">
                                     <Button Style="{StaticResource OutlinedPillButton}"
                                             Content="{Binding LocalModelToggleText, Mode=OneWay}"
                                             ToolTip="Switch between the installed local model and the curated knowledge base"
@@ -246,14 +246,14 @@
                         <TextBlock Text="{DynamicResource Settings.KeysEncryptedWindowsDpapiUserAccountNever}"
                                   />
 
-                        <StackPanel Margin="0,0,0,6">
+                        <StackPanel Margin="{StaticResource SettingsRowMargin}">
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel>
                                         <TextBlock Text="&#xE8B7;"
                                                    FontFamily="{DynamicResource FontFamily.Icon}"
                                                    FontSize="{DynamicResource FontSize.Body}"
-                                                   Margin="0,0,6,0"/>
+                                                   Margin="{StaticResource SettingsInlineGap6R}"/>
                                         <TextBlock Text="{DynamicResource Settings.StoreAPIKey}"/>
                                     </StackPanel>
                                     <Grid>
@@ -280,7 +280,7 @@
                                               />
                                     <!-- Full-width action row: buttons stretch evenly
                                          across the whole card. -->
-                                    <Border Margin="0,10,0,0"
+                                    <Border Margin="{StaticResource SettingsStackGap10}"
                 Style="{StaticResource SurfacePanelTileStyle}">
                                         <UniformGrid Columns="2">
                                             <Button Style="{StaticResource SuccessPillButton}"
@@ -307,10 +307,10 @@
                         <TextBlock Text="{DynamicResource Settings.TaughtPhraseNothingUntilApproveHere}"
                                   />
 
-                        <StackPanel Margin="0,0,0,6">
+                        <StackPanel Margin="{StaticResource SettingsRowMargin}">
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
-                                    <DockPanel LastChildFill="False" Margin="0,0,0,8">
+                                    <DockPanel LastChildFill="False" Margin="{StaticResource SettingsStackBottom8}">
                                         <Button DockPanel.Dock="Right"
                                                 Command="{Binding RefreshRulesCommand}"
                                                 Style="{StaticResource SettingsActionButtonStyle}"
@@ -368,7 +368,7 @@
                                                             <Button Style="{StaticResource RowDangerButton}"
                                                                     Tag="&#xE74D;"
                                                                     Content="{DynamicResource Settings.Revoke}"
-                                                                    Margin="8,0,0,0"
+                                                                    Margin="{StaticResource SettingsInlineGap8}"
                                                                     Command="{Binding DataContext.RevokeRuleCommand,
                                                                         RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                     CommandParameter="{Binding}"/>
@@ -381,7 +381,7 @@
 
                                     <TextBlock Text="{DynamicResource Settings.NothingTaughtYet}"
                                                Style="{StaticResource SettingsRowMetaStyle}"
-                                               Margin="0,12,0,0"
+                                               Margin="{StaticResource SettingsStackGap12}"
                                                Visibility="{Binding HasRules,
                                                    Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
 
@@ -405,12 +405,12 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.SavedMemoryKnowledgeBaseLiveAgentSDatabase}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <StackPanel Margin="0,0,0,6">
+                        <StackPanel Margin="{StaticResource SettingsRowMargin}">
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F7;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.AgentData}"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.AgentData}"/>
                                     </StackPanel>
                                     <Border 
                 Style="{StaticResource SurfacePanelTileStyle}">
@@ -428,7 +428,7 @@
                                                 Command="{Binding ImportKnowledgeCommand}"/>
                                         </UniformGrid>
                                     </Border>
-                                    <Border Margin="0,4,0,0"
+                                    <Border Margin="{StaticResource SettingsStackGap4}"
                 Style="{StaticResource SurfacePanelTileStyle}">
                                         <UniformGrid Columns="2">
                                             <Button Style="{StaticResource SettingsActionButtonStyle}"
@@ -446,7 +446,7 @@
                                     </Border>
 
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                               Margin="0,12,0,0"
+                                               Margin="{StaticResource SettingsStackGap12}"
                                                TextTrimming="CharacterEllipsis"
                                                ToolTip="{Binding AgentDatabasePath, Mode=OneWay}">
                                         <Run Text="{DynamicResource Settings.AgentDatabase}"/>

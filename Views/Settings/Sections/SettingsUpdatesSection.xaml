@@ -53,7 +53,7 @@
                       behaviors:SmoothScrollBehavior.IsEnabled="True"
                       Focusable="False"
                       FocusVisualStyle="{x:Null}">
-            <StackPanel Margin="18,14,18,18">
+            <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══ CARD — OVERVIEW ═══ -->
                 <Border Style="{StaticResource SettingsPageCardStyle}">
@@ -62,7 +62,7 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.RunningVersionAgainstLatestPublishedRelease}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <StackPanel Margin="0,0,0,6">
+                        <StackPanel Margin="{StaticResource SettingsRowMargin}">
                             <Border>
                                 <StackPanel>
                                     <!-- Version row: current vs latest -->
@@ -71,7 +71,7 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Border Style="{StaticResource SettingsInnerTileStyle}" Grid.Column="0" Margin="0,0,6,0">
+                                        <Border Style="{StaticResource SettingsInnerTileStyle}" Grid.Column="0" Margin="{StaticResource SettingsInlineGap6R}">
                                             <StackPanel>
                                                 <TextBlock Text="{DynamicResource Settings.CurrentVersion}"
                                                            FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
@@ -84,7 +84,7 @@
                                                 </TextBlock>
                                             </StackPanel>
                                         </Border>
-                                        <Border Style="{StaticResource SettingsInfoTileStyle}" Grid.Column="1" Margin="6,0,0,0">
+                                        <Border Style="{StaticResource SettingsInfoTileStyle}" Grid.Column="1" Margin="{StaticResource SettingsInlineGap6}">
                                             <StackPanel>
                                                 <TextBlock Text="{DynamicResource Settings.LatestRelease}"
                                                            FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
@@ -107,7 +107,7 @@
                                          (star) so it always spans the card; DOWNLOAD is an
                                          auto column that collapses to 0 when hidden, so
                                          CHECK fills the full width when it's the only button. -->
-                                    <Grid Margin="0,10,0,0">
+                                    <Grid Margin="{StaticResource SettingsStackGap10}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
@@ -120,7 +120,7 @@
                                         <Button Grid.Column="1"
                                                 Tag="&#xE896;" Content="{DynamicResource Settings.DownloadUpdate}"
                                                 Command="{Binding DownloadUpdateCommand}"
-                                                Margin="10,0,0,0"
+                                                Margin="{StaticResource SettingsIconTextMargin}"
                                                 HorizontalAlignment="Stretch">
                                             <Button.Style>
                                                 <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
@@ -141,7 +141,7 @@
 
                                     <!-- READY STATE — install & restart -->
                                     <StackPanel Orientation="Horizontal"
-                                                Margin="0,10,0,0">
+                                                Margin="{StaticResource SettingsStackGap10}">
                                         <StackPanel.Style>
                                             <Style TargetType="StackPanel">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -157,7 +157,7 @@
                                                 Command="{Binding InstallUpdateCommand}"/>
                                         <TextBlock Text="{DynamicResource Settings.InstallLaterFileStaysDownloadsFolder}"
                                                    FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   Margin="12,0,0,0"
+                                                   Margin="{StaticResource SettingsInlineGap12}"
                                                    VerticalAlignment="Center"
                                                    TextWrapping="Wrap"
                                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
@@ -169,7 +169,7 @@
                                     <ProgressBar Value="{Binding UpdateDownloadProgress, Mode=OneWay}"
                                                  Maximum="100"
                                                  Height="6"
-                                                 Margin="0,10,0,0">
+                                                 Margin="{StaticResource SettingsStackGap10}">
                                         <ProgressBar.Style>
                                             <Style TargetType="ProgressBar">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -196,7 +196,7 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.WhatReleaseChangesStraightPublisher}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <StackPanel Margin="0,0,0,6">
+                        <StackPanel Margin="{StaticResource SettingsRowMargin}">
                             <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource SurfaceTertiaryBrush}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
                                 <Border.Style>
                                     <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
@@ -214,13 +214,13 @@
                                                    FontFamily="{DynamicResource FontFamily.Icon}"
                                                    FontSize="{DynamicResource FontSize.H3}"
                                                    VerticalAlignment="Center"
-                                                   Margin="0,0,8,0"/>
+                                                   Margin="{StaticResource SettingsInlineGap8R}"/>
                                         <TextBlock Text="{Binding ReleaseNameDisplay}"
                                                    FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                                    VerticalAlignment="Center"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         <TextBlock FontSize="{DynamicResource FontSize.Body}"
-                                                   Margin="10,0,0,0"
+                                                   Margin="{StaticResource SettingsIconTextMargin}"
                                                    VerticalAlignment="Center"
                                                    Foreground="{DynamicResource TextTertiaryBrush}">
                                             <Run Text="{DynamicResource Settings.Published}"/>
@@ -229,7 +229,7 @@
                                     </StackPanel>
                                     <TextBlock Text="{Binding ReleaseNotesPreview}"
                                                FontSize="{DynamicResource FontSize.Body}"
-                                               Margin="0,8,0,0"
+                                               Margin="{StaticResource SettingsStackGap8}"
                                                TextWrapping="Wrap"
                                                MaxHeight="90"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -248,7 +248,7 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.CheckDownloadFailureRecordedMachine}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <StackPanel Margin="0,0,0,6">
+                        <StackPanel Margin="{StaticResource SettingsRowMargin}">
                             <Border>
                                 <StackPanel>
                                     <StackPanel>
@@ -309,7 +309,7 @@
                                                             </Border>
                                                             <TextBlock Grid.Column="2"
                                                                        FontSize="{DynamicResource FontSize.Body}"
-                                                                       Margin="10,0,0,0"
+                                                                       Margin="{StaticResource SettingsIconTextMargin}"
                                                                        VerticalAlignment="Center"
                                                                        TextTrimming="CharacterEllipsis"
                                                                        ToolTip="{Binding Detail}"
@@ -333,7 +333,7 @@
                                                    FallbackValue=Collapsed}"/>
 
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                               Margin="0,10,0,0"
+                                               Margin="{StaticResource SettingsStackGap10}"
                                                TextWrapping="Wrap"
                                                Text="{DynamicResource Settings.InstalledBuildsUpdatePlaceVelopackRestart}"/>
                                 </StackPanel>

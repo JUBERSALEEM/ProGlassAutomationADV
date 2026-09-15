@@ -53,7 +53,7 @@
                       behaviors:SmoothScrollBehavior.IsEnabled="True"
                       Focusable="False"
                       FocusVisualStyle="{x:Null}">
-            <StackPanel Margin="18,14,18,18">
+            <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══ CARD — WHISPER MODEL ═══ -->
                 <Border Style="{StaticResource SettingsPageCardStyle}">
@@ -71,14 +71,14 @@
                                    Style="{StaticResource SettingsRowMetaStyle}"/>
 
                         <ItemsControl ItemsSource="{Binding WhisperModelOptions}"
-                                      Margin="0,10,0,0">
+                                      Margin="{StaticResource SettingsStackGap10}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <!-- The click handler + Tag are the code-behind
                                          contract (SettingsVoiceSection.xaml.cs):
                                          Tag carries the model key into
                                          vm.SelectedWhisperModel. -->
-                                    <Border Margin="0,0,0,8"
+                                    <Border Margin="{StaticResource SettingsStackBottom8}"
                                             MouseLeftButtonDown="ModelOption_MouseLeftButtonDown"
                                             Tag="{Binding Key}">
                                         <Border.Style>
@@ -201,29 +201,29 @@
                         </StackPanel>
 
                         <!-- Download progress — replaces the status line while running -->
-                        <StackPanel Margin="0,12,0,0"
+                        <StackPanel Margin="{StaticResource SettingsStackGap12}"
                                     Visibility="{Binding IsDownloadingModel,
                                         Converter={StaticResource BoolToVisibilityConverter}}">
                             <ProgressBar Value="{Binding DownloadProgress}"
                                          Style="{StaticResource DownloadProgressBarStyle}"
                                          HorizontalAlignment="Stretch"/>
-                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                            <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackGap6}">
                                 <TextBlock Foreground="{DynamicResource AccentBrush}"
                                            Style="{StaticResource SettingsRowTitleStyle}"
                                            IsHitTestVisible="False">
                                     <Run Text="{Binding DownloadProgress, Mode=OneWay}"/><Run Text="%"/>
                                 </TextBlock>
                                 <TextBlock Text="{Binding DownloadSizeText}"
-                                           Margin="10,0,0,0"
+                                           Margin="{StaticResource SettingsIconTextMargin}"
                                            Style="{StaticResource SettingsRowMetaStyle}"
                                            IsHitTestVisible="False"/>
                                 <TextBlock Text="{Binding DownloadSpeedText}"
-                                           Margin="10,0,0,0"
+                                           Margin="{StaticResource SettingsIconTextMargin}"
                                            Foreground="{DynamicResource SuccessBrush}"
                                            Style="{StaticResource SettingsRowMetaStyle}"
                                            IsHitTestVisible="False"/>
                                 <TextBlock Text="{Binding DownloadEtaText}"
-                                           Margin="10,0,0,0"
+                                           Margin="{StaticResource SettingsIconTextMargin}"
                                            Style="{StaticResource SettingsRowMetaStyle}"
                                            IsHitTestVisible="False"/>
                             </StackPanel>
@@ -232,14 +232,14 @@
                         <!-- Actions. The primary button takes the star and the two
                              cancellable actions collapse to zero width when hidden,
                              so the row always reads as one unbroken action bar. -->
-                        <Grid Margin="0,12,0,0">
+                        <Grid Margin="{StaticResource SettingsStackGap12}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <Button Grid.Column="0"
-                                    Margin="0,0,8,0"
+                                    Margin="{StaticResource SettingsInlineGap8R}"
                                     Command="{Binding DownloadWhisperModelCommand}"
                                     HorizontalAlignment="Stretch"
                                     Visibility="{Binding IsWhisperModelReady,
@@ -264,7 +264,7 @@
                                     Style="{StaticResource OutlinedPillButton}"
                                     Content="{DynamicResource Action.Cancel}"
                                     Command="{Binding CancelDownloadCommand}"
-                                    Margin="0,0,8,0"
+                                    Margin="{StaticResource SettingsInlineGap8R}"
                                     HorizontalAlignment="Stretch"
                                     Visibility="{Binding IsDownloadingModel,
                                         Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -281,7 +281,7 @@
                         <TextBlock Text="{Binding VoiceStatus}"
                                    TextWrapping="Wrap"
                                    Foreground="{DynamicResource AccentBrush}"
-                                   Margin="0,8,0,0"
+                                   Margin="{StaticResource SettingsStackGap8}"
                                    IsHitTestVisible="False">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock"

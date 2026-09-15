@@ -44,7 +44,7 @@
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
-            <StackPanel Margin="18,14,18,18">
+            <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══════ GROUP: FFMPEG (conditional) ═══════ -->
                 <Border Style="{StaticResource SettingsPageCardStyle}"
@@ -56,7 +56,7 @@
         Style="{StaticResource SettingsInnerTileStyle}">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7B8;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.Ffmpeg}"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.Ffmpeg}"/>
                             </StackPanel>
                         </Border>
                         <TextBlock Text="{Binding FfmpegStatus}"
@@ -73,10 +73,10 @@
                                    FontFamily="{DynamicResource FontFamily.Code}"
                                    Foreground="{DynamicResource AccentBrush}"
                                    TextWrapping="Wrap"
-                                   Margin="0,0,0,8"/>
+                                   Margin="{StaticResource SettingsStackBottom8}"/>
                         <!-- Live download progress while the one-click
                              installer runs; hidden otherwise. -->
-                        <Grid Margin="0,0,0,8"
+                        <Grid Margin="{StaticResource SettingsStackBottom8}"
                               Visibility="{Binding IsInstallingFfmpeg,
                                   Converter={StaticResource BoolToVisibilityConverter},
                                   FallbackValue=Collapsed}">
@@ -91,7 +91,7 @@
                                          Foreground="{DynamicResource AccentBrush}"
                                          VerticalAlignment="Center"/>
                             <TextBlock Grid.Column="1"
-                                       Margin="10,0,0,0"
+                                       Margin="{StaticResource SettingsIconTextMargin}"
                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
@@ -101,7 +101,7 @@
                         <TextBlock Text="{Binding FfmpegInstallHint}"
                                    Style="{StaticResource SettingsRowMetaStyle}"/>
                         <!-- Full-width action row: buttons stretch evenly. -->
-                        <Border Margin="0,12,0,0"
+                        <Border Margin="{StaticResource SettingsStackGap12}"
         Style="{StaticResource SurfacePanelTileStyle}">
                             <UniformGrid Columns="5">
                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
@@ -147,12 +147,12 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.RecordRunningAppWindowWithoutModuleWorkflow}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <StackPanel Margin="0,0,0,6">
+                        <StackPanel Margin="{StaticResource SettingsRowMargin}">
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE714;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.RecordSession}"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.RecordSession}"/>
                                     </StackPanel>
                                     <TextBlock Text="{Binding SessionRecordHint}"
                                                Style="{StaticResource SettingsRowMetaStyle}"/>
@@ -161,7 +161,7 @@
                                     <!-- Full-width primary action row. The two conditional
                                          buttons are auto columns that collapse to 0 when
                                          hidden, so the visible button(s) fill the row. -->
-                                    <Grid Margin="0,10,0,0">
+                                    <Grid Margin="{StaticResource SettingsStackGap10}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
@@ -182,13 +182,13 @@
                                                 AutomationProperties.AutomationId="DemoCenter.StopSessionRecord"
                                                 Visibility="{Binding IsSessionRecording,
                                                     Converter={StaticResource BoolToVisibilityConverter}}"
-                                                Margin="10,0,0,0"
+                                                Margin="{StaticResource SettingsIconTextMargin}"
                                                 HorizontalAlignment="Stretch"/>
                                         <Button Grid.Column="2"
                                                 Style="{StaticResource SettingsActionButtonStyle}"
                                                 Content="{DynamicResource Settings.OPENRecordings}"
                                                 Command="{Binding OpenRecordingsCommand}"
-                                                Margin="10,0,0,0"
+                                                Margin="{StaticResource SettingsIconTextMargin}"
                                                 HorizontalAlignment="Stretch"/>
                                     </Grid>
                                 </StackPanel>
@@ -205,12 +205,12 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.CapturesRunningAppWindowDesktopOtherPrograms}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <UniformGrid Columns="3" Margin="0,0,0,6">
-                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                        <UniformGrid Columns="3" Margin="{StaticResource SettingsRowMargin}">
+                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7F8;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.Quality}"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.Quality}"/>
                                     </StackPanel>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.OutputResolutionRecordedVideo}"/>
@@ -224,11 +224,11 @@
                                 </StackPanel>
                             </Border>
 
-                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE823;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.FrameRate}"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.FrameRate}"/>
                                     </StackPanel>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.HowManyFramesSecondCaptured}"/>
@@ -242,7 +242,7 @@
                                 </StackPanel>
                             </Border>
 
-                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -297,7 +297,7 @@
 
                         <TextBlock Text="{Binding RecordHint}"
                                    Style="{StaticResource SettingsRowMetaStyle}"
-                                   Margin="0,0,0,6"/>
+                                   Margin="{StaticResource SettingsRowMargin}"/>
 
                         <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
                     </StackPanel>
@@ -310,12 +310,12 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.PickModuleGenerateLandsWorkspaceFirstVoice}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <StackPanel Margin="0,0,0,6">
+                        <StackPanel Margin="{StaticResource SettingsRowMargin}">
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE896;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.Module}"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.Module}"/>
                                     </StackPanel>
                                     <!-- 2026-08-25 senior fix: the dropdown showed
                                          "ProGlassAutomation.Agent.Demo.DemoWorkflow"
@@ -344,7 +344,7 @@
                                     <TextBlock Text="{Binding WorkflowHint}"
                                                Style="{StaticResource SettingsRowMetaStyle}"/>
                                     <!-- Full-width action row: buttons stretch evenly. -->
-                                    <Border Margin="0,12,0,0"
+                                    <Border Margin="{StaticResource SettingsStackGap12}"
                 Style="{StaticResource SurfacePanelTileStyle}">
                                         <UniformGrid Columns="5">
                                             <Button Style="{StaticResource SettingsActionButtonStyle}"
@@ -387,17 +387,17 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.DemoModeKeepsProductionDataUntouchedWhile}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <StackPanel Margin="0,0,0,6">
+                        <StackPanel Margin="{StaticResource SettingsRowMargin}">
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7EB;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.DemoMode}"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.DemoMode}"/>
                                     </StackPanel>
                                     <TextBlock Text="{Binding IsolationText}"
                                                Style="{StaticResource SettingsRowMetaStyle}"/>
                                     <!-- Full-width action row: buttons stretch evenly. -->
-                                    <Border Margin="0,10,0,0"
+                                    <Border Margin="{StaticResource SettingsStackGap10}"
                 Style="{StaticResource SurfacePanelTileStyle}">
                                         <UniformGrid Columns="2">
                                             <Button Style="{StaticResource SettingsActionButtonStyle}"
@@ -430,7 +430,7 @@
                         <TextBlock Text="{DynamicResource Settings.ResetDeletesAppdataProglassautomationDemo}"
                                    Style="{StaticResource SettingsDangerCardNoteStyle}"/>
                         <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                Margin="0,4,0,0"
+                                Margin="{StaticResource SettingsStackGap4}"
                                 HorizontalAlignment="Left"
                                 Content="{DynamicResource Action.Reset}"
                                 Command="{Binding ResetDemoCommand}"
@@ -445,12 +445,12 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.WhatLastRunDidWhereOutput}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <UniformGrid Columns="2" Margin="0,0,0,6">
+                        <UniformGrid Columns="2" Margin="{StaticResource SettingsRowMargin}">
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9D2;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.State}"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.State}"/>
                                     </StackPanel>
                                     <TextBlock Text="{Binding StateText}"
                                                TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
@@ -465,7 +465,7 @@
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7C1;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.LastOutput}"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.LastOutput}"/>
                                     </StackPanel>
                                     <TextBlock Text="{Binding LastMp4Text}"
                                                Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
@@ -486,7 +486,7 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.LedgerRecordingJobRunMachine}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <StackPanel Margin="0,0,0,6">
+                        <StackPanel Margin="{StaticResource SettingsRowMargin}">
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <TextBlock Text="{DynamicResource Settings.NoJobsYetGenerateSelectedGenerateStart}"
@@ -497,7 +497,7 @@
                                     <ItemsControl ItemsSource="{Binding History}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <StackPanel Margin="0,0,0,10">
+                                                <StackPanel Margin="{StaticResource SettingsStackBottom10}">
                                                     <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                                Foreground="{DynamicResource TextPrimaryBrush}">
                                                         <Run Text="{Binding Module, Mode=OneWay}"/>

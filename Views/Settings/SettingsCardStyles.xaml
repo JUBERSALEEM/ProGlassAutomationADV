@@ -101,6 +101,28 @@
 
     <Thickness x:Key="SettingsCardMargin">0,0,0,22</Thickness>
     <Thickness x:Key="SettingsRowMargin">0,0,0,6</Thickness>
+    <!-- v3 (2026-09-17) spacing scale completion: every rhythmic gap in the
+         sections now has ONE name. Before this, 425 literal Margin="…" values
+         carried the rhythm, which is why "give the cards air" could never be
+         applied globally. Optical 1-4 px nudges stay literal on purpose. -->
+    <Thickness x:Key="SettingsTrailingGap">0,0,12,0</Thickness>
+    <Thickness x:Key="SettingsStackGap4">0,4,0,0</Thickness>
+    <Thickness x:Key="SettingsStackGap8">0,8,0,0</Thickness>
+    <Thickness x:Key="SettingsStackGap10">0,10,0,0</Thickness>
+    <Thickness x:Key="SettingsStackGap12">0,12,0,0</Thickness>
+    <Thickness x:Key="SettingsStackGap18">0,18,0,0</Thickness>
+    <Thickness x:Key="SettingsStackBottom8">0,0,0,8</Thickness>
+    <Thickness x:Key="SettingsStackBottom10">0,0,0,10</Thickness>
+    <Thickness x:Key="SettingsInlineGap6">6,0,0,0</Thickness>
+    <Thickness x:Key="SettingsInlineGap8">8,0,0,0</Thickness>
+    <Thickness x:Key="SettingsInlineGap6R">0,0,6,0</Thickness>
+    <Thickness x:Key="SettingsInlineGap8R">0,0,8,0</Thickness>
+    <Thickness x:Key="SettingsInlineGap10R">0,0,10,0</Thickness>
+    <Thickness x:Key="SettingsNoteMargin">0,4,0,10</Thickness>
+    <Thickness x:Key="SettingsTileWrapMargin">0,0,8,8</Thickness>
+    <Thickness x:Key="SettingsInlineGap12">12,0,0,0</Thickness>
+    <Thickness x:Key="SettingsStackGap6">0,6,0,0</Thickness>
+    <Thickness x:Key="SettingsHeaderContentMargin">0,14,0,4</Thickness>
 
     <!-- ═══ CARD — page-sized crystal glass (2026-09-17) ═══
 

@@ -48,7 +48,7 @@
                       behaviors:SmoothScrollBehavior.IsEnabled="True"
                       Focusable="False"
                       FocusVisualStyle="{x:Null}">
-            <StackPanel Margin="18,14,18,18">
+            <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══ CARD — SWITCHES & MODEL ═══ -->
                 <Border Style="{StaticResource SettingsPageCardStyle}">
@@ -57,10 +57,10 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.MasterSwitchesTuningValuesUsedRequest}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <UniformGrid Columns="3" Margin="0,0,0,6">
+                        <UniformGrid Columns="3" Margin="{StaticResource SettingsRowMargin}">
 
                             <!-- Master toggle -->
-                            <Border Margin="0,0,12,0">
+                            <Border Margin="{StaticResource SettingsTrailingGap}">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -86,7 +86,7 @@
                             </Border>
 
                             <!-- Real business data -->
-                            <Border Margin="0,0,12,0">
+                            <Border Margin="{StaticResource SettingsTrailingGap}">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -112,13 +112,13 @@
                             </Border>
 
                             <!-- Model readout -->
-                            <Border Margin="0,0,12,0">
+                            <Border Margin="{StaticResource SettingsTrailingGap}">
                                 <StackPanel>
                                     <Border 
                 Style="{StaticResource SettingsInnerTileStyle}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.ActiveModel}"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.ActiveModel}"/>
                                         </StackPanel>
                                     </Border>
                                     <TextBlock Text="{Binding AiModel}"
@@ -129,13 +129,13 @@
                             </Border>
 
                             <!-- Max tokens -->
-                            <Border Margin="0,0,12,0">
+                            <Border Margin="{StaticResource SettingsTrailingGap}">
                                 <StackPanel>
                                     <Border 
                 Style="{StaticResource SettingsInnerTileStyle}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE762;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.MaxTokens}"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.MaxTokens}"/>
                                         </StackPanel>
                                     </Border>
                                     <TextBlock Text="{Binding AiMaxTokens}"
@@ -152,7 +152,7 @@
                 Style="{StaticResource SettingsInnerTileStyle}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE706;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.Temperature}"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.Temperature}"/>
                                         </StackPanel>
                                     </Border>
                                     <TextBlock Text="{Binding AiTemperature}"
@@ -175,7 +175,7 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.ActiveProviderProcessesRequestsKeysEncrypted}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <StackPanel Margin="0,0,0,6">
+                        <StackPanel Margin="{StaticResource SettingsRowMargin}">
 
                             <!-- ── Gemini tile ─────────────────────────── -->
                             <Border>
@@ -196,7 +196,7 @@
                                             <Ellipse Width="12" Height="12"
                                                      Fill="{DynamicResource ProviderDotBlue}"
                                                      VerticalAlignment="Center"
-                                                     Margin="0,0,10,0"
+                                                     Margin="{StaticResource SettingsInlineGap10R}"
                                                      IsHitTestVisible="False"/>
                                             <StackPanel>
                                                 <TextBlock Text="{DynamicResource Settings.GoogleGemini}"
@@ -225,13 +225,13 @@
 
                                     <TextBlock Text="{DynamicResource Settings.APIKEY}"
                                                Style="{StaticResource Typography.Label}"
-                                               Margin="0,14,0,4"/>
+                                               Margin="{StaticResource SettingsHeaderContentMargin}"/>
                                     <PasswordBox x:Name="GeminiKeyBox"
                                                  Style="{StaticResource RoundedPasswordBoxStyle}"
                                                  PasswordChanged="GeminiKeyBox_PasswordChanged"/>
                                     <TextBlock Text="{DynamicResource Settings.GetKeyAistudioGoogleCom}"
                                                Style="{StaticResource SettingsRowMetaStyle}"
-                                               Margin="0,4,0,10"/>
+                                               Margin="{StaticResource SettingsNoteMargin}"/>
                                     <Button
                                         Style="{StaticResource SettingsActionButtonStyle}"
                                             Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
@@ -242,7 +242,7 @@
                                     <TextBlock Text="{Binding GeminiTestStatus}"
                                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource AccentBrush}"
-                                               Margin="0,8,0,0"
+                                               Margin="{StaticResource SettingsStackGap8}"
                                                TextWrapping="Wrap"
                                                IsHitTestVisible="False"/>
                                 </StackPanel>
@@ -267,7 +267,7 @@
                                             <Ellipse Width="12" Height="12"
                                                      Fill="{DynamicResource ProviderDotAmber}"
                                                      VerticalAlignment="Center"
-                                                     Margin="0,0,10,0"
+                                                     Margin="{StaticResource SettingsInlineGap10R}"
                                                      IsHitTestVisible="False"/>
                                             <StackPanel>
                                                 <TextBlock Text="{DynamicResource Settings.Groq}"
@@ -296,13 +296,13 @@
 
                                     <TextBlock Text="{DynamicResource Settings.APIKEY}"
                                                Style="{StaticResource Typography.Label}"
-                                               Margin="0,14,0,4"/>
+                                               Margin="{StaticResource SettingsHeaderContentMargin}"/>
                                     <PasswordBox x:Name="GroqKeyBox"
                                                  Style="{StaticResource RoundedPasswordBoxStyle}"
                                                  PasswordChanged="GroqKeyBox_PasswordChanged"/>
                                     <TextBlock Text="{DynamicResource Settings.GetKeyConsoleGroqCom}"
                                                Style="{StaticResource SettingsRowMetaStyle}"
-                                               Margin="0,4,0,10"/>
+                                               Margin="{StaticResource SettingsNoteMargin}"/>
                                     <Button
                                         Style="{StaticResource SettingsActionButtonStyle}"
                                             Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
@@ -313,7 +313,7 @@
                                     <TextBlock Text="{Binding GroqTestStatus}"
                                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource AccentBrush}"
-                                               Margin="0,8,0,0"
+                                               Margin="{StaticResource SettingsStackGap8}"
                                                TextWrapping="Wrap"
                                                IsHitTestVisible="False"/>
                                 </StackPanel>
@@ -338,7 +338,7 @@
                                             <Ellipse Width="12" Height="12"
                                                      Fill="{DynamicResource ProviderDotViolet}"
                                                      VerticalAlignment="Center"
-                                                     Margin="0,0,10,0"
+                                                     Margin="{StaticResource SettingsInlineGap10R}"
                                                      IsHitTestVisible="False"/>
                                             <StackPanel>
                                                 <TextBlock Text="{DynamicResource Settings.Cohere}"
@@ -367,13 +367,13 @@
 
                                     <TextBlock Text="{DynamicResource Settings.APIKEY}"
                                                Style="{StaticResource Typography.Label}"
-                                               Margin="0,14,0,4"/>
+                                               Margin="{StaticResource SettingsHeaderContentMargin}"/>
                                     <PasswordBox x:Name="CohereKeyBox"
                                                  Style="{StaticResource RoundedPasswordBoxStyle}"
                                                  PasswordChanged="CohereKeyBox_PasswordChanged"/>
                                     <TextBlock Text="{DynamicResource Settings.GetKeyDashboardCohereCom}"
                                                Style="{StaticResource SettingsRowMetaStyle}"
-                                               Margin="0,4,0,10"/>
+                                               Margin="{StaticResource SettingsNoteMargin}"/>
                                     <Button Style="{StaticResource PrimaryPillButton}"
                                             Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
                                             Command="{Binding TestCohereCommand}"
@@ -383,7 +383,7 @@
                                     <TextBlock Text="{Binding CohereTestStatus}"
                                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource AccentBrush}"
-                                               Margin="0,8,0,0"
+                                               Margin="{StaticResource SettingsStackGap8}"
                                                TextWrapping="Wrap"
                                                IsHitTestVisible="False"/>
                                 </StackPanel>
@@ -394,7 +394,7 @@
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.KeysFile}"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.KeysFile}"/>
                                     </StackPanel>
                                     <TextBlock Text="{DynamicResource Settings.ProviderKeysEncryptedRestWindowsDpapiStored}"
                                                Style="{StaticResource SettingsRowMetaStyle}"/>
@@ -420,10 +420,10 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.ControlKeyPersistenceWipeStoredConversation}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <UniformGrid Columns="3" Margin="0,0,0,6">
+                        <UniformGrid Columns="3" Margin="{StaticResource SettingsRowMargin}">
 
                             <!-- Keep API keys saved -->
-                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -449,11 +449,11 @@
                             </Border>
 
                             <!-- Remove saved keys -->
-                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE74D;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.RemoveSavedKeys}"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.RemoveSavedKeys}"/>
                                     </StackPanel>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.DeleteProviderKeyDiskAssistantAskReEnterNext}"/>
@@ -469,7 +469,7 @@
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE81C;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.ClearAIMemory}"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.ClearAIMemory}"/>
                                     </StackPanel>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.WipeStoredConversationHistoryAssistantUses}"/>

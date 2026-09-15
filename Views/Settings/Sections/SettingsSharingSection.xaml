@@ -35,7 +35,7 @@
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
-            <StackPanel Margin="18,14,18,18">
+            <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══ PROVIDERS ═══ -->
                 <!-- ═══ CARD — PROVIDERS ═══ -->
@@ -43,7 +43,7 @@
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Sharing.Providers}"
                                    Style="{StaticResource SettingsCardHeaderStyle}"/>
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,0,10">
+                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackBottom10}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -56,7 +56,7 @@
                 Style="{StaticResource SettingsInnerTileStyle}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72D;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
                                                    Text="{DynamicResource Sharing.Providers}"/>
                                         </StackPanel>
                                     </Border>
@@ -64,17 +64,17 @@
                                               IsChecked="{Binding SharingWhatsAppEnabled, Mode=TwoWay}"
                                               FontWeight="{DynamicResource Weight.SemiBold}"
                                               Foreground="{DynamicResource TextPrimaryBrush}"
-                                              Margin="0,8,0,0"/>
+                                              Margin="{StaticResource SettingsStackGap8}"/>
                                     <CheckBox Content="{DynamicResource Sharing.ProviderEmail}"
                                               IsChecked="{Binding SharingEmailEnabled, Mode=TwoWay}"
                                               FontWeight="{DynamicResource Weight.SemiBold}"
                                               Foreground="{DynamicResource TextPrimaryBrush}"
-                                              Margin="0,8,0,0"/>
+                                              Margin="{StaticResource SettingsStackGap8}"/>
                                     <CheckBox Content="{DynamicResource Sharing.ProviderShowFile}"
                                               IsChecked="{Binding SharingSystemFileEnabled, Mode=TwoWay}"
                                               FontWeight="{DynamicResource Weight.SemiBold}"
                                               Foreground="{DynamicResource TextPrimaryBrush}"
-                                              Margin="0,8,0,0"/>
+                                              Margin="{StaticResource SettingsStackGap8}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2">
@@ -97,7 +97,7 @@
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Sharing.Defaults}"
                                    Style="{StaticResource SettingsCardHeaderStyle}"/>
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,0,10">
+                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackBottom10}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -140,9 +140,9 @@
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Sharing.DocumentRules}"
                                    Style="{StaticResource SettingsCardHeaderStyle}"/>
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,0,10">
+                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackBottom10}">
                             <StackPanel>
-                                <Grid Margin="0,0,0,6">
+                                <Grid Margin="{StaticResource SettingsRowMargin}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="110"/>
                                         <ColumnDefinition Width="*"/>
@@ -158,12 +158,12 @@
                                                Style="{StaticResource SettingsRowMetaStyle}"/>
                                     <TextBlock Grid.Column="4" Text="{DynamicResource Sharing.RuleAllowEdit}"
                                                Style="{StaticResource SettingsRowMetaStyle}"
-                                               Margin="8,0,0,0"/>
+                                               Margin="{StaticResource SettingsInlineGap8}"/>
                                 </Grid>
                                 <ItemsControl ItemsSource="{Binding SharingDocumentRules}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Grid Margin="0,0,0,6">
+                                            <Grid Margin="{StaticResource SettingsRowMargin}">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="110"/>
                                                     <ColumnDefinition Width="*"/>
@@ -177,22 +177,22 @@
                                                            FontWeight="{DynamicResource Weight.SemiBold}"
                                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                                            VerticalAlignment="Center"/>
-                                                <ComboBox Grid.Column="1" Margin="0,0,8,0"
+                                                <ComboBox Grid.Column="1" Margin="{StaticResource SettingsInlineGap8R}"
                                                           ItemsSource="{Binding DataContext.SharingFormatOptions,
                                                               RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                           SelectedItem="{Binding DefaultFormat, Mode=TwoWay}"
                                                           SelectionChanged="RuleCombo_SelectionChanged" Style="{StaticResource ComboBoxStyle}"/>
-                                                <ComboBox Grid.Column="2" Margin="0,0,8,0"
+                                                <ComboBox Grid.Column="2" Margin="{StaticResource SettingsInlineGap8R}"
                                                           ItemsSource="{Binding DataContext.SharingProviderOptions,
                                                               RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                           SelectedItem="{Binding DefaultProviderId, Mode=TwoWay}"
                                                           SelectionChanged="RuleCombo_SelectionChanged" Style="{StaticResource ComboBoxStyle}"/>
-                                                <ComboBox Grid.Column="3" Margin="0,0,8,0"
+                                                <ComboBox Grid.Column="3" Margin="{StaticResource SettingsInlineGap8R}"
                                                           ItemsSource="{Binding DataContext.SharingRecipientKindOptions,
                                                               RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                           SelectedItem="{Binding DefaultRecipientKind, Mode=TwoWay}"
                                                           SelectionChanged="RuleCombo_SelectionChanged" Style="{StaticResource ComboBoxStyle}"/>
-                                                <CheckBox Grid.Column="4" Margin="8,0,0,0"
+                                                <CheckBox Grid.Column="4" Margin="{StaticResource SettingsInlineGap8}"
                                                           VerticalAlignment="Center"
                                                           IsChecked="{Binding AllowMessageEdit, Mode=TwoWay}"
                                                           Checked="RuleCombo_SelectionChanged"
@@ -219,7 +219,7 @@
                                            Style="{StaticResource SettingsRowMetaStyle}"/>
                                 <ComboBox ItemsSource="{Binding SharingTemplateKeyOptions}"
                                           SelectedItem="{Binding SharingTemplateKey, Mode=TwoWay}"
-                                          Padding="10,7" Margin="0,0,0,8"
+                                          Padding="10,7" Margin="{StaticResource SettingsStackBottom8}"
                                           FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource ComboBoxStyle}"/>
                                 <TextBlock Text="{DynamicResource Sharing.TemplateText}"
                                            Style="{StaticResource SettingsRowMetaStyle}"/>
@@ -228,7 +228,7 @@
                                          AcceptsReturn="True" TextWrapping="Wrap"
                                          VerticalScrollBarVisibility="Auto"
                                          FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
-                                <Border Margin="0,10,0,0"
+                                <Border Margin="{StaticResource SettingsStackGap10}"
                 Style="{StaticResource SurfacePanelTileStyle}">
                                     <UniformGrid Columns="2">
                                         <Button Style="{StaticResource SettingsActionButtonStyle}"
@@ -243,7 +243,7 @@
                                 </Border>
                                 <TextBlock Text="{DynamicResource Sharing.Variables}"
                                            Style="{StaticResource SettingsRowMetaStyle}"
-                                           TextWrapping="Wrap" Margin="0,8,0,0"/>
+                                           TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap8}"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
