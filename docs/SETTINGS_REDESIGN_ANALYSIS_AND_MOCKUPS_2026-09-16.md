@@ -4,7 +4,12 @@
 `Views/Shared/QuickSettingsPanel.xaml`, `Services/Theme/**`,
 `Services/ThemeManager.Part1/2.cs`, `Themes/Styles/AboutSurface.xaml`,
 `Themes/Light|DarkTheme.xaml`, tests.
-**Mockups:** `docs/mockups/settings-redesign/01…10` (10 PNG sheets, for approval).
+**Mockups:** ten approved PNG sheets. They are **not in the repository** by
+owner directive ("Dont commit png ever in codes"): `docs/mockups/**/*.png` is
+ignored, the files stay on disk as review artefacts, and the blob they were
+briefly committed as has been scrubbed from this branch's history. What the
+repository carries is the SPEC below — every value the sheets show maps to a
+token that already exists.
 
 ---
 
