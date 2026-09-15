@@ -66,6 +66,21 @@
 
     <StackPanel>
 
+        <!-- 2026-09-15 senior fix: the card must NEVER look silently
+             empty. If the license VM singleton is unavailable, the
+             code-behind shows this explicit note instead (and the
+             incident is in the app log). -->
+        <Border x:Name="VmUnavailableNote"
+                Style="{StaticResource Ios26CardStyle}"
+                Margin="0,0,0,14"
+                Visibility="Collapsed">
+            <TextBlock FontSize="13.5"
+                       Foreground="{DynamicResource Ios26TextSecondaryBrush}"
+                       TextWrapping="Wrap"
+                       LineHeight="20"
+                       Text="License data is temporarily unavailable — the license service did not respond in time. This card fills in automatically once it does. The exact incident is written to the app log (Help → Diagnostics)."/>
+        </Border>
+
         <!-- ═══ 1 · STATUS ═══ -->
         <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
             <Grid>

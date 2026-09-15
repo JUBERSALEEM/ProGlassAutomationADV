@@ -119,10 +119,18 @@
     </DataTemplate>
 
     <!-- ═══ TECH TILE — icon + kicker + value (mockup 04 Tech Stack).
-         Item = TechItem(Icon, Label, Value). -->
+         Item = TechItem(Icon, Label, Value). Quiet accent hover. -->
     <DataTemplate x:Key="TechItemTemplate">
-        <Border Style="{StaticResource Ios26InnerTileStyle}"
-                Margin="0,0,10,10">
+        <Border Margin="0,0,10,10">
+            <Border.Style>
+                <Style TargetType="Border" BasedOn="{StaticResource Ios26InnerTileStyle}">
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="BorderBrush" Value="{DynamicResource Ios26AccentBrush}"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <Border Width="30" Height="30"
                         Style="{StaticResource Ios26IconTileStyle}"

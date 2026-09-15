@@ -45,6 +45,14 @@ namespace ProGlassAutomation.Views.About.Sections
             {
                 ProGlassAutomation.Services.Logging.AppLogService.Warning(
                     "[AboutLicenseCard] License VM unavailable: " + ExceptionMessages.Deep(ex));
+
+                // 2026-09-15: never let the License screen look silently
+                // empty — surface the exact state on the card itself.
+                try
+                {
+                    VmUnavailableNote.Visibility = Visibility.Visible;
+                }
+                catch { /* the note is cosmetic; never throw again here */ }
             }
         }
 

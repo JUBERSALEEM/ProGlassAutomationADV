@@ -189,7 +189,7 @@
                                     Background="{DynamicResource Ios26TileBrush}"
                                     BorderBrush="{DynamicResource Ios26TileBorderBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="{DynamicResource Ios26RadiusPill}"
+                                    CornerRadius="{DynamicResource Ios26RadiusInner}"
                                     Padding="14,6"
                                     SnapsToDevicePixels="True">
                                 <ContentPresenter HorizontalAlignment="Center"

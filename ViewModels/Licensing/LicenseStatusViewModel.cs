@@ -196,10 +196,22 @@ namespace ProGlassAutomation.ViewModels.Licensing
             else
             {
                 _editionDisplay = FormatEdition(p.Edition, r.Status);
+                // 2026-09-15 (approved License mockup): the automatic
+                // evaluation trial has no vendor customer on file —
+                // the License Details card shows "Evaluation user /
+                // ProGlass Automation" (the mockup's presentation)
+                // instead of a blank "—". Real vendor data always
+                // wins when present; the License Source line still
+                // states it is a machine-scoped automatic trial.
+                bool autoTrial = string.Equals(p.TrialSource,
+                    LicenseService.AutoTrialSourceMarker,
+                    StringComparison.Ordinal);
                 _customerDisplay = string.IsNullOrEmpty(p.CustomerId)
-                    ? "—" : p.CustomerId;
+                    ? (autoTrial ? "Evaluation user" : "—")
+                    : p.CustomerId;
                 _companyDisplay = string.IsNullOrEmpty(p.CompanyName)
-                    ? "—" : p.CompanyName;
+                    ? (autoTrial ? "ProGlass Automation" : "—")
+                    : p.CompanyName;
                 _issuedDisplay = SafeLocalString(p.IssuedAt);
                 _expiresDisplay = SafeLocalString(p.EffectiveExpiresAt);
                 _licenseIdDisplay = string.IsNullOrEmpty(p.LicenseId)

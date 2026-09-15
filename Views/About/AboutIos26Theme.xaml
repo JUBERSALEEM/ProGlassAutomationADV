@@ -66,11 +66,19 @@
     <SolidColorBrush x:Key="Ios26DangerDotBrush"     Color="#FB7185" po:Freeze="True"/>
 
     <!-- ═══ CORNER RADII (mockup: 26 px cards, 10 px icon tiles,
-         12 px inner tiles, 999 = full pill) ═══ -->
+         12 px inner tiles, 12 px chips) ═══
+         2026-09-15 owner correction: "Remove this nonsense 999
+         rounded corner buttons." Chips and buttons now use 12 px
+         (Ios26RadiusChip); the full pill (999) survives in EXACTLY
+         one place — the thin progress bar, whose ends must stay
+         fully round to match the mockups. -->
     <CornerRadius x:Key="Ios26RadiusCard">26</CornerRadius>
     <CornerRadius x:Key="Ios26RadiusInner">12</CornerRadius>
     <CornerRadius x:Key="Ios26RadiusTile">10</CornerRadius>
-    <CornerRadius x:Key="Ios26RadiusPill">999</CornerRadius>
+    <CornerRadius x:Key="Ios26RadiusChip">12</CornerRadius>
+    <CornerRadius x:Key="Ios26RadiusSmall">6</CornerRadius>
+    <!-- Bar-only full round (do not use for chips/buttons/cards). -->
+    <CornerRadius x:Key="Ios26RadiusBar">999</CornerRadius>
 
     <!-- ═══ CARD SHADOW (one shared, frozen instance) ═══ -->
     <DropShadowEffect x:Key="Ios26CardShadow"
@@ -113,7 +121,7 @@
     <!-- ═══ SOFT CHIP — light-blue capsule ═══ -->
     <Style x:Key="Ios26ChipSoftStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource Ios26AccentSoftBrush}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusPill}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusChip}"/>
         <Setter Property="Padding" Value="12,6"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
@@ -121,7 +129,7 @@
     <!-- ═══ GREEN CHIP — "Active" pills ═══ -->
     <Style x:Key="Ios26ChipGreenStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource Ios26SuccessSoftBrush}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusPill}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusChip}"/>
         <Setter Property="Padding" Value="11,4"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
@@ -150,7 +158,7 @@
                             Background="{DynamicResource Ios26TileBrush}"
                             BorderBrush="{DynamicResource Ios26HairlineBrush}"
                             BorderThickness="1"
-                            CornerRadius="{DynamicResource Ios26RadiusPill}"
+                            CornerRadius="{DynamicResource Ios26RadiusChip}"
                             Padding="14,8"
                             SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center"
@@ -192,11 +200,11 @@
                 <ControlTemplate TargetType="ProgressBar">
                     <Grid>
                         <Border Background="{TemplateBinding Background}"
-                                CornerRadius="999" SnapsToDevicePixels="True"/>
+                                CornerRadius="{DynamicResource Ios26RadiusBar}" SnapsToDevicePixels="True"/>
                         <Border x:Name="PART_Track"/>
                         <Border x:Name="PART_Indicator"
                                 Background="{TemplateBinding Foreground}"
-                                CornerRadius="999"
+                                CornerRadius="{DynamicResource Ios26RadiusBar}"
                                 HorizontalAlignment="Left"
                                 SnapsToDevicePixels="True"/>
                     </Grid>

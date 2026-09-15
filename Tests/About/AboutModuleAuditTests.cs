@@ -194,6 +194,55 @@ namespace ProGlassAutomation.Tests.About
             Assert.Contains("{Binding Modules.Count, Mode=OneWay}", src);
         }
 
+        /// <summary>
+        /// Regression lock for ERR-3C0789 / ERR-38B0CA: several WPF
+        /// property defaults bind TwoWay (ProgressBar.Value/Maximum,
+        /// Run.Text, TextBox.Text, checkbox/combo/selection DPs).
+        /// Binding them to read-only VM properties throws
+        /// InvalidOperationException the moment the view lays out and
+        /// takes the page down. Every such binding in the About views
+        /// must carry an explicit Mode — OneWay for read-only sources.
+        /// </summary>
+        [Fact]
+        public void About_views_bind_two_way_default_properties_with_explicit_mode()
+        {
+            var root = LocateProjectRoot();
+
+            var runRe = new Regex(
+                @"<Run\b[^>]*Text=""\{Binding[^}]*\}[^>]*>",
+                RegexOptions.Singleline | RegexOptions.Compiled);
+            var barRe = new Regex(
+                @"<ProgressBar\b[^>]*>",
+                RegexOptions.Singleline | RegexOptions.Compiled);
+
+            foreach (var rel in AboutFiles)
+            {
+                var src = File.ReadAllText(Path.Combine(root, rel));
+
+                foreach (Match m in runRe.Matches(src))
+                {
+                    Assert.Contains("Mode=OneWay", m.Value,
+                        $"Run.Text is TwoWay-by-default — {rel} binds it " +
+                        "to a source without an explicit mode: " +
+                        m.Value.Replace("\r", " ").Replace("\n", " "));
+                }
+
+                foreach (Match m in barRe.Matches(src))
+                {
+                    bool bindsSource =
+                        m.Value.Contains("Value=\"{Binding", StringComparison.Ordinal) ||
+                        m.Value.Contains("Maximum=\"{Binding", StringComparison.Ordinal);
+                    if (bindsSource)
+                    {
+                        Assert.Contains("Mode=OneWay", m.Value,
+                            $"ProgressBar.Value/Maximum are TwoWay-by-default " +
+                            $"— {rel} binds them without an explicit mode: " +
+                            m.Value.Replace("\r", " ").Replace("\n", " "));
+                    }
+                }
+            }
+        }
+
         [Fact]
         public void AboutViewModel_selected_tab_index_is_clamped()
         {

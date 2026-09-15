@@ -180,7 +180,7 @@
                                                     <Border x:Name="ActiveChip"
                                                             Grid.Column="2"
                                                             Background="{DynamicResource Ios26OnAccentChipBrush}"
-                                                            CornerRadius="{DynamicResource Ios26RadiusPill}"
+                                                            CornerRadius="{DynamicResource Ios26RadiusSmall}"
                                                             Padding="8,2"
                                                             Margin="10,0,0,0"
                                                             VerticalAlignment="Center"

@@ -492,6 +492,17 @@ public sealed class AboutViewModel : ViewModelBase
         new TechItem("\uE8F2",  "AI PROVIDER",  "Google Gemini"),
     };
 
+    // 2026-09-15 (Developer tab, approved mockup 04): the mockup splits
+    // the tech stack across two cards — the platform core (4 items) in
+    // the Technology Stack card and the engines (4 items) inside the
+    // Product Facts card. Slicing keeps the single TechStack source of
+    // truth (live stat updates still flow) with zero duplication.
+    /// <summary>Platform core — first four tech items (Developer: Technology Stack card).</summary>
+    public IReadOnlyList<TechItem> TechStackCore => TechStack.Take(4).ToList();
+
+    /// <summary>Engines — remaining tech items (Developer: Product Facts card).</summary>
+    public IReadOnlyList<TechItem> TechStackEngines => TechStack.Skip(4).ToList();
+
     // ══════════════════════════════════════════════════════════════════
     //  KEY CAPABILITIES — split into two groups of three
     // ══════════════════════════════════════════════════════════════════

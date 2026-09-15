@@ -33,7 +33,7 @@
             <!-- Edition pill on the Identity card (mockup "Trial"). -->
             <Style x:Key="IdentityEditionPillStyle" TargetType="Border">
                 <Setter Property="Background" Value="{DynamicResource Ios26AccentBrush}"/>
-                <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusPill}"/>
+                <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusChip}"/>
                 <Setter Property="Padding" Value="14,6"/>
                 <Setter Property="SnapsToDevicePixels" Value="True"/>
             </Style>
