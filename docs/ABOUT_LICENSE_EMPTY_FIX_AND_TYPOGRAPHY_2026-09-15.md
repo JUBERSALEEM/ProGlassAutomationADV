@@ -201,8 +201,92 @@ is bold, nothing is emphasised.
 | Audit-test logic mirrored over the real files | all six new locks pass |
 
 > No .NET SDK is available in this sandbox, so `dotnet build` / `dotnet test`
-> could not be executed here. Every check above is static (XAML parse, resource
-> resolution, source contracts).
+> could not be executed here. Every check above is static — but note the lesson
+> from section 8: a static gate is only as good as its rules, so each checker now
+> carries a self-test, and the C# stage is a real parser rather than a heuristic.
+
+---
+
+## 8 · Follow-up — the test project did not compile (owner's IDE report)
+
+The owner's Error List after the first push:
+
+| Code | Line | Cause | Status |
+|---|---|---|---|
+| CS1009 ×2 | 502, 505 | `Regex.Matches(src, "Style=\"\{…\}\"")` — `\{` is an **illegal escape** in a regular C# string | fixed |
+| CS1503 ×4 | 238, 239, 251, 252 | `Assert.Contains(value, expected, message)` — **xunit v2 has no such overload** | fixed (pre-existing) |
+
+**CS1009 — mine.** The label/value counters used a regex whose pattern needed a
+literal `{`. `\{` is only valid inside a *verbatim* (`@"…"`) string; in a
+regular string the compiler rejects it. Rewritten as a plain substring count with
+a small `Occurrences()` helper — no escaping to get wrong:
+
+```csharp
+Assert.True(Occurrences(src, "Style=\"{StaticResource Ios26FieldLabelStyle}\"") >= 8, "…");
+```
+
+**CS1503 — pre-existing, and worse than it looks.** Those four calls came from the
+*previous* commit (verified with `git log -S`). Because of them the **entire test
+project failed to build**, so *every* audit lock in it — including the six added
+in this change — was dead code. Nothing in the repo's gate could see it: a brace
+counter has no idea which overloads exist. Rewritten as
+`Assert.True(x.Contains("…", StringComparison.Ordinal), message)`.
+
+Both classes are now caught before a push.
+
+## 9 · Tooling — why three commits shipped uncompilable code
+
+`scripts/layout-verify/verify_all.sh` pointed at `tools/layout-verify/`, a folder
+that **does not exist**, so the "single pre-push gate" had been failing to start
+every check. It is repaired (paths + a new Bindings stage), and the checks it runs
+have themselves been fixed, because three of them were reporting errors that do
+not exist — which keeps a gate permanently red, which is how a gate stops being
+run at all:
+
+| Checker | It wrongly reported | Why | Now |
+|---|---|---|---|
+| `property_element_order.py` | 20 "property element after content" errors | it classified a **base-type-owned** property element (`<Window.Resources>`, `<dialogs:ThemedDialogWindow.FooterContent>`) as a *content* child, then flagged the legal trailing property element. WPF's own message is *"They must be **before or after** the content"* — only a property element **surrounded by** content is illegal. | rule corrected to the compiler's rule; 20 → **0**, and it still catches the real `TrendChartControl` shape (self-test proves both) |
+| `brace_scan.py` | "unterminated string" / "paren imbalance 5" in `AppSchemaMigrations.cs` | it predated **C# 11 raw string literals** (`"""…"""`), so SQL text inside them was scanned as code | raw strings (and `$"""`) are skipped; a real imbalance is still caught (self-test) |
+| `using_check.py` | `SalesReportView.xaml.cs` "needs `using System.Windows.Media.Animation;`" | the line is `EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut` — an assignment to a **property** with a type's name, plus a fully-qualified type | property assignments and locally **declared** names are not type references (self-test) |
+
+**New stage — `scripts/layout-verify/csharp_syntax_check.py`:**
+
+* parses **every** `.cs` file with the tree-sitter C# grammar (a real parser, not a
+  heuristic) and reports ERROR/MISSING nodes with the offending line;
+* lints the **xunit overload trap** above;
+* explains rather than fails on grammar quirks — e.g. a variable named `required`
+  (a C# 11 contextual keyword) parses as an error in tree-sitter but is valid C#;
+  those are reported as `info` and do not fail the build;
+* degrades gracefully: without `tree_sitter` / `tree_sitter_c_sharp` it prints a
+  SKIP banner and still runs the overload lint, so it never blocks a machine that
+  has not installed them (`pip install tree_sitter tree_sitter_c_sharp`);
+* covers `Tests/` too — a broken test file takes the whole suite down silently.
+
+Verified against history — the checker reproduces the exact shipped errors:
+
+```
+$ python3 scripts/layout-verify/csharp_syntax_check.py <pre-fix AboutModuleAuditTests.cs>
+   SYNTAX ERROR: Regex.Matches(src, "Style=\"\{StaticResource Ios26FieldLabelStyle\}\"")…
+   SYNTAX ERROR: Regex.Matches(src, "Style=\"\{StaticResource Ios26FieldValueStyle\}\"")…
+   XUNIT OVERLOAD: Assert.Contains(…) with a 3rd 'because' argument.
+   XUNIT OVERLOAD: Assert.Contains(…) with a 3rd 'because' argument.
+4 compile-risk finding(s)
+
+$ python3 scripts/layout-verify/csharp_syntax_check.py Tests/About/AboutModuleAuditTests.cs
+0 compile-risk finding(s)
+```
+
+**The gate now covers `Tests/` for the brace/using checks as well, runs each
+checker's self-test first, and passes end to end for the first time:**
+
+```
+── Checker self-tests ── ok  property order rule   ok  brace/raw-string   ok  using heuristics
+── XAML ──────────────── ok  well-formed 274/0     ok  stray attributes   ok  property el. order 274/0
+                         ok  duplicate props 274/0
+── Bindings ──────────── ok  datacontext hijack
+── C# ────────────────── ok  brace balance 1473/0   ok  missing usings 1473/0   ok  C# syntax + xunit
+All checks passed.
+```
 
 ### Pre-existing findings the repaired gate now surfaces (untouched, not ours)
 

@@ -65,6 +65,9 @@ TYPES = {
 
 
 def strip_noise(src):
+    # C# 11 raw strings first — SQL/JSON text inside them is not code
+    # (a table named "Brushes" used to trip the type scan).
+    src = re.sub(r'\$*"{3,}.*?"{3,}', '""', src, flags=re.S)
     src = re.sub(r'@"(?:[^"]|"")*"', '""', src)
     src = re.sub(r'"(?:\\.|[^"\\])*"', '""', src)
     src = re.sub(r'//.*', '', src)
@@ -86,19 +89,81 @@ def check(path):
     body = re.sub(r'^\s*using .*?;$', '', src, flags=re.M)
     body = strip_noise(body)
 
+    # A name the file DECLARES itself (const field, local, class) is not a
+    # type reference: `private const string Brushes = "…Brushes.xaml"` is a
+    # field that happens to share a name with System.Windows.Media.Brushes.
+    declared = set(re.findall(
+        r'\b(?:const|static|readonly|var)\s+[^\s=;(]+\s+(\w+)\s*[=;(]', body))
+    declared |= set(re.findall(r'\bclass\s+(\w+)', body))
+
     issues = 0
     for t, (ns, generic_ok) in TYPES.items():
-        pattern = r'(?<![\w.])' + t + (r'\s*<' if generic_ok else r'(?![\w<])')
+        # (?<![\w.])  — not part of a longer name and not qualified:
+        #               System.Windows.Media.Animation.EasingMode needs no using.
+        # (?!\s*=(?!=)) — not a PROPERTY/field assignment: the line
+        #               `EasingMode = System.Windows.Media.Animation.
+        #                EasingMode.EaseOut` names a property, not the type,
+        #               and used to be reported as a missing using.
+        if t in declared:
+            continue
+        tail = r'\s*<' if generic_ok else r'(?![\w<])(?![ \t]*=(?!=))'
+        pattern = r'(?<![\w.])' + t + tail
         if re.search(pattern, body) and ns not in usings:
             print(f"  MISSING USING {path}: '{t}' needs 'using {ns};'")
             issues += 1
     return issues
 
 
+SELFTEST_CASES = {
+    # (source, expected_findings, description)
+    ("using System;\nclass C { void M() { var e = EasingMode.EaseOut; } }", 1,
+     "bare type usage is reported"),
+    ("using System;\nclass C { void M() { var e = "
+     "System.Windows.Media.Animation.EasingMode.EaseOut; } }", 0,
+     "fully qualified usage is NOT reported"),
+    ("using System;\nclass C { void M() { "
+     "F = new System.Windows.Media.Animation.CubicEase { "
+     "EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut }; } }", 0,
+     "assignment to a PROPERTY named like a type is NOT reported"),
+    ("using System;\nclass C { void M() { var t = \"\"\"\n"
+     "  CREATE TABLE Brushes (Id INTEGER);\n\"\"\"; } }", 0,
+     "type-like text inside a raw string is NOT reported"),
+    ("using System;\nclass C { private const string Brushes = \"a.xaml\"; "
+     "void M() { var s = Brushes; } }", 0,
+     "a field NAMED like a type is NOT reported"),
+}
+
+
+def selftest():
+    import tempfile
+    failures = 0
+    for source, expected, name in SELFTEST_CASES:
+        with tempfile.NamedTemporaryFile("w", suffix=".cs", delete=False,
+                                         encoding="utf-8") as fh:
+            fh.write(source)
+            tmp = fh.name
+        try:
+            import io, contextlib
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                found = check(tmp)
+        finally:
+            os.unlink(tmp)
+        ok = found == expected
+        print(f"  {'ok  ' if ok else 'FAIL'} {name} "
+              f"(expected {expected}, got {found})")
+        failures += 0 if ok else 1
+    print(f"\nselftest: {len(SELFTEST_CASES) - failures}/{len(SELFTEST_CASES)} checks passed")
+    return 1 if failures else 0
+
+
+if '--selftest' in sys.argv:
+    sys.exit(selftest())
+
 total = 0
 for p in sys.argv[1:]:
     if os.path.exists(p):
         total += check(p)
 
-print(f"\n{len(sys.argv)-1} file(s), {total} missing using(s)")
+print(f"\n{max(0, len(sys.argv)-1)} file(s), {total} missing using(s)")
 sys.exit(1 if total else 0)

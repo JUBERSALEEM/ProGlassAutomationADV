@@ -235,7 +235,13 @@ namespace ProGlassAutomation.Tests.About
 
                 foreach (Match m in runRe.Matches(src))
                 {
-                    Assert.Contains("Mode=OneWay", m.Value,
+                    // NOTE (2026-09-15): this used Assert.Contains(value, expected,
+                    // message) — xunit v2 has NO such overload, so the compiler
+                    // reported CS1503 (it fell back to the IEnumerable<T> /
+                    // IAsyncEnumerable<T> overloads) and the ENTIRE test project
+                    // failed to build: every audit lock in this file was dead
+                    // code. Assert.True carries the message instead.
+                    Assert.True(m.Value.Contains("Mode=OneWay", StringComparison.Ordinal),
                         $"Run.Text is TwoWay-by-default — {rel} binds it " +
                         "to a source without an explicit mode: " +
                         m.Value.Replace("\r", " ").Replace("\n", " "));
@@ -248,7 +254,8 @@ namespace ProGlassAutomation.Tests.About
                         m.Value.Contains("Maximum=\"{Binding", StringComparison.Ordinal);
                     if (bindsSource)
                     {
-                        Assert.Contains("Mode=OneWay", m.Value,
+                        // Same xunit overload trap as above — Assert.True.
+                        Assert.True(m.Value.Contains("Mode=OneWay", StringComparison.Ordinal),
                             $"ProgressBar.Value/Maximum are TwoWay-by-default " +
                             $"— {rel} binds them without an explicit mode: " +
                             m.Value.Replace("\r", " ").Replace("\n", " "));
@@ -498,16 +505,37 @@ namespace ProGlassAutomation.Tests.About
             // The detail grid = 8 label cells + 6 plain value cells (the
             // license-id and fingerprint rows are pill + copy button); labels
             // stay quiet, values carry the bold cut.
+            //
+            // NOTE (2026-09-15): counted with a plain substring search, never
+            // Regex.Matches. The regex form needed the pattern
+            // "Style=\"{StaticResource …}\"" — and in a regular (non-verbatim)
+            // C# string `\{` is an ILLEGAL escape sequence (CS1009) that the
+            // build rejects. Literal counting removes the escaping question.
             Assert.True(
-                Regex.Matches(src, "Style=\"\{StaticResource Ios26FieldLabelStyle\}\"").Count >= 8,
+                Occurrences(src, "Style=\"{StaticResource Ios26FieldLabelStyle}\"") >= 8,
                 "The license detail rows no longer use Ios26FieldLabelStyle.");
             Assert.True(
-                Regex.Matches(src, "Style=\"\{StaticResource Ios26FieldValueStyle\}\"").Count >= 6,
+                Occurrences(src, "Style=\"{StaticResource Ios26FieldValueStyle}\"") >= 6,
                 "The license detail values no longer use Ios26FieldValueStyle.");
 
             Assert.Contains("Ios26CardTitleStyle", src);
             Assert.False(new Regex(@"FontSize=""[0-9]").IsMatch(src),
                 "AboutLicenseCard.xaml hard-codes a font size again.");
+        }
+
+        /// <summary>
+        /// Counts non-overlapping occurrences of a literal substring.
+        /// Case-sensitive by design: XAML resource keys are case-sensitive.
+        /// </summary>
+        private static int Occurrences(string haystack, string needle)
+        {
+            int count = 0, at = 0;
+            while ((at = haystack.IndexOf(needle, at, StringComparison.Ordinal)) >= 0)
+            {
+                count++;
+                at += needle.Length;
+            }
+            return count;
         }
 
         private static string LocateProjectRoot()

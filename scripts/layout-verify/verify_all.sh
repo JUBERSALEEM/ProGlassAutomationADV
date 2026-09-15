@@ -21,8 +21,11 @@ XAML=$(git ls-files '*.xaml')
 UNTRACKED=$(git ls-files --others --exclude-standard '*.xaml')
 XAML="$XAML $UNTRACKED"
 
-CS=$(git ls-files '*.cs' | grep -v '^Tests/')
-CS_NEW=$(git ls-files --others --exclude-standard '*.cs' | grep -v '^Tests/')
+# EVERY .cs file — Tests/ included. Two uncompilable commits reached the
+# owner while these checks skipped Tests/: a broken test file takes the
+# whole suite (and every audit lock in it) down with it, silently.
+CS=$(git ls-files '*.cs')
+CS_NEW=$(git ls-files --others --exclude-standard '*.cs')
 CS="$CS $CS_NEW"
 
 FAIL=0
@@ -42,6 +45,11 @@ run() {
   fi
 }
 
+echo "── Checker self-tests ────────────────────────────────"
+run "property order rule" python3 scripts/layout-verify/property_element_order.py --selftest
+run "brace/raw-string  " python3 scripts/layout-verify/brace_scan.py --selftest
+run "using heuristics  " python3 scripts/layout-verify/using_check.py --selftest
+
 echo "── XAML ──────────────────────────────────────────────"
 run "well-formed        " python3 scripts/layout-verify/xaml_wellformed.py $XAML
 run "stray attributes   " python3 scripts/layout-verify/stray_attr_check.py $XAML
@@ -60,6 +68,13 @@ run "datacontext hijack" python3 scripts/layout-verify/datacontext_scan.py --str
 echo "── C# ────────────────────────────────────────────────"
 run "brace balance      " python3 scripts/layout-verify/brace_scan.py $CS
 run "missing usings     " python3 scripts/layout-verify/using_check.py $CS
+
+# Real C# parsing + xunit overload traps. Two commits shipped test code that
+# could not compile while every check above stayed green: an illegal `\{`
+# escape (CS1009) and Assert.Contains(value, expected, message) — an overload
+# xunit v2 does not have (CS1503). A brace counter cannot see either.
+run "C# syntax + xunit " python3 scripts/layout-verify/csharp_syntax_check.py \
+    $(git ls-files '*.cs')
 
 echo "──────────────────────────────────────────────────────"
 if [ $FAIL -ne 0 ]; then

@@ -1,6 +1,7 @@
+#!/usr/bin/env python3
 """
 Detect the XAML compile error:
-  "Property element cannot be in the middle of an element content."
+  "Property elements cannot be in the middle of an element content."
 
 WHY THE FIRST VERSION OF THIS CHECKER FAILED
 ────────────────────────────────────────────
@@ -11,93 +12,163 @@ TrendChartControl.xaml the checker reported 0 issues and the build
 failed at that exact line. A checker with an allow-list of parents only
 finds bugs in the parents someone thought of.
 
-THE ACTUAL WPF RULE
-───────────────────
-Within one element, a property element (Owner.Property) may not appear
-AFTER a child that went into the parent's content property.
+THE ACTUAL WPF RULE (verbatim from the compiler's own message)
+──────────────────────────────────────────────────────────────
+  "Property elements cannot be in the middle of an element's content.
+   They must be BEFORE OR AFTER the content."
 
-But "all property elements must precede all children" is WRONG and
-reports 392 false positives in this repo, because these are legal and
-ship today:
+So a property element is legal:
+  • before every content child            → <Grid.RowDefinitions/> first
+  • after every content child             → <Window.Resources/> … <Grid/>
+                                            … <ThemedDialogWindow.FooterContent/>
+and illegal only when it sits BETWEEN content children — which is what
+"in the middle" means, and the only shape that breaks the build.
 
-    <Style>            <Setter/>...  <Style.Triggers>
-    <ControlTemplate>  <Border/>     <ControlTemplate.Triggers>
+THE SECOND BUG IN THE FIRST VERSION (fixed here)
+────────────────────────────────────────────────
+It identified property elements with `name.startswith(parent + '.')`.
+A property element may name a BASE type:
+    <dialogs:ThemedDialogWindow>
+        <Window.Resources/>                          ← owner Window
+        <StackPanel/>                                ← content
+        <dialogs:ThemedDialogWindow.FooterContent/>   ← owner is the type
+An owner that is not the immediate parent was therefore treated as a
+CONTENT child, and the perfectly legal trailing property element was
+reported as "after content". 20 such false positives sat in this repo,
+keeping the pre-push gate permanently red — which is why nobody ran it
+and why two uncompilable commits reached the owner. The classification
+is now purely syntactic: a local name containing '.' IS a property
+element, whoever owns it.
 
-Those are legal because Setter goes to Style.Setters and the template
-root goes to ControlTemplate.VisualTree -- neither is a content property
-being filled by arbitrary children.
-
-APPROACH: deny-list, not allow-list
-───────────────────────────────────
-Check EVERY parent, then exclude the specific property elements that WPF
-permits after content. That way a new parent type is covered by default
-and only a genuinely-legal pattern needs adding here.
-
-Verified against this repo: 393 raw hits, 392 of them the legal Triggers
-pattern, 1 the real Grid.RowDefinitions error.
+USAGE
+    python3 scripts/layout-verify/property_element_order.py <files…>
+    python3 scripts/layout-verify/property_element_order.py --selftest
 """
 import sys
 from xml.etree import ElementTree as ET
-
-# Property elements WPF allows after content children, by suffix.
-# Triggers are always declared last by convention and are collections
-# owned by the parent, not its content property.
-ALLOWED_AFTER_CONTENT = {
-    'Triggers',          # Style.Triggers, ControlTemplate.Triggers, DataTemplate.Triggers
-    'Resources',         # FrameworkElement.Resources may legally trail
-    'Storyboard',
-    'VisualStateGroups',
-    'InputBindings',
-    'CommandBindings',
-    'ContextMenu',
-    'ToolTip',
-    'Setters',
-    'Conditions',
-    'ExitActions',
-    'EnterActions',
-    'BindingGroup',
-}
 
 
 def local(tag):
     return tag.split('}')[-1]
 
 
-def check(path):
-    try:
-        root = ET.parse(path).getroot()
-    except Exception as e:
-        print(f"  PARSE FAIL {path}: {e}")
-        return 1
+def is_property_element(local_name: str) -> bool:
+    """`Grid.RowDefinitions` / `Window.Resources` / `X.FooterContent` — any
+    local name with a dot is a property element, regardless of which type
+    in the inheritance chain owns it."""
+    return '.' in local_name
 
+
+def check_text(text: str, label: str = "<memory>") -> int:
+    root = ET.fromstring(text)
     issues = 0
 
     def walk(el):
         nonlocal issues
         parent = local(el.tag)
-        first_content = None
+        children = list(el)
 
-        for ch in el:
+        flags = [is_property_element(local(ch.tag)) for ch in children]
+        content_idx = [i for i, prop in enumerate(flags) if not prop]
+        first_content = min(content_idx) if content_idx else -1
+        last_content = max(content_idx) if content_idx else -1
+
+        for i, ch in enumerate(children):
             name = local(ch.tag)
-
-            if name.startswith(parent + '.'):
-                suffix = name.split('.', 1)[1]
-                if first_content and suffix not in ALLOWED_AFTER_CONTENT:
-                    print(f"  ORDER {path}: <{name}> comes after content "
-                          f"child <{first_content}> inside <{parent}>")
-                    issues += 1
-            elif first_content is None:
-                first_content = name
-
+            # Illegal ONLY when content surrounds it on both sides.
+            if flags[i] and first_content != -1 and first_content < i < last_content:
+                print(f"  ORDER {label}: <{name}> comes between content "
+                      f"children inside <{parent}> (before index "
+                      f"{first_content}, after index {last_content})")
+                issues += 1
             walk(ch)
 
     walk(root)
     return issues
 
 
-total = 0
-for p in sys.argv[1:]:
-    total += check(p)
+def check(path):
+    try:
+        with open(path, encoding="utf-8") as fh:
+            text = fh.read()
+    except OSError as e:
+        print(f"  PARSE FAIL {path}: {e}")
+        return 1
 
-print(f"\n{len(sys.argv)-1} file(s), {total} property-element order issue(s)")
-sys.exit(1 if total else 0)
+    try:
+        return check_text(text, path)
+    except ET.ParseError as e:
+        # Well-formedness is a separate gate; do not double-report.
+        print(f"  PARSE FAIL {path}: {e}")
+        return 1
+
+
+# ── self-test: the rule that the compiler actually enforces ──────────────
+LEGAL_CASES = {
+    "property element after ALL content (the 20 false positives)": """
+        <Window xmlns:d="x">
+            <Window.Resources/>
+            <StackPanel/>
+            <d:ThemedDialogWindow.FooterContent/>
+        </Window>""",
+    "property element before all content": """
+        <Grid xmlns:d="x">
+            <Grid.RowDefinitions/>
+            <d:Child/>
+        </Grid>""",
+    "Style.Triggers after Setters (the documented legal pattern)": """
+        <Style xmlns:d="x">
+            <Setter/>
+            <Style.Triggers/>
+        </Style>""",
+}
+
+ILLEGAL_CASES = {
+    "property element between two content children": """
+        <Grid xmlns:d="x">
+            <d:ChildA/>
+            <Grid.RowDefinitions/>
+            <d:ChildB/>
+        </Grid>""",
+    "the TrendChartControl shape (child, RowDefinitions, ColumnDefinitions, child)": """
+        <Grid xmlns:d="x">
+            <Border/>
+            <Grid.RowDefinitions/>
+            <Grid.ColumnDefinitions/>
+            <d:Chart/>
+        </Grid>""",
+}
+
+
+def selftest() -> int:
+    failures = 0
+    for name, text in LEGAL_CASES.items():
+        n = check_text(text, "selftest")
+        ok = n == 0
+        print(f"  {'ok  ' if ok else 'FAIL'} legal  — {name}")
+        failures += 0 if ok else 1
+    for name, text in ILLEGAL_CASES.items():
+        n = check_text(text, "selftest")
+        ok = n > 0
+        print(f"  {'ok  ' if ok else 'FAIL'} illegal — {name}")
+        failures += 0 if ok else 1
+    print(f"\nselftest: {len(LEGAL_CASES) + len(ILLEGAL_CASES) - failures}"
+          f"/{len(LEGAL_CASES) + len(ILLEGAL_CASES)} rule checks passed")
+    return 1 if failures else 0
+
+
+def main() -> int:
+    if "--selftest" in sys.argv:
+        return selftest()
+
+    files = [p for p in sys.argv[1:] if not p.startswith("-")]
+    total = 0
+    for p in files:
+        total += check(p)
+
+    print(f"\n{len(files)} file(s), {total} property-element order issue(s)")
+    return 1 if total else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
