@@ -307,7 +307,7 @@ settled, what it shipped and what is still open.
 
 ---
 
-## 8. The rules this module now follows (second pass, 2026-09-16)
+## 8. The rules this module now follows (2026-09-16, second + third pass)
 
 Read the sheets for *detail* rather than layout and they say five things. Each
 one is now a rule with a guard behind it, because each one had been got wrong at
@@ -330,7 +330,7 @@ title, red warning, and only the action it performs. | sheet 08
 
 | Item | Detail |
 |---|---|
-| **Twelve pages on the card grammar** | 40 cards across the module; every band caption converted (Appearance 4, Agent 2, AI 3, Data 4, Demo 6 + 1 danger, Sharing 4, Themes 2, Updates 3, Features 6 module cards). Features keeps 8 bands on purpose: a card there is a *module* and its bands are the wizard-step sub-groups inside it (sheet 10's cap groups). |
+| **Twelve pages on the card grammar** | 40 cards across the module after this pass (44 today: the third pass added Appearance's MODE and DISPLAY DENSITY cards, and Themes' Crystal-fluid card sits inside a conditional wrapper rather than a card); every band caption converted (Appearance 4, Agent 2, AI 3, Data 4, Demo 6 + 1 danger, Sharing 4, Themes 2, Updates 3, Features 6 module cards). Features keeps 8 bands on purpose: a card there is a *module* and its bands are the wizard-step sub-groups inside it (sheet 10's cap groups). |
 | **Hierarchy fixed where it was lying** | 116 containers that were page cards inside page cards are inner tiles now (`card_depth_audit.py --demote`), and 51 tile-in-tile header boxes — a stray bordered panel around every row title — are gone (`flatten_tile_in_tile.py`). |
 | **Grammar additions** | `SettingsCardHeaderStyle`, `SettingsCardHeaderNoteStyle` (the header block's air), `SettingsDangerCardTitleStyle`, `SettingsDangerCardNoteStyle` (the danger card's red roles). |
 | **Demo reset is a danger card** | It was the third of three identical buttons, one slip away from "Enter demo mode". |
@@ -345,7 +345,7 @@ title, red warning, and only the action it performs. | sheet 08
 | `flatten_tile_in_tile.py` | removes the pure header box — nesting **and** no attribute but its `Style` **and** text-only content. The first draft checked nesting alone and deleted Data's amber status panel and Themes' crystal preview; the binding harness caught both, and those two panels are now permanently out of scope. |
 | `reindent.py` | rewrites leading whitespace from the element tree; never touches a line that starts with text. |
 | `verify_bindings.py` | every binding, command parameter, `x:Name`, converter, `RelativeSource` and text key that existed before is still there, with intentional removals recorded **per page, once**, with their reason (a duplicate entry is now a hard error: the later dict silently replaced the earlier one). |
-| `grammar_usage.py` | reports which grammar styles the pages consume and which are still waiting (below). |
+| `grammar_usage.py` | reports which grammar styles the pages consume and which are still waiting (47 declared / 30 consumed / 17 waiting after the third pass); `--fail-unused` gates it. |
 
 **Per-page gate before any commit:** `verify_bindings.py` (nothing defused) →
 `scripts/xaml-guard.py` (well-formed) → `card_depth_audit.py` (0 nested) →
@@ -358,28 +358,40 @@ Sharing and Themes are in the parse list, which they never were.
 
 ### 8.4 Still open (honest list)
 
-1. **Status chips are not wired to state.** The sheets show status as a chip
-   (sheet 06 "READY"/"IDLE", sheet 08 "VERIFIED"/"KEPT"), and the grammar has
-   the chip pairs — but the pages' status text comes from a `{Binding}` that
-   carries no severity, so a chip today would be one colour for every state,
-   which is worse than the current plain text. The clean fix is a small
-   status→brush converter or a VM-provided severity enum, then wire
-   `SettingsChipGreenStyle` / `SettingsChipMutedStyle` / `SettingsChipDangerStyle`.
-2. **Segmented controls.** Sheet 02's Light/Dark and sheet 03's density presets
-   are segmented groups; the pages still use option buttons. `SettingsSegmentStyle`
-   / `SettingsSegmentTrackStyle` are declared and waiting.
+1. **The remaining status chips still have no severity source.** The shell chip
+   is done (§8.5) and proves the mechanism: the VM supplies a *brush key* and the
+   chip resolves it through `BrushKeyConverter`. What is still missing is the
+   source, not the mechanism — sheet 08's backup rows ("VERIFIED" / "KEPT") come
+   from `BackupSetInfo`, which carries no status field, and sheet 06's Agent
+   status is a two-branch string (`KeyStatus`) with no severity. Give those two
+   a real state (bool/enum on the model), then they can use the same chip.
+2. ~~Segmented controls.~~ **Done** — sheet 02's Light/Dark and sheet 03's
+   density are segmented controls now; see §8.5.
 3. **Two literal English strings** now sit in card headers: Features' "STEP 9 ·
    TARGET PRICING" and Data's "Company LAN / Wi-Fi Database". Both are
    pre-existing; adding keys means 15 language files plus `scripts/i18n`, so they
    are recorded here rather than machine-translated.
-4. **Unused sheet vocabulary** (21 styles, deliberately kept as the design
-   system's reserve — `grammar_usage.py` prints the list): `SettingsSegment*`,
-   `SettingsChipStyle`/`Muted`/`Danger` pairs, `SettingsStatusDotStyle`,
-   `SettingsMetricValue/LabelStyle`, `SettingsPrimary/SecondaryButtonStyle`,
-   `SettingsActionBarStyle`, `SettingsInteractiveTileStyle`,
-   `SettingsSuccessTileStyle`, `SettingsBareTileStyle`, `SettingsFlatCardStyle`,
-   `SettingsFieldValueStyle`, `SettingsIconButtonStyle`, `SettingsPageSubtitleStyle`.
+4. **Unused sheet vocabulary** (17 styles today, deliberately kept as the
+   design system's reserve — `grammar_usage.py` prints the list):
+   `SettingsChipMuted`/`Danger` pairs plus `SettingsChipGreen*`'s siblings,
+   `SettingsStatusDotStyle`, `SettingsMetricValue/LabelStyle`,
+   `SettingsPrimary/SecondaryButtonStyle`, `SettingsActionBarStyle`,
+   `SettingsInteractiveTileStyle`, `SettingsSuccessTileStyle`,
+   `SettingsBareTileStyle`, `SettingsFlatCardStyle`, `SettingsFieldValueStyle`,
+   `SettingsIconButtonStyle`, `SettingsPageSubtitleStyle`.
 5. **Runtime verification is the owner's**: there is no `dotnet` in the agents'
    environment, so everything above is verified statically (well-formed XAML,
    zero lost references, zero nested cards, token-only grammar) and the visual
    result needs one build in Visual Studio.
+
+### 8.5 Third pass — the two sheet elements that were still missing
+
+| Item | Detail |
+|---|---|
+| **Segmented control, honestly** | The grammar had `SettingsSegmentStyle` (a `ToggleButton`) and `SettingsSegmentTrackStyle` (a `Border`) waiting as *design-system reserve*. They could not drive a control: WPF gives every `ToggleButton` its own `IsChecked`, so four densities would need four bools plus four commands and nothing would uncheck the others. Replaced with a `ListBox` pair — `SettingsSegmentItemStyle` (`ListBoxItem`: accent fill on `IsSelected`, hover, disabled) inside `SettingsSegmentTrackStyle` (the pill track, `UniformGrid Rows="1"` so every label gets the same width, and a template with no `ScrollViewer` so the wheel keeps reaching the page) plus `SettingsSegmentTrackFillStyle` for the full-width variant. One style, N options, keyboard navigation and selection from the selector itself. The `ToggleButton` version was deleted rather than left beside it. |
+| **MODE card (sheet 02)** | Nothing in the module bound `IsDarkTheme` — Light/Dark was reachable only from the top bar. `SettingsViewModel.ThemeMode` holds the token the config already persists (`Appearance.Theme` = "Light"/"Dark"), and its setter routes through `IsDarkTheme` so there is still exactly **one** theme path (`ThemePipeline.Rebuild` → persist → audit); re-selecting the active mode is a no-op instead of a rebuild + audit entry. Labels come from the language files via `SelectedValuePath="Tag"`. |
+| **DISPLAY DENSITY card (sheet 03)** | The bare `ComboBox` became four data-driven segments over `DisplayDensityOptions` / `DisplayDensity`, so the option list keeps one source. Sheet 03's four names are the VM's own tokens. |
+| **Mode chip in the shell header (sheet 02)** | The page header now carries the live mode beside the page name, on all twelve pages. It reads `ThemeModeChipBackgroundKey` / `ThemeModeChipForegroundKey` from the VM and resolves them with `BrushKeyConverter`, so **no colour literal reaches the view** and a theme switch repaints it: neutral pill (`Ios26ValuePillBrush` + `Ios26TextMutedBrush`) in Light, accent-soft (`Ios26AccentSoftBrush` + `Ios26AccentSoftTextBrush`) in Dark. Both badges are language keys (`Settings.ModeBadgeLight` / `ModeBadgeDark`); visibility is `IsDarkTheme` through `BoolToVis` / `InverseBoolToVis`. |
+| **Language coverage** | 6 new keys (`Settings.Mode`, `ModeHelp`, `ModeLight`, `ModeDark`, `ModeBadgeLight`, `ModeBadgeDark`) authored in all **15** dictionaries — not English fallbacks: `scripts/i18n/{code}.py` regenerated from `merge-keys.py` → `build.py`, coverage 95.7–98.7 %. |
+| **The regression suite was lying** | `Tests/Settings/SettingsRedesignTests.cs` still asserted the deleted tile grammar: 23 of the 28 keys it required existed nowhere, its per-page lock demanded `SettingsTileStyle` / `SettingsGroupHeaderTextStyle` in 12 pages that have neither, it banned `WrapPanel` outright (the correct host for a chip palette, a button cluster and the Features tab strip), and its wallpaper test sliced between two words that had become a comment 73 characters apart. Replaced with card-grammar locks (§8.3), a burn-down lock that names Voice as the last page on the shims, and a tree-walked wallpaper test. |
+
