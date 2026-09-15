@@ -567,10 +567,14 @@ namespace ProGlassAutomation.Tests.About
             // in Themes/Styles/AboutSurface.xaml and are republished live by
             // Services/Theme/AboutSurfaceTokens.cs. Only the bar's full round
             // and the card shadow stay here: pure design geometry.
+            // 2026-09-16: the card shadow moved to
+            // Themes/Styles/AboutSurface.xaml as well, so the Settings module
+            // can compose the same card. The bar's full round is now the ONLY
+            // value the About module still declares — everything else it
+            // reads is application-level and live.
             var allowed = new HashSet<string>(StringComparer.Ordinal)
             {
                 "Ios26RadiusBar",
-                "Ios26CardShadow",
             };
 
             var declared = new List<string>();

@@ -1,25 +1,31 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/Sections/SettingsLicenseSection.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Settings v2 — LICENSE page (tile-grid redesign Aug 2026)
+     MODULE: Settings — LICENSE page (2026-09-16 grammar rewrite)
 
-     A thin wrapper that hosts the shared LicenseActivationView so
-     licence management lives INSIDE the settings shell rather than
-     as a full-screen startup overlay. Also renders a compact
-     summary strip (status badge + edition + days remaining) above
-     the activation view so the user can see their state before
-     scrolling into the details.
+     WHAT CHANGED AND WHY
+     ────────────────────
+     Restyled to the approved Settings grammar
+     (Views/Settings/SettingsCardStyles.xaml). The page's job is unchanged
+     and so is every binding: this is a structural rewrite of the chrome.
 
-     REDESIGN
-       Was a single full-width card above the activation view. Now the
-       status strip gets a labelled group header and the activation
-       step its own header, so the page reads as two clear steps.
+       • The old file opened with its own H1 + subtitle block. The shell
+         already renders a header strip with the page name, so every page
+         printed its title twice. Local titles are gone; the shell strip is
+         the single page header.
+       • `<Border Style="SurfaceDetailStyle"/>` was used as a vertical
+         GAP between two groups. SurfaceDetailStyle is a card — a card used
+         as a spacer is why the page read as a stack of unrelated slabs.
+         Real spacing + SettingsRowSeparatorStyle now do that.
+       • Cards were `SurfacePrimaryStyle` with nested `SurfacePrimaryStyle`
+         inside them (a card inside a card of the same style). Now: one
+         SettingsPageCardStyle per card, content in SettingsInnerTileStyle.
+       • Values are pills (SettingsValuePillStyle), status is a chip, and
+         spacing comes from the grammar's tokens — no local margins.
 
-     The activation view is the single source of truth for the
-     License-key / PC-ID / trial-status UI — this section deliberately
-     does not duplicate that surface. The trial is automatic (see
-     Services/Licensing/AutoTrialManager).
-═══════════════════════════════════════════════════════════════════════ -->
+     The activation view stays the single source of truth for key entry and
+     PC-ID display; this page deliberately does not duplicate it.
+═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsLicenseSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -34,104 +40,121 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../SettingsCardStyles.xaml"/>
                 <ResourceDictionary Source="../SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  CanContentScroll="False"
+                  PanningMode="VerticalOnly"
+                  behaviors:SmoothScrollBehavior.IsEnabled="True"
+                  Focusable="False"
+                  FocusVisualStyle="{x:Null}"
+                  Padding="{StaticResource SettingsPagePadding}">
+        <StackPanel DataContext="{x:Static vmLicensing:LicenseStatusViewModel.Instance}">
 
-        <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="{DynamicResource About.License}" Style="{StaticResource Typography.H1}"/>
-            <TextBlock Text="{DynamicResource Settings.ChoosePlanRequestKeyPasteVendorSignedKey}"
-                       Style="{StaticResource Typography.Subtitle}"/>
-        </StackPanel>
+            <!-- ═══ CARD 1 — STATUS AT A GLANCE ═══ -->
+            <Border Style="{StaticResource SettingsPageCardStyle}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-        <ScrollViewer Grid.Row="1"
-                      VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled"
-                      CanContentScroll="False"
-                      PanningMode="VerticalOnly"
-                      behaviors:SmoothScrollBehavior.IsEnabled="True"
-                      Focusable="False"
-                      FocusVisualStyle="{x:Null}">
-            <StackPanel Margin="32,0,32,32"
-                        DataContext="{x:Static vmLicensing:LicenseStatusViewModel.Instance}">
+                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                            <TextBlock Text="&#xE762;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                        </Border>
 
-                <!-- ═══════ GROUP: LICENSE STATUS ═══════ -->
-                <TextBlock Text="{DynamicResource Settings.LicenseStatus}"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="{DynamicResource Settings.AutoUpdatesLicenseserviceStatuschanged}"
-                           Style="{StaticResource Typography.BodySmall}"/>
+                        <StackPanel Grid.Column="1"
+                                    Margin="{StaticResource SettingsIconTextMargin}"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Settings.LicenseStatus}"
+                                       Style="{StaticResource SettingsCardTitleStyle}"/>
+                            <TextBlock Text="{Binding EditionDisplay}"
+                                       Style="{StaticResource SettingsRowTitleStyle}"
+                                       Margin="0,2,0,0"/>
+                        </StackPanel>
 
-                <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                        <StackPanel Grid.Column="2" Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <Border Style="{StaticResource SettingsChipGreenStyle}">
+                                <TextBlock Text="{Binding StatusBadge}"
+                                           Style="{StaticResource SettingsChipGreenTextStyle}"/>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="{Binding StatusDescription}"
+                               Style="{StaticResource SettingsCardNoteStyle}"/>
+
+                    <Border Style="{StaticResource SettingsInnerTileStyle}"
+                            Margin="{StaticResource SettingsCardContentMargin}">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <!-- Status badge chip -->
-                            <Border Grid.Column="0"
-                                    Padding="12,6"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Background="{DynamicResource AccentBrush}"
-                                    VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
-                                <TextBlock Text="{Binding StatusBadge}"
-                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                            </Border>
-
-                            <StackPanel Grid.Column="1" Margin="16,0,0,0"
-                                        VerticalAlignment="Center">
-                                <TextBlock Text="{Binding EditionDisplay}"
-                                           FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                <TextBlock Text="{Binding StatusDescription}"
-                                           FontSize="{DynamicResource FontSize.Body}"
-                                           Foreground="{DynamicResource TextTertiaryBrush}"
-                                           TextWrapping="Wrap"
-                                           Margin="0,2,0,0"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="2"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Center">
-                                <TextBlock Text="{Binding DaysRemainingDisplay}"
-                                           FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource AccentBrush}"
-                                           HorizontalAlignment="Right"/>
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                 <TextBlock Text="{DynamicResource Settings.Remaining}"
-                                           FontSize="{DynamicResource FontSize.Body}"
-                                           Foreground="{DynamicResource TextTertiaryBrush}"
-                                           HorizontalAlignment="Right"/>
+                                           Style="{StaticResource SettingsFieldLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Settings.AutoUpdatesLicenseserviceStatuschanged}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           TextWrapping="Wrap"/>
                             </StackPanel>
+
+                            <Border Grid.Column="1"
+                                    Style="{StaticResource SettingsValuePillStyle}"
+                                    Margin="12,0,0,0"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="{Binding DaysRemainingDisplay}"
+                                           Style="{StaticResource SettingsValuePillTextStyle}"
+                                           FontSize="{DynamicResource Ios26FontSizeSubtitle}"/>
+                            </Border>
                         </Grid>
                     </Border>
                 </StackPanel>
+            </Border>
 
-                <Border Style="{StaticResource SurfaceDetailStyle}"/>
+            <!-- ═══ CARD 2 — ACTIVATION ═══ -->
+            <Border Style="{StaticResource SettingsPageCardStyle}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                <!-- ═══════ GROUP: ACTIVATION ═══════ -->
-                <TextBlock Text="{DynamicResource Settings.Activation}"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="{DynamicResource Settings.PickPlanPressGETLicenseKEYPasteVendorKey}"
-                           Style="{StaticResource Typography.BodySmall}"/>
+                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                            <TextBlock Text="&#xE72E;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                        </Border>
 
-                <!-- Reuses the same UserControl the main window used to show
-                     as a full-screen overlay. Because it lives inside a
-                     ScrollViewer here, IsClosable stays false (there is
-                     nothing to close — you navigate away from the settings
-                     page instead). -->
-                <viewsLicensing:LicenseActivationView IsClosable="False"/>
+                        <StackPanel Grid.Column="1"
+                                    Margin="{StaticResource SettingsIconTextMargin}"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Settings.Activation}"
+                                       Style="{StaticResource SettingsCardTitleStyle}"/>
+                            <TextBlock Text="{DynamicResource Settings.PickPlanPressGETLicenseKEYPasteVendorKey}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Grid>
 
-            </StackPanel>
-        </ScrollViewer>
-    </Grid>
+                    <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+
+                    <!-- Reuses the same UserControl the main window used to show
+                         as a full-screen overlay; inside a ScrollViewer
+                         IsClosable stays false (there is nothing to close —
+                         you navigate away from the page instead). -->
+                    <viewsLicensing:LicenseActivationView IsClosable="False"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

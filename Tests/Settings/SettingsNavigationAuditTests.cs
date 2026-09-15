@@ -190,6 +190,85 @@ namespace ProGlassAutomation.Tests.Settings
                 "it. Use {DynamicResource}:\n  " + string.Join("\n  ", offenders));
         }
 
+        [Fact]
+        public void Settings_pages_use_the_grammar_not_the_generic_surfaces()
+        {
+            var root = LocateProjectRoot();
+            var offenders = new List<string>();
+
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(root, "Views", "Settings", "Sections"),
+                         "*.xaml", SearchOption.TopDirectoryOnly))
+            {
+                var src = File.ReadAllText(file);
+                var name = Path.GetFileName(file);
+
+                // The approved grammar is the only card/tile system a settings
+                // page may use. The generic surfaces are what the twelve pages
+                // used before the 2026-09-16 rewrite, each with its own radius,
+                // padding and wash — that drift is what the owner reported as
+                // "many issues in Settings".
+                if (src.Contains("Style=\"{StaticResource SurfacePrimaryStyle}\"")
+                    || src.Contains("Style=\"{StaticResource SurfaceDetailStyle}\""))
+                {
+                    offenders.Add(name + ": uses a generic Surface* style");
+                }
+
+                // Every page must be able to resolve the grammar.
+                if (!src.Contains("SettingsCardStyles.xaml"))
+                {
+                    offenders.Add(name + ": does not merge SettingsCardStyles.xaml");
+                }
+
+                // A local page-title block is the duplicate header the shell
+                // strip replaced (Margin 32,26 is its signature).
+                if (src.Contains("Margin=\"32,26,32,14\""))
+                {
+                    offenders.Add(name + ": still declares a local page title block");
+                }
+
+                // A card style used as a vertical gap.
+                if (src.Contains("<Border Style=\"{StaticResource SettingsPageCardStyle}\"/>"))
+                {
+                    offenders.Add(name + ": uses a card as an empty spacer");
+                }
+            }
+
+            Assert.True(offenders.Count == 0,
+                "Settings pages must compose from Views/Settings/SettingsCardStyles.xaml " +
+                "(the About card grammar):\n  " + string.Join("\n  ", offenders));
+        }
+
+        [Fact]
+        public void Settings_grammar_is_built_on_the_live_about_tokens()
+        {
+            var root = LocateProjectRoot();
+            var grammar = File.ReadAllText(Path.Combine(
+                root, "Views/Settings/SettingsCardStyles.xaml"));
+
+            // The grammar must be built on the tokens that are theme-, family-,
+            // accent- and density-dynamic — that is what makes the settings
+            // module follow a theme switch at all. A literal here (hex, radius
+            // number, font size number) would freeze the module again.
+            foreach (var key in new[]
+            {
+                "Ios26CardBrush", "Ios26CardBorderBrush", "Ios26TileBrush",
+                "Ios26CardShadow", "Ios26RadiusCard", "Ios26RadiusInner",
+                "Ios26RadiusTile", "Ios26RadiusChip", "Ios26RadiusSmall",
+                "Ios26TextTitleBrush", "Ios26TextSecondaryBrush", "Ios26TextMutedBrush",
+                "Ios26AccentBrush", "Ios26AccentSoftBrush", "Ios26SuccessSoftBrush",
+                "Ios26FontSizeCardTitle", "Ios26FontSizeBody", "Ios26FontSizeValue",
+            })
+            {
+                Assert.Contains("DynamicResource " + key, grammar);
+            }
+
+            // No literal colours, radii or sizes in the grammar itself.
+            Assert.DoesNotMatch(new Regex("#[0-9A-Fa-f]{6,8}"), grammar);
+            Assert.DoesNotMatch(new Regex("CornerRadius=\"[0-9]"), grammar);
+            Assert.DoesNotMatch(new Regex("FontSize=\"[0-9]"), grammar);
+        }
+
         private static string LocateProjectRoot()
         {
             var dir = new DirectoryInfo(AppContext.BaseDirectory);

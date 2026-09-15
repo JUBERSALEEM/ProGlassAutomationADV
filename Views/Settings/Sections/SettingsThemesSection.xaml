@@ -31,6 +31,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../SettingsCardStyles.xaml"/>
                 <ResourceDictionary Source="../SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -42,12 +43,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="{DynamicResource Settings.SecThemes}"
-                       Style="{StaticResource Typography.H1}"/>
-            <TextBlock Text="{DynamicResource Settings.ThemesSubtitle}"
-                       Style="{StaticResource Typography.Subtitle}"/>
-        </StackPanel>
 
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
@@ -57,22 +52,22 @@
                       behaviors:SmoothScrollBehavior.IsEnabled="True"
                       Focusable="False"
                       FocusVisualStyle="{x:Null}">
-            <StackPanel Margin="32,0,32,32">
+            <StackPanel Margin="18,14,18,18">
 
                 <!-- ═══ GROUP: VISUAL THEME (always visible) ═══ -->
                 <TextBlock Text="{DynamicResource Settings.LblThemeFamily}"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.NormalMonetIos17pm}"
-                           Style="{StaticResource Typography.BodySmall}"/>
+                           Style="{StaticResource SettingsRowMetaStyle}"/>
 
                 <UniformGrid Columns="2" Margin="0,0,0,6">
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
                                            Text="{DynamicResource Settings.LblThemeFamily}"/>
                             </StackPanel>
     </Border>
@@ -89,17 +84,17 @@
                     <!-- Per-family Reset: Crystal → authored baselines;
                          Normal/Monet → default card shape (corner/border/
                          gradients). Always available. -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE777;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
                                            Text="{DynamicResource Settings.ResetThemeFamily}"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.ResetThemeFamilyHint}"/>
                             <Button AutomationProperties.AutomationId="Settings.ResetThemeFamily"
                                     Command="{Binding ResetThemeFamilyCommand}"
@@ -114,22 +109,22 @@
                     Converter={StaticResource BoolToVisibilityConverter}}">
 
                     <TextBlock Text="{DynamicResource Settings.GrpCrystalMaterial}"
-                               Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                               Style="{StaticResource SettingsGroupCaptionStyle}"/>
                     <TextBlock Text="{DynamicResource Settings.CrystalMaterialHint}"
-                               Style="{StaticResource Typography.BodySmall}"/>
+                               Style="{StaticResource SettingsRowMetaStyle}"/>
 
                     <!-- Quick presets (Default / Calm / Intense) -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A9;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
                                            Text="{DynamicResource Settings.GrpPresets}"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.PresetsHint}"/>
                             <StackPanel Orientation="Horizontal">
                                 <Button AutomationProperties.AutomationId="Settings.PresetDefault"
@@ -184,13 +179,13 @@
                     </Border>
 
                     <!-- Six live Crystal Fluid axes -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE771;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
                                            Text="{DynamicResource Settings.GrpCrystalMaterial}"/>
                             </StackPanel>
     </Border>
@@ -334,17 +329,17 @@
                          WaterSpeed / WaveAmplitude / BubbleOpacity from the
                          Crystal* tokens, so dragging the axes above repaints
                          this reservoir live. -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
                                            Text="{DynamicResource Settings.PreviewTitle}"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.CrystalPreviewHint}"/>
                             <Border CornerRadius="{DynamicResource CardCornerRadius}"
                                     Background="{DynamicResource SurfaceSecondaryBrush}"
@@ -352,7 +347,7 @@
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     Margin="0,8,0,0"
                                     Height="150"
-                                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                    SnapsToDevicePixels="True" Style="{StaticResource SettingsPageCardStyle}">
                                 <crystal:CrystalWaterControl
                                     WaterEnabled="{DynamicResource CrystalWaterDefaultEnabled}"
                                     WaterLevel="0.4"
@@ -364,19 +359,19 @@
                 </StackPanel>
 
                 <!-- ═══ GROUP: CRYSTAL INACTIVE HINT (Normal/Monet only) ═══ -->
-                <Border Style="{StaticResource SurfacePrimaryStyle}"
+                <Border Style="{StaticResource SettingsPageCardStyle}"
                         Visibility="{Binding IsCrystalThemeActive,
                             Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <StackPanel>
                         <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE946;"/>
-                            <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center"
+                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
                                        Text="{DynamicResource Settings.SecThemes}"/>
                         </StackPanel>
     </Border>
-                        <TextBlock Style="{StaticResource Typography.BodySmall}"
+                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                    Text="{DynamicResource Settings.CrystalOnlyIos17pm}"/>
                     </StackPanel>
                 </Border>

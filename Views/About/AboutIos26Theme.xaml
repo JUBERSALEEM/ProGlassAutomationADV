@@ -98,11 +98,10 @@
     </Style>
 
 
-    <!-- ═══ CARD SHADOW (one shared, frozen instance) ═══ -->
-    <DropShadowEffect x:Key="Ios26CardShadow"
-                      Color="#334155" Opacity="0.10"
-                      BlurRadius="24" ShadowDepth="10" Direction="90"
-                      po:Freeze="True"/>
+    <!-- ═══ CARD SHADOW — lives in Themes/Styles/AboutSurface.xaml
+         (app-level) so the Settings module can compose the same
+         card. A DropShadowEffect declared here is invisible to
+         every other module. ═══ -->
 
     <!-- ═══ L1 CARD — the frosted 26 px slab ═══ -->
     <Style x:Key="Ios26CardStyle" TargetType="Border">

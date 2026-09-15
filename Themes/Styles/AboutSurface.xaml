@@ -40,11 +40,25 @@
 ═══════════════════════════════════════════════════════════════════ -->
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
 
     <CornerRadius x:Key="Ios26RadiusCard">26</CornerRadius>
     <CornerRadius x:Key="Ios26RadiusInner">12</CornerRadius>
     <CornerRadius x:Key="Ios26RadiusTile">10</CornerRadius>
     <CornerRadius x:Key="Ios26RadiusChip">12</CornerRadius>
     <CornerRadius x:Key="Ios26RadiusSmall">6</CornerRadius>
+
+    <!-- ═══ CARD SHADOW (one shared, frozen instance) ═══
+         2026-09-16: moved here from Views/About so the Settings module can
+         compose the same card. A DropShadowEffect declared inside About is
+         invisible to every other module — and an unresolved
+         {DynamicResource} on Effect leaves a card with NO shadow and no
+         error, which is the silent-failure class this module spent the week
+         removing. It is design geometry, so it stays fixed (not themed) but
+         it must be reachable app-wide. -->
+    <DropShadowEffect x:Key="Ios26CardShadow"
+                      Color="#334155" Opacity="0.10"
+                      BlurRadius="24" ShadowDepth="10" Direction="90"
+                      po:Freeze="True"/>
 </ResourceDictionary>

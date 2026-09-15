@@ -26,6 +26,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../SettingsCardStyles.xaml"/>
                 <ResourceDictionary Source="../SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -37,11 +38,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="{DynamicResource Settings.SecData}" Style="{StaticResource Typography.H1}"/>
-            <TextBlock Text="{DynamicResource Settings.ProtectProductionDataExploreSampleData}"
-                       Style="{StaticResource Typography.Subtitle}"/>
-        </StackPanel>
 
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
@@ -51,15 +47,15 @@
                       behaviors:SmoothScrollBehavior.IsEnabled="True"
                       Focusable="False"
                       FocusVisualStyle="{x:Null}">
-            <StackPanel Margin="32,0,32,32">
+            <StackPanel Margin="18,14,18,18">
 
                 <!-- ═══════ GROUP: COMPANY LAN / WI-FI DATABASE ═══════ -->
                 <TextBlock Text="Company LAN / Wi-Fi Database"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
                 <TextBlock Text="Connect all office workstations to one shared ProGlass data folder on the same network. Use a stable Windows/SMB shared folder, not a cloud-sync folder. Restart is required after changing this."
-                           Style="{StaticResource Typography.BodySmall}"/>
+                           Style="{StaticResource SettingsRowMetaStyle}"/>
 
-                <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,10">
+                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,0,10">
                     <StackPanel>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -70,10 +66,10 @@
 
                             <StackPanel Grid.Column="0">
                                 <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE968;"/>
-                                    <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding DataRootModeDisplay}"/>
+                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding DataRootModeDisplay}"/>
                                 </StackPanel>
     </Border>
                                 <CheckBox Content="Use shared company database folder"
@@ -86,7 +82,7 @@
                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
                                           Margin="0,8,0,0"/>
                                 <TextBlock Text="Current live root:"
-                                           Style="{StaticResource Typography.Caption}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
                                            Margin="0,10,0,0"/>
                                 <TextBlock Text="{Binding CurrentDataRootDisplay}"
                                            FontSize="{DynamicResource FontSize.BodySmall}"
@@ -96,13 +92,13 @@
 
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="Shared folder path (UNC recommended: \\SERVER\ProGlassData)"
-                                           Style="{StaticResource Typography.BodySmall}"/>
+                                           Style="{StaticResource SettingsRowMetaStyle}"/>
                                 <TextBox Text="{Binding SharedDataRootPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          Padding="10,7"
                                          FontSize="{DynamicResource FontSize.Body}"
                                          ToolTip="Example: \\Office-PC\ProGlassData or Z:\ProGlassData" Style="{StaticResource TextBoxStyle}"/>
                                 <TextBlock Text="Workstation name for support/audit"
-                                           Style="{StaticResource Typography.BodySmall}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
                                            Margin="0,8,0,0"/>
                                 <TextBox Text="{Binding WorkstationName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          Padding="10,7"
@@ -133,7 +129,7 @@
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                 Padding="10,8"
-                                Margin="0,12,0,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                Margin="0,12,0,0" Style="{StaticResource SettingsPageCardStyle}">
                             <TextBlock Text="{Binding NetworkDataRootStatus}"
                                        TextWrapping="Wrap"
                                        FontSize="{DynamicResource FontSize.Body}"
@@ -143,27 +139,27 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource SurfaceDetailStyle}"/>
+                <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
 
                 <!-- ═══════ GROUP: BACKUP & RESTORE ═══════ -->
                 <TextBlock Text="{DynamicResource Settings.BackupRestore}"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.BackupSetCopiesDatabaseSettingsOne}"
-                           Style="{StaticResource Typography.BodySmall}"/>
+                           Style="{StaticResource SettingsRowMetaStyle}"/>
 
                 <UniformGrid Columns="3" Margin="0,0,0,6">
 
                     <!-- Backup actions tile -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
+                    <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE74E;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.BackupActions}"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.BackupActions}"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.CreateBackupSetNowRefreshListOpenFolderWhere}"/>
                             <StackPanel>
                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
@@ -185,39 +181,39 @@
                     </Border>
 
                     <!-- Restore tile -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
+                    <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE895;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource ProformaInvoice.Restore}"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource ProformaInvoice.Restore}"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.RestoreAlwaysSnapshotsCurrentDataFirstBad}"/>
                             <Button Style="{StaticResource SuccessPillButton}"
                                     Tag="&#xE895;" Content="{DynamicResource Settings.RestoreSelectedBackup}"
                                     Command="{Binding RestoreSelectedBackupCommand}"
                                     HorizontalAlignment="Stretch"/>
                             <TextBlock Text="{Binding BackupStatus}"
-                                       Style="{StaticResource Typography.Caption}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"
                                        FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Backup sets list (wide tile) -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F7;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.BackupSets}"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.BackupSets}"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.PickSetRestoreSelectingEnoughRestoreButton}"/>
                             <ListBox ItemsSource="{Binding BackupSets}"
                                      SelectedItem="{Binding SelectedBackup}"
@@ -253,25 +249,25 @@
 
                 </UniformGrid>
 
-                <Border Style="{StaticResource SurfaceDetailStyle}"/>
+                <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
 
                 <!-- ═══════ GROUP: SAMPLE DATA ═══════ -->
                 <TextBlock Text="{DynamicResource Settings.SampleDATA}"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.NewHereLoadSmallLinkedDemoDatasetExplore}"
-                           Style="{StaticResource Typography.BodySmall}"/>
+                           Style="{StaticResource SettingsRowMetaStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A5;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.ExploreSampleData}"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.ExploreSampleData}"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.6Sheets3Proformas2JobOrders2DeliveryNotes3}"/>
                             <!-- Full-width action row: buttons stretch evenly
                                  across the whole card. -->
@@ -291,13 +287,13 @@
                                         ToolTip="{DynamicResource Settings.PermanentlyDeleteRecordModulesEGAfterTesting}"/>
                             </UniformGrid>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.Caption}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.DoneTestingUseClearDATAWipeDemoDatasetOne}"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
 
-                <Border Style="{StaticResource SurfaceDetailStyle}"/>
+                <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
 
                 <!-- ═══════ GROUP: DATABASE HEALTH ═══════
                      Diagnostics + emergency rebuild. Probes every
@@ -305,19 +301,19 @@
                      extra columns). The rebuild button is the nuclear
                      option gated behind Manager+ and typed confirmation. -->
                 <TextBlock Text="{DynamicResource Settings.DatabaseHealth}"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.ProbesProglassAutomationDatabaseFileAuto}"
-                           Style="{StaticResource Typography.BodySmall}"/>
+                           Style="{StaticResource SettingsRowMetaStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
 
                             <!-- License status strip (compact — full card lives on the About page) -->
                             <Border Padding="10,8"
                                     CornerRadius="{DynamicResource CardCornerRadius}"
                                     Background="{DynamicResource SurfaceTertiaryBrush}"
-                                    Margin="0,0,0,10" Style="{StaticResource SurfacePrimaryStyle}">
+                                    Margin="0,0,0,10" Style="{StaticResource SettingsPageCardStyle}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
@@ -403,7 +399,7 @@
                             </ListBox>
 
                             <TextBlock Text="{Binding DatabaseHealthStatus}"
-                                       Style="{StaticResource Typography.Caption}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"
                                        FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource AccentBrush}"/>
                         </StackPanel>

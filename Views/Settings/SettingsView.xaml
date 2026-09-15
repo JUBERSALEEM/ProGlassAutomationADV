@@ -39,6 +39,10 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <!-- The module design system: cards, tiles, chips, pills,
+                     type roles, spacing scale. Declared before the section
+                     styles so both are resolvable by the sections. -->
+                <ResourceDictionary Source="SettingsCardStyles.xaml"/>
                 <ResourceDictionary Source="SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -66,34 +70,35 @@
              Visibility = IsSettingsRailOpen (drawer: closes on page pick,
              re-opens via the floating menu button).
         ══════════════════════════════════════════════════════════════ -->
-        <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Column="0"
+        <!-- Rail — the About card grammar (2026-09-16 redesign): frosted
+             Ios26CardBrush, hairline Ios26CardBorderBrush, Ios26RadiusCard
+             (which follows the Appearance card-corner slider) and the one
+             shared Ios26CardShadow. It used to carry its own drop shadow and
+             a sheen stack, which is why the rail and the cards it framed did
+             not read as the same material. -->
+        <Border Grid.Column="0"
                 Margin="14,14,6,14"
                 MinWidth="232" MaxWidth="420"
                 Visibility="{Binding IsSettingsRailOpen,
                     Converter={StaticResource BoolToVisibilityConverter}}"
-                Background="{DynamicResource SideMenuBackgroundBrush}"
-                BorderBrush="{DynamicResource BorderStrongBrush}"
-                BorderThickness="{DynamicResource Border.StrongThickness}"
                 RenderOptions.EdgeMode="Aliased"
-                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="20" ShadowDepth="3"
-                                  Direction="270" Opacity="0.20"
-                                  Color="{DynamicResource LiquidShadowColor}"/>
-            </Border.Effect>
+                SnapsToDevicePixels="True"
+                Style="{StaticResource SettingsPageCardStyle}">
+            <Border.Resources>
+                <!-- The rail is a page card whose own margin lives on the
+                     instance above, so it must not inherit the card margin. -->
+                <Thickness x:Key="SettingsCardMargin">0</Thickness>
+            </Border.Resources>
             <!-- The rail carries the liquid-glass touch — a crisp top
                  catch-light plus a soft glare band, exactly like the main
                  shell drawer, so it reads as frosted glass over the stage
                  instead of a flat card. -->
             <Grid>
-                <Border Height="1" VerticalAlignment="Top"
-                        Background="{DynamicResource ShellSheenBrush}"
-                        IsHitTestVisible="False"/>
-                <Border Height="14" VerticalAlignment="Top"
-                        CornerRadius="{DynamicResource Radius.Medium}"
-                        Background="{DynamicResource SurfaceElevatedBrush}"
-                        Opacity="0.55"
-                        IsHitTestVisible="False" Style="{StaticResource SurfacePrimaryStyle}"/>
+                <!-- 2026-09-16: the sheen stack was removed with the rail
+                     restyle. The About card material is flat frosted glass
+                     with a hairline edge and one soft shadow; a top catch
+                     light plus a glare band made the rail read as a different
+                     material from the cards it hosts. -->
             <DockPanel Margin="10,10,10,10">
 
                 <!-- Brand header — 2026-09-05 restyled to the REPORTS-module

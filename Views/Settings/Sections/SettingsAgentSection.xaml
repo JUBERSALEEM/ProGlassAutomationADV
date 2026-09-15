@@ -33,6 +33,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../SettingsCardStyles.xaml"/>
                 <ResourceDictionary Source="../SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -54,11 +55,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="{DynamicResource Settings.SecAgent}" Style="{StaticResource Typography.H1}"/>
-            <TextBlock Text="{DynamicResource Settings.PrivacyPostureProviderCredentialsTaught}"
-                       Style="{StaticResource Typography.Subtitle}"/>
-        </StackPanel>
 
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
@@ -66,26 +62,26 @@
                       CanContentScroll="False"
                       PanningMode="VerticalOnly"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
-            <StackPanel Margin="32,0,32,32">
+            <StackPanel Margin="18,14,18,18">
 
                 <!-- ═══════ GROUP: PRIVACY ═══════ -->
                 <TextBlock Text="{DynamicResource About.Privacy}"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.ControlWhetherAgentTalksInternetWhatAllowed}"
-                           Style="{StaticResource Typography.BodySmall}"/>
+                           Style="{StaticResource SettingsRowMetaStyle}"/>
 
                 <UniformGrid Columns="2" Margin="0,0,0,6">
                     <!-- Local only -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72E;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding LocalOnlyLabel}" TextWrapping="Wrap"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding LocalOnlyLabel}" TextWrapping="Wrap"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.WhenAgentNeverContactsInternetDefault}"/>
                             <Button Command="{Binding ToggleLocalOnlyCommand}"
                                     Style="{StaticResource SettingsActionButtonStyle}"
@@ -95,16 +91,16 @@
                     </Border>
 
                     <!-- Cloud consent -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE774;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding CloudConsentLabel}" TextWrapping="Wrap"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding CloudConsentLabel}" TextWrapping="Wrap"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.SeparateExplicitAgreementSendQuestionsOnline}"/>
                             <Button Command="{Binding ToggleCloudConsentCommand}"
                                     Style="{StaticResource SettingsActionButtonStyle}"
@@ -115,18 +111,18 @@
                 </UniformGrid>
 
                 <!-- Plain-English summary -->
-                <Border Style="{StaticResource SurfacePrimaryStyle}">
+                <Border Style="{StaticResource SettingsPageCardStyle}">
                     <StackPanel>
                         <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE946;"/>
-                            <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.WhatMeans}"/>
+                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.WhatMeans}"/>
                         </StackPanel>
     </Border>
                         <TextBlock Text="{Binding PrivacySummary}"
-                                   Style="{StaticResource Typography.BodySmall}"/>
-                        <TextBlock Style="{StaticResource Typography.Caption}">
+                                   Style="{StaticResource SettingsRowMetaStyle}"/>
+                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}">
                             <Run Text="{DynamicResource Settings.AllowedHosts}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                             <Run Text="{Binding AllowedHostsDisplay, Mode=OneWay}"/>
                         </TextBlock>
@@ -134,17 +130,17 @@
                 </Border>
 
                 <!-- Local model advice (never downloads) -->
-                <Border Style="{StaticResource SurfacePrimaryStyle}">
+                <Border Style="{StaticResource SettingsPageCardStyle}">
                     <StackPanel>
                         <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE90F;"/>
-                            <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.LocalModelAdvice}"/>
+                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.LocalModelAdvice}"/>
                         </StackPanel>
     </Border>
                         <TextBlock Text="{Binding HardwareAdvice}"
-                                   Style="{StaticResource Typography.BodySmall}"/>
+                                   Style="{StaticResource SettingsRowMetaStyle}"/>
                     </StackPanel>
                 </Border>
 
@@ -153,17 +149,17 @@
                      licences), download on click only, integrity record kept,
                      deletes fully on uninstall. Literal text on purpose —
                      this card ships new UI before the 15 locale packs add keys. -->
-                <Border Style="{StaticResource SurfacePrimaryStyle}">
+                <Border Style="{StaticResource SettingsPageCardStyle}">
                     <StackPanel>
                         <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE896;"/>
-                            <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="Offline AI model (install once, works without internet)"/>
+                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="Offline AI model (install once, works without internet)"/>
                         </StackPanel>
     </Border>
 
-                        <TextBlock Style="{StaticResource Typography.BodySmall}"
+                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                    TextWrapping="Wrap"
                                    Text="These models run 100% on this computer after the one-time download — no messages ever leave the machine. Licences are linked before install; only permissive Apache-2.0 / MIT models are offered."/>
 
@@ -198,13 +194,13 @@
 
                         <TextBlock Margin="0,8,0,0"
                                    TextWrapping="Wrap"
-                                   Style="{StaticResource Typography.BodySmall}"
+                                   Style="{StaticResource SettingsRowMetaStyle}"
                                    Text="{Binding SelectedModel.Description, Mode=OneWay}"/>
                         <TextBlock TextWrapping="Wrap"
-                                   Style="{StaticResource Typography.Caption}"
+                                   Style="{StaticResource SettingsRowMetaStyle}"
                                    Text="{Binding SelectedModel.Badge, Mode=OneWay}"/>
                         <TextBlock TextWrapping="Wrap"
-                                   Style="{StaticResource Typography.BodySmall}"
+                                   Style="{StaticResource SettingsRowMetaStyle}"
                                    Text="{Binding SelectedModel.DisplayStatus, Mode=OneWay}"/>
 
                         <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
@@ -256,7 +252,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource SurfaceDetailStyle}"/>
+                <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
 
                 <!-- ═══════ GROUP: PROVIDER CREDENTIALS ═══════ -->
                 <TextBlock Text="{DynamicResource Settings.ProviderCredentials}"
@@ -265,10 +261,10 @@
                           />
 
                 <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel>
                                 <TextBlock Text="&#xE8B7;"
                                            FontFamily="{DynamicResource FontFamily.Icon}"
@@ -320,7 +316,7 @@
                     </Border>
                 </StackPanel>
 
-                <Border Style="{StaticResource SurfaceDetailStyle}"/>
+                <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
 
                 <!-- ═══════ GROUP: TAUGHT PHRASES ═══════ -->
                 <TextBlock Text="{DynamicResource Settings.TaughtPhrases}"
@@ -329,7 +325,7 @@
                           />
 
                 <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <DockPanel LastChildFill="False" Margin="0,0,0,8">
                                 <Button DockPanel.Dock="Right"
@@ -346,7 +342,7 @@
                                         <Border CornerRadius="{DynamicResource CardCornerRadius}"
                                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                 BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                                                Padding="0,10" Style="{StaticResource SurfacePrimaryStyle}">
+                                                Padding="0,10" Style="{StaticResource SettingsPageCardStyle}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
@@ -401,7 +397,7 @@
                             </ItemsControl>
 
                             <TextBlock Text="{DynamicResource Settings.NothingTaughtYet}"
-                                       Style="{StaticResource Typography.Caption}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"
                                        Margin="0,12,0,0"
                                        Visibility="{Binding HasRules,
                                            Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
@@ -415,22 +411,22 @@
                     </Border>
                 </StackPanel>
 
-                <Border Style="{StaticResource SurfaceDetailStyle}"/>
+                <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
 
                 <!-- ═══════ GROUP: MEMORY & KNOWLEDGE ═══════ -->
                 <TextBlock Text="{DynamicResource Settings.MemoryKnowledge}"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.SavedMemoryKnowledgeBaseLiveAgentSDatabase}"
-                           Style="{StaticResource Typography.BodySmall}"/>
+                           Style="{StaticResource SettingsRowMetaStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F7;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.AgentData}"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.AgentData}"/>
                             </StackPanel>
     </Border>
                             <Border 
@@ -466,14 +462,14 @@
                             </UniformGrid>
     </Border>
 
-                            <TextBlock Style="{StaticResource Typography.Caption}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Margin="0,12,0,0"
                                        TextTrimming="CharacterEllipsis"
                                        ToolTip="{Binding AgentDatabasePath, Mode=OneWay}">
                                 <Run Text="{DynamicResource Settings.AgentDatabase}"/>
                                 <Run Text="{Binding AgentDatabasePath, Mode=OneWay}"/>
                             </TextBlock>
-                            <TextBlock Style="{StaticResource Typography.Caption}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Margin="0,3,0,0"
                                        TextTrimming="CharacterEllipsis"
                                        ToolTip="{Binding SettingsFilePath, Mode=OneWay}">
@@ -486,7 +482,7 @@
 
                 <!-- Status line -->
                 <TextBlock Text="{Binding Status}"
-                           Style="{StaticResource Typography.BodySmall}"
+                           Style="{StaticResource SettingsRowMetaStyle}"
                            FontWeight="{DynamicResource Weight.SemiBold}"
                            Foreground="{DynamicResource AccentBrush}"
                            Margin="4,16,0,0"/>

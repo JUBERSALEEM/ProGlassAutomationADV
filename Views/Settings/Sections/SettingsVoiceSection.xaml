@@ -32,6 +32,7 @@
              (ERR-56F1CC). -->
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../SettingsCardStyles.xaml"/>
                 <ResourceDictionary Source="../SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -44,11 +45,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="{DynamicResource Settings.SecVoice}"/>
-            <TextBlock Text="{DynamicResource Settings.OfflineSpeechTextOpenaiWhisper95AccuracyNo}"
-                      />
-        </StackPanel>
 
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
@@ -58,7 +54,7 @@
                       behaviors:SmoothScrollBehavior.IsEnabled="True"
                       Focusable="False"
                       FocusVisualStyle="{x:Null}">
-            <StackPanel Margin="32,0,32,32">
+            <StackPanel Margin="18,14,18,18">
 
                 <!-- ═════════ GROUP: WHISPER MODEL ═════════ -->
                 <TextBlock Text="{DynamicResource Settings.WhisperModel}"
@@ -178,7 +174,7 @@
                                 <!-- Right-docked badge -->
                                 <Border DockPanel.Dock="Right"
                                         VerticalAlignment="Center"
-                                        Style="{StaticResource SurfacePrimaryStyle}">
+                                        Style="{StaticResource SettingsPageCardStyle}">
                                     <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}" IsHitTestVisible="False">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">

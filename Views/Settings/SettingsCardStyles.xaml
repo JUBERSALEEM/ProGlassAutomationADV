@@ -1,0 +1,480 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/SettingsCardStyles.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings — the approved page grammar (2026-09-16 rewrite)
+
+     ───────────────────────────────────────────────────────────────────
+     THIS FILE IS THE SETTINGS DESIGN SYSTEM. Nothing else in the module
+     declares a card, a tile, a chip, a pill, a caption or a spacing
+     value. Every section merges it and composes from these keys.
+     ───────────────────────────────────────────────────────────────────
+
+     WHY IT LOOKS LIKE ABOUT
+     ───────────────────────
+     Owner directive: "apply exact cards style of about module in complete
+     setting module … i want full redesign". So the grammar is the About
+     card language, and it is built directly on the SAME value tokens
+     About uses — which are application-level and live:
+
+       Ios26CardBrush / Ios26CardBorderBrush   (theme dictionaries)
+       Ios26TileBrush / Ios26TileBorderBrush   (theme dictionaries)
+       Ios26HairlineBrush, Ios26HoverBrush      (theme dictionaries)
+       Ios26Text{Title,Body,Secondary,Muted,Faint}Brush, accent family
+       Ios26Radius{Card,Inner,Tile,Chip,Small} (AboutSurface.xaml, then
+                                                republished from the live
+                                                card-radius setting)
+       Ios26FontSize*                          (AboutTypeScale.xaml, then
+                                                republished per density)
+       Ios26CardShadow                          (Views/About)
+
+     That means Settings inherits, for free, everything built earlier:
+     Light/Dark, the accent and the visual family, the density profiles
+     and the Appearance card-corner slider all move this module now.
+
+     NAMING
+     ──────
+     `Settings*` prefix, so a settings key can never be mistaken for a
+     global surface token. The values are the About ones; the names say
+     where they are used. Containers come from SurfacePrimaryStyle's
+     family only where the mockup is genuinely a shell surface (the page
+     header strip) — everything card-shaped is here.
+
+     COMPOSITION RULES (enforced by SettingsRedesignAuditTests)
+     ────────────────────────────────────────────────────────
+       1. A page = a StackPanel of SettingsPageCardStyle cards, gap 14.
+       2. A card = icon tile + title + optional chip in the header row,
+          then content; never a bare border with no title.
+       3. Content inside a card is SettingsInnerTileStyle (or plain rows
+          separated by SettingsRowSeparatorStyle).
+       4. Read-only values are SettingsValuePillStyle, never coloured text.
+       5. Status is a chip (soft / green / warning / danger), never a
+          coloured label.
+       6. Spacing comes from SettingsGap* tokens; dividers come from
+          SettingsRowSeparatorStyle — never an empty card used as a gap
+          (the old module did that with <Border Style="SurfaceDetailStyle"/>).
+       7. No literal hex, no literal CornerRadius, no literal FontSize in
+          any settings view (audit-locked; the sections were already clean
+          and must stay clean).
+═══════════════════════════════════════════════════════════════════ -->
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <!-- ═══ SPACING SCALE — the only gaps a settings page may use ═══
+         Density-derived where density exists (CardPadding follows the
+         profile); the rest are composition gaps, deliberately fixed so a
+         page's rhythm does not change when the operator changes density
+         of CONTROLS. -->
+    <Thickness x:Key="SettingsPagePadding">18,14,18,18</Thickness>
+    <Thickness x:Key="SettingsCardPadding">22,20</Thickness>
+    <Thickness x:Key="SettingsCardContentMargin">0,14,0,0</Thickness>
+    <Thickness x:Key="SettingsTilePadding">12,10</Thickness>
+    <Thickness x:Key="SettingsRowPadding">0,9</Thickness>
+    <Thickness x:Key="SettingsIconTextMargin">10,0,0,0</Thickness>
+
+    <sys:Double x:Key="SettingsGapPage">14</sys:Double>
+    <sys:Double x:Key="SettingsGapCard">14</sys:Double>
+    <sys:Double x:Key="SettingsGapRow">6</sys:Double>
+    <sys:Double x:Key="SettingsGapInline">10</sys:Double>
+    <sys:Double x:Key="SettingsGapSection">22</sys:Double>
+
+    <Thickness x:Key="SettingsCardMargin">0,0,0,14</Thickness>
+    <Thickness x:Key="SettingsRowMargin">0,0,0,6</Thickness>
+
+    <!-- ═══ CARD — the About card, page-sized ═══ -->
+    <Style x:Key="SettingsPageCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource Ios26CardBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Ios26CardBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusCard}"/>
+        <Setter Property="Padding" Value="{StaticResource SettingsCardPadding}"/>
+        <Setter Property="Margin" Value="{StaticResource SettingsCardMargin}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Effect" Value="{DynamicResource Ios26CardShadow}"/>
+    </Style>
+
+    <!-- Card frames that need no shadow: the action bar and any card the
+         page already sits inside another surface for. -->
+    <Style x:Key="SettingsFlatCardStyle" TargetType="Border"
+           BasedOn="{StaticResource SettingsPageCardStyle}">
+        <Setter Property="Effect" Value="{x:Null}"/>
+        <Setter Property="Background" Value="{DynamicResource Ios26TileBrush}"/>
+        <Setter Property="Padding" Value="14,12"/>
+    </Style>
+
+    <!-- Danger card: same geometry, red-tinted edge + wash, for the
+         destructive pages (Demo reset, Data purge). -->
+    <Style x:Key="SettingsDangerCardStyle" TargetType="Border"
+           BasedOn="{StaticResource SettingsPageCardStyle}">
+        <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource Ios26TileBrush}"/>
+    </Style>
+
+    <!-- ═══ INNER TILE — solid panel inside a card (mockup: white panel) ═══ -->
+    <Style x:Key="SettingsInnerTileStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource Ios26TileBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Ios26TileBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusInner}"/>
+        <Setter Property="Padding" Value="{StaticResource SettingsTilePadding}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- Hover surface for an interactive tile / row (mockup: preset tiles,
+         scene cells, backup rows). -->
+    <Style x:Key="SettingsInteractiveTileStyle" TargetType="Border"
+           BasedOn="{StaticResource SettingsInnerTileStyle}">
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource Ios26HoverBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Tile with no fill — for grids that sit directly on the card. -->
+    <Style x:Key="SettingsBareTileStyle" TargetType="Border"
+           BasedOn="{StaticResource SettingsInnerTileStyle}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Ios26HairlineBrush}"/>
+        <Setter Property="Padding" Value="10,8"/>
+    </Style>
+
+    <!-- Semantic tiles: a tile whose WASH carries meaning (this PC vs the
+         published release, a verified backup, a warning). The old pages
+         built these by hand — Background="{DynamicResource TintBlueBrush}"
+         plus their own CornerRadius/Padding — which is how twelve pages
+         ended up with twelve slightly different "cards". -->
+    <Style x:Key="SettingsInfoTileStyle" TargetType="Border"
+           BasedOn="{StaticResource SettingsInnerTileStyle}">
+        <Setter Property="Background" Value="{DynamicResource Ios26AccentSoftBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Ios26AccentSoftBrush}"/>
+    </Style>
+
+    <Style x:Key="SettingsSuccessTileStyle" TargetType="Border"
+           BasedOn="{StaticResource SettingsInnerTileStyle}">
+        <Setter Property="Background" Value="{DynamicResource Ios26SuccessSoftBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Ios26SuccessSoftBrush}"/>
+    </Style>
+
+    <Style x:Key="SettingsWashTileStyle" TargetType="Border"
+           BasedOn="{StaticResource SettingsInnerTileStyle}">
+        <Setter Property="Background" Value="{DynamicResource Ios26ValuePillBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Ios26ValuePillBrush}"/>
+    </Style>
+
+    <!-- ═══ METRIC ROLES — the big number inside a tile (version, size,
+         latency, days remaining). ═══ -->
+    <Style x:Key="SettingsMetricValueStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeH2}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ios26TextTitleBrush}"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <Style x:Key="SettingsMetricLabelStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeCaption}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ios26TextMutedBrush}"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <!-- The old module tagged these labels with inline
+         FontSize/FontWeight/Foreground triples — 200+ sites. The roles
+         above replace them. -->
+
+    <!-- ═══ ICON TILE — the disc that opens every card header ═══ -->
+    <Style x:Key="SettingsIconTileStyle" TargetType="Border">
+        <Setter Property="Width" Value="34"/>
+        <Setter Property="Height" Value="34"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusTile}"/>
+        <Setter Property="Background" Value="{DynamicResource Ios26AccentSoftBrush}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="SettingsIconGlyphStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Icon}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeGlyph}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ios26AccentSoftTextBrush}"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- ═══ TYPE ROLES ═══ -->
+    <Style x:Key="SettingsCardTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeCardTitle}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ios26TextTitleBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <Style x:Key="SettingsCardNoteStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeSmall}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ios26TextMutedBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="Margin" Value="0,4,0,0"/>
+    </Style>
+
+    <Style x:Key="SettingsPageTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeH1}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ios26TextTitleBrush}"/>
+    </Style>
+
+    <Style x:Key="SettingsPageSubtitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeBody}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ios26TextMutedBrush}"/>
+        <Setter Property="Margin" Value="0,3,0,0"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <!-- Group caption inside a page: the small uppercase-looking kicker
+         that used to be SettingsGroupHeaderTextStyle. -->
+    <Style x:Key="SettingsGroupCaptionStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeLabel}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ios26TextMutedBrush}"/>
+        <Setter Property="Margin" Value="4,4,0,8"/>
+    </Style>
+
+    <Style x:Key="SettingsFieldLabelStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeBody}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ios26TextMutedBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="SettingsFieldValueStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeValue}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ios26TextTitleBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="SettingsRowTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeValue}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ios26TextBodyBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="SettingsRowMetaStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeLabel}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ios26TextFaintBrush}"/>
+        <Setter Property="Margin" Value="0,2,0,0"/>
+    </Style>
+
+    <!-- ═══ VALUE PILL — every read-only value (keys, paths, sizes, counts) ═══ -->
+    <Style x:Key="SettingsValuePillStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource Ios26ValuePillBrush}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusSmall}"/>
+        <Setter Property="Padding" Value="9,4"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Margin" Value="0,0,6,0"/>
+    </Style>
+
+    <Style x:Key="SettingsValuePillTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeSmall}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ios26TextSecondaryBrush}"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <!-- ═══ CHIPS — status, counts, scope ═══ -->
+    <Style x:Key="SettingsChipStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusChip}"/>
+        <Setter Property="Padding" Value="9,3"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Background" Value="{DynamicResource Ios26AccentSoftBrush}"/>
+    </Style>
+
+    <Style x:Key="SettingsChipTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeCaption}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ios26AccentSoftTextBrush}"/>
+    </Style>
+
+    <Style x:Key="SettingsChipGreenStyle" TargetType="Border"
+           BasedOn="{StaticResource SettingsChipStyle}">
+        <Setter Property="Background" Value="{DynamicResource Ios26SuccessSoftBrush}"/>
+    </Style>
+
+    <Style x:Key="SettingsChipGreenTextStyle" TargetType="TextBlock"
+           BasedOn="{StaticResource SettingsChipTextStyle}">
+        <Setter Property="Foreground" Value="{DynamicResource Ios26SuccessBrush}"/>
+    </Style>
+
+    <Style x:Key="SettingsChipMutedStyle" TargetType="Border"
+           BasedOn="{StaticResource SettingsChipStyle}">
+        <Setter Property="Background" Value="{DynamicResource Ios26ValuePillBrush}"/>
+    </Style>
+
+    <Style x:Key="SettingsChipMutedTextStyle" TargetType="TextBlock"
+           BasedOn="{StaticResource SettingsChipTextStyle}">
+        <Setter Property="Foreground" Value="{DynamicResource Ios26TextMutedBrush}"/>
+    </Style>
+
+    <Style x:Key="SettingsChipDangerStyle" TargetType="Border"
+           BasedOn="{StaticResource SettingsChipStyle}">
+        <Setter Property="Background" Value="{DynamicResource Ios26ValuePillBrush}"/>
+    </Style>
+
+    <Style x:Key="SettingsChipDangerTextStyle" TargetType="TextBlock"
+           BasedOn="{StaticResource SettingsChipTextStyle}">
+        <Setter Property="Foreground" Value="{DynamicResource Ios26DangerDotBrush}"/>
+    </Style>
+
+    <!-- Dot + label status row (mockup: "Connected", "UP TO DATE"). -->
+    <Style x:Key="SettingsStatusDotStyle" TargetType="Ellipse">
+        <Setter Property="Width" Value="7"/>
+        <Setter Property="Height" Value="7"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="0,0,6,0"/>
+    </Style>
+
+    <!-- ═══ SEPARATOR — a real hairline, never an empty card ═══ -->
+    <Style x:Key="SettingsRowSeparatorStyle" TargetType="Border">
+        <Setter Property="Height" Value="1"/>
+        <Setter Property="Background" Value="{DynamicResource Ios26HairlineBrush}"/>
+        <Setter Property="Margin" Value="0,8"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- ═══ BUTTONS — 12 px radius, never a 999 pill (owner directive) ═══ -->
+    <Style x:Key="SettingsPrimaryButtonStyle" TargetType="Button">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="MinHeight" Value="{DynamicResource ControlHeightMedium}"/>
+        <Setter Property="Padding" Value="16,7"/>
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeBody}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd"
+                            Background="{DynamicResource Ios26AccentBrush}"
+                            CornerRadius="{DynamicResource Ios26RadiusChip}"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="{DynamicResource Ios26AccentDeepBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SettingsSecondaryButtonStyle" TargetType="Button">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="MinHeight" Value="{DynamicResource ControlHeightMedium}"/>
+        <Setter Property="Padding" Value="14,7"/>
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeBody}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ios26TextSecondaryBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd"
+                            Background="{DynamicResource Ios26TileBrush}"
+                            BorderBrush="{DynamicResource Ios26TileBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="{DynamicResource Ios26RadiusChip}"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="{DynamicResource Ios26HoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Small square icon button (copy, folder, pencil, download). -->
+    <Style x:Key="SettingsIconButtonStyle" TargetType="Button"
+           BasedOn="{StaticResource SettingsSecondaryButtonStyle}">
+        <Setter Property="Width" Value="30"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="MinHeight" Value="30"/>
+        <Setter Property="Padding" Value="0"/>
+    </Style>
+
+    <!-- ═══ SEGMENTED CONTROL — 2–4 options (Light/Dark, density, channel).
+         A ToggleButton list; the SELECTED state is the accent fill. ═══ -->
+    <Style x:Key="SettingsSegmentStyle" TargetType="ToggleButton">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="MinHeight" Value="{DynamicResource ControlHeightMedium}"/>
+        <Setter Property="Padding" Value="16,6"/>
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeBody}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ios26TextSecondaryBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="Bd"
+                            Background="Transparent"
+                            CornerRadius="{DynamicResource Ios26RadiusChip}"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="{DynamicResource Ios26AccentBrush}"/>
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource OnAccentForegroundBrush}"/>
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="IsChecked" Value="False"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="{DynamicResource Ios26HoverBrush}"/>
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- The track the segments sit in. -->
+    <Style x:Key="SettingsSegmentTrackStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource Ios26ValuePillBrush}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusChip}"/>
+        <Setter Property="Padding" Value="2"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- ═══ ACTION BAR — the slim footer card with right-aligned buttons ═══ -->
+    <Style x:Key="SettingsActionBarStyle" TargetType="Border"
+           BasedOn="{StaticResource SettingsFlatCardStyle}">
+        <Setter Property="Margin" Value="0,4,0,0"/>
+    </Style>
+</ResourceDictionary>

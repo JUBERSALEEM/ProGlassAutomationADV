@@ -28,6 +28,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../SettingsCardStyles.xaml"/>
                 <ResourceDictionary Source="../SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -39,11 +40,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="{DynamicResource Settings.SecAppearance}" Style="{StaticResource Typography.H1}"/>
-            <TextBlock Text="{DynamicResource Settings.ThemeColoursWallpapersMotionModule}"
-                       Style="{StaticResource Typography.Subtitle}"/>
-        </StackPanel>
 
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
@@ -53,13 +49,13 @@
                       behaviors:SmoothScrollBehavior.IsEnabled="True"
                       Focusable="False"
                       FocusVisualStyle="{x:Null}">
-            <StackPanel Margin="32,0,32,32">
+            <StackPanel Margin="18,14,18,18">
 
                 <!-- ═════════ GROUP: THEME & LAYOUT ═════════ -->
                 <TextBlock Text="{DynamicResource Settings.ThemeLayout}"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.OverallLookCardWeightDensity}"
-                           Style="{StaticResource Typography.BodySmall}"/>
+                           Style="{StaticResource SettingsRowMetaStyle}"/>
 
                 <!-- 2026-08-25: one-tap factory reset for everything the
                      Appearance module owns (theme, accent, gradients, card
@@ -164,16 +160,16 @@
                      consume — surface, ink, keyline, accent, status chips
                      — so an operator commits to a look they have already
                      seen, not a label they trust blindly. -->
-                <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,10">
+                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,0,10">
                     <StackPanel>
                         <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>
-                            <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.PreviewTitle}"/>
+                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.PreviewTitle}"/>
                         </StackPanel>
     </Border>
-                        <TextBlock Style="{StaticResource Typography.BodySmall}"
+                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                    Text="{DynamicResource Settings.PreviewCaption}"/>
                         <!-- 2026-09-14: the fake sample "module card"
                              (mock card + 5 demo chips) was removed from the
@@ -197,7 +193,7 @@
                      progress remains 100% stock: nothing in this tile,
                      anywhere, touches IsIndeterminate.
                      ═══════════════════════════════════════════════════ -->
-                <Border Style="{StaticResource SurfacePrimaryStyle}"
+                <Border Style="{StaticResource SettingsPageCardStyle}"
                         Margin="0,0,0,10"
                         Visibility="{DynamicResource CrystalPreviewHostVisibility}">
                     <Grid UseLayoutRounding="True" SnapsToDevicePixels="True"
@@ -292,16 +288,16 @@
                 <UniformGrid Columns="3" Margin="0,0,0,6">
 
                     <!-- Visual theme -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
+                    <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.LblThemeFamily}"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.LblThemeFamily}"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.NormalMonetIos17pm}"/>
                             <ComboBox ItemsSource="{Binding VisualThemeOptions}"
                                       DisplayMemberPath="Display"
@@ -313,16 +309,16 @@
                     </Border>
 
                     <!-- Font Color (global text colour, 2026-08-25) -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
+                    <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE792;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.FontColor}"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.FontColor}"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.OneGlobalTextColourViewAutoFollowsThemeIos}"/>
                             <!-- Chips generated from SettingsViewModel.FontColorPalette
                                  (Auto + FontColorPresets.All) — the swatch shown IS
@@ -352,9 +348,13 @@
                             </ItemsControl>
                             <!-- Free-pick font colour: type any hex, the whole
                                  text hierarchy (primary/secondary/muted) re-derives. -->
-                            <Border Margin="0,10,0,0" Padding="8,6" CornerRadius="{DynamicResource Radius.Small}"
-                                    BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                    HorizontalAlignment="Left" Style="{StaticResource SurfacePrimaryStyle}">
+                            <!-- 2026-09-16: this strip is a compact inline
+                                 control row, not a card — a card's 22,20
+                                 padding and 26px radius in this slot would
+                                 have made it a huge slab. -->
+                            <Border Margin="0,10,0,0"
+                                    HorizontalAlignment="Left"
+                                    Style="{StaticResource SettingsWashTileStyle}">
                                 <StackPanel Orientation="Horizontal">
                                     <Ellipse Width="14" Height="14"
                                              Fill="{Binding CustomFontColorSwatch}"
@@ -370,19 +370,19 @@
                                     </Button>
                                 </StackPanel>
                             </Border>
-                            <TextBlock Style="{StaticResource Typography.Caption}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{Binding CustomFontColorStatus}" Margin="0,6,0,0" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Defined card edges: on/off + edge weight (1–100) + colour plate -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
+                    <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE71B;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.DefinedCardEdges}"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.DefinedCardEdges}"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
                                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AccentBrush}">
@@ -391,7 +391,7 @@
                                 </TextBlock>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.AddsStrongDarkOutlineRoundedCardsPillButtons}"/>
                             <ToggleButton HorizontalAlignment="Left" Margin="0,8,0,0"
                                           IsChecked="{Binding UseDefinedOutline, Mode=TwoWay}"
@@ -399,7 +399,7 @@
 
                             <!-- Edge weight 1–100 -->
                             <TextBlock Margin="0,16,0,0"
-                                       Style="{StaticResource Typography.BodySmall}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.CardEdgeThickness}"/>
                             <Slider Style="{StaticResource ModernSliderStyle}"
                                     Minimum="1" Maximum="100"
@@ -408,7 +408,7 @@
 
                             <!-- Edge colour plate (same palette as the accent section) -->
                             <TextBlock Margin="0,16,0,4"
-                                       Style="{StaticResource Typography.BodySmall}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.CardEdgeColorLabel}"/>
                             <ItemsControl ItemsSource="{Binding CardEdgePalette}">
                                 <ItemsControl.ItemsPanel>
@@ -442,14 +442,14 @@
                                          Width="110" Padding="8,6" FontSize="{DynamicResource FontSize.Body}"
                                          FontFamily="{DynamicResource FontFamily.Code}" VerticalAlignment="Center" Style="{StaticResource TextBoxStyle}"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
-                                           Style="{StaticResource Typography.BodySmall}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
                                            Text="{DynamicResource Settings.CardEdgeColorHint}"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
 
                     <!-- Gradient surfaces (adaptive-theme depth) -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
+                    <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,12,0">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -458,14 +458,14 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <Border Grid.Row="0"
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel>
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7F4;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Text="{DynamicResource Settings.GradientSurfaces}"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.GradientSurfaces}"/>
                             </StackPanel>
     </Border>
                             <TextBlock Grid.Row="1"
-                                       Style="{StaticResource Typography.BodySmall}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.RendersMonetGlassCardsWindowBackgroundAccent}"/>
                             <ToggleButton Grid.Row="3"
                                           HorizontalAlignment="Left"
@@ -475,13 +475,13 @@
                     </Border>
 
                     <!-- Corner radius -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
+                    <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7B3;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.CardCornerRadius}"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.CardCornerRadius}"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
                                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AccentBrush}">
@@ -490,7 +490,7 @@
                                 </TextBlock>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.HowRoundCardButtonDefault12Px0Sharp}"/>
                             <Slider Style="{StaticResource ModernSliderStyle}"
                                     Minimum="0" Maximum="24"
@@ -502,16 +502,16 @@
                     </Border>
 
                     <!-- Display density -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
+                    <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE740;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.GrpDensity}"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.GrpDensity}"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.CompactFitsMoreLaptopComfortableGivesLarger}"/>
                             <ComboBox ItemsSource="{Binding DisplayDensityOptions}"
                                       SelectedItem="{Binding DisplayDensity}"
@@ -522,13 +522,13 @@
 
 
                     <!-- Module-skin frost: blur wallpaper + tinted glass cards -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
+                    <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE792;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="Frosted module cards"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="Frosted module cards"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
                                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AccentBrush}">
@@ -537,14 +537,14 @@
                                 </TextBlock>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="Blurs the module wallpaper behind every screen. Cards stay sharp. 1 = light frost, 50 = professional, 100 = max. Colour plate tints the shared card fill."/>
                             <Slider Style="{StaticResource ModernSliderStyle}"
                                     Minimum="1" Maximum="100"
                                     Value="{Binding CardBlurIntensity, Mode=TwoWay}"
                                     VerticalAlignment="Center" Margin="0,8,0,0"/>
                             <TextBlock Margin="0,16,0,4"
-                                       Style="{StaticResource Typography.BodySmall}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="Frost colour plate"/>
                             <ItemsControl ItemsSource="{Binding CardEdgePalette}">
                                 <ItemsControl.ItemsPanel>
@@ -584,39 +584,39 @@
                     </Border>
 
                     <!-- Semantic ERP surfaces: Primary / Secondary / Detail customization -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE771;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="ERP surface levels"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="ERP surface levels"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="Controls the three central card levels used by modules: Primary page regions, Secondary groups/KPIs, and Detail chips/facts."/>
 
                             <UniformGrid Columns="4" Margin="0,10,0,8">
                                 <StackPanel Margin="0,0,12,0">
-                                    <TextBlock Style="{StaticResource Typography.BodySmall}" Text="Material"/>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Material"/>
                                     <ComboBox ItemsSource="{Binding SurfaceMaterialOptions}"
                                               SelectedItem="{Binding SurfaceMaterialMode}"
                                               Padding="10,7" FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
                                 </StackPanel>
                                 <StackPanel Margin="0,0,12,0">
-                                    <TextBlock Style="{StaticResource Typography.BodySmall}" Text="Rounded surfaces"/>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Rounded surfaces"/>
                                     <ToggleButton HorizontalAlignment="Left"
                                                   IsChecked="{Binding UseRoundedSurfaces, Mode=TwoWay}"
                                                   Style="{StaticResource ModernToggleSwitch}"/>
                                 </StackPanel>
                                 <StackPanel Margin="0,0,12,0">
-                                    <TextBlock Style="{StaticResource Typography.BodySmall}" Text="Primary elevation"/>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Primary elevation"/>
                                     <ToggleButton HorizontalAlignment="Left"
                                                   IsChecked="{Binding UsePrimarySurfaceElevation, Mode=TwoWay}"
                                                   Style="{StaticResource ModernToggleSwitch}"/>
                                 </StackPanel>
                                 <StackPanel>
-                                    <TextBlock Style="{StaticResource Typography.BodySmall}" Text="Primary overlay"/>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Primary overlay"/>
                                     <Slider Style="{StaticResource ModernSliderStyle}"
                                             Minimum="0" Maximum="0.35" TickFrequency="0.05"
                                             Value="{Binding PrimarySurfaceOverlayOpacity, Mode=TwoWay}"/>
@@ -630,15 +630,15 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,8,0">
+                                <Border Grid.Column="0" Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,8,0">
                                     <StackPanel>
                                         <TextBlock Text="Primary" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                        <TextBlock Text="Major page/module card" Style="{StaticResource Typography.BodySmall}"/>
-                                        <TextBlock Margin="0,8,0,0" Style="{StaticResource Typography.BodySmall}" Text="Opacity"/>
+                                        <TextBlock Text="Major page/module card" Style="{StaticResource SettingsRowMetaStyle}"/>
+                                        <TextBlock Margin="0,8,0,0" Style="{StaticResource SettingsRowMetaStyle}" Text="Opacity"/>
                                         <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.3" Maximum="1" Value="{Binding SurfacePrimaryOpacity, Mode=TwoWay}"/>
-                                        <TextBlock Style="{StaticResource Typography.BodySmall}" Text="Radius"/>
+                                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Radius"/>
                                         <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48" Value="{Binding SurfacePrimaryRadius, Mode=TwoWay}"/>
-                                        <TextBlock Style="{StaticResource Typography.BodySmall}" Text="Border"/>
+                                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Border"/>
                                         <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24" Value="{Binding SurfacePrimaryBorderThickness, Mode=TwoWay}"/>
                                     </StackPanel>
                                 </Border>
@@ -646,25 +646,25 @@
                                 <Border Grid.Column="1" Style="{StaticResource SurfaceSecondaryStyle}" Margin="4,0">
                                     <StackPanel>
                                         <TextBlock Text="Secondary" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                        <TextBlock Text="Groups, filters, KPI cards" Style="{StaticResource Typography.BodySmall}"/>
-                                        <TextBlock Margin="0,8,0,0" Style="{StaticResource Typography.BodySmall}" Text="Opacity"/>
+                                        <TextBlock Text="Groups, filters, KPI cards" Style="{StaticResource SettingsRowMetaStyle}"/>
+                                        <TextBlock Margin="0,8,0,0" Style="{StaticResource SettingsRowMetaStyle}" Text="Opacity"/>
                                         <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.25" Maximum="1" Value="{Binding SurfaceSecondaryOpacity, Mode=TwoWay}"/>
-                                        <TextBlock Style="{StaticResource Typography.BodySmall}" Text="Radius"/>
+                                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Radius"/>
                                         <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48" Value="{Binding SurfaceSecondaryRadius, Mode=TwoWay}"/>
-                                        <TextBlock Style="{StaticResource Typography.BodySmall}" Text="Border"/>
+                                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Border"/>
                                         <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24" Value="{Binding SurfaceSecondaryBorderThickness, Mode=TwoWay}"/>
                                     </StackPanel>
                                 </Border>
 
-                                <Border Grid.Column="2" Style="{StaticResource SurfaceDetailStyle}" Margin="8,0,0,0">
+                                <Border Grid.Column="2" Style="{StaticResource SettingsInnerTileStyle}" Margin="8,0,0,0">
                                     <StackPanel>
                                         <TextBlock Text="Detail" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                        <TextBlock Text="Chips, badges, facts" Style="{StaticResource Typography.BodySmall}"/>
-                                        <TextBlock Margin="0,8,0,0" Style="{StaticResource Typography.BodySmall}" Text="Opacity"/>
+                                        <TextBlock Text="Chips, badges, facts" Style="{StaticResource SettingsRowMetaStyle}"/>
+                                        <TextBlock Margin="0,8,0,0" Style="{StaticResource SettingsRowMetaStyle}" Text="Opacity"/>
                                         <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.15" Maximum="1" Value="{Binding SurfaceDetailOpacity, Mode=TwoWay}"/>
-                                        <TextBlock Style="{StaticResource Typography.BodySmall}" Text="Radius"/>
+                                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Radius"/>
                                         <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48" Value="{Binding SurfaceDetailRadius, Mode=TwoWay}"/>
-                                        <TextBlock Style="{StaticResource Typography.BodySmall}" Text="Border"/>
+                                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Border"/>
                                         <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24" Value="{Binding SurfaceDetailBorderThickness, Mode=TwoWay}"/>
                                     </StackPanel>
                                 </Border>
@@ -674,13 +674,13 @@
 
 
                     <!-- UI scale -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A3;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.UIScale}"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.UIScale}"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
                                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AccentBrush}">
@@ -695,7 +695,7 @@
                                         FontSize="{DynamicResource FontSize.BodySmall}"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.CtrlMouseWheelZoomsAppCtrl0Resets100}"/>
                             <Slider Style="{StaticResource ModernSliderStyle}"
                                     Minimum="0.8" Maximum="1.25"
@@ -707,66 +707,66 @@
                     </Border>
 
                     <!-- PDF layout -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A5;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.PDFLayout}"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.PDFLayout}"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{Binding PdfLayoutHint}"/>
                             <ComboBox ItemsSource="{Binding PdfLayoutOptions}"
                                       SelectedItem="{Binding PdfLayout}"
                                       HorizontalAlignment="Stretch"
                                       Padding="10,7" FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
-                            <TextBlock Style="{StaticResource Typography.Caption}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.AppliesPIJODNTaxInvoiceStatementSheetStore}"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Motion & performance -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.MotionPerformance}"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.MotionPerformance}"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{Binding PerformanceTierDisplay}"/>
-                            <TextBlock Style="{StaticResource Typography.Caption}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.AnimationsAdaptDisplayRefreshRate6090120144}"/>
                         </StackPanel>
                     </Border>
 
                 </UniformGrid>
 
-                <Border Style="{StaticResource SurfaceDetailStyle}"/>
+                <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
 
                 <!-- ═════════ GROUP: ACCENT & FONT ═════════ -->
                 <TextBlock Text="{DynamicResource Settings.AccentFONT}"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.ColourIdentityTypographyAppliedScreen}"
-                           Style="{StaticResource Typography.BodySmall}"/>
+                           Style="{StaticResource SettingsRowMetaStyle}"/>
 
                 <UniformGrid Columns="3" Margin="0,0,0,6">
 
                     <!-- Accent palette (wide) -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
+                    <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.LblAccent}"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.LblAccent}"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.ButtonsTintsHoverStatesMonetGlassSurfaces}"/>
                             <!-- Palette chips generated from SettingsViewModel.AccentPalette
                                  (single source of truth: AccentPresets.All) — the swatch
@@ -796,7 +796,7 @@
                                  (Monet glass, tints, keylines) re-derives from it. -->
                             <Border Margin="0,12,0,0" Padding="10,8" CornerRadius="{DynamicResource Radius.Small}"
                                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                    HorizontalAlignment="Left" Style="{StaticResource SurfacePrimaryStyle}">
+                                    HorizontalAlignment="Left" Style="{StaticResource SettingsWashTileStyle}">
                                 <StackPanel Orientation="Horizontal">
                                     <Ellipse Width="14" Height="14"
                                              Fill="{Binding CustomAccentSwatch}"
@@ -812,22 +812,22 @@
                                     </Button>
                                 </StackPanel>
                             </Border>
-                            <TextBlock Style="{StaticResource Typography.Caption}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{Binding CustomAccentStatus}" Margin="0,6,0,0" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Font family -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,12,0">
+                    <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,12,0">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.FontFamily}"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.FontFamily}"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.UsedScreenDialogTableIconsStaySegoeMDL2}"/>
                             <ComboBox ItemsSource="{Binding FontOptions}"
                                       SelectedItem="{Binding SelectedFont, Mode=TwoWay}"
@@ -835,22 +835,22 @@
                                       HorizontalAlignment="Stretch"
                                       Padding="10,7" FontSize="{DynamicResource FontSize.Title}"
                                       MaxDropDownHeight="320" Style="{StaticResource ComboBoxStyle}"/>
-                            <TextBlock Style="{StaticResource Typography.Caption}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{Binding FontStatus}" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Weight + Style -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D2;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.FontWeightStyle}"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.FontWeightStyle}"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.TuneWeightStyleWithinSelectedFamily}"/>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -890,13 +890,13 @@
 
                 </UniformGrid>
 
-                <Border Style="{StaticResource SurfaceDetailStyle}"/>
+                <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
 
                 <!-- ═════════ GROUP: WALLPAPERS ═════════ -->
                 <TextBlock Text="{DynamicResource Settings.Wallpapers}"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.OneImageBehindModulePlusModuleOverrides}"
-                           Style="{StaticResource Typography.BodySmall}"/>
+                           Style="{StaticResource SettingsRowMetaStyle}"/>
 
                 <!-- One card per row (Columns=1): Global Wallpaper fills the
                      full width, then Per-Module Wallpapers fills the full
@@ -904,16 +904,16 @@
                 <StackPanel Margin="0,0,0,6">
 
                     <!-- Global wallpaper — one card, all controls on one line -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xEB9F;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.GlobalWallpaper}"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.GlobalWallpaper}"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.AppliedSystemWideBehindModuleModuleOverrides}"/>
                             <!-- Single line: SET / CLEAR on the left, visibility
                                  slider on the right, so global wallpaper + its
@@ -949,22 +949,22 @@
                                         VerticalAlignment="Center"/>
                             </Grid>
                             <TextBlock Text="{Binding WallpaperStatus}"
-                                       Style="{StaticResource Typography.Caption}"/>
+                                       Style="{StaticResource SettingsRowMetaStyle}"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Per-module wallpapers — three columns under one card so
                          the list no longer grows the page by 17 stacked rows. -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B9;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.ModuleWallpapers}"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.ModuleWallpapers}"/>
                             </StackPanel>
     </Border>
-                            <TextBlock Style="{StaticResource Typography.BodySmall}"
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.GiveModuleBackgroundImageListSplitThree}"/>
 
                             <ItemsControl ItemsSource="{Binding ModuleWallpaperRows}">
@@ -979,7 +979,7 @@
                                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                 BorderThickness="{DynamicResource Border.RightBottomHairlineThickness}"
                                                 Padding="4,7"
-                                                Margin="0,0,12,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                                Margin="0,0,12,0" Style="{StaticResource SettingsWashTileStyle}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
@@ -1054,17 +1054,17 @@
 
                 <!-- ═════════ GROUP: LANGUAGE &amp; CURRENCY ═════════ -->
                 <TextBlock Text="{DynamicResource Settings.GrpLanguage}"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
                 <TextBlock Text="{DynamicResource Settings.HintLanguage}"
-                           Style="{StaticResource Typography.BodySmall}"/>
+                           Style="{StaticResource SettingsRowMetaStyle}"/>
 
                 <UniformGrid Columns="3" Margin="0,0,0,6">
 
                     <!-- Language (15 shipped, live switch, en-US primary) -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}" Margin="0,0,12,0">
+        Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
             <StackPanel>
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>
                                 <TextBlock
@@ -1082,10 +1082,10 @@
                     </Border>
 
                     <!-- Currency (live FX, offline = last fetched) -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}" Margin="0,0,12,0">
+        Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
             <StackPanel>
                                 <TextBlock Text="&#xEAF1;"
                                            FontFamily="{DynamicResource FontFamily.Icon}"
@@ -1106,10 +1106,10 @@
                     </Border>
 
                     <!-- Phone country (from IP, editable) -->
-                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel>
                                 <TextBlock Text="&#xE717;"
                                            FontFamily="{DynamicResource FontFamily.Icon}"
@@ -1134,10 +1134,10 @@
                      App-wide switch: the Crystal Fluid water/caustic/
                      bubble choreography and card tilt render calm and
                      static. Persisted; survives family switches. -->
-                <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,10">
+                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,0,10">
                     <StackPanel>
                         <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel>
                             <TextBlock Text="&#xE713;"
                                            FontFamily="{DynamicResource FontFamily.Icon}"
@@ -1161,10 +1161,10 @@
                      Dynamic theme-linked scenes (code-drawn, accent-aware),
                      six built-in designs, one-tap 4K downloads with a
                      persistent local library. -->
-                <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,10">
+                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,0,10">
                     <StackPanel>
                         <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel>
                             <TextBlock
                                        Text="{DynamicResource Settings.WallpaperStudio}"/>
@@ -1335,17 +1335,17 @@
                      Grid with a default (unstyled) WPF button; now the same
                      rounded SettingsTileStyle card language as every other
                      tile in this section. Bindings/AutomationIds unchanged. -->
-                <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,4,0,0">
+                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,4,0,0">
                     <StackPanel>
                         <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE774;"/>
-                            <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center"
+                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
                                        Text="{DynamicResource Settings.LocaleFallback}"/>
                         </StackPanel>
     </Border>
-                        <TextBlock Style="{StaticResource Typography.BodySmall}"
+                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                    Text="{DynamicResource Settings.LocaleFallbackCaption}"/>
                         <Grid Margin="0,8,0,0">
                             <Grid.ColumnDefinitions>
@@ -1360,7 +1360,7 @@
                                           VerticalContentAlignment="Center"
                                           AutomationProperties.AutomationId="Settings.AutoSuggestByRegion"/>
                                 <TextBlock Text="{Binding FxStatusText}"
-                                           Style="{StaticResource Typography.BodySmall}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
                                            Margin="0,4,0,0"/>
                             </StackPanel>
                             <Button Grid.Column="1"

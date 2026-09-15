@@ -19,6 +19,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../SettingsCardStyles.xaml"/>
                 <ResourceDictionary Source="../SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -30,21 +31,16 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="{DynamicResource Settings.SecSharing}" Style="{StaticResource Typography.H1}"/>
-            <TextBlock Text="{DynamicResource Sharing.SettingsSubtitle}"
-                       Style="{StaticResource Typography.Subtitle}"/>
-        </StackPanel>
 
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
-            <StackPanel Margin="32,0,32,32">
+            <StackPanel Margin="18,14,18,18">
 
                 <!-- ═══ PROVIDERS ═══ -->
                 <TextBlock Text="{DynamicResource Sharing.Providers}"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,10">
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,0,10">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -54,10 +50,10 @@
 
                         <StackPanel Grid.Column="0">
                             <Border 
-        Style="{StaticResource SurfaceDetailStyle}">
+        Style="{StaticResource SettingsInnerTileStyle}">
             <StackPanel Orientation="Horizontal">
                                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72D;"/>
-                                <TextBlock Style="{StaticResource Typography.Title}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
                                            Text="{DynamicResource Sharing.Providers}"/>
                             </StackPanel>
     </Border>
@@ -80,7 +76,7 @@
 
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="{DynamicResource Sharing.DefaultProvider}"
-                                       Style="{StaticResource Typography.BodySmall}"/>
+                                       Style="{StaticResource SettingsRowMetaStyle}"/>
                             <ComboBox ItemsSource="{Binding SharingProviderOptions}"
                                       SelectedItem="{Binding SharingDefaultProvider, Mode=TwoWay}"
                                       Padding="10,7"
@@ -91,8 +87,8 @@
 
                 <!-- ═══ DEFAULTS ═══ -->
                 <TextBlock Text="{DynamicResource Sharing.Defaults}"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,10">
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,0,10">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -104,21 +100,21 @@
 
                         <StackPanel Grid.Column="0">
                             <TextBlock Text="{DynamicResource Sharing.DefaultCountryCode}"
-                                       Style="{StaticResource Typography.BodySmall}"/>
+                                       Style="{StaticResource SettingsRowMetaStyle}"/>
                             <TextBox Text="{Binding SharingDefaultCountryCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      Padding="10,7"
                                      FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="{DynamicResource Sharing.TempRetention}"
-                                       Style="{StaticResource Typography.BodySmall}"/>
+                                       Style="{StaticResource SettingsRowMetaStyle}"/>
                             <TextBox Text="{Binding SharingTempRetentionHours, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      Padding="10,7"
                                      FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="4">
                             <TextBlock Text="{DynamicResource Sharing.EmailLargeMb}"
-                                       Style="{StaticResource Typography.BodySmall}"/>
+                                       Style="{StaticResource SettingsRowMetaStyle}"/>
                             <TextBox Text="{Binding SharingEmailLargeMb, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      Padding="10,7"
                                      FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
@@ -128,8 +124,8 @@
 
                 <!-- ═══ DOCUMENT RULES ═══ -->
                 <TextBlock Text="{DynamicResource Sharing.DocumentRules}"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,10">
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,0,10">
                     <StackPanel>
                         <Grid Margin="0,0,0,6">
                             <Grid.ColumnDefinitions>
@@ -140,13 +136,13 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="1" Text="{DynamicResource Sharing.RuleFormat}"
-                                       Style="{StaticResource Typography.BodySmall}"/>
+                                       Style="{StaticResource SettingsRowMetaStyle}"/>
                             <TextBlock Grid.Column="2" Text="{DynamicResource Sharing.RuleProvider}"
-                                       Style="{StaticResource Typography.BodySmall}"/>
+                                       Style="{StaticResource SettingsRowMetaStyle}"/>
                             <TextBlock Grid.Column="3" Text="{DynamicResource Sharing.RuleRecipient}"
-                                       Style="{StaticResource Typography.BodySmall}"/>
+                                       Style="{StaticResource SettingsRowMetaStyle}"/>
                             <TextBlock Grid.Column="4" Text="{DynamicResource Sharing.RuleAllowEdit}"
-                                       Style="{StaticResource Typography.BodySmall}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"
                                        Margin="8,0,0,0"/>
                         </Grid>
                         <ItemsControl ItemsSource="{Binding SharingDocumentRules}">
@@ -195,17 +191,17 @@
 
                 <!-- ═══ TEMPLATES ═══ -->
                 <TextBlock Text="{DynamicResource Sharing.Templates}"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <Border Style="{StaticResource SurfacePrimaryStyle}">
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+                <Border Style="{StaticResource SettingsPageCardStyle}">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Sharing.TemplateKey}"
-                                   Style="{StaticResource Typography.BodySmall}"/>
+                                   Style="{StaticResource SettingsRowMetaStyle}"/>
                         <ComboBox ItemsSource="{Binding SharingTemplateKeyOptions}"
                                   SelectedItem="{Binding SharingTemplateKey, Mode=TwoWay}"
                                   Padding="10,7" Margin="0,0,0,8"
                                   FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource ComboBoxStyle}"/>
                         <TextBlock Text="{DynamicResource Sharing.TemplateText}"
-                                   Style="{StaticResource Typography.BodySmall}"/>
+                                   Style="{StaticResource SettingsRowMetaStyle}"/>
                         <TextBox Text="{Binding SharingTemplateText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  Padding="10,7" MinHeight="150" MaxHeight="260"
                                  AcceptsReturn="True" TextWrapping="Wrap"
@@ -225,7 +221,7 @@
                         </UniformGrid>
     </Border>
                         <TextBlock Text="{DynamicResource Sharing.Variables}"
-                                   Style="{StaticResource Typography.Caption}"
+                                   Style="{StaticResource SettingsRowMetaStyle}"
                                    TextWrapping="Wrap" Margin="0,8,0,0"/>
                     </StackPanel>
                 </Border>

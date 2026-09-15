@@ -271,3 +271,31 @@ means here.
   `design-system-guard` findings are the two pre-existing ones (§7.2 of the
   2026-09-15 doc).
 * No `dotnet` in this environment: the compile is confirmed by the owner's build.
+
+
+---
+
+## 7. Implementation log — 2026-09-16 (owner approved all ten sheets)
+
+### 7.1 What shipped in this pass
+
+| Item | Detail |
+|---|---|
+| **`Views/Settings/SettingsCardStyles.xaml`** (new) | The module design system: 53 keys — page card, flat/danger cards, inner tile, interactive/bare tiles, semantic washes (info / success / wash), icon tile + glyph, ten type roles, value pill, four chip pairs, separator, three buttons, icon button, segmented control + track, action bar, spacing scale. Built **entirely** on the live `Ios26*` tokens, so Settings now inherits Light/Dark, the accent, the visual family, the density profiles and the Appearance card-corner slider. Zero literals (locked). |
+| **Shell** | Rail restyled to the About card grammar (frosted + hairline + the one shared `Ios26CardShadow`); its bespoke drop shadow and sheen stack removed, which is why the rail and the cards it framed did not read as the same material. Grammar merged ahead of the section styles. |
+| **All 12 section pages** | Local page title + subtitle removed (the shell header strip is the single page header — every page printed its title twice); page gutters normalised to the 18/14 scale; `SurfacePrimaryStyle` → `SettingsPageCardStyle` (116 sites); `SurfaceDetailStyle` → `SettingsInnerTileStyle` (130 sites); **15 empty cards used as vertical gaps** → real separators; hand-built inline "cards" (their own radius/padding/wash tokens) → grammar tiles; `Typography.*` → grammar type roles; group bands → card captions. |
+| **`Ios26CardShadow`** | Moved from `Views/About` to `Themes/Styles/AboutSurface.xaml` (app level). A shadow declared inside About is invisible to Settings, and an unresolved `{DynamicResource}` on `Effect` leaves a card with no shadow and no error. |
+| **Two Appearance chip-slots** | A compact hex-entry strip and a second small border had been carrying the card style; both demoted to the wash tile after review (a 22,20-padded 26px card in a chip slot is a visible regression). |
+
+### 7.2 Verification added for a 12-page rewrite
+
+* **`scripts/settings-rewrite/verify_bindings.py`** — a page may be restyled, never defused. Compares each section against its committed version and fails if **any** binding, `CommandParameter`, `x:Name`, converter, `RelativeSource` or text key disappears. Intentional removals are recorded in a `JUSTIFIED` registry **with their reason**, so the decision is auditable and any *other* loss still fails. It caught the legitimately-removed duplicate titles and, importantly, would have caught a dropped binding while re-wrapping 246 containers.
+* **`scripts/settings-rewrite/apply_grammar.py`** — the mechanical transformation, with two bugs found during review and fixed: it first re-emitted opening tags **without their `>`** (malformed XAML) and later injected a `Style` attribute next to a `<Border.Style>` property element (the compiler's "property set more than once"). Both were caught by diff review and by the duplicate-property gate stage respectively — the tool now skips the property-element form and reports what it did not touch.
+* **New locks** in `Tests/Settings/SettingsNavigationAuditTests.cs`: no settings page may use a generic `Surface*` card style again, every page must merge the grammar, no local page-title block, no card used as a spacer, and the grammar itself must be token-only (no hex, no literal radius, no literal font size).
+
+### 7.3 Still to do on the module (next passes)
+
+1. **Card headers with icon discs.** The mechanical pass converted the *chrome*; the mockups also give most cards an icon disc + title header. Pages whose cards still open with a raw text title: AI, Agent, Voice, Data, Demo, Updates, Themes, Features (About and License are already done by hand).
+2. **Deep restructuring of the two heavy pages** — Features (119 borders, 47 `PiToggleSwitch` rows) and Appearance (60 borders): collapse repeated per-row borders into list rows separated by the grammar's separator, expect a real line reduction.
+3. **Segmented controls** — the grammar defines `SettingsSegmentStyle`, but the pages still use their own option buttons (`OutlinedPillButton`, `SettingsActionButtonStyle`); convert Light/Dark, density and the update channel to the segmented group.
+4. **Emulator-free runtime check** by the owner: theme switch, family switch, density switch and the card-corner slider must all move the module now.
