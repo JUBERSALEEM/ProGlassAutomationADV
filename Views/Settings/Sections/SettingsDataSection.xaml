@@ -68,11 +68,11 @@
                                     <StackPanel Grid.Column="0">
                                         <Border 
                 Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel Orientation="Horizontal">
-                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE968;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding DataRootModeDisplay}"/>
-                                        </StackPanel>
-            </Border>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE968;"/>
+                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding DataRootModeDisplay}"/>
+                                            </StackPanel>
+                                        </Border>
                                         <CheckBox Content="Use shared company database folder"
                                                   IsChecked="{Binding UseSharedDataRoot, Mode=TwoWay}"
                                                   FontWeight="{DynamicResource Weight.SemiBold}"
@@ -107,21 +107,21 @@
 
                                         <Border Margin="0,10,0,0"
                 Style="{StaticResource SurfacePanelTileStyle}">
-                    <UniformGrid Columns="3">
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                            <UniformGrid Columns="3">
+                                                <Button Style="{StaticResource SettingsActionButtonStyle}"
                                                     Content="Test Connection"
                                                     Command="{Binding TestSharedDataRootCommand}"
                                                     HorizontalAlignment="Stretch"/>
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                <Button Style="{StaticResource SettingsActionButtonStyle}"
                                                     Content="Prepare Folder"
                                                     Command="{Binding PrepareSharedDataRootCommand}"
                                                     HorizontalAlignment="Stretch"/>
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                <Button Style="{StaticResource SettingsActionButtonStyle}"
                                                     Content="Save + Restart Required"
                                                     Command="{Binding ApplySharedDataRootCommand}"
                                                     HorizontalAlignment="Stretch"/>
-                                        </UniformGrid>
-            </Border>
+                                            </UniformGrid>
+                                        </Border>
                                     </StackPanel>
                                 </Grid>
 
@@ -156,13 +156,10 @@
                             <!-- Backup actions tile -->
                             <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
                                 <StackPanel>
-                                    <Border 
-                Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE74E;"/>
                                         <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.BackupActions}"/>
                                     </StackPanel>
-            </Border>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.CreateBackupSetNowRefreshListOpenFolderWhere}"/>
                                     <StackPanel>
@@ -187,13 +184,10 @@
                             <!-- Restore tile -->
                             <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
                                 <StackPanel>
-                                    <Border 
-                Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE895;"/>
                                         <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource ProformaInvoice.Restore}"/>
                                     </StackPanel>
-            </Border>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.RestoreAlwaysSnapshotsCurrentDataFirstBad}"/>
                                     <Button Style="{StaticResource SuccessPillButton}"
@@ -210,13 +204,10 @@
                             <!-- Backup sets list (wide tile) -->
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
-                                    <Border 
-                Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F7;"/>
                                         <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.BackupSets}"/>
                                     </StackPanel>
-            </Border>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.PickSetRestoreSelectingEnoughRestoreButton}"/>
                                     <ListBox ItemsSource="{Binding BackupSets}"
@@ -267,33 +258,30 @@
                         <StackPanel Margin="0,0,0,6">
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
-                                    <Border 
-                Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A5;"/>
                                         <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.ExploreSampleData}"/>
                                     </StackPanel>
-            </Border>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.6Sheets3Proformas2JobOrders2DeliveryNotes3}"/>
                                     <!-- Full-width action row: buttons stretch evenly
                                          across the whole card. -->
                                     <Border Margin="0,10,0,0"
                 Style="{StaticResource SurfacePanelTileStyle}">
-                    <UniformGrid Columns="2">
-                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                        <UniformGrid Columns="2">
+                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
                                                 Content="{DynamicResource Settings.LOADSampleDATA}"
                                                 Command="{Binding LoadSampleDataCommand}"
                                                 HorizontalAlignment="Stretch"
                                                 ToolTip="{DynamicResource Settings.SeedDemoDatasetEmptyDatabase}"/>
-                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
                                                 Content="{DynamicResource Settings.ClearDATA}"
                                                 Command="{Binding ClearAllDataCommand}"
                                                 HorizontalAlignment="Stretch"
                                                 Margin="0"
                                                 ToolTip="{DynamicResource Settings.PermanentlyDeleteRecordModulesEGAfterTesting}"/>
-                                    </UniformGrid>
-            </Border>
+                                        </UniformGrid>
+                                    </Border>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.DoneTestingUseClearDATAWipeDemoDatasetOne}"/>
                                 </StackPanel>
@@ -356,20 +344,20 @@
                                          across the whole card. -->
                                     <Border 
                 Style="{StaticResource SurfacePanelTileStyle}">
-                    <UniformGrid Columns="2">
-                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                        <UniformGrid Columns="2">
+                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
                                                 Content="{DynamicResource Action.Refresh}"
                                                 Command="{Binding RefreshDatabaseHealthCommand}"
                                                 HorizontalAlignment="Stretch"
                                                 ToolTip="{DynamicResource Settings.ProbeDatabaseRefreshRowCountTable}"/>
-                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
                                                 Content="{DynamicResource Settings.RebuildDatabasesEmergency}"
                                                 Command="{Binding RebuildAllDatabasesCommand}"
                                                 HorizontalAlignment="Stretch"
                                                 Margin="0"
                                                 ToolTip="{DynamicResource Settings.MoveDbFileMigrationbackupsRecreateCurrent}"/>
-                                    </UniformGrid>
-            </Border>
+                                        </UniformGrid>
+                                    </Border>
 
                                     <ListBox ItemsSource="{Binding DatabaseHealthRows}"
                                              Margin="0,10,0,0"

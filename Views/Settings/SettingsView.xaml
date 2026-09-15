@@ -99,45 +99,45 @@
                      with a hairline edge and one soft shadow; a top catch
                      light plus a glare band made the rail read as a different
                      material from the cards it hosts. -->
-            <DockPanel Margin="10,10,10,10">
+                <DockPanel Margin="10,10,10,10">
 
                 <!-- Brand header — 2026-09-05 restyled to the REPORTS-module
                      rail design (owner directive: identical visual language):
                      accent header card with icon tile, two-line title, and
                      the collapse button INSIDE the header (single click). -->
-                <Border DockPanel.Dock="Top" Margin="4,2,4,8"
+                    <Border DockPanel.Dock="Top" Margin="4,2,4,8"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Background="{DynamicResource AccentBrush}"
                         Padding="10,10" Style="{StaticResource SurfacePrimaryStyle}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="38"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Width="38" Height="38"
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="38"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Width="38" Height="38"
                                 CornerRadius="{DynamicResource Radius.Medium}"
                                 Background="{DynamicResource SurfaceElevatedBrush}" Style="{StaticResource SurfacePrimaryStyle}">
-                            <TextBlock Text="&#xE713;"
+                                <TextBlock Text="&#xE713;"
                                        FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource FontSize.H2}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" Margin="10,0,0,0"
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="10,0,0,0"
                                     VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Settings.Title}"
+                                <TextBlock Text="{DynamicResource Settings.Title}"
                                        FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                            <TextBlock Text="{DynamicResource Settings.Subtitle}"
+                                <TextBlock Text="{DynamicResource Settings.Subtitle}"
                                        FontSize="{DynamicResource FontSize.Body}"
                                        Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}"/>
-                        </StackPanel>
+                            </StackPanel>
                         <!-- Collapse rail button (single click — the rail
                              re-opens from the hamburger in the content
                              header, exactly like the Reports module). -->
-                        <Button Grid.Column="2"
+                            <Button Grid.Column="2"
                                 Width="30" Height="30"
                                 VerticalAlignment="Top"
                                 Background="Transparent"
@@ -145,47 +145,47 @@
                                 Cursor="Hand"
                                 ToolTip="{DynamicResource ToolTip.ToggleMenu}"
                                 Command="{Binding ToggleSettingsRailCommand}">
-                            <TextBlock Text="&#xE76B;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                <TextBlock Text="&#xE76B;" FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource FontSize.Title}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
-                        </Button>
-                    </Grid>
-                </Border>
-                <Border DockPanel.Dock="Top" Height="1"
+                            </Button>
+                        </Grid>
+                    </Border>
+                    <Border DockPanel.Dock="Top" Height="1"
                         Background="{DynamicResource BorderDefaultBrush}"
                         Margin="14,0,14,8"/>
 
                 <!-- Nav items — scroll so every page stays reachable on
                      short windows instead of clipping License / About. -->
-                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               CanContentScroll="False"
                               PanningMode="VerticalOnly">
-                <ItemsControl ItemsSource="{Binding NavRows}"
+                        <ItemsControl ItemsSource="{Binding NavRows}"
                               KeyboardNavigation.TabNavigation="Cycle">
                     <!-- v3 (2026-09-05 Phase 3): data-driven rail — the
                          row list in the VM is THE page registry; adding
                          a page = one NavRows entry + one host line below.
                          Tab cycles the rail; the keyboard cue is
                          SettingsNavFocusStyle (accent ring adorner). -->
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Button Command="{Binding DataContext.SwitchSettingsPageCommand, ElementName=SettingsRoot}"
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding DataContext.SwitchSettingsPageCommand, ElementName=SettingsRoot}"
                                     CommandParameter="{Binding Key}">
-                                <Button.Style>
-                                    <Style TargetType="Button"
+                                        <Button.Style>
+                                            <Style TargetType="Button"
                                            BasedOn="{StaticResource SettingsNavButtonStyle}">
-                                        <Setter Property="FocusVisualStyle"
+                                                <Setter Property="FocusVisualStyle"
                                                 Value="{StaticResource SettingsNavFocusStyle}"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                                <Setter Property="Tag" Value="Active"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                        <Setter Property="Tag" Value="Active"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
                                 <!-- 2026-09-14: the glyph TextBlock had no
                                      FontFamily — the MDL2 code point rendered
                                      with the app font as a broken box before
@@ -197,18 +197,18 @@
                                      tokens every tile in the module uses, and
                                      neither run sets a Foreground — the active
                                      accent pill flips glyph and label together. -->
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Glyph}"
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Glyph}"
                                                Style="{StaticResource SettingsRowGlyphStyle}"/>
-                                    <TextBlock Text="{Binding Label}"
+                                            <TextBlock Text="{Binding Label}"
                                                Style="{StaticResource SettingsRowLabelStyle}"/>
-                                </StackPanel>
-                            </Button>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-                </ScrollViewer>
-            </DockPanel>
+                                        </StackPanel>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
             </Grid>
         </Border>
 
@@ -338,82 +338,82 @@
                 </Grid>
             </Border>
 
-        <Grid Grid.Row="1">
-            <sections:SettingsAppearanceSection
+            <Grid Grid.Row="1">
+                <sections:SettingsAppearanceSection
                 Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
                     Converter={StaticResource EqualityToVisibilityConverter},
                     ConverterParameter=Appearance,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
-            <sections:SettingsThemesSection
+                <sections:SettingsThemesSection
                 Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
                     Converter={StaticResource EqualityToVisibilityConverter},
                     ConverterParameter=Themes,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
-            <sections:SettingsAiSection
+                <sections:SettingsAiSection
                 Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
                     Converter={StaticResource EqualityToVisibilityConverter},
                     ConverterParameter=Ai,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
-            <sections:SettingsAgentSection
+                <sections:SettingsAgentSection
                 Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
                     Converter={StaticResource EqualityToVisibilityConverter},
                     ConverterParameter=Agent,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
-            <sections:SettingsVoiceSection
+                <sections:SettingsVoiceSection
                 Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
                     Converter={StaticResource EqualityToVisibilityConverter},
                     ConverterParameter=Voice,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
-            <sections:SettingsUpdatesSection
+                <sections:SettingsUpdatesSection
                 Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
                     Converter={StaticResource EqualityToVisibilityConverter},
                     ConverterParameter=Updates,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
-            <sections:SettingsDataSection
+                <sections:SettingsDataSection
                 Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
                     Converter={StaticResource EqualityToVisibilityConverter},
                     ConverterParameter=Data,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
-            <sections:SettingsDemoSection
+                <sections:SettingsDemoSection
                 Panel.ZIndex="2"
                 Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
                     Converter={StaticResource EqualityToVisibilityConverter},
                     ConverterParameter=Demo,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
-            <sections:SettingsFeaturesSection
+                <sections:SettingsFeaturesSection
                 Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
                     Converter={StaticResource EqualityToVisibilityConverter},
                     ConverterParameter=Features,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
-            <sections:SettingsLicenseSection
+                <sections:SettingsLicenseSection
                 Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
                     Converter={StaticResource EqualityToVisibilityConverter},
                     ConverterParameter=License,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
-            <sections:SettingsSharingSection
+                <sections:SettingsSharingSection
                 Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
                     Converter={StaticResource EqualityToVisibilityConverter},
                     ConverterParameter=Sharing,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
-            <sections:SettingsAboutSection
+                <sections:SettingsAboutSection
                 Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
                     Converter={StaticResource EqualityToVisibilityConverter},
                     ConverterParameter=About,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
 
-        </Grid>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>

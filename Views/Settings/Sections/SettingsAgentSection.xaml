@@ -75,13 +75,10 @@
                             <!-- Local only -->
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
-                                    <Border 
-                Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72E;"/>
                                         <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding LocalOnlyLabel}" TextWrapping="Wrap"/>
                                     </StackPanel>
-            </Border>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.WhenAgentNeverContactsInternetDefault}"/>
                                     <Button Command="{Binding ToggleLocalOnlyCommand}"
@@ -94,13 +91,10 @@
                             <!-- Cloud consent -->
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
-                                    <Border 
-                Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE774;"/>
                                         <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding CloudConsentLabel}" TextWrapping="Wrap"/>
                                     </StackPanel>
-            </Border>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.SeparateExplicitAgreementSendQuestionsOnline}"/>
                                     <Button Command="{Binding ToggleCloudConsentCommand}"
@@ -114,13 +108,10 @@
                         <!-- Plain-English summary -->
                         <Border Style="{StaticResource SettingsInnerTileStyle}">
                             <StackPanel>
-                                <Border 
-                Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel Orientation="Horizontal">
+                                <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE946;"/>
                                     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.WhatMeans}"/>
                                 </StackPanel>
-            </Border>
                                 <TextBlock Text="{Binding PrivacySummary}"
                                            Style="{StaticResource SettingsRowMetaStyle}"/>
                                 <TextBlock Style="{StaticResource SettingsRowMetaStyle}">
@@ -133,13 +124,10 @@
                         <!-- Local model advice (never downloads) -->
                         <Border Style="{StaticResource SettingsInnerTileStyle}">
                             <StackPanel>
-                                <Border 
-                Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel Orientation="Horizontal">
+                                <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE90F;"/>
                                     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.LocalModelAdvice}"/>
                                 </StackPanel>
-            </Border>
                                 <TextBlock Text="{Binding HardwareAdvice}"
                                            Style="{StaticResource SettingsRowMetaStyle}"/>
                             </StackPanel>
@@ -152,13 +140,10 @@
                              this card ships new UI before the 15 locale packs add keys. -->
                         <Border Style="{StaticResource SettingsInnerTileStyle}">
                             <StackPanel>
-                                <Border 
-                Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel Orientation="Horizontal">
+                                <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE896;"/>
                                     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="Offline AI model (install once, works without internet)"/>
                                 </StackPanel>
-            </Border>
 
                                 <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                            TextWrapping="Wrap"
@@ -264,16 +249,13 @@
                         <StackPanel Margin="0,0,0,6">
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
-                                    <Border 
-                Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel>
+                                    <StackPanel>
                                         <TextBlock Text="&#xE8B7;"
                                                    FontFamily="{DynamicResource FontFamily.Icon}"
                                                    FontSize="{DynamicResource FontSize.Body}"
                                                    Margin="0,0,6,0"/>
                                         <TextBlock Text="{DynamicResource Settings.StoreAPIKey}"/>
                                     </StackPanel>
-            </Border>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" MinWidth="150"/>
@@ -300,19 +282,19 @@
                                          across the whole card. -->
                                     <Border Margin="0,10,0,0"
                 Style="{StaticResource SurfacePanelTileStyle}">
-                    <UniformGrid Columns="2">
-                                        <Button Style="{StaticResource SuccessPillButton}"
+                                        <UniformGrid Columns="2">
+                                            <Button Style="{StaticResource SuccessPillButton}"
                                                 Tag="&#xE74E;"
                                                 Content="{DynamicResource Settings.StoreKEY}"
                                                 HorizontalAlignment="Stretch"
                                                 Click="StoreKey_Click"/>
-                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
                                                 Tag="&#xE74D;"
                                                 Content="{DynamicResource Settings.RemoveKEY}"
                                                 Margin="0"
                                                 Command="{Binding RemoveKeyCommand}"/>
-                                    </UniformGrid>
-            </Border>
+                                        </UniformGrid>
+                                    </Border>
                                 </StackPanel>
                             </Border>
                         </StackPanel>
@@ -426,45 +408,42 @@
                         <StackPanel Margin="0,0,0,6">
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
-                                    <Border 
-                Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F7;"/>
                                         <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.AgentData}"/>
                                     </StackPanel>
-            </Border>
                                     <Border 
                 Style="{StaticResource SurfacePanelTileStyle}">
-                    <UniformGrid Columns="2">
-                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                        <UniformGrid Columns="2">
+                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
                                                 Tag="&#xE78C;"
                                                 Content="{DynamicResource Settings.ExportKnowledge}"
                                                 HorizontalAlignment="Stretch"
                                                 Command="{Binding ExportKnowledgeCommand}"/>
-                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
                                                 Tag="&#xE896;"
                                                 Content="{DynamicResource Settings.ImportKnowledge}"
                                                 HorizontalAlignment="Stretch"
                                                 Margin="0"
                                                 Command="{Binding ImportKnowledgeCommand}"/>
-                                    </UniformGrid>
-            </Border>
+                                        </UniformGrid>
+                                    </Border>
                                     <Border Margin="0,4,0,0"
                 Style="{StaticResource SurfacePanelTileStyle}">
-                    <UniformGrid Columns="2">
-                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                        <UniformGrid Columns="2">
+                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
                                                 Tag="&#xE74D;"
                                                 Content="{DynamicResource Settings.ClearMemory}"
                                                 HorizontalAlignment="Stretch"
                                                 Command="{Binding ClearMemoryCommand}"/>
-                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
                                                 Tag="&#xE74D;"
                                                 Content="{DynamicResource Settings.ClearKnowledge}"
                                                 HorizontalAlignment="Stretch"
                                                 Margin="0"
                                                 Command="{Binding ClearKnowledgeCommand}"/>
-                                    </UniformGrid>
-            </Border>
+                                        </UniformGrid>
+                                    </Border>
 
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Margin="0,12,0,0"

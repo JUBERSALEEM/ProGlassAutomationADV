@@ -70,11 +70,11 @@
                                     </Grid.RowDefinitions>
                                     <Border Grid.Row="0"
                 Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel>
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F2;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.EnableAIAssistant}"/>
-                                    </StackPanel>
-            </Border>
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F2;"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.EnableAIAssistant}"/>
+                                        </StackPanel>
+                                    </Border>
                                     <TextBlock Grid.Row="1"
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.MasterSwitchWhenChatButtonHiddenNoAPICalls}"/>
@@ -96,11 +96,11 @@
                                     </Grid.RowDefinitions>
                                     <Border Grid.Row="0"
                 Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel>
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F9;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.UseRealBusinessData}"/>
-                                    </StackPanel>
-            </Border>
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F9;"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.UseRealBusinessData}"/>
+                                        </StackPanel>
+                                    </Border>
                                     <TextBlock Grid.Row="1"
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.WhenLiveInvoiceJobDeliveryBalanceDataSent}"/>
@@ -116,11 +116,11 @@
                                 <StackPanel>
                                     <Border 
                 Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.ActiveModel}"/>
-                                    </StackPanel>
-            </Border>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.ActiveModel}"/>
+                                        </StackPanel>
+                                    </Border>
                                     <TextBlock Text="{Binding AiModel}"
                                                TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
@@ -133,11 +133,11 @@
                                 <StackPanel>
                                     <Border 
                 Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE762;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.MaxTokens}"/>
-                                    </StackPanel>
-            </Border>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE762;"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.MaxTokens}"/>
+                                        </StackPanel>
+                                    </Border>
                                     <TextBlock Text="{Binding AiMaxTokens}"
                                                TextWrapping="Wrap"/>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
@@ -150,11 +150,11 @@
                                 <StackPanel>
                                     <Border 
                 Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE706;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.Temperature}"/>
-                                    </StackPanel>
-            </Border>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE706;"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.Temperature}"/>
+                                        </StackPanel>
+                                    </Border>
                                     <TextBlock Text="{Binding AiTemperature}"
                                                TextWrapping="Wrap"/>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
@@ -392,13 +392,10 @@
                             <!-- Config path (full-row tile) -->
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
-                                    <Border 
-                Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;"/>
                                         <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.KeysFile}"/>
                                     </StackPanel>
-            </Border>
                                     <TextBlock Text="{DynamicResource Settings.ProviderKeysEncryptedRestWindowsDpapiStored}"
                                                Style="{StaticResource SettingsRowMetaStyle}"/>
                                     <TextBlock Text="{Binding ConfigFilePath}"
@@ -436,11 +433,11 @@
                                     </Grid.RowDefinitions>
                                     <Border Grid.Row="0"
                 Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel>
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72E;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.KeepKeysSaved}"/>
-                                    </StackPanel>
-            </Border>
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72E;"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.KeepKeysSaved}"/>
+                                        </StackPanel>
+                                    </Border>
                                     <TextBlock Grid.Row="1"
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.KeysHeldSessionKeysAlwaysEncryptedWindows}"/>
@@ -454,13 +451,10 @@
                             <!-- Remove saved keys -->
                             <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
                                 <StackPanel>
-                                    <Border 
-                Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE74D;"/>
                                         <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.RemoveSavedKeys}"/>
                                     </StackPanel>
-            </Border>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.DeleteProviderKeyDiskAssistantAskReEnterNext}"/>
                                     <Button Style="{StaticResource DangerButton}"
@@ -473,13 +467,10 @@
                             <!-- Clear AI memory -->
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
-                                    <Border 
-                Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE81C;"/>
                                         <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.ClearAIMemory}"/>
                                     </StackPanel>
-            </Border>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.WipeStoredConversationHistoryAssistantUses}"/>
                                     <Button Style="{StaticResource DangerButton}"
