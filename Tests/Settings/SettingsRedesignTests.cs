@@ -51,6 +51,7 @@ namespace ProGlassAutomation.Tests.Settings
         };
 
         private const string StylesPath = "Views/Settings/SettingsSectionStyles.xaml";
+        private const string GrammarPath = "Views/Settings/SettingsCardStyles.xaml";
         private const string ShellPath = "Views/Settings/SettingsView.xaml";
 
         [Fact]
@@ -66,46 +67,81 @@ namespace ProGlassAutomation.Tests.Settings
             }
         }
 
+        /// <summary>
+        /// The module grammar (Views/Settings/SettingsCardStyles.xaml) is the ONE
+        /// place a Settings surface is described: page card → card title + header
+        /// note → row (title + meta) → inner tile, plus the chip / status dot
+        /// styles the approved sheets call for. Views/Settings/SettingsSectionStyles.xaml
+        /// keeps only behaviour (password box, provider select, sliders, nav rail,
+        /// action button) — chrome that does not describe the card system.
+        ///
+        /// This replaces the Aug-2026 tile-grid lock. SettingsTileStyle /
+        /// SettingsWideTileStyle / SettingsTileIconStyle / SettingsTileCaptionStyle
+        /// and friends were deleted with the tile grammar, so 23 of that test's 28
+        /// keys no longer existed anywhere: it could only ever fail. The card
+        /// grammar is what ships, so that is what gets locked.
+        /// </summary>
         [Fact]
-        public void Shared_styles_dictionary_exposes_the_tile_grid_design_system()
+        public void Settings_module_grammar_exposes_the_card_design_system()
         {
             var root = LocateProjectRoot();
-            var src = File.ReadAllText(Path.Combine(root, StylesPath));
+            var grammar = File.ReadAllText(Path.Combine(root, GrammarPath));
+
             foreach (var key in new[]
             {
-                "SettingsGroupHeaderTextStyle",
+                // RULE 1 — the page is a stack of top-level cards.
+                "SettingsPageCardStyle",
+                "SettingsPageTitleStyle",
+                "SettingsPagePadding",
+
+                // RULE 2 — the card header IS the old group heading.
+                "SettingsCardTitleStyle",
+                "SettingsCardHeaderNoteStyle",
                 "SettingsGroupCaptionStyle",
-                "SettingsTileStyle",
-                "SettingsWideTileStyle",
-                "SettingsFullRowTileStyle",
-                "SettingsTileHeaderPanelStyle",
-                "SettingsTileIconStyle",
-                "SettingsTileTitleStyle",
-                "SettingsTileCaptionStyle",
-                "SettingsTileFooterHintStyle",
-                "SettingsTileHeroStyle",
-                "SettingsGroupSeparatorStyle",
-                "PageTitleStyle",
-                "PageSubtitleStyle",
-                "SectionCardStyle",
-                "SectionLabelStyle",
-                "RowTitleStyle",
-                "HintTextStyle",
-                "LabelStyle",
-                "ValueStyle",
-                "ModernToggleSwitch",
-                "RoundedPasswordBoxStyle",
-                "AccentChipStyle",
-                "ProviderSelectButtonStyle",
-                "ProviderCardBaseStyle",
-                "DownloadProgressBarStyle",
-                "ModelOptionCardStyle",
-                "ModernSliderStyle",
+
+                // RULE 3 — a row: title + meta, sitting directly in its card.
+                "SettingsRowTitleStyle",
+                "SettingsRowMetaStyle",
+                "SettingsRowSeparatorStyle",
+
+                // RULE 4 — a surface inside a card is a tile, never another card.
+                "SettingsInnerTileStyle",
+                "SettingsIconTileStyle",
+                "SettingsIconGlyphStyle",
+                "SettingsWashTileStyle",
+
+                // A destructive action owns a danger card, not a third button.
+                "SettingsDangerCardStyle",
+                "SettingsDangerCardTitleStyle",
+                "SettingsDangerCardNoteStyle",
+
+                // State without a source is decoration — the chip grammar.
+                "SettingsChipStyle",
+                "SettingsChipTextStyle",
+                "SettingsStatusDotStyle",
             })
             {
                 Assert.True(
-                    src.Contains($"x:Key=\"{key}\"", StringComparison.Ordinal),
-                    $"SettingsSectionStyles.xaml is missing the '{key}' Style.");
+                    grammar.Contains($"x:Key=\"{key}\"", StringComparison.Ordinal),
+                    $"{GrammarPath} is missing the '{key}' entry.");
+            }
+
+            var behaviour = File.ReadAllText(Path.Combine(root, StylesPath));
+            foreach (var key in new[]
+            {
+                "RoundedPasswordBoxStyle",
+                "AccentChipStyle",
+                "ProviderSelectButtonStyle",
+                "DownloadProgressBarStyle",
+                "ModernSliderStyle",
+                "SettingsNavButtonStyle",
+                "SettingsNavFocusStyle",
+                "SettingsActionButtonStyle",
+            })
+            {
+                Assert.True(
+                    behaviour.Contains($"x:Key=\"{key}\"", StringComparison.Ordinal),
+                    $"{StylesPath} is missing the '{key}' entry.");
             }
         }
 
@@ -225,10 +261,20 @@ namespace ProGlassAutomation.Tests.Settings
             Assert.Contains("ModelOption_MouseLeftButtonDown", cs);
         }
 
+        /// <summary>
+        /// Every Settings page that has had its card pass is built from the card
+        /// grammar: a page card per subject, a card header, rows inside it, inner
+        /// tiles for surfaces that sit inside a card. This replaces the Aug-2026
+        /// "tile grid" lock — SettingsTileStyle / SettingsGroupHeaderTextStyle no
+        /// longer exist, so that test failed on 8 of its 10 pages — while keeping
+        /// the page-level fact it protected: a full-width host.
+        ///
+        /// Voice is deliberately absent: it is still on the retired shims and is
+        /// tracked by Only_the_voice_page_still_uses_the_retired_tile_shims.
+        /// </summary>
         [Theory]
         [InlineData("SettingsAppearanceSection.xaml")]
         [InlineData("SettingsAiSection.xaml")]
-        [InlineData("SettingsVoiceSection.xaml")]
         [InlineData("SettingsDataSection.xaml")]
         [InlineData("SettingsDemoSection.xaml")]
         [InlineData("SettingsAgentSection.xaml")]
@@ -236,29 +282,66 @@ namespace ProGlassAutomation.Tests.Settings
         [InlineData("SettingsUpdatesSection.xaml")]
         [InlineData("SettingsLicenseSection.xaml")]
         [InlineData("SettingsAboutSection.xaml")]
-        public void Rewritten_section_uses_the_new_tile_grid(string sectionFile)
+        [InlineData("SettingsThemesSection.xaml")]
+        [InlineData("SettingsSharingSection.xaml")]
+        public void Rewritten_section_uses_the_card_grammar(string sectionFile)
         {
             var root = LocateProjectRoot();
             var src = File.ReadAllText(Path.Combine(root,
                 "Views/Settings/Sections", sectionFile));
 
-            // The tiles must fill the full content width — no leftover empty
-            // space on the right. A multi-column group uses a UniformGrid; a
-            // single-card section (e.g. License) uses a StackPanel host with a
-            // FullRow tile. Whichever it uses, a Settings*TileStyle must be
-            // present and the host must not be a WrapPanel.
+            Assert.True(
+                src.Contains("Style=\"{StaticResource SettingsPageCardStyle}\"",
+                    StringComparison.Ordinal),
+                $"{sectionFile} has no top-level page card (SettingsPageCardStyle) — "
+                + "the page must be a stack of cards, not bands over raw rows.");
             Assert.True(
                 src.Contains("<UniformGrid") || src.Contains("<StackPanel"),
                 $"{sectionFile} uses no full-width host (UniformGrid/StackPanel).");
-            Assert.False(src.Contains("<WrapPanel"),
-                $"{sectionFile} uses a WrapPanel tile host — that leaves empty "
-                + "space on the right of each row.");
             Assert.True(
-                src.Contains("SettingsTileStyle") ||
-                src.Contains("SettingsWideTileStyle") ||
-                src.Contains("SettingsFullRowTileStyle"),
-                $"{sectionFile} does not consume any of the new tile styles.");
-            Assert.Contains("SettingsGroupHeaderTextStyle", src);
+                src.Contains("SettingsCardTitleStyle")
+                || src.Contains("SettingsCardHeaderStyle"),
+                $"{sectionFile} has a page card with no card header — the group "
+                + "heading belongs in the card (SettingsCardTitleStyle + "
+                + "SettingsCardHeaderNoteStyle), not on a band above it.");
+        }
+
+        /// <summary>
+        /// Burn-down lock for the pre-redesign shims. Themes/Styles/GlobalDesignSystem.xaml
+        /// still carries SettingsTileStyle's surviving shims (SettingsFullRowTileStyle,
+        /// SettingsTileHeaderPanelStyle, SettingsGroupSeparatorStyle) for exactly one
+        /// consumer: the Voice page, which has not had its card pass yet — its field
+        /// tiles are still the Aug-2026 shims inside the card shell.
+        ///
+        /// When Voice is converted this test FAILS. That is the signal, not a
+        /// regression: drop Voice from the list, delete the shims from
+        /// GlobalDesignSystem.xaml, and the module is fully on its own grammar.
+        /// </summary>
+        [Fact]
+        public void Only_the_voice_page_still_uses_the_retired_tile_shims()
+        {
+            var root = LocateProjectRoot();
+            var retired = new[]
+            {
+                "SettingsTileStyle",
+                "SettingsWideTileStyle",
+                "SettingsFullRowTileStyle",
+                "SettingsTileHeaderPanelStyle",
+                "SettingsGroupSeparatorStyle",
+                "SettingsGroupHeaderTextStyle",
+            };
+
+            var stillUsing = new List<string>();
+            foreach (var rel in SectionFiles)
+            {
+                var src = File.ReadAllText(Path.Combine(root, rel));
+                // A real consumption is a StaticResource lookup, not a sentence in
+                // a file-header comment describing the design that was replaced.
+                if (retired.Any(k => Regex.IsMatch(src, "StaticResource " + k + "\\b")))
+                    stillUsing.Add(Path.GetFileName(rel));
+            }
+
+            Assert.Equal(new[] { "SettingsVoiceSection.xaml" }, stillUsing);
         }
 
         /// <summary>
@@ -271,28 +354,35 @@ namespace ProGlassAutomation.Tests.Settings
         /// container choice + the tile restyle so the gap cannot return.
         /// </summary>
         [Fact]
-        public void Settings_tiles_stretch_to_fill_full_width()
+        /// <summary>
+        /// The owner repeatedly reported "ugly empty space" across every Settings
+        /// section. Root cause: tiles lived in a WrapPanel with a hard MaxWidth
+        /// (320/380), so nothing stretched them to fill the leftover row width —
+        /// every row left a big blank right region. The fix removed the cap and
+        /// stretched the hosts; this locks the real invariant: the module chrome
+        /// ships no fixed-width surface, so a card or tile is always free to fill
+        /// its column.
+        ///
+        /// It no longer forbids WrapPanel. That blanket ban was wrong and was
+        /// failing on two pages: a WrapPanel is the correct host for a chip
+        /// palette (accent / font colour / card-edge colour), for a button
+        /// cluster (import + reset font) and for the Features tab strip —
+        /// wrapping is exactly what those want. What the old assertion was really
+        /// guarding (a *tile* host that leaves a gap) cannot come back: the pages
+        /// are a StackPanel of cards, and the grammar caps no width.
+        /// </summary>
+        [Fact]
+        public void Settings_module_chrome_is_never_width_capped()
         {
             var root = LocateProjectRoot();
-            foreach (var rel in SectionFiles)
+            foreach (var rel in new[] { GrammarPath, StylesPath })
             {
-                var src = File.ReadAllText(Path.Combine(root, rel));
-                // No leftover: the tile groups use a full-width host
-                // (UniformGrid for multi-column, StackPanel for a single
-                // full-row section like License), and never a WrapPanel.
-                Assert.True(src.Contains("<UniformGrid") || src.Contains("<StackPanel"),
-                    $"{rel}: tile groups must use a full-width host (UniformGrid/"
-                    + "StackPanel), not a WrapPanel, so tiles fill the content width.");
-                Assert.False(src.Contains("<WrapPanel"),
-                    $"{rel} still uses a WrapPanel tile host — that leaves empty "
-                    + "space on the right of each row.");
+                var styles = File.ReadAllText(Path.Combine(root, rel));
+                Assert.DoesNotContain("MaxWidth", styles);
             }
 
-            var styles = File.ReadAllText(Path.Combine(root, StylesPath));
-            Assert.Contains("HorizontalAlignment\" Value=\"Stretch\"", styles);
-            // The tiles must not be hard-capped to 320/380 (which caused the gap).
-            Assert.DoesNotContain("<Setter Property=\"MaxWidth\"            Value=\"380\"", styles);
-            Assert.DoesNotContain("<Setter Property=\"MaxWidth\"            Value=\"1280\"", styles);
+            var behaviour = File.ReadAllText(Path.Combine(root, StylesPath));
+            Assert.Contains("HorizontalAlignment\" Value=\"Stretch\"", behaviour);
         }
 
         /// <summary>
@@ -574,37 +664,112 @@ namespace ProGlassAutomation.Tests.Settings
         /// stack or split the global card back into two tiles.
         /// </summary>
         [Fact]
+        /// <summary>
+        /// The WALLPAPERS group was redesigned (Aug 2026) so it stops wasting
+        /// vertical space:
+        ///   • Global Wallpaper and its visibility slider are now ONE card
+        ///     with the controls on a single line (previously two separate
+        ///     tiles = two rows of height).
+        ///   • Per-Module Wallpapers render the module rows in THREE columns
+        ///     under one card, instead of one full-width stacked list.
+        ///
+        /// Asserted on the parsed tree, not on string offsets: the previous
+        /// version searched between the words "Global Wallpaper" and
+        /// "Per-Module Wallpapers", which stopped meaning anything the moment
+        /// those words moved into a comment. A card is now found by the binding
+        /// it owns and its extent is walked as XML.
+        /// </summary>
+        [Fact]
         public void Appearance_wallpapers_are_combined_and_three_column()
         {
             var root = LocateProjectRoot();
-            var src = File.ReadAllText(Path.Combine(root,
-                "Views/Settings/Sections/SettingsAppearanceSection.xaml"));
+            var rel = "Views/Settings/Sections/SettingsAppearanceSection.xaml";
+            var src = File.ReadAllText(Path.Combine(root, rel));
 
-            // Global wallpaper + visibility are combined into one tile: the
-            // card that holds SetWallpaperCommand must also hold the opacity
-            // slider. If they were split again into two tiles, "Wallpaper
-            // Visibility" would reappear as a separate title.
-            Assert.Contains("Global Wallpaper", src);
-            Assert.DoesNotContain("Wallpaper Visibility", src);
-            var start = src.IndexOf("Global Wallpaper", StringComparison.Ordinal);
-            var end = src.IndexOf("Per-Module Wallpapers", StringComparison.Ordinal);
-            var globalBlock = src.Substring(
-                start, end > start ? end - start : Math.Max(0, 800));
-            Assert.Contains("SetWallpaperCommand", globalBlock);
-            Assert.Contains("WallpaperOpacity", globalBlock);
+            var xdoc = new XmlDocument();
+            xdoc.Load(Path.Combine(root, rel));
+            var doc = xdoc.DocumentElement!;
 
-            // Per-module list is a 3-column UniformGrid under a single card.
-            Assert.Contains("Per-Module Wallpapers", src);
-            Assert.Contains("<UniformGrid Columns=\"3\"", src);
-            Assert.Contains("ItemsSource=\"{Binding ModuleWallpaperRows}\"", src);
+            // Global wallpaper + visibility: one card, both bindings.
+            var setter = FindElementBinding(doc, "SetWallpaperCommand");
+            Assert.True(setter != null,
+                "No element in the Appearance page binds SetWallpaperCommand.");
+            var globalCard = NearestCard(setter!);
+            Assert.True(globalCard != null,
+                "The global wallpaper button is not inside a card.");
+            Assert.True(FindElementBinding(globalCard, "WallpaperOpacity") != null,
+                "The global wallpaper card no longer holds its visibility slider — "
+                + "SET/CLEAR and visibility must stay on one line of one card "
+                + "(two tiles put them two rows apart).");
 
-            // Both cards span the FULL width but keep their NATURAL heights:
-            // the wallpaper group is a StackPanel (not a UniformGrid), so the
-            // short Global card is not forced up to the tall Per-Module card's
-            // height. UniformGrid Columns=1 would have equalised them, which
-            // created the huge empty space the user reported.
+            // Per-module wallpaper rows: one card, a three-column grid.
+            var rows = FindElementBinding(doc, "ModuleWallpaperRows");
+            Assert.True(rows != null,
+                "No element in the Appearance page binds ModuleWallpaperRows.");
+            var moduleCard = NearestCard(rows!);
+            Assert.True(moduleCard != null,
+                "The per-module wallpaper list is not inside a card.");
+            Assert.True(HasDescendantElement(moduleCard, "UniformGrid", "Columns", "3"),
+                "The per-module wallpaper list is no longer a three-column "
+                + "UniformGrid, so the page grows by one row per module again.");
+
             Assert.DoesNotContain("<UniformGrid Columns=\"1\"", src);
-            Assert.Contains("SettingsFullRowTileStyle", src);
+        }
+
+        /// <summary>First descendant that binds <paramref name="binding"/>.</summary>
+        private static XmlElement? FindElementBinding(XmlElement? elem, string binding)
+        {
+            if (elem == null) return null;
+            foreach (XmlAttribute attr in elem.Attributes)
+            {
+                if (attr.Value.Contains("{Binding " + binding, StringComparison.Ordinal))
+                    return elem;
+            }
+            foreach (XmlNode child in elem.ChildNodes)
+            {
+                if (child is XmlElement ce)
+                {
+                    var hit = FindElementBinding(ce, binding);
+                    if (hit != null) return hit;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Nearest ancestor (or self) that carries the card grammar — a page card
+        /// or an inner tile. Used to prove two controls share one card.
+        /// </summary>
+        private static XmlElement? NearestCard(XmlElement elem)
+        {
+            for (XmlNode? node = elem; node is XmlElement e; node = node.ParentNode)
+            {
+                var style = e.GetAttribute("Style");
+                if (style.Contains("SettingsPageCardStyle", StringComparison.Ordinal)
+                    || style.Contains("SettingsInnerTileStyle", StringComparison.Ordinal)
+                    || style.Contains("SettingsDangerCardStyle", StringComparison.Ordinal))
+                {
+                    return e;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>Does any descendant carry the given element + attribute value?</summary>
+        private static bool HasDescendantElement(
+            XmlElement root, string localName, string attribute, string value)
+        {
+            foreach (XmlNode child in root.ChildNodes)
+            {
+                if (child is not XmlElement ce) continue;
+                if (string.Equals(ce.LocalName, localName, StringComparison.Ordinal)
+                    && string.Equals(ce.GetAttribute(attribute), value, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+                if (HasDescendantElement(ce, localName, attribute, value)) return true;
+            }
+            return false;
         }
 
         /// <summary>
