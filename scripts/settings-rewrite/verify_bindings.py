@@ -175,6 +175,11 @@ JUSTIFIED: dict[str, dict[str, str]] = {
         "Typography.Title": "replaced by SettingsRowTitleStyle / SettingsCardTitleStyle",
         "Settings.ThemesSubtitle": "text of the removed duplicate page subtitle",
     },
+    "SettingsAppearanceSection.xaml": {
+        # staticres
+        "SettingsGroupCaptionStyle": "group bands are card headers now — disc + title + note, per the approved mockup",
+        "SettingsRowMetaStyle": "the group recap line is the card note (SettingsCardNoteStyle)",
+    },
     "SettingsAboutSection.xaml": {
         # staticres
         "InfoGlyphBadgeStyle": "replaced by SettingsIconTileStyle",
@@ -197,7 +202,10 @@ JUSTIFIED: dict[str, dict[str, str]] = {
 def collect(text: str) -> dict[str, set[str]]:
     out: dict[str, set[str]] = {}
     for name, pattern in PATTERNS.items():
-        found = {m.group(1).strip() for m in pattern.finditer(text)}
+        # Normalise internal whitespace: a restyle re-indents the tree,
+        # and a multi-line {RelativeSource\n AncestorType=…} binding is the
+        # same reference no matter how deep it now sits.
+        found = {" ".join(m.group(1).split()) for m in pattern.finditer(text)}
         found.discard("")
         out[name] = found
     return out

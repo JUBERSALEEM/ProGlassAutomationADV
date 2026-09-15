@@ -342,7 +342,7 @@
                                         <Border CornerRadius="{DynamicResource CardCornerRadius}"
                                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                 BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                                                Padding="0,10" Style="{StaticResource SettingsPageCardStyle}">
+                                                Padding="0,10" Style="{StaticResource SettingsInnerTileStyle}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>

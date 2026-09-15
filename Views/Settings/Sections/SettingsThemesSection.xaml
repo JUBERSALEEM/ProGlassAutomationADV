@@ -347,7 +347,7 @@
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     Margin="0,8,0,0"
                                     Height="150"
-                                    SnapsToDevicePixels="True" Style="{StaticResource SettingsPageCardStyle}">
+                                    SnapsToDevicePixels="True" Style="{StaticResource SettingsInnerTileStyle}">
                                 <crystal:CrystalWaterControl
                                     WaterEnabled="{DynamicResource CrystalWaterDefaultEnabled}"
                                     WaterLevel="0.4"

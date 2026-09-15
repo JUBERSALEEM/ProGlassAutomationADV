@@ -218,6 +218,22 @@
         <Setter Property="Margin" Value="0,4,0,0"/>
     </Style>
 
+    <!-- Card header block — title, then the optional helper line. The note's
+         own margin only separates it from the title, so the header roles add
+         the air the approved mockups show between the header and the card's
+         first row: title-only cards use SettingsCardHeaderStyle, cards with a
+         helper line put the gap on the helper (SettingsCardHeaderNoteStyle) so
+         the pair stays tight. -->
+    <Style x:Key="SettingsCardHeaderStyle" TargetType="TextBlock"
+           BasedOn="{StaticResource SettingsCardTitleStyle}">
+        <Setter Property="Margin" Value="0,0,0,12"/>
+    </Style>
+
+    <Style x:Key="SettingsCardHeaderNoteStyle" TargetType="TextBlock"
+           BasedOn="{StaticResource SettingsCardNoteStyle}">
+        <Setter Property="Margin" Value="0,4,0,12"/>
+    </Style>
+
     <Style x:Key="SettingsPageTitleStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
         <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeH1}"/>

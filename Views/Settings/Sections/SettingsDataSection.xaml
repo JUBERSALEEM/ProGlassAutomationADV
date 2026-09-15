@@ -129,7 +129,7 @@
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                 Padding="10,8"
-                                Margin="0,12,0,0" Style="{StaticResource SettingsPageCardStyle}">
+                                Margin="0,12,0,0" Style="{StaticResource SettingsInnerTileStyle}">
                             <TextBlock Text="{Binding NetworkDataRootStatus}"
                                        TextWrapping="Wrap"
                                        FontSize="{DynamicResource FontSize.Body}"
@@ -313,7 +313,7 @@
                             <Border Padding="10,8"
                                     CornerRadius="{DynamicResource CardCornerRadius}"
                                     Background="{DynamicResource SurfaceTertiaryBrush}"
-                                    Margin="0,0,0,10" Style="{StaticResource SettingsPageCardStyle}">
+                                    Margin="0,0,0,10" Style="{StaticResource SettingsInnerTileStyle}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
