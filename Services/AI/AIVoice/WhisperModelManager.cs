@@ -52,8 +52,23 @@ namespace ProGlassAutomation.Services.AI.AIVoice
     /// </summary>
     public static class WhisperModelManager
     {
-        private const string HuggingFaceBase =
+        private const string HuggingFaceBaseDefault =
             "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/";
+
+        /// <summary>Model endpoint, overridable for plant LANs that reach the
+        /// internet only through a proxy/mirror (R1, Settings v3 phase 5).
+        /// Set PROGLASS_WHISPER_BASE to a mirror root; unset keeps the public
+        /// Hugging Face endpoint. Trailing slash optional.</summary>
+        private static string HuggingFaceBase
+        {
+            get
+            {
+                var raw = Environment.GetEnvironmentVariable("PROGLASS_WHISPER_BASE");
+                if (string.IsNullOrWhiteSpace(raw)) return HuggingFaceBaseDefault;
+                raw = raw.Trim();
+                return raw.EndsWith("/") ? raw : raw + "/";
+            }
+        }
 
         // ── Available models ──────────────────────────────────────────
 
