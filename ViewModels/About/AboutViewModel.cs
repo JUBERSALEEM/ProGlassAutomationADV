@@ -190,23 +190,27 @@ public sealed class AboutViewModel : ViewModelBase
     // ══════════════════════════════════════════════════════════════════
 
     /// <summary>
-    /// Top tab labels. Each tab maps to a separate section UserControl in
-    /// Views/About/Sections, so a section can be edited on its own.
+    /// Left rail navigation labels (2026-09-15, Part 1 mockup — the
+    /// centered top tab strip became a vertical glass rail). Each tab
+    /// maps to a separate section in Views/About/Sections, so a section
+    /// can be edited on its own.
     /// </summary>
     public IReadOnlyList<string> Tabs { get; } = new[]
     {
-        "About",
+        "Overview",
+        "License",
         "Modules",
         "Developer"
     };
 
     /// <summary>
-    /// Index of the visible tab (0 = About, 1 = Modules, 2 = Developer).
+    /// Index of the visible tab (0 = Overview, 1 = License,
+    /// 2 = Modules, 3 = Developer).
     /// Raises PropertyChanged so the section views can switch visibility.
     ///
     /// 2026-08-25 freeze/blank-page fix: the value is CLAMPED to the tab
     /// range. The section views default to Collapsed and only become
-    /// visible through DataTriggers on the values 0 / 1 / 2 — so if the
+    /// visible through DataTriggers on the values 0 / 1 / 2 / 3 — so if the
     /// TwoWay SelectedIndex binding ever pushed -1 (the ListBox's
     /// "no selection" state) or any out-of-range value, EVERY section
     /// stayed collapsed: a hero with an empty tab strip and a content

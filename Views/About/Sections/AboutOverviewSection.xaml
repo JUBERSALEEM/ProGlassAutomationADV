@@ -27,11 +27,13 @@
 
     <!-- 2026-09-14 layout correction (commercial ERP About order):
          the brand story leads — overview cards → capabilities →
-         privacy — and the LICENSE & SUPPORT utility cards (license
-         card + crash reports) close the page, matching the standard
-         About-page composition. Previously the two utility cards
+         privacy — and the utility cards close the page, matching the
+         standard About-page composition. Previously the utility cards
          opened the tab and pushed the product story below the fold.
-         No content, binding or logic changed — only ordering. -->
+         No content, binding or logic changed — only ordering.
+         2026-09-15 Part 1 mockup: the license card left this section
+         entirely — it is now the dedicated "License" tab; only the
+         crash-reports card remains here. -->
     <StackPanel>
 
         <!-- ═══ ABOUT ═══ -->
@@ -234,17 +236,11 @@
         </Border>
 
         <!--
-          ═══ LICENSE & SUPPORT (Phase 3 — slice 5b) ═══
-          A self-contained card whose DataContext is the
-          LicenseStatusViewModel singleton. Shows the
-          current licence status, edition, customer,
-          expiry, days remaining, features, and both the
-          licence-bound fingerprint and the current
-          machine's fingerprint (with a copy button).
-          Moved to the end of the tab on 2026-09-14 (see
-          the layout note at the top of this file).
+          2026-09-15 Part 1 mockup: the license card no longer
+          lives at the bottom of the Overview tab — it is now the
+          dedicated "License" tab in the left nav rail
+          (see AboutView.xaml, LicenseSectionHost).
         -->
-        <aboutSections:AboutLicenseCard Margin="0,0,0,16"/>
 
         <!--
           ═══ RECENT CRASH REPORTS (Phase 2 — slice 2) ═══
