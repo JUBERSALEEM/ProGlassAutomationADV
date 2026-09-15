@@ -3,15 +3,24 @@
      PROJECT: ProGlassAutomation
      MODULE: About — shared item templates (iOS-26 Liquid Glass)
 
-     Merged by: AboutView.xaml + every About section UserControl
-     (and by Themes/LightTheme.xaml + Themes/DarkTheme.xaml — see the
-     2026-09-15 note in AboutIos26Theme.xaml: the About module is now
-     rendered from its OWN fixed palette instead of the live app
-     theme, per the owner's approved mockups).
+     Merged by: AboutView.xaml + every About section UserControl.
 
-     This file holds only the shared ITEM TEMPLATES. All brushes,
-     radii, card / chip / button / bar styles live in
-     AboutIos26Theme.xaml (merged first, below).
+     PALETTE OWNERSHIP (2026-09-15, second revision)
+     ───────────────────────────────────────────────
+     The module is no longer rendered from a fixed palette. Owner
+     directive: "convert all cards and fonts safely move to dynamic so
+     this about module can adapt the theme style … Keeping the cards as
+     it is design." The Ios26* palettes now live in
+     Themes/LightTheme.xaml + DarkTheme.xaml (light column = the
+     approved mockup literals, verbatim), the five pastel stage colours
+     in Themes/Styles/AppStage.xaml (deliberately invariant), and the
+     type scale in Themes/Styles/AboutTypeScale.xaml. See the header of
+     AboutIos26Theme.xaml.
+
+     This file holds only the shared ITEM TEMPLATES. All radii, card /
+     chip / button / bar styles live in AboutIos26Theme.xaml (merged
+     first, below); every colour and size resolves to an Ios26* key
+     owned by the layers above.
 
      Token discipline: no hex colours and no literal CornerRadius
      values in any About view file (audit lock) — everything resolves

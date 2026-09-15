@@ -1,70 +1,48 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/About/AboutIos26Theme.xaml
      PROJECT: ProGlassAutomation
-     MODULE: About — self-contained iOS-26 Liquid Glass palette
+     MODULE: About — STRUCTURE ONLY (radii, elevation, styles, templates)
 
-     2026-09-15 owner directive: "I want exactly liquid glass style and
-     every card matching the mockups. Ignore the current theme if that's
-     the problem." The About module is therefore rendered from THIS
-     fixed palette — the approved mockup set (about-ios26-01..06) —
-     instead of the app's Live theme tokens. Light / Dark / visual
-     family switches in Settings no longer re-tint the About page
-     (deliberate, approved).
+     2026-09-15 owner directive: "convert all cards and fonts safely move
+     to dynamic so this about module can adapt the theme style … Keeping
+     the cards as it is design."
 
-     Every brush / radius / card style / progress-bar / button on the
-     About module resolves to a key defined here. The view files stay
-     token-only (no hex, no literal corner radii — the audit locks
-     keep enforcing that); all the fixed values live in exactly this
-     one dictionary.
+     WHAT CHANGED AND WHY
+     ────────────────────
+     This file used to declare the module's whole palette AND its type
+     scale — 72 keys, none of which the theme layer could reach, because a
+     dictionary merged locally by each About view SHADOWS
+     Application.Resources. The module was therefore frozen: Light / Dark /
+     density switched everything else in the app and nothing on About.
+
+     Values now live where a theme switch and the density publisher can
+     reach them:
+       • 25 palette brushes  → Themes/LightTheme.xaml + DarkTheme.xaml
+                               (light column = the approved mockup
+                               literals, verbatim; dark column mapped)
+       • 5 stage colours     → Themes/Styles/AppStage.xaml (invariant:
+                               "Background page dont make it dynamic")
+       • 15 type sizes       → Themes/Styles/AboutTypeScale.xaml
+                               (rewritten in place per density profile)
+
+     The key NAMES did not move. Every consumer still writes
+     {DynamicResource Ios26CardBrush} / {DynamicResource Ios26FontSizeBody},
+     so the approved design cannot drift through a rename.
+
+     KEEP IT THIS WAY
+     ────────────────
+     A palette value or a font size must never be re-declared here again:
+     that would silently re-freeze the module. The audit lock
+     About_palette_and_type_scale_are_theme_owned_not_locally_frozen scans
+     this file and fails on any Ios26* brush or size declaration outside
+     the allow-list below (6 radii + the card shadow).
 ═══════════════════════════════════════════════════════════════════════ -->
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
     xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
 
-    <!-- ═══ CANVAS ═══ — pastel mesh the glass floats on -->
-    <SolidColorBrush x:Key="Ios26CanvasBrush" Color="#F1F5FB" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26OrbTealBrush"   Color="#BFE8E3" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26OrbBlueBrush"   Color="#C5D8F6" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26OrbLavenderBrush" Color="#CFD4F5" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26OrbGreenBrush"  Color="#D2EBD6" po:Freeze="True"/>
 
-    <!-- ═══ GLASS SURFACES ═══ -->
-    <!-- Frosted card: 80 % white over the pastel mesh. -->
-    <SolidColorBrush x:Key="Ios26CardBrush"      Color="#CCFFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26CardBorderBrush" Color="#99FFFFFF" po:Freeze="True"/>
-    <!-- Frosted rail: 60 % white. -->
-    <SolidColorBrush x:Key="Ios26RailBrush"      Color="#99FFFFFF" po:Freeze="True"/>
-    <!-- Solid white tiles inside cards. -->
-    <SolidColorBrush x:Key="Ios26TileBrush"      Color="#FFFFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26TileBorderBrush" Color="#E8EDF3" po:Freeze="True"/>
-    <!-- Hairlines + tracks. -->
-    <SolidColorBrush x:Key="Ios26HairlineBrush"  Color="#E2E8F0" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26TrackBrush"     Color="#E2E8F0" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26HoverBrush"     Color="#E6ECF3" po:Freeze="True"/>
-
-    <!-- ═══ TEXT ═══ -->
-    <SolidColorBrush x:Key="Ios26TextTitleBrush"    Color="#0F172A" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26TextBodyBrush"     Color="#1E293B" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26TextSecondaryBrush" Color="#475569" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26TextMutedBrush"    Color="#64748B" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26TextFaintBrush"    Color="#94A3B8" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26OnAccentBrush"     Color="#FFFFFFFF" po:Freeze="True"/>
-    <!-- 25 % white — the "ACTIVE" chip inside the selected rail pill. -->
-    <SolidColorBrush x:Key="Ios26OnAccentChipBrush" Color="#40FFFFFF" po:Freeze="True"/>
-
-    <!-- ═══ ACCENT / STATUS ═══ -->
-    <SolidColorBrush x:Key="Ios26AccentBrush"        Color="#0369A1" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26AccentDeepBrush"    Color="#075985" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26AccentSoftBrush"    Color="#DBEAFE" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26AccentSoftTextBrush" Color="#1D4ED8" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26SuccessBrush"       Color="#16A34A" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26SuccessSoftBrush"   Color="#DCFCE7" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26ValuePillBrush"     Color="#F1F5F9" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26SearchBrush"        Color="#EDF1F7" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26NumberBrush"        Color="#93C5FD" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26DangerDotBrush"     Color="#FB7185" po:Freeze="True"/>
 
     <!-- ═══ CORNER RADII (mockup: 26 px cards, 10 px icon tiles,
          12 px inner tiles, 12 px chips) ═══
@@ -81,60 +59,16 @@
     <!-- Bar-only full round (do not use for chips/buttons/cards). -->
     <CornerRadius x:Key="Ios26RadiusBar">999</CornerRadius>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         TYPOGRAPHY SCALE — 2026-09-15 senior pass
-         ═══════════════════════════════════════════════════════════════
-         WHY THIS EXISTS
-         The module used to hard-code 20 different FontSize values, half
-         of them fractional (13.5 / 12.5 / 11.5 / 10.5). Under
-         TextOptions.TextFormattingMode="Display" a fractional size is
-         hinted at a half-pixel grid: stems land between pixels, so the
-         BOLD cuts render muddy and the SEMI-BOLD cuts read almost like
-         regular — "the fonts don't look bold". Every size is now a
-         whole pixel and every size has a ROLE.
 
-         SNAPPING RULE (applied module-wide, hierarchy preserved):
-         a fractional size snaps DOWN to the whole pixel below it, so a
-         13.5 px label keeps its 1 px distance from a 14 px value
-         instead of colliding with it. Nothing moves more than 0.5 px.
-
-         WEIGHTS: the module reuses the ONE global weight scale from
-         Themes/Styles/GlobalDesignSystem.xaml (Weight.Regular /
-         Weight.SemiBold / Weight.Bold) instead of inventing its own.
-         The About hierarchy is deliberately three-level:
-           • Weight.Regular   — body copy, muted field labels
-           • Weight.SemiBold  — micro labels, chips, buttons, COMPACT
-                                (<= 13 px) field values
-           • Weight.Bold      — card / section titles, hero metrics, and
-                                field VALUES at >= 14 px (the right — or
-                                lower — half of every label/value row)
-         NEVER Weight.Bold below 12 px (it closes the counters of small
-         glyphs) and never Weight.SemiBold for a 17 px+ title. The About
-         audit test locks both rules.
-
-         MDL2 GLYPH SIZES reuse this same scale (a 16 px glyph is 16 px)
-         so the module still has exactly ONE place where a font size is
-         written down. Read the token as a size step, not as a text role,
-         when it is applied to FontFamily.Icon. -->
-    <sys:Double x:Key="Ios26FontSizeCaption">10</sys:Double>      <!-- micro kicker / footer note -->
-    <sys:Double x:Key="Ios26FontSizeLabel">11</sys:Double>        <!-- small label -->
-    <sys:Double x:Key="Ios26FontSizeSmall">12</sys:Double>        <!-- secondary / meta text -->
-    <sys:Double x:Key="Ios26FontSizeBody">13</sys:Double>         <!-- body copy, field labels -->
-    <sys:Double x:Key="Ios26FontSizeValue">14</sys:Double>        <!-- emphasised value -->
-    <sys:Double x:Key="Ios26FontSizeSubtitle">15</sys:Double>     <!-- subtitle / large value -->
-    <sys:Double x:Key="Ios26FontSizeCardTitleSm">16</sys:Double>  <!-- compact card title -->
-    <sys:Double x:Key="Ios26FontSizeCardTitle">17</sys:Double>    <!-- card title -->
-    <sys:Double x:Key="Ios26FontSizeSectionTitle">18</sys:Double> <!-- section title -->
-    <sys:Double x:Key="Ios26FontSizeGlyph">19</sys:Double>        <!-- MDL2 glyph in a disc -->
-    <sys:Double x:Key="Ios26FontSizeH2">20</sys:Double>           <!-- status headline -->
-    <sys:Double x:Key="Ios26FontSizeH1">22</sys:Double>           <!-- page title -->
-    <sys:Double x:Key="Ios26FontSizeMetric">24</sys:Double>       <!-- big number -->
-    <sys:Double x:Key="Ios26FontSizeStat">28</sys:Double>         <!-- principle / stat number -->
-    <sys:Double x:Key="Ios26FontSizeDisplay">30</sys:Double>      <!-- hero app name -->
+    <!-- ═══ TYPE SCALE — lives in Themes/Styles/AboutTypeScale.xaml.
+         Declared at APPLICATION level so the density publisher can
+         rewrite it in place; a copy here would shadow it and re-freeze
+         the module. Read the snapping / weight rules there. ═══ -->
 
     <!-- ═══ TYPE ROLE STYLES — the three text roles that repeat most
-         often on this module. Colour comes from the frozen Ios26
-         palette, so a role style never re-introduces a magic value. ═══ -->
+         often on this module. Colour comes from the live Ios26 palette
+         (theme-owned, see the header), so a role style never re-introduces
+         a magic value. ═══ -->
 
     <!-- Card / section title: 17 px Bold, title ink. -->
     <Style x:Key="Ios26CardTitleStyle" TargetType="TextBlock">

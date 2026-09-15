@@ -262,6 +262,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 
 | Document | What it covers |
 |---|---|
+| [`ABOUT_DYNAMIC_THEME_CONVERSION_2026-09-15.md`](ABOUT_DYNAMIC_THEME_CONVERSION_2026-09-15.md) | About module — making it fully theme-dynamic without moving a single pixel |
 | [`ABOUT_LICENSE_EMPTY_FIX_AND_TYPOGRAPHY_2026-09-15.md`](ABOUT_LICENSE_EMPTY_FIX_AND_TYPOGRAPHY_2026-09-15.md) | About → License: the blank tab (root cause) + the About typography pass — 2026-09-15 |
 | [`BUILD_VERIFICATION_GUIDE.md`](BUILD_VERIFICATION_GUIDE.md) | Build Verification Guide |
 | [`CODE_RATING_REPORT.md`](CODE_RATING_REPORT.md) | ProGlass Automation — Senior Engineering Rating |

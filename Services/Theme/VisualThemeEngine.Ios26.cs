@@ -110,7 +110,10 @@ namespace ProGlassAutomation.Services.Theme
         /// tables.</summary>
         private static readonly string[] Ios26GlobalKeyNames =
         {
-            "AppBackgroundBrush", "WindowBackgroundBrush", "ModuleBackgroundBrush",
+            // 2026-09-15: AppBackgroundBrush is NOT here. The page background is the
+            // About stage and is theme-INVARIANT by owner directive ("Background
+            // page dont make it dynamic") — a family switch must not repaint it.
+            "WindowBackgroundBrush", "ModuleBackgroundBrush",
             "SideMenuBackgroundBrush", "ElevatedSurfaceBrush", "PopupSurfaceBrush",
             "DialogSurfaceBrush", "DialogInsetBrush", "SidebarCardBrush",
             "PrimaryForegroundBrush", "SecondaryForegroundBrush",
@@ -187,7 +190,10 @@ namespace ProGlassAutomation.Services.Theme
                 // PLAIN WHITE stage (owner directive 2026-09-11: "use white
                 // background — plain white, enhance more") — vivid icon
                 // gradients and pastel ambient blobs glow against pure white.
-                ["AppBackgroundBrush"]      = Ios26Sol(false, "#FFFFFF", null),
+                // NOTE 2026-09-15: AppBackgroundBrush was removed from this
+                // table — the page background is now the invariant About stage
+                // and the family must not override it. WindowBackgroundBrush
+                // still carries the family's white stage.
                 ["WindowBackgroundBrush"]   = Ios26Lin2("#FFFFFF", "#FAFAFC", null),
                 ["ModuleBackgroundBrush"]   = Ios26Sol(false, "#FFFFFF", null),
                 ["SideMenuBackgroundBrush"] = Ios26Sol(false, "#FAFAFC", null),
@@ -273,7 +279,7 @@ namespace ProGlassAutomation.Services.Theme
         private static Dictionary<string, object> Ios26GlobalDark() =>
             new()
             {
-                ["AppBackgroundBrush"]      = Ios26Sol(true, "#16171C", null),
+                // 2026-09-15: AppBackgroundBrush removed — see the light table.
                 ["WindowBackgroundBrush"]   = Ios26Lin2("#17181D", "#101116", null),
                 ["ModuleBackgroundBrush"]   = Ios26Sol(true, "#1B1C22", null),
                 ["SideMenuBackgroundBrush"] = Ios26Sol(true, "#131418", null),

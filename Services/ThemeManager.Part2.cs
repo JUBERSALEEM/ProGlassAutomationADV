@@ -239,6 +239,21 @@ namespace ProGlassAutomation.Services
             resources["ProGlassLayout.SectionPadding"] = stripPad;
             resources["ProGlassLayout.PageMargin"] = pageMargin;
 
+            // ── ABOUT TYPE SCALE (2026-09-15): the About module consumes
+            // {DynamicResource Ios26FontSize*} for every size on the page.
+            // Those tokens are declared at APPLICATION level in
+            // Themes/Styles/AboutTypeScale.xaml — deliberately not inside
+            // Views/About, because a locally merged key shadows
+            // Application.Resources and cannot be rewritten from here. This
+            // is what makes the About typography follow density instead of
+            // being frozen to the Compact ladder.
+            //
+            // Compact is the default profile and reproduces the approved
+            // mockup scale exactly (lift 0 → nothing moves on screen);
+            // Normal / Comfortable / Spacious lift the sizes >= 13 px by
+            // 1–2 whole pixels. See Services/Theme/AboutDensityTypeScale.cs.
+            AboutDensityTypeScale.Publish(resources, key);
+
             ApplySemanticSurfacePadding(resources, cardPad, stripPad);
             PublishProGlassDesignSystem();
         }

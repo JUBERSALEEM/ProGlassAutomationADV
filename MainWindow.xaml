@@ -238,6 +238,28 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!-- ═══════════════════════════════════════════════════════════
+             STAGE — the About page background, app-wide (2026-09-15).
+
+             Owner directive: "it would be awesome if you add this
+             background globally everywhere the one about module is
+             having." This layer sits at the BOTTOM of the root grid, so
+             every module and every piece of chrome that is transparent
+             (which is the house style) floats on the About stage.
+
+             It is painted from AppBackgroundBrush, which is declared
+             identically in both theme dictionaries and is deliberately
+             NOT theme-swapped: "Background page dont make it dynamic".
+             See Themes/Styles/AppStage.xaml for the five stage colours.
+
+             Order matters: the wallpaper layer BELOW this comment block
+             is painted on top of the stage, so an active user wallpaper
+             still wins. Do not reorder.
+        ═══════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                Background="{DynamicResource AppBackgroundBrush}"
+                IsHitTestVisible="False"/>
+
         <!-- Skin behind chrome + modules. Blur lives here only so logo,
              search, and nav type stay ClearType-sharp. -->
         <Border Grid.Row="0" Grid.RowSpan="2"

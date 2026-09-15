@@ -1,0 +1,48 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Themes/Styles/AppStage.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: App stage — the About page background, promoted app-wide
+
+     2026-09-15 owner directive: "Background page dont make it dynamic it
+     would be awesome if you add this background globally everywhere the
+     one about module is having."
+
+     INTERPRETATION (and the reason this file is NOT a theme file)
+     ────────────────────────────────────────────────────────────────
+     The About stage — the pastel canvas plus its four ambient orbs — is
+     the one surface in the product that is deliberately INVARIANT: it is
+     the anchor of the approved mockup set, so it must not move when
+     Light / Dark / visual family / accent changes. That is what "dont
+     make it dynamic" means, and it is why these five keys are declared
+     here, at application level, exactly once:
+
+       • They are merged BEFORE the theme dictionary (App.xaml), so the
+         theme swap neither owns nor replaces them.
+       • They are merged at APPLICATION level (not inside Views/About),
+         so the window root and the four page-background consumers can
+         reach them without duplicating a single hex value.
+       • The audit lock asserts they are declared HERE and nowhere else —
+         in particular not in LightTheme.xaml / DarkTheme.xaml, because a
+         themed copy would silently re-tint the stage.
+
+     About itself keeps consuming Ios26CanvasBrush / Ios26Orb*Brush with
+     {DynamicResource} exactly as before, so moving the definitions here
+     changes nothing on screen: same values, one home.
+
+     The composed vector brush the rest of the app paints with is
+     AppBackgroundBrush, declared identically in both theme dictionaries
+     (WPF cannot alias a dictionary value) and pinned byte-for-byte by
+     AppStageAuditTests.
+═══════════════════════════════════════════════════════════════════ -->
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
+
+    <!-- The five values below are the About mockup stage, verbatim. -->
+    <SolidColorBrush x:Key="Ios26CanvasBrush"     Color="#F1F5FB" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26OrbTealBrush"    Color="#BFE8E3" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26OrbBlueBrush"    Color="#C5D8F6" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26OrbLavenderBrush" Color="#CFD4F5" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26OrbGreenBrush"   Color="#D2EBD6" po:Freeze="True"/>
+</ResourceDictionary>

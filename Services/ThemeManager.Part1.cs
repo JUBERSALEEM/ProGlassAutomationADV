@@ -222,14 +222,14 @@ namespace ProGlassAutomation.Services
                 topRef.Freeze();
                 resources["GlassTopReflection"] = topRef;
 
-                var bg = new LinearGradientBrush(
-                    Color.FromRgb(0x0B, 0x14, 0x26),
-                    Color.FromRgb(0x0E, 0x1B, 0x31),
-                    new Point(0, 0), new Point(1, 1));
-                bg.GradientStops.Insert(1, new GradientStop(
-                    Color.FromRgb(0x12, 0x23, 0x3F), 0.5));
-                bg.Freeze();
-                resources["AppBackgroundBrush"] = bg;
+                // 2026-09-15: AppBackgroundBrush is NO LONGER published here.
+                // The page background is the About stage and is deliberately
+                // theme-INVARIANT ("Background page dont make it dynamic"),
+                // so both theme dictionaries declare the identical drawing and
+                // a Light/Dark switch must not re-tint it. The overlay in
+                // OverlayThemeDictionary still copies the theme dictionary's
+                // own value across, which is the same object either way.
+                // See Themes/Styles/AppStage.xaml and AppStageAuditTests.
             }
             else
             {
@@ -261,14 +261,10 @@ namespace ProGlassAutomation.Services
                 topRef.Freeze();
                 resources["GlassTopReflection"] = topRef;
 
-                var bg = new LinearGradientBrush(
-                    Color.FromRgb(0xF8, 0xF4, 0xEB),
-                    Color.FromRgb(0xF2, 0xEC, 0xDF),
-                    new Point(0, 0), new Point(1, 1));
-                bg.GradientStops.Insert(1, new GradientStop(
-                    Color.FromRgb(0xFE, 0xFC, 0xF8), 0.5));
-                bg.Freeze();
-                resources["AppBackgroundBrush"] = bg;
+                // 2026-09-15: dark/light AppBackgroundBrush publish removed —
+                // see the note in the dark branch above. The stage is invariant
+                // by owner directive, so the theme dictionaries own it and no
+                // runtime publisher may repaint it.
             }
         }
 

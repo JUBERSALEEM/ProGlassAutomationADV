@@ -42,10 +42,20 @@ namespace ProGlassAutomation.Tests.Theme
         private const string Light = "Themes/LightTheme.xaml";
 
         /// <summary>
-        /// Measured 2026-09-09. Raised when a new token is added to both
-        /// themes, which is the intended way for this number to move.
+        /// Raised when a new token is added to both themes, which is the
+        /// intended way for this number to move.
+        ///
+        /// MEASURED 2026-09-09: 225. This lock was FAILING at 245 before
+        /// 2026-09-15 — the constant had been left behind by later token
+        /// additions and nobody saw it, because the test project did not
+        /// build at all (the CS1503/CS1009 defects fixed in PR #14) so no
+        /// test in this assembly had run for some time. Re-measured 245 and
+        /// then +25 for the About module palette, which moved out of
+        /// Views/About/AboutIos26Theme.xaml into both themes so the About
+        /// page finally follows Light/Dark. See
+        /// docs/ABOUT_DYNAMIC_THEME_CONVERSION_2026-09-15.md §1.1.
         /// </summary>
-        private const int BaselineTokenCount = 225;
+        private const int BaselineTokenCount = 270;
 
         private static readonly Regex KeyAttr =
             new("x:Key=\"([^\"]+)\"", RegexOptions.Compiled);

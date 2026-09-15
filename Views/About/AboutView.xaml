@@ -4,10 +4,16 @@
      MODULE: About — iOS-26 Liquid Glass shell (2026-09-15 full
      restyle, approved mockups 01–06)
 
-     Self-contained look (owner directive: "I want exactly liquid
-     glass style ... ignore the current theme"): fixed pastel canvas
-     + frosted rail + frosted 26 px cards, all from the Ios26*
-     palette in AboutIos26Theme.xaml — NOT the live app theme.
+     Liquid-glass look with a THEME-DYNAMIC skin (2026-09-15 owner
+     directive: "convert all cards and fonts safely move to dynamic so
+     this about module can adapt the theme style … Keeping the cards as
+     it is design."): frosted rail + frosted 26 px cards + type all
+     resolve to Ios26* keys that now live in the theme dictionaries
+     (light = the approved mockup literals, dark mapped) and in
+     Themes/Styles/AboutTypeScale.xaml.
+     The pastel canvas + four ambient orbs stay INVARIANT ("Background
+     page dont make it dynamic") and are shared with the whole app via
+     Themes/Styles/AppStage.xaml.
 
      PRESERVED (crash-safety + audit contracts):
        • NO inline Storyboards (ERR-D71810 — optimised template load);

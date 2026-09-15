@@ -474,11 +474,66 @@
         <GradientStop Color="#04FFFFFF" Offset="0.5"/>
         <GradientStop Color="#06FFFFFF" Offset="1"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="AppBackgroundBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
-        <GradientStop Color="#F8F4EB" Offset="0.0"/>
-        <GradientStop Color="#FEFCF8" Offset="0.5"/>
-        <GradientStop Color="#F2ECDF" Offset="1.0"/>
-    </LinearGradientBrush>
+    <!-- ═══════════════════════════════════════════════════════════════
+         PAGE BACKGROUND — the About stage, app-wide and INVARIANT
+         ═══════════════════════════════════════════════════════════════
+         Owner directive (2026-09-15): "Background page dont make it
+         dynamic it would be awesome if you add this background globally
+         everywhere the one about module is having."
+
+         So this token is deliberately the SAME MARKUP IN BOTH THEMES: the
+         pastel canvas plus the four ambient orbs that the About page
+         floats on, painted as one vector brush. It is the page background
+         for the window root (MainWindow.xaml) and for every view that used
+         to carry a per-theme gradient (Login, Splash, both WorkCenters).
+
+         The three runtime publishers that used to repaint this key —
+         ThemeManager (light and dark) and the iOS 26 global tables — were
+         removed, so a Light / Dark / family / accent switch cannot re-tint
+         the page background. AppStageAuditTests asserts the two blocks are
+         byte-identical; that lock, not a comment, is what keeps the
+         invariance honest. The five stage colours themselves are declared
+         once, in Themes/Styles/AppStage.xaml.
+
+         Viewbox/Viewport are pinned to the 0..1 unit square on purpose:
+         the default Viewbox is the union bounds of the drawing, which
+         would let the orbs (they bleed past the edges, as on About) drag
+         the canvas off-centre.
+         ═══════════════════════════════════════════════════════════════ -->
+    <DrawingBrush x:Key="AppBackgroundBrush"
+                  Stretch="Fill"
+                  Viewbox="0,0,1,1" ViewboxUnits="Absolute"
+                  Viewport="0,0,1,1" ViewportUnits="RelativeToBoundingBox">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing Brush="#F1F5FB">
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="0,0,1,1"/>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#BFE8E3">
+                    <GeometryDrawing.Geometry>
+                        <EllipseGeometry Center="0.88,0.13" RadiusX="0.24" RadiusY="0.24"/>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#C5D8F6">
+                    <GeometryDrawing.Geometry>
+                        <EllipseGeometry Center="0.08,0.88" RadiusX="0.19" RadiusY="0.26"/>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#CFD4F5">
+                    <GeometryDrawing.Geometry>
+                        <EllipseGeometry Center="0.06,0.09" RadiusX="0.21" RadiusY="0.30"/>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <GeometryDrawing Brush="#D2EBD6">
+                    <GeometryDrawing.Geometry>
+                        <EllipseGeometry Center="0.96,0.93" RadiusX="0.17" RadiusY="0.25"/>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
     <LinearGradientBrush x:Key="GlassGradientIdle" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
         <GradientStop Color="#28FFFFFF" Offset="0.0"/>
         <GradientStop Color="#05FFFFFF" Offset="1.0"/>
@@ -606,6 +661,57 @@
         <GradientStop Color="#59FFFFFF" Offset="0"/>
         <GradientStop Color="#00FFFFFF" Offset="1"/>
     </LinearGradientBrush>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         ABOUT MODULE PALETTE — LIGHT COLUMN (2026-09-15)
+         ═══════════════════════════════════════════════════════════════
+         Owner directive: "convert all cards and fonts safely move to
+         dynamic so this about module can adapt the theme style …
+         Keeping the cards as it is design."
+
+         Until now these 25 values were declared in
+         Views/About/AboutIos26Theme.xaml — a dictionary merged LOCALLY by
+         every About view. A local key shadows Application.Resources, so the
+         module could not follow a Light / Dark switch no matter what the
+         ThemeManager published. The key NAMES are unchanged (About still
+         writes {{DynamicResource Ios26CardBrush}}); only the values moved
+         here, into the dictionary the theme swap actually replaces.
+
+         These are the approved mockup literals, VERBATIM, so the default
+         (light) rendering of About is bit-for-bit unchanged. Tune the dark
+         column in DarkTheme.xaml instead of re-declaring a value here.
+
+         Audit locks: Themes_define_about_palette_fallback_keys (both
+         themes), and About_palette_and_type_scale_are_theme_owned_not_
+         locally_frozen (About must never re-declare these).
+         ═══════════════════════════════════════════════════════════════ -->
+
+    <SolidColorBrush x:Key="Ios26CardBrush"               Color="#CCFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26CardBorderBrush"         Color="#99FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26RailBrush"               Color="#99FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26TileBrush"               Color="#FFFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26TileBorderBrush"         Color="#E8EDF3" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26HairlineBrush"           Color="#E2E8F0" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26TrackBrush"              Color="#E2E8F0" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26HoverBrush"              Color="#E6ECF3" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26TextTitleBrush"          Color="#0F172A" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26TextBodyBrush"           Color="#1E293B" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26TextSecondaryBrush"      Color="#475569" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26TextMutedBrush"          Color="#64748B" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26TextFaintBrush"          Color="#94A3B8" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26OnAccentBrush"           Color="#FFFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26OnAccentChipBrush"       Color="#40FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26AccentBrush"             Color="#0369A1" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26AccentDeepBrush"         Color="#075985" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26AccentSoftBrush"         Color="#DBEAFE" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26AccentSoftTextBrush"     Color="#1D4ED8" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26SuccessBrush"            Color="#16A34A" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26SuccessSoftBrush"        Color="#DCFCE7" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26ValuePillBrush"          Color="#F1F5F9" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26SearchBrush"             Color="#EDF1F7" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26NumberBrush"             Color="#93C5FD" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26DangerDotBrush"          Color="#FB7185" po:Freeze="True"/>
+
 
 
     <!-- ═══════════════════════════════════════════════════════════════

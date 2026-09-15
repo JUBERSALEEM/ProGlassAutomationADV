@@ -17,6 +17,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -170,17 +171,53 @@ namespace ProGlassAutomation.Tests.About
         public void Themes_define_about_palette_fallback_keys()
         {
             var root = LocateProjectRoot();
+
+            // 2026-09-15: the module palette became theme-owned. All 31 keys
+            // the About views consume for colour must exist in BOTH theme
+            // dictionaries, because those are the dictionaries the theme swap
+            // copies into Application.Resources. Six accent-derived keys were
+            // already here (republished live by ThemeManager.PublishAboutPalette);
+            // the other 25 moved out of Views/About/AboutIos26Theme.xaml, where
+            // a locally merged key shadows Application.Resources and froze the
+            // module against Light/Dark.
             foreach (var rel in new[] { "Themes/LightTheme.xaml", "Themes/DarkTheme.xaml" })
             {
                 var src = File.ReadAllText(Path.Combine(root, rel));
                 foreach (var key in new[]
                 {
+                    // accent-derived, republished at runtime
                     "AboutInteractiveBrush",
                     "AboutInteractiveHoverBrush",
                     "AboutInteractiveBorderBrush",
                     "AboutInteractiveBorderStrongBrush",
                     "AboutCardBorderBrush",
                     "AboutDividerBrush",
+                    // the 25 relocated palette brushes
+                    "Ios26CardBrush",
+                    "Ios26CardBorderBrush",
+                    "Ios26RailBrush",
+                    "Ios26TileBrush",
+                    "Ios26TileBorderBrush",
+                    "Ios26HairlineBrush",
+                    "Ios26TrackBrush",
+                    "Ios26HoverBrush",
+                    "Ios26TextTitleBrush",
+                    "Ios26TextBodyBrush",
+                    "Ios26TextSecondaryBrush",
+                    "Ios26TextMutedBrush",
+                    "Ios26TextFaintBrush",
+                    "Ios26OnAccentBrush",
+                    "Ios26OnAccentChipBrush",
+                    "Ios26AccentBrush",
+                    "Ios26AccentDeepBrush",
+                    "Ios26AccentSoftBrush",
+                    "Ios26AccentSoftTextBrush",
+                    "Ios26SuccessBrush",
+                    "Ios26SuccessSoftBrush",
+                    "Ios26ValuePillBrush",
+                    "Ios26SearchBrush",
+                    "Ios26NumberBrush",
+                    "Ios26DangerDotBrush",
                 })
                 {
                     Assert.Contains($"x:Key=\"{key}\"", src);
@@ -397,7 +434,7 @@ namespace ProGlassAutomation.Tests.About
                 var size = literalSize.Match(src);
                 Assert.False(size.Success,
                     $"{rel} hard-codes a font size ({size.Value}) — use the " +
-                    "Ios26FontSize* scale from AboutIos26Theme.xaml. " +
+                    "Ios26FontSize* scale from Themes/Styles/AboutTypeScale.xaml. " +
                     "Fractional sizes are banned outright: they hint badly " +
                     "under TextFormattingMode=Display.");
 
@@ -461,8 +498,14 @@ namespace ProGlassAutomation.Tests.About
         public void About_theme_defines_the_type_scale_and_whole_pixel_sizes()
         {
             var root = LocateProjectRoot();
-            var theme = File.ReadAllText(Path.Combine(root,
-                "Views/About/AboutIos26Theme.xaml"));
+
+            // ── 2026-09-15: the scale moved OUT of Views/About and INTO the
+            // application-level dictionary. Same lock, new home: the point was
+            // never *where* the ladder lives, it is that (a) all 15 steps
+            // exist, (b) every step is a whole pixel, and — added now — (c) a
+            // local copy cannot shadow the live one.
+            var scale = File.ReadAllText(Path.Combine(root,
+                "Themes/Styles/AboutTypeScale.xaml"));
 
             foreach (var key in new[]
             {
@@ -474,9 +517,26 @@ namespace ProGlassAutomation.Tests.About
                 "Ios26FontSizeDisplay",
             })
             {
-                Assert.Contains($"x:Key=\"{key}\"", theme);
+                Assert.Contains($"x:Key=\"{key}\"", scale);
             }
 
+            // Every About size token must be a whole pixel value.
+            var token = new Regex(
+                @"<sys:Double x:Key=""Ios26FontSize\w+"">([0-9.]+)</sys:Double>",
+                RegexOptions.Compiled);
+            int found = 0;
+            foreach (Match m in token.Matches(scale))
+            {
+                found++;
+                Assert.DoesNotContain(".", m.Groups[1].Value);
+            }
+
+            // Guard against a vacuous pass: 15 tokens, no more, no fewer.
+            Assert.Equal(15, found);
+
+            // The role styles stay in the module dictionary.
+            var theme = File.ReadAllText(Path.Combine(root,
+                "Views/About/AboutIos26Theme.xaml"));
             foreach (var style in new[]
             {
                 "Ios26CardTitleStyle", "Ios26FieldLabelStyle", "Ios26FieldValueStyle",
@@ -484,15 +544,55 @@ namespace ProGlassAutomation.Tests.About
             {
                 Assert.Contains($"x:Key=\"{style}\"", theme);
             }
+        }
 
-            // Every About size token must be a whole pixel value.
-            var token = new Regex(
-                @"<sys:Double x:Key=""Ios26FontSize\w+"">([0-9.]+)</sys:Double>",
-                RegexOptions.Compiled);
-            foreach (Match m in token.Matches(theme))
+        [Fact]
+        public void About_palette_and_type_scale_are_theme_owned_not_locally_frozen()
+        {
+            var root = LocateProjectRoot();
+
+            // The anti-refreeze clause. About was frozen once before by
+            // declaring its palette inside a locally merged dictionary; a key
+            // declared there shadows Application.Resources, so the module
+            // silently stops following the theme and NOTHING fails to build.
+            //
+            // Only two kinds of value may still be declared inside About:
+            // the six corner radii and the card shadow (design geometry, not
+            // a theme signal). Anything else Ios26* is a regression.
+            var allowed = new HashSet<string>(StringComparer.Ordinal)
             {
-                Assert.DoesNotContain(".", m.Groups[1].Value);
+                "Ios26RadiusCard", "Ios26RadiusInner", "Ios26RadiusTile",
+                "Ios26RadiusChip", "Ios26RadiusSmall", "Ios26RadiusBar",
+                "Ios26CardShadow",
+            };
+
+            var declared = new List<string>();
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(root, "Views", "About"),
+                         "*.xaml", SearchOption.AllDirectories))
+            {
+                foreach (Match m in Regex.Matches(
+                             File.ReadAllText(file), "x:Key=\"(Ios26[^\"]+)\""))
+                {
+                    var key = m.Groups[1].Value;
+                    if (key.EndsWith("Style", StringComparison.Ordinal)
+                        || key.EndsWith("Template", StringComparison.Ordinal))
+                    {
+                        continue; // styles and templates are the module's own
+                    }
+
+                    if (!allowed.Contains(key)) declared.Add(key);
+                }
             }
+
+            Assert.True(declared.Count == 0,
+                "The About module declares palette / type values again. A key " +
+                "declared inside Views/About shadows Application.Resources, so " +
+                "the module stops following Light/Dark/density and nothing fails " +
+                "to build. Move the value to Themes/LightTheme.xaml + " +
+                "DarkTheme.xaml (palette), Themes/Styles/AppStage.xaml (stage) or " +
+                "Themes/Styles/AboutTypeScale.xaml (sizes). Offending keys: " +
+                string.Join(", ", declared.Distinct()));
         }
 
         [Fact]
