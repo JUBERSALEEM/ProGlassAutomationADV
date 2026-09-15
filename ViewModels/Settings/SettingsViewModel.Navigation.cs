@@ -62,8 +62,23 @@ namespace ProGlassAutomation.ViewModels.Settings
             public string Key { get; }
             public string Glyph { get; }
             public string LabelKey { get; }
+
+            /// <summary>Localization key of the GROUP this page belongs to,
+            /// empty for none. The rail ignores it (the rail is a flat
+            /// list on purpose); the top-panel quick-settings list groups
+            /// by <see cref="GroupLabel"/> so it can present twelve pages
+            /// without ever hand-copying one.</summary>
+            public string GroupKey { get; }
+
             public string Label => Services.Localization
                 .LocalizationService.Instance.T(LabelKey);
+
+            /// <summary>Localized group caption ("" when ungrouped). Grouping
+            /// on the localized value keeps the header template down to a
+            /// single {Binding Name} — no converter, no lookup table.</summary>
+            public string GroupLabel => string.IsNullOrEmpty(GroupKey)
+                ? string.Empty
+                : Services.Localization.LocalizationService.Instance.T(GroupKey);
 
             private bool _isActive;
             public bool IsActive
@@ -77,18 +92,31 @@ namespace ProGlassAutomation.ViewModels.Settings
                 }
             }
 
-            public SettingsNavRow(string key, string glyph, string labelKey)
+            public SettingsNavRow(string key, string glyph, string labelKey,
+                string groupKey = "")
             {
                 Key = key; Glyph = glyph; LabelKey = labelKey;
+                GroupKey = groupKey;
             }
 
-            internal void RefreshLabel() =>
+            internal void RefreshLabel()
+            {
                 OnPropertyChanged(nameof(Label));
+                OnPropertyChanged(nameof(GroupLabel));
+            }
         }
 
         /// <summary>The rail pages (single registry). Glyphs preserved from
         /// the hand-built rail; Agent finally has its own glyph (it used to
-        /// share AI's E8F2 — two identical icons side by side).</summary>
+        /// share AI's E8F2 — two identical icons side by side).
+        ///
+        /// 2026-09-16: this list is now the single source of truth for
+        /// EVERY settings navigation surface. The top-panel quick-settings
+        /// list used to be ten hand-copied Buttons with their own glyphs;
+        /// it had drifted to ten entries (Themes and Sharing were
+        /// unreachable from it) and two of its glyphs disagreed with the
+        /// rail. Any surface that shows settings pages must bind this
+        /// collection — see SettingsNavigationAuditTests.</summary>
         public ObservableCollection<SettingsNavRow> NavRows { get; } =
             CreateNavRows();
 
@@ -96,22 +124,22 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             var rows = new ObservableCollection<SettingsNavRow>
             {
-                new("Appearance", "\uE790", "Settings.SecAppearance"),
-                new("Themes",     "\uE792", "Settings.SecThemes"),
-                new("AI",         "\uE8F2", "Settings.SecAi"),
-                new("Agent",      "\uE9F5", "Settings.SecAgent"),
-                new("Voice",      "\uE720", "Settings.SecVoice"),
-                new("Updates",    "\uE72C", "Settings.SecUpdates"),
-                new("Data",       "\uE74E", "Settings.SecData"),
-                new("Demo",       "\uE714", "Settings.SecDemo"),
-                new("License",    "\uE762", "Settings.SecLicense"),
+                new("Appearance", "\uE790", "Settings.SecAppearance", "Settings.GrpLook"),
+                new("Themes",     "\uE792", "Settings.SecThemes",     "Settings.GrpLook"),
+                new("AI",         "\uE8F2", "Settings.SecAi",         "Settings.GrpIntelligence"),
+                new("Agent",      "\uE9F5", "Settings.SecAgent",      "Settings.GrpIntelligence"),
+                new("Voice",      "\uE720", "Settings.SecVoice",      "Settings.GrpIntelligence"),
+                new("Updates",    "\uE72C", "Settings.SecUpdates",    "Nav.GroupSystem"),
+                new("Data",       "\uE74E", "Settings.SecData",       "Nav.GroupSystem"),
+                new("Demo",       "\uE714", "Settings.SecDemo",       "Nav.GroupSystem"),
+                new("License",    "\uE762", "Settings.SecLicense",    "Nav.GroupSystem"),
                 // 2026-09-14: glyph was \uE192 — a Segoe UI Symbol (MDL1)
                 // code point that Segoe MDL2 Assets does not contain, so the
                 // rail rendered a broken .notdef box. E912 (Flag) is a valid
                 // MDL2 glyph fitting the feature-flags page.
-                new("Features",   "\uE912", "Settings.SecFeatures"),
-                new("Sharing",    "\uE72D", "Settings.SecSharing"),
-                new("About",      "\uE946", "Settings.SecAbout"),
+                new("Features",   "\uE912", "Settings.SecFeatures",   "Nav.GroupSystem"),
+                new("Sharing",    "\uE72D", "Settings.SecSharing",    "Nav.GroupSystem"),
+                new("About",      "\uE946", "Settings.SecAbout",      "Nav.GroupSystem"),
             };
             rows[0].IsActive = true;
             return rows;

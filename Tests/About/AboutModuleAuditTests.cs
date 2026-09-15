@@ -559,10 +559,17 @@ namespace ProGlassAutomation.Tests.About
             // Only two kinds of value may still be declared inside About:
             // the six corner radii and the card shadow (design geometry, not
             // a theme signal). Anything else Ios26* is a regression.
+            // 2026-09-16: the five card/tile/chip radii moved OUT as well.
+            // They were local constants, which is why the Appearance corner
+            // slider and the visual family engines could not move the About
+            // cards — and why republishing them at application scope did
+            // nothing (a locally merged key wins the lookup). They now live
+            // in Themes/Styles/AboutSurface.xaml and are republished live by
+            // Services/Theme/AboutSurfaceTokens.cs. Only the bar's full round
+            // and the card shadow stay here: pure design geometry.
             var allowed = new HashSet<string>(StringComparer.Ordinal)
             {
-                "Ios26RadiusCard", "Ios26RadiusInner", "Ios26RadiusTile",
-                "Ios26RadiusChip", "Ios26RadiusSmall", "Ios26RadiusBar",
+                "Ios26RadiusBar",
                 "Ios26CardShadow",
             };
 

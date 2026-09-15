@@ -224,7 +224,7 @@
                                         <TextBlock Text="◇" FontSize="{DynamicResource FontSize.Title}"/>
                                     </crystal:CrystalKpiCard.Icon>
                                     <crystal:CrystalStatusPill Content="+12.8%"
-                                            StatusColor="{StaticResource CrystalPositiveBrush}"/>
+                                            StatusColor="{DynamicResource CrystalPositiveBrush}"/>
                                 </crystal:CrystalKpiCard>
                                 <crystal:CrystalKpiCard Title="Active"
                                         Value="24" WaterLevel="0.58"
@@ -233,7 +233,7 @@
                                         <TextBlock Text="□" FontSize="{DynamicResource FontSize.Title}"/>
                                     </crystal:CrystalKpiCard.Icon>
                                     <crystal:CrystalStatusPill Content="running"
-                                            StatusColor="{StaticResource CrystalPositiveBrush}"/>
+                                            StatusColor="{DynamicResource CrystalPositiveBrush}"/>
                                 </crystal:CrystalKpiCard>
                                 <crystal:CrystalKpiCard Title="Margin"
                                         Value="27.4%" WaterLevel="0.31"
@@ -260,7 +260,7 @@
                             <!-- status pill + DETERMINATE progress (authored) -->
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                 <crystal:CrystalStatusPill Content="online"
-                                        StatusColor="{StaticResource CrystalPositiveBrush}"
+                                        StatusColor="{DynamicResource CrystalPositiveBrush}"
                                         Margin="0,0,8,0"/>
                                 <crystal:CrystalProgressBar Value="64"
                                         Minimum="0" Maximum="100"

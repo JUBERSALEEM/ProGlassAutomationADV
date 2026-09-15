@@ -1,0 +1,50 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Themes/Styles/AboutSurface.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: About — card / tile / chip corner radii (the live scale)
+
+     2026-09-16 — owner report: "why about page cards still not accepting
+     dynamic card corner border color from monet engine etc."
+
+     WHY THESE ARE HERE AND NOT IN Views/About
+     ────────────────────────────────────────
+     They used to be local constants in Views/About/AboutIos26Theme.xaml.
+     A key declared in a dictionary merged LOCALLY by a view SHADOWS
+     Application.Resources, so:
+
+       • the card-corner slider in Settings → Appearance could never reach
+         the About cards (they stayed at the mockup's 26 px);
+       • nor could a visual family (Monet / iOS 26 / Crystal Fluid /
+         Normal industrial), which writes CardCornerRadius and the
+         Radius.* primitives of its own;
+       • and republishing the key at application scope did NOTHING,
+         because the local declaration still won the lookup.
+
+     Values: the approved mockup, verbatim — 26 px cards, 12 px inner
+     tiles, 10 px icon tiles, 12 px chips, 6 px small. They are the
+     FALLBACK the first frame paints with. From the first theme apply
+     onward, Services/Theme/AboutSurfaceTokens.cs republishes this scale
+     from the ONE radius authority in the app (ThemeManager
+     .ApplyCardCornerRadius → CardCornerRadius, default 12), using the
+     mockup's own ratios:
+
+       26/12 · 12/12 · 10/12 · 12/12 · 6/12  →  at 12 px: 26, 12, 10, 12, 6
+
+     so the default configuration renders the approved design exactly and
+     anything else scales from it. Radius.Bar (999, bar-only full round)
+     and the card shadow stay in the module dictionary — they are design
+     geometry that must not move.
+
+     Do NOT re-declare these inside Views/About: AboutModuleAuditTests
+     fails the build if the module freezes its own surface tokens again.
+═══════════════════════════════════════════════════════════════════ -->
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <CornerRadius x:Key="Ios26RadiusCard">26</CornerRadius>
+    <CornerRadius x:Key="Ios26RadiusInner">12</CornerRadius>
+    <CornerRadius x:Key="Ios26RadiusTile">10</CornerRadius>
+    <CornerRadius x:Key="Ios26RadiusChip">12</CornerRadius>
+    <CornerRadius x:Key="Ios26RadiusSmall">6</CornerRadius>
+</ResourceDictionary>

@@ -113,6 +113,15 @@ namespace ProGlassAutomation.Services
             resources["ControlCornerRadius"] = cr;
             resources["CardCornerRadiusLarge"] = cr;
             ApplyDynamicRadiusPrimitives(resources, radius);
+
+            // 2026-09-16 (owner report: "about page cards still not accepting
+            // dynamic card corner … from monet engine"): the About module's
+            // radii were local constants inside Views/About, so the cards
+            // stayed at the mockup's 26 px no matter what this slider — the
+            // ONE radius authority in the app — was set to. Republish the
+            // About scale from the value just written; the ratios are the
+            // mockup's own, so the default still renders the approved design.
+            AboutSurfaceTokens.Publish(resources, radius);
         }
 
         /// <summary>

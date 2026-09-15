@@ -222,6 +222,7 @@
                      null BorderBrush instead of throwing.) ── -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/AppStage.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/AboutTypeScale.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/AboutSurface.xaml"/>
 
             </ResourceDictionary.MergedDictionaries>
 

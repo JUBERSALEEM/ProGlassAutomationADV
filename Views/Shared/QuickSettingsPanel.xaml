@@ -1,3 +1,50 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Shared/QuickSettingsPanel.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Shell — top-panel Settings quick list (the gear popup)
+
+     2026-09-16 REWRITE — owner report:
+       "check setting top panel … there are only 10 button when i have in
+        setting side bar 12 button … button too overlapping apply proper
+        spacing"
+
+     WHAT WAS WRONG
+     ──────────────
+     The list was ten hand-copied <Button> blocks, each with its own
+     CommandParameter string, its own glyph and no spacing:
+
+       • ten entries against a twelve-page registry — Themes and Sharing
+         could not be reached from this panel at all;
+       • two glyphs disagreed with the rail: Features drew E762 (the
+         rail's License glyph) and Agent drew E99A instead of the rail's
+         E9F5, so one page wore two different icons depending on which
+         surface you used;
+       • no vertical margin between rows and Typography.Icon sets no
+         right margin, so rows touched each other and each glyph touched
+         its label. Exactly ONE button carried a hand-added
+         Margin="0,0,10,0" — the gap was known and patched in one place.
+
+     THE FIX — the architecture the rail already uses
+     ────────────────────────────────────────────────
+     ONE grouped ItemsControl over SettingsViewModel.NavRows — the
+     registry that SettingsViewModel.Navigation.cs declares as the single
+     source of truth. Adding or renaming a settings page now changes this
+     panel for free, and it cannot drift again
+     (SettingsNavigationAuditTests locks it).
+
+       • Grouping is a CollectionViewSource over the row's LOCALIZED
+         GroupLabel, so captions come from the same localization service
+         as the rest of the app and the header template is one binding.
+       • Spacing is explicit and uniform: 6 px between rows (item
+         margin), 10 px between glyph and label — the same 10 px gap the
+         rail documents for its icon column.
+       • The glyph column is a fixed 20 px, so all twelve labels start on
+         one vertical line instead of stepping with each glyph's width.
+
+     The popup chrome (ShellLiquidBrush surface, CardCornerRadiusLarge,
+     LiquidShadowColor drop shadow, padding) is UNCHANGED from the
+     approved shell design — only the list inside it was rebuilt.
+═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Shared.QuickSettingsPanel"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -9,41 +56,17 @@
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-        <Style x:Key="QuickSettingsRow" TargetType="Button">
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="Margin" Value="0,1"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
-                            <ContentPresenter VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background"
-                                        Value="{DynamicResource SurfaceTertiaryBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd" Property="Background"
-                                        Value="{DynamicResource TintIndigoBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        
-        
-        
+
+        <!-- The registry, grouped. The panel's DataContext is the shell
+             (MainViewModel), which exposes the Settings view model as
+             SettingsVM — so this binds the SAME rows the rail renders. -->
+        <CollectionViewSource x:Key="QuickSettingsView"
+                              Source="{Binding SettingsVM.NavRows}">
+            <CollectionViewSource.GroupDescriptions>
+                <PropertyGroupDescription PropertyName="GroupLabel"/>
+            </CollectionViewSource.GroupDescriptions>
+        </CollectionViewSource>
+
     </UserControl.Resources>
 
     <Grid Margin="10,8,10,16">
@@ -83,78 +106,54 @@
                                   MaxHeight="520"
                                   VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled"
-                                  Padding="8,4,8,10">
-                        <StackPanel>
+                                  Padding="10,6,10,12">
+                        <ItemsControl ItemsSource="{Binding Source={StaticResource QuickSettingsView}}"
+                                      KeyboardNavigation.TabNavigation="Cycle">
+                            <ItemsControl.GroupStyle>
+                                <GroupStyle>
+                                    <GroupStyle.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Style="{StaticResource Typography.Label}"
+                                                       Text="{Binding Name}"
+                                                       Margin="6,8,6,4"/>
+                                        </DataTemplate>
+                                    </GroupStyle.HeaderTemplate>
+                                </GroupStyle>
+                            </ItemsControl.GroupStyle>
 
-                            <TextBlock Style="{StaticResource Typography.Label}" Text="{DynamicResource Settings.GrpLook}"/>
-                            <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Appearance">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
-                                    <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecAppearance}"/>
-                                </StackPanel>
-                            </Button>
-
-                            <TextBlock Style="{StaticResource Typography.Label}" Text="{DynamicResource Settings.GrpIntelligence}"/>
-                            <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="AI">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F2;"/>
-                                    <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecAi}"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Agent">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE99A;"/>
-                                    <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecAgent}"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Voice">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE720;"/>
-                                    <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecVoice}"/>
-                                </StackPanel>
-                            </Button>
-
-                            <TextBlock Style="{StaticResource Typography.Label}" Text="{DynamicResource Nav.GroupSystem}"/>
-                            <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Data">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE74E;"/>
-                                    <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecData}"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Updates">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72C;"/>
-                                    <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecUpdates}"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Demo">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE714;"/>
-                                    <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecDemo}"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Features">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE762;"/>
-                                    <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecFeatures}"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="License">
-                                <StackPanel Orientation="Horizontal">
-                                    <!-- 2026-09-14: E192 was an MDL1 code point
-                                         (broken box) — E72E (Shield) is valid
-                                         MDL2 and fits license/activation. -->
-                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72E;" Margin="0,0,10,0"/>
-                                    <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecLicense}"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Style="{StaticResource SurfaceDetailButtonStyle}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="About">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE946;"/>
-                                    <TextBlock Style="{StaticResource Typography.Body}" Text="{DynamicResource Settings.SecAbout}"/>
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <!-- One row = one registered page: the
+                                         command comes from the shell and the
+                                         parameter is the row's own key, so a
+                                         page that has no host cannot be
+                                         invented here. -->
+                                    <Button Style="{StaticResource SurfaceDetailButtonStyle}"
+                                            Margin="0,0,0,6"
+                                            Command="{Binding DataContext.OpenSettingsPageCommand,
+                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding Key}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="20"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0"
+                                                       Style="{StaticResource Typography.Icon}"
+                                                       Text="{Binding Glyph}"
+                                                       HorizontalAlignment="Left"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1"
+                                                       Style="{StaticResource Typography.Body}"
+                                                       Text="{Binding Label}"
+                                                       Margin="10,0,0,0"
+                                                       VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                        </Grid>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </ScrollViewer>
                 </Grid>
             </Border>

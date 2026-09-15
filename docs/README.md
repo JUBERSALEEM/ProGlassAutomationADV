@@ -132,6 +132,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`SETTINGS_NATURAL_HEIGHT_FIX_2026-08.md`](SETTINGS_NATURAL_HEIGHT_FIX_2026-08.md) | Settings Natural-Height Fix — Global Wallpaper empty space (Aug 2026) |
 | [`SETTINGS_REDESIGN.md`](SETTINGS_REDESIGN.md) | Settings Module v2 — Redesign Report |
 | [`SETTINGS_REDESIGN_2026-08.md`](SETTINGS_REDESIGN_2026-08.md) | Settings Redesign · Tile-Grid Design System · August 2026 |
+| [`SETTINGS_REDESIGN_ANALYSIS_AND_MOCKUPS_2026-09-16.md`](SETTINGS_REDESIGN_ANALYSIS_AND_MOCKUPS_2026-09-16.md) | About cards vs the engine, Settings navigation drift, and the Settings redesign |
 | [`THEME_ENGINE_REWRITE_PHASES.md`](THEME_ENGINE_REWRITE_PHASES.md) | ProGlass Theme Engine — Complete Rewrite Phases |
 | [`THEME_NORMAL_INDUSTRIAL_RESTORATION_2026-09-07.md`](THEME_NORMAL_INDUSTRIAL_RESTORATION_2026-09-07.md) | Theme — "Normal (Industrial)" restoration + card edge lines (2026-09-07) |
 | [`THEME_REDUCTION_2026-09-06.md`](THEME_REDUCTION_2026-09-06.md) | Theme Reduction — 2026-09-06 |
@@ -321,6 +322,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | `Chat5/` | Working notes and data from an earlier session. (6 files) |
 | `Chat5-9/` | Working notes, prompts and data from an earlier session. (7 files) |
 | `ci/` | Pipeline definitions — duplicate casing of `CI/`; see `CI.md`. (2 files) |
+| `mockups/` | Supporting artefacts. (0 files) |
 | `phases/` | Supporting artefacts. (18 files) |
 | `ui-audit/` | Supporting artefacts. (1 files) |
 | `ui-redesign/` | UI redesign working artefacts. (1 files) |

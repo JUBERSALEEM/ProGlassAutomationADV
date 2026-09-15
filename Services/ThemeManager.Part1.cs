@@ -60,6 +60,15 @@ namespace ProGlassAutomation.Services
             ReapplyOutlinePreference();
             ReapplySemanticSurfaces();
             PublishProGlassDesignSystem();
+
+            // 2026-09-16: a visual family (Monet / iOS 26 / Crystal Fluid /
+            // Normal industrial) writes CardCornerRadius and Radius.* of its
+            // own, and PublishAboutPalette has just refreshed the accent
+            // derived About edge. Re-derive the About surface tokens here so
+            // an ENGINE switch moves the About cards too — before this, the
+            // engine changed keys no About view reads, and About read keys no
+            // engine changes.
+            AboutSurfaceTokens.Publish(Application.Current?.Resources, _cardCornerRadius);
         }
 
         /// <summary>Raised after the accent family is (re)derived.</summary>

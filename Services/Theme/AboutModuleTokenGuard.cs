@@ -171,6 +171,31 @@ namespace ProGlassAutomation.Services.Theme
                     AboutDensityTypeScale.Keys.Length + " from AboutTypeScale.xaml)");
             }
 
+            // Surface tokens (2026-09-16): the 5 radii and the card edge.
+            // A card with no CornerRadius renders square and a card with a
+            // null BorderBrush renders with no outline — both silently, which
+            // is the failure this guard exists to make impossible.
+            bool surfaceMissing = false;
+            for (int i = 0; i < AboutSurfaceTokens.RadiusKeys.Length; i++)
+            {
+                if (!resources.Contains(AboutSurfaceTokens.RadiusKeys[i]))
+                {
+                    surfaceMissing = true;
+                    break;
+                }
+            }
+
+            if (!surfaceMissing && !resources.Contains("Ios26CardBorderBrush"))
+            {
+                surfaceMissing = true;
+            }
+
+            if (surfaceMissing)
+            {
+                AboutSurfaceTokens.Publish(resources, ThemeManager.CardCornerRadius);
+                repaired.Add("Ios26Radius*/Ios26CardBorderBrush (About surface tokens)");
+            }
+
             if (repaired.Count > 0)
             {
                 AppLogService.Warning(

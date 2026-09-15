@@ -44,18 +44,19 @@
 
 
 
-    <!-- ═══ CORNER RADII (mockup: 26 px cards, 10 px icon tiles,
-         12 px inner tiles, 12 px chips) ═══
+    <!-- ═══ CORNER RADII — the live scale lives in
+         Themes/Styles/AboutSurface.xaml and is republished from the app's
+         card-radius authority by Services/Theme/AboutSurfaceTokens.cs.
+         A copy here would SHADOW that (a locally merged key wins the
+         lookup), which is exactly why the About cards ignored both the
+         Appearance corner slider and the visual family engines.
+         Only the bar's full round stays: it is not a card. ═══
+         (mockup card values: 26 cards / 10 icon tiles / 12 inner / 12 chips) ═══
          2026-09-15 owner correction: "Remove this nonsense 999
          rounded corner buttons." Chips and buttons now use 12 px
          (Ios26RadiusChip); the full pill (999) survives in EXACTLY
          one place — the thin progress bar, whose ends must stay
          fully round to match the mockups. -->
-    <CornerRadius x:Key="Ios26RadiusCard">26</CornerRadius>
-    <CornerRadius x:Key="Ios26RadiusInner">12</CornerRadius>
-    <CornerRadius x:Key="Ios26RadiusTile">10</CornerRadius>
-    <CornerRadius x:Key="Ios26RadiusChip">12</CornerRadius>
-    <CornerRadius x:Key="Ios26RadiusSmall">6</CornerRadius>
     <!-- Bar-only full round (do not use for chips/buttons/cards). -->
     <CornerRadius x:Key="Ios26RadiusBar">999</CornerRadius>
 
