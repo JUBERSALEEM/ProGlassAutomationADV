@@ -383,6 +383,7 @@
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.AddsStrongDarkOutlineRoundedCardsPillButtons}"/>
                                     <ToggleButton HorizontalAlignment="Left" Margin="{StaticResource SettingsStackGap8}"
+                                    AutomationProperties.Name="{DynamicResource Settings.DefinedCardEdges}"
                                                   IsChecked="{Binding UseDefinedOutline, Mode=TwoWay}"
                                                   Style="{StaticResource ModernToggleSwitch}"/>
 
@@ -391,6 +392,7 @@
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.CardEdgeThickness}"/>
                                     <Slider Style="{StaticResource ModernSliderStyle}"
+                                    AutomationProperties.Name="{DynamicResource Settings.DefinedCardEdges}"
                                             Minimum="1" Maximum="100"
                                             Value="{Binding CardEdgeThickness, Mode=TwoWay}"
                                             VerticalAlignment="Center" Margin="{StaticResource SettingsStackGap4}"/>
@@ -457,6 +459,7 @@
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.RendersMonetGlassCardsWindowBackgroundAccent}"/>
                                     <ToggleButton Grid.Row="3"
+                                    AutomationProperties.Name="{DynamicResource Settings.GradientSurfaces}"
                                                   HorizontalAlignment="Left"
                                                   IsChecked="{Binding UseGradientSurfaces, Mode=TwoWay}"
                                                   Style="{StaticResource ModernToggleSwitch}"/>
@@ -479,6 +482,7 @@
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.HowRoundCardButtonDefault12Px0Sharp}"/>
                                     <Slider Style="{StaticResource ModernSliderStyle}"
+                                    AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
                                             Minimum="0" Maximum="24"
                                             TickFrequency="2"
                                             IsSnapToTickEnabled="True"
@@ -504,6 +508,7 @@
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="Blurs the module wallpaper behind every screen. Cards stay sharp. 1 = light frost, 50 = professional, 100 = max. Colour plate tints the shared card fill."/>
                                     <Slider Style="{StaticResource ModernSliderStyle}"
+                                    AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
                                             Minimum="1" Maximum="100"
                                             Value="{Binding CardBlurIntensity, Mode=TwoWay}"
                                             VerticalAlignment="Center" Margin="{StaticResource SettingsStackGap8}"/>
@@ -567,18 +572,21 @@
                                         <StackPanel Margin="{StaticResource SettingsTrailingGap}">
                                             <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Rounded surfaces"/>
                                             <ToggleButton HorizontalAlignment="Left"
+                                            AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
                                                           IsChecked="{Binding UseRoundedSurfaces, Mode=TwoWay}"
                                                           Style="{StaticResource ModernToggleSwitch}"/>
                                         </StackPanel>
                                         <StackPanel Margin="{StaticResource SettingsTrailingGap}">
                                             <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Primary elevation"/>
                                             <ToggleButton HorizontalAlignment="Left"
+                                            AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
                                                           IsChecked="{Binding UsePrimarySurfaceElevation, Mode=TwoWay}"
                                                           Style="{StaticResource ModernToggleSwitch}"/>
                                         </StackPanel>
                                         <StackPanel>
                                             <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Primary overlay"/>
                                             <Slider Style="{StaticResource ModernSliderStyle}"
+                                            AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
                                                     Minimum="0" Maximum="0.35" TickFrequency="0.05"
                                                     Value="{Binding PrimarySurfaceOverlayOpacity, Mode=TwoWay}"/>
                                         </StackPanel>
@@ -596,11 +604,17 @@
                                                 <TextBlock Text="Primary" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <TextBlock Text="Major page/module card" Style="{StaticResource SettingsRowMetaStyle}"/>
                                                 <TextBlock Margin="{StaticResource SettingsStackGap8}" Style="{StaticResource SettingsRowMetaStyle}" Text="Opacity"/>
-                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.3" Maximum="1" Value="{Binding SurfacePrimaryOpacity, Mode=TwoWay}"/>
+                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.3" Maximum="1" Value="{Binding SurfacePrimaryOpacity, Mode=TwoWay}"
+                                                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                                                />
                                                 <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Radius"/>
-                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48" Value="{Binding SurfacePrimaryRadius, Mode=TwoWay}"/>
+                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48" Value="{Binding SurfacePrimaryRadius, Mode=TwoWay}"
+                                                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                                                />
                                                 <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Border"/>
-                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24" Value="{Binding SurfacePrimaryBorderThickness, Mode=TwoWay}"/>
+                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24" Value="{Binding SurfacePrimaryBorderThickness, Mode=TwoWay}"
+                                                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                                                />
                                             </StackPanel>
                                         </Border>
 
@@ -609,11 +623,17 @@
                                                 <TextBlock Text="Secondary" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <TextBlock Text="Groups, filters, KPI cards" Style="{StaticResource SettingsRowMetaStyle}"/>
                                                 <TextBlock Margin="{StaticResource SettingsStackGap8}" Style="{StaticResource SettingsRowMetaStyle}" Text="Opacity"/>
-                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.25" Maximum="1" Value="{Binding SurfaceSecondaryOpacity, Mode=TwoWay}"/>
+                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.25" Maximum="1" Value="{Binding SurfaceSecondaryOpacity, Mode=TwoWay}"
+                                                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                                                />
                                                 <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Radius"/>
-                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48" Value="{Binding SurfaceSecondaryRadius, Mode=TwoWay}"/>
+                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48" Value="{Binding SurfaceSecondaryRadius, Mode=TwoWay}"
+                                                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                                                />
                                                 <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Border"/>
-                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24" Value="{Binding SurfaceSecondaryBorderThickness, Mode=TwoWay}"/>
+                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24" Value="{Binding SurfaceSecondaryBorderThickness, Mode=TwoWay}"
+                                                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                                                />
                                             </StackPanel>
                                         </Border>
 
@@ -622,11 +642,17 @@
                                                 <TextBlock Text="Detail" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <TextBlock Text="Chips, badges, facts" Style="{StaticResource SettingsRowMetaStyle}"/>
                                                 <TextBlock Margin="{StaticResource SettingsStackGap8}" Style="{StaticResource SettingsRowMetaStyle}" Text="Opacity"/>
-                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.15" Maximum="1" Value="{Binding SurfaceDetailOpacity, Mode=TwoWay}"/>
+                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.15" Maximum="1" Value="{Binding SurfaceDetailOpacity, Mode=TwoWay}"
+                                                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                                                />
                                                 <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Radius"/>
-                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48" Value="{Binding SurfaceDetailRadius, Mode=TwoWay}"/>
+                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48" Value="{Binding SurfaceDetailRadius, Mode=TwoWay}"
+                                                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                                                />
                                                 <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Border"/>
-                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24" Value="{Binding SurfaceDetailBorderThickness, Mode=TwoWay}"/>
+                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24" Value="{Binding SurfaceDetailBorderThickness, Mode=TwoWay}"
+                                                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                                                />
                                             </StackPanel>
                                         </Border>
                                     </Grid>
@@ -659,6 +685,7 @@
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.CtrlMouseWheelZoomsAppCtrl0Resets100}"/>
                                     <Slider Style="{StaticResource ModernSliderStyle}"
+                                    AutomationProperties.Name="{DynamicResource Settings.UIScale}"
                                             Minimum="0.8" Maximum="1.25"
                                             TickFrequency="0.05"
                                             IsSnapToTickEnabled="True"
@@ -718,6 +745,7 @@
                              VM holds the persisted token ("Light"/"Dark") and the
                              labels stay in the language files. -->
                         <ListBox Style="{StaticResource SettingsSegmentTrackStyle}"
+                        AutomationProperties.Name="{DynamicResource Settings.MotionPerformance}"
                                  SelectedValuePath="Tag"
                                  SelectedValue="{Binding ThemeMode, Mode=TwoWay}"
                                  AutomationProperties.AutomationId="Settings.ThemeMode">
@@ -742,6 +770,7 @@
                              the VM list, so the option set still has ONE source.
                              The fill variant spans the card (sheet 03). -->
                         <ListBox Style="{StaticResource SettingsSegmentTrackFillStyle}"
+                        AutomationProperties.Name="{DynamicResource Settings.MotionPerformance}"
                                  ItemsSource="{Binding DisplayDensityOptions}"
                                  SelectedItem="{Binding DisplayDensity, Mode=TwoWay}"
                                  AutomationProperties.AutomationId="Settings.DisplayDensity"/>
@@ -937,6 +966,7 @@
                                                    VerticalAlignment="Center"
                                                    Margin="{StaticResource SettingsInlineGap8R}"/>
                                         <Slider Grid.Column="4"
+                                        AutomationProperties.Name="{DynamicResource Settings.GlobalWallpaper}"
                                                 Value="{Binding WallpaperOpacity}"
                                                 Style="{StaticResource ModernSliderStyle}"
                                                 Minimum="0.3" Maximum="1"
@@ -983,6 +1013,7 @@
                                                         <!-- 2026-08-25: checkmark replaced with an
                                                              iOS-style on/off pill (ModernToggleSwitch). -->
                                                         <ToggleButton Grid.Column="0"
+                                                        AutomationProperties.Name="{DynamicResource Settings.ModuleWallpapers}"
                                                                       Style="{StaticResource ModernToggleSwitch}"
                                                                       IsChecked="{Binding Enabled, Mode=TwoWay}"
                                                                       VerticalAlignment="Center"
@@ -1006,6 +1037,7 @@
                                                         </TextBlock>
 
                                                         <Slider Grid.Column="2"
+                                                        AutomationProperties.Name="{DynamicResource Settings.ModuleWallpapers}"
                                                                 Value="{Binding OpacityValue}"
                                                                 Style="{StaticResource ModernSliderStyle}"
                                                                 Minimum="0.3" Maximum="1"
@@ -1141,6 +1173,7 @@
                                            Text="{DynamicResource Settings.ReducedMotionTip}"
                                            TextWrapping="Wrap"/>
                                 <CheckBox AutomationProperties.AutomationId="Settings.ReducedMotion"
+                                AutomationProperties.Name="{DynamicResource Settings.ModuleWallpapers}"
                                           Content="{DynamicResource Settings.ReducedMotion}"
                                           IsChecked="{Binding ReducedMotion, Mode=TwoWay}"
                                           Margin="{StaticResource SettingsStackGap8}"/>
@@ -1338,6 +1371,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel VerticalAlignment="Center">
                                         <CheckBox Content="{DynamicResource Settings.LblAutoDetect}"
+                                        AutomationProperties.Name="{DynamicResource Settings.ModuleWallpapers}"
                                                   IsChecked="{Binding AutoSuggestByRegion, Mode=TwoWay}"
                                                   FontSize="{DynamicResource FontSize.Body}"
                                                   Foreground="{DynamicResource TextPrimaryBrush}"

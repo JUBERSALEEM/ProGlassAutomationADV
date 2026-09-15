@@ -230,7 +230,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.15DigitUAETaxRegistrationNumber}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCompanyTrn}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCompanyTrn}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.FederalTRN}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -245,7 +247,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.ShortCityEmirateLinePrintedLetterhead}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCompanyLocation}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCompanyLocation}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.Headquarters}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -260,7 +264,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.NamePersonSigningBehalfCompany}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowRepresentative}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowRepresentative}"
+                                        AutomationProperties.Name="{DynamicResource CompanyCenter.Representative}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -275,7 +281,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.DirectNumberSigningRepresentative}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowRepresentativeMobile}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowRepresentativeMobile}"
+                                        AutomationProperties.Name="{DynamicResource Settings.RepresentativeMobile}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -290,7 +298,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.ContactEMailPrintedHeader}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCompanyEmail}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCompanyEmail}"
+                                        AutomationProperties.Name="{DynamicResource CompanyCenter.CompanyEMAIL}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -305,7 +315,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.PayeeBankNameInvoiceFooter}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowBankName}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowBankName}"
+                                        AutomationProperties.Name="{DynamicResource CompanyCenter.BANKNAME}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -320,7 +332,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AccountNumberIBANPairedBankName}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowAccountNumber}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowAccountNumber}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.AccountIBAN}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -335,7 +349,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.DateProformaIssuedDefaultsTodayWhenHidden}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowIssueDate}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowIssueDate}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.IssueDATE}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -350,7 +366,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.QuotationExpiryDate}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowValidUntil}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowValidUntil}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.ValidUntil}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -365,7 +383,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.DraftSentApprovedWorkflowPicker}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowProformaStatus}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowProformaStatus}"
+                                        AutomationProperties.Name="{DynamicResource Common.Status}"
+                                        />
                                     </Grid>
                                 </Border>
                             </UniformGrid>
@@ -389,7 +409,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.ClientSTaxRegistrationNumber}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCustomerTrn}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCustomerTrn}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.CustomerTRN}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -404,7 +426,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.InternalCustomerCodeCRMKeyLedgerCodeEtc}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCustomerReferenceCode}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCustomerReferenceCode}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.ReferenceCODE}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -419,7 +443,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.SalespersonWhoOwnsDeal}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSalesRepresentative}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSalesRepresentative}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.SalesRepresentative}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -434,7 +460,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.OperatorWhoTypedQuotation}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDocumentPreparedBy}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDocumentPreparedBy}"
+                                        AutomationProperties.Name="{DynamicResource Inquiry.Prepared2}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -449,7 +477,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.PersonInvoiceShouldAddressed}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowAttentionExecutive}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowAttentionExecutive}"
+                                        AutomationProperties.Name="{DynamicResource Settings.AttentionKindAttn}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -464,7 +494,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.BillContactPhoneNumber}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowClientContactPhone}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowClientContactPhone}"
+                                        AutomationProperties.Name="{DynamicResource Settings.ClientPhone}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -479,7 +511,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.MultiLinePostalAddressInvoiceHeader}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowBillingAddress}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowBillingAddress}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.BillingAddress}"
+                                        />
                                     </Grid>
                                 </Border>
                             </UniformGrid>
@@ -501,7 +535,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.ShortProjectHandleUsedListsInvoices}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowProjectName}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowProjectName}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.ProjectNAME}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -516,7 +552,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.FullDescriptiveReferenceEGHouseIMADHabib}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowProjectReference}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowProjectReference}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.ProjectReference}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -531,7 +569,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.InternalContractIdentifierEG428IMADHabib}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowContractNo}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowContractNo}"
+                                        AutomationProperties.Name="{DynamicResource Settings.ContractNumber}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -546,7 +586,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.ClientSuppliedPurchaseOrderNumber}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowLpoNumber}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowLpoNumber}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.LPOPONumber}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -709,7 +751,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.ShortCustomerFacingReferenceLineInquiry}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowInquiryReference}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowInquiryReference}"
+                                        AutomationProperties.Name="{DynamicResource Inquiry.InquiryReference}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -724,7 +768,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.EmirateCityCarriedProformaBillingAddress}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCustomerLocation}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCustomerLocation}"
+                                        AutomationProperties.Name="{DynamicResource Settings.CustomerLocation}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -739,7 +785,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.LongerFreeTextDescriptionProjectScope}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowProjectDescription}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowProjectDescription}"
+                                        AutomationProperties.Name="{DynamicResource Settings.ProjectDescription}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -754,7 +802,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.SalesRepresentativeWhoOwnsInquiry}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSalesman}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSalesman}"
+                                        AutomationProperties.Name="{DynamicResource Common.Salesman}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -769,7 +819,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.OperatorWhoFirstTypedInquiry}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowPreparedBy}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowPreparedBy}"
+                                        AutomationProperties.Name="{DynamicResource Inquiry.Prepared2}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -784,7 +836,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.UrgentHighNormalLowTriageBucket}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowPriority}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowPriority}"
+                                        AutomationProperties.Name="{DynamicResource Common.Priority}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -799,7 +853,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.RoughAEDEstimatePotentialOrder}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowInquiryValue}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowInquiryValue}"
+                                        AutomationProperties.Name="{DynamicResource Settings.EstimatedValue}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -814,7 +870,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.FreeformNotesStoredInquiryRecord}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowNotes}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowNotes}"
+                                        AutomationProperties.Name="{DynamicResource Common.Notes}"
+                                        />
                                     </Grid>
                                 </Border>
                             </UniformGrid>
@@ -884,7 +942,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.OperatorRunningJobShopFloor}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowAssignedTo}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowAssignedTo}"
+                                        AutomationProperties.Name="{DynamicResource JobOrder.Assigned}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -899,7 +959,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.SiteEngineerDriverReach}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSiteDeliveryContact}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSiteDeliveryContact}"
+                                        AutomationProperties.Name="{DynamicResource Settings.SiteContact}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -914,7 +976,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.DirectLineDeliveryCoordination}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSiteDeliveryPhone}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSiteDeliveryPhone}"
+                                        AutomationProperties.Name="{DynamicResource Settings.SitePhone}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -929,7 +993,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.FullDeliveryLocationDriver}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSiteDeliveryAddress}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSiteDeliveryAddress}"
+                                        AutomationProperties.Name="{DynamicResource Settings.SiteAddress}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -944,7 +1010,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.LinksPhysicalShopDrawingJob}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDrawingReference}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDrawingReference}"
+                                        AutomationProperties.Name="{DynamicResource JobOrder.DrawingReference}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -959,7 +1027,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.OperatorCheatSheetCuttingBay}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCuttingInstructions}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCuttingInstructions}"
+                                        AutomationProperties.Name="{DynamicResource JobOrder.CuttingInstructions}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -974,7 +1044,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.FreeformNotesProductionTeam}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowInternalNotes}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowInternalNotes}"
+                                        AutomationProperties.Name="{DynamicResource JobOrder.InternalNotes}"
+                                        />
                                     </Grid>
                                 </Border>
                             </UniformGrid>
@@ -1043,7 +1115,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.WhoDeliveredLoad}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDriverName}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDriverName}"
+                                        AutomationProperties.Name="{DynamicResource DeliveryNote.DriverNAME}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -1058,7 +1132,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.TruckVanPlate}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowVehicleNumber}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowVehicleNumber}"
+                                        AutomationProperties.Name="{DynamicResource DeliveryNote.VehicleNumber}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -1073,7 +1149,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.MarkDeliveryFreeComplimentary}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowIsFoc}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowIsFoc}"
+                                        AutomationProperties.Name="{DynamicResource Settings.FOCFreeCost}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -1088,7 +1166,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.WhoSignedGoods}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowReceiverName}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowReceiverName}"
+                                        AutomationProperties.Name="{DynamicResource DeliveryNote.ReceiverNAME}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -1103,7 +1183,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.FreeformDispatchNotes}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowNotes}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowNotes}"
+                                        AutomationProperties.Name="{DynamicResource Common.Notes}"
+                                        />
                                     </Grid>
                                 </Border>
                             </UniformGrid>
@@ -1172,7 +1254,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.PaymentDueDatePrintedInvoice}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDueDate}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDueDate}"
+                                        AutomationProperties.Name="{DynamicResource Reports.TaxInvoiceReport.DUEDATE}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -1187,7 +1271,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.NetCreditTermsClientAgreed}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowPaymentTerms}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowPaymentTerms}"
+                                        AutomationProperties.Name="{DynamicResource Settings.PaymentTerms}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -1202,7 +1288,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.PercentageDiscountInvoice}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDiscountPercent}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDiscountPercent}"
+                                        AutomationProperties.Name="{DynamicResource Settings.Discount}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -1217,7 +1305,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.BankAccountNumberSettlement}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowIban}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowIban}"
+                                        AutomationProperties.Name="{DynamicResource Settings.IBAN}"
+                                        />
                                     </Grid>
                                 </Border>
 
@@ -1232,7 +1322,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.BankRoutingCodeInternationalTransfers}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSwiftCode}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSwiftCode}"
+                                        AutomationProperties.Name="{DynamicResource Settings.Swift}"
+                                        />
                                     </Grid>
                                 </Border>
                             </UniformGrid>

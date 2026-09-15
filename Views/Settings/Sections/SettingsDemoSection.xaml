@@ -261,6 +261,7 @@
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.CaptureAppNarrationSoundRunningApp}"/>
                                     <ToggleButton Grid.Row="3"
+                                    AutomationProperties.Name="{DynamicResource Settings.InternalAudio}"
                                                   HorizontalAlignment="Left"
                                                   IsChecked="{Binding CaptureLiveAudio, Mode=TwoWay}"
                                                   Style="{StaticResource ModernToggleSwitch}"
@@ -287,6 +288,7 @@
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.CaptureLiveSpokenNarrationMicrophone}"/>
                                     <ToggleButton Grid.Row="3"
+                                    AutomationProperties.Name="{DynamicResource Settings.Microphone}"
                                                   HorizontalAlignment="Left"
                                                   IsChecked="{Binding CaptureMicrophone, Mode=TwoWay}"
                                                   Style="{StaticResource ModernToggleSwitch}"

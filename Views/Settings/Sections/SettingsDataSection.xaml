@@ -211,12 +211,15 @@
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.PickSetRestoreSelectingEnoughRestoreButton}"/>
                                     <ListBox ItemsSource="{Binding BackupSets}"
+                                    AutomationProperties.Name="{DynamicResource Settings.BackupSets}"
                                              SelectedItem="{Binding SelectedBackup}"
                                              MaxHeight="170"
                                              BorderThickness="{DynamicResource Border.HairlineThickness}"
                                              BorderBrush="{DynamicResource BorderDefaultBrush}"
                                              Background="{DynamicResource SurfaceTertiaryBrush}">
-                                        <ListBox.ItemTemplate>
+                                        <ListBox.ItemTemplate
+                                        AutomationProperties.Name="{DynamicResource Settings.BackupSets}"
+                                        >
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal" Margin="2">
                                                     <TextBlock Text="&#xE968;"
@@ -360,12 +363,15 @@
                                     </Border>
 
                                     <ListBox ItemsSource="{Binding DatabaseHealthRows}"
+                                    AutomationProperties.Name="{DynamicResource Settings.ExploreSampleData}"
                                              Margin="{StaticResource SettingsStackGap10}"
                                              MaxHeight="240"
                                              BorderThickness="{DynamicResource Border.HairlineThickness}"
                                              BorderBrush="{DynamicResource BorderDefaultBrush}"
                                              Background="{DynamicResource SurfaceTertiaryBrush}">
-                                        <ListBox.ItemTemplate>
+                                        <ListBox.ItemTemplate
+                                        AutomationProperties.Name="{DynamicResource Settings.ExploreSampleData}"
+                                        >
                                             <DataTemplate>
                                                 <Grid Margin="2">
                                                     <Grid.ColumnDefinitions>

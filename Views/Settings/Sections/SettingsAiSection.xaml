@@ -79,6 +79,7 @@
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.MasterSwitchWhenChatButtonHiddenNoAPICalls}"/>
                                     <ToggleButton Grid.Row="3"
+                                    AutomationProperties.Name="{DynamicResource Settings.EnableAIAssistant}"
                                                   HorizontalAlignment="Left"
                                                   IsChecked="{Binding IsAiEnabled, Mode=TwoWay}"
                                                   Style="{StaticResource ModernToggleSwitch}"/>
@@ -105,6 +106,7 @@
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.WhenLiveInvoiceJobDeliveryBalanceDataSent}"/>
                                     <ToggleButton Grid.Row="3"
+                                    AutomationProperties.Name="{DynamicResource Settings.UseRealBusinessData}"
                                                   HorizontalAlignment="Left"
                                                   IsChecked="{Binding UseRealData, Mode=TwoWay}"
                                                   Style="{StaticResource ModernToggleSwitch}"/>
@@ -442,6 +444,7 @@
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.KeysHeldSessionKeysAlwaysEncryptedWindows}"/>
                                     <ToggleButton Grid.Row="3"
+                                    AutomationProperties.Name="{DynamicResource Settings.KeepKeysSaved}"
                                                   HorizontalAlignment="Left"
                                                   IsChecked="{Binding KeepApiKeysSaved, Mode=TwoWay}"
                                                   Style="{StaticResource ModernToggleSwitch}"/>
