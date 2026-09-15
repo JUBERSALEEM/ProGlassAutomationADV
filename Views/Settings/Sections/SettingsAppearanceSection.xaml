@@ -487,22 +487,6 @@
                                 </StackPanel>
                             </Border>
 
-                            <!-- Display density -->
-                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE740;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.GrpDensity}"/>
-                                    </StackPanel>
-                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                               Text="{DynamicResource Settings.CompactFitsMoreLaptopComfortableGivesLarger}"/>
-                                    <ComboBox ItemsSource="{Binding DisplayDensityOptions}"
-                                              SelectedItem="{Binding DisplayDensity}"
-                                              HorizontalAlignment="Stretch"
-                                              Padding="10,7" FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
-                                </StackPanel>
-                            </Border>
-
 
                             <!-- Module-skin frost: blur wallpaper + tinted glass cards -->
                             <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
@@ -719,7 +703,48 @@
 
                         <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
 
-                        <!-- ═════════ GROUP: ACCENT & FONT ═════════ -->
+                    </StackPanel>
+                </Border>
+
+                <!-- ═══ CARD — MODE (sheet 02: the base colour mode) ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Settings.Mode}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.ModeHelp}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <!-- Segmented control (grammar: SettingsSegmentTrackStyle +
+                             SettingsSegmentItemStyle). SelectedValue + Tag, so the
+                             VM holds the persisted token ("Light"/"Dark") and the
+                             labels stay in the language files. -->
+                        <ListBox Style="{StaticResource SettingsSegmentTrackStyle}"
+                                 SelectedValuePath="Tag"
+                                 SelectedValue="{Binding ThemeMode, Mode=TwoWay}"
+                                 AutomationProperties.AutomationId="Settings.ThemeMode">
+                            <ListBoxItem Tag="Light"
+                                         Content="{DynamicResource Settings.ModeLight}"
+                                         Style="{StaticResource SettingsSegmentItemStyle}"/>
+                            <ListBoxItem Tag="Dark"
+                                         Content="{DynamicResource Settings.ModeDark}"
+                                         Style="{StaticResource SettingsSegmentItemStyle}"/>
+                        </ListBox>
+                    </StackPanel>
+                </Border>
+
+                <!-- ═══ CARD — DISPLAY DENSITY (sheet 03) ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Settings.GrpDensity}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.CompactFitsMoreLaptopComfortableGivesLarger}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <!-- Data-driven segments: ItemsSource + SelectedItem read
+                             the VM list, so the option set still has ONE source.
+                             The fill variant spans the card (sheet 03). -->
+                        <ListBox Style="{StaticResource SettingsSegmentTrackFillStyle}"
+                                 ItemsSource="{Binding DisplayDensityOptions}"
+                                 SelectedItem="{Binding DisplayDensity, Mode=TwoWay}"
+                                 AutomationProperties.AutomationId="Settings.DisplayDensity"/>
                     </StackPanel>
                 </Border>
 

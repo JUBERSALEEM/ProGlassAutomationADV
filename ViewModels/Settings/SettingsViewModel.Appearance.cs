@@ -596,8 +596,56 @@ namespace ProGlassAutomation.ViewModels.Settings
                     value ? "Dark theme" : "Light theme");
 
                 OnPropertyChanged();
+                // The Appearance MODE segmented control and the page-header mode
+                // chip read the same state through three derived members. Raise
+                // them here, in the ONE setter every path funnels through
+                // (top-bar toggle, rail, Themes page, this page), so a control
+                // can never show a stale mode.
+                OnPropertyChanged(nameof(ThemeMode));
+                OnPropertyChanged(nameof(ThemeModeChipBackgroundKey));
+                OnPropertyChanged(nameof(ThemeModeChipForegroundKey));
             }
         }
+
+        /// <summary>
+        /// Base colour mode as the token the config already persists
+        /// (Appearance.Theme = "Light" | "Dark"). This is what the Appearance
+        /// page's MODE segmented control selects (sheet 02), so Light/Dark has
+        /// a real control on the page instead of only the top-bar toggle.
+        ///
+        /// The setter routes through <see cref="IsDarkTheme"/> and nothing else:
+        /// one theme-change path (ThemePipeline.Rebuild → persist → audit),
+        /// whichever control asked. Nothing is rebuilt or audited when the
+        /// requested mode is already active — a segmented control re-selects its
+        /// own item while the binding settles, and that must stay free.
+        /// </summary>
+        public string ThemeMode
+        {
+            get => IsDarkTheme ? "Dark" : "Light";
+            set
+            {
+                // The selector clears its value while its items are being read.
+                if (string.IsNullOrWhiteSpace(value)) return;
+                bool dark = string.Equals(value, "Dark", StringComparison.OrdinalIgnoreCase);
+                if (dark == IsDarkTheme) return;
+                IsDarkTheme = dark;
+            }
+        }
+
+        /// <summary>
+        /// Brush KEY for the page-header mode chip's fill — not a brush. The
+        /// chip resolves it through BrushKeyConverter, which looks the key up in
+        /// Application.Resources on every evaluation, so a theme switch repaints
+        /// the chip without any code, and the grammar keeps owning the palette
+        /// (no colour literal ever reaches a view).
+        /// </summary>
+        public string ThemeModeChipBackgroundKey =>
+            IsDarkTheme ? "Ios26AccentSoftBrush" : "Ios26ValuePillBrush";
+
+        /// <summary>Brush key for the mode chip's text — the muted twin.</summary>
+        public string ThemeModeChipForegroundKey =>
+            IsDarkTheme ? "Ios26AccentSoftTextBrush" : "Ios26TextMutedBrush";
+
 
         // ══════════════════════════════════════════════════════════════
         //  ACCENT COLOR (Dynamic Theme Engine)

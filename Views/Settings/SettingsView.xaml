@@ -329,12 +329,45 @@
                         </Button.Template>
                     </Button>
 
-                    <TextBlock Grid.Column="1"
-                               VerticalAlignment="Center"
-                               Margin="{StaticResource SettingsIconTextMargin}"
-                               TextTrimming="CharacterEllipsis"
-                               Text="{Binding ActivePageLabel}"
-                               Style="{StaticResource SettingsPageTitleStyle}"/>
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Margin="{StaticResource SettingsIconTextMargin}">
+                        <TextBlock VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"
+                                   Text="{Binding ActivePageLabel}"
+                                   Style="{StaticResource SettingsPageTitleStyle}"/>
+
+                        <!-- MODE CHIP (sheet 02) — the live base colour mode beside
+                             the page name, on every page. Old panel: a static
+                             "LIGHT"/"DARK" label that was right only until the first
+                             toggle. Now the chip reads a brush KEY from the VM and
+                             resolves it through BrushKeyConverter, so the fill and
+                             the text are state-driven (neutral pill in Light,
+                             accent-soft in Dark) and a theme switch repaints them
+                             without one colour literal in this file. Text comes
+                             from the language files; visibility from IsDarkTheme. -->
+                        <Border Margin="10,0,0,0"
+                                Style="{StaticResource SettingsChipStyle}"
+                                Background="{Binding ThemeModeChipBackgroundKey,
+                                    Converter={StaticResource BrushKeyConverter}}"
+                                AutomationProperties.AutomationId="Settings.ModeChip">
+                            <Grid>
+                                <TextBlock Text="{DynamicResource Settings.ModeBadgeLight}"
+                                           Style="{StaticResource SettingsChipTextStyle}"
+                                           Foreground="{Binding ThemeModeChipForegroundKey,
+                                               Converter={StaticResource BrushKeyConverter}}"
+                                           Visibility="{Binding IsDarkTheme,
+                                               Converter={StaticResource InverseBoolToVis}}"/>
+                                <TextBlock Text="{DynamicResource Settings.ModeBadgeDark}"
+                                           Style="{StaticResource SettingsChipTextStyle}"
+                                           Foreground="{Binding ThemeModeChipForegroundKey,
+                                               Converter={StaticResource BrushKeyConverter}}"
+                                           Visibility="{Binding IsDarkTheme,
+                                               Converter={StaticResource BoolToVis}}"/>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
                 </Grid>
             </Border>
 

@@ -481,28 +481,43 @@
         <Setter Property="Padding" Value="0"/>
     </Style>
 
-    <!-- ═══ SEGMENTED CONTROL — 2–4 options (Light/Dark, density, channel).
-         A ToggleButton list; the SELECTED state is the accent fill. ═══ -->
-    <Style x:Key="SettingsSegmentStyle" TargetType="ToggleButton">
+    <!-- ═══ SEGMENTED CONTROL — 2–4 mutually exclusive options (Light/Dark
+         mode, display density; sheet 02/03). The track is the pill, the items
+         are the segments, the SELECTED segment is the accent fill.
+
+         A ListBox, not a row of ToggleButtons: the selector owns single
+         selection, keyboard navigation and the accessibility tree, so an
+         N-option control needs NO per-option IsChecked plumbing — bind
+         SelectedItem/SelectedValue and the ViewModel stays the one source of
+         truth. A ToggleButton row cannot do that (one IsChecked per button,
+         so N options = N bools + N commands, and nothing unchecks the others).
+         The template drops the selector's ScrollViewer on purpose: the panel
+         is a 1-row UniformGrid, so there is nothing to scroll and the wheel
+         keeps travelling to the page. ═══ -->
+    <Style x:Key="SettingsSegmentItemStyle" TargetType="ListBoxItem">
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="MinHeight" Value="{DynamicResource ControlHeightMedium}"/>
         <Setter Property="Padding" Value="16,6"/>
         <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeBody}"/>
         <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
         <Setter Property="Foreground" Value="{DynamicResource Ios26TextSecondaryBrush}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="ToggleButton">
+                <ControlTemplate TargetType="ListBoxItem">
                     <Border x:Name="Bd"
                             Background="Transparent"
                             CornerRadius="{DynamicResource Ios26RadiusChip}"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"/>
+                        <ContentPresenter
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            TextElement.Foreground="{TemplateBinding Foreground}"/>
                     </Border>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsChecked" Value="True">
+                        <Trigger Property="IsSelected" Value="True">
                             <Setter TargetName="Bd" Property="Background"
                                     Value="{DynamicResource Ios26AccentBrush}"/>
                             <Setter Property="Foreground"
@@ -511,24 +526,55 @@
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="IsMouseOver" Value="True"/>
-                                <Condition Property="IsChecked" Value="False"/>
+                                <Condition Property="IsSelected" Value="False"/>
                             </MultiTrigger.Conditions>
                             <Setter TargetName="Bd" Property="Background"
                                     Value="{DynamicResource Ios26HoverBrush}"/>
                         </MultiTrigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.5"/>
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
 
-    <!-- The track the segments sit in. -->
-    <Style x:Key="SettingsSegmentTrackStyle" TargetType="Border">
+    <!-- The track the segments sit in: hugs its content (a 2-option switch). -->
+    <Style x:Key="SettingsSegmentTrackStyle" TargetType="ListBox">
         <Setter Property="Background" Value="{DynamicResource Ios26ValuePillBrush}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusChip}"/>
+        <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding" Value="2"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="ItemContainerStyle" Value="{StaticResource SettingsSegmentItemStyle}"/>
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <!-- UniformGrid: every segment gets the same width, whatever
+                         its label length, so the row reads as one control. -->
+                    <UniformGrid Rows="1"/>
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBox">
+                    <Border Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource Ios26RadiusChip}"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                        <ItemsPresenter/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- The same control filling its column (4-option density, sheet 03). -->
+    <Style x:Key="SettingsSegmentTrackFillStyle" TargetType="ListBox"
+           BasedOn="{StaticResource SettingsSegmentTrackStyle}">
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
     </Style>
 
     <!-- ═══ ACTION BAR — the slim footer card with right-aligned buttons ═══ -->

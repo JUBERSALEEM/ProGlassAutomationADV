@@ -154,6 +154,7 @@ namespace ProGlassAutomation.Tests.Settings
         [InlineData("SettingsAppearanceSection.xaml", "ApplyCardEdgePresetCommand")]
         [InlineData("SettingsAppearanceSection.xaml", "CardCornerRadius")]
         [InlineData("SettingsAppearanceSection.xaml", "DisplayDensity")]
+        [InlineData("SettingsAppearanceSection.xaml", "ThemeMode")]
         [InlineData("SettingsAppearanceSection.xaml", "DisplayDensityOptions")]
         [InlineData("SettingsAppearanceSection.xaml", "UiScale")]
         [InlineData("SettingsAppearanceSection.xaml", "UiScalePercent")]
@@ -953,6 +954,78 @@ namespace ProGlassAutomation.Tests.Settings
             Assert.Contains("Command=\"{Binding ResetDemoCommand}\"", text);
         }
 
+        /// <summary>
+        /// Sheet 02's MODE control and sheet 03's DISPLAY DENSITY control are the
+        /// same grammar: a ListBox track + ListBoxItem segments. Neither existed
+        /// before this pass — nothing on the page bound IsDarkTheme at all, and
+        /// density was a ComboBox that showed one option and hid the rest in a
+        /// drop-down. Lock the shapes and the bindings that make them live.
+        /// </summary>
+        [Fact]
+        public void Appearance_density_and_mode_are_segmented_controls()
+        {
+            var root = LocateProjectRoot();
+            var grammar = File.ReadAllText(Path.Combine(root, GrammarPath));
+            foreach (var key in new[]
+            {
+                "SettingsSegmentItemStyle",
+                "SettingsSegmentTrackStyle",
+                "SettingsSegmentTrackFillStyle",
+            })
+            {
+                Assert.True(grammar.Contains($"x:Key=\"{key}\"", StringComparison.Ordinal),
+                    $"{GrammarPath} is missing the '{key}' entry.");
+            }
+
+            // One implementation, not two. The retired ToggleButton segment style
+            // could never drive N options: WPF gives every button its own
+            // IsChecked, so 4 densities would have needed 4 bools + 4 commands and
+            // nothing would uncheck the others.
+            Assert.DoesNotContain("x:Key=\"SettingsSegmentStyle\"", grammar);
+            Assert.Contains("<UniformGrid Rows=\"1\"/>", grammar);
+
+            var src = File.ReadAllText(Path.Combine(root,
+                "Views/Settings/Sections/SettingsAppearanceSection.xaml"));
+
+            // Density — data-driven segments over the VM's own option list, so the
+            // option set keeps one source.
+            Assert.Contains("Style=\"{StaticResource SettingsSegmentTrackFillStyle}\"", src);
+            Assert.Contains("ItemsSource=\"{Binding DisplayDensityOptions}\"", src);
+            Assert.Contains("SelectedItem=\"{Binding DisplayDensity, Mode=TwoWay}\"", src);
+            Assert.DoesNotContain("<ComboBox ItemsSource=\"{Binding DisplayDensityOptions}\"", src);
+
+            // Mode — Light/Dark, the token _config.Appearance.Theme already stores.
+            Assert.Contains("Style=\"{StaticResource SettingsSegmentTrackStyle}\"", src);
+            Assert.Contains("SelectedValuePath=\"Tag\"", src);
+            Assert.Contains("SelectedValue=\"{Binding ThemeMode, Mode=TwoWay}\"", src);
+            Assert.Contains("Tag=\"Light\"", src);
+            Assert.Contains("Tag=\"Dark\"", src);
+        }
+
+        /// <summary>
+        /// Sheet 02 puts the live base colour mode beside the page name, on every
+        /// page. A chip is only worth having if it is state-driven: this one reads
+        /// a brush KEY from the ViewModel (ThemeModeChipBackgroundKey /
+        /// ForegroundKey) and resolves it through BrushKeyConverter, so the view
+        /// holds no colour and a theme switch repaints it for free. The two
+        /// badges are text-bound to the language files, not hard-coded LIGHT/DARK.
+        /// </summary>
+        [Fact]
+        public void Shell_page_header_chip_reports_the_live_colour_mode()
+        {
+            var root = LocateProjectRoot();
+            var src = File.ReadAllText(Path.Combine(root, ShellPath));
+
+            Assert.Contains("Style=\"{StaticResource SettingsChipStyle}\"", src);
+            Assert.Contains("Style=\"{StaticResource SettingsChipTextStyle}\"", src);
+            Assert.Contains("Converter={StaticResource BrushKeyConverter}", src);
+            Assert.Contains("ThemeModeChipBackgroundKey", src);
+            Assert.Contains("ThemeModeChipForegroundKey", src);
+            Assert.Contains("Settings.ModeBadgeLight", src);
+            Assert.Contains("Settings.ModeBadgeDark", src);
+            Assert.Contains("Converter={StaticResource BoolToVis}", src);
+            Assert.Contains("Converter={StaticResource InverseBoolToVis}", src);
+        }
         private static string LocateProjectRoot()
         {
             var dir = new DirectoryInfo(AppContext.BaseDirectory);
