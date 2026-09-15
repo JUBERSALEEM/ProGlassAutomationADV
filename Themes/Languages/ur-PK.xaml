@@ -2204,8 +2204,14 @@
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">ہر اسکرین، ڈائیلاگ اور جدول پر استعمال (آئیکنز Segoe MDL2 پر رہتے ہیں)۔</sys:String>
     <sys:String x:Key="Settings.V">ورژن</sys:String>
     <sys:String x:Key="Settings.Visibility">مرئیت</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloadModel">ماڈل ڈاؤن لوڈ کریں</sys:String>
     <sys:String x:Key="Settings.VoiceDownloadRequired">ڈاؤن لوڈ ضروری</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloading">ڈاؤن لوڈ ہو رہا ہے…</sys:String>
     <sys:String x:Key="Settings.VoiceInstalledOfflineSTT">انسٹال شدہ · آف لائن نیورل STT</sys:String>
+    <sys:String x:Key="Settings.VoiceModelNotInstalled">وِسپر — انسٹال نہیں</sys:String>
+    <sys:String x:Key="Settings.VoiceModelReady">وِسپر — تیار</sys:String>
+    <sys:String x:Key="Settings.VoiceStatusInstalled">انسٹال شدہ</sys:String>
+    <sys:String x:Key="Settings.VoiceStatusNotInstalled">انسٹال نہیں</sys:String>
     <sys:String x:Key="Settings.WallpaperApply">لاگو کریں</sys:String>
     <sys:String x:Key="Settings.WallpaperBackdrop">ونڈو بیک ڈراپ — OS-سطح کا بلر (تجرباتی)</sys:String>
     <sys:String x:Key="Settings.WallpaperBackdropAcrylic">Acrylic (Win 11)</sys:String>

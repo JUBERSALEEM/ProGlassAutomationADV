@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/SettingsSectionStyles.xaml
      PROJECT: ProGlassAutomation
      MODULE: Settings v2 — shared resource dictionary
@@ -394,17 +394,9 @@
                                           module cards). Not a page-level band
                                           any more — a band above a group is a
                                           regression, and a test locks that.
-           SettingsTileStyle            - standard 320-wide setting tile.
-           SettingsWideTileStyle        - 660-wide (spans two columns).
-           SettingsFullRowTileStyle     - fills the row (Demo output).
-           SettingsTileHeaderPanelStyle - icon + title layout.
-           SettingsTileIconStyle        - MDL2 glyph in tile header.
-           SettingsTileTitleStyle       - big label at top of tile.
-           SettingsTileCaptionStyle     - small subtitle under title.
            SettingsTileFooterHintStyle  - one-line hint below control.
            SettingsTileHeroStyle        - centred value badge for metric
                                           tiles (theme mode / version).
-           SettingsGroupSeparatorStyle  - divider between tile groups.
 
          RULES
            - Tiles do NOT set their own Width - the WrapPanel host does.

@@ -384,6 +384,25 @@ Sharing and Themes are in the parse list, which they never were.
    zero lost references, zero nested cards, token-only grammar) and the visual
    result needs one build in Visual Studio.
 
+### 8.5a Fourth pass — the last page (Voice) and the shims it was waiting on
+
+Voice was the one page still on the Aug-2026 layout: unstyled heading
+`TextBlock`s, a bare `Border` as the model picker, the retired shims, the legacy
+type scale (`TextBodyLarge` / `TextCaption` / `TextSection`) and four hard-coded
+English strings. It is two cards on the module grammar now — WHISPER MODEL (the
+picker rows are the card's own list) and MODEL STATUS.
+
+| Item | Detail |
+|---|---|
+| **Code-behind contract kept** | `ModelOption_MouseLeftButtonDown` + `Tag="{Binding Key}"` still carry the model key ("base"/"medium"/"large-v3") into `SelectedWhisperModel` — asserted by a new test, not by hope. |
+| **Install state is a chip, and state-driven** | The old badge was a fixed danger tint with a dead local `StatusBadgeStyle`. The chip in the status card's header reads `WhisperStatusChipBackgroundKey` / `ForegroundKey` (accent-soft when installed, `DangerSurfaceBrush` when not) through the same `BrushKeyConverter` mechanism as the shell mode chip — the second proof that the mechanism is state, not decoration. |
+| **Six strings left the markup** | `Settings.VoiceModelReady`, `VoiceModelNotInstalled`, `VoiceStatusInstalled`, `VoiceStatusNotInstalled`, `VoiceDownloadModel`, `VoiceDownloading` — authored in all 15 dictionaries (2,704 keys each), replacing "Whisper — Not Installed", "NOT INSTALLED", "DOWNLOAD MODEL", "DOWNLOADING…". |
+| **The retired shims are gone, not deprecated** | `SettingsFullRowTileStyle`, `SettingsGroupHeaderTextStyle`, `SettingsGroupSeparatorStyle`, `SettingsTileHeaderPanelStyle`, `SettingsTileTitleStyle` had exactly one consumer left (Voice) and no consumer outside `Views/Settings`. Deleted from `Themes/Styles/GlobalDesignSystem.xaml`; the burn-down lock is now `No_settings_page_uses_the_retired_tile_shims` and asserts empty. |
+| **Appearance's header comment** | Still described the WrapPanel tile grid that was replaced two passes ago — rewritten. |
+
+With that, **every one of the twelve pages is on the card grammar** and the
+module references nothing from the pre-redesign layout.
+
 ### 8.5 Third pass — the two sheet elements that were still missing
 
 | Item | Detail |

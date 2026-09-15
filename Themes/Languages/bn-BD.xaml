@@ -2204,8 +2204,14 @@
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">প্রতিটি স্ক্রিন, ডায়ালগ ও টেবিলে ব্যবহৃত (আইকন Segoe MDL2-তে থাকে)।</sys:String>
     <sys:String x:Key="Settings.V">সংস্করণ</sys:String>
     <sys:String x:Key="Settings.Visibility">দৃশ্যমানতা</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloadModel">মডেল ডাউনলোড করুন</sys:String>
     <sys:String x:Key="Settings.VoiceDownloadRequired">ডাউনলোড প্রয়োজন</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloading">ডাউনলোড হচ্ছে…</sys:String>
     <sys:String x:Key="Settings.VoiceInstalledOfflineSTT">ইনস্টলড · অফলাইন নিউরাল STT</sys:String>
+    <sys:String x:Key="Settings.VoiceModelNotInstalled">হুইস্পার — ইনস্টল করা হয়নি</sys:String>
+    <sys:String x:Key="Settings.VoiceModelReady">হুইস্পার — প্রস্তুত</sys:String>
+    <sys:String x:Key="Settings.VoiceStatusInstalled">ইনস্টল করা হয়েছে</sys:String>
+    <sys:String x:Key="Settings.VoiceStatusNotInstalled">ইনস্টল করা হয়নি</sys:String>
     <sys:String x:Key="Settings.WallpaperApply">প্রয়োগ</sys:String>
     <sys:String x:Key="Settings.WallpaperBackdrop">উইন্ডো ব্যাকড্রপ — OS-স্তরের ব্লার (পরীক্ষামূলক)</sys:String>
     <sys:String x:Key="Settings.WallpaperBackdropAcrylic">Acrylic (Win 11)</sys:String>

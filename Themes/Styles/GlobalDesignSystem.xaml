@@ -1086,11 +1086,6 @@
     <Style x:Key="SectionCard" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
     <Style x:Key="ServiceExportButton" TargetType="Button" BasedOn="{StaticResource Button.Primary}"/>
     <Style x:Key="SettingsActionRowStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
-    <Style x:Key="SettingsFullRowTileStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
-    <Style x:Key="SettingsGroupHeaderTextStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Title}"/>
-    <Style x:Key="SettingsGroupSeparatorStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}"/>
-    <Style x:Key="SettingsTileHeaderPanelStyle" TargetType="StackPanel"/>
-    <Style x:Key="SettingsTileTitleStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Title}"/>
     <Style x:Key="SpecGroupHeaderStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Title}"/>
     <Style x:Key="SpecLabel" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
     <Style x:Key="SpecValue" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>

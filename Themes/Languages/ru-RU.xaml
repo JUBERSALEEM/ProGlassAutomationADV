@@ -2204,8 +2204,14 @@
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">Используется на каждом экране, в диалогах и таблицах (иконки остаются на Segoe MDL2).</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">Видимость</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloadModel">СКАЧАТЬ МОДЕЛЬ</sys:String>
     <sys:String x:Key="Settings.VoiceDownloadRequired">Требуется загрузка</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloading">ЗАГРУЗКА…</sys:String>
     <sys:String x:Key="Settings.VoiceInstalledOfflineSTT">Установлено · Офлайн нейро-СТТ</sys:String>
+    <sys:String x:Key="Settings.VoiceModelNotInstalled">Whisper — не установлен</sys:String>
+    <sys:String x:Key="Settings.VoiceModelReady">Whisper — готов</sys:String>
+    <sys:String x:Key="Settings.VoiceStatusInstalled">УСТАНОВЛЕН</sys:String>
+    <sys:String x:Key="Settings.VoiceStatusNotInstalled">НЕ УСТАНОВЛЕН</sys:String>
     <sys:String x:Key="Settings.WallpaperApply">Применить</sys:String>
     <sys:String x:Key="Settings.WallpaperBackdrop">ФОН ОКНА — РАЗМЫТИЕ НА УРОВНЕ ОС (ЭКСПЕРИМЕНТАЛЬНО)</sys:String>
     <sys:String x:Key="Settings.WallpaperBackdropAcrylic">Acrylic (Win 11)</sys:String>

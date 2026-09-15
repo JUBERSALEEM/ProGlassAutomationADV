@@ -2204,8 +2204,14 @@
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">모든 화면, 대화 상자, 테이블에서 사용(아이콘은 Segoe MDL2 유지).</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">표시 여부</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloadModel">모델 다운로드</sys:String>
     <sys:String x:Key="Settings.VoiceDownloadRequired">다운로드 필요</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloading">다운로드 중…</sys:String>
     <sys:String x:Key="Settings.VoiceInstalledOfflineSTT">설치됨 · 오프라인 신경 STT</sys:String>
+    <sys:String x:Key="Settings.VoiceModelNotInstalled">Whisper — 설치 안 됨</sys:String>
+    <sys:String x:Key="Settings.VoiceModelReady">Whisper — 준비됨</sys:String>
+    <sys:String x:Key="Settings.VoiceStatusInstalled">설치됨</sys:String>
+    <sys:String x:Key="Settings.VoiceStatusNotInstalled">설치 안 됨</sys:String>
     <sys:String x:Key="Settings.WallpaperApply">적용</sys:String>
     <sys:String x:Key="Settings.WallpaperBackdrop">창 배경 — OS 수준 블러(실험적)</sys:String>
     <sys:String x:Key="Settings.WallpaperBackdropAcrylic">Acrylic(Win 11)</sys:String>

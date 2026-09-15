@@ -211,6 +211,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                 {
                     VoiceStatus = $"✓ {modelInfo.DisplayName} downloaded successfully!";
                     OnPropertyChanged(nameof(IsWhisperModelReady));
+                    OnPropertyChanged(nameof(WhisperStatusChipBackgroundKey));
+                    OnPropertyChanged(nameof(WhisperStatusChipForegroundKey));
                     OnPropertyChanged(nameof(ModelFileSizeMB));
                     OnPropertyChanged(nameof(SelectedModelInfo));
 
@@ -264,6 +266,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                     VoiceStatus = "Model deleted. Voice disabled until re-download.";
                     DownloadProgress = 0;
                     OnPropertyChanged(nameof(IsWhisperModelReady));
+                    OnPropertyChanged(nameof(WhisperStatusChipBackgroundKey));
+                    OnPropertyChanged(nameof(WhisperStatusChipForegroundKey));
                     OnPropertyChanged(nameof(ModelFileSizeMB));
 
                     // Swap back to System.Speech fallback

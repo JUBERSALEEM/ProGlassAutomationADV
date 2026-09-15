@@ -57,6 +57,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(SelectedModelInfo));
                     OnPropertyChanged(nameof(IsWhisperModelReady));
+                    OnPropertyChanged(nameof(WhisperStatusChipBackgroundKey));
+                    OnPropertyChanged(nameof(WhisperStatusChipForegroundKey));
                     OnPropertyChanged(nameof(ModelFileSizeMB));
                     OnPropertyChanged(nameof(ModelFilePath));
 
@@ -71,6 +73,20 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         // FIX CS0428: IsModelDownloaded is now a clean bool property
         public bool IsWhisperModelReady => WhisperModelManager.IsModelDownloaded;
+
+        /// <summary>
+        /// Brush keys for the Whisper install-state chip in the Voice status card
+        /// header — accent-soft while the model is installed, the danger surface
+        /// while it is missing. Keys, not brushes: BrushKeyConverter resolves them
+        /// against the live theme, so the chip reads as state instead of one fixed
+        /// tint, and the view holds no colour.
+        /// </summary>
+        public string WhisperStatusChipBackgroundKey =>
+            IsWhisperModelReady ? "Ios26AccentSoftBrush" : "DangerSurfaceBrush";
+
+        /// <summary>Brush key for the install-state chip's text.</summary>
+        public string WhisperStatusChipForegroundKey =>
+            IsWhisperModelReady ? "Ios26AccentSoftTextBrush" : "DangerBrush";
         public long ModelFileSizeMB => WhisperModelManager.ModelFileSizeMB;
         public string ModelFilePath => WhisperModelManager.DefaultModelPath;
 

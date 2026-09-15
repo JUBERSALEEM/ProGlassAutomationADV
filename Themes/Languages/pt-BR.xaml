@@ -2204,8 +2204,14 @@
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">Usado em cada tela, diálogo e tabela (ícones permanecem no Segoe MDL2).</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">Visibilidade</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloadModel">BAIXAR MODELO</sys:String>
     <sys:String x:Key="Settings.VoiceDownloadRequired">Download necessário</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloading">BAIXANDO…</sys:String>
     <sys:String x:Key="Settings.VoiceInstalledOfflineSTT">Instalado · STT neural offline</sys:String>
+    <sys:String x:Key="Settings.VoiceModelNotInstalled">Whisper — não instalado</sys:String>
+    <sys:String x:Key="Settings.VoiceModelReady">Whisper — pronto</sys:String>
+    <sys:String x:Key="Settings.VoiceStatusInstalled">INSTALADO</sys:String>
+    <sys:String x:Key="Settings.VoiceStatusNotInstalled">NÃO INSTALADO</sys:String>
     <sys:String x:Key="Settings.WallpaperApply">Aplicar</sys:String>
     <sys:String x:Key="Settings.WallpaperBackdrop">FUNDO DA JANELA — DESFOQUE NO NÍVEL DO SO (EXPERIMENTAL)</sys:String>
     <sys:String x:Key="Settings.WallpaperBackdropAcrylic">Acrílico (Win 11)</sys:String>

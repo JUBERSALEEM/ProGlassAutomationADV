@@ -2204,8 +2204,14 @@
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">مستخدم في كل شاشة وحوار وجدول (تبقى الأيقونات على Segoe MDL2).</sys:String>
     <sys:String x:Key="Settings.V">الإصدار</sys:String>
     <sys:String x:Key="Settings.Visibility">الرؤية</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloadModel">تنزيل النموذج</sys:String>
     <sys:String x:Key="Settings.VoiceDownloadRequired">التنزيل مطلوب</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloading">جارٍ التنزيل…</sys:String>
     <sys:String x:Key="Settings.VoiceInstalledOfflineSTT">مثبّت · تعرّف كلامي عصبي دون اتصال</sys:String>
+    <sys:String x:Key="Settings.VoiceModelNotInstalled">ويسبر — غير مثبّت</sys:String>
+    <sys:String x:Key="Settings.VoiceModelReady">ويسبر — جاهز</sys:String>
+    <sys:String x:Key="Settings.VoiceStatusInstalled">مثبّت</sys:String>
+    <sys:String x:Key="Settings.VoiceStatusNotInstalled">غير مثبّت</sys:String>
     <sys:String x:Key="Settings.WallpaperApply">تطبيق</sys:String>
     <sys:String x:Key="Settings.WallpaperBackdrop">خلفية النافذة — تمويه على مستوى النظام (تجريبي)</sys:String>
     <sys:String x:Key="Settings.WallpaperBackdropAcrylic">Acrylic (ويندوز 11)</sys:String>

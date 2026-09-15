@@ -181,6 +181,28 @@ JUSTIFIED: dict[str, dict[str, str]] = {
     "SettingsVoiceSection.xaml": {
         "Settings.SecVoice": "text of the removed duplicate page title",
         "Settings.OfflineSpeechTextOpenaiWhisper95AccuracyNo": "text of the removed duplicate page subtitle",
+        # 2026-09-16 card pass — the retired shims, legacy type scale and the
+        # dead fixed-tint badge above became grammar roles + a state chip.
+        "ControlCornerRadius": "grammar radius token (Ios26RadiusChip) replaces it",
+        "DangerBrush": "the install state is a chip fed by WhisperStatusChipForegroundKey, not fixed danger text",
+        "FontFamily.Icon": "the glyph takes its font from SettingsRowGlyphStyle",
+        "FontSize.Body": "grammar type role replaces it",
+        "LabelStyle": "replaced by the grammar's SettingsFieldLabelStyle",
+        "PrimaryPillButton": "the DOWNLOAD action is SettingsPrimaryButtonStyle now — module grammar, not the app pill",
+        "SecondaryForegroundBrush": "grammar ink token (Ios26TextSecondaryBrush via SettingsRowMetaStyle) replaces it",
+        "SettingsFullRowTileStyle": "retired Aug-2026 shim; the page card is the container",
+        "SettingsGroupSeparatorStyle": "retired shim; cards separate themselves via SettingsCardMargin",
+        "SettingsTileHeaderPanelStyle": "retired shim; a row is SettingsRowGlyphStyle + SettingsRowTitleStyle",
+        "SettingsTileTitleStyle": "retired shim; headers are SettingsCardHeaderStyle / SettingsRowTitleStyle",
+        "TextBody": "grammar type roles (SettingsRowMetaStyle) replace the legacy scale",
+        "TextBodyLarge": "grammar type role (SettingsRowTitleStyle) replaces it",
+        "TextCaption": "grammar type role (SettingsRowMetaStyle) replaces it",
+        "TextPrimaryBrush": "grammar ink token (SettingsRowTitleStyle) replaces it",
+        "TextSection": "was the permanently collapsed check glyph — the install chip carries the state instead",
+        "TextTertiaryBrush": "grammar ink token (SettingsRowMetaStyle) replaces it",
+        "TintIndigoBrush": "dead local StatusBadgeStyle removed — the chip is the one state surface",
+        "TintRedBrush": "dead local StatusBadgeStyle removed — the chip is the one state surface",
+        "Weight.Bold": "grammar type roles carry the weights",
     },
     "SettingsThemesSection.xaml": {
         # staticres

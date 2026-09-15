@@ -2204,8 +2204,14 @@
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">Used on every screen, dialog and table (icons stay on Segoe MDL2).</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">Visibility</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloadModel">DOWNLOAD MODEL</sys:String>
     <sys:String x:Key="Settings.VoiceDownloadRequired">Download required</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloading">DOWNLOADING…</sys:String>
     <sys:String x:Key="Settings.VoiceInstalledOfflineSTT">Installed · Offline neural STT</sys:String>
+    <sys:String x:Key="Settings.VoiceModelNotInstalled">Whisper — Not Installed</sys:String>
+    <sys:String x:Key="Settings.VoiceModelReady">Whisper — Ready</sys:String>
+    <sys:String x:Key="Settings.VoiceStatusInstalled">INSTALLED</sys:String>
+    <sys:String x:Key="Settings.VoiceStatusNotInstalled">NOT INSTALLED</sys:String>
     <sys:String x:Key="Settings.WallpaperApply">Apply</sys:String>
     <sys:String x:Key="Settings.WallpaperBackdrop">WINDOW BACKDROP — OS-LEVEL BLUR (EXPERIMENTAL)</sys:String>
     <sys:String x:Key="Settings.WallpaperBackdropAcrylic">Acrylic (Win 11)</sys:String>

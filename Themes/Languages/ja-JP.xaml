@@ -2204,8 +2204,14 @@
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">すべての画面、ダイアログ、テーブルで使用（アイコンはSegoe MDL2のまま）。</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">表示</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloadModel">モデルをダウンロード</sys:String>
     <sys:String x:Key="Settings.VoiceDownloadRequired">ダウンロードが必要です</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloading">ダウンロード中…</sys:String>
     <sys:String x:Key="Settings.VoiceInstalledOfflineSTT">インストール済み · オフライン神経STT</sys:String>
+    <sys:String x:Key="Settings.VoiceModelNotInstalled">Whisper — 未インストール</sys:String>
+    <sys:String x:Key="Settings.VoiceModelReady">Whisper — 準備完了</sys:String>
+    <sys:String x:Key="Settings.VoiceStatusInstalled">インストール済み</sys:String>
+    <sys:String x:Key="Settings.VoiceStatusNotInstalled">未インストール</sys:String>
     <sys:String x:Key="Settings.WallpaperApply">適用</sys:String>
     <sys:String x:Key="Settings.WallpaperBackdrop">ウィンドウ背景 — OSレベルのぼかし（実験的）</sys:String>
     <sys:String x:Key="Settings.WallpaperBackdropAcrylic">アクリル（Win 11）</sys:String>

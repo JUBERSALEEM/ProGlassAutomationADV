@@ -2204,8 +2204,14 @@
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">Her ekranda, iletişim kutusunda ve tabloda kullanılır (simgeler Segoe MDL2&#x27;de kalır).</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">Görünürlük</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloadModel">MODELİ İNDİR</sys:String>
     <sys:String x:Key="Settings.VoiceDownloadRequired">İndirme gerekli</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloading">İNDİRİLİYOR…</sys:String>
     <sys:String x:Key="Settings.VoiceInstalledOfflineSTT">Kurulu · Çevrimdışı sinirsel STT</sys:String>
+    <sys:String x:Key="Settings.VoiceModelNotInstalled">Whisper — kurulu değil</sys:String>
+    <sys:String x:Key="Settings.VoiceModelReady">Whisper — hazır</sys:String>
+    <sys:String x:Key="Settings.VoiceStatusInstalled">KURULU</sys:String>
+    <sys:String x:Key="Settings.VoiceStatusNotInstalled">KURULU DEĞİL</sys:String>
     <sys:String x:Key="Settings.WallpaperApply">Uygula</sys:String>
     <sys:String x:Key="Settings.WallpaperBackdrop">PENCERE ARKA PLANI — İŞLETİM SİSTEMİ DÜZEYİNDE BULANIKLIK (DENEYSEL)</sys:String>
     <sys:String x:Key="Settings.WallpaperBackdropAcrylic">Acrylic (Win 11)</sys:String>

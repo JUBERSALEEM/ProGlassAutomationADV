@@ -270,8 +270,8 @@ namespace ProGlassAutomation.Tests.Settings
         /// longer exist, so that test failed on 8 of its 10 pages — while keeping
         /// the page-level fact it protected: a full-width host.
         ///
-        /// Voice is deliberately absent: it is still on the retired shims and is
-        /// tracked by Only_the_voice_page_still_uses_the_retired_tile_shims.
+        /// Voice included since its card pass (2026-09-16) — every page in the
+        /// module is on the grammar now.
         /// </summary>
         [Theory]
         [InlineData("SettingsAppearanceSection.xaml")]
@@ -285,6 +285,7 @@ namespace ProGlassAutomation.Tests.Settings
         [InlineData("SettingsAboutSection.xaml")]
         [InlineData("SettingsThemesSection.xaml")]
         [InlineData("SettingsSharingSection.xaml")]
+        [InlineData("SettingsVoiceSection.xaml")]
         public void Rewritten_section_uses_the_card_grammar(string sectionFile)
         {
             var root = LocateProjectRoot();
@@ -308,18 +309,15 @@ namespace ProGlassAutomation.Tests.Settings
         }
 
         /// <summary>
-        /// Burn-down lock for the pre-redesign shims. Themes/Styles/GlobalDesignSystem.xaml
-        /// still carries SettingsTileStyle's surviving shims (SettingsFullRowTileStyle,
-        /// SettingsTileHeaderPanelStyle, SettingsGroupSeparatorStyle) for exactly one
-        /// consumer: the Voice page, which has not had its card pass yet — its field
-        /// tiles are still the Aug-2026 shims inside the card shell.
-        ///
-        /// When Voice is converted this test FAILS. That is the signal, not a
-        /// regression: drop Voice from the list, delete the shims from
-        /// GlobalDesignSystem.xaml, and the module is fully on its own grammar.
+        /// Burn-down lock for the pre-redesign shims (SettingsFullRowTileStyle,
+        /// SettingsTileHeaderPanelStyle, SettingsGroupSeparatorStyle,
+        /// SettingsTileTitleStyle, SettingsGroupHeaderTextStyle). The Voice page
+        /// was the last consumer; when it moved to the card grammar this test
+        /// went green and the shims became deletable — it stays as the guard that
+        /// no future page picks them up again.
         /// </summary>
         [Fact]
-        public void Only_the_voice_page_still_uses_the_retired_tile_shims()
+        public void No_settings_page_uses_the_retired_tile_shims()
         {
             var root = LocateProjectRoot();
             var retired = new[]
@@ -342,7 +340,9 @@ namespace ProGlassAutomation.Tests.Settings
                     stillUsing.Add(Path.GetFileName(rel));
             }
 
-            Assert.Equal(new[] { "SettingsVoiceSection.xaml" }, stillUsing);
+            Assert.True(stillUsing.Count == 0,
+                "These pages still consume the retired Aug-2026 tile shims: "
+                + string.Join(", ", stillUsing));
         }
 
         /// <summary>
@@ -952,6 +952,50 @@ namespace ProGlassAutomation.Tests.Settings
             Assert.Contains("Style=\"{StaticResource SettingsDangerCardTitleStyle}\"", text);
             Assert.Contains("Style=\"{StaticResource SettingsDangerCardNoteStyle}\"", text);
             Assert.Contains("Command=\"{Binding ResetDemoCommand}\"", text);
+        }
+
+        /// <summary>
+        /// The Voice page was the last one on the Aug-2026 layout: unstyled
+        /// heading TextBlocks, a bare Border as the picker, the retired shims and
+        /// four hard-coded English strings. It is two cards now, and this locks
+        /// the parts that must not drift:
+        ///   • the code-behind contract — ModelOption_MouseLeftButtonDown plus
+        ///     Tag="{Binding Key}" carry the model key into SelectedWhisperModel;
+        ///   • the install state is a state-driven chip (brush KEY from the VM
+        ///     through BrushKeyConverter), not the old fixed-tint badge;
+        ///   • the two hard-coded strings are language keys now.
+        /// </summary>
+        [Fact]
+        public void Voice_page_is_cards_with_a_state_driven_install_chip()
+        {
+            var root = LocateProjectRoot();
+            var src = File.ReadAllText(Path.Combine(root,
+                "Views/Settings/Sections/SettingsVoiceSection.xaml"));
+
+            Assert.Contains("MouseLeftButtonDown=\"ModelOption_MouseLeftButtonDown\"", src);
+            Assert.Contains("Tag=\"{Binding Key}\"", src);
+            Assert.Contains("ItemsSource=\"{Binding WhisperModelOptions}\"", src);
+            Assert.Contains("Style=\"{StaticResource SettingsPageCardStyle}\"", src);
+            Assert.Contains("Style=\"{StaticResource SettingsCardTitleStyle}\"", src);
+            Assert.Contains("WhisperStatusChipBackgroundKey", src);
+            Assert.Contains("WhisperStatusChipForegroundKey", src);
+            Assert.Contains("Converter={StaticResource BrushKeyConverter}", src);
+            Assert.Contains("Settings.VoiceStatusInstalled", src);
+            Assert.Contains("Settings.VoiceStatusNotInstalled", src);
+            Assert.Contains("Settings.VoiceDownloadModel", src);
+            Assert.Contains("Settings.VoiceDownloading", src);
+            // The retired shims must not come back on this page.
+            foreach (var shim in new[]
+            {
+                "SettingsFullRowTileStyle", "SettingsTileHeaderPanelStyle",
+                "SettingsGroupSeparatorStyle", "SettingsTileTitleStyle",
+            })
+            {
+                Assert.DoesNotContain(shim, src);
+            }
+            // The two English literals the page used to ship.
+            Assert.DoesNotContain("Whisper — Not Installed", src);
+            Assert.DoesNotContain("DOWNLOAD MODEL", src);
         }
 
         /// <summary>

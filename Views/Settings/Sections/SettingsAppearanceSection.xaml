@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/Sections/SettingsAppearanceSection.xaml
      PROJECT: ProGlassAutomation
      MODULE: Settings v2 — APPEARANCE page (redesigned Aug 2026)
@@ -7,12 +7,12 @@
        Accent, Font, Motion, Module wallpapers) containing full-width
        DockPanel rows. On wide monitors that wasted 60-70% of horizontal
        space; on 1366 laptops it felt endless.
-       Now: a WrapPanel of individual "tiles" (SettingsTileStyle) that
-       auto-flow into 2-4 columns. Wide surfaces (module wallpaper list,
-       accent palette) use SettingsWideTileStyle / SettingsFullRowTileStyle
-       so they still get proper width when they need it. Every binding is
-       preserved byte-for-byte — this is a layout redesign, not a data
-       change.
+       Now: page cards from the module grammar (SettingsCardStyles.xaml) —
+       a card per subject with its heading in the card header, rows directly
+       inside it, and SettingsInnerTileStyle for surfaces within a card.
+       MODE and DISPLAY DENSITY are their own cards (sheets 02/03) because a
+       segmented control needs the width. Every binding is preserved
+       byte-for-byte — this is a layout redesign, not a data change.
      Bindings target SettingsViewModel (DataContext flows from shell).
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsAppearanceSection"
