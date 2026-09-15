@@ -155,9 +155,21 @@ def banner(lines: list[str], site: dict, fallback: str) -> str:
     return fallback
 
 
+# Empty tile borders used as separators between groups: once every group is a
+# card, the card gap does that job and the spacer is a stray empty tile.
+SPACER = re.compile(r'^\s*<Border Style="\{StaticResource SettingsInnerTileStyle\}"'
+                    r'\s*Margin="0,0,0,10"/>\s*$')
+
+
 def convert(path: Path, dry_run: bool = False, only: list[str] | None = None,
-            stop_before: str | None = None) -> tuple[int, list[str]]:
+            stop_before: str | None = None,
+            drop_spacer: bool = False) -> tuple[int, list[str]]:
     lines = path.read_text(encoding="utf-8").splitlines()
+    if drop_spacer:
+        spacers = [l for l in lines if SPACER.match(l)]
+        if spacers:
+            lines = [l for l in lines if not SPACER.match(l)]
+            print(f"        (dropped {len(spacers)} empty separator tile(s))")
     sites = band_sites(lines)
     if not sites:
         return 0, []
@@ -335,6 +347,8 @@ def main() -> int:
     ap.add_argument("--only", help="comma-separated group keys to card (default: all)")
     ap.add_argument("--stop-before", dest="stop_before",
                     help="regex ending the LAST group early (a peer card follows)")
+    ap.add_argument("--drop-spacer", action="store_true",
+                    help="remove empty separator tiles between groups")
     args = ap.parse_args()
 
     for raw in args.files:
@@ -342,7 +356,8 @@ def main() -> int:
         if not path.is_absolute():
             path = REPO / path
         only = [o.strip() for o in args.only.split(",")] if args.only else None
-        count, names = convert(path, args.dry_run, only, args.stop_before)
+        count, names = convert(path, args.dry_run, only, args.stop_before,
+                               args.drop_spacer)
         verb = "would card" if args.dry_run else "carded"
         print(f"{verb} {count:2d} group(s) in {path.name}: " + ", ".join(names))
     return 0
