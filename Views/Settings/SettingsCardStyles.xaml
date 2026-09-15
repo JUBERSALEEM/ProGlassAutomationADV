@@ -111,18 +111,6 @@
         <Setter Property="Background" Value="{DynamicResource Ios26TileBrush}"/>
     </Style>
 
-    <!-- Danger card roles: the destructive card's title and warning line are
-         red on its wash (sheet 08: "Reset demonstration data" + its warning). -->
-    <Style x:Key="SettingsDangerCardTitleStyle" TargetType="TextBlock"
-           BasedOn="{StaticResource SettingsCardTitleStyle}">
-        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-    </Style>
-
-    <Style x:Key="SettingsDangerCardNoteStyle" TargetType="TextBlock"
-           BasedOn="{StaticResource SettingsCardNoteStyle}">
-        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-    </Style>
-
     <!-- ═══ INNER TILE — solid panel inside a card (mockup: white panel) ═══ -->
     <Style x:Key="SettingsInnerTileStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource Ios26TileBrush}"/>
@@ -228,6 +216,18 @@
         <Setter Property="Foreground" Value="{DynamicResource Ios26TextMutedBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="Margin" Value="0,4,0,0"/>
+    </Style>
+
+    <!-- Danger card roles: the destructive card's title and warning line are
+         red on its wash (sheet 08: "Reset demonstration data" + its warning). -->
+    <Style x:Key="SettingsDangerCardTitleStyle" TargetType="TextBlock"
+           BasedOn="{StaticResource SettingsCardTitleStyle}">
+        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+    </Style>
+
+    <Style x:Key="SettingsDangerCardNoteStyle" TargetType="TextBlock"
+           BasedOn="{StaticResource SettingsCardNoteStyle}">
+        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
     </Style>
 
     <!-- Card header block — title, then the optional helper line. The note's

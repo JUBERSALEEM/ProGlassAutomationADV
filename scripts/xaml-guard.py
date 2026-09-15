@@ -263,6 +263,55 @@ def check_duplicate_attrs(path: Path, text: str, errors: list[str]) -> None:
             )
 
 
+def check_static_resource_order(path: Path, text: str, errors: list[str]) -> None:
+    """A StaticResource inside a ResourceDictionary may only see keys declared
+    EARLIER in that same dictionary (forward references are illegal and in
+    ResourceDictionaries are NOT deferred to the merging scope).
+
+    ERR-EE8D1A (2026-09-15, owner's build): SettingsDangerCardTitleStyle sat
+    above its base SettingsCardTitleStyle in Views/Settings/SettingsCardStyles.xaml
+    and threw
+
+        XamlParseException: Cannot find resource named 'SettingsCardTitleStyle'
+
+    only when the style was first applied — after startup, inside
+    FrameworkTemplate.LoadTemplateXaml, which is why nothing caught it until a
+    real window rendered. Nothing else in this guard looked at ordering.
+    """
+    if "x:Key=" not in text:
+        return
+    # Comments carry usage examples ("<ContentControl Style="{StaticResource …}">")
+    # and must not count: blank them space-for-space so line numbers stay true.
+    def blank_comments(s: str) -> str:
+        out, i, n = [], 0, len(s)
+        while i < n:
+            if s.startswith("<!--", i):
+                close = s.find("-->", i + 4)
+                close = n if close < 0 else close + 3
+                out.append(re.sub(r"[^\n]", " ", s[i:close]))
+                i = close
+            else:
+                out.append(s[i])
+                i += 1
+        return "".join(out)
+
+    lines = blank_comments(text).splitlines()
+    decl: dict[str, int] = {}
+    for i, line in enumerate(lines, 1):
+        for key in re.findall(r'x:Key="([^"]+)"', line):
+            decl.setdefault(key, i)
+    for i, line in enumerate(lines, 1):
+        for key in re.findall(r'\{StaticResource ([A-Za-z_][\w.]*)\}', line):
+            at = decl.get(key)
+            if at is not None and at > i:
+                errors.append(
+                    f"{path}:{i}: StaticResource '{key}' is declared later in the "
+                    f"same dictionary (line {at}) — ResourceDictionary forward "
+                    "references are illegal; move the consumer below the "
+                    "declaration or the declaration above the consumer."
+                )
+
+
 def main() -> int:
     errors: list[str] = []
     files = xaml_files()
@@ -274,6 +323,7 @@ def main() -> int:
         check_invalid_props(p, text, errors)
         check_duplicate_attrs(p, text, errors)
         check_undeclared_prefixes(p, text, errors)
+        check_static_resource_order(p, text, errors)
 
     if errors:
         print(f"xaml-guard: {len(errors)} violation(s) in {len(files)} files")
