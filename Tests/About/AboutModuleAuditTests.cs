@@ -506,7 +506,7 @@ namespace ProGlassAutomation.Tests.About
                 "The license detail values no longer use Ios26FieldValueStyle.");
 
             Assert.Contains("Ios26CardTitleStyle", src);
-            Assert.False(new Regex(@"FontSize=\"[0-9]").IsMatch(src),
+            Assert.False(new Regex(@"FontSize=""[0-9]").IsMatch(src),
                 "AboutLicenseCard.xaml hard-codes a font size again.");
         }
 
