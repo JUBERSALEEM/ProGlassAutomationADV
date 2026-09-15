@@ -70,12 +70,13 @@
              Visibility = IsSettingsRailOpen (drawer: closes on page pick,
              re-opens via the floating menu button).
         ══════════════════════════════════════════════════════════════ -->
-        <!-- Rail — the About card grammar (2026-09-16 redesign): frosted
-             Ios26CardBrush, hairline Ios26CardBorderBrush, Ios26RadiusCard
-             (which follows the Appearance card-corner slider) and the one
-             shared Ios26CardShadow. It used to carry its own drop shadow and
-             a sheen stack, which is why the rail and the cards it framed did
-             not read as the same material. -->
+        <!-- Rail — the card grammar, and since 2026-09-17 the card MATERIAL:
+             SettingsPageCardStyle now composes the crystal face, the tri-stop
+             edge and the tinted shadow, so the rail picks all three up from
+             the one style it shares with the page cards (Ios26RadiusCard still
+             follows the Appearance card-corner slider). It used to carry its
+             own drop shadow and a sheen stack, which is why the rail and the
+             cards it framed did not read as the same material. -->
         <Border Grid.Column="0"
                 Margin="14,14,6,14"
                 MinWidth="232" MaxWidth="420"
@@ -291,8 +292,16 @@
 
                  The hamburger stays here so a collapsed rail re-opens in
                  one click from inside the content column.
+
+                 2026-09-17: Margin was 14,10,12,0. The sections below all
+                 carry Margin 18,14,18,18, so the strip sat 4 px left of every
+                 card it heads and 6 px right of them — a misalignment that is
+                 invisible in a screenshot of one card and obvious on the page.
+                 Now 18,14,18,8: same left and right edge as the cards, same top
+                 edge as the rail (14), and an 8 + 14 = 22 gap to the first card,
+                 which is exactly the card-to-card rhythm.
             ══════════════════════════════════════════════════════════ -->
-            <Border Grid.Row="0" Margin="14,10,12,0" Padding="14,12"
+            <Border Grid.Row="0" Margin="18,14,18,8" Padding="14,12"
                     Style="{StaticResource SettingsPageCardStyle}">
                 <Border.Resources>
                     <!-- The strip owns its own margin above. -->

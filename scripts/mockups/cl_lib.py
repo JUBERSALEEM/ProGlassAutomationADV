@@ -428,11 +428,12 @@ class Sheet(object):
         t = self.t
         self.tile(b, r=r, fill=_c("#FFFFFF", 0.72) if t["key"] == "light" else _c("#FFFFFF", 0.08),
                   edge=_c("#FFFFFF", 0.9) if t["key"] == "light" else _c("#FFFFFF", 0.14))
-        self.text((b[0] + 12, (b[1] + b[3]) / 2.0 + 0.5), s, FS["body"],
-                  t["text_faint"] if placeholder else t["text_body"], False, "lm")
-        # blinking caret
-        self.d.line([(b[0] + 12) * S, (b[1] + 8) * S, (b[0] + 12) * S, (b[3] - 8) * S],
-                    fill=t["accent"], width=max(1, int(1.5 * S)))
+        self.text((b[0] + (16 if placeholder else 12), (b[1] + b[3]) / 2.0 + 0.5), s,
+                  FS["body"], t["text_faint"] if placeholder else t["text_body"], False, "lm")
+        if not placeholder:
+            # caret sits at the text start of a focused field only
+            self.d.line([(b[0] + 16) * S, (b[1] + 8) * S, (b[0] + 16) * S, (b[3] - 8) * S],
+                        fill=t["accent"], width=max(1, int(1.5 * S)))
 
     def icon_tile(self, x, y, glyph, size=34, tint=None, soft=True):
         t = self.t

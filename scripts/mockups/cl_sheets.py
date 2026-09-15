@@ -536,12 +536,186 @@ def sheet_shell(path):
     return s.save(path)
 
 
+
+
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SHEET 07 — Themes & wallpaper (light)
+# ═══════════════════════════════════════════════════════════════════════════
+def sheet_themes(path):
+    s = Sheet(W, H, LIGHT)
+    t = s.t
+    s.rail(RAIL, NAV, "Themes")
+    s.page_head(HEAD, "Themes", "Crystal Fluid", "soft")
+    y = 114
+
+    b = (CX0, y, CX1, y + 250)
+    x, cy, x1 = s.card(b, "Theme", glyph="image", chip="1 of 6", chip_kind="muted")
+    presets = [("Crystal Fluid", "#7DD3FC", "#C4B5FD", True), ("Monet Garden", "#86EFAC", "#FDE68A", False),
+               ("Industrial", "#94A3B8", "#CBD5E1", False), ("Midnight", "#1E293B", "#334155", False)]
+    for i, (nm, c1, c2, sel) in enumerate(presets):
+        cw = (x1 - x) / 4.0 - 10
+        cb = (x + i * (cw + 13), cy, x + i * (cw + 13) + cw, cy + 132)
+        s.glass(cb, r=R_INNER, frost=12.0,
+                tint=(_c(c1, 0.55), _c(c2, 0.75)))
+        s.specular(cb, r=R_INNER)
+        if sel:
+            s.tile(cb, r=R_INNER, fill=None, edge=t["accent"])
+        s.text((cb[0] + 12, cb[3] - 40), nm, FS["small"], t["text_title"], sel)
+        s.text((cb[0] + 12, cb[3] - 24), "VisualThemeEngine family", FS["caption"], t["text_faint"], False)
+    s.text((x, cy + 148), "Family + material + density come from the theme engine; the sheet only "
+                          "shows what a card looks like once it is applied.", FS["caption"],
+           t["text_muted"], False)
+    y = b[3] + GAP_CARD
+
+    b = (CX0, y, CX1, y + 200)
+    x, cy, x1 = s.card(b, "Wallpaper", glyph="photo" if False else "image", chip="Scene 2", chip_kind="soft")
+    scenes = ["Crystal Fluid", "Soft Dunes", "Paper Grain"]
+    for i, nm in enumerate(scenes):
+        cb = (x + i * 168, cy, x + i * 168 + 152, cy + 78)
+        s.tile(cb, r=R_INNER, fill=_c("#FFFFFF", 0.45) if t["key"] == "light" else _c("#FFFFFF", 0.08),
+               edge=(t["accent"] if i == 1 else t["edge_mid"]))
+        s.text((cb[0] + 12, cb[3] - 20), nm, FS["caption"], t["text_body"], i == 1, "ls")
+    s.segment((x, cy + 96, x + 330, cy + 130), ["Acrylic", "Mica", "None"], 0, fs=FS["caption"])
+    s.text((x + 348, cy + 113), "Backdrop material (Win 11)", FS["small"], t["text_muted"], False, "lm")
+    s.slider(x, cy + 146, (x1 - x) * 0.55, 0.28)
+    s.text((x, cy + 162), "Blur intensity", FS["caption"], t["text_muted"], False)
+    return s.save(path)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SHEET 08 — AI (dark)
+# ═══════════════════════════════════════════════════════════════════════════
+def sheet_ai(path):
+    s = Sheet(W, H, DARK)
+    t = s.t
+    s.rail(RAIL, NAV, "AI")
+    s.page_head(HEAD, "AI", "Online", "good")
+    y = 114
+
+    b = (CX0, y, CX1, y + 232)
+    x, cy, x1 = s.card(b, "Provider", glyph="sparkle", chip="OpenAI", chip_kind="soft")
+    rows = [("Model", "gpt-5 · 2026-08"), ("Max tokens", "4096"), ("Timeout", "30 s")]
+    for i, (nm, val) in enumerate(rows):
+        s.row(x, x1, cy + i * 38, nm, value=val)
+    s.segment((x, cy + 122, x + 300, cy + 156), ["Fast", "Balanced", "Quality"], 1, fs=FS["caption"])
+    s.text((x + 318, cy + 139), "Preset routing", FS["small"], t["text_muted"], False, "lm")
+    y = b[3] + GAP_CARD
+
+    b = (CX0, y, CX1, y + 286)
+    x, cy, x1 = s.card(b, "Generation", glyph="wave", chip="6 rules", chip_kind="muted")
+    for i, (nm, v) in enumerate([("Temperature", 0.35), ("Top-p", 0.8), ("Repetition penalty", 0.15)]):
+        s.text((x, cy + i * 58), nm, FS["body"], t["text_title"], False)
+        s.slider(x + 210, cy + i * 58 + 4, (x1 - x) - 300, v)
+        s.text((x1, cy + i * 58), "%.2f" % (0.35 if i == 0 else (0.80 if i == 1 else 0.15)),
+               FS["body"], t["text_sec"], False, "ra")
+    s.row(x, x1, cy + 178, "Stream responses token by token")
+    s.switch(x1 - 60, cy + 178, True)
+    y = b[3] + GAP_CARD
+
+    b = (CX0, y, CX1, y + 156)
+    x, cy, x1 = s.card(b, "System prompt", glyph="copy")
+    s.field((x, cy, x1 - 120, cy + 40), "You are a delivery assistant for…", placeholder=True)
+    s.button(x1 - 108, cy, "Load", "ghost", h=40)
+    s.text((x, cy + 58), "Saved prompts live in the library card; the field keeps one source.",
+           FS["caption"], t["text_faint"], False)
+    return s.save(path)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SHEET 09 — Features & sharing (light)
+# ═══════════════════════════════════════════════════════════════════════════
+def sheet_features(path):
+    s = Sheet(W, H, LIGHT)
+    t = s.t
+    s.rail(RAIL, NAV, "Features")
+    s.page_head(HEAD, "Features & sharing", "9 of 12 on", "soft")
+    y = 114
+
+    b = (CX0, y, CX1, y + 300)
+    x, cy, x1 = s.card(b, "Feature flags", glyph="star", chip="Beta", chip_kind="warn")
+    flags = [("Batch export", "Writes every target to one workbook", True),
+             ("Auto-detect steps", "Reads the step count from the filename", True),
+             ("Nightly digest", "Emails the day's totals at 20:00", False)]
+    for i, (nm, desc, on) in enumerate(flags):
+        s.row(x, x1, cy + i * 58, nm, desc=desc)
+        s.switch(x1 - 60, cy + i * 58, on)
+    s.text((x, cy + 186), "A flag row is a row, not a tile — the card already groups them.",
+           FS["caption"], t["text_faint"], False)
+    y = b[3] + GAP_CARD
+
+    half = (CX1 - CX0 - GAP_CARD) / 2.0
+    b = (CX0, y, CX0 + half, y + 236)
+    x, cy, x1 = s.card(b, "Sharing", glyph="share")
+    for i, (nm, st) in enumerate([("Floor LAN", "Active"), ("Shop tablet", "Idle"), ("Backup PC", "Active")]):
+        s.row(x, x1, cy + i * 44, nm)
+        s.chip(x1 - (s.text_w(st, FS["label"]) + 30), cy + i * 44 + 8, st,
+               "good" if st == "Active" else "muted")
+    s.button(x, cy + 150, "Add endpoint", "primary")
+
+    b = (CX0 + half + GAP_CARD, y, CX1, y + 236)
+    x, cy, x1 = s.card(b, "Limits", glyph="grid")
+    s.segment((x, cy, x1, cy + 36), ["Unlimited", "10 / day", "Metered"], 0, fs=FS["caption"])
+    s.text((x, cy + 50), "Applies to the shared endpoints above.", FS["small"], t["text_muted"], False)
+    s.row(x, x1, cy + 78, "Warn at 80 % of the cap")
+    s.switch(x1 - 60, cy + 78, True)
+    s.text((x, cy + 136), "One quota source; the row and the segments read the same value.",
+           FS["caption"], t["text_faint"], False)
+    return s.save(path)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SHEET 10 — Demo, license and the About card (dark)
+# ═══════════════════════════════════════════════════════════════════════════
+def sheet_demo(path):
+    s = Sheet(W, H, DARK)
+    t = s.t
+    s.rail(RAIL, NAV, "Demo")
+    s.page_head(HEAD, "Demo", "Sample data", "muted")
+    y = 114
+
+    b = (CX0, y, CX1, y + 168)
+    x, cy, x1 = s.card(b, "Sample data", glyph="play", chip="120 targets", chip_kind="soft")
+    s.segment((x, cy, x + 300, cy + 36), ["Small", "Medium", "Large"], 1, fs=FS["caption"])
+    s.text((x + 318, cy + 18), "Seeds the database with realistic targets.", FS["small"],
+           t["text_muted"], False, "lm")
+    s.button(x, cy + 56, "Load sample data", "primary")
+    s.text((x + 170, cy + 74), "Never touches existing rows.", FS["caption"],
+           t["text_faint"], False, "lm")
+    y = b[3] + GAP_CARD
+
+    b = (CX0, y, CX1, y + 132)
+    x, cy, x1 = s.card(b, "License", glyph="key", chip="Activated", chip_kind="good")
+    s.text((x, cy + 4), "Valid to 2027-03-01 · 1 seat", FS["small"], t["text_muted"], False)
+    s.field((x, cy + 28, x + 320, cy + 62), "PG-XXXX-XXXX-XXXX-XXXX")
+    s.button(x + 336, cy + 28, "Activate", "ghost", h=34)
+    y = b[3] + GAP_CARD
+
+    b = (CX0, y, CX1, y + 176)
+    s.glass(b, r=R_CARD)
+    s.specular(b, r=R_CARD)
+    s.refraction(b, r=R_CARD)
+    s.tile(b, r=R_CARD, fill=t["danger_soft"], edge=t["danger"])
+    x, cy, x1 = b[0] + PAD_CARD[0], b[1] + PAD_CARD[1], b[2] - PAD_CARD[0]
+    s.icon_tile(x, cy - 6, "warn", 30, tint=t["danger_soft"])
+    s.text((x + 42, cy + 9), "Reset demo data", FS["card_title"], t["danger"], True, "lm")
+    s.text((x + 42, cy + 32), "Removes every seeded row and re-seeds an empty demo set.",
+           FS["small"], t["text_muted"], False, "lm")
+    s.button(x1 - 122, cy + 6, "Reset", "danger")
+    return s.save(path)
+
+
 SHEETS = [("01-crystal-kit.png", sheet_kit),
           ("02-appearance-light.png", sheet_appearance),
           ("03-voice-light.png", sheet_voice),
           ("04-agent-dark.png", sheet_agent),
           ("05-data-backup-dark.png", sheet_data),
-          ("06-shell-light-dark.png", sheet_shell)]
+          ("06-shell-light-dark.png", sheet_shell),
+          ("07-themes-wallpaper.png", sheet_themes),
+          ("08-ai-dark.png", sheet_ai),
+          ("09-features-sharing.png", sheet_features),
+          ("10-demo-license-dark.png", sheet_demo)]
 
 
 def main():
