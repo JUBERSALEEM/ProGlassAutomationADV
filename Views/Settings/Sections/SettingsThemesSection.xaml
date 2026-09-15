@@ -54,308 +54,315 @@
                       FocusVisualStyle="{x:Null}">
             <StackPanel Margin="18,14,18,18">
 
-                <!-- ═══ GROUP: VISUAL THEME (always visible) ═══ -->
-                <TextBlock Text="{DynamicResource Settings.LblThemeFamily}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
-                <TextBlock Text="{DynamicResource Settings.NormalMonetIos17pm}"
-                           Style="{StaticResource SettingsRowMetaStyle}"/>
+                <!-- ═══ CARD — VISUAL THEME (always visible) ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Settings.LblThemeFamily}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.NormalMonetIos17pm}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <UniformGrid Columns="2" Margin="0,0,0,6">
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                                   Text="{DynamicResource Settings.LblThemeFamily}"/>
+                                    </StackPanel>
+            </Border>
+                                    <ComboBox AutomationProperties.AutomationId="Settings.VisualTheme"
+                                              ItemsSource="{Binding VisualThemeOptions}"
+                                              DisplayMemberPath="Display"
+                                              SelectedValuePath="Key"
+                                              SelectedValue="{Binding SelectedVisualTheme, Mode=TwoWay}"
+                                              HorizontalAlignment="Stretch"
+                                              Padding="10,7" FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+                                </StackPanel>
+                            </Border>
 
-                <UniformGrid Columns="2" Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsPageCardStyle}">
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
-                                           Text="{DynamicResource Settings.LblThemeFamily}"/>
-                            </StackPanel>
-    </Border>
-                            <ComboBox AutomationProperties.AutomationId="Settings.VisualTheme"
-                                      ItemsSource="{Binding VisualThemeOptions}"
-                                      DisplayMemberPath="Display"
-                                      SelectedValuePath="Key"
-                                      SelectedValue="{Binding SelectedVisualTheme, Mode=TwoWay}"
-                                      HorizontalAlignment="Stretch"
-                                      Padding="10,7" FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
-                        </StackPanel>
-                    </Border>
+                            <!-- Per-family Reset: Crystal → authored baselines;
+                                 Normal/Monet → default card shape (corner/border/
+                                 gradients). Always available. -->
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE777;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                                   Text="{DynamicResource Settings.ResetThemeFamily}"/>
+                                    </StackPanel>
+            </Border>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.ResetThemeFamilyHint}"/>
+                                    <Button AutomationProperties.AutomationId="Settings.ResetThemeFamily"
+                                            Command="{Binding ResetThemeFamilyCommand}"
+                                            Content="{DynamicResource Settings.ResetThemeFamily}"
+                                            HorizontalAlignment="Stretch"/>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+                    </StackPanel>
+                </Border>
 
-                    <!-- Per-family Reset: Crystal → authored baselines;
-                         Normal/Monet → default card shape (corner/border/
-                         gradients). Always available. -->
-                    <Border Style="{StaticResource SettingsPageCardStyle}">
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE777;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
-                                           Text="{DynamicResource Settings.ResetThemeFamily}"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                       Text="{DynamicResource Settings.ResetThemeFamilyHint}"/>
-                            <Button AutomationProperties.AutomationId="Settings.ResetThemeFamily"
-                                    Command="{Binding ResetThemeFamilyCommand}"
-                                    Content="{DynamicResource Settings.ResetThemeFamily}"
-                                    HorizontalAlignment="Stretch"/>
-                        </StackPanel>
-                    </Border>
-                </UniformGrid>
-
-                <!-- ═══ GROUP: CRYSTAL FLUID MATERIAL (Ios-17pm only) ═══ -->
                 <StackPanel Visibility="{Binding IsCrystalThemeActive,
                     Converter={StaticResource BoolToVisibilityConverter}}">
 
-                    <TextBlock Text="{DynamicResource Settings.GrpCrystalMaterial}"
-                               Style="{StaticResource SettingsGroupCaptionStyle}"/>
-                    <TextBlock Text="{DynamicResource Settings.CrystalMaterialHint}"
-                               Style="{StaticResource SettingsRowMetaStyle}"/>
-
-                    <!-- Quick presets (Default / Calm / Intense) -->
+                    <!-- ═══ CARD — CRYSTAL FLUID MATERIAL (Ios-17pm only) ═══ -->
                     <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A9;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
-                                           Text="{DynamicResource Settings.GrpPresets}"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                       Text="{DynamicResource Settings.PresetsHint}"/>
-                            <StackPanel Orientation="Horizontal">
-                                <Button AutomationProperties.AutomationId="Settings.PresetDefault"
-                                        Command="{Binding ApplyThemePresetCommand}"
-                                        CommandParameter="Default"
-                                        Content="{DynamicResource Settings.ThemePresetDefault}"
-                                        Margin="0,0,8,0">
-                                    <Button.Style>
-                                        <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding ActiveCrystalPreset}" Value="Default">
-                                                    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-                                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
-                                <Button AutomationProperties.AutomationId="Settings.PresetCalm"
-                                        Command="{Binding ApplyThemePresetCommand}"
-                                        CommandParameter="Calm"
-                                        Content="{DynamicResource Settings.ThemePresetCalm}"
-                                        Margin="0,0,8,0">
-                                    <Button.Style>
-                                        <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding ActiveCrystalPreset}" Value="Calm">
-                                                    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-                                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
-                                <Button AutomationProperties.AutomationId="Settings.PresetIntense"
-                                        Command="{Binding ApplyThemePresetCommand}"
-                                        CommandParameter="Intense"
-                                        Content="{DynamicResource Settings.ThemePresetIntense}">
-                                    <Button.Style>
-                                        <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding ActiveCrystalPreset}" Value="Intense">
-                                                    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-                                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
+                            <TextBlock Text="{DynamicResource Settings.GrpCrystalMaterial}"
+                                       Style="{StaticResource SettingsCardTitleStyle}"/>
+                            <TextBlock Text="{DynamicResource Settings.CrystalMaterialHint}"
+                                       Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            <!-- Quick presets (Default / Calm / Intense) -->
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A9;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                                   Text="{DynamicResource Settings.GrpPresets}"/>
+                                    </StackPanel>
+            </Border>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.PresetsHint}"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button AutomationProperties.AutomationId="Settings.PresetDefault"
+                                                Command="{Binding ApplyThemePresetCommand}"
+                                                CommandParameter="Default"
+                                                Content="{DynamicResource Settings.ThemePresetDefault}"
+                                                Margin="0,0,8,0">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ActiveCrystalPreset}" Value="Default">
+                                                            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                        <Button AutomationProperties.AutomationId="Settings.PresetCalm"
+                                                Command="{Binding ApplyThemePresetCommand}"
+                                                CommandParameter="Calm"
+                                                Content="{DynamicResource Settings.ThemePresetCalm}"
+                                                Margin="0,0,8,0">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ActiveCrystalPreset}" Value="Calm">
+                                                            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                        <Button AutomationProperties.AutomationId="Settings.PresetIntense"
+                                                Command="{Binding ApplyThemePresetCommand}"
+                                                CommandParameter="Intense"
+                                                Content="{DynamicResource Settings.ThemePresetIntense}">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ActiveCrystalPreset}" Value="Intense">
+                                                            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
 
-                    <!-- Six live Crystal Fluid axes -->
-                    <Border Style="{StaticResource SettingsPageCardStyle}">
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE771;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
-                                           Text="{DynamicResource Settings.GrpCrystalMaterial}"/>
-                            </StackPanel>
-    </Border>
+                            <!-- Six live Crystal Fluid axes -->
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE771;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                                   Text="{DynamicResource Settings.GrpCrystalMaterial}"/>
+                                    </StackPanel>
+            </Border>
 
-                            <Grid Margin="0,4,0,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="150"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="48"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="{DynamicResource Settings.CrystalWaterOpacity}"
-                                           FontSize="{DynamicResource FontSize.Body}"
-                                           VerticalAlignment="Center"/>
-                                <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}"
-                                        AutomationProperties.AutomationId="Settings.CrystalWaterOpacity"
-                                        Minimum="{Binding CrystalWaterOpacityMin}"
-                                        Maximum="{Binding CrystalWaterOpacityMax}"
-                                        Value="{Binding CrystalWaterOpacity, Mode=TwoWay}"
-                                        VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="2" TextAlignment="Right"
-                                           FontSize="{DynamicResource FontSize.Body}"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           VerticalAlignment="Center"
-                                           Text="{Binding CrystalWaterOpacity, Mode=OneWay, StringFormat={}{0:0.00}}"/>
-                            </Grid>
+                                    <Grid Margin="0,4,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="150"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="48"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{DynamicResource Settings.CrystalWaterOpacity}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}"
+                                                AutomationProperties.AutomationId="Settings.CrystalWaterOpacity"
+                                                Minimum="{Binding CrystalWaterOpacityMin}"
+                                                Maximum="{Binding CrystalWaterOpacityMax}"
+                                                Value="{Binding CrystalWaterOpacity, Mode=TwoWay}"
+                                                VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" TextAlignment="Right"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Text="{Binding CrystalWaterOpacity, Mode=OneWay, StringFormat={}{0:0.00}}"/>
+                                    </Grid>
 
-                            <Grid Margin="0,4,0,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="150"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="48"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="{DynamicResource Settings.CrystalWaterSpeed}"
-                                           FontSize="{DynamicResource FontSize.Body}"
-                                           VerticalAlignment="Center"/>
-                                <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}"
-                                        AutomationProperties.AutomationId="Settings.CrystalWaterSpeed"
-                                        Minimum="{Binding CrystalWaterSpeedMin}"
-                                        Maximum="{Binding CrystalWaterSpeedMax}"
-                                        Value="{Binding CrystalWaterSpeed, Mode=TwoWay}"
-                                        VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="2" TextAlignment="Right"
-                                           FontSize="{DynamicResource FontSize.Body}"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           VerticalAlignment="Center"
-                                           Text="{Binding CrystalWaterSpeed, Mode=OneWay, StringFormat={}{0:0.00}}"/>
-                            </Grid>
+                                    <Grid Margin="0,4,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="150"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="48"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{DynamicResource Settings.CrystalWaterSpeed}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}"
+                                                AutomationProperties.AutomationId="Settings.CrystalWaterSpeed"
+                                                Minimum="{Binding CrystalWaterSpeedMin}"
+                                                Maximum="{Binding CrystalWaterSpeedMax}"
+                                                Value="{Binding CrystalWaterSpeed, Mode=TwoWay}"
+                                                VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" TextAlignment="Right"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Text="{Binding CrystalWaterSpeed, Mode=OneWay, StringFormat={}{0:0.00}}"/>
+                                    </Grid>
 
-                            <Grid Margin="0,4,0,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="150"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="48"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="{DynamicResource Settings.CrystalWaveAmplitude}"
-                                           FontSize="{DynamicResource FontSize.Body}"
-                                           VerticalAlignment="Center"/>
-                                <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}"
-                                        AutomationProperties.AutomationId="Settings.CrystalWaveAmplitude"
-                                        Minimum="{Binding CrystalWaveAmplitudeMin}"
-                                        Maximum="{Binding CrystalWaveAmplitudeMax}"
-                                        Value="{Binding CrystalWaveAmplitude, Mode=TwoWay}"
-                                        VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="2" TextAlignment="Right"
-                                           FontSize="{DynamicResource FontSize.Body}"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           VerticalAlignment="Center"
-                                           Text="{Binding CrystalWaveAmplitude, Mode=OneWay, StringFormat={}{0:0.0}}"/>
-                            </Grid>
+                                    <Grid Margin="0,4,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="150"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="48"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{DynamicResource Settings.CrystalWaveAmplitude}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}"
+                                                AutomationProperties.AutomationId="Settings.CrystalWaveAmplitude"
+                                                Minimum="{Binding CrystalWaveAmplitudeMin}"
+                                                Maximum="{Binding CrystalWaveAmplitudeMax}"
+                                                Value="{Binding CrystalWaveAmplitude, Mode=TwoWay}"
+                                                VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" TextAlignment="Right"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Text="{Binding CrystalWaveAmplitude, Mode=OneWay, StringFormat={}{0:0.0}}"/>
+                                    </Grid>
 
-                            <Grid Margin="0,4,0,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="150"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="48"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="{DynamicResource Settings.CrystalCausticIntensity}"
-                                           FontSize="{DynamicResource FontSize.Body}"
-                                           VerticalAlignment="Center"/>
-                                <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}"
-                                        AutomationProperties.AutomationId="Settings.CrystalCausticIntensity"
-                                        Minimum="{Binding CrystalCausticIntensityMin}"
-                                        Maximum="{Binding CrystalCausticIntensityMax}"
-                                        Value="{Binding CrystalCausticIntensity, Mode=TwoWay}"
-                                        VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="2" TextAlignment="Right"
-                                           FontSize="{DynamicResource FontSize.Body}"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           VerticalAlignment="Center"
-                                           Text="{Binding CrystalCausticIntensity, Mode=OneWay, StringFormat={}{0:0.00}}"/>
-                            </Grid>
+                                    <Grid Margin="0,4,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="150"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="48"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{DynamicResource Settings.CrystalCausticIntensity}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}"
+                                                AutomationProperties.AutomationId="Settings.CrystalCausticIntensity"
+                                                Minimum="{Binding CrystalCausticIntensityMin}"
+                                                Maximum="{Binding CrystalCausticIntensityMax}"
+                                                Value="{Binding CrystalCausticIntensity, Mode=TwoWay}"
+                                                VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" TextAlignment="Right"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Text="{Binding CrystalCausticIntensity, Mode=OneWay, StringFormat={}{0:0.00}}"/>
+                                    </Grid>
 
-                            <Grid Margin="0,4,0,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="150"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="48"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="{DynamicResource Settings.CrystalBubbleIntensity}"
-                                           FontSize="{DynamicResource FontSize.Body}"
-                                           VerticalAlignment="Center"/>
-                                <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}"
-                                        AutomationProperties.AutomationId="Settings.CrystalBubbleIntensity"
-                                        Minimum="{Binding CrystalBubbleIntensityMin}"
-                                        Maximum="{Binding CrystalBubbleIntensityMax}"
-                                        Value="{Binding CrystalBubbleIntensity, Mode=TwoWay}"
-                                        VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="2" TextAlignment="Right"
-                                           FontSize="{DynamicResource FontSize.Body}"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           VerticalAlignment="Center"
-                                           Text="{Binding CrystalBubbleIntensity, Mode=OneWay, StringFormat={}{0:0.00}}"/>
-                            </Grid>
+                                    <Grid Margin="0,4,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="150"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="48"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{DynamicResource Settings.CrystalBubbleIntensity}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}"
+                                                AutomationProperties.AutomationId="Settings.CrystalBubbleIntensity"
+                                                Minimum="{Binding CrystalBubbleIntensityMin}"
+                                                Maximum="{Binding CrystalBubbleIntensityMax}"
+                                                Value="{Binding CrystalBubbleIntensity, Mode=TwoWay}"
+                                                VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" TextAlignment="Right"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Text="{Binding CrystalBubbleIntensity, Mode=OneWay, StringFormat={}{0:0.00}}"/>
+                                    </Grid>
 
-                            <Grid Margin="0,4,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="150"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="48"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="{DynamicResource Settings.CrystalReflectionOpacity}"
-                                           FontSize="{DynamicResource FontSize.Body}"
-                                           VerticalAlignment="Center"/>
-                                <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}"
-                                        AutomationProperties.AutomationId="Settings.CrystalReflectionOpacity"
-                                        Minimum="{Binding CrystalReflectionOpacityMin}"
-                                        Maximum="{Binding CrystalReflectionOpacityMax}"
-                                        Value="{Binding CrystalReflectionOpacity, Mode=TwoWay}"
-                                        VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="2" TextAlignment="Right"
-                                           FontSize="{DynamicResource FontSize.Body}"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           VerticalAlignment="Center"
-                                           Text="{Binding CrystalReflectionOpacity, Mode=OneWay, StringFormat={}{0:0.00}}"/>
-                            </Grid>
-                        </StackPanel>
-                    </Border>
+                                    <Grid Margin="0,4,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="150"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="48"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{DynamicResource Settings.CrystalReflectionOpacity}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}"
+                                                AutomationProperties.AutomationId="Settings.CrystalReflectionOpacity"
+                                                Minimum="{Binding CrystalReflectionOpacityMin}"
+                                                Maximum="{Binding CrystalReflectionOpacityMax}"
+                                                Value="{Binding CrystalReflectionOpacity, Mode=TwoWay}"
+                                                VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" TextAlignment="Right"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Text="{Binding CrystalReflectionOpacity, Mode=OneWay, StringFormat={}{0:0.00}}"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
 
-                    <!-- Live preview: the same CrystalWaterControl the real
-                         screens use. Its default style feeds WaterOpacity /
-                         WaterSpeed / WaveAmplitude / BubbleOpacity from the
-                         Crystal* tokens, so dragging the axes above repaints
-                         this reservoir live. -->
-                    <Border Style="{StaticResource SettingsPageCardStyle}">
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
-                                           Text="{DynamicResource Settings.PreviewTitle}"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                       Text="{DynamicResource Settings.CrystalPreviewHint}"/>
-                            <Border CornerRadius="{DynamicResource CardCornerRadius}"
-                                    Background="{DynamicResource SurfaceSecondaryBrush}"
-                                    BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                    BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                    Margin="0,8,0,0"
-                                    Height="150"
-                                    SnapsToDevicePixels="True" Style="{StaticResource SettingsInnerTileStyle}">
-                                <crystal:CrystalWaterControl
-                                    WaterEnabled="{DynamicResource CrystalWaterDefaultEnabled}"
-                                    WaterLevel="0.4"
-                                    CornerRadius="{DynamicResource CardCornerRadius}"
-                                    IsHitTestVisible="False"/>
+                            <!-- Live preview: the same CrystalWaterControl the real
+                                 screens use. Its default style feeds WaterOpacity /
+                                 WaterSpeed / WaveAmplitude / BubbleOpacity from the
+                                 Crystal* tokens, so dragging the axes above repaints
+                                 this reservoir live. -->
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                                   Text="{DynamicResource Settings.PreviewTitle}"/>
+                                    </StackPanel>
+            </Border>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.CrystalPreviewHint}"/>
+                                    <Border CornerRadius="{DynamicResource CardCornerRadius}"
+                                            Background="{DynamicResource SurfaceSecondaryBrush}"
+                                            BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                            BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                            Margin="0,8,0,0"
+                                            Height="150"
+                                            SnapsToDevicePixels="True" Style="{StaticResource SettingsInnerTileStyle}">
+                                        <crystal:CrystalWaterControl
+                                            WaterEnabled="{DynamicResource CrystalWaterDefaultEnabled}"
+                                            WaterLevel="0.4"
+                                            CornerRadius="{DynamicResource CardCornerRadius}"
+                                            IsHitTestVisible="False"/>
+                                    </Border>
+                                </StackPanel>
                             </Border>
                         </StackPanel>
                     </Border>
+
                 </StackPanel>
 
                 <!-- ═══ GROUP: CRYSTAL INACTIVE HINT (Normal/Monet only) ═══ -->

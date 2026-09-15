@@ -140,374 +140,392 @@
 
                 <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
 
-                <!-- ═══════ GROUP: RECORD THIS SESSION ═══════ -->
-                <TextBlock Text="{DynamicResource Settings.RecordSession2}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
-                <TextBlock Text="{DynamicResource Settings.RecordRunningAppWindowWithoutModuleWorkflow}"
-                           Style="{StaticResource SettingsRowMetaStyle}"/>
-
-                <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsPageCardStyle}">
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE714;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.RecordSession}"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Text="{Binding SessionRecordHint}"
-                                       Style="{StaticResource SettingsRowMetaStyle}"/>
-                            <TextBlock Text="{Binding SessionRecordStatus}"
-                                       Style="{StaticResource SettingsRowMetaStyle}"/>
-                            <!-- Full-width primary action row. The two conditional
-                                 buttons are auto columns that collapse to 0 when
-                                 hidden, so the visible button(s) fill the row. -->
-                            <Grid Margin="0,10,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <Button Grid.Column="0"
-                                        Style="{StaticResource SettingsActionButtonStyle}"
-                                        Content="{DynamicResource Settings.StartRecording}"
-                                        Command="{Binding StartSessionRecordCommand}"
-                                        AutomationProperties.AutomationId="DemoCenter.StartSessionRecord"
-                                        Visibility="{Binding IsSessionIdle,
-                                            Converter={StaticResource BoolToVisibilityConverter}}"
-                                        HorizontalAlignment="Stretch"/>
-                                <Button Grid.Column="1"
-                                        Style="{StaticResource SettingsActionButtonStyle}"
-                                        Content="{DynamicResource Settings.STOPSAVE}"
-                                        Command="{Binding StopSessionRecordCommand}"
-                                        AutomationProperties.AutomationId="DemoCenter.StopSessionRecord"
-                                        Visibility="{Binding IsSessionRecording,
-                                            Converter={StaticResource BoolToVisibilityConverter}}"
-                                        Margin="10,0,0,0"
-                                        HorizontalAlignment="Stretch"/>
-                                <Button Grid.Column="2"
-                                        Style="{StaticResource SettingsActionButtonStyle}"
-                                        Content="{DynamicResource Settings.OPENRecordings}"
-                                        Command="{Binding OpenRecordingsCommand}"
-                                        Margin="10,0,0,0"
-                                        HorizontalAlignment="Stretch"/>
-                            </Grid>
+                <!-- ═══ CARD — RECORD THIS SESSION ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Settings.RecordSession2}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.RecordRunningAppWindowWithoutModuleWorkflow}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <StackPanel Margin="0,0,0,6">
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE714;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.RecordSession}"/>
+                                    </StackPanel>
+            </Border>
+                                    <TextBlock Text="{Binding SessionRecordHint}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"/>
+                                    <TextBlock Text="{Binding SessionRecordStatus}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"/>
+                                    <!-- Full-width primary action row. The two conditional
+                                         buttons are auto columns that collapse to 0 when
+                                         hidden, so the visible button(s) fill the row. -->
+                                    <Grid Margin="0,10,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Grid.Column="0"
+                                                Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource Settings.StartRecording}"
+                                                Command="{Binding StartSessionRecordCommand}"
+                                                AutomationProperties.AutomationId="DemoCenter.StartSessionRecord"
+                                                Visibility="{Binding IsSessionIdle,
+                                                    Converter={StaticResource BoolToVisibilityConverter}}"
+                                                HorizontalAlignment="Stretch"/>
+                                        <Button Grid.Column="1"
+                                                Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource Settings.STOPSAVE}"
+                                                Command="{Binding StopSessionRecordCommand}"
+                                                AutomationProperties.AutomationId="DemoCenter.StopSessionRecord"
+                                                Visibility="{Binding IsSessionRecording,
+                                                    Converter={StaticResource BoolToVisibilityConverter}}"
+                                                Margin="10,0,0,0"
+                                                HorizontalAlignment="Stretch"/>
+                                        <Button Grid.Column="2"
+                                                Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource Settings.OPENRecordings}"
+                                                Command="{Binding OpenRecordingsCommand}"
+                                                Margin="10,0,0,0"
+                                                HorizontalAlignment="Stretch"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
-                    </Border>
-                </StackPanel>
 
-                <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+                    </StackPanel>
+                </Border>
 
-                <!-- ═══════ GROUP: RECORDING SETTINGS ═══════ -->
-                <TextBlock Text="{DynamicResource Settings.RecordingSettings}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
-                <TextBlock Text="{DynamicResource Settings.CapturesRunningAppWindowDesktopOtherPrograms}"
-                           Style="{StaticResource SettingsRowMetaStyle}"/>
+                <!-- ═══ CARD — RECORDING SETTINGS ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Settings.RecordingSettings}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.CapturesRunningAppWindowDesktopOtherPrograms}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <UniformGrid Columns="3" Margin="0,0,0,6">
+                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7F8;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.Quality}"/>
+                                    </StackPanel>
+            </Border>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.OutputResolutionRecordedVideo}"/>
+                                    <ComboBox ItemsSource="{Binding Qualities}"
+                                              SelectedItem="{Binding SelectedQuality, Mode=TwoWay}"
+                                              DisplayMemberPath="Title"
+                                              IsSynchronizedWithCurrentItem="False"
+                                              MinWidth="200"
+                                              Padding="10,7"
+                                              FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+                                </StackPanel>
+                            </Border>
 
-                <UniformGrid Columns="3" Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,12,0">
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7F8;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.Quality}"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                       Text="{DynamicResource Settings.OutputResolutionRecordedVideo}"/>
-                            <ComboBox ItemsSource="{Binding Qualities}"
-                                      SelectedItem="{Binding SelectedQuality, Mode=TwoWay}"
-                                      DisplayMemberPath="Title"
-                                      IsSynchronizedWithCurrentItem="False"
-                                      MinWidth="200"
-                                      Padding="10,7"
-                                      FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE823;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.FrameRate}"/>
+                                    </StackPanel>
+            </Border>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.HowManyFramesSecondCaptured}"/>
+                                    <ComboBox ItemsSource="{Binding FpsChoices}"
+                                              SelectedItem="{Binding SelectedFps, Mode=TwoWay}"
+                                              DisplayMemberPath="Title"
+                                              IsSynchronizedWithCurrentItem="False"
+                                              MinWidth="160"
+                                              Padding="10,7"
+                                              FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Border Grid.Row="0"
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel>
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE767;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.InternalAudio}"/>
+                                    </StackPanel>
+            </Border>
+                                    <TextBlock Grid.Row="1"
+                                               Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.CaptureAppNarrationSoundRunningApp}"/>
+                                    <ToggleButton Grid.Row="3"
+                                                  HorizontalAlignment="Left"
+                                                  IsChecked="{Binding CaptureLiveAudio, Mode=TwoWay}"
+                                                  Style="{StaticResource ModernToggleSwitch}"
+                                                  AutomationProperties.AutomationId="DemoCenter.CaptureAudio"/>
+                                </Grid>
+                            </Border>
+
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Border Grid.Row="0"
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel>
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE77B;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.Microphone}"/>
+                                    </StackPanel>
+            </Border>
+                                    <TextBlock Grid.Row="1"
+                                               Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.CaptureLiveSpokenNarrationMicrophone}"/>
+                                    <ToggleButton Grid.Row="3"
+                                                  HorizontalAlignment="Left"
+                                                  IsChecked="{Binding CaptureMicrophone, Mode=TwoWay}"
+                                                  Style="{StaticResource ModernToggleSwitch}"
+                                                  AutomationProperties.AutomationId="DemoCenter.CaptureMic"/>
+                                </Grid>
+                            </Border>
+                        </UniformGrid>
+
+                        <TextBlock Text="{Binding RecordHint}"
+                                   Style="{StaticResource SettingsRowMetaStyle}"
+                                   Margin="0,0,0,6"/>
+
+                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ═══ CARD — WORKFLOW ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Inquiry.Workflow}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.PickModuleGenerateLandsWorkspaceFirstVoice}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <StackPanel Margin="0,0,0,6">
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE896;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.Module}"/>
+                                    </StackPanel>
+            </Border>
+                                    <!-- 2026-08-25 senior fix: the dropdown showed
+                                         "ProGlassAutomation.Agent.Demo.DemoWorkflow"
+                                         type names. DisplayMemberPath alone proved
+                                         fragile, so an explicit ItemTemplate renders
+                                         the Title. NOTE: DisplayMemberPath and
+                                         ItemTemplate must NOT both be set — WPF
+                                         throws InvalidOperationException at item
+                                         generation when they are, which killed the
+                                         whole Settings page (blank screen). -->
+                                    <ComboBox ItemsSource="{Binding Modules}"
+                                              SelectedItem="{Binding SelectedWorkflow, Mode=TwoWay}"
+                                              IsSynchronizedWithCurrentItem="False"
+                                              MinWidth="260"
+                                              Padding="10,7"
+                                              FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Title}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                    <TextBlock Text="{Binding SelectedPurpose}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"/>
+                                    <TextBlock Text="{Binding WorkflowHint}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"/>
+                                    <!-- Full-width action row: buttons stretch evenly. -->
+                                    <Border Margin="0,12,0,0"
+                Style="{StaticResource SurfacePanelTileStyle}">
+                    <UniformGrid Columns="5">
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource Settings.GenerateSelected}"
+                                                Command="{Binding GenerateSelectedCommand}"
+                                                AutomationProperties.AutomationId="DemoCenter.GenerateSelected"
+                                                HorizontalAlignment="Stretch"/>
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource Settings.GenerateModules}"
+                                                Command="{Binding GenerateAllCommand}"
+                                                AutomationProperties.AutomationId="DemoCenter.GenerateAll"
+                                                HorizontalAlignment="Stretch"/>
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource Settings.RetryLAST}"
+                                                Command="{Binding RetryCommand}"
+                                                HorizontalAlignment="Stretch"/>
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource Action.Cancel}"
+                                                Command="{Binding CancelCommand}"
+                                                HorizontalAlignment="Stretch"/>
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource Settings.OPENOutput}"
+                                                Command="{Binding OpenOutputCommand}"
+                                                HorizontalAlignment="Stretch"
+                                                Margin="0"/>
+                                    </UniformGrid>
+            </Border>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
-                    </Border>
 
-                    <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,12,0">
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE823;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.FrameRate}"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                       Text="{DynamicResource Settings.HowManyFramesSecondCaptured}"/>
-                            <ComboBox ItemsSource="{Binding FpsChoices}"
-                                      SelectedItem="{Binding SelectedFps, Mode=TwoWay}"
-                                      DisplayMemberPath="Title"
-                                      IsSynchronizedWithCurrentItem="False"
-                                      MinWidth="160"
-                                      Padding="10,7"
-                                      FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ═══ CARD — ISOLATION ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Settings.Isolation}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.DemoModeKeepsProductionDataUntouchedWhile}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <StackPanel Margin="0,0,0,6">
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7EB;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.DemoMode}"/>
+                                    </StackPanel>
+            </Border>
+                                    <TextBlock Text="{Binding IsolationText}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"/>
+                                    <!-- Full-width action row: buttons stretch evenly. -->
+                                    <Border Margin="0,10,0,0"
+                Style="{StaticResource SurfacePanelTileStyle}">
+                    <UniformGrid Columns="3">
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource Settings.EnterDEMOMODE}"
+                                                Command="{Binding EnterDemoCommand}"
+                                                HorizontalAlignment="Stretch"/>
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource Settings.EXITDEMOMODE}"
+                                                Command="{Binding ExitDemoCommand}"
+                                                HorizontalAlignment="Stretch"/>
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource Settings.ResetDEMOFolder}"
+                                                Command="{Binding ResetDemoCommand}"
+                                                HorizontalAlignment="Stretch"
+                                                Margin="0"/>
+                                    </UniformGrid>
+            </Border>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.ResetDeletesAppdataProglassautomationDemo}"/>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
-                    </Border>
 
-                    <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,12,0">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Border Grid.Row="0"
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel>
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE767;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.InternalAudio}"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Grid.Row="1"
-                                       Style="{StaticResource SettingsRowMetaStyle}"
-                                       Text="{DynamicResource Settings.CaptureAppNarrationSoundRunningApp}"/>
-                            <ToggleButton Grid.Row="3"
-                                          HorizontalAlignment="Left"
-                                          IsChecked="{Binding CaptureLiveAudio, Mode=TwoWay}"
-                                          Style="{StaticResource ModernToggleSwitch}"
-                                          AutomationProperties.AutomationId="DemoCenter.CaptureAudio"/>
-                        </Grid>
-                    </Border>
+                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+                    </StackPanel>
+                </Border>
 
-                    <Border Style="{StaticResource SettingsPageCardStyle}">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Border Grid.Row="0"
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel>
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE77B;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.Microphone}"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Grid.Row="1"
-                                       Style="{StaticResource SettingsRowMetaStyle}"
-                                       Text="{DynamicResource Settings.CaptureLiveSpokenNarrationMicrophone}"/>
-                            <ToggleButton Grid.Row="3"
-                                          HorizontalAlignment="Left"
-                                          IsChecked="{Binding CaptureMicrophone, Mode=TwoWay}"
-                                          Style="{StaticResource ModernToggleSwitch}"
-                                          AutomationProperties.AutomationId="DemoCenter.CaptureMic"/>
-                        </Grid>
-                    </Border>
-                </UniformGrid>
+                <!-- ═══ CARD — STATUS ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Common.Status}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.WhatLastRunDidWhereOutput}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <UniformGrid Columns="2" Margin="0,0,0,6">
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9D2;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.State}"/>
+                                    </StackPanel>
+            </Border>
+                                    <TextBlock Text="{Binding StateText}"
+                                               TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding StatusText}"
+                                               Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding VerifiedText}"
+                                               Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
 
-                <TextBlock Text="{Binding RecordHint}"
-                           Style="{StaticResource SettingsRowMetaStyle}"
-                           Margin="0,0,0,6"/>
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7C1;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.LastOutput}"/>
+                                    </StackPanel>
+            </Border>
+                                    <TextBlock Text="{Binding LastMp4Text}"
+                                               Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding FfmpegStatus}"
+                                               Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
 
-                <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+                    </StackPanel>
+                </Border>
 
-                <!-- ═══════ GROUP: WORKFLOW ═══════ -->
-                <TextBlock Text="{DynamicResource Inquiry.Workflow}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
-                <TextBlock Text="{DynamicResource Settings.PickModuleGenerateLandsWorkspaceFirstVoice}"
-                           Style="{StaticResource SettingsRowMetaStyle}"/>
-
-                <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsPageCardStyle}">
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE896;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.Module}"/>
-                            </StackPanel>
-    </Border>
-                            <!-- 2026-08-25 senior fix: the dropdown showed
-                                 "ProGlassAutomation.Agent.Demo.DemoWorkflow"
-                                 type names. DisplayMemberPath alone proved
-                                 fragile, so an explicit ItemTemplate renders
-                                 the Title. NOTE: DisplayMemberPath and
-                                 ItemTemplate must NOT both be set — WPF
-                                 throws InvalidOperationException at item
-                                 generation when they are, which killed the
-                                 whole Settings page (blank screen). -->
-                            <ComboBox ItemsSource="{Binding Modules}"
-                                      SelectedItem="{Binding SelectedWorkflow, Mode=TwoWay}"
-                                      IsSynchronizedWithCurrentItem="False"
-                                      MinWidth="260"
-                                      Padding="10,7"
-                                      FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Title}"
-                                                   TextTrimming="CharacterEllipsis"/>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <TextBlock Text="{Binding SelectedPurpose}"
-                                       Style="{StaticResource SettingsRowMetaStyle}"/>
-                            <TextBlock Text="{Binding WorkflowHint}"
-                                       Style="{StaticResource SettingsRowMetaStyle}"/>
-                            <!-- Full-width action row: buttons stretch evenly. -->
-                            <Border Margin="0,12,0,0"
-        Style="{StaticResource SurfacePanelTileStyle}">
-            <UniformGrid Columns="5">
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Content="{DynamicResource Settings.GenerateSelected}"
-                                        Command="{Binding GenerateSelectedCommand}"
-                                        AutomationProperties.AutomationId="DemoCenter.GenerateSelected"
-                                        HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Content="{DynamicResource Settings.GenerateModules}"
-                                        Command="{Binding GenerateAllCommand}"
-                                        AutomationProperties.AutomationId="DemoCenter.GenerateAll"
-                                        HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Content="{DynamicResource Settings.RetryLAST}"
-                                        Command="{Binding RetryCommand}"
-                                        HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Content="{DynamicResource Action.Cancel}"
-                                        Command="{Binding CancelCommand}"
-                                        HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Content="{DynamicResource Settings.OPENOutput}"
-                                        Command="{Binding OpenOutputCommand}"
-                                        HorizontalAlignment="Stretch"
-                                        Margin="0"/>
-                            </UniformGrid>
-    </Border>
+                <!-- ═══ CARD — HISTORY ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource DeliveryNote.History}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.LedgerRecordingJobRunMachine}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <StackPanel Margin="0,0,0,6">
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource Settings.NoJobsYetGenerateSelectedGenerateStart}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"
+                                               Visibility="{Binding HasHistory,
+                                                   Converter={StaticResource InverseBoolToVisibilityConverter},
+                                                   FallbackValue=Visible}"/>
+                                    <ItemsControl ItemsSource="{Binding History}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Margin="0,0,0,10">
+                                                    <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                               Foreground="{DynamicResource TextPrimaryBrush}">
+                                                        <Run Text="{Binding Module, Mode=OneWay}"/>
+                                                        <Run Text=" · "/>
+                                                        <Run Text="{Binding State, Mode=OneWay}"/>
+                                                    </TextBlock>
+                                                    <TextBlock Text="{Binding Status}"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                               FontSize="{DynamicResource FontSize.Body}"
+                                                               TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
-                    </Border>
-                </StackPanel>
-
-                <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
-
-                <!-- ═══════ GROUP: ISOLATION ═══════ -->
-                <TextBlock Text="{DynamicResource Settings.Isolation}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
-                <TextBlock Text="{DynamicResource Settings.DemoModeKeepsProductionDataUntouchedWhile}"
-                           Style="{StaticResource SettingsRowMetaStyle}"/>
-
-                <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsPageCardStyle}">
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7EB;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.DemoMode}"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Text="{Binding IsolationText}"
-                                       Style="{StaticResource SettingsRowMetaStyle}"/>
-                            <!-- Full-width action row: buttons stretch evenly. -->
-                            <Border Margin="0,10,0,0"
-        Style="{StaticResource SurfacePanelTileStyle}">
-            <UniformGrid Columns="3">
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Content="{DynamicResource Settings.EnterDEMOMODE}"
-                                        Command="{Binding EnterDemoCommand}"
-                                        HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Content="{DynamicResource Settings.EXITDEMOMODE}"
-                                        Command="{Binding ExitDemoCommand}"
-                                        HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Content="{DynamicResource Settings.ResetDEMOFolder}"
-                                        Command="{Binding ResetDemoCommand}"
-                                        HorizontalAlignment="Stretch"
-                                        Margin="0"/>
-                            </UniformGrid>
-    </Border>
-                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                       Text="{DynamicResource Settings.ResetDeletesAppdataProglassautomationDemo}"/>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-
-                <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
-
-                <!-- ═══════ GROUP: STATUS ═══════ -->
-                <TextBlock Text="{DynamicResource Common.Status}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
-                <TextBlock Text="{DynamicResource Settings.WhatLastRunDidWhereOutput}"
-                           Style="{StaticResource SettingsRowMetaStyle}"/>
-
-                <UniformGrid Columns="2" Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsPageCardStyle}">
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9D2;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.State}"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Text="{Binding StateText}"
-                                       TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
-                            <TextBlock Text="{Binding StatusText}"
-                                       Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
-                            <TextBlock Text="{Binding VerifiedText}"
-                                       Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Style="{StaticResource SettingsPageCardStyle}">
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7C1;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.LastOutput}"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Text="{Binding LastMp4Text}"
-                                       Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
-                            <TextBlock Text="{Binding FfmpegStatus}"
-                                       Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </Border>
-                </UniformGrid>
-
-                <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
-
-                <!-- ═══════ GROUP: HISTORY ═══════ -->
-                <TextBlock Text="{DynamicResource DeliveryNote.History}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
-                <TextBlock Text="{DynamicResource Settings.LedgerRecordingJobRunMachine}"
-                           Style="{StaticResource SettingsRowMetaStyle}"/>
-
-                <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsPageCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="{DynamicResource Settings.NoJobsYetGenerateSelectedGenerateStart}"
-                                       Style="{StaticResource SettingsRowMetaStyle}"
-                                       Visibility="{Binding HasHistory,
-                                           Converter={StaticResource InverseBoolToVisibilityConverter},
-                                           FallbackValue=Visible}"/>
-                            <ItemsControl ItemsSource="{Binding History}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Margin="0,0,0,10">
-                                            <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                                       Foreground="{DynamicResource TextPrimaryBrush}">
-                                                <Run Text="{Binding Module, Mode=OneWay}"/>
-                                                <Run Text=" · "/>
-                                                <Run Text="{Binding State, Mode=OneWay}"/>
-                                            </TextBlock>
-                                            <TextBlock Text="{Binding Status}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       FontSize="{DynamicResource FontSize.Body}"
-                                                       TextWrapping="Wrap"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
+                    </StackPanel>
+                </Border>
 
             </StackPanel>
         </ScrollViewer>

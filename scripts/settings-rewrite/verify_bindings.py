@@ -78,6 +78,8 @@ JUSTIFIED: dict[str, dict[str, str]] = {
     },
     "SettingsUpdatesSection.xaml": {
         # staticres
+        "SettingsGroupCaptionStyle": "group bands are card headers now — title + helper line, per the approved mockup",
+        # staticres
         "SettingsGroupHeaderTextStyle": "group captions use SettingsGroupCaptionStyle",
         "Typography.BodySmall": "replaced by SettingsRowMetaStyle",
         "Typography.Caption": "replaced by SettingsRowMetaStyle",
@@ -95,6 +97,8 @@ JUSTIFIED: dict[str, dict[str, str]] = {
     # went with that chrome — recorded so the removal is a decision, not a
     # silent deletion, and so any OTHER loss still fails the check.
     "SettingsAgentSection.xaml": {
+        # staticres
+        "SettingsGroupCaptionStyle": "group bands are card headers now — title + helper line, per the approved mockup",
         "SettingsGroupHeaderTextStyle": "group captions use SettingsGroupCaptionStyle",
         "Typography.BodySmall": "replaced by SettingsRowMetaStyle",
         "Typography.Caption": "replaced by SettingsRowMetaStyle",
@@ -105,6 +109,8 @@ JUSTIFIED: dict[str, dict[str, str]] = {
         "Settings.PrivacyPostureProviderCredentialsTaught": "text of the removed duplicate page subtitle",
     },
     "SettingsAiSection.xaml": {
+        # staticres
+        "SettingsGroupCaptionStyle": "group bands are card headers now — title + helper line, per the approved mockup",
         "SettingsGroupHeaderTextStyle": "group captions use SettingsGroupCaptionStyle",
         "Typography.BodySmall": "replaced by SettingsRowMetaStyle",
         "Typography.Caption": "replaced by SettingsRowMetaStyle",
@@ -115,6 +121,8 @@ JUSTIFIED: dict[str, dict[str, str]] = {
         "Settings.ProvidersAPIKeysModelTuningDataAccess": "text of the removed duplicate page subtitle",
     },
     "SettingsDataSection.xaml": {
+        # staticres
+        "SettingsGroupCaptionStyle": "group bands are card headers now — title + helper line, per the approved mockup",
         "SettingsGroupHeaderTextStyle": "group captions use SettingsGroupCaptionStyle",
         "Typography.BodySmall": "replaced by SettingsRowMetaStyle",
         "Typography.Caption": "replaced by SettingsRowMetaStyle",
@@ -125,6 +133,8 @@ JUSTIFIED: dict[str, dict[str, str]] = {
         "Settings.ProtectProductionDataExploreSampleData": "text of the removed duplicate page subtitle",
     },
     "SettingsDemoSection.xaml": {
+        # staticres
+        "SettingsGroupCaptionStyle": "group bands are card headers now — title + helper line, per the approved mockup",
         "SettingsGroupHeaderTextStyle": "group captions use SettingsGroupCaptionStyle",
         "Typography.BodySmall": "replaced by SettingsRowMetaStyle",
         "Typography.Caption": "replaced by SettingsRowMetaStyle",
@@ -135,6 +145,9 @@ JUSTIFIED: dict[str, dict[str, str]] = {
         "Settings.ModuleRecordsLiveWalkProductionStagesReports": "text of the removed duplicate page subtitle",
     },
     "SettingsAppearanceSection.xaml": {
+        "SettingsRowMetaStyle": "the group recap line is the card helper line (SettingsCardHeaderNoteStyle)",
+        # staticres
+        "SettingsGroupCaptionStyle": "group bands are card headers now — title + helper line, per the approved mockup",
         "SettingsGroupHeaderTextStyle": "group captions use SettingsGroupCaptionStyle",
         "Typography.BodySmall": "replaced by SettingsRowMetaStyle",
         "Typography.Caption": "replaced by SettingsRowMetaStyle",
@@ -154,6 +167,8 @@ JUSTIFIED: dict[str, dict[str, str]] = {
         "Settings.TurnIndividualFieldsWithoutTouchingCode": "text of the removed duplicate page subtitle",
     },
     "SettingsSharingSection.xaml": {
+        # staticres
+        "SettingsGroupCaptionStyle": "group bands are card headers now — title + helper line, per the approved mockup",
         "SettingsGroupHeaderTextStyle": "group captions use SettingsGroupCaptionStyle",
         "Typography.BodySmall": "replaced by SettingsRowMetaStyle",
         "Typography.Caption": "replaced by SettingsRowMetaStyle",
@@ -168,17 +183,14 @@ JUSTIFIED: dict[str, dict[str, str]] = {
         "Settings.OfflineSpeechTextOpenaiWhisper95AccuracyNo": "text of the removed duplicate page subtitle",
     },
     "SettingsThemesSection.xaml": {
+        # staticres
+        "SettingsGroupCaptionStyle": "group bands are card headers now — title + helper line, per the approved mockup",
         "SettingsGroupHeaderTextStyle": "group captions use SettingsGroupCaptionStyle",
         "Typography.BodySmall": "replaced by SettingsRowMetaStyle",
         "Typography.H1": "duplicate page title removed — the shell header strip owns it",
         "Typography.Subtitle": "duplicate page subtitle removed — the shell header strip owns it",
         "Typography.Title": "replaced by SettingsRowTitleStyle / SettingsCardTitleStyle",
         "Settings.ThemesSubtitle": "text of the removed duplicate page subtitle",
-    },
-    "SettingsAppearanceSection.xaml": {
-        # staticres
-        "SettingsGroupCaptionStyle": "group bands are card headers now — disc + title + note, per the approved mockup",
-        "SettingsRowMetaStyle": "the group recap line is the card note (SettingsCardNoteStyle)",
     },
     "SettingsAboutSection.xaml": {
         # staticres
@@ -197,6 +209,22 @@ JUSTIFIED: dict[str, dict[str, str]] = {
         "Weight.Bold": "grammar type roles carry the weights",
     },
 }
+
+
+def _check_no_duplicate_pages(source: str) -> None:
+    """A page may appear ONCE in JUSTIFIED.
+
+    Two blocks for the same page is not a merge conflict the reader can see —
+    the later dict silently replaces the earlier one, so every justification
+    the first block held stops being applied. That happened while the band
+    captions were converted, and the symptom (a page failing for a removal it
+    had documented) looks exactly like a missing entry.
+    """
+    names = re.findall(r'^    "(Settings\w+\.xaml)": \{$', source, re.M)
+    dupes = sorted({n for n in names if names.count(n) > 1})
+    if dupes:
+        raise SystemExit("verify_bindings: duplicate JUSTIFIED entries for "
+                         + ", ".join(dupes))
 
 
 def collect(text: str) -> dict[str, set[str]]:
@@ -223,6 +251,7 @@ def committed(path: Path, rev: str) -> str | None:
 
 
 def main() -> int:
+    _check_no_duplicate_pages(Path(__file__).read_text(encoding="utf-8"))
     ap = argparse.ArgumentParser()
     ap.add_argument("--against", default="HEAD")
     ap.add_argument("files", nargs="*")

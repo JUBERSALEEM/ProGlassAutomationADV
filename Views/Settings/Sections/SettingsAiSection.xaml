@@ -50,439 +50,448 @@
                       FocusVisualStyle="{x:Null}">
             <StackPanel Margin="18,14,18,18">
 
-                <!-- ═════════ GROUP: SWITCHES & MODEL ═════════ -->
-                <TextBlock Text="{DynamicResource Settings.Assistant}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
-                <TextBlock Text="{DynamicResource Settings.MasterSwitchesTuningValuesUsedRequest}"
-                           Style="{StaticResource SettingsRowMetaStyle}"/>
+                <!-- ═══ CARD — SWITCHES & MODEL ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Settings.Assistant}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.MasterSwitchesTuningValuesUsedRequest}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <UniformGrid Columns="3" Margin="0,0,0,6">
 
-                <UniformGrid Columns="3" Margin="0,0,0,6">
-
-                    <!-- Master toggle -->
-                    <Border Margin="0,0,12,0">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Border Grid.Row="0"
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel>
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F2;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.EnableAIAssistant}"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Grid.Row="1"
-                                       Style="{StaticResource SettingsRowMetaStyle}"
-                                       Text="{DynamicResource Settings.MasterSwitchWhenChatButtonHiddenNoAPICalls}"/>
-                            <ToggleButton Grid.Row="3"
-                                          HorizontalAlignment="Left"
-                                          IsChecked="{Binding IsAiEnabled, Mode=TwoWay}"
-                                          Style="{StaticResource ModernToggleSwitch}"/>
-                        </Grid>
-                    </Border>
-
-                    <!-- Real business data -->
-                    <Border Margin="0,0,12,0">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Border Grid.Row="0"
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel>
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F9;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.UseRealBusinessData}"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Grid.Row="1"
-                                       Style="{StaticResource SettingsRowMetaStyle}"
-                                       Text="{DynamicResource Settings.WhenLiveInvoiceJobDeliveryBalanceDataSent}"/>
-                            <ToggleButton Grid.Row="3"
-                                          HorizontalAlignment="Left"
-                                          IsChecked="{Binding UseRealData, Mode=TwoWay}"
-                                          Style="{StaticResource ModernToggleSwitch}"/>
-                        </Grid>
-                    </Border>
-
-                    <!-- Model readout -->
-                    <Border Margin="0,0,12,0">
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.ActiveModel}"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Text="{Binding AiModel}"
-                                       TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
-                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                       Text="{DynamicResource Settings.ModelIdentifierCurrentlySelectedProvider}"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Max tokens -->
-                    <Border Margin="0,0,12,0">
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE762;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.MaxTokens}"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Text="{Binding AiMaxTokens}"
-                                       TextWrapping="Wrap"/>
-                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                       Text="{DynamicResource Settings.ResponseLengthCeilingCallAdjustConfigJsonNow}"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Temperature -->
-                    <Border>
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE706;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.Temperature}"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Text="{Binding AiTemperature}"
-                                       TextWrapping="Wrap"/>
-                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                       Text="{DynamicResource Settings.HigherMoreCreativeLowerMoreDeterministicRead}"/>
-                        </StackPanel>
-                    </Border>
-
-                </UniformGrid>
-
-                <Border/>
-
-                <!-- ═════════ GROUP: PROVIDERS ═════════ -->
-                <TextBlock Text="{DynamicResource Settings.Providers}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
-                <TextBlock Text="{DynamicResource Settings.ActiveProviderProcessesRequestsKeysEncrypted}"
-                           Style="{StaticResource SettingsRowMetaStyle}"/>
-
-                <StackPanel Margin="0,0,0,6">
-
-                    <!-- ── Gemini tile ─────────────────────────── -->
-                    <Border>
-                        <Border.Style>
-                            <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsGeminiActive}" Value="True">
-                                        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                                        <Setter Property="BorderThickness" Value="1.5"/>
-                                        <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-                        <StackPanel>
-                            <DockPanel LastChildFill="False">
-                                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Ellipse Width="12" Height="12"
-                                             Fill="{DynamicResource ProviderDotBlue}"
-                                             VerticalAlignment="Center"
-                                             Margin="0,0,10,0"
-                                             IsHitTestVisible="False"/>
-                                    <StackPanel>
-                                        <TextBlock Text="{DynamicResource Settings.GoogleGemini}"
-                                                   Style="{StaticResource SettingsRowTitleStyle}"/>
-                                        <TextBlock Text="{DynamicResource Settings.15ReqMin1500DayBestQuality}"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   IsHitTestVisible="False"/>
+                            <!-- Master toggle -->
+                            <Border Margin="0,0,12,0">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Border Grid.Row="0"
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel>
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F2;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.EnableAIAssistant}"/>
                                     </StackPanel>
-                                </StackPanel>
-                                <Button DockPanel.Dock="Right"
-                                        HorizontalAlignment="Right"
-                                        Command="{Binding SelectGeminiCommand}">
-                                    <Button.Style>
-                                        <Style TargetType="Button" BasedOn="{StaticResource ProviderSelectButtonStyle}">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsGeminiActive}" Value="True">
-                                                    <Setter Property="Content" Value="ACTIVE"/>
-                                                    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
-                            </DockPanel>
+            </Border>
+                                    <TextBlock Grid.Row="1"
+                                               Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.MasterSwitchWhenChatButtonHiddenNoAPICalls}"/>
+                                    <ToggleButton Grid.Row="3"
+                                                  HorizontalAlignment="Left"
+                                                  IsChecked="{Binding IsAiEnabled, Mode=TwoWay}"
+                                                  Style="{StaticResource ModernToggleSwitch}"/>
+                                </Grid>
+                            </Border>
 
-                            <TextBlock Text="{DynamicResource Settings.APIKEY}"
-                                       Style="{StaticResource Typography.Label}"
-                                       Margin="0,14,0,4"/>
-                            <PasswordBox x:Name="GeminiKeyBox"
-                                         Style="{StaticResource RoundedPasswordBoxStyle}"
-                                         PasswordChanged="GeminiKeyBox_PasswordChanged"/>
-                            <TextBlock Text="{DynamicResource Settings.GetKeyAistudioGoogleCom}"
-                                       Style="{StaticResource SettingsRowMetaStyle}"
-                                       Margin="0,4,0,10"/>
-                            <Button
-                                Style="{StaticResource SettingsActionButtonStyle}"
-                                    Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
-                                    Command="{Binding TestGeminiCommand}"
-                                    HorizontalAlignment="Stretch"
-                                    Height="32"
-                                    FontSize="{DynamicResource FontSize.Body}"/>
-                            <TextBlock Text="{Binding GeminiTestStatus}"
-                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       Margin="0,8,0,0"
-                                       TextWrapping="Wrap"
-                                       IsHitTestVisible="False"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- ── Groq tile ───────────────────────────── -->
-                    <Border>
-                        <Border.Style>
-                            <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsGroqActive}" Value="True">
-                                        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                                        <Setter Property="BorderThickness" Value="1.5"/>
-                                        <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-                        <StackPanel>
-                            <DockPanel LastChildFill="False">
-                                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Ellipse Width="12" Height="12"
-                                             Fill="{DynamicResource ProviderDotAmber}"
-                                             VerticalAlignment="Center"
-                                             Margin="0,0,10,0"
-                                             IsHitTestVisible="False"/>
-                                    <StackPanel>
-                                        <TextBlock Text="{DynamicResource Settings.Groq}"
-                                                   Style="{StaticResource SettingsRowTitleStyle}"/>
-                                        <TextBlock Text="{DynamicResource Settings.FastLlamaGenerousFreeTier}"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   IsHitTestVisible="False"/>
+                            <!-- Real business data -->
+                            <Border Margin="0,0,12,0">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Border Grid.Row="0"
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel>
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F9;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.UseRealBusinessData}"/>
                                     </StackPanel>
-                                </StackPanel>
-                                <Button DockPanel.Dock="Right"
-                                        HorizontalAlignment="Right"
-                                        Command="{Binding SelectGroqCommand}">
-                                    <Button.Style>
-                                        <Style TargetType="Button" BasedOn="{StaticResource ProviderSelectButtonStyle}">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsGroqActive}" Value="True">
-                                                    <Setter Property="Content" Value="ACTIVE"/>
-                                                    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
-                            </DockPanel>
+            </Border>
+                                    <TextBlock Grid.Row="1"
+                                               Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.WhenLiveInvoiceJobDeliveryBalanceDataSent}"/>
+                                    <ToggleButton Grid.Row="3"
+                                                  HorizontalAlignment="Left"
+                                                  IsChecked="{Binding UseRealData, Mode=TwoWay}"
+                                                  Style="{StaticResource ModernToggleSwitch}"/>
+                                </Grid>
+                            </Border>
 
-                            <TextBlock Text="{DynamicResource Settings.APIKEY}"
-                                       Style="{StaticResource Typography.Label}"
-                                       Margin="0,14,0,4"/>
-                            <PasswordBox x:Name="GroqKeyBox"
-                                         Style="{StaticResource RoundedPasswordBoxStyle}"
-                                         PasswordChanged="GroqKeyBox_PasswordChanged"/>
-                            <TextBlock Text="{DynamicResource Settings.GetKeyConsoleGroqCom}"
-                                       Style="{StaticResource SettingsRowMetaStyle}"
-                                       Margin="0,4,0,10"/>
-                            <Button
-                                Style="{StaticResource SettingsActionButtonStyle}"
-                                    Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
-                                    Command="{Binding TestGroqCommand}"
-                                    HorizontalAlignment="Stretch"
-                                    Height="32"
-                                    FontSize="{DynamicResource FontSize.Body}"/>
-                            <TextBlock Text="{Binding GroqTestStatus}"
-                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       Margin="0,8,0,0"
-                                       TextWrapping="Wrap"
-                                       IsHitTestVisible="False"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- ── Cohere tile ─────────────────────────── -->
-                    <Border>
-                        <Border.Style>
-                            <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsCohereActive}" Value="True">
-                                        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                                        <Setter Property="BorderThickness" Value="1.5"/>
-                                        <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-                        <StackPanel>
-                            <DockPanel LastChildFill="False">
-                                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Ellipse Width="12" Height="12"
-                                             Fill="{DynamicResource ProviderDotViolet}"
-                                             VerticalAlignment="Center"
-                                             Margin="0,0,10,0"
-                                             IsHitTestVisible="False"/>
-                                    <StackPanel>
-                                        <TextBlock Text="{DynamicResource Settings.Cohere}"
-                                                   Style="{StaticResource SettingsRowTitleStyle}"/>
-                                        <TextBlock Text="{DynamicResource Settings.EnterpriseGradeCommandFamily}"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   IsHitTestVisible="False"/>
+                            <!-- Model readout -->
+                            <Border Margin="0,0,12,0">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.ActiveModel}"/>
                                     </StackPanel>
+            </Border>
+                                    <TextBlock Text="{Binding AiModel}"
+                                               TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.ModelIdentifierCurrentlySelectedProvider}"/>
                                 </StackPanel>
-                                <Button DockPanel.Dock="Right"
-                                        HorizontalAlignment="Right"
-                                        Command="{Binding SelectCohereCommand}">
-                                    <Button.Style>
-                                        <Style TargetType="Button" BasedOn="{StaticResource ProviderSelectButtonStyle}">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsCohereActive}" Value="True">
-                                                    <Setter Property="Content" Value="ACTIVE"/>
-                                                    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
-                            </DockPanel>
+                            </Border>
 
-                            <TextBlock Text="{DynamicResource Settings.APIKEY}"
-                                       Style="{StaticResource Typography.Label}"
-                                       Margin="0,14,0,4"/>
-                            <PasswordBox x:Name="CohereKeyBox"
-                                         Style="{StaticResource RoundedPasswordBoxStyle}"
-                                         PasswordChanged="CohereKeyBox_PasswordChanged"/>
-                            <TextBlock Text="{DynamicResource Settings.GetKeyDashboardCohereCom}"
-                                       Style="{StaticResource SettingsRowMetaStyle}"
-                                       Margin="0,4,0,10"/>
-                            <Button Style="{StaticResource PrimaryPillButton}"
-                                    Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
-                                    Command="{Binding TestCohereCommand}"
-                                    HorizontalAlignment="Stretch"
-                                    Height="32"
-                                    FontSize="{DynamicResource FontSize.Body}"/>
-                            <TextBlock Text="{Binding CohereTestStatus}"
-                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       Margin="0,8,0,0"
-                                       TextWrapping="Wrap"
-                                       IsHitTestVisible="False"/>
+                            <!-- Max tokens -->
+                            <Border Margin="0,0,12,0">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE762;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.MaxTokens}"/>
+                                    </StackPanel>
+            </Border>
+                                    <TextBlock Text="{Binding AiMaxTokens}"
+                                               TextWrapping="Wrap"/>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.ResponseLengthCeilingCallAdjustConfigJsonNow}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Temperature -->
+                            <Border>
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE706;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.Temperature}"/>
+                                    </StackPanel>
+            </Border>
+                                    <TextBlock Text="{Binding AiTemperature}"
+                                               TextWrapping="Wrap"/>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.HigherMoreCreativeLowerMoreDeterministicRead}"/>
+                                </StackPanel>
+                            </Border>
+
+                        </UniformGrid>
+
+                        <Border/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ═══ CARD — PROVIDERS ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Settings.Providers}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.ActiveProviderProcessesRequestsKeysEncrypted}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <StackPanel Margin="0,0,0,6">
+
+                            <!-- ── Gemini tile ─────────────────────────── -->
+                            <Border>
+                                <Border.Style>
+                                    <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsGeminiActive}" Value="True">
+                                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                                <Setter Property="BorderThickness" Value="1.5"/>
+                                                <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel>
+                                    <DockPanel LastChildFill="False">
+                                        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Ellipse Width="12" Height="12"
+                                                     Fill="{DynamicResource ProviderDotBlue}"
+                                                     VerticalAlignment="Center"
+                                                     Margin="0,0,10,0"
+                                                     IsHitTestVisible="False"/>
+                                            <StackPanel>
+                                                <TextBlock Text="{DynamicResource Settings.GoogleGemini}"
+                                                           Style="{StaticResource SettingsRowTitleStyle}"/>
+                                                <TextBlock Text="{DynamicResource Settings.15ReqMin1500DayBestQuality}"
+                                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           IsHitTestVisible="False"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <Button DockPanel.Dock="Right"
+                                                HorizontalAlignment="Right"
+                                                Command="{Binding SelectGeminiCommand}">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource ProviderSelectButtonStyle}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsGeminiActive}" Value="True">
+                                                            <Setter Property="Content" Value="ACTIVE"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </DockPanel>
+
+                                    <TextBlock Text="{DynamicResource Settings.APIKEY}"
+                                               Style="{StaticResource Typography.Label}"
+                                               Margin="0,14,0,4"/>
+                                    <PasswordBox x:Name="GeminiKeyBox"
+                                                 Style="{StaticResource RoundedPasswordBoxStyle}"
+                                                 PasswordChanged="GeminiKeyBox_PasswordChanged"/>
+                                    <TextBlock Text="{DynamicResource Settings.GetKeyAistudioGoogleCom}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"
+                                               Margin="0,4,0,10"/>
+                                    <Button
+                                        Style="{StaticResource SettingsActionButtonStyle}"
+                                            Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
+                                            Command="{Binding TestGeminiCommand}"
+                                            HorizontalAlignment="Stretch"
+                                            Height="32"
+                                            FontSize="{DynamicResource FontSize.Body}"/>
+                                    <TextBlock Text="{Binding GeminiTestStatus}"
+                                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               Margin="0,8,0,0"
+                                               TextWrapping="Wrap"
+                                               IsHitTestVisible="False"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- ── Groq tile ───────────────────────────── -->
+                            <Border>
+                                <Border.Style>
+                                    <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsGroqActive}" Value="True">
+                                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                                <Setter Property="BorderThickness" Value="1.5"/>
+                                                <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel>
+                                    <DockPanel LastChildFill="False">
+                                        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Ellipse Width="12" Height="12"
+                                                     Fill="{DynamicResource ProviderDotAmber}"
+                                                     VerticalAlignment="Center"
+                                                     Margin="0,0,10,0"
+                                                     IsHitTestVisible="False"/>
+                                            <StackPanel>
+                                                <TextBlock Text="{DynamicResource Settings.Groq}"
+                                                           Style="{StaticResource SettingsRowTitleStyle}"/>
+                                                <TextBlock Text="{DynamicResource Settings.FastLlamaGenerousFreeTier}"
+                                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           IsHitTestVisible="False"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <Button DockPanel.Dock="Right"
+                                                HorizontalAlignment="Right"
+                                                Command="{Binding SelectGroqCommand}">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource ProviderSelectButtonStyle}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsGroqActive}" Value="True">
+                                                            <Setter Property="Content" Value="ACTIVE"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </DockPanel>
+
+                                    <TextBlock Text="{DynamicResource Settings.APIKEY}"
+                                               Style="{StaticResource Typography.Label}"
+                                               Margin="0,14,0,4"/>
+                                    <PasswordBox x:Name="GroqKeyBox"
+                                                 Style="{StaticResource RoundedPasswordBoxStyle}"
+                                                 PasswordChanged="GroqKeyBox_PasswordChanged"/>
+                                    <TextBlock Text="{DynamicResource Settings.GetKeyConsoleGroqCom}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"
+                                               Margin="0,4,0,10"/>
+                                    <Button
+                                        Style="{StaticResource SettingsActionButtonStyle}"
+                                            Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
+                                            Command="{Binding TestGroqCommand}"
+                                            HorizontalAlignment="Stretch"
+                                            Height="32"
+                                            FontSize="{DynamicResource FontSize.Body}"/>
+                                    <TextBlock Text="{Binding GroqTestStatus}"
+                                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               Margin="0,8,0,0"
+                                               TextWrapping="Wrap"
+                                               IsHitTestVisible="False"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- ── Cohere tile ─────────────────────────── -->
+                            <Border>
+                                <Border.Style>
+                                    <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsCohereActive}" Value="True">
+                                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                                <Setter Property="BorderThickness" Value="1.5"/>
+                                                <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel>
+                                    <DockPanel LastChildFill="False">
+                                        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Ellipse Width="12" Height="12"
+                                                     Fill="{DynamicResource ProviderDotViolet}"
+                                                     VerticalAlignment="Center"
+                                                     Margin="0,0,10,0"
+                                                     IsHitTestVisible="False"/>
+                                            <StackPanel>
+                                                <TextBlock Text="{DynamicResource Settings.Cohere}"
+                                                           Style="{StaticResource SettingsRowTitleStyle}"/>
+                                                <TextBlock Text="{DynamicResource Settings.EnterpriseGradeCommandFamily}"
+                                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           IsHitTestVisible="False"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <Button DockPanel.Dock="Right"
+                                                HorizontalAlignment="Right"
+                                                Command="{Binding SelectCohereCommand}">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource ProviderSelectButtonStyle}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsCohereActive}" Value="True">
+                                                            <Setter Property="Content" Value="ACTIVE"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </DockPanel>
+
+                                    <TextBlock Text="{DynamicResource Settings.APIKEY}"
+                                               Style="{StaticResource Typography.Label}"
+                                               Margin="0,14,0,4"/>
+                                    <PasswordBox x:Name="CohereKeyBox"
+                                                 Style="{StaticResource RoundedPasswordBoxStyle}"
+                                                 PasswordChanged="CohereKeyBox_PasswordChanged"/>
+                                    <TextBlock Text="{DynamicResource Settings.GetKeyDashboardCohereCom}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"
+                                               Margin="0,4,0,10"/>
+                                    <Button Style="{StaticResource PrimaryPillButton}"
+                                            Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
+                                            Command="{Binding TestCohereCommand}"
+                                            HorizontalAlignment="Stretch"
+                                            Height="32"
+                                            FontSize="{DynamicResource FontSize.Body}"/>
+                                    <TextBlock Text="{Binding CohereTestStatus}"
+                                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               Margin="0,8,0,0"
+                                               TextWrapping="Wrap"
+                                               IsHitTestVisible="False"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Config path (full-row tile) -->
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.KeysFile}"/>
+                                    </StackPanel>
+            </Border>
+                                    <TextBlock Text="{DynamicResource Settings.ProviderKeysEncryptedRestWindowsDpapiStored}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"/>
+                                    <TextBlock Text="{Binding ConfigFilePath}"
+                                               FontSize="{DynamicResource FontSize.Body}"
+                                               FontFamily="{DynamicResource FontFamily.Code}"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               TextTrimming="CharacterEllipsis"
+                                               IsHitTestVisible="False"/>
+                                </StackPanel>
+                            </Border>
+
                         </StackPanel>
-                    </Border>
 
-                    <!-- Config path (full-row tile) -->
-                    <Border Style="{StaticResource SettingsPageCardStyle}">
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.KeysFile}"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Text="{DynamicResource Settings.ProviderKeysEncryptedRestWindowsDpapiStored}"
-                                       Style="{StaticResource SettingsRowMetaStyle}"/>
-                            <TextBlock Text="{Binding ConfigFilePath}"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       FontFamily="{DynamicResource FontFamily.Code}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       TextTrimming="CharacterEllipsis"
-                                       IsHitTestVisible="False"/>
-                        </StackPanel>
-                    </Border>
+                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+                    </StackPanel>
+                </Border>
 
-                </StackPanel>
+                <!-- ═══ CARD — SECURITY ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Settings.Security}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.ControlKeyPersistenceWipeStoredConversation}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <UniformGrid Columns="3" Margin="0,0,0,6">
 
-                <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+                            <!-- Keep API keys saved -->
+                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Border Grid.Row="0"
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel>
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72E;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.KeepKeysSaved}"/>
+                                    </StackPanel>
+            </Border>
+                                    <TextBlock Grid.Row="1"
+                                               Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.KeysHeldSessionKeysAlwaysEncryptedWindows}"/>
+                                    <ToggleButton Grid.Row="3"
+                                                  HorizontalAlignment="Left"
+                                                  IsChecked="{Binding KeepApiKeysSaved, Mode=TwoWay}"
+                                                  Style="{StaticResource ModernToggleSwitch}"/>
+                                </Grid>
+                            </Border>
 
-                <!-- ═════════ GROUP: SECURITY ═════════ -->
-                <TextBlock Text="{DynamicResource Settings.Security}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
-                <TextBlock Text="{DynamicResource Settings.ControlKeyPersistenceWipeStoredConversation}"
-                           Style="{StaticResource SettingsRowMetaStyle}"/>
+                            <!-- Remove saved keys -->
+                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,12,0">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE74D;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.RemoveSavedKeys}"/>
+                                    </StackPanel>
+            </Border>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.DeleteProviderKeyDiskAssistantAskReEnterNext}"/>
+                                    <Button Style="{StaticResource DangerButton}"
+                                            Tag="&#xE74D;" Content="{DynamicResource Settings.RemoveKEYS}"
+                                            Command="{Binding RemoveSavedKeysCommand}"
+                                            HorizontalAlignment="Stretch"/>
+                                </StackPanel>
+                            </Border>
 
-                <UniformGrid Columns="3" Margin="0,0,0,6">
+                            <!-- Clear AI memory -->
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE81C;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.ClearAIMemory}"/>
+                                    </StackPanel>
+            </Border>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.WipeStoredConversationHistoryAssistantUses}"/>
+                                    <Button Style="{StaticResource DangerButton}"
+                                            Tag="&#xE74D;" Content="{DynamicResource Settings.ClearMemory}"
+                                            Command="{Binding ClearAiMemoryCommand}"
+                                            HorizontalAlignment="Stretch"/>
+                                </StackPanel>
+                            </Border>
 
-                    <!-- Keep API keys saved -->
-                    <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,12,0">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Border Grid.Row="0"
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel>
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72E;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.KeepKeysSaved}"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Grid.Row="1"
-                                       Style="{StaticResource SettingsRowMetaStyle}"
-                                       Text="{DynamicResource Settings.KeysHeldSessionKeysAlwaysEncryptedWindows}"/>
-                            <ToggleButton Grid.Row="3"
-                                          HorizontalAlignment="Left"
-                                          IsChecked="{Binding KeepApiKeysSaved, Mode=TwoWay}"
-                                          Style="{StaticResource ModernToggleSwitch}"/>
-                        </Grid>
-                    </Border>
-
-                    <!-- Remove saved keys -->
-                    <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,12,0">
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE74D;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.RemoveSavedKeys}"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                       Text="{DynamicResource Settings.DeleteProviderKeyDiskAssistantAskReEnterNext}"/>
-                            <Button Style="{StaticResource DangerButton}"
-                                    Tag="&#xE74D;" Content="{DynamicResource Settings.RemoveKEYS}"
-                                    Command="{Binding RemoveSavedKeysCommand}"
-                                    HorizontalAlignment="Stretch"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Clear AI memory -->
-                    <Border Style="{StaticResource SettingsPageCardStyle}">
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE81C;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.ClearAIMemory}"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                       Text="{DynamicResource Settings.WipeStoredConversationHistoryAssistantUses}"/>
-                            <Button Style="{StaticResource DangerButton}"
-                                    Tag="&#xE74D;" Content="{DynamicResource Settings.ClearMemory}"
-                                    Command="{Binding ClearAiMemoryCommand}"
-                                    HorizontalAlignment="Stretch"/>
-                        </StackPanel>
-                    </Border>
-
-                </UniformGrid>
+                        </UniformGrid>
+                    </StackPanel>
+                </Border>
 
             </StackPanel>
         </ScrollViewer>

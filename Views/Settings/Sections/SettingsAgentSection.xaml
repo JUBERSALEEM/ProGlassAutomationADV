@@ -64,428 +64,434 @@
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
             <StackPanel Margin="18,14,18,18">
 
-                <!-- ═══════ GROUP: PRIVACY ═══════ -->
-                <TextBlock Text="{DynamicResource About.Privacy}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
-                <TextBlock Text="{DynamicResource Settings.ControlWhetherAgentTalksInternetWhatAllowed}"
-                           Style="{StaticResource SettingsRowMetaStyle}"/>
-
-                <UniformGrid Columns="2" Margin="0,0,0,6">
-                    <!-- Local only -->
-                    <Border Style="{StaticResource SettingsPageCardStyle}">
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72E;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding LocalOnlyLabel}" TextWrapping="Wrap"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                       Text="{DynamicResource Settings.WhenAgentNeverContactsInternetDefault}"/>
-                            <Button Command="{Binding ToggleLocalOnlyCommand}"
-                                    Style="{StaticResource SettingsActionButtonStyle}"
-                                    Tag="&#xE72E;"
-                                    Content="{DynamicResource Settings.Toggle}"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Cloud consent -->
-                    <Border Style="{StaticResource SettingsPageCardStyle}">
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE774;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding CloudConsentLabel}" TextWrapping="Wrap"/>
-                            </StackPanel>
-    </Border>
-                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                       Text="{DynamicResource Settings.SeparateExplicitAgreementSendQuestionsOnline}"/>
-                            <Button Command="{Binding ToggleCloudConsentCommand}"
-                                    Style="{StaticResource SettingsActionButtonStyle}"
-                                    Tag="&#xE72E;"
-                                    Content="{DynamicResource Settings.Toggle}"/>
-                        </StackPanel>
-                    </Border>
-                </UniformGrid>
-
-                <!-- Plain-English summary -->
+                <!-- ═══ CARD — PRIVACY ═══ -->
                 <Border Style="{StaticResource SettingsPageCardStyle}">
                     <StackPanel>
-                        <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE946;"/>
-                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.WhatMeans}"/>
-                        </StackPanel>
-    </Border>
-                        <TextBlock Text="{Binding PrivacySummary}"
-                                   Style="{StaticResource SettingsRowMetaStyle}"/>
-                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}">
-                            <Run Text="{DynamicResource Settings.AllowedHosts}" FontWeight="{DynamicResource Weight.SemiBold}"/>
-                            <Run Text="{Binding AllowedHostsDisplay, Mode=OneWay}"/>
-                        </TextBlock>
-                    </StackPanel>
-                </Border>
+                        <TextBlock Text="{DynamicResource About.Privacy}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.ControlWhetherAgentTalksInternetWhatAllowed}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <UniformGrid Columns="2" Margin="0,0,0,6">
+                            <!-- Local only -->
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72E;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding LocalOnlyLabel}" TextWrapping="Wrap"/>
+                                    </StackPanel>
+            </Border>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.WhenAgentNeverContactsInternetDefault}"/>
+                                    <Button Command="{Binding ToggleLocalOnlyCommand}"
+                                            Style="{StaticResource SettingsActionButtonStyle}"
+                                            Tag="&#xE72E;"
+                                            Content="{DynamicResource Settings.Toggle}"/>
+                                </StackPanel>
+                            </Border>
 
-                <!-- Local model advice (never downloads) -->
-                <Border Style="{StaticResource SettingsPageCardStyle}">
-                    <StackPanel>
-                        <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE90F;"/>
-                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.LocalModelAdvice}"/>
-                        </StackPanel>
-    </Border>
-                        <TextBlock Text="{Binding HardwareAdvice}"
-                                   Style="{StaticResource SettingsRowMetaStyle}"/>
-                    </StackPanel>
-                </Border>
+                            <!-- Cloud consent -->
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE774;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding CloudConsentLabel}" TextWrapping="Wrap"/>
+                                    </StackPanel>
+            </Border>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.SeparateExplicitAgreementSendQuestionsOnline}"/>
+                                    <Button Command="{Binding ToggleCloudConsentCommand}"
+                                            Style="{StaticResource SettingsActionButtonStyle}"
+                                            Tag="&#xE72E;"
+                                            Content="{DynamicResource Settings.Toggle}"/>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
 
-                <!-- ═══════ ONE-CLICK LOCAL MODEL (offline brain) ═══════
-                     User-initiated installer: catalog-only models (permissive
-                     licences), download on click only, integrity record kept,
-                     deletes fully on uninstall. Literal text on purpose —
-                     this card ships new UI before the 15 locale packs add keys. -->
-                <Border Style="{StaticResource SettingsPageCardStyle}">
-                    <StackPanel>
-                        <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE896;"/>
-                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="Offline AI model (install once, works without internet)"/>
-                        </StackPanel>
-    </Border>
-
-                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                   TextWrapping="Wrap"
-                                   Text="These models run 100% on this computer after the one-time download — no messages ever leave the machine. Licences are linked before install; only permissive Apache-2.0 / MIT models are offered."/>
-
-                        <Grid Margin="0,10,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" MinWidth="240"/>
-                                <ColumnDefinition Width="14"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <ComboBox ItemsSource="{Binding ModelRows}"
-                                      SelectedItem="{Binding SelectedModel}"
-                                      Height="38"
-                                      FontSize="{DynamicResource FontSize.Title}"
-                                      VerticalContentAlignment="Center" DisplayMemberPath="Title" Style="{StaticResource ComboBoxStyle}"/>
-                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Margin="10,0,0,0" VerticalAlignment="Center"
-                                           FontSize="{DynamicResource FontSize.BodySmall}"
-                                           Foreground="{DynamicResource TextSecondaryBrush}">
-                                    <Run Text="{Binding SelectedModel.SizeText, Mode=OneWay}"/>
-                                    <Run Text=" · "/>
-                                    <Run Text="{Binding SelectedModel.RamText, Mode=OneWay}"/>
-                                    <Run Text=" · License: "/>
-                                    <Run Text="{Binding SelectedModel.LicenseName, Mode=OneWay}"/>
+                        <!-- Plain-English summary -->
+                        <Border Style="{StaticResource SettingsInnerTileStyle}">
+                            <StackPanel>
+                                <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE946;"/>
+                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.WhatMeans}"/>
+                                </StackPanel>
+            </Border>
+                                <TextBlock Text="{Binding PrivacySummary}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"/>
+                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}">
+                                    <Run Text="{DynamicResource Settings.AllowedHosts}" FontWeight="{DynamicResource Weight.SemiBold}"/>
+                                    <Run Text="{Binding AllowedHostsDisplay, Mode=OneWay}"/>
                                 </TextBlock>
-                                <Button Style="{StaticResource OutlinedPillButton}"
-                                        Content="License"
-                                        ToolTip="{Binding SelectedModel.LicenseUrl, Mode=OneWay}"
-                                        Margin="8,0,0,0"
-                                        Click="OpenModelLicense_Click"/>
                             </StackPanel>
-                        </Grid>
+                        </Border>
 
-                        <TextBlock Margin="0,8,0,0"
-                                   TextWrapping="Wrap"
-                                   Style="{StaticResource SettingsRowMetaStyle}"
-                                   Text="{Binding SelectedModel.Description, Mode=OneWay}"/>
-                        <TextBlock TextWrapping="Wrap"
-                                   Style="{StaticResource SettingsRowMetaStyle}"
-                                   Text="{Binding SelectedModel.Badge, Mode=OneWay}"/>
-                        <TextBlock TextWrapping="Wrap"
-                                   Style="{StaticResource SettingsRowMetaStyle}"
-                                   Text="{Binding SelectedModel.DisplayStatus, Mode=OneWay}"/>
-
-                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                            <Button Style="{StaticResource SuccessPillButton}"
-                                    Content="Install / Update"
-                                    Tag="&#xE896;"
-                                    Command="{Binding InstallModelCommand}"
-                                    HorizontalAlignment="Left"
-                                    Visibility="{Binding SelectedModel.IsInstalled, Converter={StaticResource InverseBoolToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"/>
-                            <Button Style="{StaticResource OutlinedPillButton}"
-                                    Content="Verify integrity"
-                                    Command="{Binding VerifyModelCommand}"
-                                    Margin="10,0,0,0"
-                                    Visibility="{Binding SelectedModel.IsInstalled, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"/>
-                            <Button Style="{StaticResource DangerButton}"
-                                    Content="Uninstall"
-                                    Command="{Binding UninstallModelCommand}"
-                                    Margin="10,0,0,0"
-                                    Visibility="{Binding SelectedModel.IsInstalled, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"/>
-                            <Button Style="{StaticResource OutlinedPillButton}"
-                                    Content="Cancel"
-                                    Command="{Binding CancelInstallCommand}"
-                                    Margin="10,0,0,0"
-                                    Visibility="{Binding IsModelBusy, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"/>
-                        </StackPanel>
-
-                        <Grid Margin="0,10,0,0"
-                              Visibility="{Binding IsModelBusy, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <ProgressBar Minimum="0" Maximum="100" Height="10"
-                                         Foreground="{DynamicResource AccentBrush}"
-                                         Value="{Binding ModelProgress, Mode=OneWay}"/>
-                            <TextBlock Grid.Row="1" Margin="0,4,0,0"
-                                       Text="{Binding ModelBusyText, Mode=OneWay}"/>
-                        </Grid>
-
-                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                            <Button Style="{StaticResource OutlinedPillButton}"
-                                    Content="{Binding LocalModelToggleText, Mode=OneWay}"
-                                    ToolTip="Switch between the installed local model and the curated knowledge base"
-                                    Command="{Binding ToggleLocalModelCommand}"/>
-                        </StackPanel>
-
-                        <TextBlock TextWrapping="Wrap"
-                                   Text="Nothing is uploaded — inference is local. Enabling only switches the agent's recognizer for future chat turns."/>
-                    </StackPanel>
-                </Border>
-
-                <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
-
-                <!-- ═══════ GROUP: PROVIDER CREDENTIALS ═══════ -->
-                <TextBlock Text="{DynamicResource Settings.ProviderCredentials}"
-                          />
-                <TextBlock Text="{DynamicResource Settings.KeysEncryptedWindowsDpapiUserAccountNever}"
-                          />
-
-                <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsPageCardStyle}">
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel>
-                                <TextBlock Text="&#xE8B7;"
-                                           FontFamily="{DynamicResource FontFamily.Icon}"
-                                           FontSize="{DynamicResource FontSize.Body}"
-                                           Margin="0,0,6,0"/>
-                                <TextBlock Text="{DynamicResource Settings.StoreAPIKey}"/>
+                        <!-- Local model advice (never downloads) -->
+                        <Border Style="{StaticResource SettingsInnerTileStyle}">
+                            <StackPanel>
+                                <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE90F;"/>
+                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.LocalModelAdvice}"/>
+                                </StackPanel>
+            </Border>
+                                <TextBlock Text="{Binding HardwareAdvice}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"/>
                             </StackPanel>
-    </Border>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" MinWidth="150"/>
-                                    <ColumnDefinition Width="14"/>
-                                    <ColumnDefinition Width="*" MinWidth="160"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="{DynamicResource Settings.Provider}"/>
-                                    <ComboBox ItemsSource="{Binding ProviderOptions}"
-                                              SelectedItem="{Binding SelectedProvider}"
+                        </Border>
+
+                        <!-- ═══════ ONE-CLICK LOCAL MODEL (offline brain) ═══════
+                             User-initiated installer: catalog-only models (permissive
+                             licences), download on click only, integrity record kept,
+                             deletes fully on uninstall. Literal text on purpose —
+                             this card ships new UI before the 15 locale packs add keys. -->
+                        <Border Style="{StaticResource SettingsInnerTileStyle}">
+                            <StackPanel>
+                                <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE896;"/>
+                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="Offline AI model (install once, works without internet)"/>
+                                </StackPanel>
+            </Border>
+
+                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                           TextWrapping="Wrap"
+                                           Text="These models run 100% on this computer after the one-time download — no messages ever leave the machine. Licences are linked before install; only permissive Apache-2.0 / MIT models are offered."/>
+
+                                <Grid Margin="0,10,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" MinWidth="240"/>
+                                        <ColumnDefinition Width="14"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox ItemsSource="{Binding ModelRows}"
+                                              SelectedItem="{Binding SelectedModel}"
                                               Height="38"
                                               FontSize="{DynamicResource FontSize.Title}"
-                                              VerticalContentAlignment="Center" Style="{StaticResource ComboBoxStyle}"/>
+                                              VerticalContentAlignment="Center" DisplayMemberPath="Title" Style="{StaticResource ComboBoxStyle}"/>
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Margin="10,0,0,0" VerticalAlignment="Center"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}">
+                                            <Run Text="{Binding SelectedModel.SizeText, Mode=OneWay}"/>
+                                            <Run Text=" · "/>
+                                            <Run Text="{Binding SelectedModel.RamText, Mode=OneWay}"/>
+                                            <Run Text=" · License: "/>
+                                            <Run Text="{Binding SelectedModel.LicenseName, Mode=OneWay}"/>
+                                        </TextBlock>
+                                        <Button Style="{StaticResource OutlinedPillButton}"
+                                                Content="License"
+                                                ToolTip="{Binding SelectedModel.LicenseUrl, Mode=OneWay}"
+                                                Margin="8,0,0,0"
+                                                Click="OpenModelLicense_Click"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Margin="0,8,0,0"
+                                           TextWrapping="Wrap"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           Text="{Binding SelectedModel.Description, Mode=OneWay}"/>
+                                <TextBlock TextWrapping="Wrap"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           Text="{Binding SelectedModel.Badge, Mode=OneWay}"/>
+                                <TextBlock TextWrapping="Wrap"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           Text="{Binding SelectedModel.DisplayStatus, Mode=OneWay}"/>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                    <Button Style="{StaticResource SuccessPillButton}"
+                                            Content="Install / Update"
+                                            Tag="&#xE896;"
+                                            Command="{Binding InstallModelCommand}"
+                                            HorizontalAlignment="Left"
+                                            Visibility="{Binding SelectedModel.IsInstalled, Converter={StaticResource InverseBoolToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"/>
+                                    <Button Style="{StaticResource OutlinedPillButton}"
+                                            Content="Verify integrity"
+                                            Command="{Binding VerifyModelCommand}"
+                                            Margin="10,0,0,0"
+                                            Visibility="{Binding SelectedModel.IsInstalled, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"/>
+                                    <Button Style="{StaticResource DangerButton}"
+                                            Content="Uninstall"
+                                            Command="{Binding UninstallModelCommand}"
+                                            Margin="10,0,0,0"
+                                            Visibility="{Binding SelectedModel.IsInstalled, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"/>
+                                    <Button Style="{StaticResource OutlinedPillButton}"
+                                            Content="Cancel"
+                                            Command="{Binding CancelInstallCommand}"
+                                            Margin="10,0,0,0"
+                                            Visibility="{Binding IsModelBusy, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"/>
                                 </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="{DynamicResource Settings.APIKEY}"/>
-                                    <PasswordBox x:Name="AgentKeyBox"
-                                                 Style="{StaticResource RoundedPasswordBoxStyle}"/>
+
+                                <Grid Margin="0,10,0,0"
+                                      Visibility="{Binding IsModelBusy, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <ProgressBar Minimum="0" Maximum="100" Height="10"
+                                                 Foreground="{DynamicResource AccentBrush}"
+                                                 Value="{Binding ModelProgress, Mode=OneWay}"/>
+                                    <TextBlock Grid.Row="1" Margin="0,4,0,0"
+                                               Text="{Binding ModelBusyText, Mode=OneWay}"/>
+                                </Grid>
+
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                    <Button Style="{StaticResource OutlinedPillButton}"
+                                            Content="{Binding LocalModelToggleText, Mode=OneWay}"
+                                            ToolTip="Switch between the installed local model and the curated knowledge base"
+                                            Command="{Binding ToggleLocalModelCommand}"/>
                                 </StackPanel>
-                            </Grid>
-                            <TextBlock Text="{Binding KeyStatus}"
-                                      />
-                            <!-- Full-width action row: buttons stretch evenly
-                                 across the whole card. -->
-                            <Border Margin="0,10,0,0"
-        Style="{StaticResource SurfacePanelTileStyle}">
-            <UniformGrid Columns="2">
-                                <Button Style="{StaticResource SuccessPillButton}"
-                                        Tag="&#xE74E;"
-                                        Content="{DynamicResource Settings.StoreKEY}"
-                                        HorizontalAlignment="Stretch"
-                                        Click="StoreKey_Click"/>
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Tag="&#xE74D;"
-                                        Content="{DynamicResource Settings.RemoveKEY}"
-                                        Margin="0"
-                                        Command="{Binding RemoveKeyCommand}"/>
-                            </UniformGrid>
-    </Border>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
 
-                <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
-
-                <!-- ═══════ GROUP: TAUGHT PHRASES ═══════ -->
-                <TextBlock Text="{DynamicResource Settings.TaughtPhrases}"
-                          />
-                <TextBlock Text="{DynamicResource Settings.TaughtPhraseNothingUntilApproveHere}"
-                          />
-
-                <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsPageCardStyle}">
-                        <StackPanel>
-                            <DockPanel LastChildFill="False" Margin="0,0,0,8">
-                                <Button DockPanel.Dock="Right"
-                                        Command="{Binding RefreshRulesCommand}"
-                                        Style="{StaticResource SettingsActionButtonStyle}"
-                                        Tag="&#xE72C;"
-                                        Content="{DynamicResource Action.Refresh}"
-                                        VerticalAlignment="Center"/>
-                            </DockPanel>
-
-                            <ItemsControl ItemsSource="{Binding Rules}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border CornerRadius="{DynamicResource CardCornerRadius}"
-                                                BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                                BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                                                Padding="0,10" Style="{StaticResource SettingsInnerTileStyle}">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-
-                                                <StackPanel Grid.Column="0" Margin="0,0,20,0">
-                                                    <TextBlock Text="{Binding Display}"
-                                                               FontSize="{DynamicResource FontSize.Body}"
-                                                               FontWeight="{DynamicResource Weight.SemiBold}"
-                                                               TextTrimming="CharacterEllipsis"
-                                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                                    <TextBlock Text="{Binding StatusDisplay}"
-                                                               FontSize="{DynamicResource FontSize.BodySmall}"
-                                                               Margin="0,3,0,0">
-                                                        <TextBlock.Style>
-                                                            <Style TargetType="TextBlock">
-                                                                <Setter Property="Foreground"
-                                                                        Value="{DynamicResource WarningBrush}"/>
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding IsApproved}" Value="True">
-                                                                        <Setter Property="Foreground"
-                                                                                Value="{DynamicResource SuccessBrush}"/>
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </TextBlock.Style>
-                                                    </TextBlock>
-                                                </StackPanel>
-
-                                                <StackPanel Grid.Column="1"
-                                                            Orientation="Horizontal"
-                                                            VerticalAlignment="Center">
-                                                    <Button Style="{StaticResource RowSuccessButton}"
-                                                            Tag="&#xE73E;"
-                                                            Content="{DynamicResource Settings.Approve}"
-                                                            Command="{Binding DataContext.ApproveRuleCommand,
-                                                                RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                            CommandParameter="{Binding}"/>
-                                                    <Button Style="{StaticResource RowDangerButton}"
-                                                            Tag="&#xE74D;"
-                                                            Content="{DynamicResource Settings.Revoke}"
-                                                            Margin="8,0,0,0"
-                                                            Command="{Binding DataContext.RevokeRuleCommand,
-                                                                RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                            CommandParameter="{Binding}"/>
-                                                </StackPanel>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <TextBlock Text="{DynamicResource Settings.NothingTaughtYet}"
-                                       Style="{StaticResource SettingsRowMetaStyle}"
-                                       Margin="0,12,0,0"
-                                       Visibility="{Binding HasRules,
-                                           Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
-
-                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                    Tag="&#xE74D;"
-                                    Content="{DynamicResource Settings.ClearTaughtPhrases}"
-                                    Margin="0,14,0,0"
-                                    Command="{Binding ClearTeachingCommand}"/>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-
-                <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
-
-                <!-- ═══════ GROUP: MEMORY & KNOWLEDGE ═══════ -->
-                <TextBlock Text="{DynamicResource Settings.MemoryKnowledge}"
-                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
-                <TextBlock Text="{DynamicResource Settings.SavedMemoryKnowledgeBaseLiveAgentSDatabase}"
-                           Style="{StaticResource SettingsRowMetaStyle}"/>
-
-                <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsPageCardStyle}">
-                        <StackPanel>
-                            <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F7;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.AgentData}"/>
+                                <TextBlock TextWrapping="Wrap"
+                                           Text="Nothing is uploaded — inference is local. Enabling only switches the agent's recognizer for future chat turns."/>
                             </StackPanel>
-    </Border>
-                            <Border 
-        Style="{StaticResource SurfacePanelTileStyle}">
-            <UniformGrid Columns="2">
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Tag="&#xE78C;"
-                                        Content="{DynamicResource Settings.ExportKnowledge}"
-                                        HorizontalAlignment="Stretch"
-                                        Command="{Binding ExportKnowledgeCommand}"/>
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Tag="&#xE896;"
-                                        Content="{DynamicResource Settings.ImportKnowledge}"
-                                        HorizontalAlignment="Stretch"
-                                        Margin="0"
-                                        Command="{Binding ImportKnowledgeCommand}"/>
-                            </UniformGrid>
-    </Border>
-                            <Border Margin="0,4,0,0"
-        Style="{StaticResource SurfacePanelTileStyle}">
-            <UniformGrid Columns="2">
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Tag="&#xE74D;"
-                                        Content="{DynamicResource Settings.ClearMemory}"
-                                        HorizontalAlignment="Stretch"
-                                        Command="{Binding ClearMemoryCommand}"/>
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Tag="&#xE74D;"
-                                        Content="{DynamicResource Settings.ClearKnowledge}"
-                                        HorizontalAlignment="Stretch"
-                                        Margin="0"
-                                        Command="{Binding ClearKnowledgeCommand}"/>
-                            </UniformGrid>
-    </Border>
+                        </Border>
 
-                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                       Margin="0,12,0,0"
-                                       TextTrimming="CharacterEllipsis"
-                                       ToolTip="{Binding AgentDatabasePath, Mode=OneWay}">
-                                <Run Text="{DynamicResource Settings.AgentDatabase}"/>
-                                <Run Text="{Binding AgentDatabasePath, Mode=OneWay}"/>
-                            </TextBlock>
-                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                       Margin="0,3,0,0"
-                                       TextTrimming="CharacterEllipsis"
-                                       ToolTip="{Binding SettingsFilePath, Mode=OneWay}">
-                                <Run Text="{DynamicResource Settings.AgentSettings}"/>
-                                <Run Text="{Binding SettingsFilePath, Mode=OneWay}"/>
-                            </TextBlock>
+                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+
+                        <!-- ═══════ GROUP: PROVIDER CREDENTIALS ═══════ -->
+                        <TextBlock Text="{DynamicResource Settings.ProviderCredentials}"
+                                  />
+                        <TextBlock Text="{DynamicResource Settings.KeysEncryptedWindowsDpapiUserAccountNever}"
+                                  />
+
+                        <StackPanel Margin="0,0,0,6">
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel>
+                                        <TextBlock Text="&#xE8B7;"
+                                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   Margin="0,0,6,0"/>
+                                        <TextBlock Text="{DynamicResource Settings.StoreAPIKey}"/>
+                                    </StackPanel>
+            </Border>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" MinWidth="150"/>
+                                            <ColumnDefinition Width="14"/>
+                                            <ColumnDefinition Width="*" MinWidth="160"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="{DynamicResource Settings.Provider}"/>
+                                            <ComboBox ItemsSource="{Binding ProviderOptions}"
+                                                      SelectedItem="{Binding SelectedProvider}"
+                                                      Height="38"
+                                                      FontSize="{DynamicResource FontSize.Title}"
+                                                      VerticalContentAlignment="Center" Style="{StaticResource ComboBoxStyle}"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="{DynamicResource Settings.APIKEY}"/>
+                                            <PasswordBox x:Name="AgentKeyBox"
+                                                         Style="{StaticResource RoundedPasswordBoxStyle}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <TextBlock Text="{Binding KeyStatus}"
+                                              />
+                                    <!-- Full-width action row: buttons stretch evenly
+                                         across the whole card. -->
+                                    <Border Margin="0,10,0,0"
+                Style="{StaticResource SurfacePanelTileStyle}">
+                    <UniformGrid Columns="2">
+                                        <Button Style="{StaticResource SuccessPillButton}"
+                                                Tag="&#xE74E;"
+                                                Content="{DynamicResource Settings.StoreKEY}"
+                                                HorizontalAlignment="Stretch"
+                                                Click="StoreKey_Click"/>
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Tag="&#xE74D;"
+                                                Content="{DynamicResource Settings.RemoveKEY}"
+                                                Margin="0"
+                                                Command="{Binding RemoveKeyCommand}"/>
+                                    </UniformGrid>
+            </Border>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
-                    </Border>
-                </StackPanel>
 
-                <!-- Status line -->
-                <TextBlock Text="{Binding Status}"
-                           Style="{StaticResource SettingsRowMetaStyle}"
-                           FontWeight="{DynamicResource Weight.SemiBold}"
-                           Foreground="{DynamicResource AccentBrush}"
-                           Margin="4,16,0,0"/>
+                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+
+                        <!-- ═══════ GROUP: TAUGHT PHRASES ═══════ -->
+                        <TextBlock Text="{DynamicResource Settings.TaughtPhrases}"
+                                  />
+                        <TextBlock Text="{DynamicResource Settings.TaughtPhraseNothingUntilApproveHere}"
+                                  />
+
+                        <StackPanel Margin="0,0,0,6">
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <DockPanel LastChildFill="False" Margin="0,0,0,8">
+                                        <Button DockPanel.Dock="Right"
+                                                Command="{Binding RefreshRulesCommand}"
+                                                Style="{StaticResource SettingsActionButtonStyle}"
+                                                Tag="&#xE72C;"
+                                                Content="{DynamicResource Action.Refresh}"
+                                                VerticalAlignment="Center"/>
+                                    </DockPanel>
+
+                                    <ItemsControl ItemsSource="{Binding Rules}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border CornerRadius="{DynamicResource CardCornerRadius}"
+                                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                                        BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
+                                                        Padding="0,10" Style="{StaticResource SettingsInnerTileStyle}">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+
+                                                        <StackPanel Grid.Column="0" Margin="0,0,20,0">
+                                                            <TextBlock Text="{Binding Display}"
+                                                                       FontSize="{DynamicResource FontSize.Body}"
+                                                                       FontWeight="{DynamicResource Weight.SemiBold}"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                            <TextBlock Text="{Binding StatusDisplay}"
+                                                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                                                       Margin="0,3,0,0">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="Foreground"
+                                                                                Value="{DynamicResource WarningBrush}"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsApproved}" Value="True">
+                                                                                <Setter Property="Foreground"
+                                                                                        Value="{DynamicResource SuccessBrush}"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                        </StackPanel>
+
+                                                        <StackPanel Grid.Column="1"
+                                                                    Orientation="Horizontal"
+                                                                    VerticalAlignment="Center">
+                                                            <Button Style="{StaticResource RowSuccessButton}"
+                                                                    Tag="&#xE73E;"
+                                                                    Content="{DynamicResource Settings.Approve}"
+                                                                    Command="{Binding DataContext.ApproveRuleCommand,
+                                                                        RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                    CommandParameter="{Binding}"/>
+                                                            <Button Style="{StaticResource RowDangerButton}"
+                                                                    Tag="&#xE74D;"
+                                                                    Content="{DynamicResource Settings.Revoke}"
+                                                                    Margin="8,0,0,0"
+                                                                    Command="{Binding DataContext.RevokeRuleCommand,
+                                                                        RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                    CommandParameter="{Binding}"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <TextBlock Text="{DynamicResource Settings.NothingTaughtYet}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"
+                                               Margin="0,12,0,0"
+                                               Visibility="{Binding HasRules,
+                                                   Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+
+                                    <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                            Tag="&#xE74D;"
+                                            Content="{DynamicResource Settings.ClearTaughtPhrases}"
+                                            Margin="0,14,0,0"
+                                            Command="{Binding ClearTeachingCommand}"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ═══ CARD — MEMORY & KNOWLEDGE ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Settings.MemoryKnowledge}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.SavedMemoryKnowledgeBaseLiveAgentSDatabase}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <StackPanel Margin="0,0,0,6">
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F7;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="10,0,0,0" VerticalAlignment="Center" Text="{DynamicResource Settings.AgentData}"/>
+                                    </StackPanel>
+            </Border>
+                                    <Border 
+                Style="{StaticResource SurfacePanelTileStyle}">
+                    <UniformGrid Columns="2">
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Tag="&#xE78C;"
+                                                Content="{DynamicResource Settings.ExportKnowledge}"
+                                                HorizontalAlignment="Stretch"
+                                                Command="{Binding ExportKnowledgeCommand}"/>
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Tag="&#xE896;"
+                                                Content="{DynamicResource Settings.ImportKnowledge}"
+                                                HorizontalAlignment="Stretch"
+                                                Margin="0"
+                                                Command="{Binding ImportKnowledgeCommand}"/>
+                                    </UniformGrid>
+            </Border>
+                                    <Border Margin="0,4,0,0"
+                Style="{StaticResource SurfacePanelTileStyle}">
+                    <UniformGrid Columns="2">
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Tag="&#xE74D;"
+                                                Content="{DynamicResource Settings.ClearMemory}"
+                                                HorizontalAlignment="Stretch"
+                                                Command="{Binding ClearMemoryCommand}"/>
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Tag="&#xE74D;"
+                                                Content="{DynamicResource Settings.ClearKnowledge}"
+                                                HorizontalAlignment="Stretch"
+                                                Margin="0"
+                                                Command="{Binding ClearKnowledgeCommand}"/>
+                                    </UniformGrid>
+            </Border>
+
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Margin="0,12,0,0"
+                                               TextTrimming="CharacterEllipsis"
+                                               ToolTip="{Binding AgentDatabasePath, Mode=OneWay}">
+                                        <Run Text="{DynamicResource Settings.AgentDatabase}"/>
+                                        <Run Text="{Binding AgentDatabasePath, Mode=OneWay}"/>
+                                    </TextBlock>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Margin="0,3,0,0"
+                                               TextTrimming="CharacterEllipsis"
+                                               ToolTip="{Binding SettingsFilePath, Mode=OneWay}">
+                                        <Run Text="{DynamicResource Settings.AgentSettings}"/>
+                                        <Run Text="{Binding SettingsFilePath, Mode=OneWay}"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Status line -->
+                        <TextBlock Text="{Binding Status}"
+                                   Style="{StaticResource SettingsRowMetaStyle}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   Margin="4,16,0,0"/>
+                    </StackPanel>
+                </Border>
 
             </StackPanel>
         </ScrollViewer>
