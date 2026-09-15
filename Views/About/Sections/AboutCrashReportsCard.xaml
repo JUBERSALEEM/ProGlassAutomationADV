@@ -104,9 +104,11 @@
                                                    Margin="0,2,0,0"
                                                    TextTrimming="CharacterEllipsis"
                                                    IsHitTestVisible="False">
-                                            <Run Text="{Binding TopExceptionMessage, FallbackValue='(no message)'}"/>
+                                            <!-- Run.Text is TwoWay-by-default;
+                                                 source props are read-only → OneWay. -->
+                                            <Run Text="{Binding TopExceptionMessage, Mode=OneWay, FallbackValue='(no message)'}"/>
                                             <Run Text=" · "/>
-                                            <Run Text="{Binding SizeDisplay, FallbackValue=''}"/>
+                                            <Run Text="{Binding SizeDisplay, Mode=OneWay, FallbackValue=''}"/>
                                         </TextBlock>
                                     </StackPanel>
 

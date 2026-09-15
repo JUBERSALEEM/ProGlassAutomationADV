@@ -339,7 +339,7 @@
                            Margin="0,3,0,0">
                     <Run Text="{DynamicResource About.IssuerRing}"/>
                     <Run Text="&#x2009;"/>
-                    <Run Text="{Binding TrustedIssuerDisplay}"/>
+                    <Run Text="{Binding TrustedIssuerDisplay, Mode=OneWay}"/>
                 </TextBlock>
             </StackPanel>
         </Border>

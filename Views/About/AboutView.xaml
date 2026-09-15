@@ -251,7 +251,10 @@
                                Foreground="{DynamicResource Ios26TextTitleBrush}"
                                Margin="0,0,0,16"
                                IsHitTestVisible="False">
-                        <Run Text="About → "/><Run Text="{Binding CurrentTabTitle}"/>
+                        <!-- Run.Text defaults to TwoWay — CurrentTabTitle is
+                             read-only, so bind OneWay (ERR-38B0CA fix,
+                             same class as ERR-3C0789). -->
+                        <Run Text="About → "/><Run Text="{Binding CurrentTabTitle, Mode=OneWay}"/>
                     </TextBlock>
 
                     <!-- ═══ HERO — brand card, Overview tab only

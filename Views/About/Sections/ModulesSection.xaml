@@ -122,16 +122,18 @@
                                            VerticalAlignment="Center"/>
                             </Border>
 
+                            <!-- Run.Text is TwoWay-by-default; record props
+                                 are read-only → explicit OneWay. -->
                             <TextBlock Grid.Column="2"
                                        FontSize="14.5"
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False">
-                                <Run Text="{Binding Name}"
+                                <Run Text="{Binding Name, Mode=OneWay}"
                                      FontWeight="Bold"
                                      Foreground="{DynamicResource Ios26TextTitleBrush}"/>
                                 <Run Text=" — "
                                      Foreground="{DynamicResource Ios26TextMutedBrush}"/>
-                                <Run Text="{Binding Description}"
+                                <Run Text="{Binding Description, Mode=OneWay}"
                                      Foreground="{DynamicResource Ios26TextMutedBrush}"/>
                             </TextBlock>
 
