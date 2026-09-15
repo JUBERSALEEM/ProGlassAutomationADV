@@ -218,8 +218,8 @@ style, each `SurfaceDetailStyle` inner block becomes the About inner tile.
 |---|---|---|
 | Page card | `Ios26CardStyle` (26 px, `#CCFFFFFF` frosted, `Ios26CardBorderBrush` hairline, `Ios26CardShadow`) | the About card, verbatim |
 | Inner tile / row group | `Ios26InnerTileStyle` (12 px, solid white) | replaces `SurfaceDetailStyle` |
-| Icon disc | `Ios26IconTileStyle` (10 px tile + 19 px MDL2 glyph) | one disc per card header |
-| Card title | `Ios26CardTitleStyle` (17 px Bold, `Ios26TextTitleBrush`) | |
+| Icon disc | `SettingsIconTileStyle` (34 px disc, accent-soft) + `SettingsIconGlyphStyle` | on **rows** and on the rail's identity header. **No card heading carries a disc** — the sheets put icons on rows (sheet 02/03/06/08/10) and only the rail header (gear + "Settings" + subtitle) shows a disc beside a title. |
+| Card title | `SettingsCardTitleStyle` (Bold, `Ios26TextTitleBrush`) + `SettingsCardHeaderStyle` / `SettingsCardHeaderNoteStyle` for the header block's bottom gap | the group heading: title, then the recap line as its helper |
 | Field label / value | `Ios26FieldLabelStyle` (13 px Regular, muted) · `Ios26FieldValueStyle` (14 px) | the License card's proven label/value role pair |
 | Value pill | `Ios26ValuePillStyle` (`#F1F5F9` pill) | read-only values, paths, keys |
 | Soft chip | `Ios26ChipSoftStyle` / `Ios26ChipGreenStyle` | status ("ONLINE", "VALID"), counts |
@@ -298,9 +298,88 @@ means here.
 * **`scripts/settings-rewrite/apply_grammar.py`** — the mechanical transformation, with two bugs found during review and fixed: it first re-emitted opening tags **without their `>`** (malformed XAML) and later injected a `Style` attribute next to a `<Border.Style>` property element (the compiler's "property set more than once"). Both were caught by diff review and by the duplicate-property gate stage respectively — the tool now skips the property-element form and reports what it did not touch.
 * **New locks** in `Tests/Settings/SettingsNavigationAuditTests.cs`: no settings page may use a generic `Surface*` card style again, every page must merge the grammar, no local page-title block, no card used as a spacer, and the grammar itself must be token-only (no hex, no literal radius, no literal font size).
 
-### 7.3 Still to do on the module (next passes)
+### 7.3 Superseded
 
-1. **Card headers with icon discs.** The mechanical pass converted the *chrome*; the mockups also give most cards an icon disc + title header. Pages whose cards still open with a raw text title: AI, Agent, Voice, Data, Demo, Updates, Themes, Features (About and License are already done by hand).
-2. **Deep restructuring of the two heavy pages** — Features (119 borders, 47 `PiToggleSwitch` rows) and Appearance (60 borders): collapse repeated per-row borders into list rows separated by the grammar's separator, expect a real line reduction.
-3. **Segmented controls** — the grammar defines `SettingsSegmentStyle`, but the pages still use their own option buttons (`OutlinedPillButton`, `SettingsActionButtonStyle`); convert Light/Dark, density and the update channel to the segmented group.
-4. **Emulator-free runtime check** by the owner: theme switch, family switch, density switch and the card-corner slider must all move the module now.
+The "next passes" this section listed (card headers, the two heavy pages) were
+done in the second pass — see **section 8**, which states the rules that pass
+settled, what it shipped and what is still open.
+
+
+---
+
+## 8. The rules this module now follows (second pass, 2026-09-16)
+
+Read the sheets for *detail* rather than layout and they say five things. Each
+one is now a rule with a guard behind it, because each one had been got wrong at
+least once by a mechanical pass.
+
+### 8.1 Five rules
+
+| # | Rule | Anchored in |
+|---|---|---|
+| 1 | **A group heading is its card's header**, never a caption floating above one: the band caption becomes the card title and the band's recap line becomes the card's helper line (`SettingsCardTitleStyle` + `SettingsCardHeaderNoteStyle`). | every sheet — "Visual family", "Storage", "Module flags" |
+| 2 | **No disc on a card heading.** Discs belong to rows (`SettingsIconTileStyle` + `SettingsIconGlyphStyle` in a row, 26–34 px) and to the shell rail, including the rail's identity header (gear disc + "Settings" + subtitle + chevron). | 02/03/06/08/10 rows vs. the one disc-bearing heading in 01/02 |
+| 3 | **A page card is top-level only.** Anything inside a card is an inner tile; two page cards nested paint the same fill, border and shadow twice and the hierarchy disappears. | sheet 06 "Capabilities", 08 "Backups", 10 "Module flags" |
+| 4 | **A row sits directly in its card or tile** — disc, title, helper line, trailing control — with no tile wrapped around the row's title. | sheet 08 backup rows, 10 module rows |
+| 5 | **The shell owns the page header** (hamburger + page name + the page's own controls), the page keeps its local title out of the way, and the page background stays global and outside the theme path. | sheet 01/02/03 headers |
+
+The destructive case gets its own shape: a **danger card** — red edge, red
+title, red warning, and only the action it performs. | sheet 08
+
+### 8.2 What the second pass shipped
+
+| Item | Detail |
+|---|---|
+| **Twelve pages on the card grammar** | 40 cards across the module; every band caption converted (Appearance 4, Agent 2, AI 3, Data 4, Demo 6 + 1 danger, Sharing 4, Themes 2, Updates 3, Features 6 module cards). Features keeps 8 bands on purpose: a card there is a *module* and its bands are the wizard-step sub-groups inside it (sheet 10's cap groups). |
+| **Hierarchy fixed where it was lying** | 116 containers that were page cards inside page cards are inner tiles now (`card_depth_audit.py --demote`), and 51 tile-in-tile header boxes — a stray bordered panel around every row title — are gone (`flatten_tile_in_tile.py`). |
+| **Grammar additions** | `SettingsCardHeaderStyle`, `SettingsCardHeaderNoteStyle` (the header block's air), `SettingsDangerCardTitleStyle`, `SettingsDangerCardNoteStyle` (the danger card's red roles). |
+| **Demo reset is a danger card** | It was the third of three identical buttons, one slip away from "Enter demo mode". |
+| **Indentation** | 1,034 lines re-indented from the real element depth (`reindent.py`), because several scripted restyles had left the trees unreadable — that is how the nesting errors stayed hidden. `diff -w` against the pre-run tree is empty, so the change is provably whitespace-only. |
+
+### 8.3 Tooling (all under `scripts/settings-rewrite/`)
+
+| Tool | Purpose |
+|---|---|
+| `groups_to_cards.py` | band caption + recap → card header. Parses the file into an element table first: extents are structural, not "up to the next caption" (that swallowed Themes' visibility wrapper) and not indentation-based (indentation lies here). Refuses to write a file whose tag fingerprint drifts or whose tree stops balancing. |
+| `card_depth_audit.py` | reports (and with `--demote`, fixes) page cards nested in page cards. Walks a real tag stack with comments blanked space-for-space, so quoted markup cannot fake a parent. |
+| `flatten_tile_in_tile.py` | removes the pure header box — nesting **and** no attribute but its `Style` **and** text-only content. The first draft checked nesting alone and deleted Data's amber status panel and Themes' crystal preview; the binding harness caught both, and those two panels are now permanently out of scope. |
+| `reindent.py` | rewrites leading whitespace from the element tree; never touches a line that starts with text. |
+| `verify_bindings.py` | every binding, command parameter, `x:Name`, converter, `RelativeSource` and text key that existed before is still there, with intentional removals recorded **per page, once**, with their reason (a duplicate entry is now a hard error: the later dict silently replaced the earlier one). |
+| `grammar_usage.py` | reports which grammar styles the pages consume and which are still waiting (below). |
+
+**Per-page gate before any commit:** `verify_bindings.py` (nothing defused) →
+`scripts/xaml-guard.py` (well-formed) → `card_depth_audit.py` (0 nested) →
+`scripts/layout-verify/verify_all.sh` (all 13 stages green).
+
+`Tests/Settings/SettingsRedesignTests.cs` locks the rules that no binding check
+can see: zero band captions on eleven pages (eight allowed on Features), no
+nested page cards (walked on the parsed tree), the Demo danger card, and — new —
+Sharing and Themes are in the parse list, which they never were.
+
+### 8.4 Still open (honest list)
+
+1. **Status chips are not wired to state.** The sheets show status as a chip
+   (sheet 06 "READY"/"IDLE", sheet 08 "VERIFIED"/"KEPT"), and the grammar has
+   the chip pairs — but the pages' status text comes from a `{Binding}` that
+   carries no severity, so a chip today would be one colour for every state,
+   which is worse than the current plain text. The clean fix is a small
+   status→brush converter or a VM-provided severity enum, then wire
+   `SettingsChipGreenStyle` / `SettingsChipMutedStyle` / `SettingsChipDangerStyle`.
+2. **Segmented controls.** Sheet 02's Light/Dark and sheet 03's density presets
+   are segmented groups; the pages still use option buttons. `SettingsSegmentStyle`
+   / `SettingsSegmentTrackStyle` are declared and waiting.
+3. **Two literal English strings** now sit in card headers: Features' "STEP 9 ·
+   TARGET PRICING" and Data's "Company LAN / Wi-Fi Database". Both are
+   pre-existing; adding keys means 15 language files plus `scripts/i18n`, so they
+   are recorded here rather than machine-translated.
+4. **Unused sheet vocabulary** (21 styles, deliberately kept as the design
+   system's reserve — `grammar_usage.py` prints the list): `SettingsSegment*`,
+   `SettingsChipStyle`/`Muted`/`Danger` pairs, `SettingsStatusDotStyle`,
+   `SettingsMetricValue/LabelStyle`, `SettingsPrimary/SecondaryButtonStyle`,
+   `SettingsActionBarStyle`, `SettingsInteractiveTileStyle`,
+   `SettingsSuccessTileStyle`, `SettingsBareTileStyle`, `SettingsFlatCardStyle`,
+   `SettingsFieldValueStyle`, `SettingsIconButtonStyle`, `SettingsPageSubtitleStyle`.
+5. **Runtime verification is the owner's**: there is no `dotnet` in the agents'
+   environment, so everything above is verified statically (well-formed XAML,
+   zero lost references, zero nested cards, token-only grammar) and the visual
+   result needs one build in Visual Studio.

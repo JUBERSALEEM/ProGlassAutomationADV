@@ -262,6 +262,13 @@
 
     <!-- Group caption inside a page: the small uppercase-looking kicker
          that used to be SettingsGroupHeaderTextStyle. -->
+    <!-- Cap sub-heading INSIDE a card. The second redesign pass moved every
+         page's group heading into its card's header, so this is no longer a
+         page-level band: it now heads a sub-group within a card — the
+         wizard-step groups inside Features' module cards (sheet 10 keeps a cap
+         group inside its "Module flags" tile). A page that uses it for a
+         floating band above a group has undone the redesign; the test
+         Settings_pages_head_their_groups_with_cards_not_bands says so. -->
     <Style x:Key="SettingsGroupCaptionStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
         <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeLabel}"/>

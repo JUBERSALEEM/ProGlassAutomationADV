@@ -380,9 +380,20 @@
          provider matrix) span two column widths; a Full-row variant
          forces a break for the very largest surfaces.
 
+         STATUS (2026-09-16 redesign, second pass)
+           The tile grammar above is superseded by SettingsCardStyles.xaml for
+           layout: every page's group is a PAGE CARD whose header is the group's
+           title plus its recap line, and every container inside a card is an
+           INNER TILE. What still lives here is behaviour, not layout — the
+           password box, provider select, progress bar, sliders, the rail's
+           button + focus styles and the action button.
+
          RESOURCE INDEX
-           SettingsGroupHeaderTextStyle - group heading ("APPEARANCE").
-           SettingsGroupCaptionStyle    - one-line description under it.
+           SettingsGroupCaptionStyle    - CAP SUB-HEADING inside a card (the
+                                          wizard-step groups in Features'
+                                          module cards). Not a page-level band
+                                          any more — a band above a group is a
+                                          regression, and a test locks that.
            SettingsTileStyle            - standard 320-wide setting tile.
            SettingsWideTileStyle        - 660-wide (spans two columns).
            SettingsFullRowTileStyle     - fills the row (Demo output).
