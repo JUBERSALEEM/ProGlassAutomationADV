@@ -119,7 +119,7 @@
                     <UniformGrid Columns="2" Margin="{StaticResource SettingsCardContentMargin}">
 
                         <!-- About the Theme System -->
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,7,7">
+                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileWrapMargin}">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
                                     <Border Style="{StaticResource SettingsIconTileStyle}"
@@ -141,7 +141,7 @@
                         </Border>
 
                         <!-- About the AI Assistant -->
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,0,7">
+                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackBottom8}">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
                                     <Border Style="{StaticResource SettingsIconTileStyle}"
@@ -163,7 +163,7 @@
                         </Border>
 
                         <!-- About Your API Key & Privacy -->
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,0,7,0">
+                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsInlineGap8R}">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
                                     <Border Style="{StaticResource SettingsIconTileStyle}"

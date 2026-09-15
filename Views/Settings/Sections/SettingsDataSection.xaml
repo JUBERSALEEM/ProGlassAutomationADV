@@ -74,11 +74,13 @@
                                             </StackPanel>
                                         </Border>
                                         <CheckBox Content="Use shared company database folder"
+                                        AutomationProperties.Name="Use shared company database folder"
                                                   IsChecked="{Binding UseSharedDataRoot, Mode=TwoWay}"
                                                   FontWeight="{DynamicResource Weight.SemiBold}"
                                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                                   Margin="{StaticResource SettingsStackGap8}"/>
                                         <CheckBox Content="Copy current local data if shared folder is empty"
+                                        AutomationProperties.Name="Copy current local data if shared folder is empty"
                                                   IsChecked="{Binding CopyLocalDataOnEnable, Mode=TwoWay}"
                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                   Margin="{StaticResource SettingsStackGap8}"/>
@@ -211,6 +213,7 @@
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.PickSetRestoreSelectingEnoughRestoreButton}"/>
                                     <ListBox ItemsSource="{Binding BackupSets}"
+                                    AutomationProperties.Name={DynamicResource Settings.PickSetRestoreSelectingEnoughRestoreButton}
                                     AutomationProperties.Name="{DynamicResource Settings.BackupSets}"
                                              SelectedItem="{Binding SelectedBackup}"
                                              MaxHeight="170"
@@ -218,6 +221,7 @@
                                              BorderBrush="{DynamicResource BorderDefaultBrush}"
                                              Background="{DynamicResource SurfaceTertiaryBrush}">
                                         <ListBox.ItemTemplate
+                                        AutomationProperties.Name={DynamicResource Settings.PickSetRestoreSelectingEnoughRestoreButton}
                                         AutomationProperties.Name="{DynamicResource Settings.BackupSets}"
                                         >
                                             <DataTemplate>
@@ -363,6 +367,7 @@
                                     </Border>
 
                                     <ListBox ItemsSource="{Binding DatabaseHealthRows}"
+                                    AutomationProperties.Name={DynamicResource Settings.RebuildDatabasesEmergency}
                                     AutomationProperties.Name="{DynamicResource Settings.ExploreSampleData}"
                                              Margin="{StaticResource SettingsStackGap10}"
                                              MaxHeight="240"
@@ -370,6 +375,7 @@
                                              BorderBrush="{DynamicResource BorderDefaultBrush}"
                                              Background="{DynamicResource SurfaceTertiaryBrush}">
                                         <ListBox.ItemTemplate
+                                        AutomationProperties.Name={DynamicResource Settings.RebuildDatabasesEmergency}
                                         AutomationProperties.Name="{DynamicResource Settings.ExploreSampleData}"
                                         >
                                             <DataTemplate>

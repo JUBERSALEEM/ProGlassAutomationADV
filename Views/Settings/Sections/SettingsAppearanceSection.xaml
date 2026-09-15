@@ -66,12 +66,12 @@
                                 ToolTip="{DynamicResource Settings.RestoreThemeAccentCardShapeDensityZoomFont}"
                                 HorizontalAlignment="Left"
                                 Padding="0"
-                                Margin="0,2,0,10">
+                                Margin="{StaticResource SettingsNoteTightMargin}">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource SettingsActionButtonStyle}">
                                     <Setter Property="Content">
                                         <Setter.Value>
-                                            <StackPanel Orientation="Horizontal" Margin="18,8">
+                                            <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsHeaderInlineMargin}">
                                                 <TextBlock Text="&#xE777;" 
                                                            FontFamily="{DynamicResource FontFamily.Icon}"
                                                            FontSize="{DynamicResource FontSize.H3}"
@@ -87,7 +87,7 @@
                                             <Setter Property="IsEnabled" Value="False"/>
                                             <Setter Property="Content">
                                                 <Setter.Value>
-                                                    <StackPanel Orientation="Horizontal" Margin="18,8">
+                                                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsHeaderInlineMargin}">
                                                         <ProgressBar IsIndeterminate="True"
                                                                      Width="16"
                                                                      Height="16"
@@ -206,7 +206,7 @@
                                         IsHitTestVisible="False"/>
                                 <crystal:CrystalAmbientBackground/>
 
-                                <StackPanel Margin="12" VerticalAlignment="Stretch">
+                                <StackPanel Margin="{StaticResource SettingsUniformGap}" VerticalAlignment="Stretch">
 
                                     <!-- KPI strip with water (file-20 rows) -->
                                     <UniformGrid Columns="3" Margin="{StaticResource SettingsStackBottom10}">
@@ -388,7 +388,7 @@
                                                   Style="{StaticResource ModernToggleSwitch}"/>
 
                                     <!-- Edge weight 1–100 -->
-                                    <TextBlock Margin="0,16,0,0"
+                                    <TextBlock Margin="{StaticResource SettingsStackGap16}"
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.CardEdgeThickness}"/>
                                     <Slider Style="{StaticResource ModernSliderStyle}"
@@ -398,7 +398,7 @@
                                             VerticalAlignment="Center" Margin="{StaticResource SettingsStackGap4}"/>
 
                                     <!-- Edge colour plate (same palette as the accent section) -->
-                                    <TextBlock Margin="0,16,0,4"
+                                    <TextBlock Margin="{StaticResource SettingsStackGap16Bottom4}"
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.CardEdgeColorLabel}"/>
                                     <ItemsControl ItemsSource="{Binding CardEdgePalette}">
@@ -512,7 +512,7 @@
                                             Minimum="1" Maximum="100"
                                             Value="{Binding CardBlurIntensity, Mode=TwoWay}"
                                             VerticalAlignment="Center" Margin="{StaticResource SettingsStackGap8}"/>
-                                    <TextBlock Margin="0,16,0,4"
+                                    <TextBlock Margin="{StaticResource SettingsStackGap16Bottom4}"
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="Frost colour plate"/>
                                     <ItemsControl ItemsSource="{Binding CardEdgePalette}">
@@ -562,7 +562,7 @@
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="Controls the three central card levels used by modules: Primary page regions, Secondary groups/KPIs, and Detail chips/facts."/>
 
-                                    <UniformGrid Columns="4" Margin="0,10,0,8">
+                                    <UniformGrid Columns="4" Margin="{StaticResource SettingsNoteBottom8}">
                                         <StackPanel Margin="{StaticResource SettingsTrailingGap}">
                                             <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Material"/>
                                             <ComboBox ItemsSource="{Binding SurfaceMaterialOptions}"
@@ -1202,7 +1202,7 @@
 
                                 <!-- Built-in theme scenes (live swatches) -->
                                 <TextBlock Text="{DynamicResource Settings.WallpaperBuiltin}"
-                                           FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,6,0,2"
+                                           FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Margin="{StaticResource SettingsStackGap6Bottom2}"
                                            Foreground="{DynamicResource AccentBrush}"/>
                                 <ItemsControl ItemsSource="{Binding BuiltinSceneRows}">
                                     <ItemsControl.ItemsPanel>
@@ -1232,7 +1232,7 @@
 
                                 <!-- Download 4K from the internet -->
                                 <TextBlock Text="{DynamicResource Settings.WallpaperOnline}"
-                                           FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,6,0,2"
+                                           FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Margin="{StaticResource SettingsStackGap6Bottom2}"
                                            Foreground="{DynamicResource AccentBrush}"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                                     <ComboBox ItemsSource="{Binding OnlineCategoryRows}"
@@ -1244,7 +1244,7 @@
                                             IsEnabled="{Binding IsWallpaperIdle}"
                                             Margin="{StaticResource SettingsIconTextMargin}"
                                             Content="{DynamicResource Settings.WallpaperFetch}"/>
-                                    <ProgressBar Width="120" Height="8" Margin="14,0,0,0"
+                                    <ProgressBar Width="120" Height="8" Margin="{StaticResource SettingsInlineGap14}"
                                                  VerticalAlignment="Center" IsIndeterminate="True"
                                                  Foreground="{DynamicResource AccentBrush}"
                                                  Visibility="{Binding IsWallpaperBusy, Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -1315,7 +1315,7 @@
                                                     <TextBlock DockPanel.Dock="Right" Text="{Binding SizeText}"
                                                                FontSize="{DynamicResource FontSize.BodySmall}"
                                                                Foreground="{DynamicResource TextSecondaryBrush}"
-                                                               VerticalAlignment="Center" Margin="10,0,6,0"/>
+                                                               VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextTightMargin}"/>
                                                     <TextBlock Text="{Binding Name}"
                                                                FontSize="{DynamicResource FontSize.Body}"
                                                                VerticalAlignment="Center"
@@ -1328,7 +1328,7 @@
 
                                 <!-- OS-level window backdrop (experimental) -->
                                 <TextBlock Text="{DynamicResource Settings.WallpaperBackdrop}"
-                                           FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,12,0,2"
+                                           FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Margin="{StaticResource SettingsStackGap12Bottom2}"
                                            Foreground="{DynamicResource AccentBrush}"/>
                                 <StackPanel Orientation="Horizontal">
                                     <Button Style="{StaticResource OutlinedPillButton}"

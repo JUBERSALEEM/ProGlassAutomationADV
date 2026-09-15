@@ -332,7 +332,7 @@
                                                             <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
 
-                                                        <StackPanel Grid.Column="0" Margin="0,0,20,0">
+                                                        <StackPanel Grid.Column="0" Margin="{StaticResource SettingsTrailingGapWide}">
                                                             <TextBlock Text="{Binding Display}"
                                                                        FontSize="{DynamicResource FontSize.Body}"
                                                                        FontWeight="{DynamicResource Weight.SemiBold}"
@@ -388,7 +388,7 @@
                                     <Button Style="{StaticResource SettingsActionButtonStyle}"
                                             Tag="&#xE74D;"
                                             Content="{DynamicResource Settings.ClearTaughtPhrases}"
-                                            Margin="0,14,0,0"
+                                            Margin="{StaticResource SettingsStackGap14}"
                                             Command="{Binding ClearTeachingCommand}"/>
                                 </StackPanel>
                             </Border>
@@ -468,7 +468,7 @@
                                    Style="{StaticResource SettingsRowMetaStyle}"
                                    FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource AccentBrush}"
-                                   Margin="4,16,0,0"/>
+                                   Margin="{StaticResource SettingsDiscTitleMargin}"/>
                     </StackPanel>
                 </Border>
 

@@ -54,7 +54,7 @@
              shell DataContext via ElementName (feature sections re-scope
              their own DataContext, so a plain {Binding} here would break).
              This mirrors the Settings shell navigation pattern. -->
-        <WrapPanel Grid.Row="0" Margin="32,4,32,0">
+        <WrapPanel Grid.Row="0" Margin="{StaticResource SettingsFlagGridMargin}">
             <Button Content="{DynamicResource Module.ProformaInvoice}" Margin="{StaticResource SettingsTileWrapMargin}" MinWidth="130"
                     Command="{Binding DataContext.SwitchFeaturesModuleCommand,
                                 ElementName=SettingsFeaturesRoot}"
@@ -603,7 +603,9 @@
                                             </StackPanel>
                                         </Border>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.EmirateSpecificSiteWhereGlassDelivered}"/>
-                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSiteDeliveryLocation}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSiteDeliveryLocation}"
+                                        AutomationProperties.Name="{DynamicResource ProformaInvoice.SITEDeliveryLocation}"
+                                        />
                                     </Grid>
                                 </Border>
                             </UniformGrid>

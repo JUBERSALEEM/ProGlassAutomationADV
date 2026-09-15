@@ -136,7 +136,7 @@
                                  tint, and the two labels are language keys. -->
                             <Border Grid.Column="1"
                                     VerticalAlignment="Top"
-                                    Margin="10,2,0,0"
+                                    Margin="{StaticResource SettingsInlineGap10Top2}"
                                     Style="{StaticResource SettingsChipStyle}"
                                     Background="{Binding WhisperStatusChipBackgroundKey,
                                         Converter={StaticResource BrushKeyConverter}}">
@@ -298,7 +298,7 @@
 
                         <!-- Where the file lives -->
                         <TextBlock Text="{DynamicResource Settings.ModelStored}"
-                                   Margin="0,12,0,4"
+                                   Margin="{StaticResource SettingsStackGap12Bottom4}"
                                    Style="{StaticResource SettingsFieldLabelStyle}"
                                    Visibility="{Binding IsWhisperModelReady,
                                         Converter={StaticResource BoolToVisibilityConverter}}"/>
