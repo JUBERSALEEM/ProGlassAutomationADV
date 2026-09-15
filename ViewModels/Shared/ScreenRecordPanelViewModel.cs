@@ -142,7 +142,7 @@ namespace ProGlassAutomation.ViewModels.Shared
         private void SeedEncoderOptions()
         {
             _encoderOptions.Clear();
-            var cap = ProGlassAutomation.Agent.Demo.Video.EncoderProbe.Snapshot();
+            var cap = ProGlassAutomation.Agent.Demo.Video.EncoderProbe.GetSnapshot();
             foreach (var opt in ScreenRecordSettings.EncoderOptions)
             {
                 if (opt.Hardware)
@@ -165,7 +165,7 @@ namespace ProGlassAutomation.ViewModels.Shared
         {
             try
             {
-                var cap = ProGlassAutomation.Agent.Demo.Video.EncoderProbe.Snapshot();
+                var cap = ProGlassAutomation.Agent.Demo.Video.EncoderProbe.GetSnapshot();
                 var sel = ProGlassAutomation.Agent.Demo.Video.VideoEncoder.Resolve(
                     _svc.Settings.Encoder, cap.NvencUsable, cap.QsvUsable).Selection;
                 var (w, h) = _svc.Settings.OutputSize;
@@ -182,7 +182,7 @@ namespace ProGlassAutomation.ViewModels.Shared
         {
             var apply = new Action(() =>
             {
-                var cap = ProGlassAutomation.Agent.Demo.Video.EncoderProbe.Snapshot();
+                var cap = ProGlassAutomation.Agent.Demo.Video.EncoderProbe.GetSnapshot();
                 bool added = false;
                 if (cap.NvencUsable && _encoderOptions.All(e => e.Encoder != ScreenRecordEncoder.Nvenc))
                 {

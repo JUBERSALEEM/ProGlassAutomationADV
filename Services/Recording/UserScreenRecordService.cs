@@ -331,7 +331,7 @@ namespace ProGlassAutomation.Services.Recording
             // hardware encoder is never selected). The fallback chain
             // always ends at libx264 — the pipeline that has always
             // worked — so a missing/broken GPU cannot break recording.
-            var encSnap = ProGlassAutomation.Agent.Demo.Video.EncoderProbe.Snapshot();
+            var encSnap = ProGlassAutomation.Agent.Demo.Video.EncoderProbe.GetSnapshot();
             var encRes = ProGlassAutomation.Agent.Demo.Video.VideoEncoder.Resolve(
                 rec.Encoder, encSnap.NvencUsable, encSnap.QsvUsable);
             AppLogService.Info(

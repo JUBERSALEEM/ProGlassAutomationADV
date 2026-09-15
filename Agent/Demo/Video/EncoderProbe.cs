@@ -27,6 +27,7 @@
 
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Security;
+using ProGlassAutomation.Services.Common;   // CorrelationContext
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -61,7 +62,11 @@ namespace ProGlassAutomation.Agent.Demo.Video
         /// <summary>Raised on the background probe thread when results change.</summary>
         public static event Action? Changed;
 
-        public static Snapshot Snapshot()
+        /// <summary>
+        /// Current capability snapshot (renamed from Snapshot() to avoid
+        /// clashing with the nested Snapshot type — CS0102).
+        /// </summary>
+        public static Snapshot GetSnapshot()
         {
             lock (Gate) return _state;
         }
@@ -136,7 +141,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
             if (needThroughput)
             {
                 string qArgs = VideoEncoder.BuildQualityArgs(selection, 18).Args;
-                if (TestEncodeWithTiming(selection, width, height, fps, 3, qArgs, out double mFps))
+                if (TestEncodeWithTiming(selection, width, height, fps, 3, qArgs, out double mFps, out _))
                 {
                     measuredFps = mFps; mw = width; mh = height; me = selection.Name;
                     AppLogService.Info(
@@ -220,8 +225,8 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 if (!p.WaitForExit(capMs))
                 {
                     try { p.Kill(true); } catch { }
-                    double elapsed = sw.Elapsed.TotalSeconds;
-                    measuredFps = fps * seconds / Math.Max(1.0, elapsed);
+                    double elapsedAtCap = sw.Elapsed.TotalSeconds;
+                    measuredFps = fps * seconds / Math.Max(1.0, elapsedAtCap);
                     errorTail = $"test encode hit the {capMs / 1000}s cap (measured lower bound {measuredFps:0.##}fps)";
                     return true; // it ran and produced output — usable, just slow
                 }
@@ -231,7 +236,8 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 bool ok = p.ExitCode == 0 && File.Exists(temp) && new FileInfo(temp).Length > 0;
                 if (!ok)
                 {
-                    errorTail = $"exit={p.ExitCode} {Tail(errTask.Task?.Result ?? "")}";
+                    string errText = errTask.IsCompleted ? errTask.Result : "";
+                    errorTail = $"exit={p.ExitCode} {Tail(errText)}";
                     return false;
                 }
                 measuredFps = ok ? fps * seconds / Math.Max(0.1, elapsed) : 0;

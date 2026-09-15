@@ -229,6 +229,11 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         // attribute the measured final bitrate to a concrete config.
         public string EncodePreset => _rawPipe?.EncodePreset ?? "";
         public int EncodeCrfUsed => _rawPipe?.EncodeCrfUsed ?? 0;
+
+        // PHASE 5 — concrete encoder identity for [RecQuality] (the pipe
+        // owns the values; the recorder passes them through).
+        public string EncodeName => _rawPipe?.EncodeName ?? "libx264";
+        public bool HardwareEncoder => _rawPipe?.HardwareEncoder ?? false;
         public int CaptureNominalFpsUsed => _rawPipe?.NominalFps ?? 0;
         public int CaptureWidth { get; private set; }
         public int CaptureHeight { get; private set; }
@@ -269,7 +274,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         public void Start(string framesFolder, ScreenRecordSettings settings)
         {
             var s = (settings ?? new ScreenRecordSettings()).Clone().Clamp();
-            var cap = ProGlassAutomation.Agent.Demo.Video.EncoderProbe.Snapshot();
+            var cap = ProGlassAutomation.Agent.Demo.Video.EncoderProbe.GetSnapshot();
             var res = ProGlassAutomation.Agent.Demo.Video.VideoEncoder.Resolve(
                 s.Encoder, cap.NvencUsable, cap.QsvUsable);
             StartCore(framesFolder, s, res.Selection, res.Fallback, res.Reason);
