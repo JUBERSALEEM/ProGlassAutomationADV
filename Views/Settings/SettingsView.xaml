@@ -189,20 +189,19 @@
                                 <!-- 2026-09-14: the glyph TextBlock had no
                                      FontFamily — the MDL2 code point rendered
                                      with the app font as a broken box before
-                                     the label. Icon font + size + explicit
-                                     icon↔text spacing (10px). -->
+                                     the label.
+                                     2026-09-16: both text runs now come from
+                                     the Settings grammar (SettingsRowGlyph /
+                                     SettingsRowLabel), so the 18 px icon column
+                                     and the 10 px icon↔text gap are the SAME
+                                     tokens every tile in the module uses, and
+                                     neither run sets a Foreground — the active
+                                     accent pill flips glyph and label together. -->
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="{Binding Glyph}"
-                                               FontFamily="{DynamicResource FontFamily.Icon}"
-                                               FontSize="{DynamicResource FontSize.Title}"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,10,0"
-                                               Width="18"
-                                               TextAlignment="Center"/>
+                                               Style="{StaticResource SettingsRowGlyphStyle}"/>
                                     <TextBlock Text="{Binding Label}"
-                                               VerticalAlignment="Center"
-                                               FontSize="{DynamicResource FontSize.Body}"
-                                               FontWeight="{DynamicResource Weight.SemiBold}"/>
+                                               Style="{StaticResource SettingsRowLabelStyle}"/>
                                 </StackPanel>
                             </Button>
                         </DataTemplate>
@@ -277,20 +276,32 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Content header strip (2026-09-05 — Reports-module parity):
-                 hamburger re-opens the auto-closed rail in ONE click; the
-                 current section name sits next to it so the workspace
-                 always announces where you are. -->
-            <Border Grid.Row="0" Margin="14,10,12,0" Padding="14,10"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    Background="{DynamicResource SurfaceSecondaryBrush}"
-                    BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="{DynamicResource Border.HairlineThickness}" Style="{StaticResource SurfacePrimaryStyle}">
+            <!-- ══════════════════════════════════════════════════════
+                 PAGE HEADER (2026-09-16 redesign — mockup sheet 01)
+
+                 The same card material as every page card, and the page's
+                 own icon disc + name read from the SAME registry row the
+                 rail highlights (SettingsViewModel.ActivePageGlyph /
+                 ActivePageLabel). One source: a page cannot announce itself
+                 with the wrong icon, which is exactly what the hand-copied
+                 top panel used to do.
+
+                 The hamburger stays here so a collapsed rail re-opens in
+                 one click from inside the content column.
+            ══════════════════════════════════════════════════════════ -->
+            <Border Grid.Row="0" Margin="14,10,12,0" Padding="14,12"
+                    Style="{StaticResource SettingsPageCardStyle}">
+                <Border.Resources>
+                    <!-- The strip owns its own margin above. -->
+                    <Thickness x:Key="SettingsCardMargin">0</Thickness>
+                </Border.Resources>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
+
                     <Button Grid.Column="0"
                             Width="38" Height="38"
                             Cursor="Hand"
@@ -315,12 +326,21 @@
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
-                    <TextBlock Grid.Column="1" VerticalAlignment="Center"
-                               Margin="12,0,0,0"
-                               FontSize="{DynamicResource FontSize.H3}"
-                               FontWeight="{DynamicResource Weight.SemiBold}"
-                               Foreground="{DynamicResource TextPrimaryBrush}"
-                               Text="{Binding ActivePageLabel}"/>
+
+                    <!-- Page disc: the active registry row's MDL2 glyph. -->
+                    <Border Grid.Column="1" Width="38" Height="38"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource SettingsIconTileStyle}">
+                        <TextBlock Text="{Binding ActivePageGlyph}"
+                                   Style="{StaticResource SettingsIconGlyphStyle}"/>
+                    </Border>
+
+                    <TextBlock Grid.Column="2"
+                               VerticalAlignment="Center"
+                               Margin="{StaticResource SettingsIconTextMargin}"
+                               TextTrimming="CharacterEllipsis"
+                               Text="{Binding ActivePageLabel}"
+                               Style="{StaticResource SettingsPageTitleStyle}"/>
                 </Grid>
             </Border>
 

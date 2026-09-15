@@ -149,6 +149,14 @@ namespace ProGlassAutomation.ViewModels.Settings
         public string ActivePageLabel =>
             NavRows.FirstOrDefault(r => r.IsActive)?.Label ?? _settingsPage;
 
+        /// <summary>MDL2 glyph of the active page (content header disc).
+        /// Read from the SAME registry row the rail renders, so the header
+        /// can never disagree with the highlighted rail row — which is what
+        /// the hand-copied top panel used to do (Features drew License's
+        /// glyph, Agent drew a different icon than the rail).</summary>
+        public string ActivePageGlyph =>
+            NavRows.FirstOrDefault(r => r.IsActive)?.Glyph ?? string.Empty;
+
         /// <summary>Active settings page key (nav rail selection).</summary>
         public string SettingsPage
         {
@@ -172,6 +180,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 foreach (var row in NavRows)
                     row.IsActive = row.Key == value;
                 OnPropertyChanged(nameof(ActivePageLabel));
+                OnPropertyChanged(nameof(ActivePageGlyph));
             }
         }
 
