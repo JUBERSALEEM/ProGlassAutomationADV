@@ -9,7 +9,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
     /// separate proformainvoices.db SQLite database.
     ///
     /// Phase 7.15 uses a JSON-blob strategy: the FullSnapshotJson column
-    /// contains the entire serialized wizard state (all 7 steps + Terms).
+    /// contains the entire serialized wizard state (all 9 steps + Terms).
     /// A few top-level fields are surfaced as real columns so we can index
     /// and query them for the Load List UI (Phase 7.17).
     ///
