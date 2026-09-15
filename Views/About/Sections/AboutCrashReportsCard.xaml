@@ -29,7 +29,10 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border Style="{StaticResource Ios26CardStyle}">
+    <!-- Same contract as AboutLicenseCard: the card owns its VM on this
+         INNER element so it can never re-point a host's DataContext
+         (2026-09-15 datacontext-hijack fix). -->
+    <Border x:Name="CardRoot" Style="{StaticResource Ios26CardStyle}">
         <StackPanel>
             <Grid Margin="0,0,0,14">
                 <Grid.ColumnDefinitions>
@@ -39,8 +42,8 @@
 
                 <TextBlock Grid.Column="0"
                            Text="{DynamicResource About.Crash}"
-                           FontSize="17"
-                           FontWeight="Bold"
+                           FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                           FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource Ios26TextTitleBrush}"
                            VerticalAlignment="Center"/>
 
@@ -90,16 +93,16 @@
 
                                     <!-- Error id + type + message -->
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                        <TextBlock FontSize="14" IsHitTestVisible="False">
+                                        <TextBlock FontSize="{DynamicResource Ios26FontSizeValue}" IsHitTestVisible="False">
                                             <Run Text="{Binding ErrorId, Mode=OneWay, FallbackValue='(no id)'}"
-                                                 FontWeight="Bold"
+                                                 FontWeight="{DynamicResource Weight.Bold}"
                                                  Foreground="{DynamicResource Ios26TextTitleBrush}"/>
                                             <Run Text="&#x2009;"/>
                                             <Run Text="{Binding TopExceptionType, Mode=OneWay, FallbackValue=''}"
-                                                 FontSize="12.5"
+                                                 FontSize="{DynamicResource Ios26FontSizeSmall}"
                                                  Foreground="{DynamicResource Ios26TextMutedBrush}"/>
                                         </TextBlock>
-                                        <TextBlock FontSize="12"
+                                        <TextBlock FontSize="{DynamicResource Ios26FontSizeSmall}"
                                                    Foreground="{DynamicResource Ios26TextMutedBrush}"
                                                    Margin="0,2,0,0"
                                                    TextTrimming="CharacterEllipsis"
@@ -115,7 +118,7 @@
                                     <!-- Timestamp -->
                                     <TextBlock Grid.Column="3"
                                                Text="{Binding TimestampDisplay}"
-                                               FontSize="12.5"
+                                               FontSize="{DynamicResource Ios26FontSizeSmall}"
                                                Foreground="{DynamicResource Ios26TextMutedBrush}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,12,0"
@@ -143,12 +146,12 @@
             <StackPanel Margin="0,6,0,2"
                         Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
                 <TextBlock Text="{DynamicResource About.NOCrashReportsDISK}"
-                           FontSize="12"
-                           FontWeight="SemiBold"
+                           FontSize="{DynamicResource Ios26FontSizeSmall}"
+                           FontWeight="{DynamicResource Weight.SemiBold}"
                            Foreground="{DynamicResource Ios26TextMutedBrush}"
                            HorizontalAlignment="Center"/>
                 <TextBlock Text="{DynamicResource About.SupportLogAreaCurrentlyCleanNewCrashFiles}"
-                           FontSize="12.5"
+                           FontSize="{DynamicResource Ios26FontSizeSmall}"
                            Foreground="{DynamicResource Ios26TextFaintBrush}"
                            TextAlignment="Center"
                            TextWrapping="Wrap"

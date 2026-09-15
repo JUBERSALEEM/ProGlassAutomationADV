@@ -36,20 +36,20 @@
                         VerticalAlignment="Center">
                     <TextBlock Text="{Binding Icon}"
                                FontFamily="{DynamicResource FontFamily.Icon}"
-                               FontSize="11"
+                               FontSize="{DynamicResource Ios26FontSizeLabel}"
                                Foreground="{DynamicResource Ios26AccentBrush}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel Margin="8,0,0,0" VerticalAlignment="Center">
                     <TextBlock Text="{Binding Value}"
-                               FontSize="13"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource Ios26FontSizeBody}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource Ios26TextTitleBrush}"
                                IsHitTestVisible="False"/>
                     <TextBlock Text="{Binding Label}"
-                               FontSize="10"
-                               FontWeight="SemiBold"
+                               FontSize="{DynamicResource Ios26FontSizeCaption}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource Ios26TextMutedBrush}"
                                IsHitTestVisible="False"/>
                 </StackPanel>
@@ -68,20 +68,20 @@
                         VerticalAlignment="Center">
                     <TextBlock Text="{Binding Icon}"
                                FontFamily="{DynamicResource FontFamily.Icon}"
-                               FontSize="15"
+                               FontSize="{DynamicResource Ios26FontSizeSubtitle}"
                                Foreground="{DynamicResource Ios26AccentBrush}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
                     <TextBlock Text="{Binding Title}"
-                               FontSize="13"
-                               FontWeight="SemiBold"
+                               FontSize="{DynamicResource Ios26FontSizeBody}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource Ios26TextTitleBrush}"
                                TextWrapping="Wrap"
                                IsHitTestVisible="False"/>
                     <TextBlock Text="{Binding Description}"
-                               FontSize="11"
+                               FontSize="{DynamicResource Ios26FontSizeLabel}"
                                Foreground="{DynamicResource Ios26TextMutedBrush}"
                                TextWrapping="Wrap"
                                Margin="0,2,0,0"
@@ -103,14 +103,14 @@
                         Margin="0,0,0,10">
                     <TextBlock Text="{Binding Icon}"
                                FontFamily="{DynamicResource FontFamily.Icon}"
-                               FontSize="15"
+                               FontSize="{DynamicResource Ios26FontSizeSubtitle}"
                                Foreground="{DynamicResource Ios26AccentBrush}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
                 </Border>
                 <TextBlock Text="{Binding Title}"
-                           FontSize="13"
-                           FontWeight="SemiBold"
+                           FontSize="{DynamicResource Ios26FontSizeBody}"
+                           FontWeight="{DynamicResource Weight.SemiBold}"
                            Foreground="{DynamicResource Ios26TextTitleBrush}"
                            TextWrapping="Wrap"
                            IsHitTestVisible="False"/>
@@ -137,20 +137,20 @@
                         VerticalAlignment="Center">
                     <TextBlock Text="{Binding Icon}"
                                FontFamily="{DynamicResource FontFamily.Icon}"
-                               FontSize="14"
+                               FontSize="{DynamicResource Ios26FontSizeValue}"
                                Foreground="{DynamicResource Ios26AccentBrush}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
                     <TextBlock Text="{Binding Label}"
-                               FontSize="10"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource Ios26FontSizeCaption}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource Ios26TextMutedBrush}"
                                IsHitTestVisible="False"/>
                     <TextBlock Text="{Binding Value}"
-                               FontSize="13"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource Ios26FontSizeBody}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource Ios26TextTitleBrush}"
                                TextTrimming="CharacterEllipsis"
                                IsHitTestVisible="False"/>
@@ -171,19 +171,19 @@
                         Margin="0,0,0,10">
                     <TextBlock Text="{Binding Icon}"
                                FontFamily="{DynamicResource FontFamily.Icon}"
-                               FontSize="14"
+                               FontSize="{DynamicResource Ios26FontSizeValue}"
                                Foreground="{DynamicResource Ios26AccentBrush}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
                 </Border>
                 <TextBlock Text="{Binding Title}"
-                           FontSize="13"
-                           FontWeight="SemiBold"
+                           FontSize="{DynamicResource Ios26FontSizeBody}"
+                           FontWeight="{DynamicResource Weight.SemiBold}"
                            Foreground="{DynamicResource Ios26TextTitleBrush}"
                            TextWrapping="Wrap"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Description}"
-                           FontSize="11"
+                           FontSize="{DynamicResource Ios26FontSizeLabel}"
                            Foreground="{DynamicResource Ios26TextMutedBrush}"
                            TextWrapping="Wrap"
                            Margin="0,3,0,0"

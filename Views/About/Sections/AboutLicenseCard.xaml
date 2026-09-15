@@ -17,6 +17,22 @@
   deliberately ignored on this module). Every value comes from the
   LicenseStatusViewModel singleton (DataContext set in code-behind).
 
+  DATA CONTEXT CONTRACT (2026-09-15 root-cause fix — "License still
+  looks empty"): this card keeps its license VM on the INNER
+  <StackPanel x:Name="CardRoot">, never on the UserControl root. The
+  root used to be re-pointed at LicenseStatusViewModel.Instance, which
+  re-targeted the SHELL's tab-switch binding (an element's bindings
+  resolve against its own DataContext) — the trigger could never fire and
+  the whole License section stayed collapsed behind a working tab.
+  Locked by AboutModuleAuditTests
+  .About_views_do_not_hijack_a_hosted_section_datacontext.
+
+  TYPOGRAPHY (2026-09-15 pass): every size comes from the About type
+  scale (Ios26FontSize* — whole pixels only) and every weight from
+  Weight.Regular / Weight.SemiBold / Weight.Bold. The detail rows use the
+  shared Ios26FieldLabelStyle / Ios26FieldValueStyle roles: quiet 13 px
+  Regular labels, 14 px Bold values.
+
   CRASH CONTRACTS PRESERVED:
     • ERR-3C0789 — ProgressBar.Value/Maximum are display-only and bound
       Mode=OneWay (DaysRemaining / TrialTotalDays are read-only).
@@ -49,8 +65,8 @@
             <DataTemplate x:Key="LicenseFeatureChipTemplate">
                 <Border Style="{StaticResource LicenseFeatureChipStyle}">
                     <TextBlock Text="{Binding}"
-                               FontSize="13"
-                               FontWeight="SemiBold"
+                               FontSize="{DynamicResource Ios26FontSizeBody}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource Ios26AccentSoftTextBrush}"
                                IsHitTestVisible="False"/>
                 </Border>
@@ -64,7 +80,12 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <StackPanel>
+    <!-- x:Name is REQUIRED: the shell's tab switch binds to the shell's own
+         DataContext, so this card is allowed to keep its license VM on this
+         INNER element only. The root element's DataContext is never touched
+         (that hijack is what made the License tab render permanently empty —
+         see AboutView.xaml, section content note). -->
+    <StackPanel x:Name="CardRoot">
 
         <!-- 2026-09-15 senior fix: the card must NEVER look silently
              empty. If the license VM singleton is unavailable, the
@@ -74,7 +95,7 @@
                 Style="{StaticResource Ios26CardStyle}"
                 Margin="0,0,0,14"
                 Visibility="Collapsed">
-            <TextBlock FontSize="13.5"
+            <TextBlock FontSize="{DynamicResource Ios26FontSizeBody}"
                        Foreground="{DynamicResource Ios26TextSecondaryBrush}"
                        TextWrapping="Wrap"
                        LineHeight="20"
@@ -111,7 +132,7 @@
                     </Ellipse>
                     <TextBlock Text="&#xE977;"
                                FontFamily="{DynamicResource FontFamily.Icon}"
-                               FontSize="19"
+                               FontSize="{DynamicResource Ios26FontSizeGlyph}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
                                IsHitTestVisible="False">
@@ -135,8 +156,8 @@
                     <TextBlock Text="{Binding StatusBadge}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
-                                <Setter Property="FontSize" Value="20"/>
-                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeH2}"/>
+                                <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
                                 <Setter Property="Foreground"
                                         Value="{DynamicResource Ios26TextTitleBrush}"/>
                                 <Style.Triggers>
@@ -149,11 +170,35 @@
                         </TextBlock.Style>
                     </TextBlock>
                     <TextBlock Text="{Binding StatusDescription}"
-                               FontSize="12.5"
+                               FontSize="{DynamicResource Ios26FontSizeSmall}"
                                Foreground="{DynamicResource Ios26TextMutedBrush}"
                                TextWrapping="Wrap"
                                Margin="0,4,0,0"
                                MaxWidth="520"/>
+
+                    <!-- 2026-09-15: with no license payload there is no
+                         Details card, so the tab would show a single block.
+                         LicenseSourceDisplay already explains the next step
+                         for exactly this state ("paste a vendor-signed key
+                         in Settings → License") — surface it here instead
+                         of hiding it inside the card that cannot render. -->
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0,10,0,0"
+                                Visibility="{Binding HasPayloadDetails, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                        <TextBlock Text="&#xE946;"
+                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                   Foreground="{DynamicResource Ios26AccentBrush}"
+                                   VerticalAlignment="Top"
+                                   Margin="0,2,7,0"
+                                   IsHitTestVisible="False"/>
+                        <TextBlock Text="{Binding LicenseSourceDisplay}"
+                                   FontSize="{DynamicResource Ios26FontSizeBody}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Foreground="{DynamicResource Ios26TextSecondaryBrush}"
+                                   TextWrapping="Wrap"
+                                   MaxWidth="520"/>
+                    </StackPanel>
                 </StackPanel>
 
                 <!-- Activation status block (right). Trials count days
@@ -173,17 +218,17 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0"
                                        Text="{DynamicResource About.ActivationStatus}"
-                                       FontSize="13"
-                                       FontWeight="SemiBold"
+                                       FontSize="{DynamicResource Ios26FontSizeBody}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource Ios26TextBodyBrush}"
                                        VerticalAlignment="Center"/>
                             <StackPanel Grid.Column="1" Orientation="Horizontal">
                                 <TextBlock Text="{DynamicResource About.DaysRemainingLabel}"
-                                           FontSize="13"
+                                           FontSize="{DynamicResource Ios26FontSizeBody}"
                                            Foreground="{DynamicResource Ios26TextMutedBrush}"/>
                                 <TextBlock Text="{Binding DaysRemaining}"
-                                           FontSize="15"
-                                           FontWeight="Bold"
+                                           FontSize="{DynamicResource Ios26FontSizeSubtitle}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource Ios26TextTitleBrush}"
                                            Margin="6,0,0,0"
                                            VerticalAlignment="Center"/>
@@ -197,13 +242,13 @@
                     <!-- Permanent license window. -->
                     <StackPanel Visibility="{Binding IsNotTrial, Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="{DynamicResource About.LicenseWindow}"
-                                   FontSize="13"
-                                   FontWeight="SemiBold"
+                                   FontSize="{DynamicResource Ios26FontSizeBody}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource Ios26TextBodyBrush}"
                                    Margin="0,0,0,4"/>
                         <TextBlock Text="{Binding LicenseWindowDisplay}"
-                                   FontSize="14"
-                                   FontWeight="Bold"
+                                   FontSize="{DynamicResource Ios26FontSizeValue}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource Ios26TextTitleBrush}"
                                    HorizontalAlignment="Right"/>
                     </StackPanel>
@@ -217,9 +262,7 @@
                 Margin="0,0,0,14">
             <StackPanel>
                 <TextBlock Text="{DynamicResource About.LicenseDetails}"
-                           FontSize="17"
-                           FontWeight="Bold"
-                           Foreground="{DynamicResource Ios26TextTitleBrush}"
+                           Style="{StaticResource Ios26CardTitleStyle}"
                            Margin="0,0,0,14"/>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -238,59 +281,63 @@
                     </Grid.RowDefinitions>
 
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource Common.Customer}"
-                               FontSize="13.5" Foreground="{DynamicResource Ios26TextMutedBrush}"
-                               Margin="0,0,0,11" VerticalAlignment="Center"/>
+                               Style="{StaticResource Ios26FieldLabelStyle}"
+                               Margin="0,0,0,11"/>
                     <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CustomerDisplay}"
-                               FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Ios26TextBodyBrush}"
-                               HorizontalAlignment="Right" Margin="0,0,0,11" VerticalAlignment="Center"/>
+                               Style="{StaticResource Ios26FieldValueStyle}"
+                               Margin="0,0,0,11"
+                               ToolTip="{Binding CustomerDisplay}"/>
                     <Border Grid.Row="0" Grid.ColumnSpan="2" Height="1" VerticalAlignment="Bottom"
                             Background="{DynamicResource Ios26HairlineBrush}"/>
 
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource Common.Company}"
-                               FontSize="13.5" Foreground="{DynamicResource Ios26TextMutedBrush}"
-                               Margin="0,11,0,11" VerticalAlignment="Center"/>
+                               Style="{StaticResource Ios26FieldLabelStyle}"
+                               Margin="0,11,0,11"/>
                     <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding CompanyDisplay}"
-                               FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Ios26TextBodyBrush}"
-                               HorizontalAlignment="Right" Margin="0,11,0,11" VerticalAlignment="Center"/>
+                               Style="{StaticResource Ios26FieldValueStyle}"
+                               Margin="0,11,0,11"
+                               ToolTip="{Binding CompanyDisplay}"/>
                     <Border Grid.Row="1" Grid.ColumnSpan="2" Height="1" VerticalAlignment="Bottom"
                             Background="{DynamicResource Ios26HairlineBrush}"/>
 
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource About.ActivationMODE}"
-                               FontSize="13.5" Foreground="{DynamicResource Ios26TextMutedBrush}"
-                               Margin="0,11,0,11" VerticalAlignment="Center"/>
+                               Style="{StaticResource Ios26FieldLabelStyle}"
+                               Margin="0,11,0,11"/>
                     <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ActivationModeDisplay}"
-                               FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Ios26TextBodyBrush}"
-                               HorizontalAlignment="Right" Margin="0,11,0,11" VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis" ToolTip="{Binding ActivationModeDisplay}"/>
+                               Style="{StaticResource Ios26FieldValueStyle}"
+                               Margin="0,11,0,11"
+                               ToolTip="{Binding ActivationModeDisplay}"/>
                     <Border Grid.Row="2" Grid.ColumnSpan="2" Height="1" VerticalAlignment="Bottom"
                             Background="{DynamicResource Ios26HairlineBrush}"/>
 
                     <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource About.Issued}"
-                               FontSize="13.5" Foreground="{DynamicResource Ios26TextMutedBrush}"
-                               Margin="0,11,0,11" VerticalAlignment="Center"/>
+                               Style="{StaticResource Ios26FieldLabelStyle}"
+                               Margin="0,11,0,11"/>
                     <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding IssuedDisplay}"
-                               FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Ios26TextBodyBrush}"
-                               HorizontalAlignment="Right" Margin="0,11,0,11" VerticalAlignment="Center"/>
+                               Style="{StaticResource Ios26FieldValueStyle}"
+                               Margin="0,11,0,11"
+                               ToolTip="{Binding IssuedDisplay}"/>
                     <Border Grid.Row="3" Grid.ColumnSpan="2" Height="1" VerticalAlignment="Bottom"
                             Background="{DynamicResource Ios26HairlineBrush}"/>
 
                     <TextBlock Grid.Row="4" Grid.Column="0" Text="{DynamicResource About.Expires}"
-                               FontSize="13.5" Foreground="{DynamicResource Ios26TextMutedBrush}"
-                               Margin="0,11,0,11" VerticalAlignment="Center"/>
+                               Style="{StaticResource Ios26FieldLabelStyle}"
+                               Margin="0,11,0,11"/>
                     <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding ExpiresDisplay}"
-                               FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Ios26TextBodyBrush}"
-                               HorizontalAlignment="Right" Margin="0,11,0,11" VerticalAlignment="Center"/>
+                               Style="{StaticResource Ios26FieldValueStyle}"
+                               Margin="0,11,0,11"
+                               ToolTip="{Binding ExpiresDisplay}"/>
                     <Border Grid.Row="4" Grid.ColumnSpan="2" Height="1" VerticalAlignment="Bottom"
                             Background="{DynamicResource Ios26HairlineBrush}"/>
 
                     <TextBlock Grid.Row="5" Grid.Column="0" Text="{DynamicResource About.LicenseID}"
-                               FontSize="13.5" Foreground="{DynamicResource Ios26TextMutedBrush}"
-                               Margin="0,11,0,11" VerticalAlignment="Center"/>
+                               Style="{StaticResource Ios26FieldLabelStyle}"
+                               Margin="0,11,0,11"/>
                     <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal"
                                 HorizontalAlignment="Right" Margin="0,11,0,11">
                         <Border Style="{StaticResource Ios26ValuePillStyle}">
                             <TextBlock Text="{Binding LicenseIdDisplay}"
-                                       FontSize="12.5" FontWeight="SemiBold"
+                                       FontSize="{DynamicResource Ios26FontSizeSmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource Ios26TextSecondaryBrush}"
                                        MaxWidth="300" TextTrimming="CharacterEllipsis"
                                        ToolTip="{Binding LicenseIdDisplay}"/>
@@ -298,10 +345,12 @@
                         <Button Style="{StaticResource LicenseCopyButtonStyle}"
                                 Margin="8,0,0,0"
                                 Click="CopyLicenseIdButton_Click"
+                                AutomationProperties.Name="{DynamicResource About.COPYID}"
+                                AutomationProperties.HelpText="{Binding LicenseIdDisplay}"
                                 ToolTip="{DynamicResource About.COPYID}">
                             <TextBlock Text="&#xE8C8;"
                                        FontFamily="{DynamicResource FontFamily.Icon}"
-                                       FontSize="12"
+                                       FontSize="{DynamicResource Ios26FontSizeSmall}"
                                        Foreground="{DynamicResource Ios26TextSecondaryBrush}"/>
                         </Button>
                     </StackPanel>
@@ -309,13 +358,13 @@
                             Background="{DynamicResource Ios26HairlineBrush}"/>
 
                     <TextBlock Grid.Row="6" Grid.Column="0" Text="{DynamicResource About.MachineFingerprint}"
-                               FontSize="13.5" Foreground="{DynamicResource Ios26TextMutedBrush}"
-                               Margin="0,11,0,11" VerticalAlignment="Center"/>
+                               Style="{StaticResource Ios26FieldLabelStyle}"
+                               Margin="0,11,0,11"/>
                     <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal"
                                 HorizontalAlignment="Right" Margin="0,11,0,11">
                         <Border Style="{StaticResource Ios26ValuePillStyle}">
                             <TextBlock Text="{Binding MachineFingerprint}"
-                                       FontSize="12.5" FontWeight="SemiBold"
+                                       FontSize="{DynamicResource Ios26FontSizeSmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource Ios26TextSecondaryBrush}"
                                        MaxWidth="300" TextTrimming="CharacterEllipsis"
                                        ToolTip="{Binding MachineFingerprint}"/>
@@ -323,10 +372,12 @@
                         <Button Style="{StaticResource LicenseCopyButtonStyle}"
                                 Margin="8,0,0,0"
                                 Click="CopyFingerprintButton_Click"
+                                AutomationProperties.Name="{DynamicResource About.COPYFingerprint}"
+                                AutomationProperties.HelpText="{Binding MachineFingerprint}"
                                 ToolTip="{DynamicResource About.COPYFingerprint}">
                             <TextBlock Text="&#xE8C8;"
                                        FontFamily="{DynamicResource FontFamily.Icon}"
-                                       FontSize="12"
+                                       FontSize="{DynamicResource Ios26FontSizeSmall}"
                                        Foreground="{DynamicResource Ios26TextSecondaryBrush}"/>
                         </Button>
                     </StackPanel>
@@ -334,21 +385,22 @@
                             Background="{DynamicResource Ios26HairlineBrush}"/>
 
                     <TextBlock Grid.Row="7" Grid.Column="0" Text="{DynamicResource About.LicenseWindow}"
-                               FontSize="13.5" Foreground="{DynamicResource Ios26TextMutedBrush}"
-                               Margin="0,11,0,0" VerticalAlignment="Center"/>
+                               Style="{StaticResource Ios26FieldLabelStyle}"
+                               Margin="0,11,0,0"/>
                     <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding LicenseWindowDisplay}"
-                               FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Ios26TextBodyBrush}"
-                               HorizontalAlignment="Right" Margin="0,11,0,0" VerticalAlignment="Center"/>
+                               Style="{StaticResource Ios26FieldValueStyle}"
+                               Margin="0,11,0,0"
+                               ToolTip="{Binding LicenseWindowDisplay}"/>
                 </Grid>
 
                 <!-- Slim data-preserving footer: license source +
                      trusted issuer ring (kept visible, mockup-quiet). -->
                 <TextBlock Text="{Binding LicenseSourceDisplay}"
-                           FontSize="11.5"
+                           FontSize="{DynamicResource Ios26FontSizeLabel}"
                            Foreground="{DynamicResource Ios26TextFaintBrush}"
                            TextWrapping="Wrap"
                            Margin="0,14,0,0"/>
-                <TextBlock FontSize="11.5"
+                <TextBlock FontSize="{DynamicResource Ios26FontSizeLabel}"
                            Foreground="{DynamicResource Ios26TextFaintBrush}"
                            TextWrapping="Wrap"
                            Margin="0,3,0,0">
@@ -365,9 +417,7 @@
                 Margin="0,0,0,14">
             <StackPanel>
                 <TextBlock Text="{DynamicResource Settings.SecFeatures}"
-                           FontSize="17"
-                           FontWeight="Bold"
-                           Foreground="{DynamicResource Ios26TextTitleBrush}"
+                           Style="{StaticResource Ios26CardTitleStyle}"
                            Margin="0,0,0,14"/>
                 <ItemsControl ItemsSource="{Binding FeatureChips}"
                               ItemTemplate="{StaticResource LicenseFeatureChipTemplate}">
@@ -378,7 +428,7 @@
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
                 <TextBlock Text="{Binding FeatureSummaryDisplay}"
-                           FontSize="11.5"
+                           FontSize="{DynamicResource Ios26FontSizeLabel}"
                            Foreground="{DynamicResource Ios26TextFaintBrush}"
                            Margin="0,2,0,0"
                            TextWrapping="Wrap"/>
@@ -390,12 +440,10 @@
                 Visibility="{Binding HasNotes, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel>
                 <TextBlock Text="{DynamicResource About.IssuerNotes}"
-                           FontSize="17"
-                           FontWeight="Bold"
-                           Foreground="{DynamicResource Ios26TextTitleBrush}"
+                           Style="{StaticResource Ios26CardTitleStyle}"
                            Margin="0,0,0,8"/>
                 <TextBlock Text="{Binding NotesDisplay}"
-                           FontSize="13"
+                           FontSize="{DynamicResource Ios26FontSizeBody}"
                            Foreground="{DynamicResource Ios26TextSecondaryBrush}"
                            TextWrapping="Wrap"
                            LineHeight="19"/>

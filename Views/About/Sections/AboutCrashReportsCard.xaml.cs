@@ -3,7 +3,11 @@
 // PROJECT: ProGlassAutomation
 // MODULE: About — recent crash reports card code-behind
 //
-// The card owns its own AboutCrashReportsViewModel.
+// The card owns its own AboutCrashReportsViewModel, attached to the card's
+// INNER container (x:Name="CardRoot") — never to the UserControl ROOT: a
+// root assignment re-targets every binding the host declared on this
+// element (the About → License blank-page fault, 2026-09-15).
+//
 // The Open button on each row reads the row's
 // FilePath from its Tag and routes through
 // ProcessStartGuard.
@@ -25,7 +29,9 @@ namespace ProGlassAutomation.Views.About.Sections
         public AboutCrashReportsCard()
         {
             InitializeComponent();
-            DataContext = new AboutCrashReportsViewModel();
+
+            // Inner container only — see the header note.
+            CardRoot.DataContext = new AboutCrashReportsViewModel();
         }
 
         }

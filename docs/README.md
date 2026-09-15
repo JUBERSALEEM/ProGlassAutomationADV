@@ -47,7 +47,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 |---|---|
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | ProGlass Automation — Architecture (v2.0) |
 | [`DATABASE_MIGRATION_FIX.md`](DATABASE_MIGRATION_FIX.md) | Database Migration Fix: WeightPerPiece Column |
-| [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) | ProGlass Automation — UI Design System (v2) |
+| [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) | ProGlass Automation — Design System Authority |
 | [`ERP_UPGRADE_ROADMAP.md`](ERP_UPGRADE_ROADMAP.md) | PROGLASS AUTOMATION — ROADMAP TO 10/10 INDUSTRIAL ERP WORKFLOW |
 | [`LAN_SHARED_DATABASE_CONNECTIVITY_UPGRADE_2026-09-07.md`](LAN_SHARED_DATABASE_CONNECTIVITY_UPGRADE_2026-09-07.md) | LAN / Wi-Fi Shared Database Connectivity Upgrade — 2026-09-07 |
 | [`MONEY_PATH_ERROR_POLICY.md`](MONEY_PATH_ERROR_POLICY.md) | MONEY-PATH ERROR & SILENT-CATCH POLICY |
@@ -119,6 +119,8 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`LOCALIZATION_2026-09-01.md`](LOCALIZATION_2026-09-01.md) | System-Wide Language & Currency — Implementation & Audit (2026-09-01) |
 | [`MODULE_FEATURE_TOGGLES_2026-08.md`](MODULE_FEATURE_TOGGLES_2026-08.md) | Module Feature Toggles — Job Order / Delivery Note / Tax Invoice (Aug 2026) |
 | [`SCREEN_RECORDING_DURATION_FIX_2026-09-10.md`](SCREEN_RECORDING_DURATION_FIX_2026-09-10.md) | Screen Recording — deep analysis, duration fix & 4K UHD support |
+| [`SCREEN_RECORDING_DURATION_FIX_2026-09-14.md`](SCREEN_RECORDING_DURATION_FIX_2026-09-14.md) | Screen Recording — Phase-3 production repair: duration correctness, guaranteed |
+| [`SCREEN_RECORDING_QUALITY_STORAGE_2026-09-14.md`](SCREEN_RECORDING_QUALITY_STORAGE_2026-09-14.md) | Screen Recording — Phase-4 production optimization: quality, compression, large-file re… |
 | [`SCREEN_RECORDING_REDESIGN.md`](SCREEN_RECORDING_REDESIGN.md) | Screen Recording — Redesign, Lag & Quality Fixes |
 | [`SENIOR_ANALYSIS_BUILD_ERRORS_AND_MOTION_SYSTEM.md`](SENIOR_ANALYSIS_BUILD_ERRORS_AND_MOTION_SYSTEM.md) | Senior Analysis — Build Errors (MC3000 / CS0200 / CS0191 / CS0103) and the Global Motio… |
 | [`SENIOR_ANALYSIS_HARDCODED_CARDS_AUDIT.md`](SENIOR_ANALYSIS_HARDCODED_CARDS_AUDIT.md) | Senior Analysis — App-Wide Hardcoded Card Audit |
@@ -130,6 +132,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`SETTINGS_NATURAL_HEIGHT_FIX_2026-08.md`](SETTINGS_NATURAL_HEIGHT_FIX_2026-08.md) | Settings Natural-Height Fix — Global Wallpaper empty space (Aug 2026) |
 | [`SETTINGS_REDESIGN.md`](SETTINGS_REDESIGN.md) | Settings Module v2 — Redesign Report |
 | [`SETTINGS_REDESIGN_2026-08.md`](SETTINGS_REDESIGN_2026-08.md) | Settings Redesign · Tile-Grid Design System · August 2026 |
+| [`THEME_ENGINE_REWRITE_PHASES.md`](THEME_ENGINE_REWRITE_PHASES.md) | ProGlass Theme Engine — Complete Rewrite Phases |
 | [`THEME_NORMAL_INDUSTRIAL_RESTORATION_2026-09-07.md`](THEME_NORMAL_INDUSTRIAL_RESTORATION_2026-09-07.md) | Theme — "Normal (Industrial)" restoration + card edge lines (2026-09-07) |
 | [`THEME_REDUCTION_2026-09-06.md`](THEME_REDUCTION_2026-09-06.md) | Theme Reduction — 2026-09-06 |
 | [`THEME_RICHNESS_ENHANCEMENT_2026-09-01.md`](THEME_RICHNESS_ENHANCEMENT_2026-09-01.md) | Theme System — Senior Richness & Contrast Pass (2026-09-01) |
@@ -137,6 +140,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`THEME_STUDIO_REPORT_2026-09-02.md`](THEME_STUDIO_REPORT_2026-09-02.md) | THEME STUDIO — Final Report (13-Point) |
 | [`UI_AUDIT_AND_REDESIGN_PLAN.md`](UI_AUDIT_AND_REDESIGN_PLAN.md) | ProGlass Automation — UI Audit & Industrial-Grade Redesign Plan (V2.0) |
 | [`UI_CONSISTENCY_AUDIT_MAINWINDOW.md`](UI_CONSISTENCY_AUDIT_MAINWINDOW.md) | MainWindow Shell — UI Style / Pattern Consistency Audit |
+| [`UI_FORENSIC_AUDIT_2026-09-13.md`](UI_FORENSIC_AUDIT_2026-09-13.md) | ProGlassAutomationADV — Complete UI Forensic Audit |
 | [`UI_REDESIGN_SPLASH_LOGIN_ABOUT.md`](UI_REDESIGN_SPLASH_LOGIN_ABOUT.md) | Splash · Login · About — Industrial Redesign (v5) |
 | [`UI_UX_DEEP_AUDIT_VIEWS.md`](UI_UX_DEEP_AUDIT_VIEWS.md) | Global UI/UX Deep Audit — all Views (133 XAML files) |
 | [`UI_UX_DESIGN_SYSTEM_AUDIT_2026-09-07.md`](UI_UX_DESIGN_SYSTEM_AUDIT_2026-09-07.md) | ProGlassAutomation — Industrial ERP UI/UX + WPF/XAML Design-System Audit |
@@ -205,7 +209,30 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`INDUSTRIALIZATION_AUDIT_2026-09-06.md`](INDUSTRIALIZATION_AUDIT_2026-09-06.md) | ProGlass Automation — Industrialization Audit & Safe Refactor |
 | [`INDUSTRIAL_CODE_AUDIT.md`](INDUSTRIAL_CODE_AUDIT.md) | Industrial Code & Workflow Senior Audit — ProGlass Automation |
 | [`INDUSTRIAL_ERP_ANALYSIS_2026-09-07.md`](INDUSTRIAL_ERP_ANALYSIS_2026-09-07.md) | Senior Industrial-ERP Analysis — Appearance, Branding & Theme Round |
+| [`INDUSTRIAL_REFORM_2026-09-13.md`](INDUSTRIAL_REFORM_2026-09-13.md) | INDUSTRIAL REFORM — strict industrial pattern app-wide (2026-09-13) |
 | [`PHASE10_COMPLETE.md`](PHASE10_COMPLETE.md) | Phase 10 Complete — Production Hardening |
+| [`PHASE10_LEGACY_COMPATIBILITY_REPORT.md`](PHASE10_LEGACY_COMPATIBILITY_REPORT.md) | Phase 10 — Legacy Dictionary & Compatibility Removal Report |
+| [`PHASE11_DESIGN_SYSTEM_ARCHITECTURE_REPORT.md`](PHASE11_DESIGN_SYSTEM_ARCHITECTURE_REPORT.md) | Phase 11 — Canonical Design-System Architecture Assessment and Safe Internal Organization |
+| [`PHASE12_COMPATIBILITY_RETIREMENT_REPORT.md`](PHASE12_COMPATIBILITY_RETIREMENT_REPORT.md) | Phase 12 — Compatibility Retirement & Runtime-Proven Migration Report |
+| [`PHASE13_PRODUCTION_OPTIMIZATION_FOUNDATION_REPORT.md`](PHASE13_PRODUCTION_OPTIMIZATION_FOUNDATION_REPORT.md) | Phase 13 — Production & Optimization Foundation Audit + Implementation Readiness |
+| [`PHASE14_PRODUCTION_OPTIMIZATION_IMPLEMENTATION_REPORT.md`](PHASE14_PRODUCTION_OPTIMIZATION_IMPLEMENTATION_REPORT.md) | Phase 14 — Production and Optimization Foundations Implementation Report |
+| [`PHASE15_CUTTING_2D_OPTIMIZATION_IMPLEMENTATION_REPORT.md`](PHASE15_CUTTING_2D_OPTIMIZATION_IMPLEMENTATION_REPORT.md) | PHASE 15 — CUTTING + 2D GLASS NESTING — IMPLEMENTATION REPORT |
+| [`PHASE16_CORE_PRODUCTION_PROCESS_IMPLEMENTATION_REPORT.md`](PHASE16_CORE_PRODUCTION_PROCESS_IMPLEMENTATION_REPORT.md) | PHASE 16 — CORE PRODUCTION PROCESS EXECUTION — IMPLEMENTATION REPORT |
+| [`PHASE17_PRODUCTION_CONTROL_FACTORY_READINESS_IMPLEMENTATION_REPORT.md`](PHASE17_PRODUCTION_CONTROL_FACTORY_READINESS_IMPLEMENTATION_REPORT.md) | PHASE 17 — PRODUCTION CONTROL & FACTORY READINESS — IMPLEMENTATION REPORT |
+| [`PHASE18_FULL_SYSTEM_STABILIZATION_RELEASE_AUDIT_REPORT.md`](PHASE18_FULL_SYSTEM_STABILIZATION_RELEASE_AUDIT_REPORT.md) | PHASE 18 — FULL SYSTEM STABILIZATION, REGRESSION, BUG FIX & RELEASE AUDIT REPORT |
+| [`PHASE19R_EMERGENCY_UI_RECOVERY_REPORT.md`](PHASE19R_EMERGENCY_UI_RECOVERY_REPORT.md) | PHASE 19R EMERGENCY UI RECOVERY MODE — FINAL REPORT |
+| [`PHASE19R_ERR35B71A_TEMPLATE_CANDIDATES.md`](PHASE19R_ERR35B71A_TEMPLATE_CANDIDATES.md) | PHASE 19R ERR-35B71A TEMPLATE CANDIDATES — STATIC INVENTORY |
+| [`PHASE19R_ERR35B71A_TEMPLATE_FORENSICS.md`](PHASE19R_ERR35B71A_TEMPLATE_FORENSICS.md) | PHASE 19R ERR-35B71A EXACT WPF FONTSIZE TEMPLATE FORENSICS |
+| [`PHASE19R_EXACT_TEMPLATE_FORENSICS.md`](PHASE19R_EXACT_TEMPLATE_FORENSICS.md) | PHASE 19R EXACT TEMPLATE FORENSICS — ERR-102553 ResourceReferenceExpression not valid f… |
+| [`PHASE19R_FAILURE_BASELINE.md`](PHASE19R_FAILURE_BASELINE.md) | PHASE 19R — FAILURE BASELINE (FREEZE STATE) |
+| [`PHASE19R_FAILURE_CLASSIFICATION.md`](PHASE19R_FAILURE_CLASSIFICATION.md) | PHASE 19R — FAILURE CLASSIFICATION — 134 FAILURES FORENSIC |
+| [`PHASE19R_FAILURE_FORENSICS_AND_STABILIZATION_REPORT.md`](PHASE19R_FAILURE_FORENSICS_AND_STABILIZATION_REPORT.md) | PHASE 19R — FAILURE FORENSICS AND STABILIZATION REPORT |
+| [`PHASE19R_FINAL_WINDOWS_GATE_REPORT.md`](PHASE19R_FINAL_WINDOWS_GATE_REPORT.md) | PHASE 19R — WINDOWS CLEAN-LAUNCH, CRASH ELIMINATION & FINAL PUSH GATE — FINAL REPORT |
+| [`PHASE19R_FULL_CRASH_STABILIZATION_REPORT.md`](PHASE19R_FULL_CRASH_STABILIZATION_REPORT.md) | PHASE 19R — FULL CRASH STABILIZATION REPORT — ERR-2530A1 |
+| [`PHASE19R_WINDOWS_CRASH_FIX_REPORT.md`](PHASE19R_WINDOWS_CRASH_FIX_REPORT.md) | PHASE 19R — WINDOWS RUNTIME CRASH FIX REPORT — FontSize ResourceReferenceExpression |
+| [`PHASE19_CRASH_FORENSICS_REPORT.md`](PHASE19_CRASH_FORENSICS_REPORT.md) | PHASE 19 — CRASH FORENSICS REPORT |
+| [`PHASE19_WINDOWS_REAL_WORLD_VERIFICATION_REPORT.md`](PHASE19_WINDOWS_REAL_WORLD_VERIFICATION_REPORT.md) | PHASE 19 — WINDOWS REAL-WORLD BUILD, RUNTIME, VISUAL VERIFICATION & TARGETED FIXES REPORT |
+| [`PHASE19_WINDOWS_RUNTIME_CRASH_FORENSICS.md`](PHASE19_WINDOWS_RUNTIME_CRASH_FORENSICS.md) | PHASE 19 — WINDOWS RUNTIME CRASH FORENSICS REPORT — FontSize ResourceReferenceExpression |
 | [`PHASE1_COMPLETE.md`](PHASE1_COMPLETE.md) | Phase 1 Complete — CI/CD & Quality Gates |
 | [`PHASE2_COMPLETE.md`](PHASE2_COMPLETE.md) | Phase 2 Complete — Error Handling Hardening v2 |
 | [`PHASE3_COMPLETE.md`](PHASE3_COMPLETE.md) | Phase 3 Complete — Async & Threading Cleanup |
@@ -214,7 +241,12 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`PHASE6B_COMPLETE.md`](PHASE6B_COMPLETE.md) | Phase 6b Complete — God ViewModel Decomposition Part 2 (DI Wiring) |
 | [`PHASE6_COMPLETE.md`](PHASE6_COMPLETE.md) | Phase 6 Complete — God ViewModel Decomposition (Part 1) |
 | [`PHASE7_COMPLETE.md`](PHASE7_COMPLETE.md) | Phase 7 Complete — Test Coverage Expansion |
+| [`PHASE8A0_RELEASE_VERIFICATION_REPORT.md`](PHASE8A0_RELEASE_VERIFICATION_REPORT.md) | PHASE 8A-0 — STRUCTURAL XAML REPAIR — RELEASE VERIFICATION REPORT |
+| [`PHASE8A1_XAML_GUARD_CLEANUP_REPORT.md`](PHASE8A1_XAML_GUARD_CLEANUP_REPORT.md) | PHASE 8A-1 — XAML GUARD CLEANUP — REPORT |
+| [`PHASE8A_GUARDRAILS_REPORT.md`](PHASE8A_GUARDRAILS_REPORT.md) | PHASE 8A — DESIGN-SYSTEM GUARDRAILS + ZERO-RISK CLEANUP — REPORT |
+| [`PHASE8_BASELINE_VERIFICATION_REPORT.md`](PHASE8_BASELINE_VERIFICATION_REPORT.md) | PHASE 8 — BASELINE VERIFICATION REPORT — LIVE WPF RENDERING + THEME SWITCHING |
 | [`PHASE8_COMPLETE.md`](PHASE8_COMPLETE.md) | Phase 8 Complete — Security Hardening v2 |
+| [`PHASE9_COMPATIBILITY_MIGRATION_REPORT.md`](PHASE9_COMPATIBILITY_MIGRATION_REPORT.md) | Phase 9 — Compatibility Migration + Controlled Typography Tokenization Report |
 | [`PHASE9_COMPLETE.md`](PHASE9_COMPLETE.md) | Phase 9 Complete — Performance & Virtualization |
 | [`SENIOR_ANALYSIS.md`](SENIOR_ANALYSIS.md) | Senior Analysis — ProGlass Automation ADV |
 | [`SENIOR_ANALYSIS_AND_IMPROVEMENTS.md`](SENIOR_ANALYSIS_AND_IMPROVEMENTS.md) | Senior Analysis: P&L and Profitability System |
@@ -230,31 +262,45 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 
 | Document | What it covers |
 |---|---|
+| [`ABOUT_LICENSE_EMPTY_FIX_AND_TYPOGRAPHY_2026-09-15.md`](ABOUT_LICENSE_EMPTY_FIX_AND_TYPOGRAPHY_2026-09-15.md) | About → License: the blank tab (root cause) + the About typography pass — 2026-09-15 |
 | [`BUILD_VERIFICATION_GUIDE.md`](BUILD_VERIFICATION_GUIDE.md) | Build Verification Guide |
 | [`CODE_RATING_REPORT.md`](CODE_RATING_REPORT.md) | ProGlass Automation — Senior Engineering Rating |
 | [`CORRECTED_MARGIN_CALCULATION.md`](CORRECTED_MARGIN_CALCULATION.md) | ✅ Corrected Margin Calculation - Example |
 | [`DEEP_ANALYSIS_2026-09-09.md`](DEEP_ANALYSIS_2026-09-09.md) | ProGlass Automation — Deep Code Analysis, 2026-09-09 |
 | [`DELIVERY-REPORT.md`](DELIVERY-REPORT.md) | ProGlass Automation — Localization & Globalization Delivery Report |
+| [`DESIGN_SYSTEM_ARCHITECTURE_2026-09-13.md`](DESIGN_SYSTEM_ARCHITECTURE_2026-09-13.md) | ProGlass Design System — Architecture & Migration Roadmap |
+| [`DESIGN_SYSTEM_UNIFICATION_AUDIT_2026-09-13.md`](DESIGN_SYSTEM_UNIFICATION_AUDIT_2026-09-13.md) | ProGlass Design System — Unification Audit (Phase A) |
 | [`DIALOG_SYSTEM_AUDIT.md`](DIALOG_SYSTEM_AUDIT.md) | Dialog & Popup System — Senior Audit and Unified Architecture |
 | [`ERP_LIFECYCLE_HARDENING_ANALYSIS_2026-09-09.md`](ERP_LIFECYCLE_HARDENING_ANALYSIS_2026-09-09.md) | ProGlass Automation — Document-Lifecycle Hardening Analysis |
 | [`EXECUTIVE_FUNNEL_FIX.md`](EXECUTIVE_FUNNEL_FIX.md) | Executive Report Hub — Order-to-Cash Funnel Fix (2026-09-10) |
 | [`FULL_WORKFLOW_AUDIT.md`](FULL_WORKFLOW_AUDIT.md) | PROGLASS AUTOMATION — DEEP WORKFLOW AUDIT & UPGRADE |
+| [`GLOBAL_UI_ARCHITECTURE_REPORT_2026-09-13.md`](GLOBAL_UI_ARCHITECTURE_REPORT_2026-09-13.md) | ProGlass Automation — Global UI Architecture Implementation Report |
 | [`IMPLEMENTATION_COMPLETE.md`](IMPLEMENTATION_COMPLETE.md) | ✅ Implementation Complete: Three Analysis Views with Tab Control |
 | [`IMPLEMENTATION_SUMMARY.md`](IMPLEMENTATION_SUMMARY.md) | ProGlassAutomationADV — Implementation Summary |
 | [`KPI_LIVE_AND_DISPLAY_FIXES_2026-09-10.md`](KPI_LIVE_AND_DISPLAY_FIXES_2026-09-10.md) | KPI Live Updates + Overview Delivery Count + Per-SQM + Profitability Layout |
 | [`MONEY_ROUNDING_POLICY.md`](MONEY_ROUNDING_POLICY.md) | Money Rounding Policy |
 | [`OPTIMIZATION_CALIBRATION_BENCHMARK_2026-09-12.md`](OPTIMIZATION_CALIBRATION_BENCHMARK_2026-09-12.md) | Optimization — Calibration Benchmark Report (2026-09-12) |
 | [`OPTIMIZATION_CLEAR_16SHEET_ANALYSIS_2026-09-12.md`](OPTIMIZATION_CLEAR_16SHEET_ANALYSIS_2026-09-12.md) | CLEAR Job — Deep 16-Sheet Feasibility Analysis (2026-09-12) |
+| [`OPTIMIZATION_IMPORT_AND_SPEC_COUNT_FIXES_2026-09-12.md`](OPTIMIZATION_IMPORT_AND_SPEC_COUNT_FIXES_2026-09-12.md) | Optimization — Size-Import & Spec-Count Fixes (2026-09-12) |
 | [`OPTIMIZATION_MODULE_DESIGN_2026-09-12.md`](OPTIMIZATION_MODULE_DESIGN_2026-09-12.md) | Glass Cutting Optimization Module — Deep Analysis & Implementation Plan |
+| [`OPTIMIZATION_PHASE23_EXPORTS_AND_SOURCE_LOCK_2026-09-12.md`](OPTIMIZATION_PHASE23_EXPORTS_AND_SOURCE_LOCK_2026-09-12.md) | Optimization — Phase 2/3, Exports & Source-Lock Fixes (2026-09-12) |
+| [`OPTIMIZATION_STOCKS_STEP4_FIX_2026-09-12.md`](OPTIMIZATION_STOCKS_STEP4_FIX_2026-09-12.md) | Optimization — "Broken Module" Root-Cause Analysis & Fix (2026-09-12) |
+| [`OPTIMIZATION_UI_UX_REDESIGN_2026-09-12.md`](OPTIMIZATION_UI_UX_REDESIGN_2026-09-12.md) | Optimization Module — UI/UX Audit, Rating & 10/10 Phase Plan (2026-09-12) |
 | [`PHASE_BALANCE.md`](PHASE_BALANCE.md) | Phase Balance — ProGlass Automation ADV |
+| [`PHASE_HISTORY_FORENSIC_REPORT.md`](PHASE_HISTORY_FORENSIC_REPORT.md) | PHASE HISTORY FORENSIC REPORT |
 | [`PI_PDF_WYSIWYG_REDESIGN_2026-09-11.md`](PI_PDF_WYSIWYG_REDESIGN_2026-09-11.md) | PI Step 7 / PDF Export — WYSIWYG Redesign (Senior Analysis) |
 | [`PI_SYSTEM_STATUS_REPORT.md`](PI_SYSTEM_STATUS_REPORT.md) | Proforma Invoice System - Complete Status Report |
 | [`PL_COST_BASED_MARKUP_EXAMPLE.md`](PL_COST_BASED_MARKUP_EXAMPLE.md) | P&L Cost-Based Markup Implementation - Example |
 | [`PRODUCTION_DGU_OVERLAP_PIPELINE_EXAMPLE_2026-09-11.md`](PRODUCTION_DGU_OVERLAP_PIPELINE_EXAMPLE_2026-09-11.md) | DGU Overlap Job — Full Production Pipeline Example to Delivery-Note Dispatch |
 | [`PRODUCTION_DISTRIBUTION_PLAN_2026-09-11.md`](PRODUCTION_DISTRIBUTION_PLAN_2026-09-11.md) | Production Distribution — Analysis & Implementation Plan |
+| [`PRODUCTION_INDUSTRIAL_UPGRADE_RECOMMENDATIONS.md`](PRODUCTION_INDUSTRIAL_UPGRADE_RECOMMENDATIONS.md) | Production module — senior industrial upgrade recommendations |
 | [`PRODUCTION_MODULE_EXAMPLES_2026-09-11.md`](PRODUCTION_MODULE_EXAMPLES_2026-09-11.md) | Production Module Examples — one job through all eight screens |
+| [`PRODUCTION_MODULE_SENIOR_REVIEW_2026-09-12.md`](PRODUCTION_MODULE_SENIOR_REVIEW_2026-09-12.md) | Production Module — Senior UI Review (2026-09-12) |
+| [`PRODUCTION_OPTIMIZATION_REDESIGN_2026-09-12.md`](PRODUCTION_OPTIMIZATION_REDESIGN_2026-09-12.md) | Production & Optimization Modules — Complete Analysis & Industrial Redesign |
 | [`PRODUCTION_SCREENS_DESIGN_2026-09-11.md`](PRODUCTION_SCREENS_DESIGN_2026-09-11.md) | Production Module Screens — List & Detail Design (with worked samples) |
+| [`PRODUCTION_STATION_UX_RATING_AND_PHASES_2026-09-13.md`](PRODUCTION_STATION_UX_RATING_AND_PHASES_2026-09-13.md) | Production station UX — live rating (2026-09-13, ERP polish) |
 | [`PRODUCTION_STEP4_MAPPING_ANALYSIS_2026-09-11.md`](PRODUCTION_STEP4_MAPPING_ANALYSIS_2026-09-11.md) | Production — Complete Step 4 / Step 5 Mapping Analysis & Module Upgrade |
+| [`PROGLASS_DESIGN_SYSTEM_REWRITE_2026-09-13.md`](PROGLASS_DESIGN_SYSTEM_REWRITE_2026-09-13.md) | ProGlass Design System Rewrite — Architecture Report |
 | [`REMEDIATION_PLAN.md`](REMEDIATION_PLAN.md) | Remediation Plan |
 | [`REPORT_GENERATOR_SENIOR_ANALYSIS.md`](REPORT_GENERATOR_SENIOR_ANALYSIS.md) | Report Generator — Senior Analysis & Implementation Plan |
 | [`SERVICE_CATEGORIZATION_FIX.md`](SERVICE_CATEGORIZATION_FIX.md) | Service Profitability - Business Logic Clarification |
@@ -262,6 +308,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`STEP4_STEP6_SHEET_STORE_LINK_2026-09-10.md`](STEP4_STEP6_SHEET_STORE_LINK_2026-09-10.md) | Step 4/5/6 ↔ Sheet Store linkage (2026-09-10) |
 | [`STEP8_APPROVE_UNIFICATION.md`](STEP8_APPROVE_UNIFICATION.md) | Step 8 Approve — Unifying the Split JPG/PDF Flow (Senior Analysis) |
 | [`USER_REPORT_FIXES_2026-09-10_B.md`](USER_REPORT_FIXES_2026-09-10_B.md) | User-Reported Fixes — Round 2 (2026-09-10) |
+| [`VISUAL_THEME_4_FAMILY_CONSOLIDATION_2026-09-12.md`](VISUAL_THEME_4_FAMILY_CONSOLIDATION_2026-09-12.md) | VISUAL THEME — 4-FAMILY CONSOLIDATION (2026-09-12) |
 | [`WASTAGE_COLOUR_SYNC_FIX.md`](WASTAGE_COLOUR_SYNC_FIX.md) | Step 6 Wastage Charges — Colour Import & Spec-Side Sync Fix |
 | [`WORKFLOW.md`](WORKFLOW.md) | Application Workflow |
 
@@ -274,13 +321,15 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | `Chat5-9/` | Working notes, prompts and data from an earlier session. (7 files) |
 | `ci/` | Pipeline definitions — duplicate casing of `CI/`; see `CI.md`. (2 files) |
 | `phases/` | Supporting artefacts. (18 files) |
+| `ui-audit/` | Supporting artefacts. (1 files) |
 | `ui-redesign/` | UI redesign working artefacts. (1 files) |
+| `ui-ux/` | Supporting artefacts. (7 files) |
 
 
 ## Folder READMEs
 
 Every significant folder in the repository carries its own `README.md`
-describing what lives there. `31` of them:
+describing what lives there. `32` of them:
 
 | Folder | What lives there |
 |---|---|
@@ -300,6 +349,7 @@ describing what lives there. `31` of them:
 | [`Services/SheetStore/SheetStoreExcel/`](../Services/SheetStore/SheetStoreExcel/README.md) | Sheet Store Excel Export |
 | [`Services/SheetStore/SheetStoreHistory/`](../Services/SheetStore/SheetStoreHistory/README.md) | Sheet Store History |
 | [`Services/SheetStore/SheetStorePdf/`](../Services/SheetStore/SheetStorePdf/README.md) | Sheet Store PDF Report |
+| [`Services/Theme/Engine/`](../Services/Theme/Engine/README.md) | ProGlassThemeEngine |
 | [`Tests/`](../Tests/README.md) | ProGlassAutomation.Tests |
 | [`Themes/Styles/`](../Themes/Styles/README.md) | Themes/Styles/ — Shared Style Library |
 | [`Tools/LicenseGenerator/`](../Tools/LicenseGenerator/README.md) | ProGlassAutomation.LicenseGenerator |

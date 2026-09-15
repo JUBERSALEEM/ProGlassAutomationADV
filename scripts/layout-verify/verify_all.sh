@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ══════════════════════════════════════════════════════════════════════
 # Single pre-push gate. Run from the repo root:
-#     bash tools/layout-verify/verify_all.sh
+#     bash scripts/layout-verify/verify_all.sh
 #
 # Exists because I shipped three separate build breaks by running SOME
 # of the checks and not others:
@@ -43,14 +43,23 @@ run() {
 }
 
 echo "── XAML ──────────────────────────────────────────────"
-run "well-formed        " python3 tools/layout-verify/xaml_wellformed.py $XAML
-run "stray attributes   " python3 tools/layout-verify/stray_attr_check.py $XAML
-run "property el. order " python3 tools/layout-verify/property_element_order.py $XAML
-run "duplicate props    " python3 tools/layout-verify/dup_property_check.py $XAML
+run "well-formed        " python3 scripts/layout-verify/xaml_wellformed.py $XAML
+run "stray attributes   " python3 scripts/layout-verify/stray_attr_check.py $XAML
+run "property el. order " python3 scripts/layout-verify/property_element_order.py $XAML
+run "duplicate props    " python3 scripts/layout-verify/dup_property_check.py $XAML
+
+echo "── Bindings ──────────────────────────────────────────"
+# A child that re-points its own ROOT DataContext silently re-targets every
+# binding its host declared on that element. That shipped twice: three
+# Settings pages at once (Visible default) and the blank About → License tab
+# (a DataTrigger Setter that could never fire). Known-benign baseline: the
+# Step-9 profitability views, whose host passes the same VM explicitly.
+run "datacontext hijack" python3 scripts/layout-verify/datacontext_scan.py --strict \
+    --exclude "Views/ProformaInvoice/Step9ProfitLoss/ProfitLossStepView.xaml"
 
 echo "── C# ────────────────────────────────────────────────"
-run "brace balance      " python3 tools/layout-verify/brace_scan.py $CS
-run "missing usings     " python3 tools/layout-verify/using_check.py $CS
+run "brace balance      " python3 scripts/layout-verify/brace_scan.py $CS
+run "missing usings     " python3 scripts/layout-verify/using_check.py $CS
 
 echo "──────────────────────────────────────────────────────"
 if [ $FAIL -ne 0 ]; then

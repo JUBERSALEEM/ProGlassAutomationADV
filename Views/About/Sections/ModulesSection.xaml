@@ -35,7 +35,7 @@
             <Style x:Key="ModuleSearchBoxStyle" TargetType="TextBox">
                 <Setter Property="Width" Value="220"/>
                 <Setter Property="Padding" Value="14,8"/>
-                <Setter Property="FontSize" Value="13.5"/>
+                <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeBody}"/>
                 <Setter Property="Foreground" Value="{DynamicResource Ios26TextBodyBrush}"/>
                 <Setter Property="CaretBrush" Value="{DynamicResource Ios26AccentBrush}"/>
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -54,7 +54,7 @@
                                                   VerticalAlignment="Center"/>
                                     <TextBlock x:Name="SearchPlaceholder"
                                                Text="{DynamicResource About.SearchModules}"
-                                               FontSize="13.5"
+                                               FontSize="{DynamicResource Ios26FontSizeBody}"
                                                Foreground="{DynamicResource Ios26TextFaintBrush}"
                                                VerticalAlignment="Center"
                                                Margin="15,0,0,0"
@@ -116,7 +116,7 @@
                                     VerticalAlignment="Center">
                                 <TextBlock Text="{Binding Icon}"
                                            FontFamily="{DynamicResource FontFamily.Icon}"
-                                           FontSize="15"
+                                           FontSize="{DynamicResource Ios26FontSizeSubtitle}"
                                            Foreground="{DynamicResource Ios26AccentBrush}"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
@@ -125,11 +125,11 @@
                             <!-- Run.Text is TwoWay-by-default; record props
                                  are read-only → explicit OneWay. -->
                             <TextBlock Grid.Column="2"
-                                       FontSize="14.5"
+                                       FontSize="{DynamicResource Ios26FontSizeValue}"
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False">
                                 <Run Text="{Binding Name, Mode=OneWay}"
-                                     FontWeight="Bold"
+                                     FontWeight="{DynamicResource Weight.Bold}"
                                      Foreground="{DynamicResource Ios26TextTitleBrush}"/>
                                 <Run Text=" — "
                                      Foreground="{DynamicResource Ios26TextMutedBrush}"/>
@@ -146,8 +146,8 @@
                                     VerticalAlignment="Center"
                                     Visibility="{Binding StatChip, Converter={StaticResource StringToVisibilityConverter}}">
                                 <TextBlock Text="{Binding StatChip}"
-                                           FontSize="10.5"
-                                           FontWeight="Bold"
+                                           FontSize="{DynamicResource Ios26FontSizeCaption}"
+                                           FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource Ios26AccentSoftTextBrush}"
                                            IsHitTestVisible="False"/>
                             </Border>
@@ -157,8 +157,8 @@
                                     Style="{StaticResource Ios26ChipGreenStyle}"
                                     VerticalAlignment="Center">
                                 <TextBlock Text="{DynamicResource About.Active}"
-                                           FontSize="10.5"
-                                           FontWeight="Bold"
+                                           FontSize="{DynamicResource Ios26FontSizeCaption}"
+                                           FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource Ios26SuccessBrush}"
                                            IsHitTestVisible="False"/>
                             </Border>
@@ -179,8 +179,8 @@
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
                 <Setter Property="Foreground" Value="{DynamicResource Ios26TextSecondaryBrush}"/>
-                <Setter Property="FontSize" Value="12.5"/>
-                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeSmall}"/>
+                <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
                 <Setter Property="Margin" Value="0,0,8,8"/>
                 <Setter Property="Template">
                     <Setter.Value>
@@ -224,8 +224,8 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0"
                                Text="{DynamicResource About.ModulesProduction}"
-                               FontSize="17"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource Ios26TextTitleBrush}"
                                VerticalAlignment="Center"/>
                     <TextBox Grid.Column="1"
@@ -271,18 +271,18 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="{DynamicResource About.EndEndProductionWorkflow}"
-                                   FontSize="17"
-                                   FontWeight="Bold"
+                                   FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource Ios26TextTitleBrush}"/>
                         <TextBlock Text="{DynamicResource About.CommercialIntakeProductionPreparation}"
-                                   FontSize="12"
+                                   FontSize="{DynamicResource Ios26FontSizeSmall}"
                                    Foreground="{DynamicResource Ios26TextMutedBrush}"
                                    Margin="0,2,0,0"/>
                     </StackPanel>
                     <Border Grid.Column="1" Style="{StaticResource Ios26ChipSoftStyle}"
                             VerticalAlignment="Top">
-                        <TextBlock FontSize="11"
-                                   FontWeight="Bold"
+                        <TextBlock FontSize="{DynamicResource Ios26FontSizeLabel}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource Ios26AccentSoftTextBrush}"
                                    Text="{DynamicResource About.14Stages}"/>
                     </Border>
@@ -297,19 +297,19 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="{DynamicResource About.SalesCycle}"
-                                           FontSize="10.5"
-                                           FontWeight="Bold"
+                                           FontSize="{DynamicResource Ios26FontSizeCaption}"
+                                           FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource Ios26TextMutedBrush}"/>
                                 <TextBlock Text="{DynamicResource About.SheetAvailabilityReleasedProductionPaperwork}"
-                                           FontSize="13"
+                                           FontSize="{DynamicResource Ios26FontSizeBody}"
                                            Foreground="{DynamicResource Ios26TextSecondaryBrush}"
                                            TextWrapping="Wrap"
                                            Margin="0,3,0,0"/>
                             </StackPanel>
                             <Border Grid.Column="1" Style="{StaticResource Ios26ChipSoftStyle}"
                                     VerticalAlignment="Top">
-                                <TextBlock FontSize="11"
-                                           FontWeight="Bold"
+                                <TextBlock FontSize="{DynamicResource Ios26FontSizeLabel}"
+                                           FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource Ios26AccentSoftTextBrush}"
                                            Text="{DynamicResource About.3Stages}"/>
                             </Border>
@@ -334,19 +334,19 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="{DynamicResource About.ProductionStagesUpcoming}"
-                                           FontSize="10.5"
-                                           FontWeight="Bold"
+                                           FontSize="{DynamicResource Ios26FontSizeCaption}"
+                                           FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource Ios26TextMutedBrush}"/>
                                 <TextBlock Text="{DynamicResource About.PlannedFactoryExecutionStagesSlotControlled}"
-                                           FontSize="13"
+                                           FontSize="{DynamicResource Ios26FontSizeBody}"
                                            Foreground="{DynamicResource Ios26TextSecondaryBrush}"
                                            TextWrapping="Wrap"
                                            Margin="0,3,0,0"/>
                             </StackPanel>
                             <Border Grid.Column="1" Style="{StaticResource Ios26ChipSoftStyle}"
                                     VerticalAlignment="Top">
-                                <TextBlock FontSize="11"
-                                           FontWeight="Bold"
+                                <TextBlock FontSize="{DynamicResource Ios26FontSizeLabel}"
+                                           FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource Ios26AccentSoftTextBrush}"
                                            Text="{DynamicResource About.8Stages}"/>
                             </Border>
@@ -371,19 +371,19 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="{DynamicResource About.DispatchBilling}"
-                                           FontSize="10.5"
-                                           FontWeight="Bold"
+                                           FontSize="{DynamicResource Ios26FontSizeCaption}"
+                                           FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource Ios26TextMutedBrush}"/>
                                 <TextBlock Text="{DynamicResource About.DeliveryEvidenceInvoicingReportingClosedOne}"
-                                           FontSize="13"
+                                           FontSize="{DynamicResource Ios26FontSizeBody}"
                                            Foreground="{DynamicResource Ios26TextSecondaryBrush}"
                                            TextWrapping="Wrap"
                                            Margin="0,3,0,0"/>
                             </StackPanel>
                             <Border Grid.Column="1" Style="{StaticResource Ios26ChipSoftStyle}"
                                     VerticalAlignment="Top">
-                                <TextBlock FontSize="11"
-                                           FontWeight="Bold"
+                                <TextBlock FontSize="{DynamicResource Ios26FontSizeLabel}"
+                                           FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource Ios26AccentSoftTextBrush}"
                                            Text="{DynamicResource About.3Stages}"/>
                             </Border>

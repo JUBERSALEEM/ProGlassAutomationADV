@@ -41,6 +41,20 @@ namespace ProGlassAutomation.Tests.About
             "Views/About/Sections/DiagnosticsSection.xaml",
         };
 
+        /// <summary>Code-behind of every About section host — the files that
+        /// are allowed to keep their own view model, but only on an INNER
+        /// element (never on the UserControl root).</summary>
+        private static readonly string[] AboutSectionCodeBehind =
+        {
+            "Views/About/Sections/AboutOverviewSection.xaml.cs",
+            "Views/About/Sections/AboutLicenseCard.xaml.cs",
+            "Views/About/Sections/AboutCrashReportsCard.xaml.cs",
+            "Views/About/Sections/ModulesSection.xaml.cs",
+            "Views/About/Sections/DeveloperSection.xaml.cs",
+            "Views/About/Sections/SystemSection.xaml.cs",
+            "Views/About/Sections/DiagnosticsSection.xaml.cs",
+        };
+
         [Fact]
         public void About_xaml_files_parse_cleanly()
         {
@@ -253,6 +267,247 @@ namespace ProGlassAutomation.Tests.About
 
             vm.SelectedTabIndex = 999;
             Assert.Equal(vm.Tabs.Count - 1, vm.SelectedTabIndex);
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  2026-09-15 — "the License tab is STILL empty" regression locks
+        //
+        //  Root cause: AboutLicenseCard assigned LicenseStatusViewModel
+        //  .Instance to its ROOT DataContext. The shell switched sections
+        //  with an inline <X.Style> DataTrigger bound to
+        //  {Binding SelectedTabIndex}; a binding on an element resolves
+        //  against THAT element's DataContext, so the trigger asked a
+        //  license VM for SelectedTabIndex, never fired, and the License
+        //  section sat at its Collapsed default for ever — a blank page
+        //  under a perfectly working tab strip.
+        //
+        //  The locks below make both halves of that failure impossible to
+        //  reintroduce: the switch must resolve against the shell, and no
+        //  About section may re-point its own root DataContext.
+        // ══════════════════════════════════════════════════════════════
+
+        [Fact]
+        public void About_section_switches_read_the_shell_datacontext()
+        {
+            var root = LocateProjectRoot();
+            var shell = File.ReadAllText(Path.Combine(root, "Views/About/AboutView.xaml"));
+
+            Assert.Contains("x:Name=\"AboutShell\"", shell);
+
+            var hosts = new (string Tag, string Name, int Index)[]
+            {
+                ("AboutOverviewSection", "OverviewSection", 0),
+                ("AboutLicenseCard", "LicenseSectionHost", 1),
+                ("ModulesSection", "ModulesSectionHost", 2),
+                ("DeveloperSection", "DeveloperSectionHost", 3),
+                ("SystemSection", "SystemSectionHost", 4),
+                ("DiagnosticsSection", "DiagnosticsSectionHost", 5),
+            };
+
+            foreach (var (tag, name, index) in hosts)
+            {
+                int at = shell.IndexOf($"<aboutSections:{tag} x:Name=\"{name}\"",
+                    StringComparison.Ordinal);
+                Assert.True(at >= 0, $"AboutView.xaml no longer hosts {tag} as {name}.");
+
+                int end = shell.IndexOf('>', at);
+                string openTag = shell.Substring(at, end - at + 1);
+
+                Assert.Contains("ElementName=AboutShell", openTag);
+                Assert.Contains("DataContext.SelectedTabIndex", openTag);
+                Assert.Contains(
+                    $"ConverterParameter={index}", openTag);
+
+                // The unanchored form is what broke: on an element whose
+                // DataContext is re-pointed by its own constructor it never
+                // resolves. It is banned on the section hosts for good.
+                Assert.DoesNotContain("Visibility=\"{Binding SelectedTabIndex", openTag);
+            }
+        }
+
+        [Fact]
+        public void About_views_do_not_hijack_a_hosted_section_datacontext()
+        {
+            var root = LocateProjectRoot();
+
+            foreach (var rel in AboutSectionCodeBehind)
+            {
+                var path = Path.Combine(root, rel);
+                Assert.True(File.Exists(path), $"Missing: {rel}");
+
+                foreach (var line in File.ReadAllLines(path))
+                {
+                    var trimmed = line.TrimStart();
+                    if (trimmed.StartsWith("//", StringComparison.Ordinal)) continue;
+
+                    // `DataContext = …` (no receiver) targets the UserControl
+                    // ROOT and re-points every binding a host declared on it.
+                    Assert.False(
+                        Regex.IsMatch(trimmed, @"^DataContext\s*="),
+                        $"{rel} assigns the ROOT DataContext ({trimmed.Trim()}). " +
+                        "A hosted section must keep its own VM on an inner " +
+                        "element (see AboutLicenseCard.CardRoot) — assigning the " +
+                        "root silently re-targets the host's bindings.");
+                }
+            }
+
+            // …and the License card keeps its VM on the inner container.
+            var license = File.ReadAllText(Path.Combine(root,
+                "Views/About/Sections/AboutLicenseCard.xaml.cs"));
+            Assert.Contains("CardRoot.DataContext = vm;", license);
+
+            var licenseXaml = File.ReadAllText(Path.Combine(root,
+                "Views/About/Sections/AboutLicenseCard.xaml"));
+            Assert.Contains("x:Name=\"CardRoot\"", licenseXaml);
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  2026-09-15 — typography contract ("proper bold fonts")
+        //
+        //  The module used to carry 20 hard-coded font sizes, half of them
+        //  fractional (13.5 / 12.5 / 11.5 / 10.5). Under
+        //  TextFormattingMode="Display" a fractional size is hinted at a
+        //  half-pixel grid, which makes the bold cuts look muddy, and 97
+        //  hand-set weights (68 Bold) meant everything shouted at once, so
+        //  nothing read as emphasised. Sizes now come from the About type
+        //  scale and weights from the ONE global weight scale.
+        // ══════════════════════════════════════════════════════════════
+
+        [Fact]
+        public void About_views_use_the_about_type_scale_and_the_global_weights()
+        {
+            var root = LocateProjectRoot();
+
+            var literalSize = new Regex(@"FontSize=""[0-9]", RegexOptions.Compiled);
+            var literalWeight = new Regex(
+                @"FontWeight=""(Bold|SemiBold|Normal|Light|Medium)""", RegexOptions.Compiled);
+            var fractional = new Regex(@"FontSize=""[0-9]+\.[0-9]", RegexOptions.Compiled);
+
+            foreach (var rel in AboutFiles)
+            {
+                var src = File.ReadAllText(Path.Combine(root, rel));
+
+                var size = literalSize.Match(src);
+                Assert.False(size.Success,
+                    $"{rel} hard-codes a font size ({size.Value}) — use the " +
+                    "Ios26FontSize* scale from AboutIos26Theme.xaml. " +
+                    "Fractional sizes are banned outright: they hint badly " +
+                    "under TextFormattingMode=Display.");
+
+                var fraction = fractional.Match(src);
+                Assert.False(fraction.Success,
+                    $"{rel} still contains the fractional size {fraction.Value}.");
+
+                var weight = literalWeight.Match(src);
+                Assert.False(weight.Success,
+                    $"{rel} hard-codes a font weight ({weight.Value}) — use " +
+                    "Weight.Regular / Weight.SemiBold / Weight.Bold.");
+            }
+        }
+
+        [Fact]
+        public void About_weight_hierarchy_is_disciplined()
+        {
+            var root = LocateProjectRoot();
+
+            var smallSizes = new[]
+            {
+                "Ios26FontSizeCaption", "Ios26FontSizeLabel",
+            };
+            var titleSizes = new[]
+            {
+                "Ios26FontSizeCardTitleSm", "Ios26FontSizeCardTitle",
+                "Ios26FontSizeSectionTitle", "Ios26FontSizeH2",
+                "Ios26FontSizeH1", "Ios26FontSizeMetric",
+                "Ios26FontSizeStat", "Ios26FontSizeDisplay",
+            };
+
+            var tag = new Regex(@"<[A-Za-z][\w.:]*\b[^>]*?>",
+                RegexOptions.Singleline | RegexOptions.Compiled);
+            var size = new Regex(@"FontSize=""\{DynamicResource ([^}]+)\}""", RegexOptions.Compiled);
+            var weight = new Regex(@"FontWeight=""\{DynamicResource ([^}]+)\}""", RegexOptions.Compiled);
+
+            foreach (var rel in AboutFiles)
+            {
+                var src = File.ReadAllText(Path.Combine(root, rel));
+
+                foreach (Match m in tag.Matches(src))
+                {
+                    var s = size.Match(m.Value);
+                    var w = weight.Match(m.Value);
+                    if (!s.Success || !w.Success) continue;
+
+                    if (smallSizes.Contains(s.Groups[1].Value))
+                    {
+                        Assert.NotEqual("Weight.Bold", w.Groups[1].Value);
+                    }
+
+                    if (titleSizes.Contains(s.Groups[1].Value))
+                    {
+                        Assert.Equal("Weight.Bold", w.Groups[1].Value);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void About_theme_defines_the_type_scale_and_whole_pixel_sizes()
+        {
+            var root = LocateProjectRoot();
+            var theme = File.ReadAllText(Path.Combine(root,
+                "Views/About/AboutIos26Theme.xaml"));
+
+            foreach (var key in new[]
+            {
+                "Ios26FontSizeCaption", "Ios26FontSizeLabel", "Ios26FontSizeSmall",
+                "Ios26FontSizeBody", "Ios26FontSizeValue", "Ios26FontSizeSubtitle",
+                "Ios26FontSizeCardTitleSm", "Ios26FontSizeCardTitle",
+                "Ios26FontSizeSectionTitle", "Ios26FontSizeGlyph", "Ios26FontSizeH2",
+                "Ios26FontSizeH1", "Ios26FontSizeMetric", "Ios26FontSizeStat",
+                "Ios26FontSizeDisplay",
+            })
+            {
+                Assert.Contains($"x:Key=\"{key}\"", theme);
+            }
+
+            foreach (var style in new[]
+            {
+                "Ios26CardTitleStyle", "Ios26FieldLabelStyle", "Ios26FieldValueStyle",
+            })
+            {
+                Assert.Contains($"x:Key=\"{style}\"", theme);
+            }
+
+            // Every About size token must be a whole pixel value.
+            var token = new Regex(
+                @"<sys:Double x:Key=""Ios26FontSize\w+"">([0-9.]+)</sys:Double>",
+                RegexOptions.Compiled);
+            foreach (Match m in token.Matches(theme))
+            {
+                Assert.DoesNotContain(".", m.Groups[1].Value);
+            }
+        }
+
+        [Fact]
+        public void About_license_card_field_rows_follow_the_label_value_roles()
+        {
+            var root = LocateProjectRoot();
+            var src = File.ReadAllText(Path.Combine(root,
+                "Views/About/Sections/AboutLicenseCard.xaml"));
+
+            // The detail grid = 8 label cells + 6 plain value cells (the
+            // license-id and fingerprint rows are pill + copy button); labels
+            // stay quiet, values carry the bold cut.
+            Assert.True(
+                Regex.Matches(src, "Style=\"\{StaticResource Ios26FieldLabelStyle\}\"").Count >= 8,
+                "The license detail rows no longer use Ios26FieldLabelStyle.");
+            Assert.True(
+                Regex.Matches(src, "Style=\"\{StaticResource Ios26FieldValueStyle\}\"").Count >= 6,
+                "The license detail values no longer use Ios26FieldValueStyle.");
+
+            Assert.Contains("Ios26CardTitleStyle", src);
+            Assert.False(new Regex(@"FontSize=\"[0-9]").IsMatch(src),
+                "AboutLicenseCard.xaml hard-codes a font size again.");
         }
 
         private static string LocateProjectRoot()

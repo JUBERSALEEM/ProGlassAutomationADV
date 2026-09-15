@@ -88,22 +88,22 @@
 
                         <StackPanel Grid.Column="2" VerticalAlignment="Center">
                             <TextBlock Text="{Binding DeveloperName}"
-                                       FontSize="22"
-                                       FontWeight="Bold"
+                                       FontSize="{DynamicResource Ios26FontSizeH1}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource Ios26TextTitleBrush}"
                                        TextWrapping="Wrap"
                                        IsHitTestVisible="False"/>
                             <TextBlock Text="{DynamicResource About.PrincipalDeveloperProductDesignWorkflow}"
-                                       FontSize="13"
+                                       FontSize="{DynamicResource Ios26FontSizeBody}"
                                        Foreground="{DynamicResource Ios26TextMutedBrush}"
                                        Margin="0,5,0,0"
                                        TextWrapping="Wrap"
                                        IsHitTestVisible="False"/>
                             <!-- Owner directive 2026-09-10: country branding run only -->
-                            <TextBlock FontSize="13"
+                            <TextBlock FontSize="{DynamicResource Ios26FontSizeBody}"
                                        Margin="0,5,0,0"
                                        IsHitTestVisible="False">
-                                <Run Text="—" FontWeight="Bold" Foreground="{DynamicResource Ios26AccentBrush}"/>
+                                <Run Text="—" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ios26AccentBrush}"/>
                                 <Run Text=" "/>
                                 <Run Text="{DynamicResource About.MadeInIndia}" Foreground="{DynamicResource Ios26TextSecondaryBrush}"/>
                             </TextBlock>
@@ -120,13 +120,13 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="&#xE715;"
                                            FontFamily="{DynamicResource FontFamily.Icon}"
-                                           FontSize="13"
+                                           FontSize="{DynamicResource Ios26FontSizeBody}"
                                            Foreground="{DynamicResource Ios26AccentBrush}"
                                            VerticalAlignment="Center"
                                            Margin="0,0,8,0"/>
                                 <TextBlock Text="{Binding Email}"
-                                           FontSize="13.5"
-                                           FontWeight="SemiBold"
+                                           FontSize="{DynamicResource Ios26FontSizeBody}"
+                                           FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource Ios26TextBodyBrush}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
@@ -139,8 +139,8 @@
             <Border Grid.Column="2" Style="{StaticResource Ios26CardStyle}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource About.TechnologyStack}"
-                               FontSize="17"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource Ios26TextTitleBrush}"
                                Margin="0,0,0,14"/>
                     <ItemsControl ItemsSource="{Binding TechStackCore}"
@@ -167,22 +167,22 @@
             <Border Grid.Column="0" Style="{StaticResource Ios26CardStyle}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource About.ProductFacts}"
-                               FontSize="17"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource Ios26TextTitleBrush}"
                                Margin="0,0,0,14"/>
                     <UniformGrid Columns="2" Rows="2">
                         <Border Style="{StaticResource DevFactTileStyle}" Margin="0,0,10,10">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <Border Width="30" Height="30" Style="{StaticResource Ios26IconTileStyle}" VerticalAlignment="Center">
-                                    <TextBlock Text="&#xE946;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="14"
+                                    <TextBlock Text="&#xE946;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource Ios26FontSizeValue}"
                                                Foreground="{DynamicResource Ios26AccentBrush}"
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="{DynamicResource About.Version}" FontSize="10" FontWeight="Bold"
+                                    <TextBlock Text="{DynamicResource About.Version}" FontSize="{DynamicResource Ios26FontSizeCaption}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                Foreground="{DynamicResource Ios26TextMutedBrush}"/>
-                                    <TextBlock Text="{Binding Version}" FontSize="14" FontWeight="Bold"
+                                    <TextBlock Text="{Binding Version}" FontSize="{DynamicResource Ios26FontSizeValue}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource Ios26TextTitleBrush}"
                                                TextTrimming="CharacterEllipsis"/>
                                 </StackPanel>
@@ -191,14 +191,14 @@
                         <Border Style="{StaticResource DevFactTileStyle}" Margin="0,0,0,10">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <Border Width="30" Height="30" Style="{StaticResource Ios26IconTileStyle}" VerticalAlignment="Center">
-                                    <TextBlock Text="&#xE713;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="14"
+                                    <TextBlock Text="&#xE713;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource Ios26FontSizeValue}"
                                                Foreground="{DynamicResource Ios26AccentBrush}"
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="{DynamicResource About.Build}" FontSize="10" FontWeight="Bold"
+                                    <TextBlock Text="{DynamicResource About.Build}" FontSize="{DynamicResource Ios26FontSizeCaption}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                Foreground="{DynamicResource Ios26TextMutedBrush}"/>
-                                    <TextBlock Text="{Binding Build}" FontSize="14" FontWeight="Bold"
+                                    <TextBlock Text="{Binding Build}" FontSize="{DynamicResource Ios26FontSizeValue}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource Ios26TextTitleBrush}"
                                                TextTrimming="CharacterEllipsis"/>
                                 </StackPanel>
@@ -207,14 +207,14 @@
                         <Border Style="{StaticResource DevFactTileStyle}" Margin="0,10,10,0">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <Border Width="30" Height="30" Style="{StaticResource Ios26IconTileStyle}" VerticalAlignment="Center">
-                                    <TextBlock Text="&#xE7F4;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="14"
+                                    <TextBlock Text="&#xE7F4;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource Ios26FontSizeValue}"
                                                Foreground="{DynamicResource Ios26AccentBrush}"
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="{DynamicResource About.Edition}" FontSize="10" FontWeight="Bold"
+                                    <TextBlock Text="{DynamicResource About.Edition}" FontSize="{DynamicResource Ios26FontSizeCaption}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                Foreground="{DynamicResource Ios26TextMutedBrush}"/>
-                                    <TextBlock Text="{Binding LicenseStatus.EditionDisplay}" FontSize="14" FontWeight="Bold"
+                                    <TextBlock Text="{Binding LicenseStatus.EditionDisplay}" FontSize="{DynamicResource Ios26FontSizeValue}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource Ios26TextTitleBrush}"
                                                TextTrimming="CharacterEllipsis"/>
                                 </StackPanel>
@@ -223,14 +223,14 @@
                         <Border Style="{StaticResource DevFactTileStyle}" Margin="0,10,0,0">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <Border Width="30" Height="30" Style="{StaticResource Ios26IconTileStyle}" VerticalAlignment="Center">
-                                    <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="14"
+                                    <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource Ios26FontSizeValue}"
                                                Foreground="{DynamicResource Ios26SuccessBrush}"
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="{DynamicResource Common.Status}" FontSize="10" FontWeight="Bold"
+                                    <TextBlock Text="{DynamicResource Common.Status}" FontSize="{DynamicResource Ios26FontSizeCaption}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                Foreground="{DynamicResource Ios26TextMutedBrush}"/>
-                                    <TextBlock Text="{Binding LicenseStatus.StatusBadge}" FontSize="14" FontWeight="Bold"
+                                    <TextBlock Text="{Binding LicenseStatus.StatusBadge}" FontSize="{DynamicResource Ios26FontSizeValue}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource Ios26TextTitleBrush}"
                                                TextTrimming="CharacterEllipsis"/>
                                 </StackPanel>
@@ -256,45 +256,45 @@
             <Border Grid.Column="2" Style="{StaticResource Ios26CardStyle}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource About.EngineeringPrinciples}"
-                               FontSize="17"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource Ios26TextTitleBrush}"
                                Margin="0,0,0,16"/>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                         <TextBlock Text="01"
-                                   FontSize="28" FontWeight="Bold"
+                                   FontSize="{DynamicResource Ios26FontSizeStat}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource Ios26NumberBrush}"
                                    VerticalAlignment="Center"/>
                         <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Clean Code" FontSize="15" FontWeight="Bold"
+                            <TextBlock Text="Clean Code" FontSize="{DynamicResource Ios26FontSizeSubtitle}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource Ios26TextTitleBrush}"/>
-                            <TextBlock Text="— Readable and maintainable" FontSize="12.5"
+                            <TextBlock Text="— Readable and maintainable" FontSize="{DynamicResource Ios26FontSizeSmall}"
                                        Foreground="{DynamicResource Ios26TextMutedBrush}"
                                        Margin="0,3,0,0"/>
                         </StackPanel>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                         <TextBlock Text="02"
-                                   FontSize="28" FontWeight="Bold"
+                                   FontSize="{DynamicResource Ios26FontSizeStat}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource Ios26NumberBrush}"
                                    VerticalAlignment="Center"/>
                         <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Test Driven" FontSize="15" FontWeight="Bold"
+                            <TextBlock Text="Test Driven" FontSize="{DynamicResource Ios26FontSizeSubtitle}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource Ios26TextTitleBrush}"/>
-                            <TextBlock Text="— Unit tests always" FontSize="12.5"
+                            <TextBlock Text="— Unit tests always" FontSize="{DynamicResource Ios26FontSizeSmall}"
                                        Foreground="{DynamicResource Ios26TextMutedBrush}"
                                        Margin="0,3,0,0"/>
                         </StackPanel>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="03"
-                                   FontSize="28" FontWeight="Bold"
+                                   FontSize="{DynamicResource Ios26FontSizeStat}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource Ios26NumberBrush}"
                                    VerticalAlignment="Center"/>
                         <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Continuous" FontSize="15" FontWeight="Bold"
+                            <TextBlock Text="Continuous" FontSize="{DynamicResource Ios26FontSizeSubtitle}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource Ios26TextTitleBrush}"/>
-                            <TextBlock Text="— Deployment automated" FontSize="12.5"
+                            <TextBlock Text="— Deployment automated" FontSize="{DynamicResource Ios26FontSizeSmall}"
                                        Foreground="{DynamicResource Ios26TextMutedBrush}"
                                        Margin="0,3,0,0"/>
                         </StackPanel>

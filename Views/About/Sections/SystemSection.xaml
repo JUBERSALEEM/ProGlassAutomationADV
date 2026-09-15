@@ -41,15 +41,15 @@
                             VerticalAlignment="Top">
                         <TextBlock Text="&#xE950;"
                                    FontFamily="{DynamicResource FontFamily.Icon}"
-                                   FontSize="14"
+                                   FontSize="{DynamicResource Ios26FontSizeValue}"
                                    Foreground="{DynamicResource Ios26AccentBrush}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="{Binding Name}"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"
+                                   FontSize="{DynamicResource Ios26FontSizeValue}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource Ios26TextTitleBrush}"
                                    IsHitTestVisible="False"/>
                         <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
@@ -68,7 +68,7 @@
                                 </Ellipse.Style>
                             </Ellipse>
                             <TextBlock Text="{Binding Status}"
-                                       FontSize="12"
+                                       FontSize="{DynamicResource Ios26FontSizeSmall}"
                                        Foreground="{DynamicResource Ios26TextMutedBrush}"
                                        Margin="7,0,0,0"
                                        VerticalAlignment="Center"
@@ -95,8 +95,8 @@
             <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource About.Environment}"
-                               FontSize="17"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource Ios26TextTitleBrush}"
                                Margin="0,0,0,14"/>
                     <Grid>
@@ -112,14 +112,14 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0" Grid.Column="0"
-                                   FontSize="13.5"
+                                   FontSize="{DynamicResource Ios26FontSizeBody}"
                                    Foreground="{DynamicResource Ios26TextMutedBrush}"
                                    Margin="0,0,0,11" VerticalAlignment="Center">
                             <Run Text="{DynamicResource About.OperatingSystem}"/><Run Text=" →"/>
                         </TextBlock>
                         <TextBlock Grid.Row="0" Grid.Column="1"
                                    Text="{Binding OsVersion}"
-                                   FontSize="14" FontWeight="SemiBold"
+                                   FontSize="{DynamicResource Ios26FontSizeValue}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource Ios26TextBodyBrush}"
                                    HorizontalAlignment="Right"
                                    Margin="0,0,0,11" VerticalAlignment="Center"
@@ -129,14 +129,14 @@
                                 Background="{DynamicResource Ios26HairlineBrush}"/>
 
                         <TextBlock Grid.Row="1" Grid.Column="0"
-                                   FontSize="13.5"
+                                   FontSize="{DynamicResource Ios26FontSizeBody}"
                                    Foreground="{DynamicResource Ios26TextMutedBrush}"
                                    Margin="0,11,0,11" VerticalAlignment="Center">
                             <Run Text="{DynamicResource About.Runtime}"/><Run Text=" →"/>
                         </TextBlock>
                         <TextBlock Grid.Row="1" Grid.Column="1"
                                    Text="{Binding DotNetVersion}"
-                                   FontSize="14" FontWeight="SemiBold"
+                                   FontSize="{DynamicResource Ios26FontSizeValue}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource Ios26TextBodyBrush}"
                                    HorizontalAlignment="Right"
                                    Margin="0,11,0,11" VerticalAlignment="Center"/>
@@ -144,14 +144,14 @@
                                 Background="{DynamicResource Ios26HairlineBrush}"/>
 
                         <TextBlock Grid.Row="2" Grid.Column="0"
-                                   FontSize="13.5"
+                                   FontSize="{DynamicResource Ios26FontSizeBody}"
                                    Foreground="{DynamicResource Ios26TextMutedBrush}"
                                    Margin="0,11,0,11" VerticalAlignment="Center">
                             <Run Text="{DynamicResource About.VisualTheme}"/><Run Text=" →"/>
                         </TextBlock>
                         <TextBlock Grid.Row="2" Grid.Column="1"
                                    Text="{Binding ThemeName}"
-                                   FontSize="14" FontWeight="SemiBold"
+                                   FontSize="{DynamicResource Ios26FontSizeValue}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource Ios26TextBodyBrush}"
                                    HorizontalAlignment="Right"
                                    Margin="0,11,0,11" VerticalAlignment="Center"/>
@@ -159,7 +159,7 @@
                                 Background="{DynamicResource Ios26HairlineBrush}"/>
 
                         <TextBlock Grid.Row="3" Grid.Column="0"
-                                   FontSize="13.5"
+                                   FontSize="{DynamicResource Ios26FontSizeBody}"
                                    Foreground="{DynamicResource Ios26TextMutedBrush}"
                                    Margin="0,11,0,0" VerticalAlignment="Center">
                             <Run Text="{DynamicResource About.MachineFingerprint}"/><Run Text=" →"/>
@@ -169,13 +169,13 @@
                                     Margin="0,11,0,0" VerticalAlignment="Center">
                             <TextBlock Text="&#xE950;"
                                        FontFamily="{DynamicResource FontFamily.Icon}"
-                                       FontSize="12"
+                                       FontSize="{DynamicResource Ios26FontSizeSmall}"
                                        Foreground="{DynamicResource Ios26TextMutedBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,7,0"/>
                             <Border Style="{StaticResource Ios26ValuePillStyle}">
                                 <TextBlock Text="{Binding Fingerprint}"
-                                           FontSize="12.5" FontWeight="SemiBold"
+                                           FontSize="{DynamicResource Ios26FontSizeSmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource Ios26TextSecondaryBrush}"
                                            MaxWidth="240" TextTrimming="CharacterEllipsis"
                                            ToolTip="{Binding Fingerprint}"/>
@@ -189,8 +189,8 @@
             <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource About.Performance}"
-                               FontSize="17"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource Ios26TextTitleBrush}"
                                Margin="0,0,0,14"/>
                     <Grid>
@@ -201,26 +201,26 @@
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Style="{StaticResource Ios26InnerTileStyle}">
                             <StackPanel>
-                                <TextBlock FontSize="11.5"
+                                <TextBlock FontSize="{DynamicResource Ios26FontSizeLabel}"
                                            Foreground="{DynamicResource Ios26TextMutedBrush}">
                                     <Run Text="{DynamicResource About.RenderTier}"/><Run Text=" →"/>
                                 </TextBlock>
                                 <TextBlock Text="{Binding RenderTierDisplay}"
-                                           FontSize="18"
-                                           FontWeight="Bold"
+                                           FontSize="{DynamicResource Ios26FontSizeSectionTitle}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource Ios26TextTitleBrush}"
                                            Margin="0,5,0,0"/>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="2" Style="{StaticResource Ios26InnerTileStyle}">
                             <StackPanel>
-                                <TextBlock FontSize="11.5"
+                                <TextBlock FontSize="{DynamicResource Ios26FontSizeLabel}"
                                            Foreground="{DynamicResource Ios26TextMutedBrush}">
                                     <Run Text="{DynamicResource About.RichEffects}"/><Run Text=" →"/>
                                 </TextBlock>
                                 <TextBlock Text="{Binding RichEffectsDisplay}"
-                                           FontSize="18"
-                                           FontWeight="Bold"
+                                           FontSize="{DynamicResource Ios26FontSizeSectionTitle}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource Ios26TextTitleBrush}"
                                            Margin="0,5,0,0"/>
                             </StackPanel>
@@ -233,8 +233,8 @@
             <Border Style="{StaticResource Ios26CardStyle}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource About.Storage}"
-                               FontSize="17"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource Ios26TextTitleBrush}"
                                Margin="0,0,0,14"/>
                     <Grid>
@@ -252,18 +252,18 @@
                         <TextBlock Grid.Row="0" Grid.Column="0"
                                    Text="&#xE8B7;"
                                    FontFamily="{DynamicResource FontFamily.Icon}"
-                                   FontSize="15"
+                                   FontSize="{DynamicResource Ios26FontSizeSubtitle}"
                                    Foreground="{DynamicResource Ios26TextMutedBrush}"
                                    VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="0" Grid.Column="2"
-                                   FontSize="13.5"
+                                   FontSize="{DynamicResource Ios26FontSizeBody}"
                                    Foreground="{DynamicResource Ios26TextMutedBrush}"
                                    Margin="0,0,0,11" VerticalAlignment="Center">
                             <Run Text="{DynamicResource About.Database}"/><Run Text=" →"/>
                         </TextBlock>
                         <TextBlock Grid.Row="0" Grid.Column="3"
                                    Text="{Binding DatabasePath}"
-                                   FontSize="13.5" FontWeight="SemiBold"
+                                   FontSize="{DynamicResource Ios26FontSizeBody}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource Ios26TextBodyBrush}"
                                    HorizontalAlignment="Right"
                                    Margin="0,0,0,11" VerticalAlignment="Center"
@@ -276,18 +276,18 @@
                         <TextBlock Grid.Row="1" Grid.Column="0"
                                    Text="&#xE8B7;"
                                    FontFamily="{DynamicResource FontFamily.Icon}"
-                                   FontSize="15"
+                                   FontSize="{DynamicResource Ios26FontSizeSubtitle}"
                                    Foreground="{DynamicResource Ios26TextMutedBrush}"
                                    VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="1" Grid.Column="2"
-                                   FontSize="13.5"
+                                   FontSize="{DynamicResource Ios26FontSizeBody}"
                                    Foreground="{DynamicResource Ios26TextMutedBrush}"
                                    Margin="0,11,0,0" VerticalAlignment="Center">
                             <Run Text="{DynamicResource About.Recordings}"/><Run Text=" →"/>
                         </TextBlock>
                         <TextBlock Grid.Row="1" Grid.Column="3"
                                    Text="{Binding RecordingsPath}"
-                                   FontSize="13.5" FontWeight="SemiBold"
+                                   FontSize="{DynamicResource Ios26FontSizeBody}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource Ios26TextBodyBrush}"
                                    HorizontalAlignment="Right"
                                    Margin="0,11,0,0" VerticalAlignment="Center"
@@ -305,11 +305,11 @@
             <Border Style="{StaticResource Ios26CardStyle}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource About.RecordingEngine}"
-                               FontSize="17"
-                               FontWeight="Bold"
+                               FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource Ios26TextTitleBrush}"/>
                     <TextBlock Text="{DynamicResource About.RecordingEngineSub}"
-                               FontSize="12.5"
+                               FontSize="{DynamicResource Ios26FontSizeSmall}"
                                Foreground="{DynamicResource Ios26TextMutedBrush}"
                                Margin="0,3,0,16"/>
 
@@ -328,7 +328,7 @@
                                  Value="{Binding EngineBarValue, Mode=OneWay}"
                                  Margin="0,4,0,6"/>
                     <TextBlock Text="{Binding EngineBarCaption}"
-                               FontSize="11.5"
+                               FontSize="{DynamicResource Ios26FontSizeLabel}"
                                Foreground="{DynamicResource Ios26TextMutedBrush}"/>
                 </StackPanel>
             </Border>

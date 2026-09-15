@@ -75,8 +75,38 @@ namespace ProGlassAutomation.Views.About
             // Run once — Loaded can fire again after unload/reload.
             Loaded -= OnLoaded;
 
+            EnsureDataContext();
             StartAmbientMotion();
             WireSectionReveals();
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        //  DATA-CONTEXT GUARD — 2026-09-15.
+        //  Every section, the tab strip and the hero read from the shell's
+        //  DataContext. If this view is ever hosted without one (a preview
+        //  host, a future shell that forgets to set it), every binding
+        //  fails silently and the page renders as an empty scaffold — the
+        //  same "the About page is blank" symptom as the License-tab bug.
+        //  A fallback view model keeps the page alive; the incident is
+        //  logged so the real host wiring gets fixed.
+        // ──────────────────────────────────────────────────────────────
+        private void EnsureDataContext()
+        {
+            if (DataContext != null) return;
+
+            try
+            {
+                DataContext = new ProGlassAutomation.ViewModels.About.AboutViewModel();
+
+                SafeLog("EnsureDataContext", new System.InvalidOperationException(
+                    "AboutView was hosted without a view model — a fallback one " +
+                    "was created so the page never renders blank."));
+            }
+            catch (System.Exception ex)
+            {
+                // The page will render empty; the log carries the cause.
+                SafeLog("EnsureDataContext", ex);
+            }
         }
 
         // ──────────────────────────────────────────────────────────────

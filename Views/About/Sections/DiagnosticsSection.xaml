@@ -35,8 +35,8 @@
             <DataTemplate x:Key="DxMarkerChipTemplate">
                 <Border Style="{StaticResource DxMarkerChipStyle}">
                     <TextBlock Text="{Binding}"
-                               FontSize="12.5"
-                               FontWeight="SemiBold"
+                               FontSize="{DynamicResource Ios26FontSizeSmall}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
                                Foreground="{DynamicResource Ios26AccentSoftTextBrush}"/>
                 </Border>
             </DataTemplate>
@@ -52,8 +52,8 @@
         <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
             <StackPanel>
                 <TextBlock Text="{DynamicResource About.RecordingHealth}"
-                           FontSize="17"
-                           FontWeight="Bold"
+                           FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                           FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource Ios26TextTitleBrush}"
                            Margin="0,0,0,14"/>
                 <ItemsControl ItemsSource="{Binding RecordingMarkers}"
@@ -65,7 +65,7 @@
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
                 <TextBlock Text="{DynamicResource About.RecordingHealthSub}"
-                           FontSize="12"
+                           FontSize="{DynamicResource Ios26FontSizeSmall}"
                            Foreground="{DynamicResource Ios26TextMutedBrush}"
                            Margin="0,4,0,0"/>
             </StackPanel>
@@ -75,8 +75,8 @@
         <Border Style="{StaticResource Ios26CardStyle}">
             <StackPanel>
                 <TextBlock Text="{DynamicResource About.AppLog}"
-                           FontSize="17"
-                           FontWeight="Bold"
+                           FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                           FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource Ios26TextTitleBrush}"
                            Margin="0,0,0,14"/>
                 <Grid>
@@ -88,15 +88,15 @@
                     <TextBlock Grid.Column="0"
                                Text="&#xE8B7;"
                                FontFamily="{DynamicResource FontFamily.Icon}"
-                               FontSize="16"
+                               FontSize="{DynamicResource Ios26FontSizeCardTitleSm}"
                                Foreground="{DynamicResource Ios26TextMutedBrush}"
                                VerticalAlignment="Center"
                                Margin="0,0,12,0"
                                IsHitTestVisible="False"/>
                     <TextBlock Grid.Column="1"
                                Text="{Binding AppLogPath}"
-                               FontSize="14"
-                               FontWeight="SemiBold"
+                               FontSize="{DynamicResource Ios26FontSizeValue}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource Ios26TextBodyBrush}"
                                VerticalAlignment="Center"
                                TextTrimming="CharacterEllipsis"

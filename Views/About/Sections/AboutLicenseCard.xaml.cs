@@ -4,9 +4,33 @@
 // MODULE: About — License section code-behind
 //
 // Minimal code-behind. All real data binding happens
-// through LicenseStatusViewModel.Instance. The single
-// interactive element is the COPY button for the
-// current machine fingerprint.
+// through LicenseStatusViewModel.Instance, which is attached to the
+// card's INNER container (x:Name="CardRoot") — never to the root
+// element of this UserControl.
+//
+// ─────────────────────────────────────────────────────────────────────
+// 2026-09-15 ROOT-CAUSE FIX — "the License tab is still empty"
+// ─────────────────────────────────────────────────────────────────────
+// This constructor used to run `DataContext = LicenseStatusViewModel
+// .Instance;` on the UserControl ROOT. A binding declared on an element
+// resolves against that element's own DataContext, and the About shell
+// switches sections with
+//     Visibility="{Binding SelectedTabIndex, ...}"
+// on the section host. Re-pointing the root DataContext therefore
+// re-targeted the SHELL's tab binding at a license VM that has no
+// SelectedTabIndex property:
+//     • the DataTrigger never fired,
+//     • the section stayed at its Collapsed default,
+//     • the tab strip still highlighted "License" (it lives in the
+//       shell), so the user saw a working tab over a blank page.
+// The card now owns its VM on the inner container, which keeps the card
+// self-contained WITHOUT swallowing the shell's DataContext. The
+// invariant is locked by
+// AboutModuleAuditTests.About_views_do_not_hijack_a_hosted_section_datacontext
+// and by scripts/layout-verify/datacontext_scan.py.
+//
+// The single interactive element is the COPY button for the
+// current machine fingerprint and the license id.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -21,25 +45,52 @@ namespace ProGlassAutomation.Views.About.Sections
     /// <summary>
     /// Self-contained license card for the About page
     /// and the Settings → Data → Database Health card.
-    /// Binds to <see cref="LicenseStatusViewModel.Instance"/>.
+    /// Binds to <see cref="LicenseStatusViewModel.Instance"/>, attached to
+    /// the inner <c>CardRoot</c> container so this control can never
+    /// hijack a host's DataContext.
     /// </summary>
     public partial class AboutLicenseCard : UserControl
     {
         public AboutLicenseCard()
         {
             InitializeComponent();
-            // The VM is a singleton; the binding targets
-            // the static instance, not a per-window VM.
-            // That way the card refreshes automatically
-            // when LicenseService.Reload() runs.
-            //
-            // 2026-08-25 senior hardening: if the singleton ever fails
-            // to construct (licensing data in an unexpected shape), the
-            // card renders unbound instead of taking the whole About
-            // page down with a XamlParseException cascade.
+
+            // Late host assignments (a parent that binds its own VM to
+            // DataContext="…") land after this constructor, so re-resolve
+            // once the element is loaded.
+            Loaded += (_, _) => AttachViewModel();
+
+            AttachViewModel();
+        }
+
+        /// <summary>
+        /// Points the card's INNER container at the license VM.
+        ///
+        /// Resolution order:
+        ///   1. a host that deliberately supplies a
+        ///      <see cref="LicenseStatusViewModel"/> through DataContext —
+        ///      that VM wins;
+        ///   2. otherwise the singleton.
+        ///
+        /// The root element's DataContext is deliberately left alone: it
+        /// belongs to the host (the About shell binds its tab switch to it).
+        /// Never throws — if the singleton cannot be constructed the card
+        /// shows <c>VmUnavailableNote</c> instead of rendering silently
+        /// empty.
+        /// </summary>
+        private void AttachViewModel()
+        {
             try
             {
-                DataContext = LicenseStatusViewModel.Instance;
+                if (CardRoot is null) return;
+
+                var vm = DataContext as LicenseStatusViewModel
+                         ?? LicenseStatusViewModel.Instance;
+
+                if (ReferenceEquals(CardRoot.DataContext, vm)) return;
+
+                CardRoot.DataContext = vm;
+                VmUnavailableNote.Visibility = Visibility.Collapsed;
             }
             catch (Exception ex)
             {
