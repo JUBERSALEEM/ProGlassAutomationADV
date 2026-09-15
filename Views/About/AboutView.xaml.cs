@@ -168,7 +168,6 @@ namespace ProGlassAutomation.Views.About
             try
             {
                 HookReveal(OverviewSection);
-                HookReveal(LicenseSectionHost);
                 HookReveal(ModulesSectionHost);
                 HookReveal(DeveloperSectionHost);
             }
