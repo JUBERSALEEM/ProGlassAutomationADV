@@ -424,3 +424,8 @@ activations.json
 # secrets. The re-include rule must come AFTER the matching
 # ignore rule in the same block.
 !/Properties/PublishProfiles/Release.pubxml
+
+# 2026-09-16 owner directive: never commit PNG/image mockups to the repo.
+# Approved mockups stay on disk (untracked) as review artefacts.
+docs/mockups/**/*.png
+*.png.tmp
