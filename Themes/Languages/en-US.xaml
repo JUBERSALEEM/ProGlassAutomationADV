@@ -2680,4 +2680,21 @@
     <sys:String x:Key="Void.ThisDocument">this document</sys:String>
     <sys:String x:Key="Void.Title">Void document</sys:String>
 
+    <!-- 2026-09-15 About iOS-26 restyle: System / Diagnostics tab keys -->
+    <sys:String x:Key="About.Environment">Environment</sys:String>
+    <sys:String x:Key="About.OperatingSystem">Operating System</sys:String>
+    <sys:String x:Key="About.Runtime">Runtime</sys:String>
+    <sys:String x:Key="About.Architecture">Architecture</sys:String>
+    <sys:String x:Key="About.VisualTheme">Visual Theme</sys:String>
+    <sys:String x:Key="About.Performance">Performance</sys:String>
+    <sys:String x:Key="About.RenderTier">Render Tier</sys:String>
+    <sys:String x:Key="About.RichEffects">Rich Effects</sys:String>
+    <sys:String x:Key="About.RecordingEngine">Recording Engine</sys:String>
+    <sys:String x:Key="About.RecordingEngineSub">Hardware H.264 with safe software fallback</sys:String>
+    <sys:String x:Key="About.Storage">Storage</sys:String>
+    <sys:String x:Key="About.Database">Database</sys:String>
+    <sys:String x:Key="About.Recordings">Recordings</sys:String>
+    <sys:String x:Key="About.AppLog">App Log</sys:String>
+    <sys:String x:Key="About.RecordingHealth">Recording Health</sys:String>
+    <sys:String x:Key="About.RecordingHealthSub">Sustained frame rates below 15 fps warn; below 5 fps is critical.</sys:String>
 </ResourceDictionary>

@@ -226,16 +226,20 @@ public sealed class AboutViewModel : ViewModelBase
     // ══════════════════════════════════════════════════════════════════
 
     /// <summary>
-    /// Left rail navigation labels (2026-09-15, approved Part 1 mockup).
-    /// Each tab maps to a separate section in Views/About/Sections, so a
-    /// section can be edited on its own.
+    /// Left rail navigation labels (2026-09-15, approved iOS-26
+    /// redesign). Each tab maps to a separate section in
+    /// Views/About/Sections, so a section can be edited on its own.
+    /// System + Diagnostics are real data screens (live OS / encoder
+    /// probe / crash report sources) — nothing mocked.
     /// </summary>
     public IReadOnlyList<string> Tabs { get; } = new[]
     {
         "Overview",
         "License",
         "Modules",
-        "Developer"
+        "Developer",
+        "System",
+        "Diagnostics"
     };
 
     /// <summary>
@@ -248,7 +252,7 @@ public sealed class AboutViewModel : ViewModelBase
 
     /// <summary>
     /// Index of the visible tab (0 = Overview, 1 = License,
-    /// 2 = Modules, 3 = Developer).
+    /// 2 = Modules, 3 = Developer, 4 = System, 5 = Diagnostics).
     /// Raises PropertyChanged so the section views can switch visibility.
     ///
     /// 2026-08-25 freeze/blank-page fix: the value is CLAMPED to the tab
@@ -518,6 +522,115 @@ public sealed class AboutViewModel : ViewModelBase
             "Light + Dark modes with 25-brush palette — swap without reload"),
         new CapabilityInfo("\uE74E", "Auto Backup on Exit",
             "Keeps last 7 database copies · Never lose a day of work"),
+    };
+
+    // ══════════════════════════════════════════════════════════════════
+    //  SYSTEM SCREEN (2026-09-15 iOS-26 redesign — approved)
+    //  Every value is read from a LIVE system source at bind time:
+    //  OS/.NET/architecture (Environment), visual theme
+    //  (VisualThemeEngine), perf tier (PerformanceProfileService),
+    //  fingerprint (LicenseStatusViewModel), storage paths
+    //  (AppDataRoot), encoder capabilities (EncoderProbe).
+    //  No fabricated data.
+    // ══════════════════════════════════════════════════════════════════
+
+    /// <summary>One encoder capability row for the Recording Engine card.</summary>
+    public sealed record EncoderRow(string Name, string Status, bool Available);
+
+    /// <summary>OS version string, e.g. "Microsoft Windows NT 10.0.26200.0".</summary>
+    public string OsVersion => Environment.OSVersion.VersionString;
+
+    /// <summary>Runtime version, e.g. "8.0.31".</summary>
+    public string DotNetVersion => Environment.Version.ToString(3);
+
+    /// <summary>OS architecture, e.g. "x64 · 64-bit".</summary>
+    public string Architecture =>
+        System.Runtime.InteropServices.RuntimeInformation
+            .OSArchitecture.ToString().ToLowerInvariant()
+        + (Environment.Is64BitOperatingSystem ? " · 64-bit" : " · 32-bit");
+
+    /// <summary>Active visual theme family (Normal / Monet / Ios-26…).</summary>
+    public string ThemeName => Services.Theme.VisualThemeEngine.Current;
+
+    /// <summary>Performance render tier, e.g. "60 fps".</summary>
+    public string RenderTierDisplay =>
+        Services.Performance.PerformanceProfileService.TargetFps + " fps";
+
+    /// <summary>Whether heavy blur/glow effects are affordable.</summary>
+    public string RichEffectsDisplay =>
+        Services.Performance.PerformanceProfileService.RichEffectsEnabled
+            ? "Enabled"
+            : "Disabled";
+
+    /// <summary>Current machine fingerprint (live, may compute lazily).</summary>
+    public string Fingerprint => LicenseStatus.CurrentFingerprint;
+
+    /// <summary>Main database file location.</summary>
+    public string DatabasePath =>
+        System.IO.Path.Combine(
+            Services.Database.AppDataRoot.CurrentFolder, "proglass.db");
+
+    /// <summary>Screen recording output root.</summary>
+    public string RecordingsPath =>
+        System.IO.Path.Combine(
+            Services.Database.AppDataRoot.ProductionFolder, "Recordings");
+
+    /// <summary>
+    /// Encoder capability rows (NVENC / QSV / libx264) from the live
+    /// EncoderProbe snapshot. The startup probe completes before the
+    /// About page is normally opened, so a first-bind read is current.
+    /// </summary>
+    public IReadOnlyList<EncoderRow> EncoderRows => BuildEncoderRows();
+
+    private static IReadOnlyList<EncoderRow> BuildEncoderRows()
+    {
+        var s = Agent.Demo.Video.EncoderProbe.GetSnapshot();
+
+        string status(bool usable) =>
+            !s.CapabilityProbed
+                ? "Not probed yet"
+                : (usable ? "Available" : "Unavailable");
+
+        var rows = new List<EncoderRow>
+        {
+            new("NVENC (NVIDIA)", status(s.NvencUsable), s.NvencUsable),
+            new("QSV (Intel)", status(s.QsvUsable), s.QsvUsable),
+        };
+
+        string libxStatus = "Available (software fallback)";
+        if (s.MeasuredFps.HasValue &&
+            s.MeasuredEncoder == "libx264")
+        {
+            libxStatus = "Active · "
+                + s.MeasuredWidth + "\u00D7" + s.MeasuredHeight
+                + " \u00B7 " + s.MeasuredFps.Value.ToString("0.0")
+                + " fps measured";
+        }
+        rows.Add(new("libx264 (software)", libxStatus, true));
+        return rows;
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    //  DIAGNOSTICS SCREEN (2026-09-15 iOS-26 redesign)
+    //  Crash reports are hosted by the self-contained
+    //  AboutCrashReportsCard (own VM + commands); the rest of
+    //  this screen is the log location + the real [Rec*] markers.
+    // ══════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Today's app log file — same pattern AppLogService writes
+    /// (%AppData%\ProGlassAutomation\logs\app-yyyyMMdd.log).
+    /// </summary>
+    public string AppLogPath =>
+        System.IO.Path.Combine(
+            Services.Database.AppDataRoot.CurrentFolder, "logs",
+            "app-" + DateTime.Now.ToString("yyyyMMdd") + ".log");
+
+    /// <summary>The real recording log markers (never invented).</summary>
+    public IReadOnlyList<string> RecordingMarkers { get; } = new[]
+    {
+        "[RecEncode]", "[RecHealth]", "[RecFPS]",
+        "[RecEncoderSelect]", "[RecFpsGuard]", "[EncoderProbe]"
     };
 
     // ══════════════════════════════════════════════════════════════════

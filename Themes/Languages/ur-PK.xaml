@@ -2680,4 +2680,21 @@
     <sys:String x:Key="Void.ThisDocument">یہ دستاویز</sys:String>
     <sys:String x:Key="Void.Title">دستاویز منسوخ کریں</sys:String>
 
+    <!-- 2026-09-15 About iOS-26 restyle: System / Diagnostics tab keys -->
+    <sys:String x:Key="About.Environment">ماحول</sys:String>
+    <sys:String x:Key="About.OperatingSystem">آپریٹنگ سسٹم</sys:String>
+    <sys:String x:Key="About.Runtime">رن ٹائم</sys:String>
+    <sys:String x:Key="About.Architecture">آرکیٹیکچر</sys:String>
+    <sys:String x:Key="About.VisualTheme">بصری تھیم</sys:String>
+    <sys:String x:Key="About.Performance">کارکردگی</sys:String>
+    <sys:String x:Key="About.RenderTier">رینڈر سٹر</sys:String>
+    <sys:String x:Key="About.RichEffects">ریچ ایفیکٹس</sys:String>
+    <sys:String x:Key="About.RecordingEngine">ریکارڈنگ انجن</sys:String>
+    <sys:String x:Key="About.RecordingEngineSub">ہارڈویئر H.264 محفوظ سافٹ ویئر فال بیک کے ساتھ</sys:String>
+    <sys:String x:Key="About.Storage">اسٹوریج</sys:String>
+    <sys:String x:Key="About.Database">ڈیٹابیس</sys:String>
+    <sys:String x:Key="About.Recordings">ریکارڈنگ</sys:String>
+    <sys:String x:Key="About.AppLog">ایپ لاگ</sys:String>
+    <sys:String x:Key="About.RecordingHealth">ریکارڈنگ صحت</sys:String>
+    <sys:String x:Key="About.RecordingHealthSub">15 fps سے کم مستقل فریم ریٹ تحذیت؛ 5 fps سے کم انتہائی اہم۔</sys:String>
 </ResourceDictionary>

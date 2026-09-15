@@ -338,24 +338,13 @@
         </Border>
 
         <!--
-          2026-09-15 Part 1 mockup: the license card no longer
-          closes this tab — it is now the dedicated "License"
-          screen in the left nav rail (AboutView.xaml,
-          LicenseSectionHost). Only the crash-reports card
-          remains at the bottom of Overview.
+          2026-09-15 (iOS-26 full restyle): the license card is the
+          dedicated "License" screen in the left nav rail
+          (AboutView.xaml, LicenseSectionHost) and the crash-reports
+          card moved to the dedicated "Diagnostics" tab
+          (DiagnosticsSection) with the other support surfaces.
+          Nothing else on this tab changed.
         -->
-
-        <!--
-          ═══ RECENT CRASH REPORTS (Phase 2 — slice 2) ═══
-          Self-contained card listing the last 10
-          crash-*.txt files. Each row has a timestamp,
-          error id, exception type, message, file size,
-          and an OPEN button (gated by ProcessStartGuard).
-          REFRESH / OPEN FOLDER / CLEAR ALL sit in the
-          card header. Moved to the end of the tab on
-          2026-09-14 (see the layout note at the top).
-        -->
-        <aboutSections:AboutCrashReportsCard/>
 
     </StackPanel>
 </UserControl>

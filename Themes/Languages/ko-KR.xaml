@@ -2680,4 +2680,21 @@
     <sys:String x:Key="Void.ThisDocument">이 문서</sys:String>
     <sys:String x:Key="Void.Title">문서 취소</sys:String>
 
+    <!-- 2026-09-15 About iOS-26 restyle: System / Diagnostics tab keys -->
+    <sys:String x:Key="About.Environment">환경</sys:String>
+    <sys:String x:Key="About.OperatingSystem">운영 체제</sys:String>
+    <sys:String x:Key="About.Runtime">런타임</sys:String>
+    <sys:String x:Key="About.Architecture">구조</sys:String>
+    <sys:String x:Key="About.VisualTheme">비주얼 테마</sys:String>
+    <sys:String x:Key="About.Performance">성능</sys:String>
+    <sys:String x:Key="About.RenderTier">렌더 티어</sys:String>
+    <sys:String x:Key="About.RichEffects">리치 이펙트</sys:String>
+    <sys:String x:Key="About.RecordingEngine">녹화 엔진</sys:String>
+    <sys:String x:Key="About.RecordingEngineSub">하드웨어 H.264 및 안전한 소프트웨어 폴백</sys:String>
+    <sys:String x:Key="About.Storage">저장</sys:String>
+    <sys:String x:Key="About.Database">데이터베이스</sys:String>
+    <sys:String x:Key="About.Recordings">녹화</sys:String>
+    <sys:String x:Key="About.AppLog">앱 로그</sys:String>
+    <sys:String x:Key="About.RecordingHealth">녹화 상태</sys:String>
+    <sys:String x:Key="About.RecordingHealthSub">15fps 미만의 지속적인 프레임 속도는 경고, 5fps 미만은 중급입니다.</sys:String>
 </ResourceDictionary>

@@ -2680,4 +2680,21 @@
     <sys:String x:Key="Void.ThisDocument">este documento</sys:String>
     <sys:String x:Key="Void.Title">Cancelar documento</sys:String>
 
+    <!-- 2026-09-15 About iOS-26 restyle: System / Diagnostics tab keys -->
+    <sys:String x:Key="About.Environment">Ambiente</sys:String>
+    <sys:String x:Key="About.OperatingSystem">Sistema operacional</sys:String>
+    <sys:String x:Key="About.Runtime">Tempo de execução</sys:String>
+    <sys:String x:Key="About.Architecture">Arquitetura</sys:String>
+    <sys:String x:Key="About.VisualTheme">Tema visual</sys:String>
+    <sys:String x:Key="About.Performance">Desempenho</sys:String>
+    <sys:String x:Key="About.RenderTier">Nível de renderização</sys:String>
+    <sys:String x:Key="About.RichEffects">Efeitos avançados</sys:String>
+    <sys:String x:Key="About.RecordingEngine">Motor de gravação</sys:String>
+    <sys:String x:Key="About.RecordingEngineSub">H.264 de hardware com fallback de software seguro</sys:String>
+    <sys:String x:Key="About.Storage">Armazenamento</sys:String>
+    <sys:String x:Key="About.Database">Banco de dados</sys:String>
+    <sys:String x:Key="About.Recordings">Gravações</sys:String>
+    <sys:String x:Key="About.AppLog">Log do aplicativo</sys:String>
+    <sys:String x:Key="About.RecordingHealth">Saúde da gravação</sys:String>
+    <sys:String x:Key="About.RecordingHealthSub">Taxas sustentadas abaixo de 15 fps geram aviso; abaixo de 5 fps é crítico.</sys:String>
 </ResourceDictionary>

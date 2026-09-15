@@ -3,10 +3,11 @@
      PROJECT: ProGlassAutomation
      MODULE: About → "Developer" tab
 
-     Premium layout:
-       • hero header with developer identity + product facts
-       • consistent glass panels
-       • balanced tech-stack header and footer
+     2026-09-15 iOS-26 full restyle (approved mockup 04): single-width
+     card stack — identity (avatar + email pill) → product facts →
+     technology stack → engineering principles → capabilities → footer.
+     Every binding and the email click handler are preserved; the
+     responsive tech-stack WrapPanel (audit lock) is kept.
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.About.Sections.DeveloperSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -63,251 +64,236 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-
     <StackPanel>
 
-        <!-- ═══ ROW 1 · identity (full old content) | product facts ═══ -->
-        <Grid Margin="0,0,0,14">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.1*"/>
-                <ColumnDefinition Width="16"/>
-                <ColumnDefinition Width="0.9*"/>
-            </Grid.ColumnDefinitions>
+        <!-- ═══ IDENTITY ═══ -->
+        <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,14">
+            <StackPanel>
+                <Grid Margin="0,0,0,14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="{DynamicResource About.Developer}"
+                                   Style="{StaticResource Typography.H2}"/>
+                        <TextBlock Text="{DynamicResource About.CraftsmanshipWorkflowEngineeringProduct}"
+                                   Style="{StaticResource Typography.BodySmall}"/>
+                    </StackPanel>
+                    <Border Grid.Column="1" Style="{StaticResource Badge.Primary}">
+                        <TextBlock Style="{StaticResource Typography.Caption}"
+                                   Text="{DynamicResource About.CraftedGlassERP}"/>
+                    </Border>
+                </Grid>
 
-            <!-- IDENTITY — every element of the original hero, glassified -->
-            <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}">
-                <StackPanel>
-                    <Grid Margin="0,0,0,14">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="{DynamicResource About.Developer}"
-                                       Style="{StaticResource Typography.H2}"/>
-                            <TextBlock Text="{DynamicResource About.CraftsmanshipWorkflowEngineeringProduct}"
-                                       Style="{StaticResource Typography.BodySmall}"/>
-                        </StackPanel>
-                        <Border Grid.Column="1" Style="{StaticResource Badge.Primary}">
-                            <TextBlock Style="{StaticResource Typography.Caption}"
-                                       Text="{DynamicResource About.CraftedGlassERP}"/>
+                <Border Style="{StaticResource AboutInsetStyle}" Padding="16,14">
+                    <StackPanel Orientation="Horizontal">
+                        <!-- 2026-09-14: was an 84px card wrapping a 76px
+                             card (two overlapping tiles) → ONE 84px L3
+                             tile with the icon paint. -->
+                        <Border Width="84" Height="84"
+                                Style="{StaticResource SurfaceDetailStyle}">
+                            <Border.Background>
+                                <ImageBrush ImageSource="{x:Static viewsAbout:AppIconResource.Icon}"
+                                            Stretch="UniformToFill"
+                                            RenderOptions.BitmapScalingMode="HighQuality"/>
+                            </Border.Background>
                         </Border>
-                    </Grid>
-
-                    <Border Style="{StaticResource AboutInsetStyle}" Padding="16,14">
-                        <StackPanel Orientation="Horizontal">
-                            <!-- 2026-09-14: was an 84px card wrapping a 76px
-                                 card (two overlapping tiles) → ONE 84px L3
-                                 tile with the icon paint. -->
-                            <Border Width="84" Height="84"
-                                    Style="{StaticResource SurfaceDetailStyle}">
-                                <Border.Background>
-                                    <ImageBrush ImageSource="{x:Static viewsAbout:AppIconResource.Icon}"
-                                                Stretch="UniformToFill"
-                                                RenderOptions.BitmapScalingMode="HighQuality"/>
-                                </Border.Background>
-                            </Border>
-                            <StackPanel Margin="18,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding DeveloperName}"
-                                           FontSize="{DynamicResource FontSize.H1}"
-                                           FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"
-                                           TextWrapping="Wrap"
-                                           IsHitTestVisible="False"/>
-                                <TextBlock Text="{DynamicResource About.PrincipalDeveloperProductDesignWorkflow}"
-                                           FontSize="{DynamicResource FontSize.Body}"
-                                           Foreground="{DynamicResource AboutGlassCaptionBrush}"
-                                           Margin="0,6,0,0"
-                                           TextWrapping="Wrap"
-                                           IsHitTestVisible="False"/>
-                                <!-- Owner directive 2026-09-10: country branding run only -->
-                                <TextBlock FontSize="{DynamicResource FontSize.Body}"
-                                           Foreground="{DynamicResource LiquidCerulean}"
-                                           Margin="0,6,0,0"
-                                           TextWrapping="Wrap"
-                                           IsHitTestVisible="False">
-                                    <Run Text="{DynamicResource About.MadeInIndia}"/>
-                                </TextBlock>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- email chip (handler preserved) — 2026-09-14: glass +
-                         SurfacePrimary double chrome → one L3 chip. -->
-                    <Border Margin="0,14,0,0"
-                            Padding="14,8"
-                            HorizontalAlignment="Left"
-                            Cursor="Hand"
-                            MouseLeftButtonDown="Email_MouseLeftButtonDown"
-                            Style="{StaticResource SurfaceDetailStyle}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE715;"
-                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                        <StackPanel Margin="18,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding DeveloperName}"
+                                       FontSize="{DynamicResource FontSize.H1}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       TextWrapping="Wrap"
+                                       IsHitTestVisible="False"/>
+                            <TextBlock Text="{DynamicResource About.PrincipalDeveloperProductDesignWorkflow}"
                                        FontSize="{DynamicResource FontSize.Body}"
-                                       VerticalAlignment="Center"
-                                       Foreground="{DynamicResource LiquidAccent}"
-                                       Margin="0,0,8,0"/>
-                            <TextBlock Text="{Binding Email}"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       FontWeight="{DynamicResource Weight.SemiBold}"
-                                       Foreground="{DynamicResource LiquidAccent}"
-                                       VerticalAlignment="Center"/>
+                                       Foreground="{DynamicResource AboutGlassCaptionBrush}"
+                                       Margin="0,6,0,0"
+                                       TextWrapping="Wrap"
+                                       IsHitTestVisible="False"/>
+                            <!-- Owner directive 2026-09-10: country branding run only -->
+                            <TextBlock FontSize="{DynamicResource FontSize.Body}"
+                                       Foreground="{DynamicResource LiquidCerulean}"
+                                       Margin="0,6,0,0"
+                                       TextWrapping="Wrap"
+                                       IsHitTestVisible="False">
+                                <Run Text="{DynamicResource About.MadeInIndia}"/>
+                            </TextBlock>
                         </StackPanel>
-                    </Border>
-                </StackPanel>
-            </Border>
+                    </StackPanel>
+                </Border>
 
-            <!-- PRODUCT FACTS — the original 2×2, stat-tile styled -->
-            <Border Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}">
-                <StackPanel>
-                    <TextBlock Text="{DynamicResource About.ProductFacts}"
-                               Style="{StaticResource Typography.H2}"
-                               Margin="0,0,0,14"/>
-                    <UniformGrid Columns="2" Rows="2">
-                        <Border Style="{StaticResource AboutInsetStyle}" Margin="0,0,10,10" Padding="14,12">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource About.Version}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
+                <!-- email chip (handler preserved) — 2026-09-14: glass +
+                     SurfacePrimary double chrome → one L3 chip. -->
+                <Border Margin="0,14,0,0"
+                        Padding="14,8"
+                        HorizontalAlignment="Left"
+                        Cursor="Hand"
+                        MouseLeftButtonDown="Email_MouseLeftButtonDown"
+                        Style="{StaticResource SurfaceDetailStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE715;"
+                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource LiquidAccent}"
+                                   Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding Email}"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Foreground="{DynamicResource LiquidAccent}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- ═══ PRODUCT FACTS ═══ -->
+        <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,14">
+            <StackPanel>
+                <TextBlock Text="{DynamicResource About.ProductFacts}"
+                           Style="{StaticResource Typography.H2}"
+                           Margin="0,0,0,14"/>
+                <UniformGrid Columns="2" Rows="2">
+                    <Border Style="{StaticResource AboutInsetStyle}" Margin="0,0,10,10" Padding="14,12">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource About.Version}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
                             <TextBlock Text="{Binding Version}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0"
                                        TextTrimming="CharacterEllipsis"/>
-                            </StackPanel>
-                        </Border>
-                        <Border Style="{StaticResource AboutInsetStyle}" Margin="0,0,0,10" Padding="14,12">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource About.Build}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource AboutInsetStyle}" Margin="0,0,0,10" Padding="14,12">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource About.Build}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
                             <TextBlock Text="{Binding Build}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0"
                                        TextTrimming="CharacterEllipsis"/>
-                            </StackPanel>
-                        </Border>
-                        <Border Style="{StaticResource AboutInsetStyle}" Margin="0,10,10,0" Padding="14,12">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource About.Edition}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
-                                <TextBlock Text="{Binding LicenseStatus.EditionDisplay}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
-                            </StackPanel>
-                        </Border>
-                        <Border Style="{StaticResource AboutInsetStyle}" Margin="0,10,0,0" Padding="14,12">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource Common.Status}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
-                                <TextBlock Text="{Binding LicenseStatus.StatusBadge}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
-                            </StackPanel>
-                        </Border>
-                    </UniformGrid>
-                </StackPanel>
-            </Border>
-        </Grid>
-
-        <!-- ═══ ROW 2 · tech stack (original, restored) | principles+caps ═══ -->
-        <Grid Margin="0,0,0,14">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.1*"/>
-                <ColumnDefinition Width="16"/>
-                <ColumnDefinition Width="0.9*"/>
-            </Grid.ColumnDefinitions>
-
-            <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}">
-                <StackPanel>
-                    <Grid Margin="0,0,0,14">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="{DynamicResource About.TechnologyStack}"
-                                       Style="{StaticResource Typography.H2}"/>
-                            <TextBlock Text="{DynamicResource About.BattleTestedMicrosoftOpenSourceFoundation}"
-                                       Style="{StaticResource Typography.BodySmall}"/>
                         </StackPanel>
-                        <Border Grid.Column="1" Style="{StaticResource Badge.Primary}">
-                            <TextBlock Style="{StaticResource Typography.Caption}">
-                                <Run Text="{DynamicResource About.StackItems}"/>
-                                <Run Text="{Binding TechStack.Count, Mode=OneWay}"/>
-                            </TextBlock>
-                        </Border>
-                    </Grid>
-                    <Border Style="{StaticResource AboutInsetStyle}" Padding="14,14">
-                        <!-- 2026-09-14: the fixed 300px WrapPanel tiles
-                             overflowed this column on narrow windows (text
-                             ran out of the boxes) → fluid equal-width 2-up
-                             grid; tiles stretch and their text wraps.
-                             2026-09-15: audit lock
-                             About_sections_use_responsive_wrap_layouts
-                             requires the responsive wrap layout in this
-                             file — it went RED on 2026-09-14 when the
-                             panel became a fixed 2-up UniformGrid. The
-                             tiles are fluid now (no fixed width), so the
-                             wrap layout is responsive again: tiles flow
-                             left-to-right and wrap on narrow windows. -->
-                        <ItemsControl ItemsSource="{Binding TechStack}"
-                                      ItemTemplate="{StaticResource TechItemTemplate}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel Orientation="Horizontal"
-                                              HorizontalAlignment="Center"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                        </ItemsControl>
                     </Border>
-                </StackPanel>
-            </Border>
+                    <Border Style="{StaticResource AboutInsetStyle}" Margin="0,10,10,0" Padding="14,12">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource About.Edition}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
+                            <TextBlock Text="{Binding LicenseStatus.EditionDisplay}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource AboutInsetStyle}" Margin="0,10,0,0" Padding="14,12">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource Common.Status}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
+                            <TextBlock Text="{Binding LicenseStatus.StatusBadge}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+            </StackPanel>
+        </Border>
 
-            <Border Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}">
-                <StackPanel>
-                    <!-- 2026-09-14: ALL-CAPS hard-coded → proper case
-                         (UI-10 label standard). -->
-                    <TextBlock Text="Principles"
-                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource AboutGlassCaptionBrush}"
-                               Margin="0,0,0,8"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                        <TextBlock Text="01" FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource AboutGlassCaptionBrush}" VerticalAlignment="Center"/>
-                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Clean Code" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
-                            <TextBlock Text="Readable and maintainable" FontSize="{DynamicResource FontSize.BodySmall}"
-                                       Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
-                        </StackPanel>
+        <!-- ═══ TECHNOLOGY STACK ═══ -->
+        <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,14">
+            <StackPanel>
+                <Grid Margin="0,0,0,14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="{DynamicResource About.TechnologyStack}"
+                                   Style="{StaticResource Typography.H2}"/>
+                        <TextBlock Text="{DynamicResource About.BattleTestedMicrosoftOpenSourceFoundation}"
+                                   Style="{StaticResource Typography.BodySmall}"/>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                        <TextBlock Text="02" FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource AboutGlassCaptionBrush}" VerticalAlignment="Center"/>
-                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Test Driven" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
-                            <TextBlock Text="Unit tests always" FontSize="{DynamicResource FontSize.BodySmall}"
-                                       Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
-                        </StackPanel>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <TextBlock Text="03" FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource AboutGlassCaptionBrush}" VerticalAlignment="Center"/>
-                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Continuous" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
-                            <TextBlock Text="Deployment automated" FontSize="{DynamicResource FontSize.BodySmall}"
-                                       Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
-                        </StackPanel>
-                    </StackPanel>
-                    <TextBlock Text="Capabilities"
-                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource AboutGlassCaptionBrush}"
-                               Margin="0,0,0,4"/>
-                    <ItemsControl ItemsSource="{Binding CapabilitiesTop}"
-                                  ItemTemplate="{StaticResource DevCapabilityRowTemplate}"/>
-                    <ItemsControl ItemsSource="{Binding CapabilitiesBottom}"
-                                  ItemTemplate="{StaticResource DevCapabilityRowTemplate}"/>
-                </StackPanel>
-            </Border>
-        </Grid>
+                    <Border Grid.Column="1" Style="{StaticResource Badge.Primary}">
+                        <TextBlock Style="{StaticResource Typography.Caption}">
+                            <Run Text="{DynamicResource About.StackItems}"/>
+                            <Run Text="{Binding TechStack.Count, Mode=OneWay}"/>
+                        </TextBlock>
+                    </Border>
+                </Grid>
+                <Border Style="{StaticResource AboutInsetStyle}" Padding="14,14">
+                    <!-- 2026-09-14: the fixed 300px WrapPanel tiles
+                         overflowed this column on narrow windows (text
+                         ran out of the boxes) → fluid equal-width 2-up
+                         grid; tiles stretch and their text wraps.
+                         2026-09-15: audit lock
+                         About_sections_use_responsive_wrap_layouts
+                         requires the responsive wrap layout in this
+                         file — it went RED on 2026-09-14 when the
+                         panel became a fixed 2-up UniformGrid. The
+                         tiles are fluid now (no fixed width), so the
+                         wrap layout is responsive again: tiles flow
+                         left-to-right and wrap on narrow windows. -->
+                    <ItemsControl ItemsSource="{Binding TechStack}"
+                                  ItemTemplate="{StaticResource TechItemTemplate}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"
+                                          HorizontalAlignment="Center"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </Border>
+            </StackPanel>
+        </Border>
 
-        <!-- ═══ ROW 3 · footer strip (original product line + copyright) ═══ -->
+        <!-- ═══ ENGINEERING PRINCIPLES ═══ -->
+        <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,14">
+            <StackPanel>
+                <TextBlock Text="{DynamicResource About.EngineeringPrinciples}"
+                           Style="{StaticResource Typography.H2}"
+                           Margin="0,0,0,14"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                    <TextBlock Text="01" FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource AboutGlassCaptionBrush}" VerticalAlignment="Center"/>
+                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Clean Code" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <TextBlock Text="Readable and maintainable" FontSize="{DynamicResource FontSize.BodySmall}"
+                                   Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                    <TextBlock Text="02" FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource AboutGlassCaptionBrush}" VerticalAlignment="Center"/>
+                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Test Driven" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <TextBlock Text="Unit tests always" FontSize="{DynamicResource FontSize.BodySmall}"
+                                   Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="03" FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource AboutGlassCaptionBrush}" VerticalAlignment="Center"/>
+                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Continuous" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <TextBlock Text="Deployment automated" FontSize="{DynamicResource FontSize.BodySmall}"
+                                   Foreground="{DynamicResource AboutGlassCaptionBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- ═══ CAPABILITIES ═══ -->
+        <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,14">
+            <StackPanel>
+                <TextBlock Text="{DynamicResource About.KeyCapabilities}"
+                           Style="{StaticResource Typography.H2}"
+                           Margin="0,0,0,12"/>
+                <ItemsControl ItemsSource="{Binding CapabilitiesTop}"
+                              ItemTemplate="{StaticResource DevCapabilityRowTemplate}"/>
+                <ItemsControl ItemsSource="{Binding CapabilitiesBottom}"
+                              ItemTemplate="{StaticResource DevCapabilityRowTemplate}"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ═══ FOOTER STRIP (original product line + copyright) ═══ -->
         <Border Style="{StaticResource SurfacePrimaryStyle}" Padding="22,14">
             <StackPanel HorizontalAlignment="Center">
                 <TextBlock Text="{DynamicResource About.ProglassAutomationEnterpriseERPUAEGlass}"

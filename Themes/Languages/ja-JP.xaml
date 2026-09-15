@@ -2680,4 +2680,21 @@
     <sys:String x:Key="Void.ThisDocument">この文書</sys:String>
     <sys:String x:Key="Void.Title">文書を取り消す</sys:String>
 
+    <!-- 2026-09-15 About iOS-26 restyle: System / Diagnostics tab keys -->
+    <sys:String x:Key="About.Environment">環境</sys:String>
+    <sys:String x:Key="About.OperatingSystem">オペレーティングシステム</sys:String>
+    <sys:String x:Key="About.Runtime">ランタイム</sys:String>
+    <sys:String x:Key="About.Architecture">アーキテクチャ</sys:String>
+    <sys:String x:Key="About.VisualTheme">視覚テーマ</sys:String>
+    <sys:String x:Key="About.Performance">パフォーマンス</sys:String>
+    <sys:String x:Key="About.RenderTier">レンダー階層</sys:String>
+    <sys:String x:Key="About.RichEffects">リッチエフェクト</sys:String>
+    <sys:String x:Key="About.RecordingEngine">録画エンジン</sys:String>
+    <sys:String x:Key="About.RecordingEngineSub">ハードウェア H.264 と安全なソフトウェアフォールバック</sys:String>
+    <sys:String x:Key="About.Storage">ストレージ</sys:String>
+    <sys:String x:Key="About.Database">データベース</sys:String>
+    <sys:String x:Key="About.Recordings">録画</sys:String>
+    <sys:String x:Key="About.AppLog">アプリログ</sys:String>
+    <sys:String x:Key="About.RecordingHealth">録画の健全性</sys:String>
+    <sys:String x:Key="About.RecordingHealthSub">15fps 未満の持続フレームレートは警告、5fps 未満は重大です。</sys:String>
 </ResourceDictionary>

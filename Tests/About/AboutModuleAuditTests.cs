@@ -37,6 +37,8 @@ namespace ProGlassAutomation.Tests.About
             "Views/About/Sections/AboutCrashReportsCard.xaml",
             "Views/About/Sections/ModulesSection.xaml",
             "Views/About/Sections/DeveloperSection.xaml",
+            "Views/About/Sections/SystemSection.xaml",
+            "Views/About/Sections/DiagnosticsSection.xaml",
         };
 
         [Fact]

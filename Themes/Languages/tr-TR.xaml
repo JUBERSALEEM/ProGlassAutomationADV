@@ -2680,4 +2680,21 @@
     <sys:String x:Key="Void.ThisDocument">bu belge</sys:String>
     <sys:String x:Key="Void.Title">Belgeyi iptal et</sys:String>
 
+    <!-- 2026-09-15 About iOS-26 restyle: System / Diagnostics tab keys -->
+    <sys:String x:Key="About.Environment">Ortam</sys:String>
+    <sys:String x:Key="About.OperatingSystem">İşletim Sistemi</sys:String>
+    <sys:String x:Key="About.Runtime">Çalışma zamanı</sys:String>
+    <sys:String x:Key="About.Architecture">Mimari</sys:String>
+    <sys:String x:Key="About.VisualTheme">Görsel Tema</sys:String>
+    <sys:String x:Key="About.Performance">Performans</sys:String>
+    <sys:String x:Key="About.RenderTier">Render Katmanı</sys:String>
+    <sys:String x:Key="About.RichEffects">Zengin Efektler</sys:String>
+    <sys:String x:Key="About.RecordingEngine">Kayıt Motoru</sys:String>
+    <sys:String x:Key="About.RecordingEngineSub">Güvenli yazılım yedeği ile donanım H.264</sys:String>
+    <sys:String x:Key="About.Storage">Depolama</sys:String>
+    <sys:String x:Key="About.Database">Veritabanı</sys:String>
+    <sys:String x:Key="About.Recordings">Kayıtlar</sys:String>
+    <sys:String x:Key="About.AppLog">Uygulama Günlüğü</sys:String>
+    <sys:String x:Key="About.RecordingHealth">Kayıt Sağlığı</sys:String>
+    <sys:String x:Key="About.RecordingHealthSub">15 fps'nin altındaki sürekli kare hızı uyarı üretir; 5 fps'nin altı kritiktir.</sys:String>
 </ResourceDictionary>

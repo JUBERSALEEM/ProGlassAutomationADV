@@ -2680,4 +2680,21 @@
     <sys:String x:Key="Void.ThisDocument">এই নথি</sys:String>
     <sys:String x:Key="Void.Title">নথি বাতিল করুন</sys:String>
 
+    <!-- 2026-09-15 About iOS-26 restyle: System / Diagnostics tab keys -->
+    <sys:String x:Key="About.Environment">পরিবেশ</sys:String>
+    <sys:String x:Key="About.OperatingSystem">অপারেটিং সিস্টেম</sys:String>
+    <sys:String x:Key="About.Runtime">রানটাইম</sys:String>
+    <sys:String x:Key="About.Architecture">আর্কিটেকচার</sys:String>
+    <sys:String x:Key="About.VisualTheme">ভিজ্যুয়াল থিম</sys:String>
+    <sys:String x:Key="About.Performance">পারফরম্যান্স</sys:String>
+    <sys:String x:Key="About.RenderTier">রেন্ডার স্তর</sys:String>
+    <sys:String x:Key="About.RichEffects">রিচ ইফেক্ট</sys:String>
+    <sys:String x:Key="About.RecordingEngine">রেকর্ডিং ইঞ্জিন</sys:String>
+    <sys:String x:Key="About.RecordingEngineSub">হার্ডওয়্যার H.264 এবং নিরাপদ সফটওয়্যার ফলব্যাক</sys:String>
+    <sys:String x:Key="About.Storage">স্টোরেজ</sys:String>
+    <sys:String x:Key="About.Database">ডেটাবেস</sys:String>
+    <sys:String x:Key="About.Recordings">রেকর্ডিং</sys:String>
+    <sys:String x:Key="About.AppLog">অ্যাপ লগ</sys:String>
+    <sys:String x:Key="About.RecordingHealth">রেকর্ডিং স্বাস্থ্য</sys:String>
+    <sys:String x:Key="About.RecordingHealthSub">15 fps-এর নিচে স্থায়ী ফ্রেম রেট সতর্কতা; 5 fps-এর নিচে গুরুতর।</sys:String>
 </ResourceDictionary>

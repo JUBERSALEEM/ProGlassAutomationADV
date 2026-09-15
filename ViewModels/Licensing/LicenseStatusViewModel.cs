@@ -75,6 +75,12 @@ namespace ProGlassAutomation.ViewModels.Licensing
         private string _licenseWindowDisplay = "—";
         private string _trustedIssuerDisplay = "—";
         private string _featureSummaryDisplay = "—";
+        // 2026-09-15 (About iOS-26 restyle): chip list for the License
+        // screen's Features card. Wildcard grants render as a single
+        // "All Modules" chip instead of a literal "*", concrete grants
+        // render one chip per feature, and a missing payload renders
+        // no chips (the summary line carries the fallback text).
+        private List<string> _featureChips = new List<string>();
 
         private LicenseStatusViewModel()
         {
@@ -178,6 +184,7 @@ namespace ProGlassAutomation.ViewModels.Licensing
                 _machineFingerprint = "—";
                 _featuresDisplay = "—";
                 _featureSummaryDisplay = "No active feature set";
+                _featureChips = new List<string>();
                 _activationModeDisplay = "No active activation response";
                 _licenseSourceDisplay = "Paste a vendor-signed license key in Settings → License, or use the advanced activation request flow.";
                 _licenseWindowDisplay = "—";
@@ -203,6 +210,7 @@ namespace ProGlassAutomation.ViewModels.Licensing
                     ? "—"
                     : string.Join(", ", p.Features);
                 _featureSummaryDisplay = BuildFeatureSummary(p.Features);
+                _featureChips = BuildFeatureChips(p.Features);
                 _activationModeDisplay = BuildActivationMode(p);
                 _licenseSourceDisplay = string.IsNullOrEmpty(p.TrialSource)
                     ? (LicenseService.IsLicenseKeyActive
@@ -264,6 +272,7 @@ namespace ProGlassAutomation.ViewModels.Licensing
             OnPropertyChanged(nameof(CurrentFingerprint));
             OnPropertyChanged(nameof(FeaturesDisplay));
             OnPropertyChanged(nameof(FeatureSummaryDisplay));
+            OnPropertyChanged(nameof(FeatureChips));
             OnPropertyChanged(nameof(LicenseIdDisplay));
             OnPropertyChanged(nameof(ActivationModeDisplay));
             OnPropertyChanged(nameof(LicenseSourceDisplay));
@@ -348,6 +357,14 @@ namespace ProGlassAutomation.ViewModels.Licensing
         public string CurrentFingerprint => _currentFingerprint;
         public string FeaturesDisplay => _featuresDisplay;
         public string FeatureSummaryDisplay => _featureSummaryDisplay;
+        /// <summary>
+        /// Chip list for the License screen's Features card
+        /// (2026-09-15 iOS-26 restyle): wildcard grants → a single
+        /// "All Modules" chip (never a literal "*"), concrete grants →
+        /// one chip per feature, no payload → empty (the summary line
+        /// carries the fallback text).
+        /// </summary>
+        public IReadOnlyList<string> FeatureChips => _featureChips;
         public string LicenseIdDisplay => _licenseIdDisplay;
         public string ActivationModeDisplay => _activationModeDisplay;
         public string LicenseSourceDisplay => _licenseSourceDisplay;
@@ -488,6 +505,24 @@ namespace ProGlassAutomation.ViewModels.Licensing
             return payload.MaxActivations >= 9999
                 ? "Portable · high-volume / effectively unlimited device allowance"
                 : $"Portable · up to {payload.MaxActivations} activated device(s)";
+        }
+
+        private static List<string> BuildFeatureChips(IReadOnlyList<string>? features)
+        {
+            var chips = new List<string>();
+            if (features == null || features.Count == 0)
+                return chips;
+            if (features.Any(f => string.Equals(f, "*", StringComparison.Ordinal)))
+            {
+                chips.Add("All Modules");
+                return chips;
+            }
+            foreach (var f in features)
+            {
+                if (!string.IsNullOrWhiteSpace(f))
+                    chips.Add(f);
+            }
+            return chips;
         }
 
         private static string BuildFeatureSummary(IReadOnlyList<string>? features)

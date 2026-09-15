@@ -2680,4 +2680,21 @@
     <sys:String x:Key="Void.ThisDocument">dieses Dokument</sys:String>
     <sys:String x:Key="Void.Title">Dokument stornieren</sys:String>
 
+    <!-- 2026-09-15 About iOS-26 restyle: System / Diagnostics tab keys -->
+    <sys:String x:Key="About.Environment">Umgebung</sys:String>
+    <sys:String x:Key="About.OperatingSystem">Betriebssystem</sys:String>
+    <sys:String x:Key="About.Runtime">Laufzeit</sys:String>
+    <sys:String x:Key="About.Architecture">Architektur</sys:String>
+    <sys:String x:Key="About.VisualTheme">Visuelles Design</sys:String>
+    <sys:String x:Key="About.Performance">Leistung</sys:String>
+    <sys:String x:Key="About.RenderTier">Renderstufe</sys:String>
+    <sys:String x:Key="About.RichEffects">Rich-Effekte</sys:String>
+    <sys:String x:Key="About.RecordingEngine">Aufnahme-Engine</sys:String>
+    <sys:String x:Key="About.RecordingEngineSub">Hardware-H.264 mit sicherem Software-Fallback</sys:String>
+    <sys:String x:Key="About.Storage">Speicherort</sys:String>
+    <sys:String x:Key="About.Database">Datenbank</sys:String>
+    <sys:String x:Key="About.Recordings">Aufnahmen</sys:String>
+    <sys:String x:Key="About.AppLog">App-Protokoll</sys:String>
+    <sys:String x:Key="About.RecordingHealth">Aufnahme-Status</sys:String>
+    <sys:String x:Key="About.RecordingHealthSub">Dauerhaft unter 15 fps = Warnung; unter 5 fps = kritisch.</sys:String>
 </ResourceDictionary>

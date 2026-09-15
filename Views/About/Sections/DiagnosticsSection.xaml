@@ -1,0 +1,113 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/About/Sections/DiagnosticsSection.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: About → "Diagnostics" tab (2026-09-15 iOS-26 redesign)
+
+     Three live surfaces, all single-width:
+       1. Crash reports  — the self-contained AboutCrashReportsCard
+          (moved here from the Overview section).
+       2. Recording health — the real frame-rate markers the recorder
+          tracks, with the warning / critical thresholds spelled out.
+       3. App log — today's log file location + open-in-Explorer.
+     DynamicResource-only (theme-live); no hex, no literal corners.
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.About.Sections.DiagnosticsSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:aboutSections="clr-namespace:ProGlassAutomation.Views.About.Sections"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../AboutStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Small marker chip (Recording Health). -->
+            <Style x:Key="DxMarkerChipStyle" TargetType="Border"
+                   BasedOn="{StaticResource AboutInsetStyle}">
+                <Setter Property="Padding" Value="12,6"/>
+                <Setter Property="Margin" Value="0,0,8,8"/>
+            </Style>
+
+            <DataTemplate x:Key="DxMarkerChipTemplate">
+                <Border Style="{StaticResource DxMarkerChipStyle}">
+                    <TextBlock Text="{Binding}"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
+                               Foreground="{DynamicResource LiquidSnow}"/>
+                </Border>
+            </DataTemplate>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <StackPanel>
+
+        <!-- ═══ CRASH REPORTS (self-contained card, moved from
+             Overview on 2026-09-15) ═══ -->
+        <aboutSections:AboutCrashReportsCard Margin="0,0,0,14"/>
+
+        <!-- ═══ RECORDING HEALTH ═══ -->
+        <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,14">
+            <StackPanel>
+                <TextBlock Text="{DynamicResource About.RecordingHealth}"
+                           Style="{StaticResource Typography.H2}"
+                           Margin="0,0,0,4"/>
+                <TextBlock Text="{DynamicResource About.RecordingHealthSub}"
+                           Style="{StaticResource Typography.BodySmall}"
+                           Foreground="{DynamicResource LiquidMuted}"
+                           Margin="0,0,0,12"/>
+                <ItemsControl ItemsSource="{Binding RecordingMarkers}"
+                              ItemTemplate="{StaticResource DxMarkerChipTemplate}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+
+        <!-- ═══ APP LOG ═══ -->
+        <Border Style="{StaticResource SurfacePrimaryStyle}">
+            <StackPanel>
+                <TextBlock Text="{DynamicResource About.AppLog}"
+                           Style="{StaticResource Typography.H2}"
+                           Margin="0,0,0,12"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               FontFamily="{DynamicResource FontFamily.Icon}"
+                               Text="&#xE8B7;"
+                               FontSize="16"
+                               Foreground="{DynamicResource LiquidMuted}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,0"
+                               IsHitTestVisible="False"/>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding AppLogPath}"
+                               Style="{StaticResource Typography.BodySmall}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
+                               VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"
+                               ToolTip="{Binding AppLogPath}"/>
+                    <Button Grid.Column="2"
+                            Style="{StaticResource AboutPillButtonStyle}"
+                            Content="{DynamicResource About.OPENFolder}"
+                            Margin="12,0,0,0"
+                            Padding="14,8"
+                            Click="OpenLogFolder_Click"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+    </StackPanel>
+</UserControl>

@@ -2680,4 +2680,21 @@
     <sys:String x:Key="Void.ThisDocument">此单据</sys:String>
     <sys:String x:Key="Void.Title">作废单据</sys:String>
 
+    <!-- 2026-09-15 About iOS-26 restyle: System / Diagnostics tab keys -->
+    <sys:String x:Key="About.Environment">环境</sys:String>
+    <sys:String x:Key="About.OperatingSystem">操作系统</sys:String>
+    <sys:String x:Key="About.Runtime">运行时</sys:String>
+    <sys:String x:Key="About.Architecture">体系结构</sys:String>
+    <sys:String x:Key="About.VisualTheme">视觉主题</sys:String>
+    <sys:String x:Key="About.Performance">性能</sys:String>
+    <sys:String x:Key="About.RenderTier">渲染层级</sys:String>
+    <sys:String x:Key="About.RichEffects">富效果</sys:String>
+    <sys:String x:Key="About.RecordingEngine">录制引擎</sys:String>
+    <sys:String x:Key="About.RecordingEngineSub">硬件 H.264，含安全的软件回退</sys:String>
+    <sys:String x:Key="About.Storage">存储</sys:String>
+    <sys:String x:Key="About.Database">数据库</sys:String>
+    <sys:String x:Key="About.Recordings">录制</sys:String>
+    <sys:String x:Key="About.AppLog">应用日志</sys:String>
+    <sys:String x:Key="About.RecordingHealth">录制健康状态</sys:String>
+    <sys:String x:Key="About.RecordingHealthSub">持续帧率低于 15 fps 会发出警告；低于 5 fps 为严重。</sys:String>
 </ResourceDictionary>

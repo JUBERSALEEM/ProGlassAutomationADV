@@ -1,0 +1,274 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/About/Sections/SystemSection.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: About → "System" tab (2026-09-15 iOS-26 redesign)
+
+     Live machine / runtime / theme / performance / recording-engine
+     data. Every value is bound to a real source (Environment,
+     VisualThemeEngine, PerformanceProfileService, EncoderProbe,
+     AppDataRoot) — nothing is fabricated. Same single-width card
+     language as the other About sections; DynamicResource-only so
+     Light / Dark / visual families re-tint live.
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.About.Sections.SystemSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../AboutStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- One Recording Engine row: status dot · name · status.
+                 Setters-only triggers (no Storyboard) — Freezable-safe. -->
+            <DataTemplate x:Key="SysEncoderRowTemplate">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Margin="0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Ellipse Grid.Column="0"
+                                 Width="9" Height="9"
+                                 VerticalAlignment="Center">
+                            <Ellipse.Style>
+                                <Style TargetType="Ellipse">
+                                    <Setter Property="Fill"
+                                            Value="{DynamicResource AboutGlassCaptionBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Available}" Value="True">
+                                            <Setter Property="Fill"
+                                                    Value="{DynamicResource SuccessBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Ellipse.Style>
+                        </Ellipse>
+                        <TextBlock Grid.Column="2"
+                                   Text="{Binding Name}"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Foreground="{DynamicResource LiquidSnow}"
+                                   VerticalAlignment="Center"
+                                   IsHitTestVisible="False"/>
+                        <TextBlock Grid.Column="3"
+                                   Text="{Binding Status}"
+                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                   Foreground="{DynamicResource AboutGlassCaptionBrush}"
+                                   VerticalAlignment="Center"
+                                   TextAlignment="Right"
+                                   TextWrapping="Wrap"
+                                   MaxWidth="340"
+                                   IsHitTestVisible="False"/>
+                    </Grid>
+                    <Border Grid.Row="1" Height="1" Margin="0"
+                            Background="{DynamicResource AboutDividerBrush}"/>
+                </Grid>
+            </DataTemplate>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <StackPanel>
+
+        <!-- ═══ ENVIRONMENT ═══ -->
+        <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,14">
+            <StackPanel>
+                <TextBlock Text="{DynamicResource About.Environment}"
+                           Style="{StaticResource Typography.H2}"
+                           Margin="0,0,0,12"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0"
+                               Text="{DynamicResource About.OperatingSystem}"
+                               Style="{StaticResource Typography.Body}"
+                               Foreground="{DynamicResource LiquidMuted}"
+                               Margin="0,0,0,10" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1"
+                               Text="{Binding OsVersion}"
+                               Style="{StaticResource Typography.Body}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
+                               Margin="0,0,0,10" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"/>
+                    <Border Grid.Row="0" Grid.ColumnSpan="2" Height="1"
+                            VerticalAlignment="Bottom"
+                            Background="{DynamicResource AboutDividerBrush}"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0"
+                               Text="{DynamicResource About.Runtime}"
+                               Style="{StaticResource Typography.Body}"
+                               Foreground="{DynamicResource LiquidMuted}"
+                               Margin="0,10,0,10" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1"
+                               Text="{Binding DotNetVersion}"
+                               Style="{StaticResource Typography.Body}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
+                               Margin="0,10,0,10" VerticalAlignment="Center"/>
+                    <Border Grid.Row="1" Grid.ColumnSpan="2" Height="1"
+                            VerticalAlignment="Bottom"
+                            Background="{DynamicResource AboutDividerBrush}"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0"
+                               Text="{DynamicResource About.Architecture}"
+                               Style="{StaticResource Typography.Body}"
+                               Foreground="{DynamicResource LiquidMuted}"
+                               Margin="0,10,0,10" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1"
+                               Text="{Binding Architecture}"
+                               Style="{StaticResource Typography.Body}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
+                               Margin="0,10,0,10" VerticalAlignment="Center"/>
+                    <Border Grid.Row="2" Grid.ColumnSpan="2" Height="1"
+                            VerticalAlignment="Bottom"
+                            Background="{DynamicResource AboutDividerBrush}"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0"
+                               Text="{DynamicResource About.VisualTheme}"
+                               Style="{StaticResource Typography.Body}"
+                               Foreground="{DynamicResource LiquidMuted}"
+                               Margin="0,10,0,10" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1"
+                               Text="{Binding ThemeName}"
+                               Style="{StaticResource Typography.Body}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
+                               Margin="0,10,0,10" VerticalAlignment="Center"/>
+                    <Border Grid.Row="3" Grid.ColumnSpan="2" Height="1"
+                            VerticalAlignment="Bottom"
+                            Background="{DynamicResource AboutDividerBrush}"/>
+
+                    <TextBlock Grid.Row="4" Grid.Column="0"
+                               Text="{DynamicResource About.Machine}"
+                               Style="{StaticResource Typography.Body}"
+                               Foreground="{DynamicResource LiquidMuted}"
+                               Margin="0,10,0,0" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="4" Grid.Column="1"
+                               Text="{Binding Fingerprint}"
+                               Style="{StaticResource Typography.BodySmall}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
+                               Margin="0,10,0,0" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"
+                               ToolTip="{Binding Fingerprint}"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- ═══ PERFORMANCE ═══ -->
+        <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,14">
+            <StackPanel>
+                <TextBlock Text="{DynamicResource About.Performance}"
+                           Style="{StaticResource Typography.H2}"
+                           Margin="0,0,0,12"/>
+                <UniformGrid Columns="2">
+                    <Border Style="{StaticResource SurfaceKpiStyle}" Margin="0,0,7,0">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource About.RenderTier}"
+                                       Style="{StaticResource Typography.Label}"/>
+                            <TextBlock Text="{Binding RenderTierDisplay}"
+                                       Style="{StaticResource Typography.Kpi}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource SurfaceKpiStyle}" Margin="7,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource About.RichEffects}"
+                                       Style="{StaticResource Typography.Label}"/>
+                            <TextBlock Text="{Binding RichEffectsDisplay}"
+                                       Style="{StaticResource Typography.Kpi}"/>
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+            </StackPanel>
+        </Border>
+
+        <!-- ═══ RECORDING ENGINE (live EncoderProbe snapshot) ═══ -->
+        <Border Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,0,14">
+            <StackPanel>
+                <StackPanel Margin="0,0,0,8">
+                    <TextBlock Text="{DynamicResource About.RecordingEngine}"
+                               Style="{StaticResource Typography.H2}"/>
+                    <TextBlock Text="{DynamicResource About.RecordingEngineSub}"
+                               Style="{StaticResource Typography.BodySmall}"
+                               Margin="0,2,0,0"/>
+                </StackPanel>
+                <ItemsControl ItemsSource="{Binding EncoderRows}"
+                              ItemTemplate="{StaticResource SysEncoderRowTemplate}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+
+        <!-- ═══ STORAGE ══ -->
+        <Border Style="{StaticResource SurfacePrimaryStyle}">
+            <StackPanel>
+                <TextBlock Text="{DynamicResource About.Storage}"
+                           Style="{StaticResource Typography.H2}"
+                           Margin="0,0,0,12"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0"
+                               Text="{DynamicResource About.Database}"
+                               Style="{StaticResource Typography.Body}"
+                               Foreground="{DynamicResource LiquidMuted}"
+                               Margin="0,0,0,10" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1"
+                               Text="{Binding DatabasePath}"
+                               Style="{StaticResource Typography.BodySmall}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
+                               Margin="0,0,0,10" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"
+                               ToolTip="{Binding DatabasePath}"/>
+                    <Border Grid.Row="0" Grid.ColumnSpan="2" Height="1"
+                            VerticalAlignment="Bottom"
+                            Background="{DynamicResource AboutDividerBrush}"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0"
+                               Text="{DynamicResource About.Recordings}"
+                               Style="{StaticResource Typography.Body}"
+                               Foreground="{DynamicResource LiquidMuted}"
+                               Margin="0,10,0,0" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1"
+                               Text="{Binding RecordingsPath}"
+                               Style="{StaticResource Typography.BodySmall}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
+                               Margin="0,10,0,0" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"
+                               ToolTip="{Binding RecordingsPath}"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+    </StackPanel>
+</UserControl>

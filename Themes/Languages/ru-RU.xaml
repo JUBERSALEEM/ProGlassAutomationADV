@@ -2680,4 +2680,21 @@
     <sys:String x:Key="Void.ThisDocument">этот документ</sys:String>
     <sys:String x:Key="Void.Title">Аннулировать документ</sys:String>
 
+    <!-- 2026-09-15 About iOS-26 restyle: System / Diagnostics tab keys -->
+    <sys:String x:Key="About.Environment">Среда</sys:String>
+    <sys:String x:Key="About.OperatingSystem">Операционная система</sys:String>
+    <sys:String x:Key="About.Runtime">Средство выполнения</sys:String>
+    <sys:String x:Key="About.Architecture">Архитектура</sys:String>
+    <sys:String x:Key="About.VisualTheme">Визуальная тема</sys:String>
+    <sys:String x:Key="About.Performance">Производительность</sys:String>
+    <sys:String x:Key="About.RenderTier">Уровень рендеринга</sys:String>
+    <sys:String x:Key="About.RichEffects">Расширенные эффекты</sys:String>
+    <sys:String x:Key="About.RecordingEngine">Движок записи</sys:String>
+    <sys:String x:Key="About.RecordingEngineSub">Аппаратное H.264 с безопасным программным резервированием</sys:String>
+    <sys:String x:Key="About.Storage">Хранение</sys:String>
+    <sys:String x:Key="About.Database">База данных</sys:String>
+    <sys:String x:Key="About.Recordings">Записи</sys:String>
+    <sys:String x:Key="About.AppLog">Журнал приложения</sys:String>
+    <sys:String x:Key="About.RecordingHealth">Состояние записи</sys:String>
+    <sys:String x:Key="About.RecordingHealthSub">Устойчивая частота ниже 15 к/с — предупреждение; ниже 5 к/с — критическое состояние.</sys:String>
 </ResourceDictionary>

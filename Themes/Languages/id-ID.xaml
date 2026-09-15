@@ -2680,4 +2680,21 @@
     <sys:String x:Key="Void.ThisDocument">dokumen ini</sys:String>
     <sys:String x:Key="Void.Title">Batalkan dokumen</sys:String>
 
+    <!-- 2026-09-15 About iOS-26 restyle: System / Diagnostics tab keys -->
+    <sys:String x:Key="About.Environment">Lingkungan</sys:String>
+    <sys:String x:Key="About.OperatingSystem">Sistem Operasi</sys:String>
+    <sys:String x:Key="About.Runtime">Runtime</sys:String>
+    <sys:String x:Key="About.Architecture">Arsitektur</sys:String>
+    <sys:String x:Key="About.VisualTheme">Tema Visual</sys:String>
+    <sys:String x:Key="About.Performance">Kinerja</sys:String>
+    <sys:String x:Key="About.RenderTier">Tier Render</sys:String>
+    <sys:String x:Key="About.RichEffects">Efek Kaya</sys:String>
+    <sys:String x:Key="About.RecordingEngine">Mesin Perekaman</sys:String>
+    <sys:String x:Key="About.RecordingEngineSub">H.264 hardware dengan fallback perangkat lunak yang aman</sys:String>
+    <sys:String x:Key="About.Storage">Penyimpanan</sys:String>
+    <sys:String x:Key="About.Database">Basis Data</sys:String>
+    <sys:String x:Key="About.Recordings">Perekaman</sys:String>
+    <sys:String x:Key="About.AppLog">Log Aplikasi</sys:String>
+    <sys:String x:Key="About.RecordingHealth">Kesehatan Perekaman</sys:String>
+    <sys:String x:Key="About.RecordingHealthSub">Laju bingkai berkelanjutan di bawah 15 fps memicu peringatan; di bawah 5 fps bersifat kritis.</sys:String>
 </ResourceDictionary>

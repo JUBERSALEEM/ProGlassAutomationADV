@@ -2680,4 +2680,21 @@
     <sys:String x:Key="Void.ThisDocument">ce document</sys:String>
     <sys:String x:Key="Void.Title">Annuler le document</sys:String>
 
+    <!-- 2026-09-15 About iOS-26 restyle: System / Diagnostics tab keys -->
+    <sys:String x:Key="About.Environment">Environnement</sys:String>
+    <sys:String x:Key="About.OperatingSystem">Système d'exploitation</sys:String>
+    <sys:String x:Key="About.Runtime">Environnement d'exécution</sys:String>
+    <sys:String x:Key="About.Architecture">Architecture</sys:String>
+    <sys:String x:Key="About.VisualTheme">Thème visuel</sys:String>
+    <sys:String x:Key="About.Performance">Performance</sys:String>
+    <sys:String x:Key="About.RenderTier">Niveau de rendu</sys:String>
+    <sys:String x:Key="About.RichEffects">Effets riches</sys:String>
+    <sys:String x:Key="About.RecordingEngine">Moteur d'enregistrement</sys:String>
+    <sys:String x:Key="About.RecordingEngineSub">H.264 matériel avec repli logiciel sûr</sys:String>
+    <sys:String x:Key="About.Storage">Stockage</sys:String>
+    <sys:String x:Key="About.Database">Base de données</sys:String>
+    <sys:String x:Key="About.Recordings">Enregistrements</sys:String>
+    <sys:String x:Key="About.AppLog">Journal de l'application</sys:String>
+    <sys:String x:Key="About.RecordingHealth">Santé de l'enregistrement</sys:String>
+    <sys:String x:Key="About.RecordingHealthSub">Un taux soutenu sous 15 ips déclenche un avertissement ; sous 5 ips, c'est critique.</sys:String>
 </ResourceDictionary>

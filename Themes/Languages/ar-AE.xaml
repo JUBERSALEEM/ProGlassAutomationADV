@@ -2680,4 +2680,21 @@
     <sys:String x:Key="Void.ThisDocument">هذا المستند</sys:String>
     <sys:String x:Key="Void.Title">إلغاء المستند</sys:String>
 
+    <!-- 2026-09-15 About iOS-26 restyle: System / Diagnostics tab keys -->
+    <sys:String x:Key="About.Environment">البيئة</sys:String>
+    <sys:String x:Key="About.OperatingSystem">نظام التشغيل</sys:String>
+    <sys:String x:Key="About.Runtime">بيئة التشغيل</sys:String>
+    <sys:String x:Key="About.Architecture">البنية</sys:String>
+    <sys:String x:Key="About.VisualTheme">السمة البصرية</sys:String>
+    <sys:String x:Key="About.Performance">الأداء</sys:String>
+    <sys:String x:Key="About.RenderTier">مستوى العرض</sys:String>
+    <sys:String x:Key="About.RichEffects">التأثيرات الغنية</sys:String>
+    <sys:String x:Key="About.RecordingEngine">محرك التسجيل</sys:String>
+    <sys:String x:Key="About.RecordingEngineSub">H.264 بالعتاد مع بديل برمجي آمن</sys:String>
+    <sys:String x:Key="About.Storage">التخزين</sys:String>
+    <sys:String x:Key="About.Database">قاعدة البيانات</sys:String>
+    <sys:String x:Key="About.Recordings">التسجيلات</sys:String>
+    <sys:String x:Key="About.AppLog">سجل التطبيق</sys:String>
+    <sys:String x:Key="About.RecordingHealth">صحة التسجيل</sys:String>
+    <sys:String x:Key="About.RecordingHealthSub">معدل إطارات مستمر أقل من 15 إطارًا/ث يولّد تحذيرًا، وأقل من 5 حرج.</sys:String>
 </ResourceDictionary>

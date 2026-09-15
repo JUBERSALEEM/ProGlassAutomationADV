@@ -171,6 +171,8 @@ namespace ProGlassAutomation.Views.About
                 HookReveal(LicenseSectionHost);
                 HookReveal(ModulesSectionHost);
                 HookReveal(DeveloperSectionHost);
+                HookReveal(SystemSectionHost);
+                HookReveal(DiagnosticsSectionHost);
             }
             catch (System.Exception ex)
             {
