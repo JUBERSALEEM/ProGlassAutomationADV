@@ -13,23 +13,40 @@
      ───────────────────────
      Owner directive: "apply exact cards style of about module in complete
      setting module … i want full redesign". So the grammar is the About
-     card language, and it is built directly on the SAME value tokens
+     card language, and it is built on the SAME geometry and type tokens
      About uses — which are application-level and live:
 
-       Ios26CardBrush / Ios26CardBorderBrush   (theme dictionaries)
-       Ios26TileBrush / Ios26TileBorderBrush   (theme dictionaries)
-       Ios26HairlineBrush, Ios26HoverBrush      (theme dictionaries)
-       Ios26Text{Title,Body,Secondary,Muted,Faint}Brush, accent family
        Ios26Radius{Card,Inner,Tile,Chip,Small} (AboutSurface.xaml, then
                                                 republished from the live
                                                 card-radius setting)
        Ios26FontSize*                          (AboutTypeScale.xaml, then
                                                 republished per density)
-       Ios26CardShadow                          (Views/About)
+       Ios26Text{Title,Body,Secondary,Muted,Faint}Brush, accent family
+       Ios26HairlineBrush, Ios26HoverBrush      (theme dictionaries)
+       Ios26TileBrush / Ios26TileBorderBrush    (theme dictionaries — the
+                                                action bar and the danger wash)
 
-     That means Settings inherits, for free, everything built earlier:
-     Light/Dark, the accent and the visual family, the density profiles
-     and the Appearance card-corner slider all move this module now.
+     THE MATERIAL IS SETTINGS' OWN (2026-09-17)
+     ─────────────────────────────────────────
+     Owner directive: "Generate the new mockup with crystal liquid ios 26
+     theme type", after "design is still same / cards are too close".
+
+     That complaint was correct and its cause was the SPEC, not the code: the
+     first approved sheet set specified a flat card (#CCFFFFFF + a 1 px
+     #E2E8F0 hairline + a 10 % shadow), and the module implemented it
+     faithfully. Settings therefore carries its own crystal material, declared
+     in the same theme dictionaries so Light/Dark still repaints it:
+
+       SettingsCardFaceBrush   L2 tint + L3 specular rim + L4 sheen +
+                               L5 refraction lip, one stretchable DrawingBrush
+       SettingsCardEdgeBrush   L1 tri-stop crystal edge
+       SettingsInnerFaceBrush  the translucent panel inside a card
+       SettingsInnerEdgeBrush  its edge
+       SettingsCardShadow      L0, tinted and wider than About's
+
+     Ios26CardBrush / Ios26CardBorderBrush / Ios26CardShadow are deliberately
+     untouched: they are the About reference design, and its locks (see
+     Tests/Theme/AppStageAuditTests) pin those values.
 
      NAMING
      ──────
@@ -67,31 +84,50 @@
          page's rhythm does not change when the operator changes density
          of CONTROLS. -->
     <Thickness x:Key="SettingsPagePadding">18,14,18,18</Thickness>
-    <Thickness x:Key="SettingsCardPadding">22,20</Thickness>
+    <Thickness x:Key="SettingsCardPadding">24,22</Thickness>
     <Thickness x:Key="SettingsCardContentMargin">0,14,0,0</Thickness>
     <Thickness x:Key="SettingsTilePadding">12,10</Thickness>
     <Thickness x:Key="SettingsRowPadding">0,9</Thickness>
     <Thickness x:Key="SettingsIconTextMargin">10,0,0,0</Thickness>
 
-    <sys:Double x:Key="SettingsGapPage">14</sys:Double>
-    <sys:Double x:Key="SettingsGapCard">14</sys:Double>
+    <!-- 2026-09-17: 14 → 22. At 14 the page cards sat shoulder to shoulder and
+         the module read as one continuous sheet, which is what the owner
+         reported as "cards are too close". 22 is the About page's rhythm. -->
+    <sys:Double x:Key="SettingsGapPage">22</sys:Double>
+    <sys:Double x:Key="SettingsGapCard">22</sys:Double>
     <sys:Double x:Key="SettingsGapRow">6</sys:Double>
     <sys:Double x:Key="SettingsGapInline">10</sys:Double>
     <sys:Double x:Key="SettingsGapSection">22</sys:Double>
 
-    <Thickness x:Key="SettingsCardMargin">0,0,0,14</Thickness>
+    <Thickness x:Key="SettingsCardMargin">0,0,0,22</Thickness>
     <Thickness x:Key="SettingsRowMargin">0,0,0,6</Thickness>
 
-    <!-- ═══ CARD — the About card, page-sized ═══ -->
+    <!-- ═══ CARD — page-sized crystal glass (2026-09-17) ═══
+
+         The surface keys below are theme-owned (Themes/LightTheme.xaml,
+         Themes/DarkTheme.xaml) so a Light/Dark switch repaints the whole
+         module with no code-behind:
+
+           SettingsCardFaceBrush   base gradient + specular rim + sheen +
+                                   refraction lip, in ONE DrawingBrush that
+                                   stretches to any card size
+           SettingsCardEdgeBrush   tri-stop crystal edge
+           SettingsCardShadow      tinted, wider, softer than About's
+
+         It stays a Border on purpose. Turning the card into a templated
+         ContentControl (the LiquidGlassSurface route) would give the same
+         six layers but would break every section's Border composition and the
+         nested-card / card-as-spacer locks; a gradient face plus a gradient
+         edge plus a tinted shadow carries the material on its own. -->
     <Style x:Key="SettingsPageCardStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource Ios26CardBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource Ios26CardBorderBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SettingsCardFaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource SettingsCardEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusCard}"/>
         <Setter Property="Padding" Value="{StaticResource SettingsCardPadding}"/>
         <Setter Property="Margin" Value="{StaticResource SettingsCardMargin}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="Effect" Value="{DynamicResource Ios26CardShadow}"/>
+        <Setter Property="Effect" Value="{DynamicResource SettingsCardShadow}"/>
     </Style>
 
     <!-- Card frames that need no shadow: the action bar and any card the
@@ -111,10 +147,15 @@
         <Setter Property="Background" Value="{DynamicResource Ios26TileBrush}"/>
     </Style>
 
-    <!-- ═══ INNER TILE — solid panel inside a card (mockup: white panel) ═══ -->
+    <!-- ═══ INNER TILE — the panel inside a card ═══
+         2026-09-17: was Ios26TileBrush, which is OPAQUE #FFFFFF in Light. An
+         opaque panel on top of translucent glass is what made every tile look
+         like a flat sticker pasted on the card, and it was the single biggest
+         reason the module still read as the old design. The inner surface is
+         now translucent in both themes. -->
     <Style x:Key="SettingsInnerTileStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource Ios26TileBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource Ios26TileBorderBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SettingsInnerFaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource SettingsInnerEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusInner}"/>
         <Setter Property="Padding" Value="{StaticResource SettingsTilePadding}"/>

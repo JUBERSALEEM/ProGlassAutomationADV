@@ -1,4 +1,4 @@
-<!--
+﻿<!--
     FILE: Themes/LightTheme.xaml
     PROJECT: ProGlassAutomation
     VERSION: Phase 1 — Design System Foundation
@@ -698,6 +698,116 @@
     <SolidColorBrush x:Key="Ios26RailBrush"               Color="#99FFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26TileBrush"               Color="#FFFFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26TileBorderBrush"         Color="#E8EDF3" po:Freeze="True"/>
+
+    <!-- ═══ SETTINGS — CRYSTAL LIQUID SURFACE (2026-09-17) ═══════════════
+         Owner directive: "Generate the new mockup with crystal liquid ios 26
+         theme type", after "design is still same / cards are too close".
+
+         ROOT CAUSE of that report: the first approved sheet set specified a
+         FLAT card — #CCFFFFFF, a 1 px #E2E8F0 hairline, a 10 % grey shadow —
+         and the module implemented that specification exactly. The module was
+         faithful; the specification was flat. These four keys are the
+         replacement specification (target sheet:
+         docs/mockups/settings-redesign-v2/01-crystal-kit.png).
+
+         Ios26CardBrush / Ios26CardBorderBrush are deliberately NOT touched:
+         they are the About reference design and its locks pin them (see
+         Tests/Theme/AppStageAuditTests). Settings composes its own four
+         layers instead, in the same theme dictionaries, so the module still
+         follows Light/Dark with no code-behind.
+
+           face    L2 base tint + L3 specular rim + L4 sheen + L5 refraction
+           edge    L1 tri-stop gradient stroke (crystal, not a hairline)
+           inner   the panel INSIDE a card — translucent, so it reads as part
+                   of the glass instead of a flat white sticker
+           shadow  L0 tinted, wider, softer
+         ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- L2 + L3 + L4 + L5 in one brush: a DrawingBrush scales with the card,
+         so a 60 px action bar and a 900 px hero card get the same rim. -->
+    <DrawingBrush x:Key="SettingsCardFaceBrush"
+                  Stretch="Fill"
+                  Viewbox="0,0,1,1" ViewboxUnits="Absolute"
+                  Viewport="0,0,1,1" ViewportUnits="RelativeToBoundingBox"
+                  po:Freeze="True">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <!-- L2 · frosted base: 72 % → 38 % white over the live stage. -->
+                <GeometryDrawing>
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="0,0,1,1"/>
+                    </GeometryDrawing.Geometry>
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#B8FFFFFF" Offset="0"/>
+                            <GradientStop Color="#61FFFFFF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <!-- L3 · specular rim: bright top edge, gone by 20 % -->
+                <GeometryDrawing>
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="0,0,1,0.20"/>
+                    </GeometryDrawing.Geometry>
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#E6FFFFFF" Offset="0"/>
+                            <GradientStop Color="#00FFFFFF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <!-- L4 · reflection sweep: diagonal sheen across the top left -->
+                <GeometryDrawing>
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="0,0,0.62,0.34"/>
+                    </GeometryDrawing.Geometry>
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#1FFFFFFF" Offset="0"/>
+                            <GradientStop Color="#00FFFFFF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <!-- L5 · refraction lip: the last 10 % picks the light back up -->
+                <GeometryDrawing>
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="0,0.90,1,0.10"/>
+                    </GeometryDrawing.Geometry>
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
+                            <GradientStop Color="#5CFFFFFF" Offset="0"/>
+                            <GradientStop Color="#00FFFFFF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <!-- L1 · crystal edge. The mid stop is the same hairline tone the card
+         edge used before, so the outline the owner asked for ("no border
+         lines on cards") stays visible in the middle of every side while the
+         top and bottom corners catch the light. -->
+    <LinearGradientBrush x:Key="SettingsCardEdgeBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#F2FFFFFF" Offset="0"/>
+        <GradientStop Color="#8CB9C6D8" Offset="0.45"/>
+        <GradientStop Color="#D9FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="SettingsInnerFaceBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#8CFFFFFF" Offset="0"/>
+        <GradientStop Color="#66FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="SettingsInnerEdgeBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#D9FFFFFF" Offset="0"/>
+        <GradientStop Color="#B3FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+
+    <DropShadowEffect x:Key="SettingsCardShadow"
+                      Color="#334155" Opacity="0.18"
+                      BlurRadius="34" ShadowDepth="14" Direction="90"
+                      po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26HairlineBrush"           Color="#E2E8F0" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26TrackBrush"              Color="#E2E8F0" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26HoverBrush"              Color="#E6ECF3" po:Freeze="True"/>

@@ -54,8 +54,15 @@ namespace ProGlassAutomation.Tests.Theme
         /// Views/About/AboutIos26Theme.xaml into both themes so the About
         /// page finally follows Light/Dark. See
         /// docs/ABOUT_DYNAMIC_THEME_CONVERSION_2026-09-15.md §1.1.
+        ///
+        /// MEASURED 2026-09-17: 275. The five new keys are the Settings crystal
+        /// material (face, edge, inner face, inner edge, shadow) — see
+        /// Views/Settings/SettingsCardStyles.xaml and the target sheet
+        /// docs/mockups/settings-redesign-v2/01-crystal-kit.png. They are added
+        /// to BOTH columns, which is the only intended way for this number to
+        /// move; a key in one column only is the bug this test exists to catch.
         /// </summary>
-        private const int BaselineTokenCount = 270;
+        private const int BaselineTokenCount = 275;
 
         private static readonly Regex KeyAttr =
             new("x:Key=\"([^\"]+)\"", RegexOptions.Compiled);

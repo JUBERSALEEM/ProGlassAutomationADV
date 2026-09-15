@@ -1,4 +1,4 @@
-<!--
+﻿<!--
     FILE: Themes/DarkTheme.xaml
     PROJECT: ProGlassAutomation
     VERSION: Phase 1 — Design System Foundation (Dark)
@@ -640,6 +640,90 @@
     <SolidColorBrush x:Key="Ios26RailBrush"               Color="#B3141519" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26TileBrush"               Color="#FF21222A" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26TileBorderBrush"         Color="#FF2C2F3A" po:Freeze="True"/>
+
+    <!-- ═══ SETTINGS — CRYSTAL LIQUID SURFACE (2026-09-17) ═══════════════
+         Dark column of the Settings card material. Same four layers as the
+         light column; see the LightTheme.xaml note for the full rationale.
+         Dark glass floats on the SAME invariant pastel stage ("Background
+         page dont make it dynamic"), so the face stays translucent and only
+         the tint and the rim change.
+         ═══════════════════════════════════════════════════════════════ -->
+
+    <DrawingBrush x:Key="SettingsCardFaceBrush"
+                  Stretch="Fill"
+                  Viewbox="0,0,1,1" ViewboxUnits="Absolute"
+                  Viewport="0,0,1,1" ViewportUnits="RelativeToBoundingBox"
+                  po:Freeze="True">
+        <DrawingBrush.Drawing>
+            <DrawingGroup>
+                <GeometryDrawing>
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="0,0,1,1"/>
+                    </GeometryDrawing.Geometry>
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#CC1B1D24" Offset="0"/>
+                            <GradientStop Color="#9E151720" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="0,0,1,0.20"/>
+                    </GeometryDrawing.Geometry>
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#4DFFFFFF" Offset="0"/>
+                            <GradientStop Color="#00FFFFFF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="0,0,0.62,0.34"/>
+                    </GeometryDrawing.Geometry>
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#1AFFFFFF" Offset="0"/>
+                            <GradientStop Color="#00FFFFFF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="0,0.90,1,0.10"/>
+                    </GeometryDrawing.Geometry>
+                    <GeometryDrawing.Brush>
+                        <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
+                            <GradientStop Color="#1FFFFFFF" Offset="0"/>
+                            <GradientStop Color="#00FFFFFF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </GeometryDrawing.Brush>
+                </GeometryDrawing>
+            </DrawingGroup>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+
+    <LinearGradientBrush x:Key="SettingsCardEdgeBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#57FFFFFF" Offset="0"/>
+        <GradientStop Color="#1FFFFFFF" Offset="0.45"/>
+        <GradientStop Color="#38FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="SettingsInnerFaceBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#1AFFFFFF" Offset="0"/>
+        <GradientStop Color="#0FFFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="SettingsInnerEdgeBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#24FFFFFF" Offset="0"/>
+        <GradientStop Color="#1AFFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+
+    <DropShadowEffect x:Key="SettingsCardShadow"
+                      Color="#020617" Opacity="0.34"
+                      BlurRadius="40" ShadowDepth="18" Direction="90"
+                      po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26HairlineBrush"           Color="#FF262A34" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26TrackBrush"              Color="#FF262A34" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26HoverBrush"              Color="#FF23252E" po:Freeze="True"/>

@@ -414,3 +414,39 @@ module references nothing from the pre-redesign layout.
 | **Language coverage** | 6 new keys (`Settings.Mode`, `ModeHelp`, `ModeLight`, `ModeDark`, `ModeBadgeLight`, `ModeBadgeDark`) authored in all **15** dictionaries — not English fallbacks: `scripts/i18n/{code}.py` regenerated from `merge-keys.py` → `build.py`, coverage 95.7–98.7 %. |
 | **The regression suite was lying** | `Tests/Settings/SettingsRedesignTests.cs` still asserted the deleted tile grammar: 23 of the 28 keys it required existed nowhere, its per-page lock demanded `SettingsTileStyle` / `SettingsGroupHeaderTextStyle` in 12 pages that have neither, it banned `WrapPanel` outright (the correct host for a chip palette, a button cluster and the Features tab strip), and its wallpaper test sliced between two words that had become a comment 73 characters apart. Replaced with card-grammar locks (§8.3), a burn-down lock that names Voice as the last page on the shims, and a tree-walked wallpaper test. |
 
+
+### 8.6 Fourth pass — the material (2026-09-17), and why the redesign still looked like the old design
+
+Owner report: *"current one is not applied as expected cards are too close design is
+still same. Generate the new mockup with crystal liquid ios 26 theme type."*
+
+Both halves of that report were correct, and the cause of both was the **specification**,
+not the implementation. The 01–10 sheet set asked for a flat card — a single
+`#CCFFFFFF` fill, a 1 px `#E2E8F0` hairline edge, a 10 % grey shadow — and spaced the
+page cards at **14**. The module implemented exactly that. A faithful implementation of
+a flat target is still a flat module, and at a 14 px gap the cards touch, so the page
+reads as one continuous pale sheet however good the card grammar underneath is.
+
+**Is this the "crystal liquid" material the app already ships?** Yes — and the module was
+the only surface in the product not using it. `Themes/Styles/LiquidGlassDesign.xaml`
+composes six layers in `LiquidGlassSurface` (shadow · crystal edge · frosted base ·
+specular rim · reflection · refraction). The first approved sheets were drawn flat, so
+the rewrite landed flat, and nothing in the test suite could tell the difference: a flat
+fill resolves, parses and renders.
+
+| Item | Detail |
+|---|---|
+| **The card composes the material** | `SettingsPageCardStyle` now sets `Background` → `SettingsCardFaceBrush` (base tint gradient + specular rim + diagonal sheen + refraction lip in **one** `DrawingBrush`, so a 60 px action bar and a 900 px hero card get the same rim), `BorderBrush` → `SettingsCardEdgeBrush` (tri-stop crystal edge: bright top, hairline middle, cool bottom), `Effect` → `SettingsCardShadow` (tinted, blur 34, depth 14). |
+| **The inner panel stopped being opaque** | `SettingsInnerTileStyle` was `Ios26TileBrush` = **opaque `#FFFFFFFF` in Light**. An opaque panel on translucent glass is what made every row read as a flat sticker pasted on the card, and it was the largest single reason the module still looked like the old design. It is now `SettingsInnerFaceBrush` / `SettingsInnerEdgeBrush`, translucent in both themes. |
+| **The cards breathe** | `SettingsGapCard` / `SettingsGapPage` / `SettingsCardMargin` 14 → **22** (the About page's rhythm); `SettingsCardPadding` 22,20 → **24,22**. |
+| **The material is theme-owned, so Light/Dark still repaints it** | Five new keys in **both** `Themes/LightTheme.xaml` and `Themes/DarkTheme.xaml`; `ThemeKeyParityTests` baseline 270 → **275**. A `DrawingBrush`/`LinearGradientBrush`/`DropShadowEffect` carries no `Color=` attribute for the older audits to read, so parity is the only thing standing between one theme and the other theme's material — hence the explicit lock. |
+| **About is untouched** | `Ios26CardBrush`, `Ios26CardBorderBrush` and `Ios26CardShadow` are the About reference design and its locks (`Tests/Theme/AppStageAuditTests`) pin their values. Settings carries its own material in the same dictionaries instead of editing About's. |
+| **Radii are not forked** | `Ios26RadiusCard/Inner/Tile/Chip/Small` stay a single ratio table published from `ThemeManager.ApplyCardCornerRadius`, as sheet 01 now states. Inventing a Settings-only scale would have decoupled the Appearance card-corner slider from one of the two modules it moves. |
+| **New lock** | `SettingsNavigationAuditTests.Settings_cards_carry_the_crystal_material` pins the material composition, the translucency of the inner panel, the 22 px gap, and the presence of all five keys in both themes. Without it a future edit can quietly return the module to a flat fill with every other test still green. |
+| **Target sheets (untracked, never committed)** | `docs/mockups/settings-redesign-v2/01-crystal-kit.png` (anatomy, material, radii, gap 14 → 22, controls, before/after, token map), `02-appearance-light.png`, `03-voice-light.png`, `04-agent-dark.png`, `05-data-backup-dark.png`, `06-shell-light-dark.png`. They are rendered from the shipped token values by `scripts/mockups/cl_lib.py` + `cl_sheets.py`, so the sheets cannot drift from the module without the numbers in them going stale. |
+
+**Still owed, and named rather than implied:** sheet 03's typography preview and
+card-geometry cards; the Data "VERIFIED / KEPT" and Agent status chips (both blocked on a
+real severity source — `BackupSetInfo` has no status field and Agent `KeyStatus` is
+two-branch); the 15 grammar styles still waiting for a consumer; and the owner's runtime
+check that the material is visible in the built app.
