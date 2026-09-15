@@ -44,6 +44,8 @@ namespace ProGlassAutomation.Tests.Settings
             "Views/Settings/Sections/SettingsDemoSection.xaml",
             "Views/Settings/Sections/SettingsFeaturesSection.xaml",
             "Views/Settings/Sections/SettingsLicenseSection.xaml",
+            "Views/Settings/Sections/SettingsSharingSection.xaml",
+            "Views/Settings/Sections/SettingsThemesSection.xaml",
             "Views/Settings/Sections/SettingsUpdatesSection.xaml",
             "Views/Settings/Sections/SettingsVoiceSection.xaml",
         };
@@ -667,6 +669,123 @@ namespace ProGlassAutomation.Tests.Settings
             foreach (XmlNode child in elem.ChildNodes)
                 if (child is XmlElement ce)
                     WalkForDoubleSet(ce, file, failures);
+        }
+
+        /// <summary>
+        /// 2026-09-16 pass: every page's group heading moved INTO its card — the
+        /// band caption and its recap line are now the card's title and helper
+        /// line. A page that grows a floating band caption back has undone the
+        /// redesign, and no binding check would notice.
+        ///
+        /// Features is the one page that keeps bands on purpose: a card there is
+        /// a MODULE and its bands are the wizard-step sub-groups inside it
+        /// (sheet 10 keeps cap sub-groups inside a card).
+        /// </summary>
+        [Theory]
+        [InlineData("SettingsAboutSection.xaml", 0)]
+        [InlineData("SettingsAgentSection.xaml", 0)]
+        [InlineData("SettingsAiSection.xaml", 0)]
+        [InlineData("SettingsAppearanceSection.xaml", 0)]
+        [InlineData("SettingsDataSection.xaml", 0)]
+        [InlineData("SettingsDemoSection.xaml", 0)]
+        [InlineData("SettingsFeaturesSection.xaml", 8)]
+        [InlineData("SettingsLicenseSection.xaml", 0)]
+        [InlineData("SettingsSharingSection.xaml", 0)]
+        [InlineData("SettingsThemesSection.xaml", 0)]
+        [InlineData("SettingsUpdatesSection.xaml", 0)]
+        [InlineData("SettingsVoiceSection.xaml", 0)]
+        public void Settings_pages_head_their_groups_with_cards_not_bands(
+            string file, int allowedBands)
+        {
+            var root = LocateProjectRoot();
+            var text = File.ReadAllText(
+                Path.Combine(root, "Views/Settings/Sections", file));
+
+            var bands = Regex.Matches(text, "SettingsGroupCaptionStyle").Count;
+            Assert.True(bands == allowedBands,
+                file + " has " + bands + " band caption(s), expected " + allowedBands +
+                ". A group heading belongs in its card's header (SettingsCardTitleStyle " +
+                "+ SettingsCardHeaderNoteStyle), not on a caption above it.");
+        }
+
+        /// <summary>
+        /// A page card may not sit inside another page card. Both carry the card
+        /// radius, the card fill and the module shadow, so nesting them reads as
+        /// card-in-card and flattens the page into a stack of identical boxes —
+        /// the inner container is a tile (SettingsInnerTileStyle) by definition.
+        /// Walked on the parsed tree, because these files' indentation has been
+        /// through several scripted restyles and no longer reflects nesting.
+        /// </summary>
+        [Theory]
+        [InlineData("SettingsView.xaml", true)]
+        [InlineData("Sections/SettingsAboutSection.xaml", false)]
+        [InlineData("Sections/SettingsAgentSection.xaml", false)]
+        [InlineData("Sections/SettingsAiSection.xaml", false)]
+        [InlineData("Sections/SettingsAppearanceSection.xaml", false)]
+        [InlineData("Sections/SettingsDataSection.xaml", false)]
+        [InlineData("Sections/SettingsDemoSection.xaml", false)]
+        [InlineData("Sections/SettingsFeaturesSection.xaml", false)]
+        [InlineData("Sections/SettingsLicenseSection.xaml", false)]
+        [InlineData("Sections/SettingsSharingSection.xaml", false)]
+        [InlineData("Sections/SettingsThemesSection.xaml", false)]
+        [InlineData("Sections/SettingsUpdatesSection.xaml", false)]
+        [InlineData("Sections/SettingsVoiceSection.xaml", false)]
+        public void Settings_page_cards_are_never_nested(string relative, bool isShell)
+        {
+            var root = LocateProjectRoot();
+            var path = Path.Combine(root, "Views/Settings", relative);
+            var xdoc = new XmlDocument();
+            xdoc.Load(path);
+
+            var offenders = new List<string>();
+            WalkForNestedCard(xdoc.DocumentElement, 0, relative, offenders);
+
+            Assert.True(offenders.Count == 0,
+                "Nested page card(s) in " + relative + ":" + Environment.NewLine +
+                string.Join(Environment.NewLine, offenders) + Environment.NewLine +
+                "Use SettingsInnerTileStyle for a surface inside a card." +
+                (isShell ? " (shell)" : string.Empty));
+        }
+
+        private static void WalkForNestedCard(
+            XmlElement elem, int cardDepth, string file, List<string> offenders)
+        {
+            var style = elem.GetAttribute("Style");
+            var isPageCard = string.Equals(elem.LocalName, "Border", StringComparison.Ordinal)
+                && (style.Contains("SettingsPageCardStyle")
+                    || style.Contains("SettingsDangerCardStyle"));
+
+            if (isPageCard && cardDepth > 0)
+            {
+                offenders.Add("  <Border Style=\"" + style +
+                    "\"> sits inside another page card");
+            }
+
+            var childDepth = isPageCard ? cardDepth + 1 : cardDepth;
+            foreach (XmlNode child in elem.ChildNodes)
+            {
+                if (child is XmlElement ce)
+                    WalkForNestedCard(ce, childDepth, file, offenders);
+            }
+        }
+
+        /// <summary>
+        /// The destructive action on the Demo page is its own red card (sheet
+        /// 08's danger card), not the third of three identical buttons: a reset
+        /// that wipes the demo folder must not sit one slip away from
+        /// "Enter demo mode".
+        /// </summary>
+        [Fact]
+        public void Settings_destructive_reset_is_its_own_danger_card()
+        {
+            var root = LocateProjectRoot();
+            var text = File.ReadAllText(Path.Combine(root,
+                "Views/Settings/Sections/SettingsDemoSection.xaml"));
+
+            Assert.Contains("Style=\"{StaticResource SettingsDangerCardStyle}\"", text);
+            Assert.Contains("Style=\"{StaticResource SettingsDangerCardTitleStyle}\"", text);
+            Assert.Contains("Style=\"{StaticResource SettingsDangerCardNoteStyle}\"", text);
+            Assert.Contains("Command=\"{Binding ResetDemoCommand}\"", text);
         }
 
         private static string LocateProjectRoot()

@@ -198,7 +198,6 @@
                             </Border>
                         </StackPanel>
 
-                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
                     </StackPanel>
                 </Border>
 
@@ -415,7 +414,7 @@
                                     <!-- Full-width action row: buttons stretch evenly. -->
                                     <Border Margin="0,10,0,0"
                 Style="{StaticResource SurfacePanelTileStyle}">
-                    <UniformGrid Columns="3">
+                    <UniformGrid Columns="2">
                                         <Button Style="{StaticResource SettingsActionButtonStyle}"
                                                 Content="{DynamicResource Settings.EnterDEMOMODE}"
                                                 Command="{Binding EnterDemoCommand}"
@@ -423,21 +422,34 @@
                                         <Button Style="{StaticResource SettingsActionButtonStyle}"
                                                 Content="{DynamicResource Settings.EXITDEMOMODE}"
                                                 Command="{Binding ExitDemoCommand}"
-                                                HorizontalAlignment="Stretch"/>
-                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                Content="{DynamicResource Settings.ResetDEMOFolder}"
-                                                Command="{Binding ResetDemoCommand}"
                                                 HorizontalAlignment="Stretch"
                                                 Margin="0"/>
                                     </UniformGrid>
             </Border>
-                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                               Text="{DynamicResource Settings.ResetDeletesAppdataProglassautomationDemo}"/>
                                 </StackPanel>
                             </Border>
                         </StackPanel>
 
                         <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ═══ CARD — RESET DEMO DATA ═══
+                     The destructive action is its own red card instead of the
+                     third of three equal buttons (sheet 08): a destructive tap
+                     should not sit one slip away from "Enter demo mode". -->
+                <Border Style="{StaticResource SettingsDangerCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Settings.ResetDEMOFolder}"
+                                   Style="{StaticResource SettingsDangerCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.ResetDeletesAppdataProglassautomationDemo}"
+                                   Style="{StaticResource SettingsDangerCardNoteStyle}"/>
+                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                Margin="0,4,0,0"
+                                HorizontalAlignment="Left"
+                                Content="{DynamicResource Action.Reset}"
+                                Command="{Binding ResetDemoCommand}"
+                                AutomationProperties.AutomationId="Demo.ResetFolder"/>
                     </StackPanel>
                 </Border>
 
