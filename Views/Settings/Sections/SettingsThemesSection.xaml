@@ -192,7 +192,7 @@
                                                    FontSize="{DynamicResource FontSize.Body}"
                                                    VerticalAlignment="Center"/>
                                         <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}"
-                                        AutomationProperties.Name={DynamicResource Settings.CrystalWaterOpacity}
+                                        AutomationProperties.Name="{DynamicResource Settings.CrystalWaterOpacity}"
                                                 AutomationProperties.AutomationId="Settings.CrystalWaterOpacity"
                                                 Minimum="{Binding CrystalWaterOpacityMin}"
                                                 Maximum="{Binding CrystalWaterOpacityMax}"
@@ -215,7 +215,7 @@
                                                    FontSize="{DynamicResource FontSize.Body}"
                                                    VerticalAlignment="Center"/>
                                         <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}"
-                                        AutomationProperties.Name={DynamicResource Settings.CrystalWaterSpeed}
+                                        AutomationProperties.Name="{DynamicResource Settings.CrystalWaterSpeed}"
                                                 AutomationProperties.AutomationId="Settings.CrystalWaterSpeed"
                                                 Minimum="{Binding CrystalWaterSpeedMin}"
                                                 Maximum="{Binding CrystalWaterSpeedMax}"
@@ -238,7 +238,7 @@
                                                    FontSize="{DynamicResource FontSize.Body}"
                                                    VerticalAlignment="Center"/>
                                         <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}"
-                                        AutomationProperties.Name={DynamicResource Settings.CrystalWaveAmplitude}
+                                        AutomationProperties.Name="{DynamicResource Settings.CrystalWaveAmplitude}"
                                                 AutomationProperties.AutomationId="Settings.CrystalWaveAmplitude"
                                                 Minimum="{Binding CrystalWaveAmplitudeMin}"
                                                 Maximum="{Binding CrystalWaveAmplitudeMax}"
@@ -261,7 +261,7 @@
                                                    FontSize="{DynamicResource FontSize.Body}"
                                                    VerticalAlignment="Center"/>
                                         <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}"
-                                        AutomationProperties.Name={DynamicResource Settings.CrystalCausticIntensity}
+                                        AutomationProperties.Name="{DynamicResource Settings.CrystalCausticIntensity}"
                                                 AutomationProperties.AutomationId="Settings.CrystalCausticIntensity"
                                                 Minimum="{Binding CrystalCausticIntensityMin}"
                                                 Maximum="{Binding CrystalCausticIntensityMax}"
@@ -284,7 +284,7 @@
                                                    FontSize="{DynamicResource FontSize.Body}"
                                                    VerticalAlignment="Center"/>
                                         <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}"
-                                        AutomationProperties.Name={DynamicResource Settings.CrystalBubbleIntensity}
+                                        AutomationProperties.Name="{DynamicResource Settings.CrystalBubbleIntensity}"
                                                 AutomationProperties.AutomationId="Settings.CrystalBubbleIntensity"
                                                 Minimum="{Binding CrystalBubbleIntensityMin}"
                                                 Maximum="{Binding CrystalBubbleIntensityMax}"
@@ -307,7 +307,7 @@
                                                    FontSize="{DynamicResource FontSize.Body}"
                                                    VerticalAlignment="Center"/>
                                         <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}"
-                                        AutomationProperties.Name={DynamicResource Settings.CrystalReflectionOpacity}
+                                        AutomationProperties.Name="{DynamicResource Settings.CrystalReflectionOpacity}"
                                                 AutomationProperties.AutomationId="Settings.CrystalReflectionOpacity"
                                                 Minimum="{Binding CrystalReflectionOpacityMin}"
                                                 Maximum="{Binding CrystalReflectionOpacityMax}"

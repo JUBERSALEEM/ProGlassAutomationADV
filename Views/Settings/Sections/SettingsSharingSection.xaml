@@ -61,19 +61,19 @@
                                         </StackPanel>
                                     </Border>
                                     <CheckBox Content="{DynamicResource Sharing.ProviderWhatsApp}"
-                                    AutomationProperties.Name={DynamicResource Sharing.ProviderWhatsApp}
+                                    AutomationProperties.Name="{DynamicResource Sharing.ProviderWhatsApp}"
                                               IsChecked="{Binding SharingWhatsAppEnabled, Mode=TwoWay}"
                                               FontWeight="{DynamicResource Weight.SemiBold}"
                                               Foreground="{DynamicResource TextPrimaryBrush}"
                                               Margin="{StaticResource SettingsStackGap8}"/>
                                     <CheckBox Content="{DynamicResource Sharing.ProviderEmail}"
-                                    AutomationProperties.Name={DynamicResource Sharing.ProviderEmail}
+                                    AutomationProperties.Name="{DynamicResource Sharing.ProviderEmail}"
                                               IsChecked="{Binding SharingEmailEnabled, Mode=TwoWay}"
                                               FontWeight="{DynamicResource Weight.SemiBold}"
                                               Foreground="{DynamicResource TextPrimaryBrush}"
                                               Margin="{StaticResource SettingsStackGap8}"/>
                                     <CheckBox Content="{DynamicResource Sharing.ProviderShowFile}"
-                                    AutomationProperties.Name={DynamicResource Sharing.ProviderShowFile}
+                                    AutomationProperties.Name="{DynamicResource Sharing.ProviderShowFile}"
                                               IsChecked="{Binding SharingSystemFileEnabled, Mode=TwoWay}"
                                               FontWeight="{DynamicResource Weight.SemiBold}"
                                               Foreground="{DynamicResource TextPrimaryBrush}"
@@ -196,7 +196,7 @@
                                                           SelectedItem="{Binding DefaultRecipientKind, Mode=TwoWay}"
                                                           SelectionChanged="RuleCombo_SelectionChanged" Style="{StaticResource ComboBoxStyle}"/>
                                                 <CheckBox Grid.Column="4" Margin="{StaticResource SettingsInlineGap8}"
-                                                AutomationProperties.Name={DynamicResource Sharing.RuleAllowEdit}
+                                                AutomationProperties.Name="{DynamicResource Sharing.RuleAllowEdit}"
                                                           VerticalAlignment="Center"
                                                           IsChecked="{Binding AllowMessageEdit, Mode=TwoWay}"
                                                           Checked="RuleCombo_SelectionChanged"
