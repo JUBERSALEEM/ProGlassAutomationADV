@@ -767,7 +767,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             // PHASE-2 DIAGNOSTIC: periodic health line — every 100 written
             // frames or 10 s, whichever comes first. Never per-frame, so it
             // cannot itself throttle recording.
-            int healthLogWritten = 0;
+            long healthLogWritten = 0;
             var healthLogAt = DateTime.UtcNow;
 
             while (!ct.IsCancellationRequested)

@@ -36,7 +36,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
             {
                 if (string.IsNullOrWhiteSpace(path)) return -1;
                 string root = Path.GetPathRoot(path);
-                var match = DriveInfo.GetDriveInfo(root)
+                var match = DriveInfo.GetDrives()
                     .FirstOrDefault(d =>
                         string.Equals(d.RootDirectory?.FullName, root,
                             StringComparison.OrdinalIgnoreCase)
