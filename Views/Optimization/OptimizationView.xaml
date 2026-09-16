@@ -40,6 +40,15 @@
                                FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource WarningBrush}"
                                TextWrapping="Wrap" Margin="0,4,0,0"
                                Visibility="{Binding HasRunMessage, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <!-- Which SETTINGS level produced the plan currently on screen. -->
+                    <TextBlock Text="{Binding ResultEffortLabel}" FontSize="{DynamicResource FontSize.BodySmall}"
+                               Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="0,4,0,0"
+                               Visibility="{Binding HasResultEffort, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <!-- What the deeper search bought, after Upgrade to Optimize. -->
+                    <TextBlock Text="{Binding UpgradeSummaryLabel}" FontSize="{DynamicResource FontSize.BodySmall}"
+                               FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SuccessBrush}"
+                               TextWrapping="Wrap" Margin="0,2,0,0"
+                               Visibility="{Binding HasUpgradeSummary, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                     <StackPanel VerticalAlignment="Center" Margin="0,0,16,0"
@@ -58,6 +67,10 @@
                             Command="{Binding CancelRunCommand}" IsEnabled="{Binding CanCancel}"
                             Margin="8,0,0,0"
                             ToolTip="Stop the current run — the engine checks for cancellation once per part"/>
+                    <Button Content="Upgrade to Optimize" Style="{StaticResource PrimaryPillButton}"
+                            Command="{Binding UpgradeToOptimizeCommand}" Margin="8,0,0,0"
+                            Visibility="{Binding CanUpgradeToOptimize, Converter={StaticResource BoolToVisibilityConverter}}"
+                            ToolTip="Re-run this cutting list through OPTIMIZE at the SETTINGS level and compare the sheet count"/>
                 </StackPanel>
             </Grid>
 
@@ -197,6 +210,75 @@
                 <tabs:TwoDViewTabView/>
                 <tabs:ReportTabView/>
             </Grid>
+        </Grid>
+
+        <!-- ══ OPTIMIZATION PROGRESS SCREEN ══════════════════════════════
+             Covers the module while a run is in flight. A large job (many
+             cutting groups, thousands of parts) can legitimately take
+             minutes, and the old 3px indeterminate header bar made that
+             indistinguishable from a hung UI. The bar is determinate for
+             both stages: OPTIMIZE reports per candidate pass, QUICK per
+             cutting group. Rendered last so it sits above the tab host. -->
+        <Grid Visibility="{Binding IsRunProgressVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Border Background="{DynamicResource Surface.Secondary.BackgroundBrush}" Opacity="0.96"/>
+
+            <Border HorizontalAlignment="Center" VerticalAlignment="Center" Width="520"
+                    Padding="28,24" CornerRadius="{DynamicResource CardCornerRadius}"
+                    Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                    BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="OPTIMIZATION IN PROGRESS" Style="{StaticResource OptPanelTitle}"
+                               HorizontalAlignment="Center"/>
+
+                    <TextBlock Text="{Binding RunStageLabel}" HorizontalAlignment="Center" TextAlignment="Center"
+                               TextWrapping="Wrap" Margin="0,6,0,0"
+                               FontSize="{DynamicResource FontSize.Body}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
+                               Foreground="{DynamicResource AccentBrush}"/>
+
+                    <ProgressBar Height="8" Minimum="0" Maximum="100" Margin="0,18,0,0"
+                                 Value="{Binding RunProgressPercent, Mode=OneWay}"/>
+
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding RunProgressDetail}" TextWrapping="Wrap"
+                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        <TextBlock Grid.Column="1" VerticalAlignment="Top" Margin="12,0,0,0"
+                                   Text="{Binding RunProgressPercent, StringFormat={}{0}%}"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    </Grid>
+
+                    <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,16,0,12"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding RunScaleLabel}" TextWrapping="Wrap"
+                                   VerticalAlignment="Center"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                   Visibility="{Binding HasRunScale, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        <TextBlock Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0"
+                                   Text="{Binding RunElapsedLabel, StringFormat=Elapsed {0}}"
+                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    </Grid>
+
+                    <Button Content="Cancel Run" Style="{StaticResource OutlinedPillButton}"
+                            Command="{Binding CancelRunCommand}" IsEnabled="{Binding CanCancel}"
+                            HorizontalAlignment="Center" Margin="0,20,0,0" Padding="26,8"
+                            ToolTip="Stops the run — the engine checks for cancellation once per part"/>
+                </StackPanel>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>

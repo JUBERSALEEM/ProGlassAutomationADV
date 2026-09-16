@@ -78,6 +78,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             RunQuickCommand = new RelayCommand(_ => Run(stage: "QUICK"));
             RunOptimizeCommand = new RelayCommand(_ => Run(stage: "OPTIMIZE"));
             CancelRunCommand = new RelayCommand(_ => CancelRun());
+            UpgradeToOptimizeCommand = new RelayCommand(_ => UpgradeToOptimize());
 
             ExportLayoutReportCommand = new RelayCommand(p => ExportLayoutReport(ParseExportFormat(p)));
             ExportPartsReportCommand = new RelayCommand(p => ExportPartsReport(ParseExportFormat(p)));

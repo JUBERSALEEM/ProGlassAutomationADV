@@ -56,7 +56,16 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public ObservableCollection<SheetRowVm> SheetRows { get; } = new();
 
         private bool _hasResult;
-        public bool HasResult { get => _hasResult; private set { _hasResult = value; OnPropertyChanged(); } }
+        public bool HasResult
+        {
+            get => _hasResult;
+            private set
+            {
+                _hasResult = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CanUpgradeToOptimize));
+            }
+        }
 
         private string _resultSheets = "—";
         private string _resultUtilization = "—";
@@ -164,7 +173,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         // ── async run state (progress bar + button gating) ─────────────
         private bool _isRunning;
-        public bool IsRunning { get => _isRunning; private set { _isRunning = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanRun)); } }
+        public bool IsRunning
+        {
+            get => _isRunning;
+            private set
+            {
+                _isRunning = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CanRun));
+                OnPropertyChanged(nameof(CanUpgradeToOptimize));
+                OnPropertyChanged(nameof(IsRunProgressVisible));
+            }
+        }
 
         /// <summary>Run buttons are enabled only when no run is in flight.</summary>
         public bool CanRun => !_isRunning;
@@ -242,9 +262,19 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 : $"Quick packing {groups.Count.ToString(CultureInfo.InvariantCulture)} cutting group(s)…";
             RunMessage = "";
 
+            int totalParts = groups.Sum(g => g.Pieces.Count);
+            RunScaleLabel = string.Format(CultureInfo.InvariantCulture,
+                "{0} cutting group(s) · {1} part(s) · SETTINGS level {2}",
+                groups.Count, totalParts, SelectedEffortLevel);
+            RunProgressPercent = 0;
+            RunProgressDetail = stage == "OPTIMIZE"
+                ? "Preparing multi-start search…"
+                : "Preparing quick pass…";
+
             _runCts?.Dispose();
             _runCts = new CancellationTokenSource();
             OnPropertyChanged(nameof(CanCancel));
+            StartRunClock();
 
             AsyncUtility.SafeFireAndForget(
                 () => RunCoreAsync(stage, groups, stockPool, margins, rotation, effort),
@@ -345,6 +375,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             int groupCount = groups.Count;
             int groupIndex = 0;
             var scaleNotes = new List<string>();
+            _lastRunEffort = effort;
 
             try
             {
@@ -372,9 +403,26 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     // worker thread and the label updates on the dispatcher.
                     int gi = groupIndex;
                     var groupProgress = new Progress<OptimizeProgress>(p =>
+                    {
                         RunStageLabel = stage == "OPTIMIZE"
                             ? $"Optimizing {composition} · group {gi} of {groupCount} · {p.Message}"
-                            : $"Quick packing {composition} · group {gi} of {groupCount}");
+                            : $"Quick packing {composition} · group {gi} of {groupCount}";
+                        RunProgressDetail = p.Message;
+
+                        // Overall completion = finished groups plus this group's
+                        // own pass fraction, so a 12-group job moves smoothly
+                        // instead of jumping once per group.
+                        double done = groupCount <= 1
+                            ? p.Fraction
+                            : ((gi - 1) + p.Fraction) / groupCount;
+                        RunProgressPercent = (int)Math.Round(done * 100.0);
+                    });
+
+                    // QUICK runs a single pass and reports no per-pass progress,
+                    // so drive the bar from group position instead of leaving it
+                    // pinned at zero for the whole run.
+                    if (stage != "OPTIMIZE" && groupCount > 0)
+                        RunProgressPercent = (int)Math.Round(((gi - 1) * 100.0) / groupCount);
 
                     var result = await Task.Run(() => stage == "OPTIMIZE"
                         ? GuillotinePacker.PackOptimize(groupPieces, groupStocks, groupMargins,
@@ -442,9 +490,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
             finally
             {
                 IsRunning = false;
+                StopRunClock();
                 _runCts?.Dispose();
                 _runCts = null;
                 OnPropertyChanged(nameof(CanCancel));
+                OnPropertyChanged(nameof(CanUpgradeToOptimize));
             }
         }
 
@@ -472,6 +522,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
             ResultStage = stage == "OPTIMIZE"
                 ? $"OPTIMIZE · level {SelectedEffortLevel} · {rotationLabel} · {runs.Count} cutting group(s)"
                 : $"QUICK · {rotationLabel} · {runs.Count} cutting group(s)";
+            // Stamps the SETTINGS level onto this result and, when this run was
+            // an upgrade of a previous QUICK result, reports what it bought.
+            UpdateUpgradeSummary(stage, totalSheets);
+
             ResultSheets = totalSheets.ToString(CultureInfo.InvariantCulture);
             ResultUtilization = util.ToString("0.00", CultureInfo.InvariantCulture) + "%";
             ResultUnplaced = totalUnplaced.ToString(CultureInfo.InvariantCulture);
@@ -567,6 +621,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
             RunMessage = string.Format(CultureInfo.InvariantCulture,
                 "{0}: {1} cutting group(s), {2} sheet(s), {3:0.00}% utilization, {4} unplaced.",
                 stage, runs.Count, totalSheets, util, totalUnplaced);
+
+            RememberRunForUpgrade(stage, totalSheets);
 
             // A session reopen re-runs the saved stage and lands on the
             // REPORT tab; a manual run lands on RESULT.
