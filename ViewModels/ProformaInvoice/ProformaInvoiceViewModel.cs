@@ -245,6 +245,13 @@ public ProformaInvoiceViewModel() : this(
                 await Services.Optimization.OptimizationResultFeed.RefreshAsync();
                 Step6VM.RefreshOptimizationFeed();
             }, "Step 6 optimization feed");
+
+            // A run finished while this invoice was open. Without this the feed
+            // would keep showing the previous run until something else happened
+            // to re-resolve it. Static event, so it is torn down in Dispose
+            // exactly like the DocumentLifecycle subscription below.
+            Services.Optimization.OptimizationResultFeed.RunPublished +=
+                OnOptimizationRunPublished;
             // 2026-09-10: inventory auto-use history context (customer from
             // Step 2; consumption entries identify the job like the manual
             // Sheet Store Use dialog does).
@@ -397,10 +404,49 @@ public ProformaInvoiceViewModel() : this(
         // ══════════════════════════════════════════════════════════════
         private bool _disposed;
 
+        /// <summary>
+        /// A finished optimization run republished itself. Best-effort per step:
+        /// a partially-constructed child must never block the other from
+        /// refreshing, which is the same rule Dispose follows.
+        /// </summary>
+        private void OnOptimizationRunPublished()
+        {
+            try { Step6VM?.RefreshOptimizationFeed(); }
+            catch (Exception ex)
+            {
+                Services.Logging.AppLogService.Debug(
+                    "[ProformaInvoiceViewModel] Step 6 optimization feed refresh failed: " + ex.Message);
+            }
+
+            // Only Step 9's sheet tab reads the run directly, and only when its
+            // own switch is on. Otherwise a rebuild would produce identical rows
+            // for nothing - the tab is expensive enough not to churn on every run.
+            var sheets = Step9VM?.SheetProfitability;
+            if (sheets == null) return;
+
+            try
+            {
+                sheets.NotifyOptimizationSourceChanged();
+                if (sheets.UseOptimizationSheetSource) sheets.RefreshAnalysis();
+            }
+            catch (Exception ex)
+            {
+                Services.Logging.AppLogService.Debug(
+                    "[ProformaInvoiceViewModel] Step 9 sheet refresh failed: " + ex.Message);
+            }
+        }
+
         public void Dispose()
         {
             if (_disposed) return;
             _disposed = true;
+
+            try
+            {
+                Services.Optimization.OptimizationResultFeed.RunPublished -=
+                    OnOptimizationRunPublished;
+            }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort optimization feed unsubscribe failed: " + ex.Message); }
 
             try { Step2VM.PropertyChanged -= OnStep2PropertyChanged; }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ExceptionMessages.Deep(ex)); }

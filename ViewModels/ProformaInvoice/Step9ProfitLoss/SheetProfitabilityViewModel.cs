@@ -676,6 +676,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                       ProGlassAutomation.Services.Optimization.OptimizationResultFeed.SourceLabel
                     : "Optimization source is ON but no run is available — falling back to the Step 6 setup.";
 
+        /// <summary>Re-reads the feed's provenance for the switch label. Called
+        /// when a new run publishes, so the label names the run on screen rather
+        /// than the one that was current when the tab was last built.</summary>
+        public void NotifyOptimizationSourceChanged() =>
+            OnPropertyChanged(nameof(OptimizationSheetSourceLabel));
+
         /// <summary>
         /// Resolves one pane against the optimization run. Returns false when the
         /// switch is off, when no run is loaded, or when the run has no row for

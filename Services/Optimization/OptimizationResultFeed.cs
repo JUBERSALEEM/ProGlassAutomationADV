@@ -167,6 +167,20 @@ namespace ProGlassAutomation.Services.Optimization
             get { lock (Gate) return _current.Count > 0; }
         }
 
+        /// <summary>
+        /// Raised after a run publishes itself, so an already-open proforma can
+        /// re-resolve instead of quietly showing figures from the previous run.
+        ///
+        /// Published from OptimizationViewModel.ApplyResults, which resumes on
+        /// the UI thread (the run awaits with ConfigureAwait(true)), so handlers
+        /// may touch bound collections directly without marshalling.
+        ///
+        /// Subscribers must unsubscribe: this is a static event and the wizard
+        /// view models are shorter-lived than the process. ProformaInvoiceViewModel
+        /// already does exactly this for DocumentLifecycle.Changed.
+        /// </summary>
+        public static event Action? RunPublished;
+
         /// <summary>True when the current snapshot came from a run in this app
         /// session rather than from disk.</summary>
         public static bool IsLive
@@ -277,6 +291,10 @@ namespace ProGlassAutomation.Services.Optimization
             Set(rows ?? Array.Empty<OptimizationPaneResult>(),
                 string.IsNullOrWhiteSpace(label) ? "live optimization run" : label,
                 isLive: true);
+
+            // Raised outside the lock: a handler that refreshes a wizard step
+            // must never run while the snapshot gate is held.
+            RunPublished?.Invoke();
         }
 
         /// <summary>
