@@ -13,61 +13,110 @@
      converters: opening Settings built 6,000+ lines of XAML at once and
      every theme switch re-measured all twelve trees. Adding a page is
      now: one NavRows entry in the VM + one template below.
+
+     ─────────────────────────────────────────────────────────────────
+     DATACONTEXT FIX (2026-09-16) — "every dropdown opens with zero rows"
+     ─────────────────────────────────────────────────────────────────
+     A ContentControl sets the DataContext of its templated content to its
+     CONTENT, not to its own DataContext. That is the entire point of a
+     DataTemplate: it renders the data object it is handed.
+
+     The v3 lazy host needs Content to CHANGE so the ContentTemplateSelector
+     re-runs on every rail click (the 2026-09-17 sidebar-sync fix), so
+     SettingsView binds Content="{Binding SettingsPage}" — a STRING such as
+     "Appearance". Each section below was therefore instantiated with
+     DataContext = "Appearance", and every binding inside it resolved against
+     a string:
+
+       • {Binding VisualThemeOptions}, {Binding FontOptions},
+         {Binding DisplayDensityOptions} … all failed silently, so every
+         ComboBox and segment control on every page had ZERO items. The
+         popup still opened, still themed, still opaque — with nothing in it.
+       • SettingsAppearanceSection.xaml.cs guards its lifetime hook with
+         `if (DataContext is SettingsViewModel vm)`, which was never true, so
+         InitializeAppearanceSection() never ran either.
+
+     The shell's comment claimed "the sections still inherit the shell VM
+     through the visual tree … so no binding moved". They do not: template
+     content does not inherit the host's DataContext.
+
+     So every root below now pulls the shell VM back explicitly through the
+     page-host ContentControl. The four page-scoped sections reach through it
+     for their own sub-VM (AiPage / VoicePage / UpdatesPage / SharingPage),
+     preserving the v3 intent. RelativeSource is used rather than a
+     BindingProxy because these templates live in their own dictionary, where
+     a StaticResource to a proxy declared in SettingsView would not resolve at
+     parse time.
+
+     If you add a page: one NavRows entry, one template below, and the same
+     DataContext attribute. ThemeRegistryParityTests pins all three.
 ═══════════════════════════════════════════════════════════════════ -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sections="clr-namespace:ProGlassAutomation.Views.Settings.Sections">
 
     <DataTemplate x:Key="SettingsPage.Appearance">
-        <sections:SettingsAppearanceSection/>
+        <sections:SettingsAppearanceSection
+                    DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ContentControl}}"/>
     </DataTemplate>
 
     <DataTemplate x:Key="SettingsPage.Themes">
-        <sections:SettingsThemesSection/>
+        <sections:SettingsThemesSection
+                    DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ContentControl}}"/>
     </DataTemplate>
 
     <DataTemplate x:Key="SettingsPage.AI">
         <!-- v3: the section binds its page-scoped VM, not the shell -->
-        <sections:SettingsAiSection DataContext="{Binding AiPage}"/>
+        <sections:SettingsAiSection
+                    DataContext="{Binding DataContext.AiPage, RelativeSource={RelativeSource AncestorType=ContentControl}}"/>
     </DataTemplate>
 
     <DataTemplate x:Key="SettingsPage.Agent">
-        <sections:SettingsAgentSection/>
+        <sections:SettingsAgentSection
+                    DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ContentControl}}"/>
     </DataTemplate>
 
     <DataTemplate x:Key="SettingsPage.Voice">
         <!-- v3: the section binds its page-scoped VM, not the shell -->
-        <sections:SettingsVoiceSection DataContext="{Binding VoicePage}"/>
+        <sections:SettingsVoiceSection
+                    DataContext="{Binding DataContext.VoicePage, RelativeSource={RelativeSource AncestorType=ContentControl}}"/>
     </DataTemplate>
 
     <DataTemplate x:Key="SettingsPage.Updates">
         <!-- v3: the section binds its page-scoped VM, not the shell -->
-        <sections:SettingsUpdatesSection DataContext="{Binding UpdatesPage}"/>
+        <sections:SettingsUpdatesSection
+                    DataContext="{Binding DataContext.UpdatesPage, RelativeSource={RelativeSource AncestorType=ContentControl}}"/>
     </DataTemplate>
 
     <DataTemplate x:Key="SettingsPage.Data">
-        <sections:SettingsDataSection/>
+        <sections:SettingsDataSection
+                    DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ContentControl}}"/>
     </DataTemplate>
 
     <DataTemplate x:Key="SettingsPage.Demo">
-        <sections:SettingsDemoSection/>
+        <sections:SettingsDemoSection
+                    DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ContentControl}}"/>
     </DataTemplate>
 
     <DataTemplate x:Key="SettingsPage.Features">
-        <sections:SettingsFeaturesSection/>
+        <sections:SettingsFeaturesSection
+                    DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ContentControl}}"/>
     </DataTemplate>
 
     <DataTemplate x:Key="SettingsPage.License">
-        <sections:SettingsLicenseSection/>
+        <sections:SettingsLicenseSection
+                    DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ContentControl}}"/>
     </DataTemplate>
 
     <DataTemplate x:Key="SettingsPage.Sharing">
         <!-- v3 pilot: the section binds its page-scoped VM, not the shell -->
-        <sections:SettingsSharingSection DataContext="{Binding SharingPage}"/>
+        <sections:SettingsSharingSection
+                    DataContext="{Binding DataContext.SharingPage, RelativeSource={RelativeSource AncestorType=ContentControl}}"/>
     </DataTemplate>
 
     <DataTemplate x:Key="SettingsPage.About">
-        <sections:SettingsAboutSection/>
+        <sections:SettingsAboutSection
+                    DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ContentControl}}"/>
     </DataTemplate>
 
 </ResourceDictionary>

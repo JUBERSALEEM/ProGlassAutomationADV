@@ -393,9 +393,17 @@
                  menu highlighted the row and renamed the header, but the pane
                  kept showing the first page. Content is now the page KEY, so
                  every rail click changes Content and re-runs the selector.
-                 The sections still inherit the shell VM through the visual
-                 tree (the page-scoped ones set their own DataContext in
-                 SettingsPageTemplates.xaml), so no binding moved. -->
+                 CORRECTION 2026-09-16: this comment originally claimed "the
+                 sections still inherit the shell VM through the visual tree,
+                 so no binding moved". They do not. A ContentControl hands its
+                 CONTENT to the DataTemplate as the template's DataContext, so
+                 binding Content to a page-key string gave all twelve sections
+                 DataContext = "Appearance" (etc.) and every binding inside
+                 them failed — all dropdowns opened with zero rows, and the
+                 `DataContext is SettingsViewModel` lifetime guards never
+                 fired. The rail-sync fix itself is correct and stays; each
+                 template root in SettingsPageTemplates.xaml now re-acquires
+                 the shell VM via RelativeSource. See that file's header. -->
             <ContentControl Grid.Row="1"
                             Content="{Binding SettingsPage}"
                             ContentTemplateSelector="{StaticResource SettingsPageTemplateSelector}"

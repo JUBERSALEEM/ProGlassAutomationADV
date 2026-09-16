@@ -340,6 +340,126 @@ namespace ProGlassAutomation.Tests.Settings
             }
         }
 
+        // ── PAGE-HOST DATACONTEXT (2026-09-16) ───────────────────────────
+        //
+        // The defect these pin: a ContentControl hands its CONTENT to the
+        // DataTemplate as the template's DataContext — that is the whole point
+        // of a DataTemplate. The v3 lazy host binds Content="{Binding
+        // SettingsPage}", a page-key STRING, so that the
+        // ContentTemplateSelector re-runs on every rail click. Every section
+        // was therefore instantiated with DataContext = "Appearance", and
+        // every binding inside it failed silently: all twelve pages rendered
+        // with zero items in every ComboBox and segment control, and the
+        // `DataContext is SettingsViewModel` lifetime guards in the sections'
+        // code-behind never fired. The popup still opened, themed and opaque,
+        // with nothing in it — reported four separate times as "all the
+        // dropdowns are empty", and invisible to every chrome-level check
+        // because the chrome was never the problem.
+        private const string PageTemplates =
+            "Views/Settings/SettingsPageTemplates.xaml";
+
+        /// <summary>The sections that bind a page-scoped sub-VM rather than
+        /// the shell VM. The sub-VM is reached THROUGH the shell VM, because
+        /// the template's own DataContext is the page-key string.</summary>
+        private static readonly (string Section, string SubViewModel)[] ScopedSections =
+        {
+            ("SettingsAiSection",      "AiPage"),
+            ("SettingsVoiceSection",   "VoicePage"),
+            ("SettingsUpdatesSection", "UpdatesPage"),
+            ("SettingsSharingSection", "SharingPage"),
+        };
+
+        [Fact]
+        public void Settings_every_page_template_reacquires_the_shell_ViewModel()
+        {
+            var root = LocateProjectRoot();
+            string templates = File.ReadAllText(Path.Combine(
+                root, PageTemplates.Replace('/', Path.DirectorySeparatorChar)));
+            string view = File.ReadAllText(Path.Combine(
+                root, SettingsView.Replace('/', Path.DirectorySeparatorChar)));
+
+            // 1. The host must keep binding Content to the page key. That is
+            //    what makes the selector re-run on rail clicks — and it is
+            //    also what makes the explicit DataContext below mandatory.
+            //    The two are a pair; pin both so neither is "simplified" away.
+            Assert.Contains("Content=\"{Binding SettingsPage}\"", view);
+            Assert.Contains("ContentTemplateSelector=", view);
+
+            // 2. Every section root must pull the shell VM back through the
+            //    page-host ContentControl rather than inherit the string.
+            var offenders = new List<string>();
+            foreach (Match s in Regex.Matches(templates, "<sections:(\\w+)([^>]*)/>"))
+            {
+                var dc = Regex.Match(s.Groups[2].Value, "DataContext=\"([^\"]*)\"");
+                if (!dc.Success || !dc.Groups[1].Value.Contains(
+                        "RelativeSource={RelativeSource AncestorType=ContentControl}"))
+                    offenders.Add(s.Groups[1].Value);
+            }
+
+            Assert.True(offenders.Count == 0,
+                "these page templates inherit the page-key string as their " +
+                "DataContext, so every binding inside them fails and the page " +
+                "renders with no data: " + string.Join(", ", offenders));
+        }
+
+        [Fact]
+        public void Settings_page_scoped_sections_reach_their_subVM_through_the_shell()
+        {
+            var root = LocateProjectRoot();
+            string templates = File.ReadAllText(Path.Combine(
+                root, PageTemplates.Replace('/', Path.DirectorySeparatorChar)));
+
+            foreach (var (section, subViewModel) in ScopedSections)
+            {
+                var m = Regex.Match(templates,
+                    "<sections:" + section + "[^>]*DataContext=\"([^\"]*)\"");
+                Assert.True(m.Success, section + " is missing from the page templates");
+
+                // Must be DataContext.<Sub>Page off the shell VM — a bare
+                // "{Binding AiPage}" resolves against the page-key string.
+                Assert.StartsWith("{Binding DataContext." + subViewModel, m.Groups[1].Value);
+                Assert.Contains("AncestorType=ContentControl", m.Groups[1].Value);
+            }
+        }
+
+        [Fact]
+        public void Settings_every_nav_key_has_exactly_one_page_template()
+        {
+            // A nav key with no template makes the selector return null, and
+            // the pane renders nothing at all — the same "empty page" symptom
+            // from a different cause. Asserted both directions so an orphaned
+            // template is as visible as a missing one.
+            var root = LocateProjectRoot();
+            string vm = File.ReadAllText(Path.Combine(
+                root, NavigationVm.Replace('/', Path.DirectorySeparatorChar)));
+            string templates = File.ReadAllText(Path.Combine(
+                root, PageTemplates.Replace('/', Path.DirectorySeparatorChar)));
+
+            int registry = vm.IndexOf("CreateNavRows", StringComparison.Ordinal);
+            Assert.True(registry >= 0, "CreateNavRows is gone from the navigation VM");
+            var navKeys = Regex.Matches(
+                    vm.Substring(registry, vm.IndexOf("return rows", registry,
+                        StringComparison.Ordinal) - registry),
+                    "new\\(\"(\\w+)\"")
+                .Cast<Match>().Select(m => m.Groups[1].Value).ToList();
+
+            Assert.True(navKeys.Count >= 12,
+                "expected the twelve-page nav registry, found " + navKeys.Count);
+
+            var templateKeys = Regex.Matches(
+                    templates, "x:Key=\"SettingsPage\\.(\\w+)\"")
+                .Cast<Match>().Select(m => m.Groups[1].Value).ToList();
+
+            Assert.Equal(
+                navKeys.OrderBy(k => k, StringComparer.Ordinal),
+                templateKeys.OrderBy(k => k, StringComparer.Ordinal));
+
+            // ...and one section element per template, so a template cannot be
+            // an empty shell that renders a blank pane.
+            Assert.Equal(navKeys.Count,
+                Regex.Matches(templates, "<sections:\\w+").Count);
+        }
+
         private static string LocateProjectRoot()
         {
             var dir = new DirectoryInfo(AppContext.BaseDirectory);
