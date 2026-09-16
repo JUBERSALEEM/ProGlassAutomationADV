@@ -700,9 +700,17 @@
          theme token).
          FIX: give the canonical input combo the same themed contract the
          implicit combo boxes already have (InputStyles.xaml ModernComboBox
-         template, in production since 2026-09-05): a theme-owned popup
-         (SurfaceOverlayBrush), the ItemsPresenter it needs, the full-surface
-         open toggle, and a themed Foreground for the selection box. The box
+         template): a theme-owned popup, the ItemsPresenter it needs, the
+         full-surface open toggle, and a themed Foreground for the selection
+         box.
+         NOTE 2026-09-16, on import from arena/01a0a9b3: that template named
+         SurfaceOverlayBrush as its popup surface. It is a SCRIM, not a
+         surface — SemanticColors.xaml defines it #140F172A (8% opaque) and
+         ThemeCompatibilityHub.SemanticSources re-points it at
+         LiquidOverlayBrush/MenuHoverBrush, so the resolved popup opacity is
+         100% under Industrial (MenuHoverBrush happens to be solid), 62%
+         under Monet, 28% under Crystal Fluid and 8% under iOS 26. The popup
+         therefore now uses PopupSurfaceBrush, the opaque popup token. The box
          CHROME itself is unchanged — Background/BorderBrush/BorderThickness/
          Padding/MinHeight keep flowing from this style's own setters via
          TemplateBinding, so every consumer keeps its current look.
@@ -786,7 +794,7 @@
                                    Focusable="False"
                                    PopupAnimation="Fade"
                                    StaysOpen="False">
-                                <Border Background="{DynamicResource SurfaceOverlayBrush}"
+                                <Border Background="{DynamicResource PopupSurfaceBrush}"
                                         BorderBrush="{DynamicResource InputBorderBrush}"
                                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                                         CornerRadius="{DynamicResource CardCornerRadius}"

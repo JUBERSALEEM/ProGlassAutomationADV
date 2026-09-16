@@ -119,7 +119,7 @@
                            AllowsTransparency="True"
                            StaysOpen="True"
                            PopupAnimation="Fade">
-                        <Border Background="{DynamicResource SurfaceOverlayBrush}"
+                        <Border Background="{DynamicResource PopupSurfaceBrush}"
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 CornerRadius="{DynamicResource CardCornerRadius}"

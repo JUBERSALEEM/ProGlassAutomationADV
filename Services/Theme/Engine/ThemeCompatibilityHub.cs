@@ -30,7 +30,20 @@ namespace ProGlassAutomation.Services.Theme.Engine
                 ["GlassSurfaceElevated"] = "SurfaceSecondaryBrush",
                 ["GlassSurfaceUltra"] = "SurfaceTertiaryBrush",
                 ["GlassSurfaceStandard"] = "SurfaceTertiaryBrush",
-                ["PopupSurfaceBrush"] = "SurfaceOverlayBrush",
+                // ["PopupSurfaceBrush"] = "SurfaceOverlayBrush"  ← REMOVED.
+                // This one entry inverted the meaning of the app's popup
+                // surface token. DualWriteLegacy() runs at the END of every
+                // Publish(), after the family painters, so it overwrote
+                // PopupSurfaceBrush with the live SurfaceOverlayBrush — an
+                // OVERLAY/scrim token (SemanticColors.xaml: #140F172A, 8%
+                // opaque) that SemanticSources re-points at LiquidOverlayBrush
+                // or MenuHoverBrush. PopupSurfaceBrush is authored OPAQUE in
+                // LightTheme (#FFF8FAFC) and DarkTheme (#FF111827), written
+                // opaque by the iOS 26 painter (#FFFFFF / #26272E) and by
+                // GuaranteeCriticalResources (Color.FromRgb) — all three were
+                // being undone here, on every theme/family/accent change, for
+                // all 14 of its consumers. It is not a legacy Crystal/Liquid/
+                // Glass key, so it does not belong in this bridge at all.
                 ["MenuHoverBrush"] = "SurfaceTertiaryBrush",
                 ["MutedForegroundBrush"] = "TextTertiaryBrush",
                 ["LiquidControlDisabledBrush"] = "TextDisabledBrush",

@@ -61,7 +61,7 @@
                            AllowsTransparency="True"
                            StaysOpen="True"
                            PopupAnimation="Fade">
-                        <Border Background="{DynamicResource SurfaceOverlayBrush}"
+                        <Border Background="{DynamicResource PopupSurfaceBrush}"
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="1"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"

@@ -177,7 +177,7 @@
                                    Focusable="False"
                                    PopupAnimation="Fade"
                                    StaysOpen="False">
-                                <Border Background="{DynamicResource SurfaceOverlayBrush}"
+                                <Border Background="{DynamicResource PopupSurfaceBrush}"
                                         BorderBrush="{DynamicResource InputBorderBrush}"
                                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
@@ -297,7 +297,7 @@
                                    Focusable="False"
                                    PopupAnimation="Fade"
                                    StaysOpen="False">
-                                <Border Background="{DynamicResource SurfaceOverlayBrush}"
+                                <Border Background="{DynamicResource PopupSurfaceBrush}"
                                         BorderBrush="{DynamicResource InputBorderBrush}"
                                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                                         CornerRadius="{DynamicResource CardCornerRadius}"

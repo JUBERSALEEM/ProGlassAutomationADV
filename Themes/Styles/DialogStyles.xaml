@@ -316,7 +316,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ToolTip">
-                    <Border Background="{DynamicResource SurfaceOverlayBrush}"
+                    <Border Background="{DynamicResource PopupSurfaceBrush}"
                             BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="1"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
