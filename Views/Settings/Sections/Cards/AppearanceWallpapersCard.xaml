@@ -78,7 +78,7 @@
 
                             <!-- Per-module wallpapers — three columns under one card so
                                  the list no longer grows the page by 17 stacked rows. -->
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                            <Border Margin="{StaticResource SettingsStackGap14}" Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B9;"/>

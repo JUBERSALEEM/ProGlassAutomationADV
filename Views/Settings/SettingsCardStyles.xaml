@@ -144,6 +144,18 @@
     <Thickness x:Key="SettingsInlineGap10R">0,0,10,0</Thickness>
     <Thickness x:Key="SettingsNoteMargin">0,4,0,10</Thickness>
     <Thickness x:Key="SettingsTileWrapMargin">0,0,8,8</Thickness>
+
+    <!-- OPTION-TILE GUTTER (2026-09-18, owner report: "cards under cards of
+         options too close — give the same spacing inside cards' options as the
+         main cards"). A UniformGrid has no gap property, so the 14 px rhythm
+         that separates the CARDS (SettingsCardMargin 0,0,0,14) is reproduced
+         inside a tile grid the only way a grid allows: half the gutter on every
+         side of every child, plus a matching negative bleed on the grid so the
+         outer edges stay flush with the card content box. Net effect: 14 px
+         between tiles on BOTH axes, 14 px below the grid (replacing the old
+         6 px SettingsRowMargin), zero drift at the card edges. -->
+    <Thickness x:Key="SettingsTileGridMargin">7,7</Thickness>
+    <Thickness x:Key="SettingsTileGridBleed">-7,-7,-7,7</Thickness>
     <Thickness x:Key="SettingsInlineGap12">12,0,0,0</Thickness>
     <Thickness x:Key="SettingsStackGap6">0,6,0,0</Thickness>
     <Thickness x:Key="SettingsHeaderContentMargin">0,14,0,4</Thickness>

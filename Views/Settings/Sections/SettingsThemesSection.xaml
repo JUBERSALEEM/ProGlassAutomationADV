@@ -61,8 +61,8 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.NormalMonetIos17pm}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <UniformGrid Columns="2" Margin="{StaticResource SettingsRowMargin}">
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                        <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
+                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
@@ -82,7 +82,7 @@
                             <!-- Per-family Reset: Crystal → authored baselines;
                                  Normal/Monet → default card shape (corner/border/
                                  gradients). Always available. -->
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE777;"/>
@@ -174,7 +174,7 @@
                             </Border>
 
                             <!-- Six live Crystal Fluid axes -->
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                            <Border Margin="{StaticResource SettingsStackGap14}" Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE771;"/>
@@ -333,7 +333,7 @@
                                  WaterSpeed / WaveAmplitude / BubbleOpacity from the
                                  Crystal* tokens, so dragging the axes above repaints
                                  this reservoir live. -->
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                            <Border Margin="{StaticResource SettingsStackGap14}" Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>

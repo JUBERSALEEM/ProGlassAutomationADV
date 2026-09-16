@@ -145,29 +145,29 @@
                              ═══════════════════════════════════════════════════ -->
                         <cards:AppearanceCrystalTile/>
 
-                        <UniformGrid Columns="3" Margin="{StaticResource SettingsRowMargin}">
+                        <UniformGrid Columns="3" Margin="{StaticResource SettingsTileGridBleed}">
 
                             <!-- Visual theme -->
-                            <cards:AppearanceThemeFamilyTile/>
+                            <cards:AppearanceThemeFamilyTile Margin="{StaticResource SettingsTileGridMargin}"/>
 
                             <!-- Font Color (global text colour, 2026-08-25) -->
-                            <cards:AppearanceFontColorTile/>
+                            <cards:AppearanceFontColorTile Margin="{StaticResource SettingsTileGridMargin}"/>
 
                             <!-- Defined card edges: on/off + edge weight (1–100) + colour plate -->
-                            <cards:AppearanceCardEdgesTile/>
+                            <cards:AppearanceCardEdgesTile Margin="{StaticResource SettingsTileGridMargin}"/>
 
                             <!-- Gradient surfaces (adaptive-theme depth) -->
-                            <cards:AppearanceGradientTile/>
+                            <cards:AppearanceGradientTile Margin="{StaticResource SettingsTileGridMargin}"/>
 
                             <!-- Corner radius -->
-                            <cards:AppearanceRadiusTile/>
+                            <cards:AppearanceRadiusTile Margin="{StaticResource SettingsTileGridMargin}"/>
 
 
                             <!-- Module-skin frost: blur wallpaper + tinted glass cards -->
-                            <cards:AppearanceFrostTile/>
+                            <cards:AppearanceFrostTile Margin="{StaticResource SettingsTileGridMargin}"/>
 
                             <!-- Semantic ERP surfaces: Primary / Secondary / Detail customization -->
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE771;"/>
@@ -275,7 +275,7 @@
 
 
                             <!-- UI scale -->
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <Border 
                 Style="{StaticResource SettingsInnerTileStyle}">
@@ -309,7 +309,7 @@
                             </Border>
 
                             <!-- PDF layout -->
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A5;"/>
@@ -327,7 +327,7 @@
                             </Border>
 
                             <!-- Motion & performance -->
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;"/>

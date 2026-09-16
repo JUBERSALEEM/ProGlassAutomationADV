@@ -23,10 +23,10 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.HintLanguage}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <UniformGrid Columns="3" Margin="{StaticResource SettingsRowMargin}">
+                        <UniformGrid Columns="3" Margin="{StaticResource SettingsTileGridBleed}">
 
                             <!-- Language (15 shipped, live switch, en-US primary) -->
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <Border 
                 Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
@@ -47,7 +47,7 @@
                             </Border>
 
                             <!-- Currency (live FX, offline = last fetched) -->
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <Border 
                 Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
@@ -71,7 +71,7 @@
                             </Border>
 
                             <!-- Phone country (from IP, editable) -->
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel>
                                         <TextBlock Text="&#xE717;"

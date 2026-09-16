@@ -23,9 +23,9 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.ControlWhetherAgentTalksInternetWhatAllowed}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <UniformGrid Columns="2" Margin="{StaticResource SettingsRowMargin}">
+                        <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
                             <!-- Local only -->
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72E;"/>
@@ -41,7 +41,7 @@
                             </Border>
 
                             <!-- Cloud consent -->
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE774;"/>
@@ -74,7 +74,7 @@
                         </Border>
 
                         <!-- Local model advice (never downloads) -->
-                        <Border Style="{StaticResource SettingsInnerTileStyle}">
+                        <Border Margin="{StaticResource SettingsStackGap14}" Style="{StaticResource SettingsInnerTileStyle}">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE90F;"/>
@@ -90,7 +90,7 @@
                              licences), download on click only, integrity record kept,
                              deletes fully on uninstall. Literal text on purpose —
                              this card ships new UI before the 15 locale packs add keys. -->
-                        <Border Style="{StaticResource SettingsInnerTileStyle}">
+                        <Border Margin="{StaticResource SettingsStackGap14}" Style="{StaticResource SettingsInnerTileStyle}">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE896;"/>

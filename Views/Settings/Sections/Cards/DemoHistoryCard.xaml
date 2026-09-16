@@ -23,8 +23,8 @@
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.WhatLastRunDidWhereOutput}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <UniformGrid Columns="2" Margin="{StaticResource SettingsRowMargin}">
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                        <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
+                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9D2;"/>
@@ -39,7 +39,7 @@
                                 </StackPanel>
                             </Border>
 
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7C1;"/>
