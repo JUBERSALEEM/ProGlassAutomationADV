@@ -251,10 +251,23 @@ namespace ProGlassAutomation.Services.Recording
             // built from counters, never one message per frame.
             AppLogService.Info(
                 $"[RecCompleted] requested={outW}x{outH}@{rec.Fps}fps " +
+                // Phase 10 — the physical capture resolution and the encoded
+                // output resolution are DIFFERENT numbers whenever the recorder
+                // upscales, and quoting only the output is what made a 1080p
+                // window look like a native 4K capture. Quoted because it
+                // contains spaces.
+                $"provenance=\"{recorder.ResolutionProvenance}\" " +
                 $"delivered={(facts?.Width?.ToString() ?? "?")}x{(facts?.Height?.ToString() ?? "?")}" +
                 $"@{(facts?.AvgFrameRate?.ToString("0.##") ?? "?")}fps " +
                 $"captured={recorder.CapturedFrames} encoded={recorder.EncodedFrames} " +
                 $"dropped={recorder.DroppedFrames} " +
+                // Duplicated = frames ffprobe counts beyond what the capture
+                // loop actually wrote. This pipeline drops rather than
+                // duplicates (the retime stretches timestamps instead), so a
+                // non-zero value here means ffmpeg padded the stream — worth
+                // seeing rather than assuming. 0 when the probe was unavailable
+                // (probeFrames=n/a on the same line says so).
+                $"duplicated={Math.Max(0, Convert.ToInt64(facts?.FrameCount) - Convert.ToInt64(recorder.EncodedFrames))} " +
                 $"probeFrames={(facts?.FrameCount?.ToString() ?? "n/a")} " +
                 $"captureFps={(captureFps?.ToString("0.##") ?? "n/a")} " +
                 $"encodedFps={(encodedFps?.ToString("0.##") ?? "n/a")} " +
@@ -262,9 +275,10 @@ namespace ProGlassAutomation.Services.Recording
                 $"finalFps={recorder.FinalEffectiveFps} retime={recorder.RetimeScale:0.0000} " +
                 $"duration={(measuredDuration?.ToString("0.##") ?? "n/a")}s wall={wallSeconds:0.##}s " +
                 $"size={info.Length}B avgBitrate={(avgMbps?.ToString("0.###") ?? "n/a")}Mbps " +
-                $"codec=h264 encoder={recorder.EncodeName} rateControl={rateControl} " +
+                $"codec={recorder.EncodeCodec} encoder={recorder.EncodeName} rateControl={rateControl} " +
                 $"quality={recorder.EncodeCrfUsed} preset={recorder.EncodePreset} " +
-                $"tier={rec.QualityTier} pixfmt=yuv420p audio={audioNote} " +
+                $"tier={rec.QualityTier} pixfmt={recorder.EncodePixelFormat} gop={recorder.EncodeGop} " +
+                $"cfgFallback=\"{(recorder.ConfigurationFallback ?? "none")}\" audio={audioNote} " +
                 $"validation={verdictText}",
                 new LogContext { Module = "Recording", Operation = "CompletedTelemetry" });
 

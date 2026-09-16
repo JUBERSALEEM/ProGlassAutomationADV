@@ -390,6 +390,30 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         // PHASE 5 — concrete encoder identity for [RecQuality] (the pipe
         // owns the values; the recorder passes them through).
         public string EncodeName => _rawPipe?.EncodeName ?? "libx264";
+
+        // ── CRISP-DEMO PASS proxies (Phases 4/7/8/10) ───────────────────────────────
+        // These let the save-time quality report quote what was ACTUALLY
+        // encoded instead of restating the requested settings.
+        public string EncodeCodec => _rawPipe?.CodecName ?? "H.264";
+        public string EncodePixelFormat => _rawPipe?.PixelFormat ?? "yuv420p";
+        public int EncodeGop => _rawPipe?.Gop ?? 0;
+        public int CaptureWidthUsed => _rawPipe?.CaptureWidth ?? 0;
+        public int CaptureHeightUsed => _rawPipe?.CaptureHeight ?? 0;
+        public int OutputWidthUsed => _rawPipe?.OutputWidth ?? 0;
+        public int OutputHeightUsed => _rawPipe?.OutputHeight ?? 0;
+
+        /// <summary>
+        /// Phase 10 — the honest capture→output description. Distinguishes a
+        /// physical capture resolution from an encoded output resolution so a
+        /// lanczos-upscaled window can never be reported as a native 4K capture.
+        /// </summary>
+        public string ResolutionProvenance =>
+            _rawPipe?.ResolutionProvenance ?? "resolution provenance unknown";
+
+        public bool WasUpscaled => _rawPipe?.WasUpscaled ?? false;
+
+        /// <summary>Non-null when a requested setting had to be reduced (Phase 7).</summary>
+        public string? ConfigurationFallback => _rawPipe?.ConfigurationFallback;
         public bool HardwareEncoder => _rawPipe?.HardwareEncoder ?? false;
         public int CaptureNominalFpsUsed => _rawPipe?.NominalFps ?? 0;
         public int CaptureWidth { get; private set; }
@@ -805,12 +829,21 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
             var (outW, outH) = _settings.OutputSize;
 
+            // Phase 4: map the resolved H.264 encoder onto the requested CODEC
+            // (no-op unless HEVC was opted into), and pass the chroma request
+            // through. Both are logged by the pipe when they have to fall back,
+            // so a reduced configuration is never silent.
+            var codecSelection = ProGlassAutomation.Agent.Demo.Video.VideoEncoder.WithCodec(
+                _encoderSelection ?? ProGlassAutomation.Agent.Demo.Video.VideoEncoderSelection.Libx264,
+                _settings.Codec);
+
             _rawPipe = FfmpegRawPipe.TryStart(
                 _rawVideoPath!, fps,
                 capture.Width, capture.Height,
                 outW, outH,
                 _settings.EncodeCrf,
-                _encoderSelection);
+                codecSelection,
+                _settings.PixelFormat);
 
             if (_rawPipe == null)
             {

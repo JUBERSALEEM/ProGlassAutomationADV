@@ -23,7 +23,14 @@ namespace ProGlassAutomation.Agent.Demo.Recording
     {
         Standard = 0,
         High = 1,
-        VeryHigh = 2
+        VeryHigh = 2,
+
+        /// <summary>
+        /// Crisp-demo pass (Phase 3): the screen-content mode. Added as a NEW
+        /// value so the three persisted tiers above keep their numbers and any
+        /// config written by an older build still resolves.
+        /// </summary>
+        SoftwareDemo = 3
     }
 
     public sealed class ScreenRecordQualityOption
@@ -70,6 +77,20 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         public override string ToString() => Title;
     }
 
+    public sealed class ScreenRecordCodecOption
+    {
+        public ScreenRecordCodec Codec { get; init; }
+        public string Title { get; init; } = "";
+        public override string ToString() => Title;
+    }
+
+    public sealed class ScreenRecordPixelFormatOption
+    {
+        public ScreenRecordPixelFormat Format { get; init; }
+        public string Title { get; init; } = "";
+        public override string ToString() => Title;
+    }
+
     /// <summary>
     /// In-app capture of the running main window only.
     /// 720 / 1080 / 2K / 4K at 30 / 40 / 50 / 60 fps.
@@ -111,7 +132,18 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         [
             new() { Tier = ScreenRecordQualityTier.Standard, Title = "Standard",   CrfBase = 22 },
             new() { Tier = ScreenRecordQualityTier.High,     Title = "High",       CrfBase = 18 },
-            new() { Tier = ScreenRecordQualityTier.VeryHigh, Title = "Very High",  CrfBase = 13 }
+            new() { Tier = ScreenRecordQualityTier.VeryHigh, Title = "Very High",  CrfBase = 13 },
+
+            // CRISP-DEMO PASS (Phase 3). CrfBase 18 is the value the crisp-demo
+            // brief specifies for "Crisp Demo". Stated plainly: that makes this
+            // tier numerically equal to High today, because High was already
+            // tuned for ERP UI text. What actually distinguishes a crisp demo
+            // is NOT another CRF number — it is the two-second GOP, the removal
+            // of the dead -bf at ultrafast, the measurement-driven preset rung
+            // and (optionally) 4:4:4 chroma, all of which this pass applies.
+            // CrfBase is the single knob to retune once the benchmark sweep has
+            // produced real numbers; do not "improve" it by guesswork.
+            new() { Tier = ScreenRecordQualityTier.SoftwareDemo, Title = "Crisp Demo", CrfBase = 18 }
         ];
 
         // PHASE 5 — encoder options for the record panel. Auto/CPU are
@@ -123,6 +155,33 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             new() { Encoder = ScreenRecordEncoder.Cpu,   Title = "CPU (libx264)" },
             new() { Encoder = ScreenRecordEncoder.Nvenc, Title = "NVIDIA (NVENC)", Hardware = true },
             new() { Encoder = ScreenRecordEncoder.Qsv,   Title = "Intel (QSV)",    Hardware = true }
+        ];
+
+        /// <summary>
+        /// CRISP-DEMO PASS (Phase 4) — output codec. H.264 is the default and
+        /// stays the default: it plays everywhere. HEVC is opt-in and its
+        /// quality offset is UNCALIBRATED (see VideoEncoder.HevcQualityOffset),
+        /// because no benchmark could be run in the dev sandbox. Availability is
+        /// probed, and any fallback is logged with its reason.
+        /// </summary>
+        public static IReadOnlyList<ScreenRecordCodecOption> CodecOptions { get; } =
+        [
+            new() { Codec = ScreenRecordCodec.H264, Title = "H.264 (compatible)" },
+            new() { Codec = ScreenRecordCodec.Hevc, Title = "HEVC / H.265 (smaller, opt-in)" }
+        ];
+
+        /// <summary>
+        /// CRISP-DEMO PASS (Phase 7) — chroma subsampling. yuv420p is the
+        /// default and is what every player expects. yuv444p keeps coloured
+        /// edges exact (red/blue text, thin coloured borders, icon strokes,
+        /// gradients) but needs a software encoder and breaks some players, so
+        /// an unsupported combination falls back to 420 at start time and the
+        /// fallback is reported rather than hidden.
+        /// </summary>
+        public static IReadOnlyList<ScreenRecordPixelFormatOption> PixelFormatOptions { get; } =
+        [
+            new() { Format = ScreenRecordPixelFormat.Yuv420, Title = "4:2:0 (compatible)" },
+            new() { Format = ScreenRecordPixelFormat.Yuv444, Title = "4:4:4 (exact colour, software encoder only)" }
         ];
 
         public static readonly int[] AllowedFps = [30, 40, 50, 60];
@@ -174,6 +233,21 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         /// never break a recording.
         /// </summary>
         public ScreenRecordEncoder Encoder { get; set; } = ScreenRecordEncoder.Auto;
+
+        /// <summary>
+        /// CRISP-DEMO PASS (Phase 4) — output codec. Default H.264. HEVC is
+        /// opt-in only until it has been benchmarked against H.264 on real
+        /// hardware; the encoder that implements it is chosen by
+        /// <see cref="Encoder"/> and falls back per the same chain.
+        /// </summary>
+        public ScreenRecordCodec Codec { get; set; } = ScreenRecordCodec.H264;
+
+        /// <summary>
+        /// CRISP-DEMO PASS (Phase 7) — chroma subsampling. Default 4:2:0.
+        /// Requesting 4:4:4 with a hardware encoder falls back to 4:2:0 at
+        /// start time (reported, never silent).
+        /// </summary>
+        public ScreenRecordPixelFormat PixelFormat { get; set; } = ScreenRecordPixelFormat.Yuv420;
 
         /// <summary>
         /// LEGACY in the current GDI + raw-video pipeline: captured frames
@@ -294,7 +368,10 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                         ? " + internal+mic"
                         : CaptureLiveAudio ? " + internal audio" : " + mic")
                     : "";
-                return $"{w}×{h} @ {Fps} fps · {tier} CRF{EncodeCrf}{audio}";
+                string extra =
+                    (Codec == ScreenRecordCodec.Hevc ? " · HEVC" : "") +
+                    (PixelFormat == ScreenRecordPixelFormat.Yuv444 ? " · 4:4:4" : "");
+                return $"{w}×{h} @ {Fps} fps · {tier} CRF{EncodeCrf}{extra}{audio}";
             }
         }
 
@@ -303,6 +380,8 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             Quality = Quality,
             QualityTier = QualityTier,
             Encoder = Encoder,
+            Codec = Codec,
+            PixelFormat = PixelFormat,
             Fps = Fps,
             CaptureLiveAudio = CaptureLiveAudio,
             CaptureMicrophone = CaptureMicrophone,
@@ -322,6 +401,14 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
             if (EncoderOptions.All(e => e.Encoder != Encoder))
                 Encoder = ScreenRecordEncoder.Auto;
+
+            // Unknown persisted codec / chroma values fall back to the
+            // compatible defaults rather than producing an invalid command.
+            if (CodecOptions.All(c => c.Codec != Codec))
+                Codec = ScreenRecordCodec.H264;
+
+            if (PixelFormatOptions.All(f => f.Format != PixelFormat))
+                PixelFormat = ScreenRecordPixelFormat.Yuv420;
 
             if (Array.IndexOf(AllowedFps, Fps) < 0)
             {

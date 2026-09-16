@@ -65,6 +65,38 @@ namespace ProGlassAutomation.Agent.Demo.Video
         public int OutputWidth { get; private set; }
         public int OutputHeight { get; private set; }
 
+        // ── CRISP-DEMO PASS TELEMETRY ─────────────────────────────────────────────────────
+        // The PHYSICAL capture geometry, deliberately kept separate from the
+        // OUTPUT geometry above. They differ whenever the recorder upscales,
+        // and exposing only the output size is precisely what let an upscaled
+        // 1080p window be reported as a native 4K capture (Phase 10).
+        public int CaptureWidth { get; private set; }
+        public int CaptureHeight { get; private set; }
+
+        /// <summary>Output codec handed to ffmpeg (Phase 4).</summary>
+        public string CodecName { get; private set; } = "H.264";
+
+        /// <summary>Keyframe interval in frames actually passed as -g (Phase 8).</summary>
+        public int Gop { get; private set; }
+
+        /// <summary>Pixel format actually encoded (Phase 7).</summary>
+        public string PixelFormat { get; private set; } = "yuv420p";
+
+        /// <summary>
+        /// Non-null when a requested setting had to be reduced — currently the
+        /// 4:4:4 → 4:2:0 chroma fallback. The quality report must surface this
+        /// so it can never overstate what was actually encoded.
+        /// </summary>
+        public string? ConfigurationFallback { get; private set; }
+
+        /// <summary>The honest capture→output description (Phase 10).</summary>
+        public string ResolutionProvenance =>
+            VideoEncoder.ResolutionProvenance(CaptureWidth, CaptureHeight, OutputWidth, OutputHeight);
+
+        /// <summary>True when the output was upscaled from a smaller capture.</summary>
+        public bool WasUpscaled =>
+            VideoEncoder.IsUpscaled(CaptureWidth, CaptureHeight, OutputWidth, OutputHeight);
+
         // ── PHASE 5 TELEMETRY (2026-09-14) ────────────────────────────
         // The concrete encoder this pipe actually uses (hardware or CPU)
         // and the live process handle for performance sampling.
@@ -116,7 +148,8 @@ namespace ProGlassAutomation.Agent.Demo.Video
             int srcW, int srcH,
             int outW, int outH,
             int crf,
-            VideoEncoderSelection? encoder = null)
+            VideoEncoderSelection? encoder = null,
+            ScreenRecordPixelFormat pixFmt = ScreenRecordPixelFormat.Yuv420)
         {
             string? ffmpeg = FfmpegMp4Composer.Find();
             if (string.IsNullOrWhiteSpace(ffmpeg)) return null;
@@ -134,9 +167,23 @@ namespace ProGlassAutomation.Agent.Demo.Video
             // lanczos: the best general-purpose downscaler for text.
             // force_original_aspect_ratio + pad letterboxes instead of
             // stretching, so a window that is not 16:9 keeps its geometry.
+            // Chroma (Phase 7): yuv420p is the compatible default. 4:4:4 keeps
+            // coloured edges exact but needs a software encoder's High 4:4:4
+            // profile and breaks many players, so an incompatible request falls
+            // back to 420 rather than failing the encode — and the fallback is
+            // recorded below so the quality report never overstates it.
+            ScreenRecordPixelFormat effectivePixFmt = pixFmt;
+            string? chromaFallback = null;
+            if (pixFmt == ScreenRecordPixelFormat.Yuv444 && !VideoEncoder.IsChromaCompatible(pixFmt, encoder))
+            {
+                effectivePixFmt = ScreenRecordPixelFormat.Yuv420;
+                chromaFallback = "4:4:4 requested but unsupported by " + encoder.Name + "; encoded yuv420p";
+            }
+            string outPixFmt = VideoEncoder.PixelFormatName(effectivePixFmt);
+
             string vf =
                 $"scale={outW}:{outH}:flags=lanczos:force_original_aspect_ratio=decrease," +
-                $"pad={outW}:{outH}:(ow-iw)/2:(oh-ih)/2:color=black,format=yuv420p";
+                $"pad={outW}:{outH}:(ow-iw)/2:(oh-ih)/2:color=black,format={outPixFmt}";
 
             // ── RESOLUTION-AWARE PRESET (4K UHD support, 2026-09-10) ──
             // The x264 preset trades CPU per frame against compression.
@@ -154,10 +201,47 @@ namespace ProGlassAutomation.Agent.Demo.Video
             //            encoder. Quality is preserved by the low CRF, and
             //            YouTube re-encodes on upload anyway.
             long outPixels = (long)outW * outH;
-            string preset =
-                outPixels >= 3840L * 2160 ? "ultrafast" :
-                outPixels >= 2560L * 1440 ? "superfast" :
-                "veryfast";
+            string preset = VideoEncoder.DefaultPresetForOutput(outPixels);
+
+            // ── PHASE 5 (crisp-demo pass): MEASUREMENT-DRIVEN PRESET ──
+            // The rung above is a starting point only. EncoderProbe has already
+            // test-encoded with the selected encoder and timed it, so there is a
+            // real number for what this machine sustains; EstimateEncodeFps
+            // scales that measurement to THIS output size. AdjustPreset then
+            // steps along the ladder: cheaper when the measurement says the
+            // requested rate cannot be held, richer when there is demonstrable
+            // spare capacity. Without a measurement the rung is left exactly as
+            // it was — no preset here is chosen on theory, and "slow" is never
+            // picked blindly.
+            double? measuredFps = null;
+            int measW = 0, measH = 0;
+            string measEnc = "";
+            try
+            {
+                var snap = EncoderProbe.GetSnapshot();
+                measuredFps = snap.MeasuredFps;
+                measW = snap.MeasuredWidth;
+                measH = snap.MeasuredHeight;
+                measEnc = snap.MeasuredEncoder;
+            }
+            catch { /* no probe available — keep the starting rung */ }
+
+            string adjusted = preset;
+            if (measuredFps.HasValue && measW > 0 && measH > 0)
+            {
+                double estAtOutput = VideoEncoder.EstimateEncodeFps(
+                    measuredFps.Value, measW, measH, outW, outH);
+                adjusted = VideoEncoder.AdjustPreset(preset, estAtOutput, fps);
+            }
+            if (adjusted != preset)
+            {
+                preset = adjusted;
+                AppLogService.Info(
+                    $"[RecPreset] {measEnc} measured {measuredFps:0.##}fps at {measW}x{measH} " +
+                    $"→ {VideoEncoder.EstimateEncodeFps(measuredFps!.Value, measW, measH, outW, outH):0.##}fps " +
+                    $"estimated at {outW}x{outH}; preset adjusted to {preset} (requested {fps}fps)",
+                    new LogContext { Module = "Recording", Operation = "RawPipe" });
+            }
 
             // ── PHASE 5 (2026-09-14): encoder-agnostic argument build ─
             // The quality mechanism differs per encoder (documented in
@@ -169,35 +253,67 @@ namespace ProGlassAutomation.Agent.Demo.Video
             // frame count) never apply to the GPU encoders, which have
             // their own B-frame handling and do not need -threads.
             //
-            // libx264 (CPU path) keeps the Phase-4B settings:
+            // libx264 / libx265 (CPU path), updated by the crisp-demo pass:
             //   -tune stillimage: sharp static detail — correct for UI.
-            //   -g {fps}: one keyframe per second for usable seeking.
+            //   -g {GopFor(fps)}: TWO-second keyframe interval (was one
+            //     second). Fewer keyframes, no recurring bitrate spike on
+            //     mostly-static UI, seeking still usable.
             //   -threads 0: every core; 4K needs all of them.
-            //   -bf 3: B-frames (x264's own default for most presets,
-            //     disabled at ultrafast/superfast) — smaller files at
-            //     the same CRF AND a faster-draining pipe.
+            //   -bf 3: emitted ONLY on presets that use B-frames. x264's
+            //     ultrafast sets bframes=0 internally, so passing -bf there
+            //     was argument text the encode never applied — VideoEncoder
+            //     .PresetSupportsBFrames now suppresses it (Phase 8: remove a
+            //     no-op option or document it accurately). Note the previous
+            //     comment claimed superfast also disabled B-frames; it does
+            //     not — only ultrafast does — so superfast keeps "-bf 3".
             // Plain if/else (not a switch expression with block arms):
             // the arm-block form with local declarations is rejected by
             // some compiler versions — this form is unambiguous.
+            // GOP (Phase 8): was "-g {fps}", i.e. a 1-second keyframe interval.
+            // Two seconds halves the keyframe count, which for mostly-static UI
+            // removes a recurring bitrate spike and lets inter-frames carry the
+            // unchanged regions — same quality, less size, steadier bitrate.
+            // 30 fps → 60, 60 fps → 120. Seeking stays usable at 2s.
+            int gop = VideoEncoder.GopFor(fps);
+
             string encoderArgs;
             string encoderPreset;
-            if (encoder == VideoEncoderSelection.Libx264)
+            if (!encoder.Hardware)
             {
+                // Software x264/x265. "-bf 3" is only emitted on presets that
+                // actually use B-frames: x264's ultrafast sets bframes=0
+                // internally, so passing it there produced argument text that
+                // the encode never applied. Phase 8 requires such options be
+                // removed or documented accurately — this removes it.
                 string q = VideoEncoder.BuildQualityArgs(encoder, crf).Args;
-                encoderArgs = $"-c:v libx264 -preset {preset} -tune stillimage -threads 0 {q} -g {fps} -bf 3";
+                string bfPart = VideoEncoder.BFramesArg(preset);
+                if (bfPart.Length > 0) bfPart = " " + bfPart;
+
+                // x264-ONLY extras. "-tune stillimage" is not a valid x265 tune
+                // (x265 offers psnr/ssim/grain/fastdecode/zerolatency/animation),
+                // so passing it to libx265 would abort the encode instead of
+                // degrading it — and HEVC is an opt-in path that must not fail on
+                // first use. "-threads 0" is kept on the x264 path for the same
+                // reason; x265 sizes its own pools.
+                string x264Extras = encoder == VideoEncoderSelection.Libx264
+                    ? "-tune stillimage -threads 0 "
+                    : "";
+
+                encoderArgs = ($"-c:v {encoder.Name} -preset {preset} " + x264Extras + q +
+                               $" -g {gop}" + bfPart).TrimEnd();
                 encoderPreset = preset;
             }
             else
             {
                 string q = VideoEncoder.BuildQualityArgs(encoder, crf).Args;
-                encoderArgs = $"-c:v {encoder.Name} {q} -g {fps}";
-                encoderPreset = encoder.Name == "h264_nvenc" ? "p5" : "default";
+                encoderArgs = $"-c:v {encoder.Name} {q} -g {gop}";
+                encoderPreset = encoder.Name.Contains("nvenc") ? "p5" : "default";
             }
 
             string args =
                 $"-y -f rawvideo -pix_fmt bgra -s {srcW}x{srcH} -framerate {fps} " +
                 $"-use_wallclock_as_timestamps 0 -i - " +
-                $"-an -vf \"{vf}\" {encoderArgs} -pix_fmt yuv420p " +
+                $"-an -vf \"{vf}\" {encoderArgs} -pix_fmt {outPixFmt} " +
                 // Explicit BT.709 tagging: screen capture IS sRGB (≈709).
                 // Untagged files leave the primaries to guesswork, and a
                 // 4K upscale interpreted as BT.2020 / flat-range
@@ -217,6 +333,21 @@ namespace ProGlassAutomation.Agent.Demo.Video
             AppLogService.Info(
                 $"[RecFfmpegCmd] \"{ffmpeg}\" {args}",
                 new LogContext { Module = "Recording", Operation = "FfmpegCommandLine" });
+
+            // Phase 10 — the most important reporting fix in this pass. State
+            // plainly whether the encoded resolution was CAPTURED or UPSCALED,
+            // so no downstream summary can read a 4K output as a native 4K
+            // capture. Upscaling cannot invent detail.
+            AppLogService.Info(
+                $"[RecResolution] {VideoEncoder.ResolutionProvenance(srcW, srcH, outW, outH)}",
+                new LogContext { Module = "Recording", Operation = "ResolutionProvenance" });
+
+            if (chromaFallback != null)
+            {
+                AppLogService.Warning(
+                    $"[RecChroma] {chromaFallback}",
+                    new LogContext { Module = "Recording", Operation = "PixelFormatFallback" });
+            }
 
             try
             {
@@ -249,7 +380,13 @@ namespace ProGlassAutomation.Agent.Demo.Video
                     CommandLine = args,
                     NominalFps = fps,
                     OutputWidth = outW,
-                    OutputHeight = outH
+                    OutputHeight = outH,
+                    CaptureWidth = srcW,
+                    CaptureHeight = srcH,
+                    CodecName = encoder.Codec == ScreenRecordCodec.Hevc ? "HEVC" : "H.264",
+                    Gop = gop,
+                    PixelFormat = outPixFmt,
+                    ConfigurationFallback = chromaFallback
                 };
 
                 // stderr MUST be drained. ffmpeg writes progress there and
