@@ -22,6 +22,8 @@ namespace ProGlassAutomation.Services.Theme.Engine
             return persisted?.Trim() switch
             {
                 VisualThemeEngine.Monet or "Monet" => ProGlassThemeFamily.Monet,
+                VisualThemeEngine.CrystalFluid or "Ios-17pm" => ProGlassThemeFamily.Crystal,
+                VisualThemeEngine.Ios26 or "iOS 26" => ProGlassThemeFamily.Ios26,
                 _ => ProGlassThemeFamily.Industrial
             };
         }
@@ -30,6 +32,7 @@ namespace ProGlassAutomation.Services.Theme.Engine
         {
             ProGlassThemeFamily.Monet => VisualThemeEngine.Monet,
             ProGlassThemeFamily.Crystal => VisualThemeEngine.CrystalFluid,
+            ProGlassThemeFamily.Ios26 => VisualThemeEngine.Ios26,
             _ => VisualThemeEngine.NormalIndustrial
         };
 

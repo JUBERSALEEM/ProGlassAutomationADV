@@ -73,6 +73,9 @@ namespace ProGlassAutomation.ViewModels.Settings
             // navy ink, defined card edges, dense radii.
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.NormalIndustrial),
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Monet),
+            // Surfaced as "iPhone 17 Pro Max" (FamilyDisplayName).
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.CrystalFluid),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Ios26),
         };
 
         public string SelectedVisualTheme

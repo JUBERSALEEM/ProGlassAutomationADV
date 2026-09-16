@@ -6,7 +6,11 @@ namespace ProGlassAutomation.Services.Theme.Engine
     {
         Industrial,
         Monet,
-        Crystal
+        Crystal,
+        /// <summary>iOS 26 liquid glass — fourth family (was missing from
+        /// the contract, which is why the Settings picker offered only two
+        /// themes; the engine override layer always existed).</summary>
+        Ios26
     }
 
     public enum ProGlassThemeMode
