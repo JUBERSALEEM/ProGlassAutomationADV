@@ -42,6 +42,9 @@
                      Loaded before Shell/Card/List/Dialog/module dictionaries so all
                      non-print XAML can consume SurfacePrimary/Secondary/Detail. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/DesignTokens.xaml"/>
+                <!-- Shared rail open/close button — needs SurfacePrimaryStyle
+                     from DesignTokens above, and must precede the modules that use it. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/NavigationRailStyles.xaml"/>
                 <!-- ProGlass Design System SEMANTIC TOKEN LAYER (2026-09-13).
                      Purely additive DynamicResource aliases that expose the
                      canonical semantic names (SurfaceWorkspaceBrush,

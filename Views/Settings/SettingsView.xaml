@@ -258,30 +258,17 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
+                    <!-- Rail open/close — the Reports-hub button (2026-09-16).
+                         Was a hand-drawn hamburger built from three separate
+                         2.5px <Border> bars in an inline template: the "separate
+                         line ... to trigger sidebar open close" the owner asked
+                         to remove, and the only module in the app that drew its
+                         own. Same command, now the same control as Reports. -->
                     <Button Grid.Column="0"
-                            Width="38" Height="38"
-                            Cursor="Hand"
+                            Style="{StaticResource RailHamburgerButton}"
                             VerticalAlignment="Center"
-                            Background="Transparent"
-                            BorderThickness="{DynamicResource Border.NoneThickness}"
                             ToolTip="{DynamicResource ToolTip.ToggleMenu}"
-                            Command="{Binding ToggleSettingsRailCommand}" Style="{StaticResource SecondaryButtonStyle}">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <StackPanel VerticalAlignment="Center"
-                                            HorizontalAlignment="Center">
-                                    <Border Width="20" Height="2.5" CornerRadius="{DynamicResource Radius.XSmall}"
-                                            Background="{DynamicResource TextPrimaryBrush}"
-                                            Margin="0,0,0,4" Style="{StaticResource SurfacePrimaryStyle}"/>
-                                    <Border Width="20" Height="2.5" CornerRadius="{DynamicResource Radius.XSmall}"
-                                            Background="{DynamicResource TextPrimaryBrush}"
-                                            Margin="0,0,0,4" Style="{StaticResource SurfacePrimaryStyle}"/>
-                                    <Border Width="20" Height="2.5" CornerRadius="{DynamicResource Radius.XSmall}"
-                                            Background="{DynamicResource TextPrimaryBrush}" Style="{StaticResource SurfacePrimaryStyle}"/>
-                                </StackPanel>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
+                            Command="{Binding ToggleSettingsRailCommand}"/>
 
                     <StackPanel Grid.Column="1"
                                 Orientation="Horizontal"

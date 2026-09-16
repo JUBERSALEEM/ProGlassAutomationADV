@@ -1,0 +1,68 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Themes/Styles/NavigationRailStyles.xaml
+     PROJECT: ProGlassAutomation
+
+     The shared module navigation-rail open/close button.
+
+     WHY THIS FILE EXISTS (2026-09-16 owner report):
+       "sidebar in setting implement reports sidebar action open close same
+        styles dont include any separate line etc to trigger sidebar open
+        close check reports hub sidebar implement that in settings"
+
+     The Reports hub triggers its rail with a single E700 glyph button
+     (SalesReportView's local ReportHamburgerButton). Settings triggered the
+     SAME command with a hand-drawn hamburger made of three separate 2.5px
+     <Border> bars inside an inline ControlTemplate — literally "a separate
+     line ... to trigger sidebar open close", and visually unlike every other
+     module. Hoisting the Reports button here gives both modules one control
+     to share instead of two independently-drawn ones.
+
+     Merged directly after DesignTokens.xaml so the {StaticResource
+     SurfacePrimaryStyle} below resolves while this dictionary is parsed.
+     Every colour, radius and size is a DynamicResource token, so the button
+     follows the theme family, the accent and the density/type scale.
+     ═══════════════════════════════════════════════════════════════════ -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Rail open/close. Identical contract to the Reports hub: E700 glyph,
+         transparent square hit target, hover wash + accent glyph, pressed
+         tint. -->
+    <Style x:Key="RailHamburgerButton" TargetType="Button">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Width" Value="34"/>
+        <Setter Property="Height" Value="34"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            SnapsToDevicePixels="True"
+                            Style="{StaticResource SurfacePrimaryStyle}">
+                        <TextBlock Text="&#xE700;"
+                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource FontSize.H3}"
+                                   Foreground="{TemplateBinding Foreground}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>
