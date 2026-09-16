@@ -3,16 +3,11 @@
 // PROJECT: ProGlassAutomation
 // MODULE: Settings v3 — per-page ViewModel (phase 3b, promotion #2)
 //
-// Voice page (Whisper model picker + downloader) promoted out of the
-// SettingsViewModel god class, following the Sharing pilot. Members moved
-// verbatim from SettingsViewModel.Voice.cs plus the download/delete command
-// wiring that lived in SettingsViewModel.InitializeCore.
-//
-// The one cross-page dependency is the shell's speech-to-text service: after
-// a model download the page swaps STT to Whisper, after a delete it swaps
-// back to the System.Speech fallback. The shell lends that field through a
-// getter/setter pair so the swap semantics stay identical without the page
-// holding a reference to the shell VM.
+// Voice page (Whisper model picker + downloader) promoted out of the god
+// class after the Sharing pilot: members verbatim from
+// SettingsViewModel.Voice.cs + the download/delete wiring from InitializeCore.
+// The one cross-page dependency (the shell's _speechToText swap after
+// download/delete) travels as a getter/setter pair lent by the shell.
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.Extensions.DependencyInjection;
@@ -81,6 +76,14 @@ namespace ProGlassAutomation.ViewModels.Settings
                 WhisperModelOptions.Add(kvp.Value);
 
             InitVoiceCommands();
+        }
+
+        /// <summary>Same write-through the shell uses — the moved
+        /// SelectedWhisperModel setter calls this after a model swap.</summary>
+        private void SaveConfig()
+        {
+            if (_config != null)
+                ConfigService.SaveDebounced(_config);
         }
 
         private void InitVoiceCommands()

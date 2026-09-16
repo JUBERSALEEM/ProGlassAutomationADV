@@ -42,6 +42,15 @@ namespace ProGlassAutomation.ViewModels.Settings
         //  HELPERS
         // ══════════════════════════════════════════════════════════════
 
+        // REGRESSION FIX: this method was accidentally dropped in the
+        // phase-3a partial split (e5c73db) while 26 call sites across the
+        // Settings partials kept using it. Restored verbatim from 3baa39e.
+        // Locked by SettingsRedesignAuditTests.Shell_Helpers_Are_Defined.
+        private void SaveConfig()
+        {
+            if (_config != null)
+                ConfigService.SaveDebounced(_config);
+        }
 
         private void InitializeV2Sections()
         {

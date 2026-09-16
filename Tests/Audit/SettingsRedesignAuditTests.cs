@@ -127,6 +127,26 @@ namespace ProGlassAutomation.Tests.Audit
         // ── 5. FILE-SIZE BUDGETS ──────────────────────────────────────────
 
         [Fact]
+        public void Shell_Helpers_Are_Defined()
+        {
+            // REGRESSION LOCK: the phase-3a split once dropped SaveConfig()'s
+            // definition while 26 call sites survived — the branch could not
+            // compile. Any helper that partials call across file boundaries
+            // must be verifiably defined inside the Settings VM tree.
+            string all = "";
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "ViewModels", "Settings"), "*.cs",
+                         SearchOption.AllDirectories))
+                all += File.ReadAllText(file);
+
+            foreach (var helper in new[] { "SaveConfig", "ScheduleDebouncedSave", "InitializeV2Sections" })
+                Assert.Contains(helper + "(", all.Replace("void " + helper, "void " + helper)); // call sites exist
+            Assert.Contains("void SaveConfig()", all);
+            Assert.Contains("void ScheduleDebouncedSave(", all);
+            Assert.Contains("void InitializeV2Sections()", all);
+        }
+
+        [Fact]
         public void No_SettingsViewModel_Partial_Exceeds_350_Lines()
         {
             foreach (var file in Directory.EnumerateFiles(
