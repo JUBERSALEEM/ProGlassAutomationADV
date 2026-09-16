@@ -635,6 +635,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         private bool _useOptimizationSheetSource;
 
+        // Racks already claimed during the current RefreshAnalysis pass.
+        //
+        // A triple-glazed spec emits BOTH "Middle (W2/H2)" and "Inner (W2/H2)",
+        // and a DGU+LAM spec emits "Lam Outer (W2/H2)" and "Lam Inner (W2/H2)".
+        // All of them are cut from the group's ONE inner sheet, so they resolve
+        // to the same optimization rack. Letting each pane claim that rack's full
+        // sheet count would double - or triple - the buy side of the ledger.
+        // The first pane to reach a rack takes the run's figures; the rest fall
+        // back to their Step 6 allocation, which already splits a shared setup by
+        // source SQM. Inventing a per-pane split here would be worse than either.
+        private readonly HashSet<(int W, int H, string C)> _feedRacksClaimed = new();
+
         /// <summary>Read the Sheet Details pane figures from the optimization
         /// run instead of from the Step 6 setup. Off by default.</summary>
         public bool UseOptimizationSheetSource
@@ -684,6 +696,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
             if (hit == null || hit.SheetQuantity <= 0) return false;
 
+            // One claim per rack per rebuild - see _feedRacksClaimed.
+            var rackKey = (hit.SheetWidthMm, hit.SheetHeightMm,
+                (hit.Composition ?? string.Empty).Trim().ToLowerInvariant());
+            if (!_feedRacksClaimed.Add(rackKey)) return false;
+
             sheets = hit.SheetQuantity;
             utilizationPercent = hit.UtilizationPercent;
             return true;
@@ -718,6 +735,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// </summary>
         public void RefreshAnalysis()
         {
+            // Each rebuild re-decides which pane owns which rack.
+            _feedRacksClaimed.Clear();
+
             if (IsBusy) return;
             IsBusy = true;
 
