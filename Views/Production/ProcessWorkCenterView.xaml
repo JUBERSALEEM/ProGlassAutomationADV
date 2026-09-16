@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
              FontFamily="{DynamicResource AppFontFamily}"
              Background="Transparent"
@@ -10,7 +11,22 @@
     <!-- P3 redesign: flat crystal cards, equal-width columns, no industrial
          chrome. One page flow: header → KPI strip → filters → executions →
          lineage pair (pairings/assemblies) → traceability notes. -->
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <!-- SCROLL FIX (2026-09-17 owner report: "mouse scrolling not working,
+         not smoothly, full page is not visible"). Two defects, both
+         fixed with the app's own established behaviors:
+         1. this page scroller had NO SmoothScrollBehavior, so the wheel
+            fell back to WPF's logical (item-based) scrolling of the
+            StackPanel — one whole CARD per notch, which reads as a jump
+            and makes the bottom of the page feel unreachable. 54 other
+            scrollers in this app already set it: 120 px per notch,
+            immediate, zero per-frame work.
+         2. the DataGrids below swallowed the wheel — see the
+            SmartScrollBubblingBehavior on each of them. -->
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  CanContentScroll="False"
+                  PanningMode="VerticalOnly"
+                  behaviors:SmoothScrollBehavior.IsEnabled="True">
         <StackPanel Margin="24,20,24,16">
 
             <!-- Header -->
@@ -112,7 +128,8 @@
                     <DataGrid Grid.Row="1" ItemsSource="{Binding Executions}" SelectedItem="{Binding SelectedExecution}"
                               AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
                               CanUserResizeColumns="False" CanUserReorderColumns="False"
-                              Style="{StaticResource SurfaceDataGrid}">
+                              Style="{StaticResource SurfaceDataGrid}"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                             <DataGridTextColumn Header="Spec" Binding="{Binding SpecName}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
@@ -156,7 +173,8 @@
                         <DataGrid Grid.Row="1" ItemsSource="{Binding Pairings}" AutoGenerateColumns="False"
                                   CanUserAddRows="False" IsReadOnly="True"
                                   CanUserResizeColumns="False" CanUserReorderColumns="False"
-                                  Style="{StaticResource SurfaceDataGrid}">
+                                  Style="{StaticResource SurfaceDataGrid}"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Pair" Binding="{Binding PairId}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                                 <DataGridTextColumn Header="Outer" Binding="{Binding OuterPieceId}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
@@ -176,7 +194,8 @@
                         <DataGrid Grid.Row="1" ItemsSource="{Binding Assemblies}" AutoGenerateColumns="False"
                                   CanUserAddRows="False" IsReadOnly="True"
                                   CanUserResizeColumns="False" CanUserReorderColumns="False"
-                                  Style="{StaticResource SurfaceDataGrid}">
+                                  Style="{StaticResource SurfaceDataGrid}"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Assembly" Binding="{Binding AssemblyLabel}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                                 <DataGridTextColumn Header="Type" Binding="{Binding AssemblyType}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>

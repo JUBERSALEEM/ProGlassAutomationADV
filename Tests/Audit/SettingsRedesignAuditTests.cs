@@ -365,6 +365,27 @@ namespace ProGlassAutomation.Tests.Audit
         private const string XamlNs = "http://schemas.microsoft.com/winfx/2006/xaml";
 
         [Fact]
+        public void DataGrid_Column_Headers_Never_Bind_Without_An_Ancestor()
+        {
+            // A DataGridColumn is NOT in the visual tree, so it inherits no
+            // DataContext: Header="{Binding X}" silently resolves to nothing
+            // and the column renders with an EMPTY header (the Cutting station
+            // lost its "TOTAL" label; every other station lost "IN"). Column
+            // headers must bind through an ancestor, or be literal.
+            var header = new Regex("Header=\"\\{Binding[^}]*\\}\"");
+            var comment = new Regex("<!--.*?-->", RegexOptions.Singleline);
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "Views"), "*.xaml", SearchOption.AllDirectories))
+            {
+                // Strip comments first: the banner comment that DOCUMENTS this
+                // bug quotes the broken markup verbatim.
+                var markup = comment.Replace(File.ReadAllText(file), string.Empty);
+                foreach (Match m in header.Matches(markup))
+                    Assert.Contains("RelativeSource", m.Value);
+            }
+        }
+
+        [Fact]
         public void Shell_Helpers_Are_Defined()
         {
             // REGRESSION LOCK: the phase-3a split once dropped SaveConfig()'s

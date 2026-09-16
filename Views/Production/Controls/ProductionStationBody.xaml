@@ -100,7 +100,19 @@
                             <DataGridTextColumn Header="LM" Binding="{Binding LmLabel}" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"/>
                             <DataGridTextColumn Header="LOAD" Binding="{Binding LoadLabel}" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"/>
                             <DataGridTextColumn Header="MATCH" Binding="{Binding MatchLabel}" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"/>
-                            <DataGridTemplateColumn Header="{Binding InColumnHeader}" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}">
+                            <!-- HEADER BINDING FIX (2026-09-17 owner report:
+                                 "in cutting section qty missing from column qty
+                                 text"). A DataGridColumn is NOT part of the
+                                 visual tree, so it inherits no DataContext:
+                                 Header="{Binding InColumnHeader}" resolved
+                                 against the column itself, failed silently and
+                                 rendered an EMPTY header — the Cutting station
+                                 lost its "TOTAL" label (every other station
+                                 lost "IN"). Columns must bind through an
+                                 ancestor that IS in the tree. -->
+                            <DataGridTemplateColumn Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}"
+                                                    Header="{Binding DataContext.InColumnHeader,
+                                                        RelativeSource={RelativeSource AncestorType=DataGrid}}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding InflowLabel}" FontWeight="{DynamicResource Weight.SemiBold}"

@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
              FontFamily="{DynamicResource AppFontFamily}"
              Background="{DynamicResource Surface.Primary.BackgroundBrush}">
@@ -21,7 +22,22 @@
         </Style>
     </UserControl.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <!-- SCROLL FIX (2026-09-17 owner report: "mouse scrolling not working,
+         not smoothly, full page is not visible"). Two defects, both
+         fixed with the app's own established behaviors:
+         1. this page scroller had NO SmoothScrollBehavior, so the wheel
+            fell back to WPF's logical (item-based) scrolling of the
+            StackPanel — one whole CARD per notch, which reads as a jump
+            and makes the bottom of the page feel unreachable. 54 other
+            scrollers in this app already set it: 120 px per notch,
+            immediate, zero per-frame work.
+         2. the DataGrids below swallowed the wheel — see the
+            SmartScrollBubblingBehavior on each of them. -->
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  CanContentScroll="False"
+                  PanningMode="VerticalOnly"
+                  behaviors:SmoothScrollBehavior.IsEnabled="True">
         <StackPanel Margin="24,20,24,16">
 
             <!-- Header -->
@@ -130,7 +146,8 @@
                     <DataGrid Grid.Row="1" ItemsSource="{Binding Queue}" SelectedItem="{Binding Selected, Mode=TwoWay}"
                               AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
                               CanUserResizeColumns="False" CanUserReorderColumns="False"
-                              Style="{StaticResource SurfaceDataGrid}" VerticalScrollBarVisibility="Auto">
+                              Style="{StaticResource SurfaceDataGrid}" VerticalScrollBarVisibility="Auto"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Job Ref" Binding="{Binding JobRef}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                             <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
@@ -167,7 +184,8 @@
                         <TextBlock Text="Ready to run" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,6"/>
                         <DataGrid Grid.Row="1" ItemsSource="{Binding ExecutableQueue}" AutoGenerateColumns="False"
                                   CanUserAddRows="False" IsReadOnly="True"
-                                  CanUserResizeColumns="False" CanUserReorderColumns="False" Style="{StaticResource SurfaceDataGrid}">
+                                  CanUserResizeColumns="False" CanUserReorderColumns="False" Style="{StaticResource SurfaceDataGrid}"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                                 <DataGridTextColumn Header="Process" Binding="{Binding StageLabel}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
@@ -187,7 +205,8 @@
                         <TextBlock Text="Blocked" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,6"/>
                         <DataGrid Grid.Row="1" ItemsSource="{Binding BlockedQueue}" AutoGenerateColumns="False"
                                   CanUserAddRows="False" IsReadOnly="True"
-                                  CanUserResizeColumns="False" CanUserReorderColumns="False" Style="{StaticResource SurfaceDataGrid}">
+                                  CanUserResizeColumns="False" CanUserReorderColumns="False" Style="{StaticResource SurfaceDataGrid}"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                                 <DataGridTextColumn Header="Reason" Binding="{Binding BlockReason}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
@@ -205,7 +224,8 @@
                         <TextBlock Text="QC pending / failed" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,6"/>
                         <DataGrid Grid.Row="1" ItemsSource="{Binding QcQueue}" AutoGenerateColumns="False"
                                   CanUserAddRows="False" IsReadOnly="True"
-                                  CanUserResizeColumns="False" CanUserReorderColumns="False" Style="{StaticResource SurfaceDataGrid}">
+                                  CanUserResizeColumns="False" CanUserReorderColumns="False" Style="{StaticResource SurfaceDataGrid}"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                                 <DataGridTextColumn Header="Stage" Binding="{Binding StageLabel}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
@@ -246,7 +266,8 @@
                     <TabItem Header="Job progress">
                         <DataGrid ItemsSource="{Binding JobProgress}" AutoGenerateColumns="False" CanUserAddRows="False"
                                   IsReadOnly="True" CanUserResizeColumns="False" CanUserReorderColumns="False"
-                                  Style="{StaticResource SurfaceDataGrid}" Height="220" Margin="0,8,0,0">
+                                  Style="{StaticResource SurfaceDataGrid}" Height="220" Margin="0,8,0,0"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Job Ref" Binding="{Binding JobRef}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                                 <DataGridTextColumn Header="Req" Binding="{Binding Required}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
@@ -260,7 +281,8 @@
                     <TabItem Header="Process progress">
                         <DataGrid ItemsSource="{Binding ProcessProgress}" AutoGenerateColumns="False" CanUserAddRows="False"
                                   IsReadOnly="True" CanUserResizeColumns="False" CanUserReorderColumns="False"
-                                  Style="{StaticResource SurfaceDataGrid}" Height="220" Margin="0,8,0,0">
+                                  Style="{StaticResource SurfaceDataGrid}" Height="220" Margin="0,8,0,0"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Process" Binding="{Binding SpecName}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                                 <DataGridTextColumn Header="Req" Binding="{Binding Required}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
@@ -272,7 +294,8 @@
                     <TabItem Header="Queue pressure">
                         <DataGrid ItemsSource="{Binding QueuePressure}" AutoGenerateColumns="False" CanUserAddRows="False"
                                   IsReadOnly="True" CanUserResizeColumns="False" CanUserReorderColumns="False"
-                                  Style="{StaticResource SurfaceDataGrid}" Height="220" Margin="0,8,0,0">
+                                  Style="{StaticResource SurfaceDataGrid}" Height="220" Margin="0,8,0,0"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Process" Binding="{Binding ProcessName}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                                 <DataGridTextColumn Header="Ready" Binding="{Binding ReadyQueue}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
@@ -286,7 +309,8 @@
                     <TabItem Header="Workstation load">
                         <DataGrid ItemsSource="{Binding WorkstationLoad}" AutoGenerateColumns="False" CanUserAddRows="False"
                                   IsReadOnly="True" CanUserResizeColumns="False" CanUserReorderColumns="False"
-                                  Style="{StaticResource SurfaceDataGrid}" Height="220" Margin="0,8,0,0">
+                                  Style="{StaticResource SurfaceDataGrid}" Height="220" Margin="0,8,0,0"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                                 <DataGridTextColumn Header="Process" Binding="{Binding ProcessName}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
@@ -299,7 +323,8 @@
                     <TabItem Header="Workstations">
                         <DataGrid ItemsSource="{Binding Workstations}" AutoGenerateColumns="False" CanUserAddRows="False"
                                   IsReadOnly="True" CanUserResizeColumns="False" CanUserReorderColumns="False"
-                                  Style="{StaticResource SurfaceDataGrid}" Height="220" Margin="0,8,0,0">
+                                  Style="{StaticResource SurfaceDataGrid}" Height="220" Margin="0,8,0,0"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Id" Binding="{Binding WorkstationId}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                                 <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
@@ -311,7 +336,8 @@
                     <TabItem Header="Rework">
                         <DataGrid ItemsSource="{Binding ReworkQueue}" AutoGenerateColumns="False" CanUserAddRows="False"
                                   IsReadOnly="True" CanUserResizeColumns="False" CanUserReorderColumns="False"
-                                  Style="{StaticResource SurfaceDataGrid}" Height="220" Margin="0,8,0,0">
+                                  Style="{StaticResource SurfaceDataGrid}" Height="220" Margin="0,8,0,0"
+                              behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                                 <DataGridTextColumn Header="Piece" Binding="{Binding Position}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
