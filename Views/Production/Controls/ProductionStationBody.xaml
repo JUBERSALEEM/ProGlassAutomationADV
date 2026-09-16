@@ -48,7 +48,7 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <DataGrid Grid.Row="0" x:Name="MasterGrid" RowHeight="48"
+                    <DataGrid CanUserReorderColumns="False" CanUserResizeColumns="False" Grid.Row="0" x:Name="MasterGrid" RowHeight="48"
                               ItemsSource="{Binding ListRows}"
                               SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
                               Style="{StaticResource GodViewGridStyle}"
@@ -75,7 +75,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="JOB NO" Width="150">
+                            <DataGridTemplateColumn Header="JOB NO" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel VerticalAlignment="Center">
@@ -93,14 +93,14 @@
                      absorbs remaining width so the table fills the
                      container exactly. Fixed 160 left the grid bunched
                      left with dead space on wide screens. -->
-                            <DataGridTextColumn Header="CUSTOMER" Binding="{Binding Customer}" Width="416"/>
-                            <DataGridTextColumn Header="W×H" Binding="{Binding SizeLabel}" Width="160" ElementStyle="{StaticResource StationLeftTextStyle}"/>
-                            <DataGridTextColumn Header="GLASS" Binding="{Binding GlassLabel}" Width="180" ElementStyle="{StaticResource StationLeftTextStyle}"/>
-                            <DataGridTextColumn Header="TREATMENT" Binding="{Binding TreatmentLabel}" Width="140" ElementStyle="{StaticResource StationLeftTextStyle}"/>
-                            <DataGridTextColumn Header="LM" Binding="{Binding LmLabel}" Width="100" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"/>
-                            <DataGridTextColumn Header="LOAD" Binding="{Binding LoadLabel}" Width="100" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"/>
-                            <DataGridTextColumn Header="MATCH" Binding="{Binding MatchLabel}" Width="150" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"/>
-                            <DataGridTemplateColumn Header="{Binding InColumnHeader}" Width="72" HeaderStyle="{StaticResource StationCenterHeaderStyle}">
+                            <DataGridTextColumn Header="CUSTOMER" Binding="{Binding Customer}" Width="*"/>
+                            <DataGridTextColumn Header="W×H" Binding="{Binding SizeLabel}" Width="*" ElementStyle="{StaticResource StationLeftTextStyle}"/>
+                            <DataGridTextColumn Header="GLASS" Binding="{Binding GlassLabel}" Width="*" ElementStyle="{StaticResource StationLeftTextStyle}"/>
+                            <DataGridTextColumn Header="TREATMENT" Binding="{Binding TreatmentLabel}" Width="*" ElementStyle="{StaticResource StationLeftTextStyle}"/>
+                            <DataGridTextColumn Header="LM" Binding="{Binding LmLabel}" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"/>
+                            <DataGridTextColumn Header="LOAD" Binding="{Binding LoadLabel}" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"/>
+                            <DataGridTextColumn Header="MATCH" Binding="{Binding MatchLabel}" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"/>
+                            <DataGridTemplateColumn Header="{Binding InColumnHeader}" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding InflowLabel}" FontWeight="{DynamicResource Weight.SemiBold}"
@@ -109,7 +109,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="DONE" Width="80" HeaderStyle="{StaticResource StationCenterHeaderStyle}">
+                            <DataGridTemplateColumn Header="DONE" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding DoneLabel}" FontWeight="{DynamicResource Weight.SemiBold}"
@@ -118,7 +118,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="BAL" Width="80" HeaderStyle="{StaticResource StationCenterHeaderStyle}">
+                            <DataGridTemplateColumn Header="BAL" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding BalanceLabel}" FontWeight="{DynamicResource Weight.SemiBold}"
@@ -127,7 +127,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="STATUS" Width="170">
+                            <DataGridTemplateColumn Header="STATUS" Width="*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,3"

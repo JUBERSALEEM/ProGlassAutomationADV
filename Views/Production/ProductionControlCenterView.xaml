@@ -121,24 +121,24 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Text="Production Queue — Ready state, Urgency, Due date, Priority, Process seq, JobRef, Piece identity deterministic" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,8" TextWrapping="Wrap"/>
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding Queue}" SelectedItem="{Binding Selected, Mode=TwoWay}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" VerticalScrollBarVisibility="Auto">
+                    <DataGrid CanUserReorderColumns="False" CanUserResizeColumns="False" Grid.Row="1" ItemsSource="{Binding Queue}" SelectedItem="{Binding Selected, Mode=TwoWay}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" VerticalScrollBarVisibility="Auto">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="JobRef" Binding="{Binding JobRef}" Width="80" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                            <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="90" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                            <DataGridTextColumn Header="Spec" Binding="{Binding SpecName}" Width="95" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                            <DataGridTextColumn Header="Piece" Binding="{Binding Position}" Width="50" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                            <DataGridTextColumn Header="Process" Binding="{Binding StageLabel}" Width="85" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                            <DataGridTextColumn Header="Readiness" Binding="{Binding Readiness}" Width="80" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                            <DataGridTextColumn Header="Block Reason" Binding="{Binding BlockReason}" Width="105" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                            <DataGridTextColumn Header="Priority" Binding="{Binding Priority}" Width="50" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                            <DataGridTextColumn Header="Due Risk" Binding="{Binding DueRisk}" Width="60" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                            <DataGridTextColumn Header="Due Date" Binding="{Binding DueDate, StringFormat=yyyy-MM-dd}" Width="70" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                            <DataGridTextColumn Header="Qty" Binding="{Binding Qty}" Width="40" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                            <DataGridTextColumn Header="Done" Binding="{Binding QtyDone}" Width="40" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                            <DataGridTextColumn Header="Rem" Binding="{Binding Remaining}" Width="40" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                            <DataGridTextColumn Header="Operator" Binding="{Binding Operator}" Width="70" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                            <DataGridTextColumn Header="WS" Binding="{Binding WorkstationId}" Width="65" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                            <DataGridTextColumn Header="QC" Binding="{Binding QcResult}" Width="40" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="JobRef" Binding="{Binding JobRef}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Spec" Binding="{Binding SpecName}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Piece" Binding="{Binding Position}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="Process" Binding="{Binding StageLabel}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Readiness" Binding="{Binding Readiness}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="Block Reason" Binding="{Binding BlockReason}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Priority" Binding="{Binding Priority}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="Due Risk" Binding="{Binding DueRisk}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="Due Date" Binding="{Binding DueDate, StringFormat=yyyy-MM-dd}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Qty" Binding="{Binding Qty}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="Done" Binding="{Binding QtyDone}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="Rem" Binding="{Binding Remaining}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="Operator" Binding="{Binding Operator}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="WS" Binding="{Binding WorkstationId}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="QC" Binding="{Binding QcResult}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
                         </DataGrid.Columns>
                     </DataGrid>
                     <Grid Grid.Row="2" Margin="0,8,0,0">
@@ -149,31 +149,31 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
                             <TextBlock Text="Executable Queue — Ready" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,4"/>
-                            <DataGrid ItemsSource="{Binding ExecutableQueue}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="120">
+                            <DataGrid CanUserReorderColumns="False" CanUserResizeColumns="False" ItemsSource="{Binding ExecutableQueue}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="120">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="70" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                                    <DataGridTextColumn Header="Process" Binding="{Binding StageLabel}" Width="156" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                                    <DataGridTextColumn Header="Priority" Binding="{Binding Priority}" Width="60" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                                    <DataGridTextColumn Header="Due" Binding="{Binding DueDate, StringFormat=MM-dd}" Width="60" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                    <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                    <DataGridTextColumn Header="Process" Binding="{Binding StageLabel}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                    <DataGridTextColumn Header="Priority" Binding="{Binding Priority}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                    <DataGridTextColumn Header="Due" Binding="{Binding DueDate, StringFormat=MM-dd}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Margin="8,0,0,0">
                             <TextBlock Text="Blocked Queue — Reason explainable" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,4"/>
-                            <DataGrid ItemsSource="{Binding BlockedQueue}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="120">
+                            <DataGrid CanUserReorderColumns="False" CanUserResizeColumns="False" ItemsSource="{Binding BlockedQueue}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="120">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="70" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                                    <DataGridTextColumn Header="Block Reason" Binding="{Binding BlockReason}" Width="276" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                    <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                    <DataGridTextColumn Header="Block Reason" Binding="{Binding BlockReason}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </StackPanel>
                         <StackPanel Grid.Column="2" Margin="8,0,0,0">
                             <TextBlock Text="QC Queue — Pending/Failed" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,4"/>
-                            <DataGrid ItemsSource="{Binding QcQueue}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="120">
+                            <DataGrid CanUserReorderColumns="False" CanUserResizeColumns="False" ItemsSource="{Binding QcQueue}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="120">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="70" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                                    <DataGridTextColumn Header="Stage" Binding="{Binding StageLabel}" Width="226" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                                    <DataGridTextColumn Header="QC" Binding="{Binding QcResult}" Width="50" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                    <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                    <DataGridTextColumn Header="Stage" Binding="{Binding StageLabel}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                    <DataGridTextColumn Header="QC" Binding="{Binding QcResult}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </StackPanel>
@@ -192,67 +192,67 @@
                         <TextBlock Text="{Binding QcLabel}" TextWrapping="Wrap" FontSize="{DynamicResource FontSize.BodySmall}" Margin="0,0,0,12"/>
 
                         <TextBlock Text="Job Progress — Required Completed InProg Blocked Paused Rework QC Pend Fail OnHold Cancelled Progress%" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,8,0,4"/>
-                        <DataGrid ItemsSource="{Binding JobProgress}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="140">
+                        <DataGrid CanUserReorderColumns="False" CanUserResizeColumns="False" ItemsSource="{Binding JobProgress}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="140">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="JobRef" Binding="{Binding JobRef}" Width="476" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                                <DataGridTextColumn Header="Req" Binding="{Binding Required}" Width="40" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                                <DataGridTextColumn Header="Done" Binding="{Binding Completed}" Width="40" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                                <DataGridTextColumn Header="Rem" Binding="{Binding Remaining}" Width="40" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                                <DataGridTextColumn Header="Prog%" Binding="{Binding ProgressPct}" Width="60" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                                <DataGridTextColumn Header="Blocked" Binding="{Binding Blocked}" Width="50" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="JobRef" Binding="{Binding JobRef}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Req" Binding="{Binding Required}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Done" Binding="{Binding Completed}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Rem" Binding="{Binding Remaining}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Prog%" Binding="{Binding ProgressPct}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Blocked" Binding="{Binding Blocked}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
                             </DataGrid.Columns>
                         </DataGrid>
 
                         <TextBlock Text="Process Progress — physical pieces, work items, final assemblies appropriate metric" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,12,0,4"/>
-                        <DataGrid ItemsSource="{Binding ProcessProgress}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="140">
+                        <DataGrid CanUserReorderColumns="False" CanUserResizeColumns="False" ItemsSource="{Binding ProcessProgress}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="140">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Process" Binding="{Binding SpecName}" Width="566" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                                <DataGridTextColumn Header="Req" Binding="{Binding Required}" Width="40" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                                <DataGridTextColumn Header="Done" Binding="{Binding Completed}" Width="40" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                                <DataGridTextColumn Header="Prog%" Binding="{Binding ProgressPct}" Width="60" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Process" Binding="{Binding SpecName}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Req" Binding="{Binding Required}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Done" Binding="{Binding Completed}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Prog%" Binding="{Binding ProgressPct}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
                             </DataGrid.Columns>
                         </DataGrid>
 
                         <TextBlock Text="Current Queue Pressure — bottleneck deterministic largest ready queue longest waiting overdue QC backlog rework" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,12,0,4"/>
-                        <DataGrid ItemsSource="{Binding QueuePressure}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="140">
+                        <DataGrid CanUserReorderColumns="False" CanUserResizeColumns="False" ItemsSource="{Binding QueuePressure}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="140">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Process" Binding="{Binding ProcessName}" Width="100" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                                <DataGridTextColumn Header="Ready" Binding="{Binding ReadyQueue}" Width="50" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                                <DataGridTextColumn Header="Blocked" Binding="{Binding BlockedQueue}" Width="50" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                                <DataGridTextColumn Header="Total" Binding="{Binding Total}" Width="50" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                                <DataGridTextColumn Header="Pressure" Binding="{Binding PressureLabel}" Width="396" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                                <DataGridTextColumn Header="AvgWaitH" Binding="{Binding AvgWaitHours}" Width="60" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Process" Binding="{Binding ProcessName}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Ready" Binding="{Binding ReadyQueue}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Blocked" Binding="{Binding BlockedQueue}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Total" Binding="{Binding Total}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Pressure" Binding="{Binding PressureLabel}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="AvgWaitH" Binding="{Binding AvgWaitHours}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
                             </DataGrid.Columns>
                         </DataGrid>
 
                         <TextBlock Text="Workstation Workload — Process → Workstation → Assigned WorkItems CUT-01 TEMPER-01 POLISH-01 CNC-01 LAM-01 ERP-level" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,12,0,4"/>
-                        <DataGrid ItemsSource="{Binding WorkstationLoad}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="140">
+                        <DataGrid CanUserReorderColumns="False" CanUserResizeColumns="False" ItemsSource="{Binding WorkstationLoad}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="140">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="80" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                                <DataGridTextColumn Header="Process" Binding="{Binding ProcessName}" Width="466" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                                <DataGridTextColumn Header="Assigned" Binding="{Binding AssignedCount}" Width="60" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                                <DataGridTextColumn Header="Ready" Binding="{Binding ReadyCount}" Width="50" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                                <DataGridTextColumn Header="InProg" Binding="{Binding InProgressCount}" Width="50" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Process" Binding="{Binding ProcessName}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Assigned" Binding="{Binding AssignedCount}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Ready" Binding="{Binding ReadyCount}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="InProg" Binding="{Binding InProgressCount}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
                             </DataGrid.Columns>
                         </DataGrid>
 
                         <TextBlock Text="Workstations Master — smallest reusable" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,12,0,4"/>
-                        <DataGrid ItemsSource="{Binding Workstations}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="120">
+                        <DataGrid CanUserReorderColumns="False" CanUserResizeColumns="False" ItemsSource="{Binding Workstations}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="120">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Id" Binding="{Binding WorkstationId}" Width="80" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="496" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                                <DataGridTextColumn Header="Process" Binding="{Binding ProcessName}" Width="80" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                                <DataGridTextColumn Header="Active" Binding="{Binding IsActive}" Width="50" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Id" Binding="{Binding WorkstationId}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Process" Binding="{Binding ProcessName}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Active" Binding="{Binding IsActive}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
                             </DataGrid.Columns>
                         </DataGrid>
 
                         <TextBlock Text="Rework Queue — Job Piece Stage Failure reason Original execution Replacement Rework seq QC state Owner" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,12,0,4"/>
-                        <DataGrid ItemsSource="{Binding ReworkQueue}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="120">
+                        <DataGrid CanUserReorderColumns="False" CanUserResizeColumns="False" ItemsSource="{Binding ReworkQueue}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}" Height="120">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="80" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                                <DataGridTextColumn Header="Piece" Binding="{Binding Position}" Width="60" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                                <DataGridTextColumn Header="Stage" Binding="{Binding StageLabel}" Width="80" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                                <DataGridTextColumn Header="Block" Binding="{Binding BlockReason}" Width="486" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Piece" Binding="{Binding Position}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                                <DataGridTextColumn Header="Stage" Binding="{Binding StageLabel}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Block" Binding="{Binding BlockReason}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </StackPanel>

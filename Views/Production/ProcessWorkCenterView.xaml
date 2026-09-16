@@ -116,21 +116,21 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <TextBlock Text="Process Executions — Job Spec Piece Process Previous Current Status Qty Progress QC Operator" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,8"/>
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding Executions}" SelectedItem="{Binding SelectedExecution}"
+                    <DataGrid CanUserReorderColumns="False" CanUserResizeColumns="False" Grid.Row="1" ItemsSource="{Binding Executions}" SelectedItem="{Binding SelectedExecution}"
                               AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
                               Style="{StaticResource SurfaceDataGrid}">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="110" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                            <DataGridTextColumn Header="Spec" Binding="{Binding SpecName}" Width="180" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                            <DataGridTextColumn Header="Piece" Binding="{Binding PieceId}" Width="310" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                            <DataGridTextColumn Header="Process" Binding="{Binding ProcessType}" Width="130" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                            <DataGridTextColumn Header="Prev" Binding="{Binding PreviousStage}" Width="110" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                            <DataGridTextColumn Header="Next" Binding="{Binding NextStage}" Width="110" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="130" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                            <DataGridTextColumn Header="Qty" Binding="{Binding QtyDone}" Width="90" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                            <DataGridTextColumn Header="Req" Binding="{Binding QtyRequired}" Width="90" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                            <DataGridTextColumn Header="QC" Binding="{Binding QcStatus}" Width="90" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
-                            <DataGridCheckBoxColumn Header="FOC" Binding="{Binding IsFoc}" Width="68"/>
+                            <DataGridTextColumn Header="Job" Binding="{Binding JobRef}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Spec" Binding="{Binding SpecName}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Piece" Binding="{Binding PieceId}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Process" Binding="{Binding ProcessType}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Prev" Binding="{Binding PreviousStage}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Next" Binding="{Binding NextStage}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                            <DataGridTextColumn Header="Qty" Binding="{Binding QtyDone}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="Req" Binding="{Binding QtyRequired}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridTextColumn Header="QC" Binding="{Binding QcStatus}" Width="*" HeaderStyle="{StaticResource WorkCenterCenterHeaderStyle}" ElementStyle="{StaticResource WorkCenterCenterCellTextStyle}"/>
+                            <DataGridCheckBoxColumn Header="FOC" Binding="{Binding IsFoc}" Width="*"/>
                         </DataGrid.Columns>
                     </DataGrid>
                     <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,0">
@@ -161,11 +161,11 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <TextBlock Text="Pairings — DGU Component A/B deterministic" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,8"/>
-                        <DataGrid Grid.Row="1" ItemsSource="{Binding Pairings}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}">
+                        <DataGrid CanUserReorderColumns="False" CanUserResizeColumns="False" Grid.Row="1" ItemsSource="{Binding Pairings}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Pair" Binding="{Binding PairId}" Width="80" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                                <DataGridTextColumn Header="Outer" Binding="{Binding OuterPieceId}" Width="132" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                                <DataGridTextColumn Header="Inner" Binding="{Binding InnerPieceId}" Width="132" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Pair" Binding="{Binding PairId}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Outer" Binding="{Binding OuterPieceId}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Inner" Binding="{Binding InnerPieceId}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
@@ -179,11 +179,11 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <TextBlock Text="Assemblies — DGU/Lamination lineage preserved" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,8"/>
-                        <DataGrid Grid.Row="1" ItemsSource="{Binding Assemblies}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}">
+                        <DataGrid CanUserReorderColumns="False" CanUserResizeColumns="False" Grid.Row="1" ItemsSource="{Binding Assemblies}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Style="{StaticResource SurfaceDataGrid}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Assembly" Binding="{Binding AssemblyLabel}" Width="90" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                                <DataGridTextColumn Header="Type" Binding="{Binding AssemblyType}" Width="80" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
-                                <DataGridTextColumn Header="Components" Binding="{Binding ComponentsJson}" Width="174" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Assembly" Binding="{Binding AssemblyLabel}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Type" Binding="{Binding AssemblyType}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
+                                <DataGridTextColumn Header="Components" Binding="{Binding ComponentsJson}" Width="*" ElementStyle="{StaticResource WorkCenterLeftCellTextStyle}"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>

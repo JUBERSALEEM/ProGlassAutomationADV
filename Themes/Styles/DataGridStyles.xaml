@@ -141,6 +141,10 @@
         <Setter Property="RowHeight" Value="{DynamicResource DensityRowHeight}"/>
         <Setter Property="MinRowHeight" Value="28"/>
         <Setter Property="ColumnHeaderHeight" Value="34"/>
+        <!-- P2: manual column-width dragging removed app-wide (owner
+             directive). Equal widths come from the per-grid column policy. -->
+        <Setter Property="CanUserResizeColumns" Value="False"/>
+        <Setter Property="CanUserReorderColumns" Value="False"/>
         <Setter Property="GridLinesVisibility" Value="Horizontal"/>
         <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="VerticalGridLinesBrush" Value="{DynamicResource DividerBrush}"/>
