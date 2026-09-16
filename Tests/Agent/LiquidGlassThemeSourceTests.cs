@@ -95,13 +95,22 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("?? VisualThemeEngine.NormalIndustrial", appCs, StringComparison.Ordinal);
             Assert.DoesNotContain("?? \"iOS Liquid Glass\"", appCs, StringComparison.Ordinal);
 
-            // Phase 8: Settings lists exactly three families.
+            // 2026-09-17 CORRECTION (owner: "I could see only two" → then
+            // "Ios and iphone 17 pro max theme is broken"): this block used to
+            // pin Phase 8's THREE families and assert Crystal Fluid / iOS 26
+            // were absent from the picker. The picker now offers FOUR — the
+            // language files promise "Industrial, Monet, iOS 26 or iPhone 17
+            // Pro Max — restyles the whole app instantly" — so the two
+            // DoesNotContain asserts below were contradicting the shipped UI
+            // (and the theme-picker fix). They are inverted into Contains on
+            // purpose. The removed-family asserts above stay: those families
+            // are still gone.
             string vm = Read(
                 "ViewModels/Settings/SettingsViewModel.ThemeWallpaper.cs");
             Assert.Contains("VisualThemeEngine.NormalIndustrial)", vm, StringComparison.Ordinal);
             Assert.Contains("VisualThemeEngine.Monet)", vm, StringComparison.Ordinal);
-            Assert.DoesNotContain("VisualThemeEngine.CrystalFluid)", vm, StringComparison.Ordinal);
-            Assert.DoesNotContain("VisualThemeEngine.Ios26)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.CrystalFluid)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.Ios26)", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Normal)", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.LiquidGlass", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.Ocean", vm, StringComparison.Ordinal);
@@ -131,6 +140,51 @@ namespace ProGlassAutomation.Tests.Agent
 
             string company = Read("Views/CompanyCenter/CompanyCenterView.xaml");
             Assert.Contains("EditorTitle, Mode=OneWay", company, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Every_selectable_family_survives_normalization_and_is_dispatched()
+        {
+            // ROOT-CAUSE LOCK (2026-09-17). Two independent cuts made the
+            // iPhone 17 Pro Max and iOS 26 families dead options:
+            //   1. VisualThemeEngine.Normalize folded BOTH identity strings to
+            //      NormalIndustrial, so every Apply()/ApplyModule() painted
+            //      Industrial no matter what the picker saved.
+            //   2. ApplyIos26 had no `case` in either dispatch switch, so even
+            //      an unfaded Normalize could not have painted it.
+            // A fold like that is invisible to every other test: the family
+            // resolves, paints and saves — it just paints the wrong thing.
+            string part3 = Read("Services/Theme/VisualThemeEngine.Part3.cs");
+            Assert.Contains("CrystalFluid => CrystalFluid,", part3, StringComparison.Ordinal);
+            Assert.Contains("Ios26 => Ios26,", part3, StringComparison.Ordinal);
+            Assert.DoesNotContain("CrystalFluid => NormalIndustrial", part3, StringComparison.Ordinal);
+            Assert.DoesNotContain("Ios26 => NormalIndustrial", part3, StringComparison.Ordinal);
+
+            string part1 = Read("Services/Theme/VisualThemeEngine.Part1.cs");
+            Assert.Equal(2, CountOccurrences(part1, "case Ios26:"));
+            Assert.Equal(2, CountOccurrences(part1, "ApplyIos26(resources);"));
+            Assert.Equal(2, CountOccurrences(part1, "case CrystalFluid:"));
+            Assert.Equal(2, CountOccurrences(part1, "ApplyCrystalFluid(resources);"));
+
+            // The Themes-section gate must read the saved family, never a
+            // hardcoded false (that hid the crystal axes permanently).
+            string customization = Read(
+                "ViewModels/Settings/SettingsViewModel.ThemeCustomization.cs");
+            Assert.Contains("SelectedVisualTheme == VisualThemeEngine.CrystalFluid",
+                customization, StringComparison.Ordinal);
+            Assert.DoesNotContain("IsCrystalThemeActive => false",
+                customization, StringComparison.Ordinal);
+        }
+
+        private static int CountOccurrences(string haystack, string needle)
+        {
+            int count = 0, i = 0;
+            while ((i = haystack.IndexOf(needle, i, StringComparison.Ordinal)) >= 0)
+            {
+                count++;
+                i += needle.Length;
+            }
+            return count;
         }
 
         [Fact]

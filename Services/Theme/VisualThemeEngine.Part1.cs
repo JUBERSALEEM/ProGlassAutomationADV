@@ -444,6 +444,15 @@ namespace ProGlassAutomation.Services.Theme
                     case NormalIndustrial:
                         ApplyIndustrial(resources);
                         break;
+
+                    // FAMILY FIX (2026-09-17): ApplyIos26 had NO case in
+                    // either dispatch switch, so the iOS 26 family could never
+                    // paint even with Normalize fixed. Same contract as the
+                    // other families: write through the indexer so live
+                    // DynamicResource references re-evaluate.
+                    case Ios26:
+                        ApplyIos26(resources);
+                        break;
                 }
 
                 // Cache the family's pre-wallpaper surfaces so the next
@@ -605,6 +614,9 @@ namespace ProGlassAutomation.Services.Theme
                             break;
                         case NormalIndustrial:
                             ApplyIndustrial(resources);
+                            break;
+                        case Ios26:
+                            ApplyIos26(resources);
                             break;
                     }
 

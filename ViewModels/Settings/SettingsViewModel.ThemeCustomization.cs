@@ -63,8 +63,18 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         /// <summary>Family gate — the Crystal Fluid material axes are only
         /// shown while the Ios-17pm family is active. Normal/Monet keep
-        /// their existing Appearance controls.</summary>
-        public bool IsCrystalThemeActive => false;
+        /// their existing Appearance controls.
+        ///
+        /// FAMILY FIX (2026-09-17): this was hardcoded to `false`, so the
+        /// iPhone 17 Pro Max tuning group was permanently hidden and the
+        /// reset command always took the non-crystal branch, even while the
+        /// family was active. It now reads the SAVED family (never the live
+        /// engine Current) so the gate is already correct on the first
+        /// render — a paint cannot race it. Both existing notify sites
+        /// (SelectedVisualTheme setter, InitializeThemesSection) raise it.
+        /// </summary>
+        public bool IsCrystalThemeActive =>
+            SelectedVisualTheme == VisualThemeEngine.CrystalFluid;
 
         /// <summary>Identity of the last preset that wrote the axes
         /// ("Default" | "Calm" | "Intense"), or "" after a manual tweak.

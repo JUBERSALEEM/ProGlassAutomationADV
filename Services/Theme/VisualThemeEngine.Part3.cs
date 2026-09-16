@@ -495,9 +495,19 @@ namespace ProGlassAutomation.Services.Theme
             return family?.Trim() switch
             {
                 Monet => Monet,
-                // Crystal / iOS 26 live painters retired — Industrial only.
-                CrystalFluid => NormalIndustrial,
-                Ios26 => NormalIndustrial,
+                // FAMILY FIX (2026-09-17 owner report: "Ios and iphone 17
+                // pro max theme is also broken"): these two lines folded BOTH
+                // iOS families into Industrial. Settings offers four families
+                // and the language files promise "Industrial, Monet, iOS 26 or
+                // iPhone 17 Pro Max — restyles the whole app instantly", but
+                // every Apply()/ApplyModule() runs its argument through this
+                // Normalize, so picking either one painted Industrial and the
+                // picker snapped back. Both painters are alive and complete
+                // (ApplyCrystalFluid, ApplyIos26) — they were simply
+                // unreachable. Identity strings are PERSISTED keys, so they
+                // must survive normalization verbatim.
+                CrystalFluid => CrystalFluid,
+                Ios26 => Ios26,
                 // 2026-09-13 INDUSTRIAL REFORM (owner: "strictness
                 // industrial pattern"): the strict industrial look is the
                 // app-wide default again. The cream SaaS "Normal" folds
