@@ -428,10 +428,15 @@ namespace ProGlassAutomation.Services
                 detailOpacity = Math.Max(detailOpacity, 0.96);
             }
 
+            // NOTE: ModuleBackgroundBrush must never be a surface source - it is
+            // #00FFFFFF (light) / #00000000 (dark), i.e. alpha 0.00 in both themes.
+            // It is a see-through module backdrop, not a card face; composing from it
+            // produced permanently invisible surfaces (the dead Primary channel of the
+            // "Transparent" material and the dead Detail channel of the default "Glass").
             string primaryKey = material switch
             {
                 ProGlassMaterial.Solid => "ElevatedSurfaceBrush",
-                ProGlassMaterial.Soft => "ModuleBackgroundBrush",
+                ProGlassMaterial.Soft => "GlassSurfaceBrush",
                 ProGlassMaterial.Crystal => "GlassCrystalBrush",
                 _ => "GlassSurfaceBrush"
             };
@@ -445,8 +450,8 @@ namespace ProGlassAutomation.Services
             string detailKey = material switch
             {
                 ProGlassMaterial.Solid => "MenuHoverBrush",
-                ProGlassMaterial.Soft => "ModuleBackgroundBrush",
-                _ => "ModuleBackgroundBrush"
+                ProGlassMaterial.Soft => "MenuHoverBrush",
+                _ => "MenuHoverBrush"
             };
 
             SetBrushResource(resources, "Surface.Primary.BackgroundBrush", primaryKey, primaryOpacity);
