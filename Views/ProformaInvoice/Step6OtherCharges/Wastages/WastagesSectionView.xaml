@@ -378,6 +378,31 @@
                                                                           AutomationProperties.Name="Optimization wastage formula"/>
                                                         </StackPanel>
                                                     </Grid>
+                                                    <!-- ══ second switch: where SHEET QTY / optimization % come from ══
+     Independent of the formula switch above. That one chooses how the
+     wastage RATE is derived; this one chooses whether the sheet quantity
+     and utilization are typed or read from a finished optimization run.
+     Manual is the default and stays authoritative until this is turned on. -->
+                                                    <Grid Margin="0,0,0,10">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <ToggleButton Style="{StaticResource PiToggleSwitch}"
+                                                                          IsChecked="{Binding UseOptimizationFeed}"
+                                                                          VerticalAlignment="Center"
+                                                                          AutomationProperties.Name="Read sheet quantity and utilization from the optimization run"/>
+                                                            <TextBlock Text="Read from optimization run" VerticalAlignment="Center" Margin="8,0,0,0"
+                                                                       FontSize="{DynamicResource FontSize.BodySmall}"/>
+                                                        </StackPanel>
+                                                        <!-- provenance: the operator must always be able to see whether a
+                                                             number came from the run, from a shared rack, or from nowhere -->
+                                                        <TextBlock Grid.Column="1" Text="{Binding OptimizationFeedLabel}"
+                                                                   VerticalAlignment="Center" Margin="12,0,0,0" TextWrapping="Wrap"
+                                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                                    </Grid>
 
                                                     <Grid Margin="0,0,0,10">
                                                         <Grid.ColumnDefinitions>
@@ -407,7 +432,9 @@
                                                             <TextBlock Text="{DynamicResource ProformaInvoice.SheetQTY}"
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding SheetQuantityText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                     Style="{StaticResource Input.TextBox}"/>
+                                                                     Style="{StaticResource Input.TextBox}"
+                                                                     IsReadOnly="{Binding IsOptimizationFeedMode}"
+                                                                     ToolTip="Turn off 'Read from optimization run' to type this yourself"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="6">
                                                             <TextBlock Text="{DynamicResource ProformaInvoice.SheetSQMPrice}"
@@ -439,6 +466,7 @@
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding OptimizationPercentText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                      Style="{StaticResource Input.TextBox}"
+                                                                     IsReadOnly="{Binding IsOptimizationFeedMode}"
                                                                      behaviors:TextBoxBehaviors.AcceptDecimals="True"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="2">

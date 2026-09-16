@@ -79,7 +79,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
             /// rate Step 4 itself used for that sheet, carried alongside the
             /// size so the REPORT tab can cost the plan without re-deriving a
             /// colour match against the Sheet Store.</summary>
-            public List<(int W, int H, string Composition, string Source, decimal PricePerSqm)> Step4Sheets { get; } = new();
+            /// <summary>SpecNumber/Side are the Step 5 pane identity this rack
+            /// came from, so Step 6 and Step 9 can join a run back to a spec
+            /// pane structurally instead of guessing from a colour name.</summary>
+            public List<(int W, int H, string Composition, string Source, decimal PricePerSqm, int SpecNumber, string Side)> Step4Sheets { get; } = new();
 
             public int TotalPcs => Specs.Sum(s => s.Layers.Where(l => l.Kind == "Pane").Sum(l => l.TotalPcs));
         }
@@ -422,13 +425,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
                                 opt.Step4Sheets.Add((group.OuterSheetWidthMm, group.OuterSheetHeightMm,
                                     ComposeForSlot(PaneSlot.Pane1),
                                     "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture) + " outer",
-                                    group.OuterSheetPricePerSqm));
+                                    group.OuterSheetPricePerSqm, group.GroupNumber, "Outer"));
 
                             if (group.InnerSheetWidthMm > 0 && group.InnerSheetHeightMm > 0)
                                 opt.Step4Sheets.Add((group.InnerSheetWidthMm, group.InnerSheetHeightMm,
                                     ComposeForSlot(PaneSlot.Pane2),
                                     "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture) + " inner",
-                                    group.InnerSheetPricePerSqm));
+                                    group.InnerSheetPricePerSqm, group.GroupNumber, "Inner"));
                         }
                     }
 

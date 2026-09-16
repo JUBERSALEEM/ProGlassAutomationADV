@@ -571,6 +571,146 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
         public bool IsManualRateMode => !UseOptimizationFormula;
         public bool IsOptimizationFormulaMode => UseOptimizationFormula;
 
+        // ════════════════════════════════════════════════════════════════
+        //  SHEET QTY / UTILIZATION SOURCE — manual (default) or the
+        //  optimization run.
+        //
+        //  This is a second, independent switch. The one above chooses how the
+        //  wastage RATE is derived; this one chooses where the SHEET QTY and the
+        //  optimization % come from. Manual stays the default and stays
+        //  authoritative: nothing here ever writes to a manual field unless the
+        //  operator turns the feed on, and turning it back off restores exactly
+        //  what they had typed — the same contract the rate switch already
+        //  guarantees ("Switching back to manual mode restores manual rate").
+        //
+        //  Primitives only on purpose. WastageRow lives in Models and must not
+        //  depend on Services; the section ViewModel resolves the feed and hands
+        //  the numbers over.
+        // ════════════════════════════════════════════════════════════════
+
+        private bool _useOptimizationFeed;
+        private int _optimizationSheetQuantity;
+        private decimal _optimizationUtilizationPercent;
+        private bool _isSharedOptimizationRack;
+        private string _optimizationFeedLabel = "";
+
+        // Manual values parked while the feed is driving, so switching back is
+        // lossless rather than leaving the run's numbers behind.
+        private int _manualSheetQuantity = 1;
+        private decimal _manualOptimizationPercent;
+
+        /// <summary>Read SHEET QTY and optimization % from the optimization run
+        /// instead of typing them. Off by default.</summary>
+        public bool UseOptimizationFeed
+        {
+            get => _useOptimizationFeed;
+            set
+            {
+                if (_useOptimizationFeed == value) return;
+                _useOptimizationFeed = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsOptimizationFeedMode));
+                OnPropertyChanged(nameof(IsManualSheetSourceMode));
+                ApplySheetSourceMode();
+            }
+        }
+
+        public bool IsOptimizationFeedMode => _useOptimizationFeed;
+        public bool IsManualSheetSourceMode => !_useOptimizationFeed;
+
+        /// <summary>Sheet count the run actually produced for this pane.</summary>
+        public int OptimizationSheetQuantity
+        {
+            get => _optimizationSheetQuantity;
+            private set { _optimizationSheetQuantity = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasOptimizationFeed)); }
+        }
+
+        /// <summary>Utilization the run actually produced. Exact even when the
+        /// rack is shared, because utilization belongs to the rack.</summary>
+        public decimal OptimizationUtilizationPercent
+        {
+            get => _optimizationUtilizationPercent;
+            private set { _optimizationUtilizationPercent = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasOptimizationFeed)); }
+        }
+
+        /// <summary>True when more than one Step 5 spec cuts from this rack, so
+        /// the sheet count is a shared total and must not be reused per pane
+        /// without the weighted split.</summary>
+        public bool IsSharedOptimizationRack
+        {
+            get => _isSharedOptimizationRack;
+            private set { _isSharedOptimizationRack = value; OnPropertyChanged(); }
+        }
+
+        /// <summary>Provenance, always shown — the operator must be able to see
+        /// whether a number came from the run, from a shared rack, or from
+        /// nowhere at all.</summary>
+        public string OptimizationFeedLabel
+        {
+            get => _optimizationFeedLabel;
+            private set { _optimizationFeedLabel = value ?? ""; OnPropertyChanged(); OnPropertyChanged(nameof(HasOptimizationFeedNote)); }
+        }
+
+        public bool HasOptimizationFeed =>
+            _optimizationSheetQuantity > 0 || _optimizationUtilizationPercent > 0m;
+
+        public bool HasOptimizationFeedNote => !string.IsNullOrWhiteSpace(_optimizationFeedLabel);
+
+        /// <summary>
+        /// Offers this pane's slice of an optimization run. Sheets &lt;= 0 means
+        /// "the run has nothing for this pane", which keeps the manual numbers
+        /// and says so rather than writing a zero over them.
+        /// </summary>
+        public void SetOptimizationFeed(
+            int sheets, decimal utilizationPercent, bool isSharedRack, string label)
+        {
+            OptimizationSheetQuantity = sheets > 0 ? sheets : 0;
+            OptimizationUtilizationPercent = utilizationPercent > 0m ? utilizationPercent : 0m;
+            IsSharedOptimizationRack = isSharedRack;
+            OptimizationFeedLabel = label ?? "";
+
+            if (_useOptimizationFeed) ApplySheetSourceMode();
+        }
+
+        /// <summary>Clears any feed, returning the row to purely manual input.</summary>
+        public void ClearOptimizationFeed() => SetOptimizationFeed(0, 0m, false, "");
+
+        private void ApplySheetSourceMode()
+        {
+            if (_useOptimizationFeed)
+            {
+                // Park the operator's numbers once, on the way in.
+                _manualSheetQuantity = _sheetQuantity;
+                _manualOptimizationPercent = _optimizationPercent;
+
+                if (_optimizationSheetQuantity <= 0 && _optimizationUtilizationPercent <= 0m)
+                {
+                    // Nothing to apply. Leave the manual values on screen and
+                    // let the label explain — better than blanking a quote.
+                    OptimizationFeedLabel = string.IsNullOrWhiteSpace(_optimizationFeedLabel)
+                        ? "No optimization run for this pane yet — keeping your manual values."
+                        : _optimizationFeedLabel;
+                    return;
+                }
+
+                // Direct field assignment, NOT SheetQuantityText /
+                // OptimizationPercentText. Those setters raise
+                // SheetQuantityCommittedByUser, which consumes stock; a feed
+                // refresh must never be mistaken for an operator edit.
+                if (_optimizationSheetQuantity > 0)
+                    SheetQuantity = _optimizationSheetQuantity;
+
+                if (_optimizationUtilizationPercent > 0m)
+                    OptimizationPercent = _optimizationUtilizationPercent;
+            }
+            else
+            {
+                // Hand the operator's own numbers back, untouched.
+                SheetQuantity = _manualSheetQuantity;
+                OptimizationPercent = _manualOptimizationPercent;
+            }
+        }
+
         private decimal _formulaPricePerSqm;
         public decimal FormulaPricePerSqm
         {

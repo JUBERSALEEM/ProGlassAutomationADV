@@ -80,6 +80,33 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public string Source { get; set; } = string.Empty;
             public string Available { get; set; } = "99999999";
             public bool IsUsedInRun { get; set; } = true;
+            public int SpecNumber { get; set; }
+            public string Side { get; set; } = string.Empty;
+        }
+
+        /// <summary>
+        /// One priced rack row of a finished run. Persisted in ResultJson so
+        /// Step 6 and Step 9 can read the sheet quantity, utilization and cost
+        /// the engine actually produced for a pane, instead of relying on a
+        /// hand-typed optimization percentage.
+        /// </summary>
+        public sealed class ResultRowDto
+        {
+            public int W { get; set; }
+            public int H { get; set; }
+            public string Composition { get; set; } = string.Empty;
+            public string Thickness { get; set; } = string.Empty;
+            public int Sheets { get; set; }
+            public int Pieces { get; set; }
+            public decimal UtilizationPct { get; set; }
+            public decimal GlassSqm { get; set; }
+            public decimal StockSqm { get; set; }
+            public decimal WasteSqm { get; set; }
+            public decimal RatePerSqm { get; set; }
+            public bool HasPrice { get; set; }
+            public bool IsSharedAcrossSpecs { get; set; }
+            public int SharedWithSpecs { get; set; }
+            public List<PaneIdentity> Panes { get; set; } = new();
         }
 
         public sealed class MarginDto
@@ -177,7 +204,33 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         Composition = s.Composition ?? string.Empty,
                         Source = s.SourceLabel ?? string.Empty,
                         Available = s.AvailableText,
-                        IsUsedInRun = s.IsUsedInRun
+                        IsUsedInRun = s.IsUsedInRun,
+                        SpecNumber = s.SpecNumber,
+                        Side = s.Side ?? string.Empty
+                    })
+                    .ToList();
+
+                // The per-rack breakdown the REPORT tab already computes. Saving
+                // it is what lets Step 6 and Step 9 quote the real sheet count
+                // and utilization of a pane rather than a typed estimate.
+                var resultRows = CostingRows
+                    .Select(c => new ResultRowDto
+                    {
+                        W = c.WidthMm,
+                        H = c.HeightMm,
+                        Composition = c.Composition,
+                        Thickness = c.Thickness,
+                        Sheets = c.SheetCount,
+                        Pieces = c.PieceCount,
+                        UtilizationPct = c.UtilizationPercent,
+                        GlassSqm = c.GlassM2,
+                        StockSqm = c.StockM2,
+                        WasteSqm = c.WasteM2Value,
+                        RatePerSqm = c.Rate,
+                        HasPrice = c.HasPrice,
+                        IsSharedAcrossSpecs = c.IsSharedAcrossSpecs,
+                        SharedWithSpecs = c.SharedWithSpecs,
+                        Panes = c.Panes.ToList()
                     })
                     .ToList();
 
@@ -221,7 +274,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     MarginsJson = JsonSerializer.Serialize(margins),
                     StocksJson = JsonSerializer.Serialize(stocks),
                     PiecesJson = JsonSerializer.Serialize(pieces),
-                    ResultJson = string.Empty
+                    ResultJson = JsonSerializer.Serialize(resultRows)
                 };
 
                 await _sessions.InsertAsync(session);

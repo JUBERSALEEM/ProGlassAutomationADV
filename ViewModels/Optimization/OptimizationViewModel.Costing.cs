@@ -21,6 +21,7 @@
 //   a job's outer and inner panes share one sheet size.
 // ══════════════════════════════════════════════════════════════════
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -32,6 +33,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
     {
         /// <summary>One row of the priced cutting plan: a glass composition on
         /// one Step 4 sheet size.</summary>
+        /// <summary>
+        /// One Step 5 spec pane that draws from an optimization rack. Persisted
+        /// with the session so Step 6 and Step 9 can join a finished run back to
+        /// the pane it cut — structurally, by spec number and side, rather than
+        /// by matching a colour string that Step 6 itself allows to be blank.
+        /// </summary>
+        public sealed class PaneIdentity
+        {
+            public int SpecNumber { get; set; }
+            public string Side { get; set; } = string.Empty;
+        }
+
         public sealed class CostingRowVm
         {
             public string Composition { get; set; } = string.Empty;
@@ -73,6 +86,26 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public decimal GlassCost { get; set; }
             public decimal WasteCost { get; set; }
             public decimal TotalCost { get; set; }
+
+            // ── join identity, so Step 6 / Step 9 can read this run ──
+            public int WidthMm { get; set; }
+            public int HeightMm { get; set; }
+            public int PieceCount { get; set; }
+            public decimal UtilizationPercent { get; set; }
+
+            /// <summary>The single Step 5 spec pane that owns this rack, or 0
+            /// when several panes share it and the sheets cannot be told apart
+            /// after the cut.</summary>
+            public int SpecNumber { get; set; }
+            public string Side { get; set; } = string.Empty;
+
+            /// <summary>True when more than one spec pane draws from this rack.
+            /// Utilization stays exact — it belongs to the rack — but the sheet
+            /// quantity is a shared total that Step 6 / Step 9 must split with
+            /// the existing weighted allocation instead of reusing per pane.</summary>
+            public bool IsSharedAcrossSpecs { get; set; }
+            public int SharedWithSpecs { get; set; }
+            public List<PaneIdentity> Panes { get; } = new();
         }
 
         public ObservableCollection<CostingRowVm> CostingRows { get; } = new();
@@ -123,6 +156,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
             CostingRows.Clear();
 
             var rates = new Dictionary<(int W, int H, string C), decimal>();
+
+            // Which Step 5 spec panes draw from each rack. The engine groups by
+            // composition, so two specs sharing one glass and one sheet size are
+            // cut from the same pool and their sheets cannot be separated
+            // afterwards — recorded here so the consumer can say so honestly.
+            var panes = new Dictionary<(int W, int H, string C), List<PaneIdentity>>();
+
             foreach (var s in Stocks)
             {
                 if (!int.TryParse(s.WidthText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int w) ||
@@ -134,6 +174,22 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 // A real Step 4 rate is never overwritten by a manual rack's 0.
                 if (!rates.TryGetValue(key, out decimal existing) || existing <= 0m)
                     rates[key] = s.PricePerSqm;
+
+                // A hand-added rack carries no spec, so it joins to nothing.
+                if (s.SpecNumber > 0)
+                {
+                    if (!panes.TryGetValue(key, out var list))
+                        panes[key] = list = new List<PaneIdentity>();
+
+                    bool already = false;
+                    foreach (var p in list)
+                        if (p.SpecNumber == s.SpecNumber &&
+                            string.Equals(p.Side, s.Side, StringComparison.OrdinalIgnoreCase))
+                        { already = true; break; }
+
+                    if (!already)
+                        list.Add(new PaneIdentity { SpecNumber = s.SpecNumber, Side = s.Side ?? string.Empty });
+                }
             }
 
             decimal totStock = 0m, totGlass = 0m, totWaste = 0m, totCost = 0m;
@@ -160,6 +216,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
                     rates.TryGetValue((bySize.Key.WidthMm, bySize.Key.HeightMm, comp), out decimal rate);
                     bool hasPrice = rate > 0m;
+
+                    panes.TryGetValue((bySize.Key.WidthMm, bySize.Key.HeightMm, comp), out var identities);
+                    identities ??= new List<PaneIdentity>();
                     if (hasPrice) pricedRows++;
 
                     decimal glassCost = glassM2 * rate;
@@ -173,7 +232,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
                     decimal util = stockMm2 == 0 ? 0m : (decimal)glassMm2 / stockMm2 * 100m;
 
-                    CostingRows.Add(new CostingRowVm
+                    var row = new CostingRowVm
                     {
                         Composition = r.Composition,
                         Thickness = r.Thickness,
@@ -202,8 +261,20 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         WasteM2Value = wasteM2,
                         GlassCost = glassCost,
                         WasteCost = wasteCost,
-                        TotalCost = totalCost
-                    });
+                        TotalCost = totalCost,
+
+                        WidthMm = bySize.Key.WidthMm,
+                        HeightMm = bySize.Key.HeightMm,
+                        PieceCount = pieces,
+                        UtilizationPercent = util,
+                        SpecNumber = identities.Count == 1 ? identities[0].SpecNumber : 0,
+                        Side = identities.Count == 1 ? identities[0].Side : string.Empty,
+                        IsSharedAcrossSpecs = identities.Count > 1,
+                        SharedWithSpecs = identities.Count
+                    };
+
+                    foreach (var idn in identities) row.Panes.Add(idn);
+                    CostingRows.Add(row);
                 }
             }
 

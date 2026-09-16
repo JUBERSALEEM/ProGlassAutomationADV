@@ -1,12 +1,14 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages;
+using ProGlassAutomation.Services.Optimization;
 using ProGlassAutomation.Services.ProformaInvoice;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Windows.Input;
 
@@ -16,6 +18,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
     {
         private readonly DataGridViewModel _dataGrid;
         private Func<IReadOnlyList<Step4PricingSnapshot>>? _step4SectionsProvider;
+
+        // Late-bound for the same reason the Step 4 provider is: Step 6 must not
+        // depend on the optimization module being constructed, and the formula
+        // tests bind nothing at all.
+        private Func<IReadOnlyList<OptimizationPaneResult>>? _optimizationFeedProvider;
 
         // ── 2026-09-10: automatic inventory consumption ─────────────────
         // Entering SHEET QTY on a wastage row consumes that many sheets
@@ -75,6 +82,120 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             Func<(string Reference, string Customer, string Project, string Salesman)>? provider)
         {
             _jobContextProvider = provider;
+        }
+
+        /// <summary>
+        /// Supplies the finished optimization run so SHEET QTY and the
+        /// optimization % can be read instead of typed. Optional — with no
+        /// provider bound every row stays purely manual, which is the default.
+        /// </summary>
+        public void BindOptimizationFeedProvider(
+            Func<IReadOnlyList<OptimizationPaneResult>> provider)
+        {
+            _optimizationFeedProvider = provider;
+            RefreshOptimizationFeed();
+        }
+
+        /// <summary>Re-offers the run figures to every row. Called after a run
+        /// finishes, after a source is ticked, and after a feed refresh.</summary>
+        public void RefreshOptimizationFeed()
+        {
+            foreach (var row in WastageRows) ApplyOptimizationFeedToRow(row);
+        }
+
+        /// <summary>
+        /// Resolves one wastage row against the optimization run.
+        ///
+        /// A row may intentionally combine several panes, so this works on the
+        /// DISTINCT RACKS those panes come from: two panes sharing one sheet are
+        /// counted once, never twice. Utilization is the rack's own when there is
+        /// one rack, and area-weighted (glass m² / stock m²) when there are
+        /// several — the same formula the optimization module uses for its own
+        /// headline utilization, so the two figures can never disagree.
+        /// </summary>
+        private void ApplyOptimizationFeedToRow(WastageRow row)
+        {
+            if (row == null) return;
+
+            var feed = _optimizationFeedProvider?.Invoke();
+            if (feed == null || feed.Count == 0)
+            {
+                row.SetOptimizationFeed(0, 0m, false,
+                    "No optimization run yet — run a cut on the OPTIMIZATION tab to read real sheet qty and utilization.");
+                return;
+            }
+
+            var sources = row.AvailableSources
+                .Where(s => s != null && s.IsChecked)
+                .ToList();
+
+            if (sources.Count == 0)
+            {
+                row.SetOptimizationFeed(0, 0m, false,
+                    "Tick a pane source to read its sheet qty and utilization from the optimization run.");
+                return;
+            }
+
+            var racks = new List<OptimizationPaneResult>();
+            var seen = new HashSet<(int W, int H, string C)>();
+            int unmatched = 0;
+
+            foreach (var src in sources)
+            {
+                // SideLabel, not SemanticSideLabel: the coordinate key W1/H1 vs
+                // W2/H2 is what identifies the rack, and SemanticSideLabel folds
+                // "Middle" into "Outer" by fall-through.
+                var hit = OptimizationResultFeed.Find(
+                    feed, src.SpecNumber, src.SideLabel, src.SheetWidthMm, src.SheetHeightMm);
+
+                if (hit == null) { unmatched++; continue; }
+
+                var key = (hit.SheetWidthMm, hit.SheetHeightMm,
+                    (hit.Composition ?? string.Empty).Trim().ToLowerInvariant());
+
+                if (seen.Add(key)) racks.Add(hit);
+            }
+
+            if (racks.Count == 0)
+            {
+                row.SetOptimizationFeed(0, 0m, false,
+                    "The optimization run has no row for this pane — re-run it after importing the Step 4 sheets.");
+                return;
+            }
+
+            int sheets = racks.Sum(r => r.SheetQuantity);
+
+            decimal utilization;
+            if (racks.Count == 1)
+            {
+                utilization = racks[0].UtilizationPercent;
+            }
+            else
+            {
+                decimal stock = racks.Sum(r => r.StockSqm);
+                decimal glass = racks.Sum(r => r.GlassSqm);
+                utilization = stock > 0m
+                    ? Math.Min(100m, Math.Round(glass / stock * 100m, 2))
+                    : 0m;
+            }
+
+            bool shared = false;
+            foreach (var r in racks) if (r.IsSharedAcrossSpecs) { shared = true; break; }
+
+            string label = racks.Count == 1
+                ? sheets.ToString(CultureInfo.InvariantCulture) + " sheet(s) · " +
+                  utilization.ToString("0.##", CultureInfo.InvariantCulture) + "% from the optimization run"
+                : sheets.ToString(CultureInfo.InvariantCulture) + " sheet(s) across " +
+                  racks.Count.ToString(CultureInfo.InvariantCulture) + " racks · " +
+                  utilization.ToString("0.##", CultureInfo.InvariantCulture) + "% area-weighted";
+
+            if (shared)
+                label += " · rack is shared with another spec, so this is the shared total — split it, do not reuse it per pane";
+            if (unmatched > 0)
+                label += " · " + unmatched.ToString(CultureInfo.InvariantCulture) + " ticked pane(s) are not in the run";
+            label += " · source: " + racks[0].SessionName;
+
+            row.SetOptimizationFeed(sheets, utilization, shared, label);
         }
 
         public void BindStep4SectionsProvider(Func<IReadOnlyList<Step4PricingSnapshot>> provider)
@@ -392,6 +513,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             // panes; "SPEC 1" / "SPEC 2" headers stop wrong-spec selections.
             StampSpecGroupHeaders(row);
             row.ForceRefreshSqm();
+
+            // Sources changed, so the panes this row draws from changed, so the
+            // run figures offered to it have to be resolved again.
+            ApplyOptimizationFeedToRow(row);
         }
 
         private static void StampSpecGroupHeaders(WastageRow row)

@@ -62,6 +62,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 }
             }
 
+            /// <summary>Step 5 spec group this rack was imported from; 0 for a
+            /// hand-added rack, which then cannot be joined back to a pane.</summary>
+            public int SpecNumber { get; set; }
+
+            /// <summary>"Outer" or "Inner" — the pane of that spec this rack
+            /// serves. Matches SpecGroupColorSide.SemanticSideLabel.</summary>
+            public string Side { get; set; } = string.Empty;
+
             public bool HasPrice => _pricePerSqm > 0m;
 
             public string PriceLabel => _pricePerSqm > 0m
@@ -205,7 +213,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             Stocks.Clear();
             var seen = new HashSet<(int W, int H, string C)>();
-            foreach (var (w, h, composition, source, pricePerSqm) in sheets)
+            foreach (var (w, h, composition, source, pricePerSqm, specNumber, side) in sheets)
             {
                 if (w <= 0 || h <= 0) continue;
                 string comp = (composition ?? string.Empty).Trim();
@@ -218,7 +226,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     h.ToString(CultureInfo.InvariantCulture),
                     comp,
                     "Step 4 · " + source)
-                { IsUsedInRun = true, PricePerSqm = pricePerSqm });
+                { IsUsedInRun = true, PricePerSqm = pricePerSqm, SpecNumber = specNumber, Side = side });
             }
 
             if (sheets.Count == 0 && Stocks.Count == 0)

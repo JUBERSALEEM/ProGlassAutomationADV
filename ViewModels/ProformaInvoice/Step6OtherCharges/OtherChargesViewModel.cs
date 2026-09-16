@@ -146,6 +146,22 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
         }
 
         /// <summary>
+        /// Offers a finished optimization run to the wastage section, so SHEET QTY
+        /// and the optimization % can be read from the real cut instead of typed.
+        /// Mirrors BindStep4Pricing: a late-bound provider, optional, and Step 6
+        /// stays purely manual when nothing is bound.
+        /// </summary>
+        public void BindOptimizationFeed(
+            Func<IReadOnlyList<ProGlassAutomation.Services.Optimization.OptimizationPaneResult>> provider)
+        {
+            if (provider == null) return;
+            WastagesSection.BindOptimizationFeedProvider(provider);
+        }
+
+        /// <summary>Re-resolves every wastage row against the current run.</summary>
+        public void RefreshOptimizationFeed() => WastagesSection.RefreshOptimizationFeed();
+
+        /// <summary>
         /// 2026-09-10: job context (customer / project / salesman / ref)
         /// forwarded to the wastage section so inventory consumption
         /// history entries carry the same identification the manual

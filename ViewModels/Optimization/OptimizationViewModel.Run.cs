@@ -620,6 +620,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // tally above so the two never disagree about which rack is which.
             RebuildCosting(runs);
 
+            // Hand the finished plan to Step 6 / Step 9 without waiting for the
+            // operator to press SAVE on a session.
+            PublishLiveFeed();
+
             RebuildIndustrialReport();
 
             RunMessage = string.Format(CultureInfo.InvariantCulture,

@@ -230,6 +230,21 @@ public ProformaInvoiceViewModel() : this(
             Step5VM = new Step5DataGrid.DataGridViewModel(_dialogs, _specs);
             Step6VM = new Step6OtherCharges.OtherChargesViewModel(Step5VM);
             Step6VM.BindStep4Pricing(() => Step4VM.CaptureSectionSnapshots());
+
+            // 2026-09-16: SHEET QTY and the optimization % can be read from a
+            // finished optimization run instead of typed by hand. Step 6 stays
+            // manual by default — this only makes the real figures available to
+            // the per-row switch. The feed prefers a run produced in this app
+            // session and falls back to the newest saved session; RefreshAsync
+            // refuses to trade live figures for an older saved one.
+            Step6VM.BindOptimizationFeed(
+                () => Services.Optimization.OptimizationResultFeed.Current);
+
+            AsyncUtility.SafeFireAndForget(async () =>
+            {
+                await Services.Optimization.OptimizationResultFeed.RefreshAsync();
+                Step6VM.RefreshOptimizationFeed();
+            }, "Step 6 optimization feed");
             // 2026-09-10: inventory auto-use history context (customer from
             // Step 2; consumption entries identify the job like the manual
             // Sheet Store Use dialog does).
