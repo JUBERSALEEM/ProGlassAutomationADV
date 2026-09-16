@@ -157,6 +157,8 @@ namespace ProGlassAutomation.ViewModels.Production
         public ProcessWorkCenterViewModel()
         {
             LoadCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(LoadAsync, "Process load"));
+            ProductionRepository.WorkItemsChanged += OnLiveWorkItemsChanged;
+            AsyncUtility.SafeFireAndForget(LoadAsync, "Process work center initial load");
             StartCommand = new RelayCommand(p => AsyncUtility.SafeFireAndForget(() => StartAsync(p), "Process start"), _ => !IsRunning);
             PauseCommand = new RelayCommand(p => AsyncUtility.SafeFireAndForget(() => PauseAsync(p), "Process pause"), p => p is SavedProcessExecution e && e.Status == (int)WorkItemStatus.InProgress);
             CompleteCommand = new RelayCommand(p => AsyncUtility.SafeFireAndForget(() => CompleteAsync(p), "Process complete"), p => p is SavedProcessExecution e && e.Status == (int)WorkItemStatus.InProgress);
@@ -170,6 +172,20 @@ namespace ProGlassAutomation.ViewModels.Production
             CancelCommand = new RelayCommand(_ => _cts?.Cancel(), _ => IsRunning);
 
             AsyncUtility.SafeFireAndForget(LoadAsync, "Process initial load");
+        }
+
+        
+        /// <summary>P1 sync fix: live-refresh this page whenever ANY floor
+        /// screen saves work — same contract the eight stage pages get from
+        /// ProductionStageViewModelBase. Marshals to the UI thread.</summary>
+        private void OnLiveWorkItemsChanged()
+        {
+            var dispatcher = System.Windows.Application.Current?.Dispatcher;
+            void Reload() => AsyncUtility.SafeFireAndForget(LoadAsync, "Process work center live refresh");
+            if (dispatcher != null && !dispatcher.CheckAccess())
+                dispatcher.BeginInvoke(new System.Action(Reload));
+            else
+                Reload();
         }
 
         public async Task LoadAsync()

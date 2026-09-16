@@ -153,6 +153,8 @@ namespace ProGlassAutomation.ViewModels.Production
         public ProductionControlCenterViewModel()
         {
             LoadCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(LoadAsync, "Control load"), _ => !IsRunning);
+            ProductionRepository.WorkItemsChanged += OnLiveWorkItemsChanged;
+            AsyncUtility.SafeFireAndForget(LoadAsync, "Production control initial load");
             StartCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(StartAsync, "Control start"), _ => HasSelection && !IsRunning);
             PauseCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(PauseAsync, "Control pause"), _ => HasSelection && !IsRunning);
             ResumeCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ResumeAsync, "Control resume"), _ => HasSelection && !IsRunning);
@@ -163,6 +165,20 @@ namespace ProGlassAutomation.ViewModels.Production
             UnassignCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(UnassignAsync, "Control unassign"), _ => HasSelection && !IsRunning);
             SetPriorityCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(SetPriorityAsync, "Control priority"), _ => HasSelection && !IsRunning);
             CancelCommand = new RelayCommand(_ => { _cts?.Cancel(); ProgressLabel = "Cancellation requested"; }, _ => IsRunning);
+        }
+
+        
+        /// <summary>P1 sync fix: live-refresh this page whenever ANY floor
+        /// screen saves work — same contract the eight stage pages get from
+        /// ProductionStageViewModelBase. Marshals to the UI thread.</summary>
+        private void OnLiveWorkItemsChanged()
+        {
+            var dispatcher = System.Windows.Application.Current?.Dispatcher;
+            void Reload() => AsyncUtility.SafeFireAndForget(LoadAsync, "Production control live refresh");
+            if (dispatcher != null && !dispatcher.CheckAccess())
+                dispatcher.BeginInvoke(new System.Action(Reload));
+            else
+                Reload();
         }
 
         public async Task LoadAsync()

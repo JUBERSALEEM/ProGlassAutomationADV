@@ -159,6 +159,8 @@ namespace ProGlassAutomation.ViewModels.Production
         public CuttingWorkCenterViewModel()
         {
             LoadCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(LoadAsync, "Cutting load"));
+            ProductionRepository.WorkItemsChanged += OnLiveWorkItemsChanged;
+            AsyncUtility.SafeFireAndForget(LoadAsync, "Cutting work center initial load");
             RunCuttingWorkflowCommand = new RelayCommand(
                 _ => AsyncUtility.SafeFireAndForget(RunWorkflowAsync, "Cutting workflow run"),
                 _ => !IsRunning && !string.IsNullOrWhiteSpace(JobRefInput));
@@ -177,6 +179,20 @@ namespace ProGlassAutomation.ViewModels.Production
                 p => p is SavedCuttingSession && !IsRunning);
 
             AsyncUtility.SafeFireAndForget(LoadAsync, "Cutting initial load");
+        }
+
+        
+        /// <summary>P1 sync fix: live-refresh this page whenever ANY floor
+        /// screen saves work — same contract the eight stage pages get from
+        /// ProductionStageViewModelBase. Marshals to the UI thread.</summary>
+        private void OnLiveWorkItemsChanged()
+        {
+            var dispatcher = System.Windows.Application.Current?.Dispatcher;
+            void Reload() => AsyncUtility.SafeFireAndForget(LoadAsync, "Cutting work center live refresh");
+            if (dispatcher != null && !dispatcher.CheckAccess())
+                dispatcher.BeginInvoke(new System.Action(Reload));
+            else
+                Reload();
         }
 
         public async Task LoadAsync()
