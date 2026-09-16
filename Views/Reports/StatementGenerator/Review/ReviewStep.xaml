@@ -280,8 +280,12 @@
                         <TextBlock FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0">
                             <Run Text="{Binding LastFinancial.TotalQty, Mode=OneWay}"/>
                             <Run Text="{DynamicResource Reports.StatementGenerator.Pcs}"/>
-                            <Run Text="{Binding LastFinancial.TotalSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"/>
-                            <Run Text=" m²"/>
+                            <!-- AREA FIX: an area ran through the CURRENCY converter, so this KPI
+                                 read "AED 45.70 m²". ConverterParameter=area renders the
+                                 number with its unit and no token (the converter header
+                                 documents exactly this trap; JoReport/PiReport/TaxInvoice
+                                 already use it), so the literal " m²" Run goes. -->
+                            <Run Text="{Binding LastFinancial.TotalSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=area}"/>
                         </TextBlock>
                     </StackPanel>
                 </Border>

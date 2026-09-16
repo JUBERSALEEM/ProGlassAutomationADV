@@ -45,7 +45,10 @@
                                    Foreground="{DynamicResource WarningBrush}"/>
                         <TextBlock Text="{DynamicResource SheetStore.Sheets}" FontSize="{DynamicResource FontSize.Body}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                        <TextBlock Text="{Binding Sheet.TotalSqmBalance, Converter={StaticResource CurrencyConverter}}"
+                        <!-- AREA FIX: was "AED 45.70 SQM" — an area through the currency
+                             converter plus a literal unit. The row keeps its literal
+                             " SQM", so the value renders as plain digits. -->
+                        <TextBlock Text="{Binding Sheet.TotalSqmBalance, StringFormat={}{0:N2}}"
                                    FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <TextBlock Text=" SQM" FontSize="{DynamicResource FontSize.Body}"
@@ -212,7 +215,8 @@
                     <DockPanel Margin="0,0,0,6">
                         <TextBlock Text="{DynamicResource SheetStore.SQMUsed}" FontSize="{DynamicResource FontSize.Body}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                        <TextBlock Text="{Binding TotalSqm, Converter={StaticResource CurrencyConverter}}"
+                        <!-- AREA FIX: "SQM used" showed "AED 12.30". -->
+                        <TextBlock Text="{Binding TotalSqm, Converter={StaticResource CurrencyConverter}, ConverterParameter=area}"
                                    FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                    HorizontalAlignment="Right"/>

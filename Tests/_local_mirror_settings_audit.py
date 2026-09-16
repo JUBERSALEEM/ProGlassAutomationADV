@@ -243,5 +243,21 @@ if re.search(r'\$"AED \{[cw]\.Rate:N2\}', xl):
                  'the currency token')
 
 
+# ── an AREA never runs through the CURRENCY converter ─────────────────
+# (the converter's own header records this trap: an area rendered as a
+# price reads "AED 45.70 / m²" or "AED 45.70 m²")
+for f in glob.glob('Views/**/*.xaml', recursive=True):
+    src = open(f, encoding='utf-8').read()
+    for m in re.finditer(r'Text="\{Binding ([^"]*)\}"', src):
+        binding = m.group(1)
+        if not re.search(r'\b(TotalSqm|TotalSqmBalance|TotalArea|UnitArea)\b',
+                         binding):
+            continue
+        if 'CurrencyConverter' in binding and \
+                'ConverterParameter=area' not in binding:
+            fails.append('%s: an area is rendered as money (%s)'
+                         % (f, binding[:64]))
+
+
 print('MIRROR FAIL: ' + '; '.join(fails) if fails else 'MIRROR PASS (all file-level locks)')
 sys.exit(1 if fails else 0)
