@@ -32,7 +32,7 @@
                                                Text="{DynamicResource Settings.HowRoundCardButtonDefault12Px0Sharp}"/>
                                     <Slider Style="{StaticResource ModernSliderStyle}"
                                     AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
-                                            Minimum="0" Maximum="24"
+                                            Minimum="4" Maximum="24"
                                             TickFrequency="2"
                                             IsSnapToTickEnabled="True"
                                             Value="{Binding CardCornerRadius, Mode=TwoWay}"

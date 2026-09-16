@@ -83,10 +83,6 @@
                  auto-close on page pick — the section then gets the full
                  module width). -->
             <ColumnDefinition Width="Auto"/>
-            <!-- Always-visible rail TAB (2026-09-05): 34px grab-handle that
-                 NEVER disappears — single click opens/closes the rail; no
-                 "open with nothing visible" dead state. -->
-            <ColumnDefinition Width="34"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
@@ -98,7 +94,7 @@
         <!-- Rail — shares SettingsPageCardStyle crystal material with the
              page cards; own margin lives on the instance below. -->
         <Border Grid.Column="0"
-                Margin="14,14,6,14"
+                Margin="18,14,6,18"
                 MinWidth="232" MaxWidth="420"
                 Visibility="{Binding IsSettingsRailOpen,
                     Converter={StaticResource BoolToVisibilityConverter}}"
@@ -121,7 +117,6 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="38"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <Border Grid.Column="0" Width="38" Height="38"
                                 CornerRadius="{DynamicResource Radius.Medium}"
@@ -142,21 +137,6 @@
                                        FontSize="{DynamicResource FontSize.Body}"
                                        Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}"/>
                             </StackPanel>
-                        <!-- Collapse rail (re-opens from content header). -->
-                            <Button Grid.Column="2"
-                                Width="30" Height="30"
-                                VerticalAlignment="Center"
-                                Background="Transparent"
-                                BorderThickness="{DynamicResource Border.NoneThickness}"
-                                Cursor="Hand"
-                                ToolTip="{DynamicResource ToolTip.ToggleMenu}"
-                                Command="{Binding ToggleSettingsRailCommand}">
-                                <TextBlock Text="&#xE76B;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                       FontSize="{DynamicResource FontSize.Title}"
-                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                            </Button>
                         </Grid>
                     </Border>
                     <Border DockPanel.Dock="Top" Height="1"
@@ -234,45 +214,9 @@
              FallbackValue/TargetNullValue=Collapsed means any future
              binding failure hides the page instead of stacking it.
         ═══════════════════════════════════════════════════════════════ -->
-        <!-- ══════════════════════════════════════════════════════════
-             RAIL GRAB-TAB (2026-09-05): the professional open/close
-             affordance — ALWAYS visible, both when the rail is open and
-             after it auto-closes. Chevron flips with the state; single
-             click toggles. No dead "whatever close the rail and it's
-             gone" state anywhere.
-        ══════════════════════════════════════════════════════════════ -->
-        <Border Grid.Column="1"
-                Margin="0,14,0,14"
-                Background="{DynamicResource SideMenuBackgroundBrush}"
-                BorderBrush="{DynamicResource BorderSubtleBrush}"
-                BorderThickness="{DynamicResource Border.BoxNoLeftThickness}"
-                CornerRadius="{DynamicResource Radius.Right.Medium}"
-                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
-            <Button Command="{Binding ToggleSettingsRailCommand}"
-                    ToolTip="{DynamicResource ToolTip.ToggleMenu}"
-                    Cursor="Hand"
-                    Background="Transparent"
-                    BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
-                <TextBlock FontFamily="{DynamicResource FontFamily.Icon}"
-                           Foreground="{DynamicResource TextPrimaryBrush}"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Text" Value="&#xE76B;"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsSettingsRailOpen}" Value="False">
-                                    <Setter Property="Text" Value="&#xE76C;"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-            </Button>
-        </Border>
 
         <!-- ══════════ CONTENT COLUMN (header strip + stacked sections) ══════════ -->
-        <Grid Grid.Column="2">
+        <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>

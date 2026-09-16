@@ -101,7 +101,23 @@ namespace ProGlassAutomation.Services
         /// </summary>
         public static void ApplyCardCornerRadius(double radius)
         {
-            if (radius < 0.0) radius = 0.0;
+            // 2026-09-16 (owner report: "cards corner isn't applying in all
+            // Settings module cards, it's only getting applied in the sidebar
+            // open/close bar"). This method is the app's ONE radius authority:
+            // it writes CardCornerRadius and then republishes the derived
+            // Ios26Radius{Card,Inner,Tile,Chip,Small} scale, which is what
+            // every Settings card and inner tile actually reads. The
+            // Appearance slider allowed 0, and 0 propagated to the whole
+            // scale — so every card went square while the one element that
+            // used a STATIC radius token (the rail grab-tab's
+            // Radius.Right.Medium) stayed rounded. That contrast is what made
+            // it look like the corners "weren't applying" to cards at all.
+            // A card with no radius and a 1.5px edge reads as an unstyled box,
+            // not as a design choice, so 4 is the floor: the smallest radius
+            // that still reads as deliberately rounded at 1x DPI, and it
+            // yields Ios26RadiusCard >= 9. Negative and above-28 values are
+            // clamped as before.
+            if (radius < 4.0) radius = 4.0;
             if (radius > 28.0) radius = 28.0;
             _cardCornerRadius = radius;
 
