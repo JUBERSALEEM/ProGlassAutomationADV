@@ -25,12 +25,67 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 def strip_comments_and_strings(t):
-    t = re.sub(r'/\*.*?\*/', ' ', t, flags=re.S)          # block comments
-    t = re.sub(r'//[^\n]*', ' ', t)                        # line comments
-    t = re.sub(r'@"(?:[^"]|"")*"', ' ', t)                 # verbatim strings
-    t = re.sub(r'\$?"(?:\\.|[^"\\])*"', ' ', t)            # normal/interpolated
-    t = re.sub(r"'(?:\\.|[^'\\])*'", ' ', t)               # chars
-    return t
+    """Single-pass lexer: keep code, drop comments and string/char CONTENT.
+
+    The previous version ran four regexes, comments first. That was wrong in
+    two ways and lost 87% of some files (GroqAiService.cs went 7926 -> 1001
+    chars, taking `_settings.GroqModel` with it):
+
+      1. stripping `//` before strings truncates any line containing a URL -
+         `"https://x"; DoThing();` lost everything after the colon;
+      2. a quote left behind by (1) then paired with a much later quote and
+         swallowed all the real code in between.
+
+    Order cannot fix this; only a lexer that tracks state can. Interpolated
+    strings keep the code inside {...} so `nameof(Foo)` still counts as a
+    reference to Foo - dropping it would invent false positives.
+    """
+    out = []
+    i, n = 0, len(t)
+    while i < n:
+        c = t[i]
+        # ── comments ───────────────────────────────────────────────
+        if c == '/' and i + 1 < n:
+            if t[i + 1] == '/':
+                j = t.find('\n', i)
+                i = n if j < 0 else j
+                out.append(' '); continue
+            if t[i + 1] == '*':
+                j = t.find('*/', i + 2)
+                i = n if j < 0 else j + 2
+                out.append(' '); continue
+        # ── string / char literals (with optional $ and @ prefixes) ─
+        p = i
+        prefixes = ''
+        while p < n and t[p] in '$@':
+            prefixes += t[p]; p += 1
+        if p < n and t[p] in '"\'':
+            quote = t[p]
+            verbatim = '@' in prefixes
+            interpolated = '$' in prefixes
+            j = p + 1
+            depth = 0
+            while j < n:
+                ch = t[j]
+                if depth:                       # code inside {...} of $"..."
+                    if ch == '{': depth += 1
+                    elif ch == '}': depth -= 1
+                    out.append(ch); j += 1; continue
+                if verbatim:
+                    if ch == quote:
+                        if j + 1 < n and t[j + 1] == quote: j += 2; continue
+                        break
+                else:
+                    if ch == '\\': j += 2; continue
+                    if ch == quote: break
+                if interpolated and ch == '{':
+                    if j + 1 < n and t[j + 1] == '{': j += 2; continue
+                    depth = 1; j += 1; continue
+                out.append(' '); j += 1
+            i = min(j + 1, n)
+            out.append(' '); continue
+        out.append(c); i += 1
+    return ''.join(out)
 
 def main():
     code = []
