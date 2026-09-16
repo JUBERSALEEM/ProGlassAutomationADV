@@ -521,9 +521,16 @@
                                                                 <ColumnDefinition Width="112"/>
                                                                 <ColumnDefinition Width="120"/>
                                                             </Grid.ColumnDefinitions>
-                                                            <TextBlock Grid.Column="0" Text="{Binding Composition}"
-                                                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
+                                                            <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                                                <TextBlock Text="{Binding Composition}"
+                                                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                                           Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                                <!-- the Step 5 pane this rack was cut for, so the join
+                                                                     to Step 6 / Step 9 is visible rather than trusted -->
+                                                                <TextBlock Text="{Binding PaneLabel}"
+                                                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                                                           Foreground="{DynamicResource TextTertiaryBrush}" TextTrimming="CharacterEllipsis"/>
+                                                            </StackPanel>
                                                             <TextBlock Grid.Column="1" Text="{Binding SheetSize}"
                                                                        FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                        Margin="0,0,8,0"/>

@@ -93,6 +93,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public int PieceCount { get; set; }
             public decimal UtilizationPercent { get; set; }
 
+            /// <summary>Which Step 5 spec pane(s) this rack was cut for, e.g.
+            /// "Spec 1 · Outer". Shows the join on screen instead of leaving the
+            /// operator to trust it. "—" means a hand-added rack that belongs to
+            /// no spec, and "shared" means several panes drew from it.</summary>
+            public string PaneLabel { get; set; } = "—";
+
             /// <summary>The single Step 5 spec pane that owns this rack, or 0
             /// when several panes share it and the sheets cannot be told apart
             /// after the cut.</summary>
@@ -151,6 +157,32 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// ApplyResults immediately after RefreshStockUsage, so the sheet tally
         /// and the costing always describe the same run.
         /// </summary>
+        /// <summary>
+        /// Names the Step 5 pane(s) a rack served. Deliberately says "shared"
+        /// rather than picking one, because the engine cuts by composition and
+        /// cannot say which of several specs on one rack took which sheet.
+        /// </summary>
+        private static string DescribePanes(List<PaneIdentity> identities)
+        {
+            if (identities == null || identities.Count == 0) return "—";
+
+            var specs = new List<int>();
+            foreach (var p in identities)
+                if (!specs.Contains(p.SpecNumber)) specs.Add(p.SpecNumber);
+            specs.Sort();
+
+            string specText = "Spec " + string.Join(" + ",
+                specs.Select(n => n.ToString(CultureInfo.InvariantCulture)));
+
+            if (identities.Count == 1)
+            {
+                string side = identities[0].Side ?? string.Empty;
+                return side.Length == 0 ? specText : specText + " · " + side;
+            }
+
+            return specText + " · shared";
+        }
+
         private void RebuildCosting(List<GroupRun> runs)
         {
             CostingRows.Clear();
@@ -274,6 +306,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     };
 
                     foreach (var idn in identities) row.Panes.Add(idn);
+                    row.PaneLabel = DescribePanes(identities);
                     CostingRows.Add(row);
                 }
             }

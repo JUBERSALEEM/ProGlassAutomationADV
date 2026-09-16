@@ -333,7 +333,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     Pieces = c.PieceQty,
                     UtilArea = c.Utilization,
                     OffcutUsed = c.WasteArea + " m²",
-                    Source = c.Thickness,
+                    Source = string.IsNullOrWhiteSpace(c.PaneLabel) || c.PaneLabel == "—"
+                        ? c.Thickness
+                        : c.Thickness + " · " + c.PaneLabel,
                     SheetQty = c.SheetQty,
                     RateLabel = c.RateLabel,
                     GlassCostLabel = c.GlassCostLabel,
