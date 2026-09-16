@@ -35,7 +35,8 @@
     </DataTemplate>
 
     <DataTemplate x:Key="SettingsPage.Voice">
-        <sections:SettingsVoiceSection/>
+        <!-- v3: the section binds its page-scoped VM, not the shell -->
+        <sections:SettingsVoiceSection DataContext="{Binding VoicePage}"/>
     </DataTemplate>
 
     <DataTemplate x:Key="SettingsPage.Updates">

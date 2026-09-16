@@ -76,10 +76,6 @@ namespace ProGlassAutomation.ViewModels.Settings
         private string _groqTestStatus = string.Empty;
         private string _cohereTestStatus = string.Empty;
         private bool _apiKeyJustSaved;
-        private bool _isDownloadingModel;
-        private int _downloadProgress;
-        private string _voiceStatus = string.Empty;
-        private CancellationTokenSource _downloadCts;
 
         // ══════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
@@ -97,12 +93,20 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// The page template binds the section's DataContext to this.</summary>
         public ViewModels.Settings.Pages.SettingsSharingPageViewModel SharingPage { get; private set; } = null!;
 
+        /// <summary>Voice page (v3 promotion #2: Whisper picker/downloader).
+        /// The page template binds the section's DataContext to this.</summary>
+        public ViewModels.Settings.Pages.SettingsVoicePageViewModel VoicePage { get; private set; } = null!;
+
         // ── Shared initialization (ERR-633EEB) ─────────────────────
         // Extracted verbatim from the parameterless ctor so both it
         // and the DI-selected parameterized ctor initialize fully.
         private void InitializeCore()
         {
             SharingPage = new ViewModels.Settings.Pages.SettingsSharingPageViewModel(_config);
+            VoicePage = new ViewModels.Settings.Pages.SettingsVoicePageViewModel(
+                _config,
+                () => _speechToText,
+                v => _speechToText = v!);
             _config.DataConnectivity ??= new DataConnectivitySettings();
 
             // v2 shell: navigation between the settings pages.
@@ -118,9 +122,6 @@ namespace ProGlassAutomation.ViewModels.Settings
                 "ProGlassAutomation",
                 "config.json");
 
-            // Build model options list for UI picker
-            foreach (var kvp in WhisperModelManager.AvailableModels)
-                WhisperModelOptions.Add(kvp.Value);
 
             // ── Per-provider test commands ─────────────────────────────
             TestGeminiCommand = new RelayCommand(async _ =>
@@ -163,132 +164,6 @@ namespace ProGlassAutomation.ViewModels.Settings
                 ActiveProvider = AiProvider.Groq);
             SelectCohereCommand = new RelayCommand(_ =>
                 ActiveProvider = AiProvider.Cohere);
-
-            // ── Whisper download ───────────────────────────────────────
-            DownloadWhisperModelCommand = new RelayCommand(async _ =>
-            {
-                if (IsDownloadingModel) return;
-
-                var modelKey = SelectedWhisperModel;
-                var modelInfo = WhisperModelManager.GetModelInfo(modelKey);
-
-                IsDownloadingModel = true;
-                DownloadProgress = 0;
-                VoiceStatus =
-                    $"Downloading {modelInfo.DisplayName} ({modelInfo.SizeMB} MB)…";
-
-                _downloadCts = new CancellationTokenSource();
-
-                var success = await WhisperModelManager.DownloadModelAsync(
-                    modelKey,
-                    (WhisperModelManager.DownloadProgressInfo info) =>
-                    {
-                        // InvokeAsync, not Invoke: Invoke blocks the download
-                        // thread until the UI thread is free, so a busy UI
-                        // throttled the transfer itself.
-                        System.Windows.Application.Current?.Dispatcher.InvokeAsync(() =>
-                        {
-                            DownloadProgress  = info.Percent;
-                            DownloadSpeedText = info.SpeedText;
-                            DownloadSizeText  = info.SizeText;
-                            DownloadEtaText   = info.RemainingText;
-
-                            VoiceStatus =
-                                $"Downloading {modelInfo.DisplayName} — "
-                                + $"{info.Percent}%  ·  {info.SizeText}"
-                                + (info.BytesPerSecond > 0
-                                    ? $"  ·  {info.SpeedText}" : "")
-                                + (string.IsNullOrEmpty(info.RemainingText)
-                                    ? "" : $"  ·  {info.RemainingText}");
-                        });
-                    },
-                    _downloadCts.Token);
-
-                IsDownloadingModel = false;
-
-                // Clear the transient readouts so a finished or cancelled
-                // download does not leave a stale speed on screen.
-                DownloadSpeedText = "";
-                DownloadSizeText  = "";
-                DownloadEtaText   = "";
-
-                if (success)
-                {
-                    VoiceStatus = $"✓ {modelInfo.DisplayName} downloaded successfully!";
-                    OnPropertyChanged(nameof(IsWhisperModelReady));
-                    OnPropertyChanged(nameof(WhisperStatusChipBackgroundKey));
-                    OnPropertyChanged(nameof(WhisperStatusChipForegroundKey));
-                    OnPropertyChanged(nameof(ModelFileSizeMB));
-                    OnPropertyChanged(nameof(SelectedModelInfo));
-
-                    // Refresh or swap STT service so mic button appears without restart
-                    if (_speechToText is WhisperSpeechService whisper)
-                    {
-                        // Already using Whisper — just refresh availability
-                        whisper.RefreshAvailability();
-                    }
-                    else
-                    {
-                        // Was using System.Speech fallback — swap to Whisper
-                        // FIX CS0272: _speechToText now has public set
-                        try
-                        {
-                            _speechToText?.Dispose();
-                            _speechToText = new WhisperSpeechService();
-                            AppLogService.Debug(
-                                "[Settings] Switched STT → Whisper after download.");
-                        }
-                        catch (Exception ex)
-                        {
-                            AppLogService.Debug(
-                                $"[Settings] Whisper swap failed: {ExceptionMessages.Deep(ex)}");
-                        }
-                    }
-                }
-                else if (_downloadCts.IsCancellationRequested)
-                {
-                    VoiceStatus = "Download cancelled.";
-                    DownloadProgress = 0;
-                }
-                else
-                {
-                    VoiceStatus = "✗ Download failed. Check internet connection.";
-                    DownloadProgress = 0;
-                }
-
-                _downloadCts?.Dispose();
-                _downloadCts = null;
-            });
-
-            CancelDownloadCommand = new RelayCommand(_ =>
-                _downloadCts?.Cancel());
-
-            DeleteWhisperModelCommand = new RelayCommand(_ =>
-            {
-                var deleted = WhisperModelManager.DeleteModel(SelectedWhisperModel);
-                if (deleted)
-                {
-                    VoiceStatus = "Model deleted. Voice disabled until re-download.";
-                    DownloadProgress = 0;
-                    OnPropertyChanged(nameof(IsWhisperModelReady));
-                    OnPropertyChanged(nameof(WhisperStatusChipBackgroundKey));
-                    OnPropertyChanged(nameof(WhisperStatusChipForegroundKey));
-                    OnPropertyChanged(nameof(ModelFileSizeMB));
-
-                    // Swap back to System.Speech fallback
-                    // FIX CS0272: _speechToText now has public set
-                    if (_speechToText is WhisperSpeechService w)
-                    {
-                        w.Dispose();
-                        try { _speechToText = new SpeechToTextService(); }
-                        catch { _speechToText = null; }
-                    }
-                }
-                else
-                {
-                    VoiceStatus = "Could not delete model file. It may be in use.";
-                }
-            });
 
             ResetUiScaleCommand = new RelayCommand(_ =>
                 UiScale = Services.Viewport.ViewportService.DefaultUiScale);
