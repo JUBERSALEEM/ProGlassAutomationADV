@@ -85,6 +85,10 @@
          of CONTROLS. -->
     <Thickness x:Key="SettingsPagePadding">18,14,18,18</Thickness>
     <Thickness x:Key="SettingsCardPadding">24,22</Thickness>
+    <!-- Crystal-axis rows (Themes): label sits above the track, 6px air,
+         then 22px to the next row — matches the approved mockup rhythm. -->
+    <Thickness x:Key="SettingsAxisLabelMargin">0,0,0,6</Thickness>
+    <Thickness x:Key="SettingsAxisRowMargin">0,0,0,22</Thickness>
     <Thickness x:Key="SettingsCardContentMargin">0,14,0,0</Thickness>
     <Thickness x:Key="SettingsTilePadding">12,10</Thickness>
     <Thickness x:Key="SettingsRowPadding">0,9</Thickness>

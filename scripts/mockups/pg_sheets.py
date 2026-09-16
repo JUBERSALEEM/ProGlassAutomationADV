@@ -1062,12 +1062,14 @@ def page_themes_wallpaper(cv, box, th):
     for i, (name, v) in enumerate(axes):
         col, row = i % 2, i // 2
         x = c.cx0 + col * (half + 28)
-        y = c.y + row * 52
+        # 66px row pitch: label, 6px air, 28px track, 22px air to the next
+        # label — the old 52px pitch made the axis stack feel crowded.
+        y = c.y + row * 66
         text(c.layer, (x, y), name, th, "field_label")
-        slider(c.layer, (x, y + 16, x + half - 70, y + 44), v, th)
-        text(c.layer, (x + half - 58, y + 30), f"{int(v * 100)}%", th,
+        slider(c.layer, (x, y + 18, x + half - 70, y + 46), v, th)
+        text(c.layer, (x + half - 58, y + 32), f"{int(v * 100)}%", th,
              "field_value", anchor="lm", size=12)
-    c.y += 3 * 52 + 6
+    c.y += 3 * 66 + 6
     c.close()
 
     c = p.card(T("Settings.Wallpapers"),
