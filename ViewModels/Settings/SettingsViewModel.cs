@@ -45,7 +45,6 @@ namespace ProGlassAutomation.ViewModels.Settings
 {
     public sealed partial class SettingsViewModel : ViewModelBase, IDisposable
     {
-        private IAiService _ai = null!;
         private readonly AppConfig _config = null!;
         private readonly IDialogService _dialogs = null!;
         private ISpeechToTextService _speechToText = null!;
@@ -54,7 +53,6 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public SettingsViewModel(IAiService? ai, AppConfig? config, IDialogService? dialogs, ISpeechToTextService? speechToText, IDatabaseServices? database, Services.AI.IAiProviderEvents? providerEvents = null)
         {
-            _ai = ai!;
             _config = config!;
             _dialogs = dialogs!;
             _speechToText = speechToText!;
@@ -72,10 +70,6 @@ namespace ProGlassAutomation.ViewModels.Settings
         private EventHandler? _uiScaleChangedHandler;
         private bool _disposed;
 
-        private string _geminiTestStatus = string.Empty;
-        private string _groqTestStatus = string.Empty;
-        private string _cohereTestStatus = string.Empty;
-        private bool _apiKeyJustSaved;
 
         // ══════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
@@ -101,6 +95,11 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// The page template binds the section's DataContext to this.</summary>
         public ViewModels.Settings.Pages.SettingsUpdatesPageViewModel UpdatesPage { get; private set; } = null!;
 
+        /// <summary>AI Assistant page (v3 promotion #4: providers, keys,
+        /// tests, security). The page template binds the section's
+        /// DataContext to this; the three Ai cards inherit it.</summary>
+        public ViewModels.Settings.Pages.SettingsAiPageViewModel AiPage { get; private set; } = null!;
+
         /// <summary>Pass-through for the About section, which shows the app
         /// version too. The Updates page VM has its own identical copy —
         /// both read the static Services.Updates.AppInfo.Version.</summary>
@@ -117,6 +116,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 () => _speechToText,
                 v => _speechToText = v!);
             UpdatesPage = new ViewModels.Settings.Pages.SettingsUpdatesPageViewModel();
+            AiPage = new ViewModels.Settings.Pages.SettingsAiPageViewModel(_config, _dialogs);
             _config.DataConnectivity ??= new DataConnectivitySettings();
 
             // v2 shell: navigation between the settings pages.
@@ -132,48 +132,6 @@ namespace ProGlassAutomation.ViewModels.Settings
                 "ProGlassAutomation",
                 "config.json");
 
-
-            // ── Per-provider test commands ─────────────────────────────
-            TestGeminiCommand = new RelayCommand(async _ =>
-            {
-                GeminiTestStatus = "Testing…";
-                var svc = AiProviderFactory.CreateForProvider(
-                    AiProvider.Gemini, _config.Ai);
-                var result = await svc.TestConnectionAsync();
-                GeminiTestStatus = result.Success
-                    ? "✓ " + result.Message
-                    : "✗ " + result.Message;
-            });
-
-            TestGroqCommand = new RelayCommand(async _ =>
-            {
-                GroqTestStatus = "Testing…";
-                var svc = AiProviderFactory.CreateForProvider(
-                    AiProvider.Groq, _config.Ai);
-                var result = await svc.TestConnectionAsync();
-                GroqTestStatus = result.Success
-                    ? "✓ " + result.Message
-                    : "✗ " + result.Message;
-            });
-
-            TestCohereCommand = new RelayCommand(async _ =>
-            {
-                CohereTestStatus = "Testing…";
-                var svc = AiProviderFactory.CreateForProvider(
-                    AiProvider.Cohere, _config.Ai);
-                var result = await svc.TestConnectionAsync();
-                CohereTestStatus = result.Success
-                    ? "✓ " + result.Message
-                    : "✗ " + result.Message;
-            });
-
-            // ── Provider selection ─────────────────────────────────────
-            SelectGeminiCommand = new RelayCommand(_ =>
-                ActiveProvider = AiProvider.Gemini);
-            SelectGroqCommand = new RelayCommand(_ =>
-                ActiveProvider = AiProvider.Groq);
-            SelectCohereCommand = new RelayCommand(_ =>
-                ActiveProvider = AiProvider.Cohere);
 
             ResetUiScaleCommand = new RelayCommand(_ =>
                 UiScale = Services.Viewport.ViewportService.DefaultUiScale);

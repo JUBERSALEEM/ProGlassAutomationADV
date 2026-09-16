@@ -22,7 +22,7 @@ namespace ProGlassAutomation.Views.Settings.Sections
 
             Loaded += (_, __) =>
             {
-                if (DataContext is SettingsViewModel vm)
+                if (DataContext is Pages.SettingsAiPageViewModel vm)
                 {
                     if (!string.IsNullOrEmpty(vm.GeminiApiKey))
                         GeminiKeyBox.Password = vm.GeminiApiKey;
@@ -36,19 +36,19 @@ namespace ProGlassAutomation.Views.Settings.Sections
 
         private void GeminiKeyBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            if (DataContext is SettingsViewModel vm && sender is PasswordBox pb)
+            if (DataContext is Pages.SettingsAiPageViewModel vm && sender is PasswordBox pb)
                 vm.GeminiApiKey = pb.Password;
         }
 
         private void GroqKeyBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            if (DataContext is SettingsViewModel vm && sender is PasswordBox pb)
+            if (DataContext is Pages.SettingsAiPageViewModel vm && sender is PasswordBox pb)
                 vm.GroqApiKey = pb.Password;
         }
 
         private void CohereKeyBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            if (DataContext is SettingsViewModel vm && sender is PasswordBox pb)
+            if (DataContext is Pages.SettingsAiPageViewModel vm && sender is PasswordBox pb)
                 vm.CohereApiKey = pb.Password;
         }
     }

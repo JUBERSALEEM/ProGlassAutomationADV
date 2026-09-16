@@ -44,23 +44,6 @@ namespace ProGlassAutomation.ViewModels.Settings
         //  text. Turning "keep keys" off makes them session-only.
         // ══════════════════════════════════════════════════════════════
 
-        public bool KeepApiKeysSaved
-        {
-            get => _config?.Ai?.RememberApiKeys ?? true;
-            set
-            {
-                if (_config == null ||
-                    _config.Ai.RememberApiKeys == value)
-                    return;
-
-                _config.Ai.RememberApiKeys = value;
-                SaveConfig();   // wipes the vault when value is false
-                OnPropertyChanged();
-            }
-        }
-
-        public ICommand RemoveSavedKeysCommand { get; private set; }
-        public ICommand ClearAiMemoryCommand { get; private set; }
 
         /// <summary>Seeds the first-run demo dataset (all modules).</summary>
         public ICommand LoadSampleDataCommand { get; private set; }
@@ -68,6 +51,5 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// <summary>Wipes every record across all modules (e.g. after
         /// evaluating the sample data) so real data entry starts clean.</summary>
         public ICommand ClearAllDataCommand { get; private set; }
-
     }
 }

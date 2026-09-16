@@ -1,42 +1,81 @@
 // ═══════════════════════════════════════════════════════════════════════
-// FILE: ViewModels/Settings/SettingsViewModel.Ai.cs
+// FILE: ViewModels/Settings/Pages/SettingsAiPageViewModel.cs
 // PROJECT: ProGlassAutomation
-// ─────────────────────────────────────────────────────────────────────────
-// Phase 3.1 — SettingsViewModel partial split. This part owns the Ai
-// members; the class declaration, fields and constructor live in
-// SettingsViewModel.cs.
+// MODULE: Settings v3 — per-page ViewModel (phase 3b, promotion #4)
+//
+// AI Assistant page promoted out of the god class after Sharing, Voice and
+// Updates. Core state moved verbatim from SettingsViewModel.Ai.cs plus the
+// KeepApiKeysSaved property from SettingsViewModel.Security.cs; command
+// declarations and wiring live in the .Commands.cs partial.
+//
+// _ai mirrors the shell's original dead-store field (assigned after key
+// saves, never read — same pattern as base commit 3baa39e, kept verbatim).
 // ═══════════════════════════════════════════════════════════════════════
 
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Win32;
 using ProGlassAutomation.Commands;
-using ProGlassAutomation.Services.Logging;
-using ProGlassAutomation.Services.Security;
-using ProGlassAutomation.Services.Common;
-using ProGlassAutomation.Services;
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.AI.AIService;
 using ProGlassAutomation.Services.AI.AIVoice;
+using ProGlassAutomation.Services.Common;
 using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.Dialogs;
 using ProGlassAutomation.Services.Fonts;
-using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
+using ProGlassAutomation.Services.Localization;
+using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Security;
+using ProGlassAutomation.Services;
+using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Threading;
-using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using Microsoft.Win32;
-using ProGlassAutomation.Services.Localization;
-using ProGlassAutomation.Services.Dialogs;
-using Microsoft.Extensions.DependencyInjection;
+using System.Windows;
+using System;
 
 namespace ProGlassAutomation.ViewModels.Settings
 {
-    public sealed partial class SettingsViewModel : ViewModelBase, IDisposable
+    /// <summary>AI Assistant page state: enable/model/params, per-provider
+    /// API keys, test + select commands and API-key storage policy.</summary>
+    public sealed partial class SettingsAiPageViewModel : ViewModelBase
     {
+        private readonly AppConfig? _config;
+        private readonly IDialogService? _dialogs;
+        private IAiService? _ai;
+
+        private string _geminiTestStatus = string.Empty;
+        private string _groqTestStatus = string.Empty;
+        private string _cohereTestStatus = string.Empty;
+        private bool _apiKeyJustSaved;
+
+        public SettingsAiPageViewModel(AppConfig? config, IDialogService? dialogs)
+        {
+            _config = config;
+            _dialogs = dialogs;
+            InitializeAiProviderCommands();
+            InitializeAiSecurityCommands();
+        }
+
+        private void SaveConfig()
+        {
+            if (_config != null)
+                ConfigService.SaveDebounced(_config);
+        }
+
+        /// <summary>Same value the shell exposes (AiProvidersCard shows the
+        /// config file location) — computed from the identical static path,
+        /// so the card keeps working against the page-scoped DataContext.</summary>
+        public string ConfigFilePath => System.IO.Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "ProGlassAutomation",
+            "config.json");
+
         // ══════════════════════════════════════════════════════════════
         //  AI MASTER TOGGLE
         // ══════════════════════════════════════════════════════════════
@@ -300,22 +339,5 @@ namespace ProGlassAutomation.ViewModels.Settings
         // ══════════════════════════════════════════════════════════════
         //  COMMANDS
         // ══════════════════════════════════════════════════════════════
-
-        public ICommand TestGeminiCommand { get; private set; }
-        public ICommand TestGroqCommand { get; private set; }
-        public ICommand TestCohereCommand { get; private set; }
-
-        public ICommand TestAiConnectionCommand => ActiveProvider switch
-        {
-            AiProvider.Gemini => TestGeminiCommand,
-            AiProvider.Groq => TestGroqCommand,
-            AiProvider.Cohere => TestCohereCommand,
-            _ => TestGeminiCommand
-        };
-
-        public ICommand SelectGeminiCommand { get; private set; }
-        public ICommand SelectGroqCommand { get; private set; }
-        public ICommand SelectCohereCommand { get; private set; }
-
     }
 }

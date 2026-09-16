@@ -66,36 +66,6 @@ namespace ProGlassAutomation.ViewModels.Settings
         private void InitializeSecurityCommands()
         {
             // ── Security commands ─────────────────────────────────────
-            RemoveSavedKeysCommand = new RelayCommand(_ =>
-            {
-                var confirm = _dialogs.Show(
-                    LocalizationService.Instance.T("Msg.RemoveAllSavedAPIKeys"),
-                    LocalizationService.Instance.T("Settings.RemoveSavedKeys"),
-                    System.Windows.MessageBoxButton.YesNo,
-                    System.Windows.MessageBoxImage.Warning);
-
-                if (confirm != System.Windows.MessageBoxResult.Yes) return;
-
-                Services.Security.SecretVault.RemoveAll();
-
-                if (_config?.Ai != null)
-                {
-                    _config.Ai.GeminiApiKey = "";
-                    _config.Ai.GroqApiKey = "";
-                    _config.Ai.CohereApiKey = "";
-                    SaveConfig();
-                }
-
-                OnPropertyChanged(nameof(GeminiApiKey));
-                OnPropertyChanged(nameof(GroqApiKey));
-                OnPropertyChanged(nameof(CohereApiKey));
-
-                Services.Audit.AuditService.Log(
-                    Services.Audit.AuditSections.Settings,
-                    "API keys removed",
-                    "All stored AI keys deleted from device");
-            });
-
             LoadSampleDataCommand = new RelayCommand(async _ =>
             {
                 try
@@ -158,14 +128,6 @@ namespace ProGlassAutomation.ViewModels.Settings
                         LocalizationService.Instance.T("Settings.ClearDATA"), System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
                 }
-            });
-
-                        ClearAiMemoryCommand = new RelayCommand(async _ =>
-            {
-                await Services.AI.AIMemory.AiMemoryService.ClearAsync();
-                Services.Audit.AuditService.Log(
-                    Services.Audit.AuditSections.Settings,
-                    "AI memory cleared", "");
             });
 
         }

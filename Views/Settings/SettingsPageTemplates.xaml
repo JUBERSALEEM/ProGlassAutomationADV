@@ -27,7 +27,8 @@
     </DataTemplate>
 
     <DataTemplate x:Key="SettingsPage.AI">
-        <sections:SettingsAiSection/>
+        <!-- v3: the section binds its page-scoped VM, not the shell -->
+        <sections:SettingsAiSection DataContext="{Binding AiPage}"/>
     </DataTemplate>
 
     <DataTemplate x:Key="SettingsPage.Agent">
