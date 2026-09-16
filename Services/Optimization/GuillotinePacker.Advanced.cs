@@ -92,15 +92,20 @@ namespace ProGlassAutomation.Services.Optimization
                 {
                     progressed = false;
                     int bestIdx = -1;
-                    PlacedPiece bestPlaced = null;
+                    PlacementCandidate bestCand = default;
+                    bool haveBest = false;
                     int bestRank = int.MaxValue, bestFit = int.MaxValue;
                     long bestSs = long.MaxValue, bestWaste = long.MaxValue;
 
                     for (int i = 0; i < remaining.Count; i++)
                     {
-                        var cand = TryPlace(state, remaining[i], rotation,
-                            out int rank, out int fit, out long ss, out long waste);
-                        if (cand == null) continue;
+                        // Scores are compared by value: this loop runs for
+                        // every remaining piece to place ONE of them, so
+                        // allocating a PlacedPiece per candidate was O(parts^2)
+                        // garbage for a single sheet.
+                        if (!TryPlaceCore(state, remaining[i], rotation, out var cand)) continue;
+                        int rank = cand.OrderRank, fit = cand.FitRank;
+                        long ss = cand.ShortSide, waste = cand.Waste;
                         if (rank < bestRank
                             || (rank == bestRank && fit < bestFit)
                             || (rank == bestRank && fit == bestFit && ss < bestSs)
@@ -108,13 +113,14 @@ namespace ProGlassAutomation.Services.Optimization
                             || (rank == bestRank && fit == bestFit && ss == bestSs && waste == bestWaste && i < bestIdx))
                         {
                             bestIdx = i;
-                            bestPlaced = cand;
+                            bestCand = cand;
+                            haveBest = true;
                             bestRank = rank; bestFit = fit; bestSs = ss; bestWaste = waste;
                         }
                     }
 
-                    if (bestPlaced == null) break;
-                    Commit(state, bestPlaced, margins, split);
+                    if (!haveBest) break;
+                    Commit(state, bestCand.Materialize(remaining[bestIdx]), margins, split);
                     remaining.RemoveAt(bestIdx);
                     progressed = true;
                 }

@@ -79,26 +79,28 @@ namespace ProGlassAutomation.Services.Optimization
             {
                 progressed = false;
                 int bestIdx = -1;
-                PlacedPiece bestPlaced = null;
+                PlacementCandidate bestCand = default;
+                bool haveBest = false;
                 (int fit, long ss, long waste, int rank, int i) bestKey = default;
 
                 for (int i = 0; i < work.Count; i++)
                 {
-                    var cand = TryPlace(state, work[i], rotation,
-                        out int rank, out int fit, out long ss, out long waste);
-                    if (cand == null) continue;
+                    // Same value-comparison as RunSheetFill: no PlacedPiece is
+                    // allocated for a candidate that loses.
+                    if (!TryPlaceCore(state, work[i], rotation, out var cand)) continue;
 
-                    var key = (fit, ss, waste, rank, i);
-                    if (bestPlaced == null || key.CompareTo(bestKey) < 0)
+                    var key = (cand.FitRank, cand.ShortSide, cand.Waste, cand.OrderRank, i);
+                    if (!haveBest || key.CompareTo(bestKey) < 0)
                     {
                         bestKey = key;
                         bestIdx = i;
-                        bestPlaced = cand;
+                        bestCand = cand;
+                        haveBest = true;
                     }
                 }
 
-                if (bestPlaced == null) break;
-                Commit(state, bestPlaced, margins, split);
+                if (!haveBest) break;
+                Commit(state, bestCand.Materialize(work[bestIdx]), margins, split);
                 work.RemoveAt(bestIdx);
                 progressed = true;
             }

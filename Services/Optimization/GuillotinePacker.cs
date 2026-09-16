@@ -431,32 +431,43 @@ namespace ProGlassAutomation.Services.Optimization
             List<SheetState> sheets, CutPiece piece, MarginProfile margins,
             RotationPolicy rotation, SplitMode split)
         {
-            (int fitRank, long shortSide, long waste, int orderRank, int sheetIndex)? best = null;
-            PlacedPiece bestPlacement = null;
+            // Compared as values: this used to build a PlacedPiece for the best
+            // rect on EVERY open sheet and throw all but the winner away. The
+            // comparator is the same lexicographic minimum over
+            // (fitRank, shortSide, waste, orderRank, sheetIndex); because si
+            // ascends, the final clause can never fire, so the FIRST sheet
+            // still wins an exact tie.
+            bool found = false;
+            int bestSheet = -1;
+            PlacementCandidate bestCand = default;
 
             for (int si = 0; si < sheets.Count; si++)
             {
-                var candidate = TryPlace(sheets[si], piece, rotation,
-                    out int rank, out int fitRank, out long shortSide, out long waste);
-                if (candidate == null) continue;
+                if (!TryPlaceCore(sheets[si], piece, rotation, out var candidate)) continue;
 
-                if (best == null
-                    || fitRank < best.Value.fitRank
-                    || (fitRank == best.Value.fitRank && shortSide < best.Value.shortSide)
-                    || (fitRank == best.Value.fitRank && shortSide == best.Value.shortSide && waste < best.Value.waste)
-                    || (fitRank == best.Value.fitRank && shortSide == best.Value.shortSide && waste == best.Value.waste && rank < best.Value.orderRank)
-                    || (fitRank == best.Value.fitRank && shortSide == best.Value.shortSide && waste == best.Value.waste && rank == best.Value.orderRank && si < best.Value.sheetIndex))
+                if (!found
+                    || candidate.FitRank < bestCand.FitRank
+                    || (candidate.FitRank == bestCand.FitRank && candidate.ShortSide < bestCand.ShortSide)
+                    || (candidate.FitRank == bestCand.FitRank && candidate.ShortSide == bestCand.ShortSide
+                        && candidate.Waste < bestCand.Waste)
+                    || (candidate.FitRank == bestCand.FitRank && candidate.ShortSide == bestCand.ShortSide
+                        && candidate.Waste == bestCand.Waste && candidate.OrderRank < bestCand.OrderRank)
+                    || (candidate.FitRank == bestCand.FitRank && candidate.ShortSide == bestCand.ShortSide
+                        && candidate.Waste == bestCand.Waste && candidate.OrderRank == bestCand.OrderRank
+                        && si < bestSheet))
                 {
-                    best = (fitRank, shortSide, waste, rank, si);
-                    bestPlacement = candidate;
+                    found = true;
+                    bestSheet = si;
+                    bestCand = candidate;
                 }
             }
 
-            if (best == null) return false;
+            if (!found) return false;
 
-            Commit(sheets[best.Value.sheetIndex], bestPlacement, margins, split);
+            Commit(sheets[bestSheet], bestCand.Materialize(piece), margins, split);
             return true;
         }
+
 
         /// <summary>
         /// Best fit for one piece on one sheet. ADAPTIVE rotation: the
@@ -474,31 +485,72 @@ namespace ProGlassAutomation.Services.Optimization
             SheetState sheet, CutPiece piece, RotationPolicy rotation,
             out int rank, out int fitRank, out long shortSide, out long waste)
         {
-            rank = int.MaxValue;
-            fitRank = int.MaxValue;
-            shortSide = long.MaxValue;
-            waste = long.MaxValue;
-            PlacedPiece best = null;
+            if (!TryPlaceCore(sheet, piece, rotation, out var c))
+            {
+                rank = int.MaxValue;
+                fitRank = int.MaxValue;
+                shortSide = long.MaxValue;
+                waste = long.MaxValue;
+                return null;
+            }
 
-            // ── SCALE FIX 1: no allocation on the hot path ──
-            // Orientations() built a new List<(int,int,bool,int)> on EVERY
-            // call, and this method runs once per (piece x sheet). At 100k
-            // parts over ~5,000 sheets that is ~500 million throwaway list
-            // allocations per pass — enough on its own to exhaust memory and
-            // take the process down. The walk is inlined; Orientations() is
-            // left intact for its other callers.
+            rank = c.OrderRank;
+            fitRank = c.FitRank;
+            shortSide = c.ShortSide;
+            waste = c.Waste;
+            return c.Materialize(piece);
+        }
+
+        /// <summary>
+        /// A placement described by value. TryPlace used to allocate a
+        /// PlacedPiece for every improvement it found, and its callers allocate
+        /// one per candidate they compare, then discard all but the winner.
+        /// RunSheetFill and FillSheetGreedy compare EVERY remaining piece in
+        /// order to place one, which made that O(parts^2) allocations for a
+        /// single candidate stream; PlaceOnOpenSheets made it O(parts x sheets).
+        /// Scoring in a struct keeps the comparison exactly as it was while
+        /// allocating nothing until the winner is known.
+        /// </summary>
+        private struct PlacementCandidate
+        {
+            public int X, Y, W, H;
+            public bool Rotated;
+            public int OrderRank, FitRank;
+            public long ShortSide, Waste;
+
+            public PlacedPiece Materialize(CutPiece piece) => new PlacedPiece
+            {
+                Piece = piece,
+                X = X,
+                Y = Y,
+                WidthMm = W,
+                HeightMm = H,
+                Rotated = Rotated
+            };
+        }
+
+        /// <summary>
+        /// Best fit for one piece on one sheet, allocation-free. ADAPTIVE
+        /// rotation: the original orientation is preferred (rank 0); rotated
+        /// placements are only chosen when nothing accepts the piece unrotated.
+        /// </summary>
+        private static bool TryPlaceCore(
+            SheetState sheet, CutPiece piece, RotationPolicy rotation,
+            out PlacementCandidate best)
+        {
+            best = default;
+
             int ow = piece.WidthMm, oh = piece.HeightMm;
             bool canRotate = rotation == RotationPolicy.Free90 && piece.AllowRotate && ow != oh;
             int orientationCount = canRotate ? 2 : 1;
 
-            // ── SCALE FIX 2: sound whole-sheet prune ──
+            // ── SCALE FIX: sound whole-sheet prune ──
             // MaxFreeW / MaxFreeH are the EXACT maxima over this sheet's free
             // rects, so an orientation exceeding them exceeds every rect, and
-            // the scan below could not have placed it. Returning null here is
+            // the scan below could not have placed it. Returning false here is
             // indistinguishable from scanning and finding nothing — identical
-            // results — but a full sheet is now rejected in O(1) instead of
-            // O(rects). That is the difference between O(parts x sheets x
-            // rects) and O(parts x sheets) once sheets start filling up.
+            // results — but a full sheet is rejected in O(1) instead of
+            // O(rects).
             bool anyFits = false;
             for (int oi = 0; oi < orientationCount; oi++)
             {
@@ -506,7 +558,13 @@ namespace ProGlassAutomation.Services.Optimization
                 int hProbe = oi == 0 ? oh : ow;
                 if (wProbe <= sheet.MaxFreeW && hProbe <= sheet.MaxFreeH) { anyFits = true; break; }
             }
-            if (!anyFits) return null;
+            if (!anyFits) return false;
+
+            bool found = false;
+            int bRank = int.MaxValue, bFit = int.MaxValue;
+            int bX = 0, bY = 0, bW = 0, bH = 0;
+            long bSs = long.MaxValue, bWaste = long.MaxValue;
+            bool bRot = false;
 
             for (int oi = 0; oi < orientationCount; oi++)
             {
@@ -527,36 +585,45 @@ namespace ProGlassAutomation.Services.Optimization
                     long ss = Math.Min(rect.W - w, rect.H - h);
                     long leftover = (long)rect.W * rect.H - (long)w * h;
 
-                    // Geometry first (exact edge / BSSF), 0 vs 90 only as
-                    // a tie-break — LiSEC/Editway mix rotation when it
-                    // leaves a tighter strip, not only when 0° fails.
-                    bool better = best == null
-                        || fit < fitRank
-                        || (fit == fitRank && ss < shortSide)
-                        || (fit == fitRank && ss == shortSide && leftover < waste)
-                        || (fit == fitRank && ss == shortSide && leftover == waste && orientationRank < rank)
-                        || (fit == fitRank && ss == shortSide && leftover == waste && orientationRank == rank && rect.X < best.X)
-                        || (fit == fitRank && ss == shortSide && leftover == waste && orientationRank == rank && rect.X == best.X && rect.Y < best.Y);
+                    // Geometry first (exact edge / BSSF), 0 vs 90 only as a
+                    // tie-break — LiSEC/Editway mix rotation when it leaves a
+                    // tighter strip, not only when 0° fails.
+                    bool better = !found
+                        || fit < bFit
+                        || (fit == bFit && ss < bSs)
+                        || (fit == bFit && ss == bSs && leftover < bWaste)
+                        || (fit == bFit && ss == bSs && leftover == bWaste && orientationRank < bRank)
+                        || (fit == bFit && ss == bSs && leftover == bWaste && orientationRank == bRank && rect.X < bX)
+                        || (fit == bFit && ss == bSs && leftover == bWaste && orientationRank == bRank && rect.X == bX && rect.Y < bY);
                     if (!better) continue;
 
-                    rank = orientationRank;
-                    fitRank = fit;
-                    shortSide = ss;
-                    waste = leftover;
-                    best = new PlacedPiece
-                    {
-                        Piece = piece,
-                        X = rect.X,
-                        Y = rect.Y,
-                        WidthMm = w,
-                        HeightMm = h,
-                        Rotated = rot
-                    };
+                    found = true;
+                    bRank = orientationRank;
+                    bFit = fit;
+                    bSs = ss;
+                    bWaste = leftover;
+                    bX = rect.X;
+                    bY = rect.Y;
+                    bW = w;
+                    bH = h;
+                    bRot = rot;
                 }
             }
 
-            return best;
+            if (!found) return false;
+
+            best.X = bX;
+            best.Y = bY;
+            best.W = bW;
+            best.H = bH;
+            best.Rotated = bRot;
+            best.OrderRank = bRank;
+            best.FitRank = bFit;
+            best.ShortSide = bSs;
+            best.Waste = bWaste;
+            return true;
         }
+
 
         private static List<(int W, int H, bool Rotated, int Rank)> Orientations(
             CutPiece piece, RotationPolicy rotation)
@@ -763,10 +830,9 @@ namespace ProGlassAutomation.Services.Optimization
                         for (int si = 0; si < sheets.Count; si++)
                         {
                             if (si == donorIndex) continue;
-                            var moved = TryPlace(sheets[si], victim.Piece, rotation, out _, out _);
-                            if (moved == null) continue;
+                            if (!TryPlaceCore(sheets[si], victim.Piece, rotation, out var moved)) continue;
                             SnapshotBeforeWrite(sheets[si], seen, touched, touchedPieces, touchedFree);
-                            Commit(sheets[si], moved, margins, split);
+                            Commit(sheets[si], moved.Materialize(victim.Piece), margins, split);
                             placed = true;
                             break;
                         }

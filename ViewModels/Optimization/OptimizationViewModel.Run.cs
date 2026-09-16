@@ -118,6 +118,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public double WasteM2;
             public string UnplacedLabel = "0";
             public string OracleLabel = string.Empty;
+
+            /// <summary>Oracle violations found for this group. Verified once
+            /// when the run finishes and reused by ApplyResults — it used to
+            /// re-verify every sheet of every group a second time, and Verify
+            /// is O(pieces^2) per sheet.</summary>
+            public int ProblemCount;
             public string SheetsLabel = string.Empty;
             public string MarginNote = string.Empty;
         }
@@ -396,6 +402,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         WasteM2 = Math.Max(0, (stockArea - glass) / 1_000_000.0),
                         UnplacedLabel = result.Unplaced.Count.ToString(CultureInfo.InvariantCulture),
                         OracleLabel = problems == 0 ? "Verified" : problems.ToString(CultureInfo.InvariantCulture) + " issue(s)",
+                        ProblemCount = problems,
                         SheetsLabel = result.SheetsUsed.ToString(CultureInfo.InvariantCulture),
                         MarginNote = note
                     });
@@ -457,7 +464,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
             double util = stockArea == 0 ? 0 : glass / stockArea * 100.0;
             int totalSheets = runs.Sum(r => r.Result.SheetsUsed);
             int totalUnplaced = runs.Sum(r => r.Result.Unplaced.Count);
-            int totalProblems = runs.Sum(r => GuillotinePacker.Verify(r.Result, r.Margins).Count);
+            // Reuse the count computed when each group finished. Re-running
+            // Verify here doubled the oracle cost of every run.
+            int totalProblems = runs.Sum(r => r.ProblemCount);
 
             string rotationLabel = rotation == RotationPolicy.Free90 ? "rotation ON" : "rotation LOCKED";
             ResultStage = stage == "OPTIMIZE"
