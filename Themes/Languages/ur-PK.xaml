@@ -1309,6 +1309,7 @@
     <sys:String x:Key="ProformaInvoice.RATEAED">شرح (AED)</sys:String>
     <sys:String x:Key="ProformaInvoice.REF">حوالہ #</sys:String>
     <sys:String x:Key="ProformaInvoice.RateAED">شرح: AED</sys:String>
+    <sys:String x:Key="ProformaInvoice.ReadFromOptimizationRun">آپٹیمائزیشن رن سے پڑھیں</sys:String>
     <sys:String x:Key="ProformaInvoice.Recalculate">دوبارہ حساب کریں</sys:String>
     <sys:String x:Key="ProformaInvoice.RefNo">حوالہ نمبر:</sys:String>
     <sys:String x:Key="ProformaInvoice.ReferenceCODE">حوالہ کوڈ</sys:String>

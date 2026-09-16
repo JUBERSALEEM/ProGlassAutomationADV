@@ -1309,6 +1309,7 @@
     <sys:String x:Key="ProformaInvoice.RATEAED">TARIF (AED)</sys:String>
     <sys:String x:Key="ProformaInvoice.REF">REF #</sys:String>
     <sys:String x:Key="ProformaInvoice.RateAED">Tarif: AED</sys:String>
+    <sys:String x:Key="ProformaInvoice.ReadFromOptimizationRun">BACA DARI PROSES OPTIMASI</sys:String>
     <sys:String x:Key="ProformaInvoice.Recalculate">HITUNG ULANG</sys:String>
     <sys:String x:Key="ProformaInvoice.RefNo">No. ref.:</sys:String>
     <sys:String x:Key="ProformaInvoice.ReferenceCODE">KODE REFERENSI</sys:String>

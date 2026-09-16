@@ -1309,6 +1309,7 @@
     <sys:String x:Key="ProformaInvoice.RATEAED">レート（AED）</sys:String>
     <sys:String x:Key="ProformaInvoice.REF">REF #</sys:String>
     <sys:String x:Key="ProformaInvoice.RateAED">レート: AED</sys:String>
+    <sys:String x:Key="ProformaInvoice.ReadFromOptimizationRun">最適化実行から読み込む</sys:String>
     <sys:String x:Key="ProformaInvoice.Recalculate">再計算</sys:String>
     <sys:String x:Key="ProformaInvoice.RefNo">参照番号:</sys:String>
     <sys:String x:Key="ProformaInvoice.ReferenceCODE">参照コード</sys:String>

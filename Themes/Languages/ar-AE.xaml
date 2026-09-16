@@ -1309,6 +1309,7 @@
     <sys:String x:Key="ProformaInvoice.RATEAED">السعر (درهم)</sys:String>
     <sys:String x:Key="ProformaInvoice.REF">المرجع #</sys:String>
     <sys:String x:Key="ProformaInvoice.RateAED">السعر: درهم</sys:String>
+    <sys:String x:Key="ProformaInvoice.ReadFromOptimizationRun">قراءة من تشغيل التحسين</sys:String>
     <sys:String x:Key="ProformaInvoice.Recalculate">إعادة الحساب</sys:String>
     <sys:String x:Key="ProformaInvoice.RefNo">رقم المرجع:</sys:String>
     <sys:String x:Key="ProformaInvoice.ReferenceCODE">رمز المرجع</sys:String>

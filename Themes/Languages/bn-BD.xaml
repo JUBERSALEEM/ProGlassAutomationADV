@@ -1309,6 +1309,7 @@
     <sys:String x:Key="ProformaInvoice.RATEAED">হার (AED)</sys:String>
     <sys:String x:Key="ProformaInvoice.REF">রেফারেন্স #</sys:String>
     <sys:String x:Key="ProformaInvoice.RateAED">হার: AED</sys:String>
+    <sys:String x:Key="ProformaInvoice.ReadFromOptimizationRun">অপ্টিমাইজেশন রান থেকে পড়ুন</sys:String>
     <sys:String x:Key="ProformaInvoice.Recalculate">পুনরায় গণনা</sys:String>
     <sys:String x:Key="ProformaInvoice.RefNo">রেফারেন্স নম্বর:</sys:String>
     <sys:String x:Key="ProformaInvoice.ReferenceCODE">রেফারেন্স কোড</sys:String>

@@ -1309,6 +1309,7 @@
     <sys:String x:Key="ProformaInvoice.RATEAED">요율(AED)</sys:String>
     <sys:String x:Key="ProformaInvoice.REF">REF #</sys:String>
     <sys:String x:Key="ProformaInvoice.RateAED">요율: AED</sys:String>
+    <sys:String x:Key="ProformaInvoice.ReadFromOptimizationRun">최적화 실행에서 읽기</sys:String>
     <sys:String x:Key="ProformaInvoice.Recalculate">재계산</sys:String>
     <sys:String x:Key="ProformaInvoice.RefNo">참조 번호:</sys:String>
     <sys:String x:Key="ProformaInvoice.ReferenceCODE">참조 코드</sys:String>

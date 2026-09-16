@@ -1309,6 +1309,7 @@
     <sys:String x:Key="ProformaInvoice.RATEAED">SATZ (AED)</sys:String>
     <sys:String x:Key="ProformaInvoice.REF">REF #</sys:String>
     <sys:String x:Key="ProformaInvoice.RateAED">Satz: AED</sys:String>
+    <sys:String x:Key="ProformaInvoice.ReadFromOptimizationRun">AUS OPTIMIERUNGSLAUF LESEN</sys:String>
     <sys:String x:Key="ProformaInvoice.Recalculate">NEU BERECHNEN</sys:String>
     <sys:String x:Key="ProformaInvoice.RefNo">Ref.-Nr.:</sys:String>
     <sys:String x:Key="ProformaInvoice.ReferenceCODE">REFERENZCODE</sys:String>

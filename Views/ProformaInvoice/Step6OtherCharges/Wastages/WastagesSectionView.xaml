@@ -393,7 +393,7 @@
                                                                           IsChecked="{Binding UseOptimizationFeed}"
                                                                           VerticalAlignment="Center"
                                                                           AutomationProperties.Name="Read sheet quantity and utilization from the optimization run"/>
-                                                            <TextBlock Text="Read from optimization run" VerticalAlignment="Center" Margin="8,0,0,0"
+                                                            <TextBlock Text="{DynamicResource ProformaInvoice.ReadFromOptimizationRun}" VerticalAlignment="Center" Margin="8,0,0,0"
                                                                        FontSize="{DynamicResource FontSize.BodySmall}"/>
                                                         </StackPanel>
                                                         <!-- provenance: the operator must always be able to see whether a
