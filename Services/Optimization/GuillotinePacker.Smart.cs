@@ -3,6 +3,20 @@
 // Largest→smallest skyline pack + deterministic re-search of leftover
 // sheets. 0/90 chosen by leftover geometry (see TryPlace). Every candidate
 // still goes through Verify (margins + kerf).
+//
+// ⚠ STATUS 2026-09-16 — UNREACHABLE, AND MEASURED NOT TO HELP.
+//   Nothing calls ImproveByRepack, and RunSkyline's only two call sites are
+//   inside it, so this whole file never executes. It was left in place while
+//   the engine header claimed a calibration it did not actually achieve.
+//   Before deciding its fate it was measured rather than assumed: across the
+//   owner's DGU benchmark and 40 randomized instances (200 skyline runs over
+//   five orderings), RunSkyline STRICTLY BEAT THE CANDIDATE POOL 0 TIMES, and
+//   on the Clear group it returns 17 sheets against the 16 that
+//   GuillotinePacker.BestSplit.cs now reaches. ImproveByRepack likewise moves
+//   neither group off the numbers the shipped pool already produces.
+//   Wiring it in would therefore add runtime for no gain; it is kept only so
+//   the measurement is reproducible and the decision is on the record.
+//   Recommendation: delete once BestSplit has soaked in production.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;

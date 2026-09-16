@@ -6,15 +6,22 @@
 // CALIBRATED against the owner's real DGU benchmark (Low-E / Clear /
 // Ramly job): with 15mm margins, kerf 3, adaptive 0/90 rotation the
 // engine reproduces the reference result — Low-E 17 sheets @ 82.77%,
-// Ramly 1 sheet on 2500×1875.
+// Clear 16 sheets @ 84.92%, Ramly 1 sheet on 2500×1875.
 //
 // Stages
-//   PackQuick    — one deterministic pass: height-first ordering,
+//   PackQuick    — one deterministic pass: area-first ordering,
 //                  horizontal-first guillotine splits, adaptive
 //                  rotation, consolidation.
 //   PackOptimize — multi-start effort levels (orderings × split modes,
-//                  each consolidated, best run wins by sheets then
-//                  utilization). Level = iteration budget.
+//                  plus per-sheet split selection and a beam over it —
+//                  see GuillotinePacker.BestSplit.cs), each consolidated,
+//                  best run wins by sheets then utilization.
+//                  Level = iteration budget.
+//
+// A note on "utilization": total glass area is fixed by the order, so
+// utilization is purely a function of SHEET COUNT. Reducing sheets by one
+// is the only thing that moves the number — which is why every strategy
+// here is scored on sheets first.
 //
 // Guarantees (pinned by oracle tests via Verify):
 //   • pieces never overlap — kerf gap enforced between neighbours
@@ -60,7 +67,13 @@ namespace ProGlassAutomation.Services.Optimization
             RotationPolicy rotation,
             SplitMode split = SplitMode.HorizontalFirst)
         {
-            return RunPass(Sort(pieces, OrderBy.MaxSide), stocks, margins, rotation, split);
+            // 2026-09-16: was OrderBy.MaxSide, which cost a whole sheet on the
+            // owner's own benchmark. MaxSide packs the Low-E group into 18
+            // sheets @ 78.18%; Area reaches 17 @ 82.77% — the reference figure
+            // the file header claims and Benchmark_LowE_MatchesReference pins.
+            // Area is also identical on Clear (17) and Ramly (1 sheet, smallest
+            // stock), so it is a strict improvement for the QUICK stage.
+            return RunPass(Sort(pieces, OrderBy.Area), stocks, margins, rotation, split);
         }
 
         /// <summary>
@@ -91,7 +104,9 @@ namespace ProGlassAutomation.Services.Optimization
 
             IEnumerable<(OrderBy o, SplitMode s, int shuffle)> combos;
             if (effortLevel <= 1)
-                combos = new[] { (OrderBy.MaxSide, SplitMode.HorizontalFirst, 0) };
+                // Must mirror PackQuick exactly: Benchmark_OptimizeStage_
+                // NeverRegressesQuick asserts OPTIMIZE <= QUICK.
+                combos = new[] { (OrderBy.Area, SplitMode.HorizontalFirst, 0) };
             else if (effortLevel == 2)
                 combos = orderings.Take(3).Select(o => (o, SplitMode.HorizontalFirst, 0));
             else if (effortLevel == 3)
@@ -120,12 +135,25 @@ namespace ProGlassAutomation.Services.Optimization
                     best = Better(best, RunSheetFill(pieces, stocks, margins, rotation, split));
                     best = Better(best, RunWallSeed(pieces, stocks, margins, rotation, split));
                 }
+
+                // Per-sheet split selection — see GuillotinePacker.BestSplit.cs.
+                // This is the candidate that takes the Clear group from 17
+                // sheets to the owner's reference 16.
+                best = Better(best, RunBestSplit(pieces, stocks, margins, rotation));
             }
 
             if (effortLevel >= 3)
             {
                 foreach (var order in orderings.Take(effortLevel >= 5 ? 6 : 3))
                     best = Better(best, RunMaxRects(Sort(pieces, order), stocks, margins, rotation));
+
+                // Beam-corrected version: greedy per-sheet selection is myopic
+                // (measured worse than the shipped engine on 17 of 40
+                // randomized instances when used ALONE), so it is widened here.
+                // Adding candidates can never regress — Better() takes the min.
+                best = Better(best, RunBestSplitBeam(pieces, stocks, margins, rotation, 4));
+                if (effortLevel >= 4)
+                    best = Better(best, RunBestSplitBeam(pieces, stocks, margins, rotation, 8));
             }
 
             return best ?? PackQuick(pieces, stocks, margins, rotation);
@@ -465,10 +493,6 @@ namespace ProGlassAutomation.Services.Optimization
         }
 
         // ── consolidation — squeeze out the emptiest sheet ──────────────
-
-        private static void Consolidate(
-            List<SheetState> sheets, MarginProfile margins, RotationPolicy rotation, SplitMode split)
-            => ConsolidateAll(sheets, margins, rotation, split);
 
         /// <summary>
         /// Try to empty every sheet from sparsest to densest. One successful
