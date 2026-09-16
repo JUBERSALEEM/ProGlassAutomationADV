@@ -308,7 +308,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                         QtyLabel = metricQty > 0
                                         ? $"{metricQty.ToString("0.###", CultureInfo.InvariantCulture)} {unitLabel}"
                                         : "—",
-                        RateLabel = $"AED {c.Rate.ToString("N2", CultureInfo.InvariantCulture)}",
+                        RateLabel = c.Rate.ToString("N2", CultureInfo.InvariantCulture),
                         Amount = amount
                     });
                 }
@@ -339,7 +339,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                         QtyLabel = wastageQty > 0
                                         ? $"{wastageQty.ToString("0.###", CultureInfo.InvariantCulture)} SQM"
                                         : "—",
-                        RateLabel = $"AED {w.Rate.ToString("N2", CultureInfo.InvariantCulture)}",
+                        RateLabel = w.Rate.ToString("N2", CultureInfo.InvariantCulture),
                         Amount = wastageAmount
                     });
                 }
@@ -358,7 +358,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                         QtyLabel = c.Qty > 0
                                         ? $"{c.Qty.ToString("0.###", CultureInfo.InvariantCulture)} {unitStr}"
                                         : "—",
-                        RateLabel = $"AED {c.Rate.ToString("N2", CultureInfo.InvariantCulture)}",
+                        RateLabel = c.Rate.ToString("N2", CultureInfo.InvariantCulture),
                         Amount = amount
                     });
                 }

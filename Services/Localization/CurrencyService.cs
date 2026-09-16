@@ -252,6 +252,22 @@ namespace ProGlassAutomation.Services.Localization
                 : $"{digits} {symbol}";
         }
 
+        /// <summary>The SAME converted amount as <see cref="Format"/> but
+        /// with NO currency token at all — just grouped digits ("12,500.00").
+        ///
+        /// For table cells whose column header already names the currency
+        /// ("RATE (AED)", "VALUE (AED)"): repeating "AED" on every row
+        /// doubles the text width of the narrowest columns and, on the
+        /// Step 7 paper, pushed the value out of its cell. Books are still
+        /// AED and the display conversion still applies.</summary>
+        public string Digits(decimal baseAmount)
+        {
+            var info = CurrencyCatalog.Find(DisplayCurrency)
+                       ?? CurrencyCatalog.Find(BaseCurrency)!;
+            return Convert(baseAmount).ToString($"N{info.Decimals}",
+                System.Globalization.CultureInfo.InvariantCulture);
+        }
+
         /// <summary>Rate used for the current display currency (1 BASE = X
         /// display). 0 = no rate available.</summary>
         public decimal CurrentRate()

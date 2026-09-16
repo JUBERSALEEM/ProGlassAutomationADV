@@ -42,6 +42,7 @@ using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.Export.Pdf.Renderers;
 using ProGlassAutomation.Services.Export.PrintPreview;
 using QuestPDF.Fluent;
+using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -157,6 +158,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         public static string MoneySuffix(decimal v) =>
             v.ToString("N2", CultureInfo.InvariantCulture) + " AED";
 
+        /// <summary>Money with NO currency token, for the items table whose
+        /// RATE / VALUE column headers already read "(AED)". Repeating the
+        /// token on every row widened those two columns by ~20 pt each —
+        /// width the GLASS REF column then had to give up.</summary>
+        public static string MoneyBare(decimal v) =>
+            v.ToString("N2", CultureInfo.InvariantCulture);
+
         public static string Sqm(decimal v) =>
             v.ToString("0.000", CultureInfo.InvariantCulture);
 
@@ -220,6 +228,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         public const string LblSalesman = "Assigned Salesman:";
         public const string LblValidUntil = "VALID UNTIL";
 
+        public const string ColSerial = "#";
+        public const string ColW1 = "W1";
+        public const string ColH1 = "H1";
+        public const string ColW2 = "W2";
+        public const string ColH2 = "H2";
+        public const string ColQty = "QTY";
+        public const string ColSqm = "SQM";
         public const string ColGlassRef = "GLASS REF / DESCRIPTION";
         public const string ColTotalSqm = "TOTAL SQM";
         public const string ColRate = "RATE (AED)";
@@ -533,6 +548,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         private static PdfMetrics M => PiPrintTokens.M;
         private static float Px(double dip) => PiPrintTokens.Px(dip);
         private static string Money(decimal v) => PiPrintTokens.Money(v);
+        private static string MoneyBare(decimal v) => PiPrintTokens.MoneyBare(v);
         private static string MoneySuffix(decimal v) => PiPrintTokens.MoneySuffix(v);
         private static string Sqm(decimal v) => PiPrintTokens.Sqm(v);
 
@@ -717,14 +733,14 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
                     table.Header(header =>
                     {
-                        SpecHeaderCell(header.Cell(), "#", center: true);
+                        SpecHeaderCell(header.Cell(), PiStr.ColSerial, center: true);
                         SpecHeaderCell(header.Cell(), PiStr.ColGlassRef, left: true);
-                        SpecHeaderCell(header.Cell(), "W1", right: true);
-                        SpecHeaderCell(header.Cell(), "H1", right: true);
-                        SpecHeaderCell(header.Cell(), "W2", right: true);
-                        SpecHeaderCell(header.Cell(), "H2", right: true);
-                        SpecHeaderCell(header.Cell(), "QTY", center: true);
-                        SpecHeaderCell(header.Cell(), "SQM", right: true);
+                        SpecHeaderCell(header.Cell(), PiStr.ColW1, right: true);
+                        SpecHeaderCell(header.Cell(), PiStr.ColH1, right: true);
+                        SpecHeaderCell(header.Cell(), PiStr.ColW2, right: true);
+                        SpecHeaderCell(header.Cell(), PiStr.ColH2, right: true);
+                        SpecHeaderCell(header.Cell(), PiStr.ColQty, center: true);
+                        SpecHeaderCell(header.Cell(), PiStr.ColSqm, right: true);
                         SpecHeaderCell(header.Cell(), PiStr.ColTotalSqm, right: true);
                         SpecHeaderCell(header.Cell(), PiStr.ColRate, right: true);
                         SpecHeaderCell(header.Cell(), PiStr.ColValue, right: true);
@@ -742,8 +758,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                         SpecCell(table, row.Qty.ToString(CultureInfo.InvariantCulture), alt, center: true);
                         SpecCell(table, Sqm(row.UnitArea), alt, right: true);
                         SpecCell(table, Sqm(row.TotalArea), alt, right: true);
-                        SpecCell(table, Money(row.Rate), alt, right: true);
-                        SpecCell(table, Money(row.Total), alt, right: true, bold: true);
+                        SpecCell(table, MoneyBare(row.Rate), alt, right: true);
+                        SpecCell(table, MoneyBare(row.Total), alt, right: true, bold: true);
                         alt = !alt;
                     }
 
@@ -764,60 +780,124 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                     table.Cell().Element(c => SubtotalChrome(c, align: 2)
                         .Text(" ").FontSize(M.TableFont));                       // RATE blank
                     table.Cell().Element(c => SubtotalChrome(c, align: 2)
-                        .Text(Money(group.TotalValue))
+                        .Text(MoneyBare(group.TotalValue))
                         .FontSize(M.SubtotalValueFont).Bold().FontColor(T.Success));
                 });
             });
         }
 
+        // ────────────────────────────────────────────────────────────────
+        //  SPEC TABLE COLUMN WIDTHS
+        //
+        //  2026-09-14 (owner: "PDF export width/height issue") made every
+        //  numeric column a ConstantColumn sized to its widest CELL. That
+        //  fixed wrapped numbers but left the export dying on some
+        //  invoices — QuestPDF answers an impossible layout with
+        //  "The provided document content contains conflicting size
+        //  constraints", and two things could still make this table
+        //  impossible on an A4 page:
+        //
+        //    1. The HEADER text was never measured. Headers are rendered
+        //       Bold at M.HeaderFont and the right/centre-aligned ones are
+        //       measured at their FULL width, so "GLASS REF / DESCRIPTION"
+        //       (~85 pt) inside a 36 pt relative column — what the old
+        //       70 pt reservation left once the numeric block ate the
+        //       budget — is an unsatisfiable constraint, i.e. a failed
+        //       export rather than a clipped one.
+        //    2. Scaling floored each column at MinNumericColumn * 0.85
+        //       WITHOUT re-checking the sum, so a wide page margin
+        //       (MarginMm is theme-owned) could still push the total past
+        //       the printable width.
+        //
+        //  Every column is now sized from the widest of: its rows, its
+        //  sub-total cell AND its own header; the identity column gets a
+        //  real reservation (the widest word of its header, so it can wrap
+        //  but never collapse); and the last step is an unconditional
+        //  proportional clamp against the printable width, so the sum can
+        //  never exceed it. Same shape as the Step 7 preview grid, which
+        //  keeps its money columns narrow by letting the header carry
+        //  "(AED)" instead of every row.
+        // ────────────────────────────────────────────────────────────────
+
+        private static readonly string[] SpecHeaders =
+        {
+            PiStr.ColSerial, PiStr.ColGlassRef, PiStr.ColW1, PiStr.ColH1,
+            PiStr.ColW2, PiStr.ColH2, PiStr.ColQty, PiStr.ColSqm,
+            PiStr.ColTotalSqm, PiStr.ColRate, PiStr.ColValue
+        };
+
         private static void DefineSpecColumns(TableDescriptor table, PiSpecGroupModel group)
         {
             table.ColumnsDefinition(c =>
             {
-                // 2026-09-14 (owner report: "PDF export width/height
-                // issue"): the old fixed 32 DIP dimension columns left
-                // only ~13 pt of text space after cell padding, so
-                // 4-digit sizes ("1200") and money values
-                // ("AED 9,999.99") wrapped mid-value — doubled row
-                // heights and numbers spilling across column borders.
-                // Each numeric column now gets a ConstantColumn sized
-                // to the WIDEST cell of that column (rows AND sub-total,
-                // padding included) — values render on one line in every
-                // theme; GLASS REF absorbs the remaining width, exactly
-                // like the preview's 1.4* column.
                 float pad = 2f * T.CellPadH + 4f;
-                float availablePt = (210f - 2f * T.MarginMm) * 72f / 25.4f;
+                // A4 portrait is what ProformaInvoicePdfLayout.PageLayout
+                // pins; read the page back from the same constant instead
+                // of a second hard-coded 210.
+                float availablePt = (PageSizes.A4.Width * 72f / 25.4f)
+                                    - 2f * T.MarginMm * 72f / 25.4f;
+
                 float[] widths = new[]
                 {
-                    FitColumn(group, M.TableFont,
-                        r => r.Serial.ToString(CultureInfo.InvariantCulture)) + pad,                       // #
-                    30f,                                                                                   // (ref = relative)
-                    FitColumn(group, M.TableFont, r => r.W1.ToString(CultureInfo.InvariantCulture)) + pad,  // W1
-                    FitColumn(group, M.TableFont, r => r.H1.ToString(CultureInfo.InvariantCulture)) + pad,  // H1
-                    FitColumn(group, M.TableFont, r => r.W2.ToString(CultureInfo.InvariantCulture)) + pad,  // W2
-                    FitColumn(group, M.TableFont, r => r.H2.ToString(CultureInfo.InvariantCulture)) + pad,  // H2
-                    FitColumn(group, M.TableFont, r => r.Qty.ToString(CultureInfo.InvariantCulture),
-                        group.TotalQty.ToString(CultureInfo.InvariantCulture)) + pad,                       // QTY
-                    FitColumn(group, M.TableFont, r => Sqm(r.UnitArea)) + pad,                              // SQM
-                    FitColumn(group, M.TableFont, r => Sqm(r.TotalArea),
-                        Sqm(group.TotalArea)) + pad,                                                       // TOTAL SQM
-                    FitColumn(group, M.TableFont, r => Money(r.Rate)) + pad,                               // RATE
-                    FitColumn(group, M.TableFont, r => Money(r.Total),
-                        Money(group.TotalValue)) + pad                                                     // VALUE
+                    Widest(group, r => r.Serial.ToString(CultureInfo.InvariantCulture),
+                        PiStr.ColSerial) + pad,                                              // #
+                    0f,                                                                      // GLASS REF (relative)
+                    Widest(group, r => r.W1.ToString(CultureInfo.InvariantCulture),
+                        PiStr.ColW1) + pad,                                                  // W1
+                    Widest(group, r => r.H1.ToString(CultureInfo.InvariantCulture),
+                        PiStr.ColH1) + pad,                                                  // H1
+                    Widest(group, r => r.W2.ToString(CultureInfo.InvariantCulture),
+                        PiStr.ColW2) + pad,                                                  // W2
+                    Widest(group, r => r.H2.ToString(CultureInfo.InvariantCulture),
+                        PiStr.ColH2) + pad,                                                  // H2
+                    Widest(group, r => r.Qty.ToString(CultureInfo.InvariantCulture),
+                        PiStr.ColQty, group.TotalQty.ToString(CultureInfo.InvariantCulture)) + pad,   // QTY
+                    Widest(group, r => Sqm(r.UnitArea), PiStr.ColSqm) + pad,                 // SQM
+                    Widest(group, r => Sqm(r.TotalArea), PiStr.ColTotalSqm,
+                        Sqm(group.TotalArea)) + pad,                                         // TOTAL SQM
+                    Widest(group, r => MoneyBare(r.Rate), PiStr.ColRate) + pad,              // RATE
+                    Widest(group, r => MoneyBare(r.Total), PiStr.ColValue,
+                        MoneyBare(group.TotalValue)) + pad                                   // VALUE
                 };
 
-                // Keep the numeric block inside the printable width even
-                // for extreme values — the GLASS REF column keeps at least
-                // its header's widest word.
-                float fixedSum = 0;
+                // Identity column: the widest WORD of its header, so
+                // "GLASS REF / DESCRIPTION" wraps onto three lines instead
+                // of demanding its full 85 pt (or collapsing to zero, which
+                // is what hid the column in the first place).
+                float refMin = LongestWordPt(PiStr.ColGlassRef, M.HeaderFont) + pad;
+
+                float fixedSum = 0f;
                 for (int i = 0; i < widths.Length; i++)
                     if (i != 1) fixedSum += Math.Max(widths[i], MinNumericColumn(i));
-                float budget = availablePt - 70f;
-                if (fixedSum > budget && fixedSum > 0)
+
+                float slack = availablePt - refMin - fixedSum;
+                if (slack < 0f && fixedSum > 0f)
                 {
-                    float scale = budget / fixedSum;
+                    // Not enough room even with the minimums: shrink the
+                    // numeric block proportionally, but never below the
+                    // widest word of that column's header — a cell that
+                    // cannot hold one unbreakable word is exactly the
+                    // constraint QuestPDF refuses to lay out.
+                    float scale = (availablePt - refMin) / fixedSum;
                     for (int i = 0; i < widths.Length; i++)
-                        if (i != 1) widths[i] = Math.Max(widths[i] * scale, MinNumericColumn(i) * 0.85f);
+                    {
+                        if (i == 1) continue;
+                        float floorPt = Math.Max(
+                            MinNumericColumn(i) * 0.7f,
+                            LongestWordPt(SpecHeaders[i], M.HeaderFont) + pad);
+                        widths[i] = Math.Max(widths[i] * scale, floorPt);
+                    }
+
+                    // Final, unconditional clamp: the constant columns can
+                    // never add up to more than what is left after the
+                    // identity column's own floor.
+                    float sum = 0f;
+                    for (int i = 0; i < widths.Length; i++)
+                        if (i != 1) sum += widths[i];
+                    float room = Math.Max(availablePt - refMin, sum * 0.5f);
+                    if (sum > room && sum > 0f)
+                        for (int i = 0; i < widths.Length; i++)
+                            if (i != 1) widths[i] *= room / sum;
                 }
 
                 c.ConstantColumn(widths[0]);   // #
@@ -848,19 +928,35 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             _ => 24f
         };
 
-        /// <summary>Widest cell of a column (rows + optional sub-total
-        /// value), measured for the table font. Segoe UI advances
-        /// approximated per character class, +15% safety margin.</summary>
-        private static float FitColumn(
-            PiSpecGroupModel group, float font,
-            Func<PiGlassRowModel, string> rowText, params string[] extra)
+        /// <summary>Width (pt) of the widest string this column must show:
+        /// every row, every extra (sub-total) value AND the column's own
+        /// header, which is Bold at M.HeaderFont. Measuring only the cells
+        /// is what let a header overflow its column.</summary>
+        private static float Widest(
+            PiSpecGroupModel group,
+            Func<PiGlassRowModel, string> rowText,
+            string header, params string[] extra)
         {
-            float maxPt = 0;
+            float maxPt = MeasurePt(header, M.HeaderFont);
             foreach (var r in group.Rows)
-                maxPt = Math.Max(maxPt, MeasurePt(rowText(r), font));
+                maxPt = Math.Max(maxPt, MeasurePt(rowText(r), M.TableFont));
             foreach (var e in extra)
-                maxPt = Math.Max(maxPt, MeasurePt(e, font));
-            return Math.Max(maxPt, font * 2f); // at least "88"
+                maxPt = Math.Max(maxPt, MeasurePt(e, M.TableFont));
+            return Math.Max(maxPt, M.TableFont * 2f); // at least "88"
+        }
+
+        /// <summary>Width of the longest unbreakable word in a header. A
+        /// column narrower than this cannot wrap its way out — QuestPDF
+        /// answers with "conflicting size constraints" and the whole export
+        /// fails, so this is the hard floor used when shrinking.</summary>
+        private static float LongestWordPt(string text, float font)
+        {
+            float maxPt = 0f;
+            foreach (var word in (text ?? string.Empty).Split(
+                         new[] { ' ', '/', '·' },
+                         StringSplitOptions.RemoveEmptyEntries))
+                maxPt = Math.Max(maxPt, MeasurePt(word, font));
+            return maxPt;
         }
 
         private static float MeasurePt(string text, float font)

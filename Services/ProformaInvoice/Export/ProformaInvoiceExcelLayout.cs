@@ -321,8 +321,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
         private void BuildChargesSheet(
             IXLWorksheet ws,
-            List<(string Name, string Qty, string Rate, decimal Amount)> charges)
+            List<(string Name, string Qty, decimal Rate, decimal Amount)> charges)
         {
+            // 2026-09-16: Rate arrives as a NUMBER and the "(AED)" lives in
+            // the header only. It used to be the text "AED 12.00", which put
+            // the currency twice on the same line (header + cell) and made
+            // the column unsortable/unsummable in Excel.
             var headers = new[]
             {
                 "Charge Name",
@@ -347,6 +351,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 ws.Cell(row, 1).Value = name;
                 ws.Cell(row, 2).Value = qty;
                 ws.Cell(row, 3).Value = rate;
+                ws.Cell(row, 3).Style.NumberFormat.Format = "#,##0.00";
                 ws.Cell(row, 4).Value = amount;
                 ws.Cell(row, 4).Style.NumberFormat.Format = "#,##0.00";
 
@@ -408,10 +413,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         //  BUG-21: charge line builder uses ProformaChargeMetricsCalculator
         // ════════════════════════════════════════════════════════════════════
 
-        private List<(string Name, string Qty, string Rate, decimal Amount)>
+        private List<(string Name, string Qty, decimal Rate, decimal Amount)>
             BuildOtherChargeLines()
         {
-            var lines = new List<(string, string, string, decimal)>();
+            var lines = new List<(string, string, decimal, decimal)>();
 
             if (_snapshot.OtherCharges == null) return lines;
 
@@ -479,7 +484,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 lines.Add((
                     friendlyName,
                     qtyStr,
-                    $"AED {c.Rate:N2}",
+                    c.Rate,
                     amount));
             }
 
@@ -495,7 +500,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 lines.Add((
                     $"Wastage — {w.ColorName}",
                     wastageQty > 0 ? $"{wastageQty:0.###} SQM" : "—",
-                    $"AED {w.Rate:N2}",
+                    w.Rate,
                     wastageAmount));
             }
 
@@ -510,7 +515,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 lines.Add((
                     c.ChargeName ?? "",
                     c.Qty > 0 ? $"{c.Qty:0.###} {unitStr}" : "—",
-                    $"AED {c.Rate:N2}",
+                    c.Rate,
                     amount));
             }
 

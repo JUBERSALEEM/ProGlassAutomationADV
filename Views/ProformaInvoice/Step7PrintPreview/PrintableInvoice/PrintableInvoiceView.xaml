@@ -462,18 +462,25 @@
                             <!-- Table Header Row -->
                             <Border Background="{DynamicResource Print.TableHeader}">
                                 <Grid>
+                                    <!-- SPEC-GRID (2026-09-16): one column set for the header, the data
+                                         rows AND the sub-total footer. Only the four dimension columns and
+                                         the serial keep a fixed width (their content is 2-4 characters by
+                                         definition); every other column is proportional, so on a narrow
+                                         paper the identity and money columns shrink WITH the page instead
+                                         of being starved to nothing by the fixed block - that starvation
+                                         is what hid "#" and "GLASS REF / DESCRIPTION" in the preview. -->
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="28"/>
+                                        <ColumnDefinition Width="24"/>
                                         <ColumnDefinition Width="1.4*"/>
-                                        <ColumnDefinition Width="32"/>
-                                        <ColumnDefinition Width="32"/>
-                                        <ColumnDefinition Width="32"/>
-                                        <ColumnDefinition Width="32"/>
-                                        <ColumnDefinition Width="36"/>
-                                        <ColumnDefinition Width="0.70*"/>
-                                        <ColumnDefinition Width="0.85*"/>
-                                        <ColumnDefinition Width="0.70*"/>
-                                        <ColumnDefinition Width="0.90*"/>
+                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="0.55*"/>
+                                        <ColumnDefinition Width="0.65*"/>
+                                        <ColumnDefinition Width="0.80*"/>
+                                        <ColumnDefinition Width="0.75*"/>
+                                        <ColumnDefinition Width="0.95*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="#" Style="{StaticResource Typography.Label}" HorizontalAlignment="Center"/>
                                     <TextBlock Grid.Column="1" Text="{DynamicResource ProformaInvoice.GlassREFDescription}" Style="{StaticResource Typography.Label}"/>
@@ -509,18 +516,25 @@
                                                 </Style>
                                             </Border.Style>
                                             <Grid>
+                                                <!-- SPEC-GRID (2026-09-16): one column set for the header, the data
+                                                     rows AND the sub-total footer. Only the four dimension columns and
+                                                     the serial keep a fixed width (their content is 2-4 characters by
+                                                     definition); every other column is proportional, so on a narrow
+                                                     paper the identity and money columns shrink WITH the page instead
+                                                     of being starved to nothing by the fixed block - that starvation
+                                                     is what hid "#" and "GLASS REF / DESCRIPTION" in the preview. -->
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="28"/>
+                                                    <ColumnDefinition Width="24"/>
                                                     <ColumnDefinition Width="1.4*"/>
-                                                    <ColumnDefinition Width="32"/>
-                                                    <ColumnDefinition Width="32"/>
-                                                    <ColumnDefinition Width="32"/>
-                                                    <ColumnDefinition Width="32"/>
-                                                    <ColumnDefinition Width="36"/>
-                                                    <ColumnDefinition Width="0.70*"/>
-                                                    <ColumnDefinition Width="0.85*"/>
-                                                    <ColumnDefinition Width="0.70*"/>
-                                                    <ColumnDefinition Width="0.90*"/>
+                                                    <ColumnDefinition Width="30"/>
+                                                    <ColumnDefinition Width="30"/>
+                                                    <ColumnDefinition Width="30"/>
+                                                    <ColumnDefinition Width="30"/>
+                                                    <ColumnDefinition Width="0.55*"/>
+                                                    <ColumnDefinition Width="0.65*"/>
+                                                    <ColumnDefinition Width="0.80*"/>
+                                                    <ColumnDefinition Width="0.75*"/>
+                                                    <ColumnDefinition Width="0.95*"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0" Text="{Binding SerialNumber}" Style="{StaticResource Typography.Body}" HorizontalAlignment="Center"/>
                                                 <TextBlock Grid.Column="1" Text="{Binding GlassRef}" Style="{StaticResource Typography.Body}" TextTrimming="CharacterEllipsis"/>
@@ -531,8 +545,8 @@
                                                 <TextBlock Grid.Column="6" Text="{Binding Qty}" Style="{StaticResource Typography.Body}" HorizontalAlignment="Center"/>
                                                 <TextBlock Grid.Column="7" Text="{Binding Sqm1, StringFormat={}{0:0.000}}" Style="{StaticResource Typography.Body}" HorizontalAlignment="Right"/>
                                                 <TextBlock Grid.Column="8" Text="{Binding TotalSqm, StringFormat={}{0:0.000}}" Style="{StaticResource Typography.Body}" HorizontalAlignment="Right"/>
-                                                <TextBlock Grid.Column="9" Text="{Binding Rate, Converter={StaticResource CurrencyConverter}}" Style="{StaticResource Typography.Body}" HorizontalAlignment="Right"/>
-                                                <TextBlock Grid.Column="10" Text="{Binding Value, Converter={StaticResource CurrencyConverter}}" Style="{StaticResource Typography.Body}" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                                <TextBlock Grid.Column="9" Text="{Binding Rate, Converter={StaticResource CurrencyConverter}, ConverterParameter=number}" Style="{StaticResource Typography.Body}" HorizontalAlignment="Right"/>
+                                                <TextBlock Grid.Column="10" Text="{Binding Value, Converter={StaticResource CurrencyConverter}, ConverterParameter=number}" Style="{StaticResource Typography.Body}" HorizontalAlignment="Right" FontWeight="Bold"/>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -551,15 +565,23 @@
                                     BorderBrush="{DynamicResource Print.Border}"
                                     CornerRadius="0,0,4,4">
                                 <Grid>
+                                    <!-- SPEC-GRID (2026-09-16): one column set for the header, the data
+                                         rows AND the sub-total footer. Only the four dimension columns and
+                                         the serial keep a fixed width (their content is 2-4 characters by
+                                         definition); every other column is proportional, so on a narrow
+                                         paper the identity and money columns shrink WITH the page instead
+                                         of being starved to nothing by the fixed block - that starvation
+                                         is what hid "#" and "GLASS REF / DESCRIPTION" in the preview. -->
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="28"/>
-                                        <ColumnDefinition Width="1.6*"/>
-                                        <ColumnDefinition Width="35"/>
-                                        <ColumnDefinition Width="35"/>
-                                        <ColumnDefinition Width="35"/>
-                                        <ColumnDefinition Width="35"/>
-                                        <ColumnDefinition Width="40"/>
-                                        <ColumnDefinition Width="0.85*"/>
+                                        <ColumnDefinition Width="24"/>
+                                        <ColumnDefinition Width="1.4*"/>
+                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="0.55*"/>
+                                        <ColumnDefinition Width="0.65*"/>
+                                        <ColumnDefinition Width="0.80*"/>
                                         <ColumnDefinition Width="0.75*"/>
                                         <ColumnDefinition Width="0.95*"/>
                                     </Grid.ColumnDefinitions>
@@ -591,7 +613,7 @@
 
                                     <!-- VALUE total under TOTAL column -->
                                     <TextBlock Grid.Column="9"
-                                               Text="{Binding FooterTotalValue, Converter={StaticResource CurrencyConverter}}"
+                                               Text="{Binding FooterTotalValue, Converter={StaticResource CurrencyConverter}, ConverterParameter=number}"
                                                Style="{StaticResource TableSubTotalStyle}"
                                                Foreground="{DynamicResource Print.Success}"
                                                HorizontalAlignment="Right"/>
@@ -702,12 +724,22 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                                         <TextBlock Text="{DynamicResource ProformaInvoice.RateAED}" Style="{StaticResource Typography.Label}"/>
-                                        <TextBlock Text="{Binding Rate, Converter={StaticResource CurrencyConverter}}" Style="{StaticResource PrintValueStyle}"/>
+                                        <TextBlock Text="{Binding Rate, Converter={StaticResource CurrencyConverter}, ConverterParameter=number}" Style="{StaticResource PrintValueStyle}"/>
                                     </StackPanel>
-                                    <TextBlock Grid.Column="3"
-                                               Text="{Binding ResultAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
-                                               HorizontalAlignment="Right"
-                                               FontSize="{DynamicResource Print.Font.Group}" FontWeight="Bold" Foreground="{DynamicResource Print.Text}"/>
+                                    <!-- 2026-09-16: the row already reads "Rate: AED", so the
+                                         amount used to render "AED AED 12.00" (ConverterParameter=
+                                         prefix on top of the inline label). The amount is now bare
+                                         digits under an "Amount" label, and the exported PDF shows
+                                         the same digits in the same column. -->
+                                    <StackPanel Grid.Column="3" Orientation="Horizontal"
+                                                HorizontalAlignment="Right">
+                                        <TextBlock Text="{DynamicResource Common.Amount}"
+                                                   Style="{StaticResource Typography.Label}"
+                                                   Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding ResultAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=number}"
+                                                   VerticalAlignment="Center"
+                                                   FontSize="{DynamicResource Print.Font.Group}" FontWeight="Bold" Foreground="{DynamicResource Print.Text}"/>
+                                    </StackPanel>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -744,12 +776,22 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                                         <TextBlock Text="{DynamicResource ProformaInvoice.RateAED}" Style="{StaticResource Typography.Label}"/>
-                                        <TextBlock Text="{Binding Rate, Converter={StaticResource CurrencyConverter}}" Style="{StaticResource PrintValueStyle}"/>
+                                        <TextBlock Text="{Binding Rate, Converter={StaticResource CurrencyConverter}, ConverterParameter=number}" Style="{StaticResource PrintValueStyle}"/>
                                     </StackPanel>
-                                    <TextBlock Grid.Column="3"
-                                               Text="{Binding ResultAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
-                                               HorizontalAlignment="Right"
-                                               FontSize="{DynamicResource Print.Font.Group}" FontWeight="Bold" Foreground="{DynamicResource Print.Text}"/>
+                                    <!-- 2026-09-16: the row already reads "Rate: AED", so the
+                                         amount used to render "AED AED 12.00" (ConverterParameter=
+                                         prefix on top of the inline label). The amount is now bare
+                                         digits under an "Amount" label, and the exported PDF shows
+                                         the same digits in the same column. -->
+                                    <StackPanel Grid.Column="3" Orientation="Horizontal"
+                                                HorizontalAlignment="Right">
+                                        <TextBlock Text="{DynamicResource Common.Amount}"
+                                                   Style="{StaticResource Typography.Label}"
+                                                   Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding ResultAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=number}"
+                                                   VerticalAlignment="Center"
+                                                   FontSize="{DynamicResource Print.Font.Group}" FontWeight="Bold" Foreground="{DynamicResource Print.Text}"/>
+                                    </StackPanel>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -785,12 +827,22 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                                         <TextBlock Text="{DynamicResource ProformaInvoice.RateAED}" Style="{StaticResource Typography.Label}"/>
-                                        <TextBlock Text="{Binding Rate, Converter={StaticResource CurrencyConverter}}" Style="{StaticResource PrintValueStyle}"/>
+                                        <TextBlock Text="{Binding Rate, Converter={StaticResource CurrencyConverter}, ConverterParameter=number}" Style="{StaticResource PrintValueStyle}"/>
                                     </StackPanel>
-                                    <TextBlock Grid.Column="3"
-                                               Text="{Binding ResultAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
-                                               HorizontalAlignment="Right"
-                                               FontSize="{DynamicResource Print.Font.Group}" FontWeight="Bold" Foreground="{DynamicResource Print.Text}"/>
+                                    <!-- 2026-09-16: the row already reads "Rate: AED", so the
+                                         amount used to render "AED AED 12.00" (ConverterParameter=
+                                         prefix on top of the inline label). The amount is now bare
+                                         digits under an "Amount" label, and the exported PDF shows
+                                         the same digits in the same column. -->
+                                    <StackPanel Grid.Column="3" Orientation="Horizontal"
+                                                HorizontalAlignment="Right">
+                                        <TextBlock Text="{DynamicResource Common.Amount}"
+                                                   Style="{StaticResource Typography.Label}"
+                                                   Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding ResultAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=number}"
+                                                   VerticalAlignment="Center"
+                                                   FontSize="{DynamicResource Print.Font.Group}" FontWeight="Bold" Foreground="{DynamicResource Print.Text}"/>
+                                    </StackPanel>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

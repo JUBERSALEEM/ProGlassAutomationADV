@@ -13,6 +13,7 @@
 //   <TextBlock Text="{Binding Total, Converter={StaticResource CurrencyConverter},
 //                            ConverterParameter=prefix}"/>   →  ₹ 125,000.00
 //   ...ConverterParameter=suffix      →  125,000.00 ₹
+//   ...ConverterParameter=number      →  125,000.00   (header names the currency)
 //   ...ConverterParameter=minus       →  - ₹ 125,000.00
 //   ...ConverterParameter=plus        →  + ₹ 125,000.00
 //   ...ConverterParameter=sqm         →  ₹ 125.00 / m²
@@ -43,6 +44,11 @@ namespace ProGlassAutomation.Converters
         string core = mode switch
         {
             "suffix" => svc.Format(amount, layout: CurrencyService.CurrencyLayout.Suffix),
+            // NUMBER: converted digits with NO currency token, for cells
+            // whose column header already carries the currency (the Step 7
+            // items table RATE / VALUE columns). Repeating "AED" per row
+            // is what overflowed those narrow columns.
+            "number" => svc.Digits(amount),
             "sqm" => $"{svc.Format(amount)} / m²",
             // AREA: a plain area (pcs spread over m²), NOT a per-m² rate.
             // The "sqm" branch above renders a PRICE PER m² — binding an
