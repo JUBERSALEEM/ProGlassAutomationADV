@@ -38,6 +38,14 @@
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
+        <!-- 2026-09-16 rail redesign: the row list groups by its localized
+             GroupLabel so the rail gets caption headers ("Studio", "System"…)
+             without a second hand-maintained list in the VM. -->
+        <CollectionViewSource x:Key="SettingsNavGroups" Source="{Binding NavRows}">
+            <CollectionViewSource.GroupDescriptions>
+                <PropertyGroupDescription PropertyName="GroupLabel"/>
+            </CollectionViewSource.GroupDescriptions>
+        </CollectionViewSource>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <!-- The module design system: cards, tiles, chips, pills,
@@ -79,13 +87,8 @@
              Visibility = IsSettingsRailOpen (drawer: closes on page pick,
              re-opens via the floating menu button).
         ══════════════════════════════════════════════════════════════ -->
-        <!-- Rail — the card grammar, and since 2026-09-17 the card MATERIAL:
-             SettingsPageCardStyle now composes the crystal face, the tri-stop
-             edge and the tinted shadow, so the rail picks all three up from
-             the one style it shares with the page cards (Ios26RadiusCard still
-             follows the Appearance card-corner slider). It used to carry its
-             own drop shadow and a sheen stack, which is why the rail and the
-             cards it framed did not read as the same material. -->
+        <!-- Rail — shares SettingsPageCardStyle crystal material with the
+             page cards; own margin lives on the instance below. -->
         <Border Grid.Column="0"
                 Margin="14,14,6,14"
                 MinWidth="232" MaxWidth="420"
@@ -95,26 +98,13 @@
                 SnapsToDevicePixels="True"
                 Style="{StaticResource SettingsPageCardStyle}">
             <Border.Resources>
-                <!-- The rail is a page card whose own margin lives on the
-                     instance above, so it must not inherit the card margin. -->
+                <!-- Rail instance: no inherited card margin. -->
                 <Thickness x:Key="SettingsCardMargin">0</Thickness>
             </Border.Resources>
-            <!-- The rail carries the liquid-glass touch — a crisp top
-                 catch-light plus a soft glare band, exactly like the main
-                 shell drawer, so it reads as frosted glass over the stage
-                 instead of a flat card. -->
             <Grid>
-                <!-- 2026-09-16: the sheen stack was removed with the rail
-                     restyle. The About card material is flat frosted glass
-                     with a hairline edge and one soft shadow; a top catch
-                     light plus a glare band made the rail read as a different
-                     material from the cards it hosts. -->
-                <DockPanel Margin="10,10,10,10">
+                <DockPanel Margin="12,12,12,12">
 
-                <!-- Brand header — 2026-09-05 restyled to the REPORTS-module
-                     rail design (owner directive: identical visual language):
-                     accent header card with icon tile, two-line title, and
-                     the collapse button INSIDE the header (single click). -->
+                <!-- Brand header: accent card, icon tile, collapse inside. -->
                     <Border DockPanel.Dock="Top" Margin="4,2,4,8"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Background="{DynamicResource AccentBrush}"
@@ -144,12 +134,10 @@
                                        FontSize="{DynamicResource FontSize.Body}"
                                        Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}"/>
                             </StackPanel>
-                        <!-- Collapse rail button (single click — the rail
-                             re-opens from the hamburger in the content
-                             header, exactly like the Reports module). -->
+                        <!-- Collapse rail (re-opens from content header). -->
                             <Button Grid.Column="2"
                                 Width="30" Height="30"
-                                VerticalAlignment="Top"
+                                VerticalAlignment="Center"
                                 Background="Transparent"
                                 BorderThickness="{DynamicResource Border.NoneThickness}"
                                 Cursor="Hand"
@@ -167,19 +155,24 @@
                         Background="{DynamicResource BorderDefaultBrush}"
                         Margin="14,0,14,8"/>
 
-                <!-- Nav items — scroll so every page stays reachable on
-                     short windows instead of clipping License / About. -->
+                <!-- Nav items — grouped, scrollable safety net. -->
                     <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               CanContentScroll="False"
                               PanningMode="VerticalOnly">
-                        <ItemsControl ItemsSource="{Binding NavRows}"
+                        <ItemsControl ItemsSource="{Binding Source={StaticResource SettingsNavGroups}}"
                               KeyboardNavigation.TabNavigation="Cycle">
-                    <!-- v3 (2026-09-05 Phase 3): data-driven rail — the
-                         row list in the VM is THE page registry; adding
-                         a page = one NavRows entry + one host line below.
-                         Tab cycles the rail; the keyboard cue is
-                         SettingsNavFocusStyle (accent ring adorner). -->
+                            <ItemsControl.GroupStyle>
+                                <GroupStyle>
+                                    <GroupStyle.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}"
+                                                       Style="{StaticResource SettingsNavGroupHeaderStyle}"/>
+                                        </DataTemplate>
+                                    </GroupStyle.HeaderTemplate>
+                                </GroupStyle>
+                            </ItemsControl.GroupStyle>
+                    <!-- Data-driven rail: NavRows is THE page registry. -->
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Button Command="{Binding DataContext.SwitchSettingsPageCommand, ElementName=SettingsRoot}"
@@ -196,17 +189,8 @@
                                                 </Style.Triggers>
                                             </Style>
                                         </Button.Style>
-                                <!-- 2026-09-14: the glyph TextBlock had no
-                                     FontFamily — the MDL2 code point rendered
-                                     with the app font as a broken box before
-                                     the label.
-                                     2026-09-16: both text runs now come from
-                                     the Settings grammar (SettingsRowGlyph /
-                                     SettingsRowLabel), so the 18 px icon column
-                                     and the 10 px icon↔text gap are the SAME
-                                     tokens every tile in the module uses, and
-                                     neither run sets a Foreground — the active
-                                     accent pill flips glyph and label together. -->
+                                <!-- Glyph + label via Settings row grammar;
+                                     active pill flips both inks together. -->
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{Binding Glyph}"
                                                Style="{StaticResource SettingsRowGlyphStyle}"/>

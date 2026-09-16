@@ -276,76 +276,71 @@
         </Setter>
     </Style>
 
+    <!-- ═══════════════════════════════════════════════════════════════
+         RAIL NAV ROW — senior spacing pass 2026-09-16 (owner: "menu too
+         close"). 40 px rows on a 6 px vertical rhythm, 8 px side inset,
+         grouped rail with caption headers. Active page = solid accent
+         pill with on-accent ink (the old 3.5 px side bar is retired);
+         hover = soft tertiary surface, no border noise. Motion keeps the
+         shared BounceHover curve so the rail matches every opted-in card.
+         ═══════════════════════════════════════════════════════════════ -->
     <Style x:Key="SettingsNavButtonStyle" TargetType="Button">
         <Setter Property="Cursor"              Value="Hand"/>
-        <!-- The springy hover that inspired the app-wide treatment. Now
-             driven by the shared behavior so the rail and every opted-in
-             card use exactly the same motion curve. -->
         <Setter Property="behaviors:BounceHover.IsEnabled"  Value="True"/>
-        <Setter Property="behaviors:BounceHover.HoverScale" Value="1.035"/>
+        <Setter Property="behaviors:BounceHover.HoverScale" Value="1.02"/>
         <Setter Property="behaviors:BounceHover.PressScale" Value="0.97"/>
-        <!-- 2026-09-14: compact rows so all 12 options fit the rail on a
-             normal laptop screen (owner: "12 options but only 10 visible");
-             the ScrollViewer stays as a safety net for short windows. -->
-        <Setter Property="Margin"              Value="10,2"/>
+        <Setter Property="Margin"              Value="8,3"/>
         <Setter Property="Tag"                 Value="Inactive"/>
         <Setter Property="Background"          Value="Transparent"/>
+        <Setter Property="Foreground"          Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding"   Value="True"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Grid>
-                        <Border x:Name="Bd"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Padding="12,7"
-                                Background="{TemplateBinding Background}"
-                                SnapsToDevicePixels="True"
-                                UseLayoutRounding="True">
-                            <ContentPresenter VerticalAlignment="Center"/>
-                        </Border>
-                        <Border x:Name="ActiveBar"
-                                Width="3.5"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Center"
-                                Height="22"
-                                Margin="2,0,0,0"
-                                CornerRadius="{DynamicResource Radius.XSmall}"
-                                Background="{DynamicResource AccentBrush}"
-                                Opacity="0"/>
-                    </Grid>
+                    <Border x:Name="Bd"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            Padding="12,10"
+                            Background="{TemplateBinding Background}"
+                            SnapsToDevicePixels="True"
+                            UseLayoutRounding="True">
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Bd" Property="Background"
-                                    Value="{DynamicResource SurfaceElevatedBrush}"/>
-                            <Setter TargetName="Bd" Property="BorderBrush"
-                                    Value="{DynamicResource BorderSubtleBrush}"/>
-                            <Setter TargetName="Bd" Property="BorderThickness" Value="1"/>
+                                    Value="{DynamicResource SurfaceTertiaryBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Bd" Property="Background"
                                     Value="{DynamicResource TintIndigoBrush}"/>
-                            <Setter TargetName="Bd" Property="Opacity" Value="0.95"/>
-                            <Setter TargetName="ActiveBar" Property="Opacity" Value="0.55"/>
                         </Trigger>
                         <Trigger Property="Tag" Value="Active">
-                            <!-- 2026-09-01 touch pass: the active pill used
-                                 GlassSurfaceUltra (~5% alpha) — invisible on
-                                 the frosted rail. Now the real material ramp
-                                 so the current page clearly reads as
-                                 pressed glass, plus the accent bar. -->
                             <Setter TargetName="Bd" Property="Background"
-                                    Value="{DynamicResource Surface.Primary.BackgroundBrush}"/>
-                            <Setter TargetName="Bd" Property="BorderBrush"
-                                    Value="{DynamicResource BorderStrongBrush}"/>
-                            <Setter TargetName="Bd" Property="BorderThickness" Value="1"/>
-                            <Setter TargetName="ActiveBar" Property="Opacity" Value="1"/>
+                                    Value="{DynamicResource AccentBrush}"/>
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource OnAccentForegroundBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <!-- Group caption between rail clusters ("System", "Studio", ...).
+         Collapses itself when a row group carries no caption so ungrouped
+         pages keep the flat rhythm. -->
+    <Style x:Key="SettingsNavGroupHeaderStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"   Value="{DynamicResource FontSize.Caption}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
+        <Setter Property="Margin"     Value="18,16,18,6"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Name, TargetNullValue=''}" Value="">
+                <Setter Property="Visibility" Value="Collapsed"/>
+            </DataTrigger>
+        </Style.Triggers>
     </Style>
 
     <!-- Icon slot in a nav item (Segoe MDL2 Assets glyph).
