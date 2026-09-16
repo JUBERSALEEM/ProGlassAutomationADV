@@ -39,7 +39,7 @@ using System.Windows.Media;
 using System.Windows;
 using System;
 
-namespace ProGlassAutomation.ViewModels.Settings
+namespace ProGlassAutomation.ViewModels.Settings.Pages
 {
     /// <summary>AI Assistant page state: enable/model/params, per-provider
     /// API keys, test + select commands and API-key storage policy.</summary>

@@ -150,6 +150,73 @@ namespace ProGlassAutomation.Tests.Audit
             }
         }
 
+        // ── 6. BUILD-INTEGRITY LOCKS (owner build 2026-09-16) ────────────
+
+        [Fact]
+        public void No_Two_Xaml_Files_Share_An_XClass()
+        {
+            // CS8646 / CS0121 / CS0102: two .xaml files declaring the SAME
+            // x:Class make the markup compiler emit the generated partial
+            // twice (once per obj sub-folder), so Connect() and
+            // InitializeComponent() exist twice and every x:Name field is
+            // duplicated. A stray copy of two settings sections lived under
+            // Themes/Languages and broke the build.
+            var owners = new Dictionary<string, string>();
+            foreach (var file in Directory.EnumerateFiles(
+                         Root(), "*.xaml", SearchOption.AllDirectories))
+            {
+                var rel = Path.GetRelativePath(Root(), file).Replace('\\', '/');
+                // EnumerateFiles(AllDirectories) reaches into the HIDDEN .git
+                // folder on Windows and can throw — never scan it.
+                if (rel.StartsWith(".git/", StringComparison.OrdinalIgnoreCase) ||
+                    rel.Contains("/.git/", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (rel.StartsWith("obj/", StringComparison.OrdinalIgnoreCase) ||
+                    rel.StartsWith("bin/", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                var q = new string((char)34, 1);
+                var m = Regex.Match(File.ReadAllText(file),
+                    "x:Class=" + q + "([^" + q + "]+)" + q);
+                if (!m.Success) continue;
+                Assert.False(owners.TryGetValue(m.Groups[1].Value, out var other),
+                    m.Groups[1].Value + " is declared by both " + other + " and " + rel);
+                owners[m.Groups[1].Value] = rel;
+            }
+        }
+
+        [Fact]
+        public void Language_Pack_Folder_Holds_Only_Resource_Dictionaries()
+        {
+            // Themes/Languages carries the 15 L1 language dictionaries and
+            // nothing else. A UserControl dropped there is compiled as a
+            // second Page for the same x:Class (the stray-copy bug above).
+            var dir = Path.Combine(Root(), "Themes", "Languages");
+            foreach (var file in Directory.EnumerateFiles(dir, "*.xaml"))
+            {
+                var x = File.ReadAllText(file);
+                Assert.DoesNotContain("x:Class", x);
+                Assert.Contains("<ResourceDictionary", x);
+            }
+        }
+
+        [Fact]
+        public void Settings_Page_ViewModels_Live_In_The_Pages_Namespace()
+        {
+            // CS0234: the shell and the section code-behinds qualify the
+            // promoted page VMs as ViewModels.Settings.Pages.*; the seven
+            // files under Pages/ were still declaring the PARENT namespace,
+            // so the qualified name did not exist. Folder == namespace here.
+            var pages = Path.Combine(Root(), "ViewModels", "Settings", "Pages");
+            foreach (var file in Directory.EnumerateFiles(pages, "*.cs"))
+                Assert.Contains("namespace ProGlassAutomation.ViewModels.Settings.Pages",
+                    File.ReadAllText(file));
+
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "ViewModels", "Settings"), "*.cs"))
+                Assert.Contains("namespace ProGlassAutomation.ViewModels.Settings",
+                    File.ReadAllText(file));
+        }
+
         [Fact]
         public void Shell_Helpers_Are_Defined()
         {

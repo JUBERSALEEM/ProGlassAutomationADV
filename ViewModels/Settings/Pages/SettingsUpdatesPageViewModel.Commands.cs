@@ -35,7 +35,7 @@ using System.Windows.Media;
 using System.Windows;
 using System;
 
-namespace ProGlassAutomation.ViewModels.Settings
+namespace ProGlassAutomation.ViewModels.Settings.Pages
 {
     public sealed partial class SettingsUpdatesPageViewModel
     {

@@ -27,7 +27,7 @@ using System.Linq;
 using System.Windows.Input;
 using System;
 
-namespace ProGlassAutomation.ViewModels.Settings
+namespace ProGlassAutomation.ViewModels.Settings.Pages
 {
     /// <summary>Sharing Center page state: providers, defaults, document
     /// rules and message templates. Owned by the shell, scoped to the page.</summary>

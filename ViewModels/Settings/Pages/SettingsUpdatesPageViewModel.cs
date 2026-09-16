@@ -43,7 +43,7 @@ using System.Windows.Media;
 using System.Windows;
 using System;
 
-namespace ProGlassAutomation.ViewModels.Settings
+namespace ProGlassAutomation.ViewModels.Settings.Pages
 {
     /// <summary>Updates page state: OTA state machine projection, release
     /// info, download progress and persisted update history.</summary>

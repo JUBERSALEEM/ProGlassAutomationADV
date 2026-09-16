@@ -37,7 +37,7 @@ using System.Windows.Media;
 using System.Windows;
 using System;
 
-namespace ProGlassAutomation.ViewModels.Settings
+namespace ProGlassAutomation.ViewModels.Settings.Pages
 {
     /// <summary>Voice page state: Whisper model catalog, selection,
     /// download progress and the STT service swap around it.</summary>
