@@ -35,11 +35,28 @@
 //  an anonymous summary; ProductionOptimizationBridge writes "{}"), so parsing
 //  is defensive and a foreign shape yields an empty feed rather than a crash.
 //
-//  STATE
+//  STATE — PROCESS-WIDE BY DESIGN
 //  Current is a cache over a persisted store, refreshed explicitly, and it
 //  always carries a provenance label and a timestamp. That is deliberately NOT
 //  the SpecSheetRegistry anti-pattern, where the static map was the only copy
 //  of the data and a restart silently zeroed it.
+//
+//  It is static because "the latest optimization run" is process-wide truth:
+//  the optimization module is a single global tool, not a per-invoice one, and
+//  this mirrors SpecSheetRegistry and the other static caches in Services.
+//  Two proforma windows would share one snapshot, which is the correct reading
+//  of that fact rather than a leak.
+//
+//  Starting a NEW INVOICE deliberately does NOT clear this. The run still
+//  happened; discarding it would make the feed useless for the common case of
+//  cutting a job and then quoting it. The real hazard — applying one job's
+//  figures to another — is handled by making the source unmistakable instead:
+//  both switches are opt-in, per row, and every figure carries a provenance
+//  label naming the run and when it happened.
+//
+//  Readers never see a torn snapshot: Set swaps an immutable-by-convention list
+//  reference under the gate, so a reader holding the previous reference keeps
+//  enumerating a complete list.
 // ════════════════════════════════════════════════════════════════════════
 
 using System;
@@ -187,6 +204,16 @@ namespace ProGlassAutomation.Services.Optimization
         {
             get { lock (Gate) return _isLive; }
         }
+
+        /// <summary>
+        /// Drops the snapshot and the live flag. Mirrors SpecSheetRegistry.Clear,
+        /// whose documented purpose is likewise "new invoice / test isolation":
+        /// without it, one test that publishes a live run silently changes what
+        /// every later test reads.
+        /// </summary>
+        public static void Reset() =>
+            Set(Array.Empty<OptimizationPaneResult>(),
+                "no optimization run loaded", isLive: false);
 
         /// <summary>
         /// Maps a Step 6 pane onto the two racks the optimization module imports

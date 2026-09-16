@@ -78,7 +78,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
             OptimizationResultFeed.PublishLive(rows, rows.Count == 0
                 ? "live run has no Step 4 pane identity — import the Step 4 sheets on the STOCKS tab to link it to a spec"
                 : string.Format(CultureInfo.InvariantCulture,
-                    "live {0} run · {1} pane row(s)", LastRunStage, rows.Count));
+                    "live {0} run · {1:yyyy-MM-dd HH:mm} · {2} pane row(s)",
+                    LastRunStage, DateTime.Now, rows.Count));
         }
     }
 }

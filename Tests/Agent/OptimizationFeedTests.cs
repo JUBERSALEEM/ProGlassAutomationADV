@@ -422,6 +422,49 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         // ────────────────────────────────────────────────────────────
+        //  4b. THE SNAPSHOT IS PROCESS-WIDE, SO IT MUST BE RESETTABLE
+        // ────────────────────────────────────────────────────────────
+
+        [Fact]
+        public void Publishing_a_live_run_then_resetting_leaves_no_stale_snapshot()
+        {
+            // Reset first: this is shared static state, and a previous test in
+            // another class could have left a snapshot behind.
+            OptimizationResultFeed.Reset();
+            Assert.False(OptimizationResultFeed.HasData);
+            Assert.False(OptimizationResultFeed.IsLive);
+
+            OptimizationResultFeed.PublishLive(new[] { Pane(1, "Outer", sheets: 17) }, "test run");
+
+            Assert.True(OptimizationResultFeed.HasData);
+            Assert.True(OptimizationResultFeed.IsLive);
+            Assert.Equal("test run", OptimizationResultFeed.SourceLabel);
+
+            var hit = OptimizationResultFeed.Find(
+                OptimizationResultFeed.Current, 1, "Outer (W1/H1)");
+            Assert.NotNull(hit);
+            Assert.Equal(17, hit!.SheetQuantity);
+
+            // Without Reset, one test's live run would leak into every later
+            // test that reads Current - and into any invoice opened afterwards.
+            OptimizationResultFeed.Reset();
+
+            Assert.False(OptimizationResultFeed.HasData);
+            Assert.False(OptimizationResultFeed.IsLive);
+            Assert.Empty(OptimizationResultFeed.Current);
+        }
+
+        [Fact]
+        public void A_reset_snapshot_makes_lookups_miss_instead_of_returning_stale_rows()
+        {
+            OptimizationResultFeed.PublishLive(new[] { Pane(3, "Inner", sheets: 9) }, "run");
+            OptimizationResultFeed.Reset();
+
+            Assert.Null(OptimizationResultFeed.Find(
+                OptimizationResultFeed.Current, 3, "Inner (W2/H2)"));
+        }
+
+        // ────────────────────────────────────────────────────────────
         //  5. SOURCE LOCKS — invariants that need a database or a full
         //     wizard to exercise, locked structurally instead.
         // ────────────────────────────────────────────────────────────
