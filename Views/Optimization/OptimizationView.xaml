@@ -54,6 +54,10 @@
                     <Button Content="Run Optimize" Style="{StaticResource PrimaryPillButton}"
                             Command="{Binding RunOptimizeCommand}" IsEnabled="{Binding CanRun}"
                             ToolTip="Multi-start search, effort level 1–5 — best utilization wins"/>
+                    <Button Content="Cancel" Style="{StaticResource OutlinedPillButton}"
+                            Command="{Binding CancelRunCommand}" IsEnabled="{Binding CanCancel}"
+                            Margin="8,0,0,0"
+                            ToolTip="Stop the current run — the engine checks for cancellation once per part"/>
                 </StackPanel>
             </Grid>
 
