@@ -426,25 +426,68 @@ namespace ProGlassAutomation.Tests.Audit
         }
 
         [Fact]
-        public void DataGrid_Column_Headers_Never_Bind_Without_An_Ancestor()
+        public void DataGrid_Column_Properties_Bind_Only_Through_A_Source()
         {
-            // A DataGridColumn is NOT in the visual tree, so it inherits no
-            // DataContext: Header="{Binding X}" silently resolves to nothing
-            // and the column renders with an EMPTY header (the Cutting station
-            // lost its "TOTAL" label; every other station lost "IN"). Column
-            // headers must bind through an ancestor, or be literal.
-            var header = new Regex("Header=\"\\{Binding[^}]*\\}\"");
+            // REPLACES the 2026-09-17 lock
+            // "DataGrid_Column_Headers_Never_Bind_Without_An_Ancestor", which
+            // was WRONG and let the same defect ship twice. It accepted
+            //   Header="{Binding DataContext.InColumnHeader,
+            //           RelativeSource={RelativeSource AncestorType=DataGrid}}"
+            // because the binding "contained RelativeSource". But a
+            // RelativeSource ancestor walk starts at the TARGET object and
+            // climbs its visual/logical parents — and a DataGridColumn lives in
+            // DataGrid.Columns, which is in NEITHER tree. There is no ancestor
+            // to climb, the binding resolved to nothing, the header stayed
+            // EMPTY, and the owner reported the missing Cutting "TOTAL"/qty
+            // column a second time (2026-09-18).
+            //
+            // Only two mechanisms work on a column:
+            //   • HeaderTemplate — instantiated by the DataGridColumnHeader,
+            //     which IS in the visual tree, so RelativeSource resolves there;
+            //   • an explicit Source= (Utilities/BindingProxy, a Freezable that
+            //     inherits the DataGrid's DataContext through WPF's inheritance
+            //     context) for Visibility and friends.
+            // Hence the real invariant: no {Binding …} on a COLUMN-LEVEL
+            // attribute without Source=. Two carve-outs:
+            //   • Binding / DataMemberBinding / ClipboardContentBinding are
+            //     evaluated per CELL, and a cell IS in the visual tree with the
+            //     row item as its DataContext — that is the normal, correct way
+            //     to fill a column (148 sites in this repo);
+            //   • DynamicResource is not tree-bound, so it resolves anywhere
+            //     (that is how the GodViews localise their headers).
+            var column = new Regex("<DataGrid[\\w.]*Column\\b[^>]*>", RegexOptions.Singleline);
+            var attrib = new Regex("(?<name>[\\w.]+)=\"(?<value>[^\"]*)\"", RegexOptions.Singleline);
             var comment = new Regex("<!--.*?-->", RegexOptions.Singleline);
             foreach (var file in Directory.EnumerateFiles(
                          Path.Combine(Root(), "Views"), "*.xaml", SearchOption.AllDirectories))
             {
-                // Strip comments first: the banner comment that DOCUMENTS this
-                // bug quotes the broken markup verbatim.
+                // Strip comments first: the banner comments that DOCUMENT this
+                // bug quote the broken markup verbatim.
                 var markup = comment.Replace(File.ReadAllText(file), string.Empty);
-                foreach (Match m in header.Matches(markup))
-                    Assert.Contains("RelativeSource", m.Value);
+                foreach (Match tag in column.Matches(markup))
+                {
+                    foreach (Match a in attrib.Matches(tag.Value))
+                    {
+                        var name = a.Groups["name"].Value;
+                        var value = a.Groups["value"].Value;
+                        if (!value.Contains("{Binding", StringComparison.Ordinal)) continue;
+                        if (name is "Binding" or "DataMemberBinding" or "ClipboardContentBinding")
+                            continue;   // evaluated per cell — cells ARE in the tree
+                        Assert.True(value.Contains("Source=", StringComparison.Ordinal),
+                            Path.GetFileName(file) + ": " + name + " is a column-level " +
+                            "property, and a binding on it resolves against nothing — the " +
+                            "column is in neither the visual nor the logical tree, and a " +
+                            "RelativeSource walk has no ancestor to climb. Use " +
+                            "HeaderTemplate for header content, or " +
+                            "Source={StaticResource proxy} (Utilities/BindingProxy). " +
+                            "Offender: " + Truncate(value));
+                    }
+                }
             }
         }
+
+        private static string Truncate(string value) =>
+            value.Length <= 90 ? value : value.Substring(0, 90) + "…";
 
         [Fact]
         public void Shell_Helpers_Are_Defined()

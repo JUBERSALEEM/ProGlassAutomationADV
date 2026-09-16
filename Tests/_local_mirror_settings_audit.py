@@ -149,14 +149,32 @@ for f in glob.glob('Views/Reports/**/*.xaml', recursive=True):
             if not bar and 'ReportHeaderTextStyle' in st:
                 fails.append('%s: white header label with no accent bar '
                              '(%s)' % (f, t.getAttribute('Text')[:24]))
+# REPLACED 2026-09-18. The old rule ("a column Header binding must contain
+# RelativeSource") was WRONG and let the defect ship twice: a RelativeSource
+# ancestor walk starts at the binding TARGET and climbs its visual/logical
+# parents, and a DataGridColumn is in NEITHER tree - there is no ancestor to
+# climb. Only HeaderTemplate (instantiated by the DataGridColumnHeader, which
+# IS in the tree) or an explicit Source= (Utilities/BindingProxy) can work.
 for f in glob.glob('Views/**/*.xaml', recursive=True):
-    # comments stripped first: the banner comment that documents this bug
-    # quotes the broken markup verbatim
+    # comments stripped first: the banner comments that document this bug
+    # quote the broken markup verbatim
     markup = re.sub(r'<!--.*?-->', '', open(f, encoding='utf-8').read(), flags=re.S)
-    for m in re.finditer(r'Header="\{Binding[^}]*\}"', markup):
-        if 'RelativeSource' not in m.group(0):
-            fails.append('%s: DataGridColumn header binding without an '
-                         'ancestor (%s)' % (f, m.group(0)[:40]))
+    for tag in re.finditer(r'<DataGrid[\w.]*Column\b[^>]*>', markup, re.S):
+        for a in re.finditer(r'([\w.]+)="([^"]*)"', tag.group(0), re.S):
+            name, value = a.group(1), a.group(2)
+            if '{Binding' not in value:
+                continue
+            # Binding / DataMemberBinding / ClipboardContentBinding are
+            # evaluated per CELL, and a cell IS in the visual tree with the row
+            # item as its DataContext - that is the correct, universal pattern.
+            if name in ('Binding', 'DataMemberBinding', 'ClipboardContentBinding'):
+                continue
+            if 'Source=' not in value:
+                fails.append('%s: %s= is a column-level property and its '
+                             'binding resolves against nothing - the column is '
+                             'in neither the visual nor the logical tree. Use '
+                             'HeaderTemplate or Source={StaticResource proxy} '
+                             '(%s)' % (f, name, value[:48]))
 # ── settings card rhythm == the About module's rhythm ─────────────────
 grammar = open('Views/Settings/SettingsCardStyles.xaml', encoding='utf-8').read()
 for pin in ('<Thickness x:Key="SettingsCardMargin">0,0,0,14</Thickness>',
@@ -258,6 +276,174 @@ for f in glob.glob('Views/**/*.xaml', recursive=True):
             fails.append('%s: an area is rendered as money (%s)'
                          % (f, binding[:64]))
 
+
+# ══════════════════════════════════════════════════════════════════════
+#  WAVE 6 RUNTIME-SEMANTICS MIRRORS
+#  (python twins of Tests/Audit/RuntimeSemanticsAuditTests.cs - shape checks
+#  were green while the app was broken, so these model the consuming engine)
+# ══════════════════════════════════════════════════════════════════════
+from xml.dom import minidom as _md
+
+def _xaml(folder):
+    return [f for f in glob.glob(folder + '/**/*.xaml', recursive=True)
+            if '/obj/' not in f and '/bin/' not in f]
+
+def _kids(e):
+    return [k for k in e.childNodes if k.nodeType == k.ELEMENT_NODE]
+
+def _desc(e):
+    for k in _kids(e):
+        yield k
+        for d in _desc(k):
+            yield d
+
+def _chain(code, at):
+    i, d = at, 0
+    while i < len(code):
+        c = code[i]
+        if c in '([{':
+            d += 1
+        elif c in ')]}':
+            if d == 0:
+                break
+            d -= 1
+        elif c == ';' and d == 0:
+            break
+        i += 1
+    return code[at:i]
+
+# 1. QuestPDF: an AutoItem measures its child with INFINITE width, so a
+#    RelativeItem inside that subtree has no finite space -> "conflicting
+#    size constraints / forward from child" and every export dies.
+for f in glob.glob('Services/ProformaInvoice/**/*.cs', recursive=True) + \
+         glob.glob('Services/Export/**/*.cs', recursive=True):
+    code = _strip(open(f, encoding='utf-8').read())
+    at = code.find('.AutoItem(')
+    while at >= 0:
+        if 'RelativeItem' in _chain(code, at):
+            fails.append('%s: an AutoItem subtree contains a RelativeItem - '
+                         'infinite parent width, no finite space to divide, '
+                         'QuestPDF fails the document' % f)
+        at = code.find('.AutoItem(', at + 1)
+
+# 2. WPF clamps an out-of-range Grid.Row/Column into the LAST track and
+#    paints the child over that track's content (Companies hub overlap).
+for f in _xaml('Views'):
+    try:
+        dom = _md.parse(f)
+    except Exception:
+        continue
+    for g in dom.getElementsByTagName('Grid'):
+        rd = [c for c in _kids(g) if c.localName == 'Grid.RowDefinitions']
+        cd = [c for c in _kids(g) if c.localName == 'Grid.ColumnDefinitions']
+        nr = len([x for x in _kids(rd[0]) if x.localName == 'RowDefinition']) if rd else 0
+        nc = len([x for x in _kids(cd[0]) if x.localName == 'ColumnDefinition']) if cd else 0
+        for k in _kids(g):
+            def _ix(name):
+                v = k.getAttribute(name)
+                return int(v) if v.lstrip('-').isdigit() else -1
+            r, rs = _ix('Grid.Row'), max(1, _ix('Grid.RowSpan'))
+            c, cs = _ix('Grid.Column'), max(1, _ix('Grid.ColumnSpan'))
+            if nr and r >= 0 and r + rs > nr:
+                fails.append('%s: <%s Grid.Row=%d span=%d> exceeds %d row '
+                             'track(s) - WPF clamps it onto the last row' % (f, k.tagName, r, rs, nr))
+            if nc and c >= 0 and c + cs > nc:
+                fails.append('%s: <%s Grid.Column=%d span=%d> exceeds %d '
+                             'column track(s)' % (f, k.tagName, c, cs, nc))
+
+# 3. Option tiles inside a settings card must keep the 14 px card rhythm:
+#    stacked tiles -> SettingsStackGap14; tile grids -> SettingsTileGridMargin
+#    on every child + SettingsTileGridBleed on the grid.
+for f in _xaml('Views/Settings'):
+    try:
+        dom = _md.parse(f)
+    except Exception:
+        continue
+    for tag in ('StackPanel', 'UniformGrid', 'Grid', 'WrapPanel', 'DockPanel'):
+        for e in dom.getElementsByTagName(tag):
+            if tag == 'StackPanel' and e.getAttribute('Orientation') == 'Horizontal':
+                continue
+            touching = sum(1 for k in _kids(e)
+                           if 'SettingsInnerTileStyle' in (k.getAttribute('Style') or '')
+                           and not k.getAttribute('Margin'))
+            if touching >= 2:
+                fails.append('%s: a %s holds %d option tiles with no Margin - '
+                             'they touch' % (f, tag, touching))
+
+# 4. Print.TableHeader is a DARK band in every PdfTheme; its labels must be
+#    the white bold header type the exporter paints (SpecHeaderCell).
+for f in _xaml('Views'):
+    try:
+        dom = _md.parse(f)
+    except Exception:
+        continue
+    for b in dom.getElementsByTagName('Border'):
+        if 'Print.TableHeader' not in (b.getAttribute('Background') or ''):
+            continue
+        for t in b.getElementsByTagName('TextBlock'):
+            if t.getAttribute('Grid.Column') and \
+               'PrintTableHeaderTextStyle' not in (t.getAttribute('Style') or ''):
+                fails.append('%s: a print table-header label is not '
+                             'PrintTableHeaderTextStyle (dark small text on a '
+                             'dark band)' % f)
+
+# 5. A card whose fill equals its stage is invisible: the iOS 26 light ramp
+#    painted every level white and the theme page read as "empty".
+_ios = open('Services/Theme/VisualThemeEngine.Ios26.cs', encoding='utf-8').read()
+_at = _ios.index('Ios26GlobalLight()')
+_tbl = _chain(_ios, _ios.index('{', _at))
+def _rgb(key):
+    m = re.search(r'\["' + re.escape(key) + r'"\]\s*=\s*Ios26\w+\([^"#]*"#([0-9A-Fa-f]{6,8})"', _tbl)
+    return m.group(1)[-6:].upper() if m else None
+_stage = _rgb('WindowBackgroundBrush') or _rgb('ModuleBackgroundBrush')
+_card = _rgb('Surface.Primary.BackgroundBrush')
+if _stage and _card and _stage == _card:
+    fails.append('iOS26 light: stage %s == card %s - a card that equals its '
+                 'stage has no boundary and the theme reads as empty' % (_stage, _card))
+_mb = re.search(r'\["Surface.Primary.BorderBrush"\]\s*=\s*Ios26\w+\([^"#]*"#([0-9A-Fa-f]{8})"', _tbl)
+if _mb and int(_mb.group(1)[:2], 16) < 0x1A:
+    fails.append('iOS26 light: Surface.Primary.BorderBrush alpha %s is below '
+                 '10%% - an invisible card edge' % _mb.group(1)[:2])
+
+# 6. Report hubs that speak the Proforma header grammar must speak it on
+#    EVERY table header (a header = a grid whose column widths match the row
+#    template underneath and whose cells are labels, not bindings).
+for f in _xaml('Views/Reports'):
+    txt = open(f, encoding='utf-8').read()
+    if 'ReportTableHeaderStyle' not in txt:
+        continue          # wizard steps / PI wizard use their own language
+    try:
+        dom = _md.parse(f)
+    except Exception:
+        continue
+    groups = {}
+    for g in dom.getElementsByTagName('Grid'):
+        cds = [c for c in _kids(g) if c.localName == 'Grid.ColumnDefinitions']
+        if not cds:
+            continue
+        widths = [c.getAttribute('Width') for c in _kids(cds[0]) if c.localName == 'ColumnDefinition']
+        if len(widths) < 3:
+            continue
+        labels = [t for t in _desc(g) if t.localName == 'TextBlock' and t.getAttribute('Grid.Column')]
+        if len(labels) < 3:
+            continue
+        groups.setdefault('|'.join(widths), []).append((g, labels))
+    for sig, members in groups.items():
+        if len(members) < 2:
+            continue
+        for g, labels in members:
+            if any('{Binding' in (t.getAttribute('Text') or '') for t in labels):
+                continue
+            par = g.parentNode
+            bar = par is not None and par.nodeType == par.ELEMENT_NODE and \
+                'ReportTableHeaderStyle' in (par.getAttribute('Style') or '')
+            if not bar:
+                fails.append('%s: a %d-column table header has no '
+                             'ReportTableHeaderStyle bar (not the Proforma hub '
+                             'type)' % (f, len(labels)))
+            elif not all('ReportHeaderTextStyle' in (t.getAttribute('Style') or '') for t in labels):
+                fails.append('%s: table-header labels are not all '
+                             'ReportHeaderTextStyle' % f)
 
 print('MIRROR FAIL: ' + '; '.join(fails) if fails else 'MIRROR PASS (all file-level locks)')
 sys.exit(1 if fails else 0)
