@@ -233,7 +233,7 @@
                             <TextBlock Grid.Column="5" Text="{DynamicResource Common.Status}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
                             <TextBlock Grid.Column="6" Text="{DynamicResource Reports.PiReport.PIAmount}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
                             <TextBlock Grid.Column="7" Text="{DynamicResource Reports.JoReport.QTYSQM}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
-                            <TextBlock Grid.Column="8" Text="{DynamicResource Reports.PiReport.ROWS}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="8" Text="{DynamicResource Reports.PiReport.ROWS}" HorizontalAlignment="Center" Style="{StaticResource ReportHeaderTextStyle}"/>
                         </Grid>
                     </Border>
 

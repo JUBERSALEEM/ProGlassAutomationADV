@@ -375,7 +375,8 @@
                     </Grid.RowDefinitions>
 
                     <!-- Table header -->
-                    <Border Grid.Row="0">
+                    <Border Grid.Row="0"
+                    Style="{StaticResource ReportTableHeaderStyle}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="44"/>

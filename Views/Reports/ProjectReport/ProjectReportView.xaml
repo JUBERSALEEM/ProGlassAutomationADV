@@ -171,14 +171,14 @@
                             <ColumnDefinition Width="1.0*"/>
                             <ColumnDefinition Width="32"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="PROJECT"/>
-                        <TextBlock Grid.Column="1" Text="CUSTOMER"/>
-                        <TextBlock Grid.Column="2" Text="PIs" HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="3" Text="TIs" HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="4" Text="PI VALUE" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="5" Text="INVOICED" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="6" Text="OUTSTANDING" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="7" Text=""/>
+                        <TextBlock Grid.Column="0" Text="PROJECT" Style="{StaticResource ReportHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="1" Text="CUSTOMER" Style="{StaticResource ReportHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="2" Text="PIs" HorizontalAlignment="Center" Style="{StaticResource ReportHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="3" Text="TIs" HorizontalAlignment="Center" Style="{StaticResource ReportHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="4" Text="PI VALUE" HorizontalAlignment="Right" Style="{StaticResource ReportHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="5" Text="INVOICED" HorizontalAlignment="Right" Style="{StaticResource ReportHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="6" Text="OUTSTANDING" HorizontalAlignment="Right" Style="{StaticResource ReportHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="7" Text="" Style="{StaticResource ReportHeaderTextStyle}"/>
                     </Grid>
                 </Border>
 

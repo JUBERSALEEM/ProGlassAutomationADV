@@ -364,6 +364,67 @@ namespace ProGlassAutomation.Tests.Audit
 
         private const string XamlNs = "http://schemas.microsoft.com/winfx/2006/xaml";
 
+        // ── 8. REPORTS TABLE-HEADER GRAMMAR (owner build 2026-09-17) ─────
+
+        [Fact]
+        public void Report_Header_Bars_Pair_The_Accent_Background_With_White_Labels()
+        {
+            // The Proforma hub is the reference: an accent header bar
+            // (ReportTableHeaderStyle) whose column labels all carry
+            // ReportHeaderTextStyle (bold white). Half-applied, the header is
+            // unreadable in BOTH directions:
+            //   · white labels with no accent bar → white on the page
+            //     background (Delivery + GlassSpec: "column background color
+            //     is missing and white text is getting hidden")
+            //   · accent bar with unstyled labels → default dark ink on the
+            //     accent fill (Company / Customer / Project / Profitability)
+            var doc = new System.Xml.XmlDocument();
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "Views", "Reports"), "*.xaml",
+                         SearchOption.AllDirectories))
+            {
+                doc.Load(file);
+                foreach (System.Xml.XmlElement border in doc.GetElementsByTagName("Border"))
+                {
+                    // Only a bar whose DIRECT child is the column Grid counts —
+                    // otherwise the page-level Border that wraps the whole hub
+                    // would be judged for a header it merely contains.
+                    System.Xml.XmlElement? grid = null;
+                    foreach (System.Xml.XmlNode kid in border.ChildNodes)
+                        if (kid.NodeType == System.Xml.XmlNodeType.Element &&
+                            kid.Name == "Grid")
+                        {
+                            var g = (System.Xml.XmlElement)kid;
+                            foreach (System.Xml.XmlNode gk in g.ChildNodes)
+                                if (gk.NodeType == System.Xml.XmlNodeType.Element &&
+                                    gk.Name == "Grid.ColumnDefinitions") { grid = g; break; }
+                        }
+                    if (grid == null) continue;
+
+                    var style = border.GetAttribute("Style");
+                    bool bar = style.Contains("ReportTableHeaderStyle");
+                    var labels = new List<System.Xml.XmlElement>();
+                    foreach (System.Xml.XmlElement tb in grid.GetElementsByTagName("TextBlock"))
+                        if (tb.HasAttribute("Grid.Column")) labels.Add(tb);
+                    if (labels.Count < 3) continue;        // not a column header
+
+                    if (bar)
+                    {
+                        // Accent bar: EVERY column label must be white/bold.
+                        foreach (var label in labels)
+                            Assert.Contains("ReportHeaderTextStyle", label.GetAttribute("Style"));
+                    }
+                    else
+                    {
+                        // No accent bar: no label may be white, or it is
+                        // invisible on the page background.
+                        foreach (var label in labels)
+                            Assert.DoesNotContain("ReportHeaderTextStyle", label.GetAttribute("Style"));
+                    }
+                }
+            }
+        }
+
         [Fact]
         public void DataGrid_Column_Headers_Never_Bind_Without_An_Ancestor()
         {
