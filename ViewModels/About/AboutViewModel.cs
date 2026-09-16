@@ -261,21 +261,41 @@ public sealed class AboutViewModel : ViewModelBase
     // ══════════════════════════════════════════════════════════════════
 
     /// <summary>
-    /// Left rail navigation labels (2026-09-15, approved iOS-26
-    /// redesign). Each tab maps to a separate section in
-    /// Views/About/Sections, so a section can be edited on its own.
-    /// System + Diagnostics are real data screens (live OS / encoder
-    /// probe / crash report sources) — nothing mocked.
+    /// Left rail navigation (2026-09-15, approved iOS-26 redesign). Each tab
+    /// maps to a separate section in Views/About/Sections, so a section can be
+    /// edited on its own. System + Diagnostics are real data screens (live OS /
+    /// encoder probe / crash report sources) — nothing mocked.
+    ///
+    /// 2026-09-16 — was <c>IReadOnlyList&lt;string&gt;</c>, and the rail template
+    /// chose each row's icon with five <c>DataTrigger</c>s that string-matched
+    /// the VISIBLE CAPTION against literals ("License", "Modules", ...) over a
+    /// default of E80F. That couples an icon to display text: rename a tab,
+    /// reorder the rail, or localise the caption and the trigger silently stops
+    /// matching, the row falls through to the default, and every affected item
+    /// renders the SAME home glyph with no error anywhere — which is the
+    /// "all the menu icons are identical" report. Carrying the glyph on the
+    /// item makes the pairing explicit and impossible to desync.
+    ///
+    /// The glyph codepoints are unchanged from the old triggers, so this is a
+    /// robustness fix rather than a redesign.
     /// </summary>
-    public IReadOnlyList<string> Tabs { get; } = new[]
+    public IReadOnlyList<AboutTab> TabItems { get; } = new[]
     {
-        "Overview",
-        "License",
-        "Modules",
-        "Developer",
-        "System",
-        "Diagnostics"
+        new AboutTab("Overview",    "\uE80F"),
+        new AboutTab("License",     "\uE72E"),
+        new AboutTab("Modules",     "\uE80A"),
+        new AboutTab("Developer",   "\uE90A"),
+        new AboutTab("System",      "\uE713"),
+        new AboutTab("Diagnostics", "\uE9A9"),
     };
+
+    /// <summary>Tab captions alone. <see cref="CurrentTabTitle"/> and the audit
+    /// contract (AboutModuleAuditTests asserts on <c>Tabs.Count</c>) both read
+    /// it, so it stays — but it is DERIVED from <see cref="TabItems"/> rather
+    /// than written out twice. Initializers run in declaration order, so
+    /// TabItems is already populated here.</summary>
+    public IReadOnlyList<string> Tabs { get; } =
+        TabItems.Select(t => t.Label).ToList();
 
     /// <summary>
     /// Large page title shown above the content (2026-09-15 Part 1
@@ -781,6 +801,11 @@ public sealed class ModuleInfo : INotifyPropertyChanged
 /// Single row in the Technology Stack card.
 /// Icon + uppercase label + value string.
 /// </summary>
+/// <summary>One About rail tab: its caption and its Segoe MDL2 glyph.
+/// Binding Glyph straight off the item replaces five caption-matching
+/// DataTriggers in AboutView.xaml — see <c>AboutViewModel.TabItems</c>.</summary>
+public sealed record AboutTab(string Label, string Glyph);
+
 public sealed record TechItem(string Icon, string Label, string Value);
 
 /// <summary>

@@ -190,7 +190,9 @@
 
                     <!-- Nav list (Overview / License / Modules /
                          Developer / System / Diagnostics) -->
-                    <ListBox ItemsSource="{Binding Tabs}"
+                    <!-- ItemsSource is TabItems (caption + glyph), not the bare captions;
+                         the icon rides on the item instead of being matched from it. -->
+                    <ListBox ItemsSource="{Binding TabItems}"
                              SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
                              Background="Transparent"
                              BorderThickness="0"
@@ -220,17 +222,25 @@
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
+                                                    <!-- Glyph binds off the AboutTab item — no caption matching and
+                                                         no shared fall-through default. -->
                                                     <TextBlock x:Name="RailIcon"
                                                                Grid.Column="0"
                                                                FontFamily="{DynamicResource FontFamily.Icon}"
-                                                               Text="&#xE80F;"
+                                                               Text="{Binding Glyph}"
                                                                FontSize="{DynamicResource Ios26FontSizeCardTitleSm}"
                                                                Foreground="{DynamicResource Ios26TextSecondaryBrush}"
                                                                VerticalAlignment="Center"
                                                                Margin="0,1,12,0"
                                                                IsHitTestVisible="False"/>
-                                                    <ContentPresenter Grid.Column="1"
-                                                                      VerticalAlignment="Center"/>
+                                                    <!-- Was a ContentPresenter. Items are AboutTab records now, so
+                                                         bind the caption explicitly — a ContentPresenter would print
+                                                         the record's ToString. Inherits Foreground / FontSize /
+                                                         FontWeight from the ListBoxItem, including the IsSelected
+                                                         trigger, exactly as the ContentPresenter did. -->
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="{Binding Label}"
+                                                               VerticalAlignment="Center"/>
                                                     <!-- "ACTIVE" chip —
                                                          visible on the
                                                          selected pill
@@ -252,24 +262,10 @@
                                                 </Grid>
                                             </Border>
                                             <ControlTemplate.Triggers>
-                                                <!-- Default glyph E80F (home)
-                                                     = Overview; the other
-                                                     labels swap it. -->
-                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content}" Value="License">
-                                                    <Setter TargetName="RailIcon" Property="Text" Value="&#xE72E;"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content}" Value="Modules">
-                                                    <Setter TargetName="RailIcon" Property="Text" Value="&#xE80A;"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content}" Value="Developer">
-                                                    <Setter TargetName="RailIcon" Property="Text" Value="&#xE90A;"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content}" Value="System">
-                                                    <Setter TargetName="RailIcon" Property="Text" Value="&#xE713;"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content}" Value="Diagnostics">
-                                                    <Setter TargetName="RailIcon" Property="Text" Value="&#xE9A9;"/>
-                                                </DataTrigger>
+                                                <!-- The five caption-matching DataTriggers that used to sit here are
+                                                     gone: RailIcon binds Glyph straight off the AboutTab item, so an
+                                                     icon can no longer fall through to a shared default when a caption
+                                                     is renamed, reordered or localised. -->
                                                 <Trigger Property="IsMouseOver" Value="True">
                                                     <Setter TargetName="RailBg" Property="Background" Value="{DynamicResource Ios26HoverBrush}"/>
                                                 </Trigger>
