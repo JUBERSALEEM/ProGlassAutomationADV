@@ -122,5 +122,126 @@ for f in glob.glob('Views/**/*.xaml', recursive=True):
         if loose and keyless:
             fails.append('%s: <%s> mixes keyed entries with a keyless '
                          'ResourceDictionary (XDG0046)' % (f, res.tagName))
+# ── reports table-header grammar + DataGrid column-header bindings ──────
+for f in glob.glob('Views/Reports/**/*.xaml', recursive=True):
+    dom = minidom.parse(f)
+    for border in dom.getElementsByTagName('Border'):
+        grid = None
+        for kid in border.childNodes:
+            if kid.nodeType == kid.ELEMENT_NODE and kid.tagName == 'Grid':
+                for gk in kid.childNodes:
+                    if (gk.nodeType == gk.ELEMENT_NODE and
+                            gk.tagName == 'Grid.ColumnDefinitions'):
+                        grid = kid
+                        break
+        if grid is None:
+            continue
+        bar = 'ReportTableHeaderStyle' in (border.getAttribute('Style') or '')
+        labels = [t for t in grid.getElementsByTagName('TextBlock')
+                  if t.getAttribute('Grid.Column')]
+        if len(labels) < 3:
+            continue
+        for t in labels:
+            st = t.getAttribute('Style') or ''
+            if bar and 'ReportHeaderTextStyle' not in st:
+                fails.append('%s: accent header bar with an unstyled label '
+                             '(%s)' % (f, t.getAttribute('Text')[:24]))
+            if not bar and 'ReportHeaderTextStyle' in st:
+                fails.append('%s: white header label with no accent bar '
+                             '(%s)' % (f, t.getAttribute('Text')[:24]))
+for f in glob.glob('Views/**/*.xaml', recursive=True):
+    # comments stripped first: the banner comment that documents this bug
+    # quotes the broken markup verbatim
+    markup = re.sub(r'<!--.*?-->', '', open(f, encoding='utf-8').read(), flags=re.S)
+    for m in re.finditer(r'Header="\{Binding[^}]*\}"', markup):
+        if 'RelativeSource' not in m.group(0):
+            fails.append('%s: DataGridColumn header binding without an '
+                         'ancestor (%s)' % (f, m.group(0)[:40]))
+# ── settings card rhythm == the About module's rhythm ─────────────────
+grammar = open('Views/Settings/SettingsCardStyles.xaml', encoding='utf-8').read()
+for pin in ('<Thickness x:Key="SettingsCardMargin">0,0,0,14</Thickness>',
+            '<sys:Double x:Key="SettingsGapCard">14</sys:Double>',
+            '<Thickness x:Key="SettingsCardPadding">22,20</Thickness>',
+            '<Thickness x:Key="SettingsPagePadding">24,20,24,24</Thickness>'):
+    if pin not in grammar:
+        fails.append('SettingsCardStyles.xaml: lost the About-benchmark '
+                     'spacing token ' + pin)
+# the benchmark itself must not move silently under the settings module
+about = open('Views/About/AboutIos26Theme.xaml', encoding='utf-8').read()
+if '<Setter Property="Padding" Value="22,20"/>' not in about:
+    fails.append('AboutIos26Theme.xaml: Ios26CardStyle padding is no longer '
+                 '22,20 - re-benchmark SettingsCardPadding')
+
+# ── Proforma Step 7: preview grid + PDF columns stay possible ─────────
+pi = open('Views/ProformaInvoice/Step7PrintPreview/PrintableInvoice/'
+          'PrintableInvoiceView.xaml', encoding='utf-8').read()
+pi_dom = minidom.parseString(pi)
+spec_grids = [g for g in pi_dom.getElementsByTagName('Grid')
+              if len(g.getElementsByTagName('ColumnDefinition')) == 11]
+if len(spec_grids) < 3:
+    fails.append('PrintableInvoiceView: expected the header, data-row and '
+                 'sub-total grids (11 columns each), found %d'
+                 % len(spec_grids))
+sigs = set()
+for g in spec_grids:
+    sig = tuple(c.getAttribute('Width') for c in
+                g.getElementsByTagName('ColumnDefinition'))
+    sigs.add(sig)
+    # a fixed-pixel money/description column is what starved the identity
+    # columns on a narrow paper
+    for idx in (1, 6, 7, 8, 9, 10):
+        if not sig[idx].endswith('*'):
+            fails.append('PrintableInvoiceView: spec column %d is fixed '
+                         '(%s) - it cannot shrink with the paper'
+                         % (idx, sig[idx]))
+if len(sigs) > 1:
+    fails.append('PrintableInvoiceView: header/rows/sub-total use %d '
+                 'different column sets - the totals cannot line up'
+                 % len(sigs))
+# rows show bare digits; the column header carries "(AED)"
+for m in re.finditer(r'Text="\{Binding (?:Rate|Value|FooterTotalValue)[^"]*\}"', pi):
+    if 'ConverterParameter=number' not in m.group(0):
+        fails.append('PrintableInvoiceView: amount row still renders the '
+                     'currency token (%s)' % m.group(0)[:52])
+conv = open('Converters/CurrencyDisplayConverter.cs', encoding='utf-8').read()
+if '"number" => svc.Digits(amount)' not in conv:
+    fails.append('CurrencyDisplayConverter: the "number" mode is gone')
+if 'public string Digits(decimal baseAmount)' not in \
+        open('Services/Localization/CurrencyService.cs', encoding='utf-8').read():
+    fails.append('CurrencyService: Digits() is gone')
+
+rend = open('Services/ProformaInvoice/Export/PiPreviewParityRenderer.cs',
+            encoding='utf-8').read()
+if 'private static float Widest(' not in rend:
+    fails.append('PiPreviewParityRenderer: header-aware column fit is gone')
+for token in ('PiStr.ColRate', 'PiStr.ColValue', 'PiStr.ColGlassRef'):
+    body = rend[rend.index('private static void DefineSpecColumns'):]
+    if token not in body.split('private static float MinNumericColumn')[0]:
+        fails.append('PiPreviewParityRenderer: %s is not measured into its '
+                     'column width - the header can overflow and QuestPDF '
+                     'fails the whole export' % token)
+if 'MoneyBare(row.Rate)' not in rend or 'MoneyBare(row.Total)' not in rend:
+    fails.append('PiPreviewParityRenderer: spec rows are back to Money() - '
+                 'preview and PDF drift on the currency token')
+if 'float room = Math.Max(availablePt - refMin, sum * 0.5f);' not in rend:
+    fails.append('PiPreviewParityRenderer: the unconditional width clamp is '
+                 'gone - conflicting-size-constraints can return')
+
+# ── Step 7 exports carry the currency in the HEADER, not on every row ──
+pdf_layout = open('Services/ProformaInvoice/Export/ProformaInvoicePdfLayout.cs',
+                  encoding='utf-8').read()
+if re.search(r'RateLabel = \$"AED ', pdf_layout):
+    fails.append('ProformaInvoicePdfLayout: charge RateLabel hard-codes "AED " '
+                 'next to the renderer\'s own "Rate:" label')
+xl = open('Services/ProformaInvoice/Export/ProformaInvoiceExcelLayout.cs',
+          encoding='utf-8').read()
+if 'string Qty, decimal Rate, decimal Amount' not in xl:
+    fails.append('ProformaInvoiceExcelLayout: the charges Rate column is text '
+                 'again - "(AED)" header + "AED " cell, and Excel cannot sum it')
+if re.search(r'\$"AED \{[cw]\.Rate:N2\}', xl):
+    fails.append('ProformaInvoiceExcelLayout: a charge rate cell still carries '
+                 'the currency token')
+
+
 print('MIRROR FAIL: ' + '; '.join(fails) if fails else 'MIRROR PASS (all file-level locks)')
 sys.exit(1 if fails else 0)
