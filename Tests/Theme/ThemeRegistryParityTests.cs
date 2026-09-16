@@ -20,8 +20,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using ProGlassAutomation.Services.Theme;
 using Xunit;
 
@@ -38,6 +40,14 @@ namespace ProGlassAutomation.Tests.Theme
         {
             VisualThemeEngine.NormalIndustrial,
             VisualThemeEngine.Monet,
+            // 2026-09-16: the comment above this array has named four
+            // families since 2026-09-13, but the array listed two — so
+            // SceneCatalogue_CoversEveryFamily_Exactly was passing while
+            // BuiltinWallpaperScenes.All covered half the picker. That silent
+            // half-coverage is why two dropdown rows advertised the wrong
+            // wallpaper scene. The array now matches its own documentation.
+            VisualThemeEngine.CrystalFluid,
+            VisualThemeEngine.Ios26,
         };
 
         // ── F-01: the managed-key contract ──────────────────────────────
@@ -188,6 +198,85 @@ namespace ProGlassAutomation.Tests.Theme
             // never returns null).
             foreach (var family in AllFamilies)
                 Assert.NotNull(BuiltinWallpaperScenes.For(family));
+        }
+
+        // ── the dropdown must offer exactly the catalogued families ──────
+
+        // 2026-09-16. The defect this pins: VisualThemeOptionRow seeds
+        // `string scene = "Studio"` and then looks the family up in
+        // BuiltinWallpaperScenes.All. A family the picker offers but the
+        // catalogue omits does not fail — it silently advertises another
+        // family's wallpaper. Two of four rows were wrong that way, and
+        // every existing test was green, because the catalogue and the
+        // picker were each internally consistent and never compared.
+        [Fact]
+        public void ThemeDropdown_OffersExactlyTheCataloguedFamilies()
+        {
+            string vm = Read(
+                "ViewModels/Settings/SettingsViewModel.ThemeWallpaper.cs");
+            int start = vm.IndexOf("VisualThemeOptions", StringComparison.Ordinal);
+            Assert.True(start >= 0, "VisualThemeOptions is gone from the VM");
+            int end = vm.IndexOf("};", start, StringComparison.Ordinal);
+            Assert.True(end > start, "cannot bound the VisualThemeOptions list");
+
+            var offered = Regex.Matches(vm.Substring(start, end - start),
+                    @"new\(\s*(?:[\w\.]*\.)?VisualThemeEngine\.(\w+)\s*\)")
+                .Cast<Match>()
+                .Select(m => ConstValue(m.Groups[1].Value))
+                .ToList();
+
+            Assert.Equal(
+                AllFamilies.OrderBy(k => k, StringComparer.Ordinal),
+                offered.OrderBy(k => k, StringComparer.Ordinal));
+
+            // ...and every offered row resolves to a catalogued scene, so the
+            // "Studio" fallback can never fire again.
+            var catalogued = BuiltinWallpaperScenes.All
+                .Select(row => row.Key)
+                .ToHashSet(StringComparer.Ordinal);
+            foreach (var family in offered)
+                Assert.Contains(family, catalogued);
+        }
+
+        [Fact]
+        public void SceneLabel_IsNeverTheFamilyDisplayName()
+        {
+            // The catalogue's own contract: "scene labels differ from the
+            // family display names so the theme picker never reads X — X".
+            // It was documented and never enforced.
+            foreach (var (key, label) in BuiltinWallpaperScenes.All)
+            {
+                Assert.False(string.IsNullOrWhiteSpace(label),
+                    "empty scene label for " + key);
+                Assert.NotEqual(VisualThemeEngine.FamilyDisplayName(key), label);
+                Assert.NotEqual(key, label);
+            }
+        }
+
+        private static string ConstValue(string name)
+        {
+            var field = typeof(VisualThemeEngine).GetField(
+                name, BindingFlags.Public | BindingFlags.Static);
+            Assert.NotNull(field);
+            return (string)field!.GetRawConstantValue()!;
+        }
+
+        private static string Read(string relativePath)
+        {
+            var dir = new DirectoryInfo(AppContext.BaseDirectory);
+            while (dir != null)
+            {
+                string probe = Path.Combine(dir.FullName, relativePath
+                    .Replace('/', Path.DirectorySeparatorChar));
+                if (File.Exists(probe)) return File.ReadAllText(probe);
+                if (File.Exists(Path.Combine(
+                        dir.FullName, "ProGlassAutomation.csproj")))
+                    break;
+                dir = dir.Parent;
+            }
+
+            throw new FileNotFoundException(
+                "could not locate " + relativePath + " from the test runner");
         }
     }
 }

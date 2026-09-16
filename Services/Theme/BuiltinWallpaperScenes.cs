@@ -52,6 +52,21 @@ namespace ProGlassAutomation.Services.Theme
             // over its flat slate stage.
             (VisualThemeEngine.NormalIndustrial, "Studio"),
             (VisualThemeEngine.Monet,            "Golden Hour"),
+            // 2026-09-16 — the theme dropdown read "— Studio" for two of its
+            // four rows. SettingsViewModel.VisualThemeOptions offers four
+            // families, this catalogue listed two, and VisualThemeOptionRow
+            // seeds `string scene = "Studio"` before the lookup — so the miss
+            // was silent: Crystal Fluid and iOS 26 both advertised the
+            // Industrial scene while For() actually paints CrystalFluidScene
+            // for them. The row is the only place the owner can see which
+            // wallpaper a family ships, so a wrong label is worse than none.
+            // Labels obey the rule documented above — never the family display
+            // name ("iPhone 17 Pro Max", "iOS 26") — so no row can read
+            // "X — X". Both families carry ONE label because For() returns the
+            // very same brush for both: one scene, two families, stated
+            // honestly instead of inventing a second name for identical stops.
+            (VisualThemeEngine.CrystalFluid,     "Luminous Water"),
+            (VisualThemeEngine.Ios26,            "Luminous Water"),
         };
 
         /// <summary>Draws the scene for a family. Unknown/empty family →
