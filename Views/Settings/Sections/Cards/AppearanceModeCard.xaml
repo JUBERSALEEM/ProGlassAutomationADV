@@ -28,7 +28,7 @@
                              VM holds the persisted token ("Light"/"Dark") and the
                              labels stay in the language files. -->
                         <ListBox Style="{StaticResource SettingsSegmentTrackStyle}"
-                        AutomationProperties.Name="{DynamicResource Settings.MotionPerformance}"
+                        AutomationProperties.Name="{DynamicResource Settings.Mode}"
                                  SelectedValuePath="Tag"
                                  SelectedValue="{Binding ThemeMode, Mode=TwoWay}"
                                  AutomationProperties.AutomationId="Settings.ThemeMode">

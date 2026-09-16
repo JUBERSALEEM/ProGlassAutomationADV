@@ -18,7 +18,8 @@
      parked in CrystalFluidSettings — no fake controls.
      Bindings target SettingsViewModel (DataContext flows from shell).
 ═══════════════════════════════════════════════════════════════════ -->
-<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsThemesSection"
+<UserControl
+             xmlns:cards="clr-namespace:ProGlassAutomation.Views.Settings.Sections.Cards" x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsThemesSection"
              xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -361,6 +362,16 @@
                     </Border>
 
                 </StackPanel>
+
+                <!-- ═══ CARD — MODULE WALLPAPERS ═══
+                     Family-independent, so it belongs on the Theme Engine page in
+                     EVERY family, not only while Crystal Fluid is active. Without
+                     it a non-crystal family left this page as one picker plus a
+                     one-line hint — the page read as empty (owner report
+                     2026-09-16). Same control as the Appearance page; both bind the
+                     one shared ModuleWallpaperRows source, so a change on either
+                     page is reflected on the other. -->
+                <cards:AppearanceWallpapersCard/>
 
                 <!-- ═══ GROUP: CRYSTAL INACTIVE HINT (Normal/Monet only) ═══ -->
                 <Border Style="{StaticResource SettingsPageCardStyle}"

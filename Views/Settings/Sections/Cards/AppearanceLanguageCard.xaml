@@ -110,7 +110,7 @@
                                            Text="{DynamicResource Settings.ReducedMotionTip}"
                                            TextWrapping="Wrap"/>
                                 <CheckBox AutomationProperties.AutomationId="Settings.ReducedMotion"
-                                AutomationProperties.Name="{DynamicResource Settings.ModuleWallpapers}"
+                                AutomationProperties.Name="{DynamicResource Settings.ReducedMotion}"
                                           Content="{DynamicResource Settings.ReducedMotion}"
                                           IsChecked="{Binding ReducedMotion, Mode=TwoWay}"
                                           Margin="{StaticResource SettingsStackGap8}"/>
@@ -308,7 +308,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel VerticalAlignment="Center">
                                         <CheckBox Content="{DynamicResource Settings.LblAutoDetect}"
-                                        AutomationProperties.Name="{DynamicResource Settings.ModuleWallpapers}"
+                                        AutomationProperties.Name="{DynamicResource Settings.LblAutoDetect}"
                                                   IsChecked="{Binding AutoSuggestByRegion, Mode=TwoWay}"
                                                   FontSize="{DynamicResource FontSize.Body}"
                                                   Foreground="{DynamicResource TextPrimaryBrush}"

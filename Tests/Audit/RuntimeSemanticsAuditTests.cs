@@ -30,6 +30,13 @@
 //     is unreadable and drifts from the exporter, which paints white bold.
 //   • Option tiles inside a settings card touched each other because a
 //     UniformGrid has no gap property and nobody gave the children one.
+//   • A right-only child margin (SettingsTrailingGap = 0,0,12,0) separates
+//     COLUMNS but leaves consecutive ROWS of tiles touching, so a lock that
+//     only asks "does this child have a Margin?" reports green on a page the
+//     owner can see is cramped. The gutter lock now checks both axes.
+//   • A copy-pasted AutomationProperties.Name announces the wrong control
+//     ("Motion & Performance" on the Light/Dark segment). Everything
+//     structural is fine; only the NAME-to-control relationship is wrong.
 //
 //   All checks are source scans — no WPF Application, no QuestPDF render.
 // ═══════════════════════════════════════════════════════════════════════
@@ -144,19 +151,57 @@ namespace ProGlassAutomation.Tests.Audit
             //     reproduces the 14 px card rhythm on both axes while keeping
             //     the outer edges flush with the card content box.
             // Eight containers violated this; the lock keeps them fixed.
+            //
+            // 2026-09-16 UPGRADE — this check used to count only children whose
+            // Margin attribute was EMPTY, and to recognise a tile solely by
+            // SettingsInnerTileStyle. Both were false clearances. Eleven grids
+            // (including all three of Features → Proforma Invoice, which the
+            // owner reported as "features cards inside proforma invoice too
+            // close") gave every child SettingsTrailingGap = 0,0,12,0 — a
+            // RIGHT-ONLY gap. The attribute was non-empty, so nothing was
+            // counted and the lock stayed green while the second and third ROW
+            // of tiles touched with zero vertical gutter. The tile UserControl
+            // wrappers (cards:…Tile) were invisible to it too. The lock now
+            // models the geometry it claims to protect: a tile grid must use the
+            // pair scheme, the only form that separates tiles on BOTH axes.
             foreach (var file in XamlFiles(Path.Combine("Views", "Settings")))
             {
                 var doc = TryLoad(file);
                 if (doc == null) continue;
-                foreach (var container in new[] { "StackPanel", "UniformGrid", "Grid", "WrapPanel", "DockPanel" })
+
+                foreach (XmlElement grid in doc.GetElementsByTagName("UniformGrid"))
+                {
+                    var kids = Children(grid).ToList();
+                    if (kids.Count(IsOptionTile) < 2) continue;
+
+                    string gridMargin = grid.GetAttribute("Margin");
+                    Assert.True(gridMargin.Contains("SettingsTileGridBleed", StringComparison.Ordinal),
+                        Path.GetFileName(file) + ": a " + kids.Count + "-tile UniformGrid carries " +
+                        "Margin=\"" + Truncate(gridMargin) + "\" instead of a " +
+                        "SettingsTileGridBleed* token, so the children's 7,7 margins " +
+                        "are not cancelled at the outer edges and the grid drifts " +
+                        "inside the card.");
+
+                    foreach (var kid in kids)
+                    {
+                        string margin = kid.GetAttribute("Margin");
+                        Assert.True(margin == "{StaticResource SettingsTileGridMargin}",
+                            Path.GetFileName(file) + ": tile-grid child <" + kid.LocalName +
+                            "> has Margin=\"" + Truncate(margin) + "\". A right-only gap " +
+                            "(SettingsTrailingGap) or a literal separates columns but " +
+                            "leaves the next ROW of tiles touching. Every child of a " +
+                            "tile grid needs SettingsTileGridMargin (7,7), which the " +
+                            "grid's bleed turns into 14 px on both axes.");
+                    }
+                }
+
+                foreach (var container in new[] { "StackPanel", "Grid", "WrapPanel", "DockPanel" })
                 {
                     foreach (XmlElement element in doc.GetElementsByTagName(container))
                     {
                         if (container == "StackPanel" &&
                             element.GetAttribute("Orientation") == "Horizontal") continue;
-                        int touching = Children(element).Count(k =>
-                            k.GetAttribute("Style").Contains("SettingsInnerTileStyle", StringComparison.Ordinal) &&
-                            k.GetAttribute("Margin").Length == 0);
+                        int touching = Children(element).Count(k => IsOptionTile(k) && k.GetAttribute("Margin").Length == 0);
                         Assert.True(touching < 2,
                             Path.GetFileName(file) + ": a " + container + " holds " + touching +
                             " option tiles with no Margin, so they touch. Give stacked " +
@@ -164,6 +209,54 @@ namespace ProGlassAutomation.Tests.Audit
                             "SettingsTileGridMargin on every child plus " +
                             "SettingsTileGridBleed on the grid.");
                     }
+                }
+            }
+        }
+
+        // ────────────────────────────────────────────────────────────────
+        //  7. SETTINGS A11Y NAME COHERENCE
+        // ────────────────────────────────────────────────────────────────
+
+        [Fact]
+        public void Settings_Automation_Names_Match_The_Control_They_Announce()
+        {
+            // Owner: "Appearance light dark mode broken nothing working." The
+            // Light/Dark segment did work — but it announced itself as
+            // "Motion & Performance", because AutomationProperties.Name had
+            // been copy-pasted from another card. Three siblings were wrong
+            // the same way (display density announced as "Motion &
+            // Performance"; reduced-motion and auto-suggest-by-region both
+            // announced as "Module Wallpapers"). A control that reports the
+            // wrong name is indistinguishable from a dead one for anyone not
+            // looking at the pixels, and no structural scan catches it: the
+            // key exists, the binding resolves, the template renders.
+            //
+            // The lock models the rule a reviewer applies by eye — the name a
+            // control announces has to be about the same thing the control is:
+            // its AutomationId or its visible label. Word overlap after
+            // dropping the namespace segment ("Settings.ThemeMode" → theme,
+            // mode), with prefix tolerance so DemoCenter.CaptureMic may be
+            // announced as "Microphone".
+            foreach (var file in XamlFiles(Path.Combine("Views", "Settings")))
+            {
+                string text = File.ReadAllText(file);
+                foreach (Match element in Regex.Matches(text, @"<(?<tag>[A-Za-z][\w.]*)((?:""[^""]*""|[^>""'])*)>"))
+                {
+                    string attrs = element.Groups[2].Value;
+                    var id = Regex.Match(attrs, @"AutomationProperties\.AutomationId=""([^""]+)""");
+                    var name = Regex.Match(attrs, @"AutomationProperties\.Name=""\{DynamicResource ([^}]+)\}""");
+                    if (!id.Success || !name.Success) continue;
+                    var label = Regex.Match(attrs, @"(?:Content|Text)=""\{DynamicResource ([^}]+)\}""");
+
+                    Assert.True(A11yCoherent(id.Groups[1].Value,
+                            label.Success ? label.Groups[1].Value : string.Empty,
+                            name.Groups[1].Value),
+                        Path.GetFileName(file) + ": <" + element.Groups["tag"].Value +
+                        "> AutomationId=\"" + id.Groups[1].Value + "\" is announced as \"" +
+                        name.Groups[1].Value + "\", which describes a different " +
+                        "control (a copy-pasted a11y name). Announce what the " +
+                        "control is: use the key of its own AutomationId or of " +
+                        "its visible label.");
                 }
             }
         }
@@ -442,6 +535,43 @@ namespace ProGlassAutomation.Tests.Audit
         {
             var m = Regex.Match(table, @"\[""" + Regex.Escape(key) + @"""\]\s*=\s*Ios26\w+\([^""#]*""#([0-9A-Fa-f]{8})""");
             return m.Success ? int.Parse(m.Groups[1].Value.Substring(0, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture) : 0;
+        }
+
+        /// <summary>An option tile: a styled inner tile, or one of the split-out
+        /// tile UserControls / crystal KPI cards a settings card hosts. Widened
+        /// from "Style contains SettingsInnerTileStyle" because the tile
+        /// UserControl wrappers carry no Style at all.</summary>
+        private static bool IsOptionTile(XmlElement element)
+        {
+            string style = element.GetAttribute("Style");
+            return style.Contains("SettingsInnerTileStyle", StringComparison.Ordinal)
+                || style.Contains("SettingsIconTileStyle", StringComparison.Ordinal)
+                || style.Contains("SettingsWashTileStyle", StringComparison.Ordinal)
+                || element.LocalName.EndsWith("Tile", StringComparison.Ordinal)
+                || element.LocalName.Contains("CrystalKpiCard", StringComparison.Ordinal);
+        }
+
+        /// <summary>The words of a resource key or automation id, namespace
+        /// segment dropped and camelCase split BEFORE lowering (otherwise
+        /// "ThemeMode" collapses to a single word and nothing ever matches).</summary>
+        private static IEnumerable<string> KeyWords(string key)
+        {
+            int dot = key.IndexOf('.');
+            if (dot >= 0) key = key.Substring(dot + 1);
+            return Regex.Matches(key, @"[A-Z]+(?![a-z])|[A-Z]?[a-z0-9]+")
+                .Select(g => g.Value.ToLowerInvariant())
+                .Where(w => w.Length >= 3);
+        }
+
+        private static bool A11yCoherent(string automationId, string visibleLabel, string announcedName)
+        {
+            var pool = KeyWords(automationId).Concat(KeyWords(visibleLabel)).ToList();
+            var words = KeyWords(announcedName).ToList();
+            if (pool.Count == 0 || words.Count == 0) return true;
+            return pool.Any(x => words.Any(y =>
+                x == y
+                || x.StartsWith(y, StringComparison.Ordinal)
+                || y.StartsWith(x, StringComparison.Ordinal)));
         }
 
         private static string Truncate(string value) =>

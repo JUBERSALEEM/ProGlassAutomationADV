@@ -445,5 +445,129 @@ for f in _xaml('Views/Reports'):
                 fails.append('%s: table-header labels are not all '
                              'ReportHeaderTextStyle' % f)
 
+
+# ── tile-grid gutter lock (owner report 2026-09-16: "cards under cards of
+#    options are too close") ─────────────────────────────────────────────
+#    A UniformGrid of option tiles must use the pair scheme: every child
+#    carries SettingsTileGridMargin (7,7) and the grid carries a
+#    SettingsTileGridBleed* (-7,...) so neighbours are 14 px apart ON BOTH
+#    AXES and the outer edges stay flush. The historical defect was
+#    SettingsTrailingGap (0,0,12,0) — a RIGHT-ONLY gap, so the second and
+#    third ROWS of tiles touched with zero vertical gutter while the file
+#    still looked "conforming" to any margin-presence check.
+from xml.dom import minidom as _minidom
+_TILE_STYLES = ('SettingsInnerTileStyle', 'SettingsIconTileStyle', 'SettingsWashTileStyle')
+def _is_tile(el):
+    st = el.getAttribute('Style') or ''
+    return (any(t in st for t in _TILE_STYLES)
+            or el.tagName.endswith('Tile') or 'CrystalKpiCard' in el.tagName)
+def tile_grid_gutter_fails(path):
+    bad = []
+    try:
+        dom = _minidom.parse(path)
+    except Exception as e:
+        return ['%s: unparsable (%s)' % (path, e)]
+    for g in dom.getElementsByTagName('UniformGrid'):
+        kk = [k for k in g.childNodes if k.nodeType == k.ELEMENT_NODE]
+        if len([k for k in kk if _is_tile(k)]) < 2:
+            continue
+        gm = g.getAttribute('Margin') or ''
+        if 'SettingsTileGridBleed' not in gm:
+            bad.append('%s: tile grid Margin=%r is not a SettingsTileGridBleed* '
+                       'token, so the 7,7 children are not cancelled at the '
+                       'edges' % (path, gm))
+        for k in kk:
+            m = k.getAttribute('Margin') or ''
+            if m != '{StaticResource SettingsTileGridMargin}':
+                bad.append('%s: tile-grid child <%s> Margin=%r != '
+                           'SettingsTileGridMargin (a right-only or literal gap '
+                           'leaves the next ROW of tiles touching)'
+                           % (path, k.tagName, m or '(none)'))
+    return bad
+
+# ── a11y name coherence lock (owner report 2026-09-16: light/dark mode
+#    "broken nothing working") ──────────────────────────────────────────
+#    Four settings controls announced themselves with a name copy-pasted
+#    from a different card (the Light/Dark segment read "Motion &
+#    Performance", density read "Motion & Performance", reduced-motion and
+#    auto-suggest read "Module Wallpapers"). The control still worked, but
+#    a screen-reader user could not tell what it did — and it is the shape
+#    of defect that survives every structural scan.
+def _words(key):
+    key = re.sub(r'^[^.]*\.', '', key or '')          # drop the namespace segment
+    # split camelCase BEFORE lowering, else "ThemeMode" collapses to one word
+    return [w.lower() for w in re.findall(r'[A-Z]+(?![a-z])|[A-Z]?[a-z0-9]+', key)
+            if len(w) >= 3]
+def _a11y_coherent(aid, content, name):
+    pool = _words(aid) + _words(content)
+    nw = _words(name)
+    if not nw or not pool:
+        return True
+    return any(x == y or x.startswith(y) or y.startswith(x) for x in pool for y in nw)
+def a11y_name_fails(path):
+    s = open(path, encoding='utf-8').read()
+    bad = []
+    for m in re.finditer(r'<([A-Za-z][\w.]*)((?:"[^"]*"|[^>"\'])*)>', s, re.S):
+        attrs = m.group(2)
+        aid = re.search(r'AutomationProperties\.AutomationId="([^"]+)"', attrs)
+        nm = re.search(r'AutomationProperties\.Name="\{DynamicResource ([^}]+)\}"', attrs)
+        if not (aid and nm):
+            continue
+        ct = re.search(r'(?:Content|Text)="\{DynamicResource ([^}]+)\}"', attrs)
+        if not _a11y_coherent(aid.group(1), ct.group(1) if ct else '', nm.group(1)):
+            bad.append('%s: <%s> AutomationId=%s is announced as %s '
+                       '(a11y name copied from another card)'
+                       % (path, m.group(1), aid.group(1), nm.group(1)))
+    return bad
+
+for f in sorted(glob.glob('Views/Settings/**/*.xaml', recursive=True)):
+    fails.extend(tile_grid_gutter_fails(f))
+    fails.extend(a11y_name_fails(f))
+
+# ── negative tests: both locks must FAIL on the defect they were written
+#    for, and pass on the corrected shape (owner rule: never commit a lock
+#    that has not been negative-tested). ────────────────────────────────
+import tempfile, os as _os
+_neg = tempfile.mkdtemp(prefix='mirror-neg-')
+_bad_grid = _os.path.join(_neg, 'BadGrid.xaml')
+open(_bad_grid, 'w', encoding='utf-8').write(
+    '<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">'
+    '<UniformGrid Columns="4" Margin="{StaticResource SettingsRowMargin}">'
+    '<Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}"/>'
+    '<Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}"/>'
+    '<Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}"/>'
+    '<Border Style="{StaticResource SettingsInnerTileStyle}"/>'
+    '</UniformGrid></UserControl>')
+_good_grid = _os.path.join(_neg, 'GoodGrid.xaml')
+open(_good_grid, 'w', encoding='utf-8').write(
+    '<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">'
+    '<UniformGrid Columns="4" Margin="{StaticResource SettingsTileGridBleed}">'
+    '<Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}"/>'
+    '<Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}"/>'
+    '</UniformGrid></UserControl>')
+_bad_a11y = _os.path.join(_neg, 'BadA11y.xaml')
+open(_bad_a11y, 'w', encoding='utf-8').write(
+    '<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">'
+    '<ListBox AutomationProperties.Name="{DynamicResource Settings.MotionPerformance}" '
+    'AutomationProperties.AutomationId="Settings.ThemeMode"/></UserControl>')
+_good_a11y = _os.path.join(_neg, 'GoodA11y.xaml')
+open(_good_a11y, 'w', encoding='utf-8').write(
+    '<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">'
+    '<ListBox AutomationProperties.Name="{DynamicResource Settings.Mode}" '
+    'AutomationProperties.AutomationId="Settings.ThemeMode"/>'
+    '<CheckBox Content="{DynamicResource Settings.LblAutoDetect}" '
+    'AutomationProperties.Name="{DynamicResource Settings.LblAutoDetect}" '
+    'AutomationProperties.AutomationId="Settings.AutoSuggestByRegion"/>'
+    '<ToggleButton AutomationProperties.Name="{DynamicResource Settings.Microphone}" '
+    'AutomationProperties.AutomationId="DemoCenter.CaptureMic"/></UserControl>')
+if not tile_grid_gutter_fails(_bad_grid):
+    fails.append('NEGATIVE TEST FAILED: right-only SettingsTrailingGap tile grid was accepted')
+if tile_grid_gutter_fails(_good_grid):
+    fails.append('negative-test false positive: the corrected pair scheme was rejected')
+if not a11y_name_fails(_bad_a11y):
+    fails.append('NEGATIVE TEST FAILED: ThemeMode announced as MotionPerformance was accepted')
+if a11y_name_fails(_good_a11y):
+    fails.append('negative-test false positive: coherent a11y names were rejected')
+
 print('MIRROR FAIL: ' + '; '.join(fails) if fails else 'MIRROR PASS (all file-level locks)')
 sys.exit(1 if fails else 0)

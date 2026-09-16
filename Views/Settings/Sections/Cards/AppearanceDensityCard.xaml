@@ -27,7 +27,7 @@
                              the VM list, so the option set still has ONE source.
                              The fill variant spans the card (sheet 03). -->
                         <ListBox Style="{StaticResource SettingsSegmentTrackFillStyle}"
-                        AutomationProperties.Name="{DynamicResource Settings.MotionPerformance}"
+                        AutomationProperties.Name="{DynamicResource Settings.GrpDensity}"
                                  ItemsSource="{Binding DisplayDensityOptions}"
                                  SelectedItem="{Binding DisplayDensity, Mode=TwoWay}"
                                  AutomationProperties.AutomationId="Settings.DisplayDensity"/>

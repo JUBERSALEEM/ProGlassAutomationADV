@@ -116,10 +116,10 @@
                         </StackPanel>
                     </Grid>
 
-                    <UniformGrid Columns="2" Margin="{StaticResource SettingsCardContentMargin}">
+                    <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleedKeepTop}">
 
                         <!-- About the Theme System -->
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileWrapMargin}">
+                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
                                     <Border Style="{StaticResource SettingsIconTileStyle}"
@@ -141,7 +141,7 @@
                         </Border>
 
                         <!-- About the AI Assistant -->
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackBottom8}">
+                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
                                     <Border Style="{StaticResource SettingsIconTileStyle}"
@@ -163,7 +163,7 @@
                         </Border>
 
                         <!-- About Your API Key & Privacy -->
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsInlineGap8R}">
+                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
                                     <Border Style="{StaticResource SettingsIconTileStyle}"
@@ -184,7 +184,7 @@
                         </Border>
 
                         <!-- About Voice Models -->
-                        <Border Style="{StaticResource SettingsInnerTileStyle}">
+                        <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
                                     <Border Style="{StaticResource SettingsIconTileStyle}"
