@@ -325,6 +325,46 @@ namespace ProGlassAutomation.Tests.Audit
         }
 
         [Fact]
+        public void Resource_Dictionaries_Are_Never_Mixed_With_Loose_Entries()
+        {
+            // XDG0046 + 21 knock-on XDG-0001 (owner build 2026-09-17):
+            // a keyed entry was placed BESIDE the <ResourceDictionary> inside
+            // <UserControl.Resources>. That turns Resources into an IMPLICIT
+            // dictionary whose children are the entries, so the keyless
+            // ResourceDictionary became "an entry without a key" and its
+            // merged dictionaries were unreachable — every style in the
+            // settings shell stopped resolving. Keyed entries belong INSIDE
+            // the single ResourceDictionary, after its MergedDictionaries
+            // (App.xaml and nine other dictionaries already do it that way).
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "Views"), "*.xaml", SearchOption.AllDirectories))
+            {
+                var doc = new System.Xml.XmlDocument();
+                doc.Load(file);
+                foreach (System.Xml.XmlElement res in doc.GetElementsByTagName("*"))
+                {
+                    if (!res.Name.EndsWith(".Resources", StringComparison.Ordinal)) continue;
+                    bool looseKeyed = false, keylessDictionary = false;
+                    foreach (System.Xml.XmlNode kid in res.ChildNodes)
+                    {
+                        if (kid.NodeType != System.Xml.XmlNodeType.Element) continue;
+                        var el = (System.Xml.XmlElement)kid;
+                        if (el.Name == "ResourceDictionary" &&
+                            string.IsNullOrEmpty(el.GetAttribute("Key", XamlNs)))
+                            keylessDictionary = true;
+                        else if (!string.IsNullOrEmpty(el.GetAttribute("Key", XamlNs)))
+                            looseKeyed = true;
+                    }
+                    Assert.False(looseKeyed && keylessDictionary,
+                        Path.GetFileName(file) + ": <" + res.Name +
+                        "> mixes keyed entries with a keyless ResourceDictionary (XDG0046)");
+                }
+            }
+        }
+
+        private const string XamlNs = "http://schemas.microsoft.com/winfx/2006/xaml";
+
+        [Fact]
         public void Shell_Helpers_Are_Defined()
         {
             // REGRESSION LOCK: the phase-3a split once dropped SaveConfig()'s

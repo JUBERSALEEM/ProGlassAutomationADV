@@ -38,14 +38,6 @@
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-        <!-- 2026-09-16 rail redesign: the row list groups by its localized
-             GroupLabel so the rail gets caption headers ("Studio", "System"…)
-             without a second hand-maintained list in the VM. -->
-        <CollectionViewSource x:Key="SettingsNavGroups" Source="{Binding NavRows}">
-            <CollectionViewSource.GroupDescriptions>
-                <PropertyGroupDescription PropertyName="GroupLabel"/>
-            </CollectionViewSource.GroupDescriptions>
-        </CollectionViewSource>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <!-- The module design system: cards, tiles, chips, pills,
@@ -56,6 +48,22 @@
                 <!-- v3 lazy host: one DataTemplate per page (SettingsPageTemplates.xaml) -->
                 <ResourceDictionary Source="SettingsPageTemplates.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- 2026-09-16 rail redesign: the row list groups by its localized
+                 GroupLabel so the rail gets caption headers ("Studio",
+                 "System"…) without a second hand-maintained list in the VM.
+                 BUILD FIX 2026-09-17 (XDG0046): this entry MUST live inside
+                 the ResourceDictionary. Sitting beside it turned
+                 UserControl.Resources into an IMPLICIT dictionary whose
+                 children are the entries — so this keyed view and the
+                 keyless ResourceDictionary became siblings, the merged
+                 dictionaries below were unreachable, and every style in the
+                 shell stopped resolving. -->
+            <CollectionViewSource x:Key="SettingsNavGroups" Source="{Binding NavRows}">
+                <CollectionViewSource.GroupDescriptions>
+                    <PropertyGroupDescription PropertyName="GroupLabel"/>
+                </CollectionViewSource.GroupDescriptions>
+            </CollectionViewSource>
 
             <!-- v3 (2026-09-17): the page host builds ONE section at a time.
                  v2 stacked all twelve in the Grid below with Visibility

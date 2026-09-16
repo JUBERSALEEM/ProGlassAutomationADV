@@ -103,5 +103,24 @@ for f in [x for x in glob.glob('**/*.cs', recursive=True)
           if not any(p in x for p in ('/obj/', '/bin/', 'Tests/', 'Tools/', '.git/'))]:
     for m in re.finditer(r'(?<![\w.])(?:ViewModels\.Settings\.)?Pages\.\w+', _strip(open(f, encoding='utf-8').read())):
         fails.append('%s references page VMs relatively (%s)' % (f, m.group(0)))
+# XDG0046 — a keyed entry must never sit BESIDE a keyless ResourceDictionary
+# inside <X.Resources>: that makes Resources an implicit dictionary and the
+# merged dictionaries unreachable (every style in the file stops resolving).
+from xml.dom import minidom
+for f in glob.glob('Views/**/*.xaml', recursive=True):
+    try:
+        dom = minidom.parse(f)
+    except Exception as e:
+        fails.append('%s: not well-formed (%s)' % (f, e)); continue
+    for res in dom.getElementsByTagName('*'):
+        if not res.tagName.endswith('.Resources'):
+            continue
+        kids = [k for k in res.childNodes if k.nodeType == k.ELEMENT_NODE]
+        loose = [k for k in kids if k.getAttribute('x:Key')]
+        keyless = [k for k in kids if k.tagName == 'ResourceDictionary'
+                   and not k.getAttribute('x:Key')]
+        if loose and keyless:
+            fails.append('%s: <%s> mixes keyed entries with a keyless '
+                         'ResourceDictionary (XDG0046)' % (f, res.tagName))
 print('MIRROR FAIL: ' + '; '.join(fails) if fails else 'MIRROR PASS (all file-level locks)')
 sys.exit(1 if fails else 0)
