@@ -106,7 +106,7 @@
                 <!-- ── KPI band ────────────────────────────────────── -->
 
                 <!-- ── SKELETON (visible when loading) ─────────────── -->
-                <StackPanel Grid.Row="2" Grid.RowSpan="3"
+                <StackPanel Grid.Row="2" Grid.RowSpan="2"
                             Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
 
                     <Border Style="{StaticResource DbSkeletonBandStyle}">

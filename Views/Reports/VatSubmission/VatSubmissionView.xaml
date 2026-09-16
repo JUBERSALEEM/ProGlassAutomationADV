@@ -337,7 +337,7 @@
                         </Grid.RowDefinitions>
 
                         <!-- Table header -->
-                        <Border Grid.Row="0">
+                        <Border Grid.Row="0" Style="{StaticResource ReportTableHeaderStyle}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="0.9*"/>
@@ -350,17 +350,17 @@
                                     <ColumnDefinition Width="1.0*"/>
                                     <ColumnDefinition Width="0.9*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{DynamicResource Reports.DeliveryReport.PINumber}"/>
+                                <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Grid.Column="0" Text="{DynamicResource Reports.DeliveryReport.PINumber}"/>
                                 <!-- Left-aligned with a right gutter so the timestamp never collides
                                      with the Company column when PI/Company star columns grow. -->
-                                <TextBlock Grid.Column="1" Text="{DynamicResource Reports.VatSubmission.DATETIME}" HorizontalAlignment="Left" Margin="0,0,14,0"/>
-                                <TextBlock Grid.Column="2" Text="{DynamicResource Common.Company}"/>
-                                <TextBlock Grid.Column="3" Text="{DynamicResource Common.Customer}"/>
-                                <TextBlock Grid.Column="4" Text="{DynamicResource Common.Project}"/>
-                                <TextBlock Grid.Column="5" Text="{DynamicResource Common.Salesman}"/>
-                                <TextBlock Grid.Column="6" Text="{DynamicResource Common.Status}" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="7" Text="{DynamicResource Reports.VatSubmission.NETAmount}" HorizontalAlignment="Right"/>
-                                <TextBlock Grid.Column="8" Text="{DynamicResource Reports.VatSubmission.VAT5}" HorizontalAlignment="Right"/>
+                                <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Grid.Column="1" Text="{DynamicResource Reports.VatSubmission.DATETIME}" HorizontalAlignment="Left" Margin="0,0,14,0"/>
+                                <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Grid.Column="2" Text="{DynamicResource Common.Company}"/>
+                                <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Grid.Column="3" Text="{DynamicResource Common.Customer}"/>
+                                <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Grid.Column="4" Text="{DynamicResource Common.Project}"/>
+                                <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Grid.Column="5" Text="{DynamicResource Common.Salesman}"/>
+                                <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Grid.Column="6" Text="{DynamicResource Common.Status}" HorizontalAlignment="Center"/>
+                                <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Grid.Column="7" Text="{DynamicResource Reports.VatSubmission.NETAmount}" HorizontalAlignment="Right"/>
+                                <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Grid.Column="8" Text="{DynamicResource Reports.VatSubmission.VAT5}" HorizontalAlignment="Right"/>
                             </Grid>
                         </Border>
 

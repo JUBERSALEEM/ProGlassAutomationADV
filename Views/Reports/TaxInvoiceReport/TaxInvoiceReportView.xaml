@@ -473,7 +473,12 @@
                 <!-- ══════════════════════════════════════════════════════════
                      6. PAGINATION FOOTER
                 ══════════════════════════════════════════════════════════════ -->
-                <Border Grid.Row="5" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.TopHairlineThickness}" Padding="12,8">
+                <!-- 2026-09-18: this band declared Grid.Row="5" in a 5-track grid (rows
+                     0-4), so WPF clamped it into the last track. Row 4 was
+                     empty, so nothing visibly overlapped — but the markup
+                     promised a row that does not exist. Pointed at the track
+                     it actually occupies. -->
+                <Border Grid.Row="4" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.TopHairlineThickness}" Padding="12,8">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>

@@ -263,6 +263,7 @@
                                                 </StackPanel>
                                             </Expander.Header>
                                         <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Margin="0,8,0,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                            <StackPanel>
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
@@ -314,7 +315,6 @@
                                                             <RowDefinition Height="Auto"/>
                                                             <RowDefinition Height="Auto"/>
                                                             <RowDefinition Height="Auto"/>
-                                                            <RowDefinition Height="Auto"/>
                                                         </Grid.RowDefinitions>
 
                                                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Proformas" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
@@ -329,14 +329,50 @@
                                                         <TextBlock Grid.Row="3" Grid.Column="0" Text="Tax Invoices" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
                                                         <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding TaxInvoiceCount}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2"/>
 
-                                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Invoiced" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="4" Grid.Column="1" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SuccessBrush}" Margin="0,2"><Run Text="AED "/><Run Text="{Binding InvoicedValue, Mode=OneWay, StringFormat={}{0:N2}}"/></TextBlock>
-
-                                                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Outstanding" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="5" Grid.Column="1" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}" Margin="0,2"><Run Text="AED "/><Run Text="{Binding Outstanding, Mode=OneWay, StringFormat={}{0:N2}}"/></TextBlock>
                                                     </Grid>
                                                 </StackPanel>
                                             </Grid>
+                                            <!-- THIRD SECTION (2026-09-18, owner report: "company details
+                                             document activity is overlapping some text after tax
+                                             invoice - fix it, move to third section instead of
+                                             overlapping in section 2").
+
+                                             DOCUMENT ACTIVITY declared FIVE row tracks but placed
+                                             children in Grid.Row="0" through Grid.Row="5" - six
+                                             rows. WPF clamps an out-of-range index to the LAST
+                                             track, so "Outstanding" was painted into row 4, on top
+                                             of "Invoiced": two money values overlapping each other
+                                             immediately after the Tax Invoices row.
+
+                                             The money rows now live here, in a full-width third
+                                             section under a hairline, where a formatted amount has
+                                             the room it needs; section 2 keeps the four document
+                                             counts and declares exactly the tracks it uses. The
+                                             currency also comes from the converter instead of a
+                                             hardcoded "AED" Run, so these values follow the
+                                             display-currency setting like every other money value
+                                             in the app. -->
+                                            <Border Margin="0,12,0,0" Padding="0,10,0,0"
+                                                    BorderBrush="{DynamicResource DividerBrush}"
+                                                    BorderThickness="{DynamicResource Border.TopHairlineThickness}">
+                                                <StackPanel>
+                                                    <TextBlock Text="FINANCIAL SUMMARY" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="120"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="24"/>
+                                                            <ColumnDefinition Width="120"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="Invoiced" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="1" Text="{Binding InvoicedValue, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SuccessBrush}" Margin="0,2" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="3" Text="Outstanding" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="4" Text="{Binding Outstanding, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}" Margin="0,2" VerticalAlignment="Center"/>
+                                                    </Grid>
+                                                </StackPanel>
+                                            </Border>
+                                        </StackPanel>
                                         </Border>
                                         </Expander>
                                     </StackPanel>
