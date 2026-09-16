@@ -608,6 +608,19 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
             {
                 if (_useOptimizationFeed == value) return;
                 _useOptimizationFeed = value;
+
+                // Park the operator's numbers ONCE, on the way in. This has to
+                // happen here and not in ApplySheetSourceMode: the feed is
+                // re-resolved every time a pane source is ticked, and parking on
+                // each application would capture the PREVIOUS RUN'S number as if
+                // the operator had typed it, so switching back to manual would
+                // restore 17 instead of the 5 they actually entered.
+                if (value)
+                {
+                    _manualSheetQuantity = _sheetQuantity;
+                    _manualOptimizationPercent = _optimizationPercent;
+                }
+
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsOptimizationFeedMode));
                 OnPropertyChanged(nameof(IsManualSheetSourceMode));
@@ -679,14 +692,15 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
         {
             if (_useOptimizationFeed)
             {
-                // Park the operator's numbers once, on the way in.
-                _manualSheetQuantity = _sheetQuantity;
-                _manualOptimizationPercent = _optimizationPercent;
-
                 if (_optimizationSheetQuantity <= 0 && _optimizationUtilizationPercent <= 0m)
                 {
-                    // Nothing to apply. Leave the manual values on screen and
-                    // let the label explain — better than blanking a quote.
+                    // Nothing to apply. Hand the operator's own numbers back
+                    // rather than leaving a previous run's figure on screen with
+                    // no run behind it — a stale 17 with an empty feed reads as
+                    // though it were still measured.
+                    SheetQuantity = _manualSheetQuantity;
+                    OptimizationPercent = _manualOptimizationPercent;
+
                     OptimizationFeedLabel = string.IsNullOrWhiteSpace(_optimizationFeedLabel)
                         ? "No optimization run for this pane yet — keeping your manual values."
                         : _optimizationFeedLabel;

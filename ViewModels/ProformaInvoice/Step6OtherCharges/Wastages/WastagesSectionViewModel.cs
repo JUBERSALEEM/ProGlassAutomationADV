@@ -819,6 +819,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                 if (wasDisabled)
                     OnPropertyChanged(nameof(TotalWastageValue));
             }
+
+            // Ticking or unticking a pane source changes WHICH RACKS this row
+            // draws from, so the run figures offered to it have to be resolved
+            // again — a row that summed one rack must not keep that total after
+            // a second pane is ticked, and one whose last pane was unticked must
+            // stop offering a quantity altogether.
+            //
+            // SourceSummaryText is raised by WastageRow.RecalcFromSources, which
+            // is what OnSourceChanged calls for every source property that can
+            // change the selection, so it is the precise signal and needs no new
+            // event. No cycle: re-resolving writes SheetQuantity, which the
+            // branch above already handles, and never re-raises this one.
+            if (e.PropertyName == nameof(WastageRow.SourceSummaryText))
+                ApplyOptimizationFeedToRow(sender as WastageRow);
         }
 
         private static Step4PricingSnapshot? ResolveStep4Snapshot(

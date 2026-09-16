@@ -1135,8 +1135,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             diagnostic = "";
                         }
 
-                        string? paneSourceNote = DescribeSheetSource(
-                            paneFromFeed, paneFeedSheets, paneFeedUtilization);
+                        // Only annotate when this pane had a Step 6 side to look
+                        // up at all. Without one the reason the figures stayed on
+                        // Step 6 is "no pane identity", not "no run row for it".
+                        string? paneSourceNote = paneStep6SideLabel != null
+                            ? DescribeSheetSource(
+                                paneFromFeed, paneFeedSheets, paneFeedUtilization)
+                            : null;
                         if (paneSourceNote != null) diagnostic += " " + paneSourceNote;
 
                         var row = new SheetProfitRow

@@ -411,6 +411,45 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
+        public void Re_resolving_the_feed_does_not_adopt_the_run_number_as_the_manual_one()
+        {
+            // The bug this locks: parking the manual value on every feed
+            // application captured the previous run's number, so a source tick
+            // followed by switching back to manual restored 17 instead of the 5
+            // the operator had typed.
+            var row = new WastageRow { SheetQuantity = 5, OptimizationPercent = 12.5m };
+            row.UseOptimizationFeed = true;
+
+            row.SetOptimizationFeed(17, 82.77m, false, "one pane ticked");
+            Assert.Equal(17, row.SheetQuantity);
+
+            row.SetOptimizationFeed(20, 84.10m, false, "a second pane ticked");
+            Assert.Equal(20, row.SheetQuantity);
+            Assert.Equal(84.10m, row.OptimizationPercent);
+
+            row.UseOptimizationFeed = false;
+
+            Assert.Equal(5, row.SheetQuantity);
+            Assert.Equal(12.5m, row.OptimizationPercent);
+        }
+
+        [Fact]
+        public void Many_feed_updates_while_on_never_drift_the_parked_manual_values()
+        {
+            var row = new WastageRow { SheetQuantity = 3, OptimizationPercent = 9m };
+            row.UseOptimizationFeed = true;
+
+            for (int i = 1; i <= 5; i++)
+                row.SetOptimizationFeed(i * 10, i * 10m, false, "refresh " + i);
+
+            Assert.Equal(50, row.SheetQuantity);
+
+            row.UseOptimizationFeed = false;
+            Assert.Equal(3, row.SheetQuantity);
+            Assert.Equal(9m, row.OptimizationPercent);
+        }
+
+        [Fact]
         public void A_shared_rack_is_flagged_so_the_total_is_not_reused_per_pane()
         {
             var row = new WastageRow { SheetQuantity = 5 };
@@ -552,6 +591,24 @@ namespace ProGlassAutomation.Tests.Agent
             string run = Read(LocateProjectRoot(),
                 "ViewModels/Optimization/OptimizationViewModel.Run.cs");
             Assert.Contains("PublishLiveFeed();", run);
+        }
+
+        [Fact]
+        public void Step6_re_resolves_the_feed_when_a_pane_source_is_ticked()
+        {
+            // Ticking a source changes which racks the row draws from. Without
+            // this the row keeps the total from the previous selection, which is
+            // how a shared rack ends up counted for panes it never served.
+            string vm = Read(LocateProjectRoot(),
+                "ViewModels/ProformaInvoice/Step6OtherCharges/Wastages/WastagesSectionViewModel.cs");
+
+            Assert.Contains("nameof(WastageRow.SourceSummaryText)", vm);
+            Assert.Contains("ApplyOptimizationFeedToRow(sender as WastageRow)", vm);
+
+            // and the model really does raise it when the checked set changes
+            string row = Read(LocateProjectRoot(),
+                "Models/ProformaInvoice/Step6OtherCharges/Wastages/WastageRow.cs");
+            Assert.Contains("OnPropertyChanged(nameof(SourceSummaryText));", row);
         }
 
         [Fact]
