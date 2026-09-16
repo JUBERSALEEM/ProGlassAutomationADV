@@ -433,9 +433,38 @@ namespace ProGlassAutomation.Agent.Demo.Video
         /// died, which the recorder treats as a hard stop rather than
         /// silently producing a truncated file.
         /// </summary>
+        /// <summary>
+        /// Phase 5 — a write at or above this many ms is counted as BLOCKED,
+        /// i.e. the caller stood waiting on x264/NVENC backpressure rather than
+        /// doing capture work. 25 ms is just over one 40 fps frame interval, so
+        /// anything at or above it has cost at least a whole frame.
+        /// </summary>
+        public const double WriteBlockThresholdMs = 25.0;
+
+        /// <summary>Wall-clock ms of the most recent successful WriteFrame.</summary>
+        public double LastWriteMs { get; private set; }
+
+        /// <summary>Sum of all successful write durations, in ms.</summary>
+        public double WriteMsTotal { get; private set; }
+
+        /// <summary>Worst single write, in ms — the stall the user would feel.</summary>
+        public double WriteMsMax { get; private set; }
+
+        /// <summary>Writes that reached <see cref="WriteBlockThresholdMs"/>.</summary>
+        public long WritesBlocked { get; private set; }
+
         public bool WriteFrame(byte[] buffer, int count)
         {
             if (!IsOpen || _stdin == null || buffer == null) return false;
+
+            // Phase 5 (bottleneck attribution): this write is SYNCHRONOUS and
+            // _stdin has no buffer of our own, so it blocks on encoder
+            // backpressure — and until now nothing measured it. The adaptive
+            // throttle only reads GdiWindowCapture.LastCaptureMs, so a starving
+            // encoder was invisible to it: capture looked cheap while the loop
+            // was actually waiting here. Timing uses raw timestamps rather than
+            // a Stopwatch instance because this is a hot path at up to 60 fps.
+            long t0 = Stopwatch.GetTimestamp();
 
             try
             {
@@ -446,6 +475,12 @@ namespace ProGlassAutomation.Agent.Demo.Video
                     FramesPiped++;
                     BytesPiped += count;
                 }
+
+                double ms = (Stopwatch.GetTimestamp() - t0) * 1000.0 / Stopwatch.Frequency;
+                LastWriteMs = ms;
+                WriteMsTotal += ms;
+                if (ms > WriteMsMax) WriteMsMax = ms;
+                if (ms >= WriteBlockThresholdMs) WritesBlocked++;
                 return true;
             }
             catch (Exception ex)

@@ -596,6 +596,65 @@ namespace ProGlassAutomation.Tests.Agent
                 VideoEncoder.AdjustPreset("ultrafast", est, 60));  // already cheapest ⇒ clamps
         }
 
+        // ══════════════════════════════════════════════════════════
+        //  STAGE ATTRIBUTION (Phase 5) — which stage owns the frame budget
+        // ══════════════════════════════════════════════════════════
+
+        [Theory]
+        [InlineData(0.0, 0.0, 0.0, 0.0, "no-data")]
+        [InlineData(10.0, 10.0, 10.0, 10.0, "distributed")]
+        [InlineData(5.0, 5.0, 60.0, 5.0, "encoder-write")]
+        [InlineData(60.0, 5.0, 5.0, 5.0, "gdi-blit")]
+        [InlineData(5.0, 60.0, 5.0, 5.0, "marshal-copy")]
+        [InlineData(5.0, 5.0, 5.0, 60.0, "loop-overhead")]
+        [InlineData(0.0, 0.0, 0.0, 10.0, "loop-overhead")]
+        [InlineData(0.0, 30.0, 0.0, 0.0, "marshal-copy")]
+        [InlineData(0.0, 0.0, 30.0, 0.0, "encoder-write")]
+        [InlineData(30.0, 0.0, 0.0, 0.0, "gdi-blit")]
+        [InlineData(49.0, 25.0, 25.0, 1.0, "distributed")]   // 49/100 < half
+        [InlineData(50.0, 25.0, 25.0, 0.0, "gdi-blit")]      // 50/100 == half
+        public void DominantCaptureStage_AttributesTheFrameBudget(
+            double blit, double copy, double write, double other, string expected)
+        {
+            Assert.Equal(expected,
+                WindowScreenRecorder.DominantCaptureStage(blit, copy, write, other));
+        }
+
+        [Fact]
+        public void DominantCaptureStage_RefusesToNameABottleneck_WhenCostIsSpread()
+        {
+            // An even split reports "distributed". Naming a single stage there
+            // would send the next engineering phase after the wrong thing —
+            // which is exactly the mistake this phase exists to avoid.
+            Assert.Equal("distributed", WindowScreenRecorder.DominantCaptureStage(20, 20, 20, 20));
+            Assert.Equal("distributed", WindowScreenRecorder.DominantCaptureStage(0.4, 0.3, 0.2, 0.1));
+        }
+
+        [Fact]
+        public void DominantCaptureStage_TieAtExactlyHalf_BreaksTowardTheActionableStage()
+        {
+            // 37.5 / 75 == 0.5 exactly, so it is attributed rather than
+            // "distributed"; the documented tie-break prefers blit over copy.
+            Assert.Equal("gdi-blit", WindowScreenRecorder.DominantCaptureStage(37.5, 37.5, 0, 0));
+        }
+
+        [Fact]
+        public void DominantCaptureStage_HandlesDegenerateInput()
+        {
+            Assert.Equal("no-data", WindowScreenRecorder.DominantCaptureStage(0, 0, 0, 0));
+            Assert.Equal("no-data", WindowScreenRecorder.DominantCaptureStage(-1, -1, -1, -1));
+            Assert.Equal("gdi-blit", WindowScreenRecorder.DominantCaptureStage(1e-9, 0, 0, 0));
+        }
+
+        [Fact]
+        public void WriteBlockThreshold_IsExactlyOneFortiethOfASecond()
+        {
+            // 25 ms is one 40 fps frame interval, so a write at or above it has
+            // cost at least a whole frame — the definition of "blocked".
+            Assert.Equal(25.0, FfmpegRawPipe.WriteBlockThresholdMs, 6);
+            Assert.Equal(25.0, 1000.0 / 40.0, 6);
+        }
+
         // ── helpers ──────────────────────────────────────────────
         private static int BaseCrf(ScreenRecordQualityTier tier)
         {

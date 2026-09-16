@@ -297,10 +297,22 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
             if (!ok) return false;
 
-            Marshal.Copy(_bits, buffer, 0, needed);
-
+            // Phase 5 (bottleneck attribution): the blit and the managed copy
+            // are timed SEPARATELY. They fail for completely different reasons
+            // — the blit is GPU/driver/desktop-composition cost, the copy is
+            // pure memory bandwidth (33 MB per frame at 4K) — and lumping them
+            // together makes it impossible to tell which one is starving the
+            // loop. LastCaptureMs keeps its ORIGINAL meaning (the sum), so the
+            // adaptive throttle and every existing consumer are unaffected.
             sw.Stop();
-            LastCaptureMs = sw.Elapsed.TotalMilliseconds;
+            LastBlitMs = sw.Elapsed.TotalMilliseconds;
+
+            var swCopy = System.Diagnostics.Stopwatch.StartNew();
+            Marshal.Copy(_bits, buffer, 0, needed);
+            swCopy.Stop();
+            LastCopyMs = swCopy.Elapsed.TotalMilliseconds;
+
+            LastCaptureMs = LastBlitMs + LastCopyMs;
 
             LastFrameWasBlank = IsMostlyBlank(buffer, needed);
             return true;
@@ -315,6 +327,20 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         /// capture loop throttles against it.
         /// </summary>
         public double LastCaptureMs { get; private set; }
+
+        /// <summary>
+        /// Phase 5 — the BitBlt/PrintWindow portion of the last capture, in
+        /// ms. High values point at the desktop composition path, the driver or
+        /// the PrintWindow fallback, NOT at memory bandwidth.
+        /// </summary>
+        public double LastBlitMs { get; private set; }
+
+        /// <summary>
+        /// Phase 5 — the Marshal.Copy portion of the last capture, in ms.
+        /// This is the unmanaged→managed transfer of the whole frame, so it
+        /// scales directly with resolution: it is the memory-bandwidth term.
+        /// </summary>
+        public double LastCopyMs { get; private set; }
 
         /// <summary>
         /// Cheap sparse scan for an all-black frame. Full scans of a 4K

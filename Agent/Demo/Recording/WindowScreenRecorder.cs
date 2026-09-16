@@ -359,12 +359,87 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         private long _throttleDowns;
         private long _throttleUps;
 
+        // Phase 5 (bottleneck attribution) — per-stage cost accumulators.
+        // Written only from the capture loop thread and read after the loop
+        // has ended, so they need no interlocking.
+        private double _blitMsTotal;
+        private double _copyMsTotal;
+        private double _writeMsTotal;
+        private double _writeMsMax;
+        private long _writesBlocked;
+        private long _stageSamples;
+
         /// <summary>How many times the adaptive throttle HALVED the rate and
         /// how many times it stepped back up. Downs far exceeding ups means
         /// the recording spent most of its life below the requested rate -
         /// the number that explains a small file far better than CRF does.</summary>
         public long ThrottleDowns => Volatile.Read(ref _throttleDowns);
         public long ThrottleUps => Volatile.Read(ref _throttleUps);
+
+        // ── PHASE 5 STAGE ATTRIBUTION ─────────────────────────────────────────────────
+        /// <summary>Frames whose stage costs were sampled.</summary>
+        public long StageSamples => _stageSamples;
+
+        /// <summary>Average BitBlt/PrintWindow cost per frame, ms.</summary>
+        public double AvgBlitMs => _stageSamples > 0 ? _blitMsTotal / _stageSamples : 0;
+
+        /// <summary>Average Marshal.Copy cost per frame, ms — memory bandwidth.</summary>
+        public double AvgCopyMs => _stageSamples > 0 ? _copyMsTotal / _stageSamples : 0;
+
+        /// <summary>
+        /// Average synchronous pipe-write cost per frame, ms. This is encoder
+        /// backpressure: with no buffering of our own, the loop stands here
+        /// waiting for x264/NVENC to accept the frame.
+        /// </summary>
+        public double AvgWriteMs => _stageSamples > 0 ? _writeMsTotal / _stageSamples : 0;
+
+        /// <summary>Worst single write, ms — the stall a user would feel.</summary>
+        public double MaxWriteMs => _writeMsMax;
+
+        /// <summary>Writes that cost at least one whole frame interval.</summary>
+        public long WritesBlocked => _writesBlocked;
+
+        /// <summary>
+        /// Wall-clock per frame minus the three measured stages: scheduling,
+        /// the deliberate inter-frame wait, JPEG persistence and loop overhead.
+        /// Deriving it rather than timing it keeps the hot path cheap, and the
+        /// four terms still sum to the real frame period.
+        /// </summary>
+        public double AvgOtherMs
+        {
+            get
+            {
+                if (_stageSamples <= 0) return 0;
+                double wallPerFrame = Duration.TotalMilliseconds / _stageSamples;
+                return Math.Max(0, wallPerFrame - (AvgBlitMs + AvgCopyMs + AvgWriteMs));
+            }
+        }
+
+        /// <summary>The stage that actually consumed the frame budget.</summary>
+        public string DominantStage =>
+            DominantCaptureStage(AvgBlitMs, AvgCopyMs, AvgWriteMs, AvgOtherMs);
+
+        /// <summary>
+        /// Phase 5 — attributes the frame budget to a stage. PURE, so it is
+        /// unit-testable without a display, a GPU or ffmpeg.
+        ///
+        /// Returns "distributed" unless one stage owns at least half the
+        /// budget: naming a single bottleneck when the cost is spread evenly
+        /// would send the next engineering phase after the wrong thing. Ties
+        /// break toward the most actionable stage (encoder write first).
+        /// </summary>
+        public static string DominantCaptureStage(
+            double blitMs, double copyMs, double writeMs, double otherMs)
+        {
+            double total = blitMs + copyMs + writeMs + otherMs;
+            if (total <= 0) return "no-data";
+            double max = Math.Max(Math.Max(blitMs, copyMs), Math.Max(writeMs, otherMs));
+            if (max / total < 0.5) return "distributed";
+            if (max == writeMs) return "encoder-write";
+            if (max == blitMs) return "gdi-blit";
+            if (max == copyMs) return "marshal-copy";
+            return "loop-overhead";
+        }
 
         public int FinalEffectiveFps { get; private set; }
         public TimeSpan? LoopbackAudioSeconds { get; private set; }
@@ -487,6 +562,8 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             Interlocked.Exchange(ref _capturedFrames, 0);
             Interlocked.Exchange(ref _throttleDowns, 0);
             Interlocked.Exchange(ref _throttleUps, 0);
+            _blitMsTotal = 0; _copyMsTotal = 0; _writeMsTotal = 0;
+            _writeMsMax = 0; _writesBlocked = 0; _stageSamples = 0;
             FinalEffectiveFps = Math.Max(1, _settings.Fps);
             LoopbackAudioSeconds = null;
             MicAudioSeconds = null;
@@ -711,6 +788,20 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                     $"[RecFPS] requested={_settings.Fps} captured={capturedNow} " +
                     $"encoded={encodedNow} dropped={droppedNow} effective={effFps:0.##}",
                     new Services.Logging.LogContext { Module = "Recording", Operation = "FpsReport" });
+
+                // Phase 5 — WHERE the frame budget actually went, measured.
+                // This is also what makes the throttle's blind spot visible:
+                // the throttle above only reads LastCaptureMs, so encoder
+                // backpressure appears in writeAvg/writesBlocked HERE and never
+                // there. A high writeAvg with a low blitAvg+copyAvg means the
+                // encoder, not the capture, is the limit.
+                AppLogService.Info(
+                    $"[RecStageTimings] samples={_stageSamples} " +
+                    $"blitAvg={AvgBlitMs:0.##}ms copyAvg={AvgCopyMs:0.##}ms " +
+                    $"writeAvg={AvgWriteMs:0.##}ms otherAvg={AvgOtherMs:0.##}ms " +
+                    $"writeMax={MaxWriteMs:0.##}ms writesBlocked={WritesBlocked} " +
+                    $"dominant={DominantStage}",
+                    new Services.Logging.LogContext { Module = "Recording", Operation = "StageTimings" });
 
                 string severity = effFps < 5 ? "Critical" : effFps < 15 ? "Warning" : "Normal";
                 bool starved = severity != "Normal";
@@ -1088,6 +1179,18 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                     else
                     {
                         Interlocked.Increment(ref _encodedFrames);
+
+                        // Phase 5 — attribute this frame's cost to a stage.
+                        // Placed inside the success arm because LastWriteMs is
+                        // only refreshed by a successful write; reading it after
+                        // a failure would double-count the previous frame.
+                        double wms = _rawPipe.LastWriteMs;
+                        _blitMsTotal += capture.LastBlitMs;
+                        _copyMsTotal += capture.LastCopyMs;
+                        _writeMsTotal += wms;
+                        if (wms > _writeMsMax) _writeMsMax = wms;
+                        if (wms >= FfmpegRawPipe.WriteBlockThresholdMs) _writesBlocked++;
+                        _stageSamples++;
                     }
 
                     if (!_rawPipe.IsOpen)
