@@ -308,9 +308,17 @@ namespace ProGlassAutomation.Tests.Settings
             Assert.Contains("Background\" Value=\"{DynamicResource SettingsInnerFaceBrush}\"", grammar);
             Assert.Contains("Background\" Value=\"{DynamicResource Ios26TileBrush}\"", grammar); // action bar + danger wash keep it
 
-            // 3. The cards breathe: the gap the owner complained about.
-            Assert.Contains("<Thickness x:Key=\"SettingsCardMargin\">0,0,0,22</Thickness>", grammar);
-            Assert.Contains("<sys:Double x:Key=\"SettingsGapCard\">22</sys:Double>", grammar);
+            // 3. The card rhythm is the ABOUT module's rhythm, token for
+            //    token — the owner benchmarked the settings pages against
+            //    About twice (2026-09-17 "cards are too close", 2026-09-16
+            //    "cards are too big … check About module cards spacing"),
+            //    and About uses Padding 22,20 with a 14 px card gap
+            //    (AboutIos26Theme.xaml Ios26CardStyle + the Margin every
+            //    About card carries). Anything else here is drift.
+            Assert.Contains("<Thickness x:Key=\"SettingsCardMargin\">0,0,0,14</Thickness>", grammar);
+            Assert.Contains("<sys:Double x:Key=\"SettingsGapCard\">14</sys:Double>", grammar);
+            Assert.Contains("<Thickness x:Key=\"SettingsCardPadding\">22,20</Thickness>", grammar);
+            Assert.Contains("<Thickness x:Key=\"SettingsPagePadding\">24,20,24,24</Thickness>", grammar);
 
             // 4. All five keys must exist in BOTH theme columns, or one theme
             //    silently falls through to the other theme's material (the

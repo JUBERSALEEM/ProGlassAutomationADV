@@ -386,8 +386,18 @@
                  section already drive the VM Initialize/Teardown hooks).
                  One scroller lives at a time (the section's own), so the
                  wheel never scrolls a hidden page behind the visible one. -->
+            <!-- SYNC FIX (2026-09-17): Content WAS "{Binding}" — the shell VM,
+                 which never changes. WPF re-runs a ContentTemplateSelector
+                 ONLY when Content changes, so the selector was evaluated once
+                 at load and the page never followed the rail: clicking any
+                 menu highlighted the row and renamed the header, but the pane
+                 kept showing the first page. Content is now the page KEY, so
+                 every rail click changes Content and re-runs the selector.
+                 The sections still inherit the shell VM through the visual
+                 tree (the page-scoped ones set their own DataContext in
+                 SettingsPageTemplates.xaml), so no binding moved. -->
             <ContentControl Grid.Row="1"
-                            Content="{Binding}"
+                            Content="{Binding SettingsPage}"
                             ContentTemplateSelector="{StaticResource SettingsPageTemplateSelector}"
                             Focusable="False"
                             HorizontalContentAlignment="Stretch"

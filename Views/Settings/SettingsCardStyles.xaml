@@ -83,8 +83,26 @@
          profile); the rest are composition gaps, deliberately fixed so a
          page's rhythm does not change when the operator changes density
          of CONTROLS. -->
-    <Thickness x:Key="SettingsPagePadding">18,14,18,18</Thickness>
-    <Thickness x:Key="SettingsCardPadding">24,22</Thickness>
+    <!-- 2026-09-16 (owner: "cards are too big … check About module cards
+         spacing then compare with complete setting modules all screen and
+         apply accordingly"). The About module is the benchmark this whole
+         crystal design came from, so its rhythm numbers are now the
+         settings rhythm too — measured, not guessed:
+
+           About page block      StackPanel Margin="32,26,32,32"  (AboutView:266)
+           About card padding    Ios26CardStyle Padding="22,20"   (AboutIos26Theme:112)
+           About card gap        Margin="0,0,0,14" on every card  (12 of 14 cards)
+           About header gap      title Margin="0,0,0,14"          (DiagnosticsSection:58)
+
+         The settings module was running 24,22 padding / 22 gap / 18 page
+         padding: every card was 4 px taller, 4 px wider inside and 8 px
+         further from its neighbour than the About card it is supposed to
+         look like — which is exactly "the cards are too big". Page padding
+         goes 18 → 24 horizontally rather than About's 32: About is a
+         read-only page, these carry dense label+control rows and a 32 px
+         inset starts clipping them below 1280. -->
+    <Thickness x:Key="SettingsPagePadding">24,20,24,24</Thickness>
+    <Thickness x:Key="SettingsCardPadding">22,20</Thickness>
     <!-- Crystal-axis rows (Themes): label sits above the track, 6px air,
          then 22px to the next row — matches the approved mockup rhythm. -->
     <Thickness x:Key="SettingsAxisLabelMargin">0,0,0,6</Thickness>
@@ -94,16 +112,18 @@
     <Thickness x:Key="SettingsRowPadding">0,9</Thickness>
     <Thickness x:Key="SettingsIconTextMargin">10,0,0,0</Thickness>
 
-    <!-- 2026-09-17: 14 → 22. At 14 the page cards sat shoulder to shoulder and
-         the module read as one continuous sheet, which is what the owner
-         reported as "cards are too close". 22 is the About page's rhythm. -->
-    <sys:Double x:Key="SettingsGapPage">22</sys:Double>
-    <sys:Double x:Key="SettingsGapCard">22</sys:Double>
+    <!-- The scale in About's numbers: 14 between cards/blocks, 6 between
+         rows inside a card, 10 for inline icon↔label air. (2026-09-17 had
+         these at 22 after a "cards are too close" report; the owner then
+         benchmarked the module against About, and 14 is what About uses —
+         the 22 was compensating for the over-padded card, not for the gap.) -->
+    <sys:Double x:Key="SettingsGapPage">14</sys:Double>
+    <sys:Double x:Key="SettingsGapCard">14</sys:Double>
     <sys:Double x:Key="SettingsGapRow">6</sys:Double>
     <sys:Double x:Key="SettingsGapInline">10</sys:Double>
-    <sys:Double x:Key="SettingsGapSection">22</sys:Double>
+    <sys:Double x:Key="SettingsGapSection">14</sys:Double>
 
-    <Thickness x:Key="SettingsCardMargin">0,0,0,22</Thickness>
+    <Thickness x:Key="SettingsCardMargin">0,0,0,14</Thickness>
     <Thickness x:Key="SettingsRowMargin">0,0,0,6</Thickness>
     <!-- v3 (2026-09-17) spacing scale completion: every rhythmic gap in the
          sections now has ONE name. Before this, 425 literal Margin="…" values
@@ -321,7 +341,8 @@
          the pair stays tight. -->
     <Style x:Key="SettingsCardHeaderStyle" TargetType="TextBlock"
            BasedOn="{StaticResource SettingsCardTitleStyle}">
-        <Setter Property="Margin" Value="0,0,0,12"/>
+        <!-- 14 = About's card title → first row gap (DiagnosticsSection:58). -->
+        <Setter Property="Margin" Value="0,0,0,14"/>
     </Style>
 
     <Style x:Key="SettingsCardHeaderNoteStyle" TargetType="TextBlock"
