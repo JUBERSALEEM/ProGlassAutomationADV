@@ -388,7 +388,15 @@
                                  Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Padding="14,9">
+<!-- 2026-09-18 (P4b): this row had no shared row grammar, so it drew no
+                                                                                     divider, took no hover and - because the P4 zebra
+                                                                                     alternation trigger lives in ModuleListRowStyle -
+                                                                                     no second-row tint either. ModuleListBoxItemStyle is a
+                                                                                     bare ContentPresenter, so nothing else supplies them:
+                                                                                     adjacent rows read as one undifferentiated block of
+                                                                                     text. Local Padding stays (it wins over the style
+                                                                                     setter), so only the grammar changes, not the layout. -->
+                                    <Border Style="{StaticResource ModuleListRowStyle}" Padding="14,9">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="0.9*"/>
