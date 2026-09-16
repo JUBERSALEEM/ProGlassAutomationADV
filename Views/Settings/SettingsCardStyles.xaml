@@ -200,7 +200,7 @@
     <Style x:Key="SettingsPageCardStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource SettingsCardFaceBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource SettingsCardEdgeBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusCard}"/>
         <Setter Property="Padding" Value="{StaticResource SettingsCardPadding}"/>
         <Setter Property="Margin" Value="{StaticResource SettingsCardMargin}"/>
@@ -234,7 +234,7 @@
     <Style x:Key="SettingsInnerTileStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource SettingsInnerFaceBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource SettingsInnerEdgeBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusInner}"/>
         <Setter Property="Padding" Value="{StaticResource SettingsTilePadding}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
