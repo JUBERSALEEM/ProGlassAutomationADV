@@ -27,7 +27,7 @@ namespace ProGlassAutomation.Views.Settings.Sections
         {
             if (sender is FrameworkElement el &&
                 el.Tag is string modelKey &&
-                DataContext is Pages.SettingsVoicePageViewModel vm)
+                DataContext is ProGlassAutomation.ViewModels.Settings.Pages.SettingsVoicePageViewModel vm)
             {
                 vm.SelectedWhisperModel = modelKey;
             }

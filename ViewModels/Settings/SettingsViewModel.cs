@@ -85,20 +85,20 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         /// <summary>Sharing Center page (v3 pilot: first page-scoped VM).
         /// The page template binds the section's DataContext to this.</summary>
-        public ViewModels.Settings.Pages.SettingsSharingPageViewModel SharingPage { get; private set; } = null!;
+        public ProGlassAutomation.ViewModels.Settings.Pages.SettingsSharingPageViewModel SharingPage { get; private set; } = null!;
 
         /// <summary>Voice page (v3 promotion #2: Whisper picker/downloader).
         /// The page template binds the section's DataContext to this.</summary>
-        public ViewModels.Settings.Pages.SettingsVoicePageViewModel VoicePage { get; private set; } = null!;
+        public ProGlassAutomation.ViewModels.Settings.Pages.SettingsVoicePageViewModel VoicePage { get; private set; } = null!;
 
         /// <summary>Updates page (v3 promotion #3: OTA check/download/install).
         /// The page template binds the section's DataContext to this.</summary>
-        public ViewModels.Settings.Pages.SettingsUpdatesPageViewModel UpdatesPage { get; private set; } = null!;
+        public ProGlassAutomation.ViewModels.Settings.Pages.SettingsUpdatesPageViewModel UpdatesPage { get; private set; } = null!;
 
         /// <summary>AI Assistant page (v3 promotion #4: providers, keys,
         /// tests, security). The page template binds the section's
         /// DataContext to this; the three Ai cards inherit it.</summary>
-        public ViewModels.Settings.Pages.SettingsAiPageViewModel AiPage { get; private set; } = null!;
+        public ProGlassAutomation.ViewModels.Settings.Pages.SettingsAiPageViewModel AiPage { get; private set; } = null!;
 
         /// <summary>Pass-through for the About section, which shows the app
         /// version too. The Updates page VM has its own identical copy —
@@ -110,13 +110,14 @@ namespace ProGlassAutomation.ViewModels.Settings
         // and the DI-selected parameterized ctor initialize fully.
         private void InitializeCore()
         {
-            SharingPage = new ViewModels.Settings.Pages.SettingsSharingPageViewModel(_config);
-            VoicePage = new ViewModels.Settings.Pages.SettingsVoicePageViewModel(
+            SharingPage = new ProGlassAutomation.ViewModels.Settings.Pages.SettingsSharingPageViewModel(_config);
+            VoicePage = new ProGlassAutomation.ViewModels.Settings.Pages.SettingsVoicePageViewModel(
                 _config,
                 () => _speechToText,
                 v => _speechToText = v!);
-            UpdatesPage = new ViewModels.Settings.Pages.SettingsUpdatesPageViewModel();
-            AiPage = new ViewModels.Settings.Pages.SettingsAiPageViewModel(_config, _dialogs);
+            UpdatesPage = new ProGlassAutomation.ViewModels.Settings.Pages.SettingsUpdatesPageViewModel();
+            AiPage = new ProGlassAutomation.ViewModels.Settings.Pages.SettingsAiPageViewModel(
+                _config, _dialogs, _providerEvents);
             _config.DataConnectivity ??= new DataConnectivitySettings();
 
             // v2 shell: navigation between the settings pages.

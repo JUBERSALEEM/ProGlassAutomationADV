@@ -60,5 +60,48 @@ for f in glob.glob('Views/**/*.xaml', recursive=True):
     for m in re.finditer(r'<\w+\.\w+[^>]*?>', x):
         if re.search(r'\s\w+[:\w.]*\s*=', m.group(0)):
             fails.append(f + ': attributes on property element ' + m.group(0)[:40])
+# ── code-behind contract locks (owner build 2026-09-17) ───────────────
+import os
+_EV = ('Click|PasswordChanged|Checked|Unchecked|Toggled|SelectionChanged|'
+       'SelectedIndexChanged|TextChanged|LostFocus|GotFocus|KeyDown|KeyUp|'
+       'PreviewKeyDown|Loaded|Unloaded|ValueChanged|DragOver|Drop|'
+       'MouseLeftButtonDown|MouseLeftButtonUp|MouseDoubleClick|MouseEnter|'
+       'MouseLeave|Expanded|Collapsed|Completed|ScrollChanged|SizeChanged|'
+       'CurrentCellChanged|BeginningEdit|CellEditEnding|RowEditEnding|'
+       'AutoGeneratingColumn|LoadingRow|PreparingCellForEdit|RequestNavigate|'
+       'ManipulationDelta|ManipulationCompleted|PreviewMouseLeftButtonDown')
+
+def _strip(code):
+    code = re.sub(r'/\*.*?\*/', '', code, flags=re.S)
+    return re.sub(r'//[^\r\n]*', '', code)
+
+_views = [f for f in glob.glob('Views/**/*.xaml', recursive=True)]
+# CS1061 — every XAML event handler must exist in the paired code-behind
+for f in _views:
+    cs = f + '.cs'
+    if not os.path.exists(cs):
+        continue
+    body = _strip(open(cs, encoding='utf-8').read())
+    for ev, name in re.findall(r'\b(' + _EV + r')="(\w+)"', open(f, encoding='utf-8').read()):
+        if not re.search(r'(?:void|Task|async\s+\w+)\s+' + re.escape(name) + r'\s*\(', body):
+            fails.append('%s wires %s=%s but %s does not define it' % (f, ev, name, cs))
+# CS0103 — an x:Name only exists in its own namescope
+_declared = {}
+for f in _views:
+    for n in re.findall(r'\bx:Name="(\w+)"', open(f, encoding='utf-8').read()):
+        _declared.setdefault(n, f)
+for cs in glob.glob('Views/Settings/**/*.xaml.cs', recursive=True):
+    own = os.path.basename(cs)[:-3]
+    body = _strip(open(cs, encoding='utf-8').read())
+    for n, src in _declared.items():
+        if os.path.basename(src) == own:
+            continue
+        if re.search(r'(?<![\w.$])' + re.escape(n) + r'\s*\.', body):
+            fails.append('%s uses %s declared in %s' % (cs, n, src))
+# CS0246 — page VM references must be fully qualified
+for f in [x for x in glob.glob('**/*.cs', recursive=True)
+          if not any(p in x for p in ('/obj/', '/bin/', 'Tests/', 'Tools/', '.git/'))]:
+    for m in re.finditer(r'(?<![\w.])(?:ViewModels\.Settings\.)?Pages\.\w+', _strip(open(f, encoding='utf-8').read())):
+        fails.append('%s references page VMs relatively (%s)' % (f, m.group(0)))
 print('MIRROR FAIL: ' + '; '.join(fails) if fails else 'MIRROR PASS (all file-level locks)')
 sys.exit(1 if fails else 0)

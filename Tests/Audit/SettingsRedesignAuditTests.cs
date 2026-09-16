@@ -218,6 +218,113 @@ namespace ProGlassAutomation.Tests.Audit
         }
 
         [Fact]
+        public void Xaml_Event_Handlers_Exist_In_Their_Own_Code_Behind()
+        {
+            // CS1061 (owner build 2026-09-17): the card split moved controls
+            // into card UserControls while their Click / PasswordChanged
+            // handlers stayed behind in the section code-behind. A XAML event
+            // attribute resolves against the x:Class type, so the markup
+            // compiler could not find them. Handlers live with their controls.
+            var events = new[]
+            {
+                "Click", "PasswordChanged", "Checked", "Unchecked", "Toggled",
+                "SelectionChanged", "SelectedIndexChanged", "TextChanged",
+                "LostFocus", "GotFocus", "KeyDown", "KeyUp", "PreviewKeyDown",
+                "Loaded", "Unloaded", "ValueChanged", "DragOver", "Drop",
+                "MouseLeftButtonDown", "MouseLeftButtonUp", "MouseDoubleClick",
+                "MouseEnter", "MouseLeave", "Expanded", "Collapsed",
+                "Completed", "ScrollChanged", "SizeChanged",
+                "CurrentCellChanged", "BeginningEdit", "CellEditEnding",
+                "RowEditEnding", "AutoGeneratingColumn", "LoadingRow",
+                "PreparingCellForEdit", "RequestNavigate", "ManipulationDelta",
+                "ManipulationCompleted", "PreviewMouseLeftButtonDown"
+            };
+            var q = new string((char)34, 1);
+            var handler = new Regex(
+                "(" + string.Join("|", events) + ")=" + q + "([^" + q + "]+)" + q);
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "Views"), "*.xaml", SearchOption.AllDirectories))
+            {
+                var code = file + ".cs";
+                if (!File.Exists(code)) continue;
+                var body = StripComments(File.ReadAllText(code));
+                foreach (Match m in handler.Matches(File.ReadAllText(file)))
+                {
+                    var name = m.Groups[2].Value;
+                    if (!char.IsLetter(name[0]) || name.StartsWith("{")) continue;
+                    Assert.True(
+                        Regex.IsMatch(body, @"(?:void|Task|async\s+\w+)\s+" + name + @"\s*\("),
+                        Path.GetFileName(file) + " wires " + m.Groups[1].Value + "=" + name +
+                        " but " + Path.GetFileName(code) + " does not define it (CS1061)");
+                }
+            }
+        }
+
+        [Fact]
+        public void Named_Elements_Are_Referenced_Only_By_Their_Own_Code_Behind()
+        {
+            // CS0103 (owner build 2026-09-17): a section code-behind kept
+            // using x:Name fields (AgentKeyBox and the three API-key boxes)
+            // that the card split had moved into a card UserControl. An
+            // x:Name only generates a field in ITS OWN namescope.
+            var q = new string((char)34, 1);
+            var declaredBy = new Dictionary<string, string>();
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "Views"), "*.xaml", SearchOption.AllDirectories))
+                foreach (Match m in Regex.Matches(
+                             File.ReadAllText(file), "x:Name=" + q + @"(\w+)" + q))
+                    declaredBy.TryAdd(m.Groups[1].Value, file);
+
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "Views", "Settings"), "*.xaml.cs",
+                         SearchOption.AllDirectories))
+            {
+                var own = Path.GetFileName(file);
+                own = own.Substring(0, own.Length - 3);           // drop ".cs"
+                var body = StripComments(File.ReadAllText(file));
+                foreach (var pair in declaredBy)
+                {
+                    if (Path.GetFileName(pair.Value) == own) continue;
+                    Assert.False(
+                        Regex.IsMatch(body, @"(?<![\w.$])" + pair.Key + @"\s*\."),
+                        own + " uses " + pair.Key + ", which is declared in " +
+                        Path.GetFileName(pair.Value) + " (CS0103)");
+                }
+            }
+        }
+
+        [Fact]
+        public void Page_ViewModel_References_Are_Fully_Qualified()
+        {
+            // CS0246 (owner build 2026-09-17): the promoted page VMs were
+            // referenced through a namespace-RELATIVE qualifier, which only
+            // resolves while the referring file happens to sit in a namespace
+            // whose chain still contains the folder. Moving the VMs into their
+            // own namespace broke every relative reference, so all of them are
+            // now written out in full.
+            var relative = new Regex(
+                @"(?<![\w.])(?:ViewModels\.Settings\.)?Pages\.\w+");
+            foreach (var file in Directory.EnumerateFiles(Root(), "*.cs", SearchOption.AllDirectories))
+            {
+                var rel = Path.GetRelativePath(Root(), file).Replace('\\', '/');
+                if (rel.StartsWith("obj/") || rel.StartsWith("bin/") ||
+                    rel.StartsWith("Tests/") || rel.StartsWith("Tools/") ||
+                    rel.StartsWith(".git/"))
+                    continue;
+                Assert.False(relative.IsMatch(StripComments(File.ReadAllText(file))),
+                    rel + " references the page VMs through a relative qualifier");
+            }
+        }
+
+        /// <summary>Drops block and line comments so the locks above never
+        /// match prose — the banner comments quote handler names.</summary>
+        private static string StripComments(string s)
+        {
+            s = Regex.Replace(s, @"/\*.*?\*/", string.Empty, RegexOptions.Singleline);
+            return Regex.Replace(s, @"//[^\r\n]*", string.Empty);
+        }
+
+        [Fact]
         public void Shell_Helpers_Are_Defined()
         {
             // REGRESSION LOCK: the phase-3a split once dropped SaveConfig()'s

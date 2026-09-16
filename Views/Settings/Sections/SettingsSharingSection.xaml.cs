@@ -19,14 +19,14 @@ namespace ProGlassAutomation.Views.Settings.Sections
             InitializeComponent();
             Loaded += (_, __) =>
             {
-                if (DataContext is ViewModels.Settings.Pages.SettingsSharingPageViewModel vm)
+                if (DataContext is ProGlassAutomation.ViewModels.Settings.Pages.SettingsSharingPageViewModel vm)
                     vm.EnsureSharingInit();
             };
         }
 
         private void RuleCombo_SelectionChanged(object sender, RoutedEventArgs e)
         {
-            if (DataContext is ViewModels.Settings.Pages.SettingsSharingPageViewModel vm)
+            if (DataContext is ProGlassAutomation.ViewModels.Settings.Pages.SettingsSharingPageViewModel vm)
                 vm.SaveSharingDocumentRules();
         }
     }

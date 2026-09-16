@@ -47,6 +47,10 @@ namespace ProGlassAutomation.ViewModels.Settings.Pages
     {
         private readonly AppConfig? _config;
         private readonly IDialogService? _dialogs;
+
+        /// <summary>CS0103 fix: bus the promoted ActiveProvider setter raises.</summary>
+        private readonly Services.AI.IAiProviderEvents _providerEvents;
+
         private IAiService? _ai;
 
         private string _geminiTestStatus = string.Empty;
@@ -54,10 +58,12 @@ namespace ProGlassAutomation.ViewModels.Settings.Pages
         private string _cohereTestStatus = string.Empty;
         private bool _apiKeyJustSaved;
 
-        public SettingsAiPageViewModel(AppConfig? config, IDialogService? dialogs)
+        public SettingsAiPageViewModel(AppConfig? config, IDialogService? dialogs,
+            Services.AI.IAiProviderEvents? providerEvents = null)
         {
             _config = config;
             _dialogs = dialogs;
+            _providerEvents = providerEvents ?? new Services.AI.AiProviderEvents();
             InitializeAiProviderCommands();
             InitializeAiSecurityCommands();
         }

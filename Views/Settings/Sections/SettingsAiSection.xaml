@@ -11,9 +11,9 @@
        Now: tile-grid layout — master switches and metric readouts fit
        into 320-wide tiles, providers become side-by-side wide tiles
        that self-align in the WrapPanel. API keys stay in a
-       PasswordBox whose x:Name matches the code-behind handlers
-       (GeminiKeyBox / GroqKeyBox / CohereKeyBox) so the existing
-       PasswordChanged wiring keeps working byte-for-byte.
+       PasswordBox inside AiProvidersCard; the three key boxes and their
+       PasswordChanged wiring live in AiProvidersCard.xaml.cs, beside the
+       controls they act on.
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsAiSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"

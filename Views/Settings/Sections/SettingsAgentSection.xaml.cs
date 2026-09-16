@@ -7,10 +7,12 @@
 // the existing SettingsViewModel is not modified at all — the agent stays
 // self-contained under Agent/ plus this one page.
 //
-// The PasswordBox cannot bind Password as a dependency property, so the
-// key is passed to the VM through the click handler, exactly as the
-// existing AI section does. The secret never lives in a bindable
-// property.
+// BUILD FIX (owner build 2026-09-17): AgentKeyBox and the Store KEY /
+// License buttons live in AgentCoreCard now, so StoreKey_Click and
+// OpenModelLicense_Click moved into AgentCoreCard.xaml.cs next to them.
+// This code-behind keeps only what it still owns: creating the agent VM,
+// handing it to AgentRoot (never to this UserControl root) and the lazy
+// agent boot on Loaded.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Core;
@@ -18,7 +20,6 @@ using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.UI;
 using System;
 using ProGlassAutomation.Utilities;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -65,34 +66,5 @@ namespace ProGlassAutomation.Views.Settings.Sections
             };
         }
 
-        private void StoreKey_Click(object sender, RoutedEventArgs e)
-        {
-            _vm.StoreKey(AgentKeyBox.Password);
-            AgentKeyBox.Clear();
-        }
-
-        /// <summary>
-        /// Opens the selected model's license page in the user's default
-        /// browser. Licence transparency BEFORE install is a firm rule of
-        /// the local-model program — the user must always be able to read
-        /// the terms themselves, not take our word.
-        /// </summary>
-        private void OpenModelLicense_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                string? url = _vm.SelectedModel?.LicenseUrl;
-                if (string.IsNullOrWhiteSpace(url)) return;
-
-                Process.Start(new ProcessStartInfo(url)
-                {
-                    UseShellExecute = true
-                });
-            }
-            catch (Exception ex)
-            {
-                AppLogService.Debug($"[SettingsAgentSection] open license: {ex.Message}");
-            }
-        }
     }
 }

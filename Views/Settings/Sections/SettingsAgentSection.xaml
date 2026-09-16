@@ -11,9 +11,10 @@
        Now: privacy toggles become two compact 320-wide tiles side by
        side; the two explanatory info cards collapse into full-row
        tiles beneath; credentials / taught phrases / memory keep
-       their wide surfaces. All bindings preserved, including the
-       code-behind contract (AgentRoot DataContext handoff,
-       AgentKeyBox PasswordBox, StoreKey_Click handler).
+       their wide surfaces. All bindings preserved. The AgentRoot
+       DataContext handoff stays in this section's code-behind;
+       AgentKeyBox, StoreKey_Click and OpenModelLicense_Click live in
+       AgentCoreCard.xaml.cs, beside the controls they act on.
      DataContext is an AgentSettingsViewModel, created by the
      code-behind so the agent subsystem owns its own state and the
      existing SettingsViewModel is not modified. The root Grid keeps
