@@ -97,6 +97,15 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// The page template binds the section's DataContext to this.</summary>
         public ViewModels.Settings.Pages.SettingsVoicePageViewModel VoicePage { get; private set; } = null!;
 
+        /// <summary>Updates page (v3 promotion #3: OTA check/download/install).
+        /// The page template binds the section's DataContext to this.</summary>
+        public ViewModels.Settings.Pages.SettingsUpdatesPageViewModel UpdatesPage { get; private set; } = null!;
+
+        /// <summary>Pass-through for the About section, which shows the app
+        /// version too. The Updates page VM has its own identical copy —
+        /// both read the static Services.Updates.AppInfo.Version.</summary>
+        public string CurrentVersionDisplay => Services.Updates.AppInfo.Version;
+
         // ── Shared initialization (ERR-633EEB) ─────────────────────
         // Extracted verbatim from the parameterless ctor so both it
         // and the DI-selected parameterized ctor initialize fully.
@@ -107,6 +116,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 _config,
                 () => _speechToText,
                 v => _speechToText = v!);
+            UpdatesPage = new ViewModels.Settings.Pages.SettingsUpdatesPageViewModel();
             _config.DataConnectivity ??= new DataConnectivitySettings();
 
             // v2 shell: navigation between the settings pages.

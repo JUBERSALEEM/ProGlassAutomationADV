@@ -48,7 +48,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             InitializeSecurityCommands();
             InitializeThemeWallpaperCommands();
             InitializeModuleWallpaperRows();
-            InitializeUpdateCommands();
+            // InitializeUpdateCommands() moved: wired in the UpdatesPage ctor.
             InitializeLanWifiCommands();
             InitializeBackupCommands();
             InitializeDatabaseHealthCommands();
@@ -234,7 +234,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             }
 
             // v2 §34: show the persisted update history on open.
-            _ = LoadUpdateHistoryAsync();
+            _ = UpdatesPage.LoadUpdateHistoryAsync();
 
         }
 

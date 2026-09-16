@@ -1,42 +1,66 @@
 // ═══════════════════════════════════════════════════════════════════════
-// FILE: ViewModels/Settings/SettingsViewModel.Updates.cs
+// FILE: ViewModels/Settings/Pages/SettingsUpdatesPageViewModel.cs
 // PROJECT: ProGlassAutomation
-// ─────────────────────────────────────────────────────────────────────────
-// Phase 3.1 — SettingsViewModel partial split. This part owns the Updates
-// members; the class declaration, fields and constructor live in
-// SettingsViewModel.cs.
+// MODULE: Settings v3 — per-page ViewModel (phase 3b, promotion #3)
+//
+// Updates page (OTA check / download / install + history) promoted out of
+// the SettingsViewModel god class after Sharing and Voice. Members moved
+// verbatim from SettingsViewModel.Updates.cs; the command wiring moved from
+// SettingsViewModel.Helpers.Updates.cs (InitializeUpdateCommands) into
+// SettingsUpdatesPageViewModel.Commands.cs.
+//
+// Dependency scan: the page touches only statics (UpdateService,
+// VelopackUpdateService, AppInfo, ConfigService, LocalizationService,
+// MessageBox) — no shell state, so the VM is parameterless. The shell keeps
+// a CurrentVersionDisplay pass-through because the About section binds it
+// too; both read the same static AppInfo.Version.
 // ═══════════════════════════════════════════════════════════════════════
 
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Win32;
 using ProGlassAutomation.Commands;
-using ProGlassAutomation.Services.Logging;
-using ProGlassAutomation.Services.Security;
-using ProGlassAutomation.Services.Common;
-using ProGlassAutomation.Services;
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.AI.AIService;
 using ProGlassAutomation.Services.AI.AIVoice;
+using ProGlassAutomation.Services.Common;
 using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.Dialogs;
 using ProGlassAutomation.Services.Fonts;
-using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
+using ProGlassAutomation.Services.Localization;
+using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Security;
+using ProGlassAutomation.Services;
+using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Threading;
-using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using Microsoft.Win32;
-using ProGlassAutomation.Services.Localization;
-using ProGlassAutomation.Services.Dialogs;
-using Microsoft.Extensions.DependencyInjection;
+using System.Windows;
+using System;
 
 namespace ProGlassAutomation.ViewModels.Settings
 {
-    public sealed partial class SettingsViewModel : ViewModelBase, IDisposable
+    /// <summary>Updates page state: OTA state machine projection, release
+    /// info, download progress and persisted update history.</summary>
+    public sealed partial class SettingsUpdatesPageViewModel : ViewModelBase
     {
+        public SettingsUpdatesPageViewModel()
+        {
+            InitializeUpdateCommands();
+        }
+
+        /// <summary>Unhooks the UpdateService event. Called by the shell's
+        /// Dispose — mirrors the detach the god class used to do itself.</summary>
+        public void Detach()
+        {
+            Services.Updates.UpdateService.StateChanged -= OnUpdateServiceStateChanged;
+        }
+
         // ══════════════════════════════════════════════════════════════
         //  v2 — UPDATES (OTA check via GitHub releases)
         // ══════════════════════════════════════════════════════════════
