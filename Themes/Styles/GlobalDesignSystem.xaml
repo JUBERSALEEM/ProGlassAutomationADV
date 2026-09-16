@@ -1079,6 +1079,25 @@
     <Style x:Key="OptionalDimStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
     <Style x:Key="PlCellStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
     <Style x:Key="PrintValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
+
+    <!-- PRINT TABLE-HEADER LABEL (2026-09-18, owner report: "header font text
+         is small black, should be white — same type as the Specification
+         section band"). The spec table header used Typography.Label, which is
+         FontSize.Label (small) with TextSecondaryBrush (dark ink), painted on
+         Print.TableHeader — a DARK navy/teal band in every PdfTheme
+         (#0B2E59, #0F766E, #1B1B18, #1C2833, #222933). Dark small text on a
+         dark band is unreadable, and it broke preview ≡ PDF parity: the
+         exporter's SpecHeaderCell has always painted HeaderFont + Bold +
+         AccentOn (white). This style is that cell in XAML — one definition,
+         used by every print table header, so the two can never drift again. -->
+    <Style x:Key="PrintTableHeaderTextStyle" TargetType="TextBlock"
+           BasedOn="{StaticResource Typography.Body}">
+        <Setter Property="FontSize" Value="{DynamicResource Print.Font.Header}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource Print.AccentOn}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
     <Style x:Key="ProfitableRowStyle" TargetType="DataGridRow"/>
     <Style x:Key="ProformaStatusValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Body}"/>
     <Style x:Key="RowLine" TargetType="Rectangle" BasedOn="{StaticResource HairlineStyle}"/>

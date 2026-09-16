@@ -510,9 +510,19 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
         // Same clamps as PdfChrome so the printed chip matches the shared
         // letterhead chip for identical company records.
-        private static float InlineLogoW(LetterheadInfo info) =>
-            Clamp(info.LogoWidthMm > 0 ? info.LogoWidthMm : 22,
-                PrintTokenService.LogoMinWidthMm, PrintTokenService.LogoMaxWidthMm);
+        // The inline chip sits in the LEFT column of CompanyHeader, which is
+        // 1f of (1f + gutter + 0.48f) ≈ 66% of the content width — not the
+        // full page. LogoMaxWidthMm (80) is a page-independent cap, so on a
+        // theme with wide margins the chip alone could exceed its own column
+        // and the Row would fail. Cap it at a third of the real content width.
+        private static float InlineLogoW(LetterheadInfo info)
+        {
+            float contentMm = 210f - (2f * T.MarginMm);
+            float hi = Math.Min((float)PrintTokenService.LogoMaxWidthMm,
+                Math.Max(20f, contentMm * 0.33f));
+            return Clamp(info.LogoWidthMm > 0 ? info.LogoWidthMm : 22,
+                Math.Min((float)PrintTokenService.LogoMinWidthMm, hi), hi);
+        }
 
         private static float InlineLogoH(LetterheadInfo info) =>
             Clamp(info.LogoHeightMm > 0 ? info.LogoHeightMm : 26,
@@ -527,8 +537,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             // (20 mm margins) a 180 mm mark would otherwise overflow.
             float mastheadPadMm = (float)(M.MastheadPadH * 25.4 / 72.0);
             float safeMax = 210f - (2f * T.MarginMm) - (2f * mastheadPadMm) - 8f;
-            float hi = Math.Max(40f, Math.Min(180f, safeMax));
-            return Clamp(info.LogoWidthMm > 0 ? info.LogoWidthMm : 160, 40, hi);
+            // The floor must never lift the chip back above safeMax: with an
+            // airy theme (20 mm margins + wide masthead padding) Math.Max(40, …)
+            // used to be able to return a width LARGER than the band, which is
+            // the same hard QuestPDF conflict this clamp exists to prevent.
+            float hi = Math.Min(180f, safeMax);
+            float lo = Math.Min(20f, hi);
+            return Clamp(info.LogoWidthMm > 0 ? info.LogoWidthMm : 160, lo, hi);
         }
 
         private static float TopPanelLogoH(LetterheadInfo info) =>
@@ -726,6 +741,16 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                     .PaddingHorizontal(M.GroupPadH).PaddingVertical(M.GroupPadV)
                     .Text($"Specification {group.GroupNumber.ToString(CultureInfo.InvariantCulture)}: {group.GroupName}")
                     .FontSize(M.GroupFont).Bold().FontColor(T.AccentOn);
+
+                // BAND SEPARATOR (owner report 2026-09-18: "Sr glass ref still
+                // mixing with the specs column — they must be separate"). The
+                // accent group banner and the navy column-header row are two
+                // dark bands with zero air between them, so the eye merges them
+                // into one block and "GLASS REF / DESCRIPTION" reads as a
+                // continuation of the specification title instead of a column
+                // header. A paper rule draws the boundary. The preview paints
+                // the same rule (BorderThickness 0,2,0,0 in Print.Paper).
+                col.Item().Height(1.5f).Background(T.White);
 
                 col.Item().Table(table =>
                 {
@@ -1162,12 +1187,31 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
         private static void FinancialSummary(IContainer container, PiDoc doc)
         {
+            // WEIGHTED, NEVER AUTO (owner report: "PDF export is still broken
+            // … wrap reason: forward from child … PiPreviewParityRenderer.cs
+            // line 577 … Conflicting size constraints. Some elements may
+            // require more space than is available").
+            //
+            // This block was `outer.AutoItem().MinWidth(Px(340))`. An AutoItem
+            // measures its child with INFINITE width, and every SummaryRow
+            // inside it is RelativeItem(label) + AutoItem(value): a
+            // RelativeItem has no finite space to divide under an infinite
+            // parent, so the Row forwarded an unsatisfiable width up the tree
+            // and QuestPDF failed the whole document — on EVERY invoice,
+            // because this section is unconditional. It is the same class the
+            // GrandSpecBand fix of 2026-09-11 describes ("Spans inside
+            // RelativeItems can never demand more width than exists; they wrap
+            // instead"); this block simply survived that sweep.
+            //
+            // The old MinWidth(Px(340)) == 255 pt == 47% of the A4 content
+            // width, so the summary column keeps that share as a WEIGHT: same
+            // geometry, but finite by construction and impossible to overflow.
             container.BorderTop(Math.Max(0.75f, M.HairlineWeight)).BorderColor(T.Border)
                 .PaddingTop(M.BlockGap)
                 .Row(outer =>
                 {
-                    outer.RelativeItem();
-                    outer.AutoItem().MinWidth(Px(340)).Column(col =>
+                    outer.RelativeItem(1.05f);
+                    outer.RelativeItem(1f).Column(col =>
                     {
                         SummaryRow(col, PiStr.GlassMaterialsTotal, MoneySuffix(doc.GlassMaterialsTotal));
                         SummaryRow(col, PiStr.OtherChargesTotalLabel, MoneySuffix(doc.OtherChargesTotal));
@@ -1192,10 +1236,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                             .PaddingHorizontal(M.TotalsPadH).PaddingVertical(M.TotalsPadV)
                             .Row(g =>
                             {
-                                g.RelativeItem().AlignMiddle()
+                                // Both sides weighted: a bold SectionFont
+                                // label plus a money value is exactly the pair
+                                // that overflowed when the value was Auto.
+                                g.RelativeItem(1.7f).AlignMiddle()
                                     .Text(PiStr.GrandTotalLabel)
                                     .FontSize(M.SectionFont).Bold().FontColor(T.AccentOn);
-                                g.AutoItem().AlignMiddle()
+                                g.RelativeItem(1f).AlignRight().AlignMiddle()
                                     .Text(MoneySuffix(doc.GrandTotal))
                                     .FontSize(M.SectionFont).Bold().FontColor(T.AccentOn);
                             });
@@ -1210,11 +1257,16 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             if (size <= 0) size = M.ValueFont;
             col.Item().PaddingBottom(M.RowGap).Row(r =>
             {
-                var l = r.RelativeItem().Text(label).FontSize(size);
+                var l = r.RelativeItem(1.7f).Text(label).FontSize(size);
                 l = bold ? l.Bold() : l.SemiBold();
                 l.FontColor(color ?? T.Text);
 
-                var v = r.AutoItem().PaddingLeft(M.GutterGap).Text(value).FontSize(size);
+                // Value: weighted + right-aligned, NOT AutoItem. Under a
+                // finite parent an AutoItem would be legal, but a money string
+                // is the one thing that must never be squeezed to zero, and a
+                // weight guarantees it a share while the label wraps.
+                var v = r.RelativeItem(1f).AlignRight()
+                    .PaddingLeft(M.GutterGap).Text(value).FontSize(size);
                 v = bold ? v.Bold() : v.SemiBold();
                 v.FontColor(color ?? T.Text);
             });

@@ -459,8 +459,26 @@
                                 </StackPanel>
                             </Border>
 
-                            <!-- Table Header Row -->
-                            <Border Background="{DynamicResource Print.TableHeader}">
+                            <!-- Table Header Row.
+                                 2026-09-18 (owner: "Sr glass ref still mixing
+                                 with the specs column — they must be separate;
+                                 header text small black should be white like
+                                 the Specification section"): the accent group
+                                 banner and this navy header band were two dark
+                                 blocks touching edge to edge, so they read as
+                                 one merged band and the column names looked
+                                 like part of the specification title. The 2 DIP
+                                 paper rule draws the boundary (the exporter
+                                 paints the same rule), Print.Thickness.Cell
+                                 gives the labels the cell inset the data rows
+                                 use so every label sits over its own column,
+                                 and the labels themselves now use
+                                 PrintTableHeaderTextStyle — white, bold,
+                                 header-sized — matching SpecHeaderCell. -->
+                            <Border Background="{DynamicResource Print.TableHeader}"
+                                    Padding="{DynamicResource Print.Thickness.Cell}"
+                                    BorderBrush="{DynamicResource Print.Paper}"
+                                    BorderThickness="0,2,0,0">
                                 <Grid>
                                     <!-- SPEC-GRID (2026-09-16): one column set for the header, the data
                                          rows AND the sub-total footer. Only the four dimension columns and
@@ -482,17 +500,17 @@
                                         <ColumnDefinition Width="0.75*"/>
                                         <ColumnDefinition Width="0.95*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="#" Style="{StaticResource Typography.Label}" HorizontalAlignment="Center"/>
-                                    <TextBlock Grid.Column="1" Text="{DynamicResource ProformaInvoice.GlassREFDescription}" Style="{StaticResource Typography.Label}"/>
-                                    <TextBlock Grid.Column="2" Text="W1" Style="{StaticResource Typography.Label}" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="3" Text="H1" Style="{StaticResource Typography.Label}" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="4" Text="W2" Style="{StaticResource Typography.Label}" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="5" Text="H2" Style="{StaticResource Typography.Label}" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="6" Text="QTY" Style="{StaticResource Typography.Label}" HorizontalAlignment="Center"/>
-                                    <TextBlock Grid.Column="7" Text="SQM" Style="{StaticResource Typography.Label}" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="8" Text="{DynamicResource DeliveryNote.TotalSQM}" Style="{StaticResource Typography.Label}" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="9" Text="{DynamicResource ProformaInvoice.RATEAED}" Style="{StaticResource Typography.Label}" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="10" Text="{DynamicResource JobOrder.ValueAED}" Style="{StaticResource Typography.Label}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="0" Text="#" Style="{StaticResource PrintTableHeaderTextStyle}" HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="{DynamicResource ProformaInvoice.GlassREFDescription}" Style="{StaticResource PrintTableHeaderTextStyle}"/>
+                                    <TextBlock Grid.Column="2" Text="W1" Style="{StaticResource PrintTableHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="3" Text="H1" Style="{StaticResource PrintTableHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="4" Text="W2" Style="{StaticResource PrintTableHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="5" Text="H2" Style="{StaticResource PrintTableHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="6" Text="QTY" Style="{StaticResource PrintTableHeaderTextStyle}" HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="7" Text="SQM" Style="{StaticResource PrintTableHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="8" Text="{DynamicResource DeliveryNote.TotalSQM}" Style="{StaticResource PrintTableHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="9" Text="{DynamicResource ProformaInvoice.RATEAED}" Style="{StaticResource PrintTableHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="10" Text="{DynamicResource JobOrder.ValueAED}" Style="{StaticResource PrintTableHeaderTextStyle}" HorizontalAlignment="Right"/>
                                 </Grid>
                             </Border>
 
