@@ -343,7 +343,11 @@ namespace ProGlassAutomation.Services.Optimization
         /// foreign ResultJson shapes (an anonymous production summary and "{}")
         /// by returning empty rather than throwing.
         /// </summary>
-        private static IReadOnlyList<OptimizationPaneResult> Parse(
+        // internal, not private: the test assembly has InternalsVisibleTo and
+        // this parser is the one piece of the bridge that has to shrug off two
+        // foreign ResultJson shapes without throwing, which is worth locking
+        // down with a regression test rather than a comment.
+        internal static IReadOnlyList<OptimizationPaneResult> Parse(
             string? resultJson, string sessionName, DateTime createdUtc)
         {
             if (string.IsNullOrWhiteSpace(resultJson))
