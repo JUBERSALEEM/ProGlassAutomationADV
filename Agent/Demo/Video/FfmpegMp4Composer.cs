@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Security;
 using ProGlassAutomation.Services.Common;
@@ -11,6 +12,21 @@ using System.Threading.Tasks;
 
 namespace ProGlassAutomation.Agent.Demo.Video
 {
+    /// <summary>
+    /// Measured facts about a finished recording, from one bounded ffprobe.
+    /// Every member is nullable: a value that could not be measured must stay
+    /// unknown rather than default to zero and be mistaken for a real reading.
+    /// </summary>
+    public sealed class RecordingVideoFacts
+    {
+        public int? Width { get; init; }
+        public int? Height { get; init; }
+        public double? AvgFrameRate { get; init; }
+        public long? FrameCount { get; init; }
+        public double? DurationSeconds { get; init; }
+        public double? BitrateKbps { get; init; }
+    }
+
     public static class FfmpegMp4Composer
     {
         // ── PHASE 4 STORAGE GUARDS (2026-09-14) ────────────────────────
@@ -822,5 +838,116 @@ namespace ProGlassAutomation.Agent.Demo.Video
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[FfmpegMp4Composer] TryReadVideoBitrateKbps: unmeasured: " + ex.Message); }
             return null;
         }
+        /// <summary>
+        /// Parses an ffprobe rational such as "60000/1001" (59.94) or the
+        /// plain "60". Pure and public so the frame-rate verdict can be
+        /// unit-tested without spawning ffprobe. Null when absent or "N/A".
+        /// </summary>
+        public static double? ParseRational(string? text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return null;
+            text = text.Trim();
+            if (text.Contains('/'))
+            {
+                var parts = text.Split('/');
+                if (parts.Length == 2
+                    && double.TryParse(parts[0], NumberStyles.Float, CultureInfo.InvariantCulture, out double num)
+                    && double.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out double den)
+                    && Math.Abs(den) > double.Epsilon)
+                {
+                    double q = num / den;
+                    return q > 0 ? q : null;
+                }
+                return null;
+            }
+            return double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double v)
+                && v > 0 ? v : null;
+        }
+
+        /// <summary>
+        /// PHASE 7 (2026-09-16) — one bounded ffprobe returning the measured
+        /// facts a recording must be validated against: geometry, average
+        /// frame rate, frame count, duration and bitrate.
+        ///
+        /// WHY THIS EXISTS: the save path already validated DURATION
+        /// mandatorily, and duration was always right - the -itsscale retime
+        /// guarantees it. So a 4K/60 session that collapsed to 8 real fps
+        /// produced a 6-minute file that PASSED and was reported as a
+        /// success. Nothing measured the frame rate the viewer actually got.
+        /// Null when ffprobe is unavailable; callers must treat unmeasured as
+        /// unknown, never as pass.
+        /// </summary>
+        public static RecordingVideoFacts? TryProbeVideoFacts(string path)
+        {
+            string? probe = FindProbe();
+            if (probe == null || string.IsNullOrWhiteSpace(path) || !File.Exists(path)) return null;
+            try
+            {
+                string args = "-v error -select_streams v:0 " +
+                    "-show_entries stream=width,height,avg_frame_rate,r_frame_rate,nb_frames,duration,bit_rate " +
+                    $"-of default=noprint_wrappers=1 \"{path}\"";
+
+                var toolResult = ProcessStartGuard.TryStartTool(probe, args, CorrelationContext.NewId());
+                using var p = toolResult.IsSuccess ? toolResult.Value : null;
+                if (p == null) return null;
+
+                var errTask = p.StandardError.ReadToEndAsync();
+                string text = p.StandardOutput.ReadToEnd();
+
+                if (!p.WaitForExit(5000)) { try { p.Kill(); } catch { } return null; }
+                try { errTask.Wait(500); } catch { }
+
+                var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                foreach (string raw in (text ?? "").Split('\n', '\r'))
+                {
+                    int eq = raw.IndexOf('=');
+                    if (eq <= 0) continue;
+                    string k = raw[..eq].Trim();
+                    string v = raw[(eq + 1)..].Trim();
+                    if (k.Length > 0 && !map.ContainsKey(k)) map[k] = v;
+                }
+                if (map.Count == 0) return null;
+
+                int? IntOrNull(string key) =>
+                    map.TryGetValue(key, out var raw)
+                    && int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int i)
+                    && i > 0 ? i : null;
+                double? RatOrNull(string key) =>
+                    map.TryGetValue(key, out var raw) ? ParseRational(raw) : null;
+
+                double? fps = RatOrNull("avg_frame_rate") ?? RatOrNull("r_frame_rate");
+
+                long? frames = null;
+                if (map.TryGetValue("nb_frames", out var nf)
+                    && long.TryParse(nf, NumberStyles.Integer, CultureInfo.InvariantCulture, out long n)
+                    && n > 0) frames = n;
+
+                double? dur = null;
+                if (map.TryGetValue("duration", out var dv)
+                    && double.TryParse(dv, NumberStyles.Float, CultureInfo.InvariantCulture, out double d)
+                    && d > 0) dur = d;
+
+                double? kbps = null;
+                if (map.TryGetValue("bit_rate", out var bv)
+                    && double.TryParse(bv, NumberStyles.Float, CultureInfo.InvariantCulture, out double b)
+                    && b > 0) kbps = b / 1000.0;
+
+                return new RecordingVideoFacts
+                {
+                    Width = IntOrNull("width"),
+                    Height = IntOrNull("height"),
+                    AvgFrameRate = fps,
+                    FrameCount = frames,
+                    DurationSeconds = dur,
+                    BitrateKbps = kbps
+                };
+            }
+            catch (System.Exception ex)
+            {
+                AppLogService.Debug($"[FfmpegMp4Composer] TryProbeVideoFacts: unmeasured: {ex.Message}");
+            }
+            return null;
+        }
+
     }
 }

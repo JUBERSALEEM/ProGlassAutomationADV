@@ -191,6 +191,152 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             return Math.Clamp(realSeconds / claimed, 0.02, MaxRetimeScale);
         }
 
+        // ── ADAPTIVE THROTTLE CONTRACT (2026-09-16) ────────────────────────
+        // The capture loop measures what each frame costs and gives time back
+        // to the UI thread when capture is expensive. That protection is
+        // correct and stays. What was WRONG is that it was a RATCHET:
+        // effectiveFps could only ever be halved, never raised, so one slow
+        // stretch - a GC pause, a PrintWindow fallback, one busy moment -
+        // locked the whole remainder of the recording at the floor.
+        //
+        // That is the mechanism behind "a 6-minute 4K/60 recording produced
+        // 33 MB". A session that dipped once spent the rest of its life at
+        // 8 fps: ~2880 real frames instead of ~21600. Because the save path
+        // retimes to the true elapsed duration (ComputeRetimeScale) the file
+        // came out the right LENGTH, so the mandatory duration validation
+        // passed it and it was reported as a success. File size followed the
+        // frame count, not the CRF.
+        //
+        // Pure and static so the entire policy is unit-testable with no
+        // window, no dispatcher and no ffmpeg.
+
+        /// <summary>Fraction of one frame interval capture may spend before
+        /// the frame counts as an overrun. 0.5 leaves the UI thread a real
+        /// gap on every frame.</summary>
+        public const double UiBudgetFraction = 0.5;
+
+        /// <summary>A frame at or below this fraction of the interval counts
+        /// toward RECOVERY. Deliberately tighter than
+        /// <see cref="UiBudgetFraction"/> so a machine sitting right at the
+        /// edge does not oscillate between two rates.</summary>
+        public const double RecoveryBudgetFraction = 0.35;
+
+        /// <summary>Floor for the adaptive throttle. Below this a recording is
+        /// a slideshow whatever the requested rate claimed.</summary>
+        public const int MinThrottledFps = 8;
+
+        /// <summary>Consecutive overruns before the rate is halved.</summary>
+        public const int SlowStreakToHalve = 5;
+
+        /// <summary>Consecutive COMFORTABLE frames before the rate steps back
+        /// up. Much larger than <see cref="SlowStreakToHalve"/> on purpose:
+        /// back-off must stay faster than recovery or a marginal machine
+        /// oscillates, which looks worse to a viewer than simply holding a
+        /// lower rate. At the 8 fps floor this is ~11 s of clean capture
+        /// before the first step up.</summary>
+        public const int FastStreakToRecover = 90;
+
+        /// <summary>Back-off step: halve, never below the floor.</summary>
+        public static int StepThrottleDown(int currentFps) =>
+            Math.Max(MinThrottledFps, currentFps / 2);
+
+        /// <summary>
+        /// Recovery step: one modest increase toward the requested rate and
+        /// never past it. +50% rounded, so 8 -&gt; 12 -&gt; 18 -&gt; 27 -&gt; 41 -&gt; 60,
+        /// with a floor of +1 so even a rate of 1 can climb.
+        /// </summary>
+        public static int StepThrottleUp(int currentFps, int requestedFps)
+        {
+            if (requestedFps <= 0) return Math.Max(1, currentFps);
+            if (currentFps >= requestedFps) return requestedFps;
+            // AwayFromZero is stated explicitly rather than left to
+            // Math.Round's default (banker's / ToEven), which would make
+            // 27 * 1.5 = 40.5 round DOWN to 40 while 12 * 1.5 = 18 rounds
+            // exact - an inconsistent climb that is hard to reason about.
+            int next = Math.Max(currentFps + 1,
+                (int)Math.Round(currentFps * 1.5, MidpointRounding.AwayFromZero));
+            return Math.Min(requestedFps, next);
+        }
+
+        // ── DELIVERED-FIDELITY VERDICT (PHASE 7, 2026-09-16) ────────────────
+        // The save path already validated DURATION mandatorily, and duration
+        // was always correct - the -itsscale retime guarantees it by
+        // construction. That is precisely why a 4K/60 session that collapsed
+        // to 8 real fps still PASSED and was reported as a success: it was
+        // six minutes long, just not smooth, and nothing measured smoothness.
+        //
+        // These classify what ffprobe MEASURED in the delivered file against
+        // what was requested. Unknown is a distinct outcome from Pass: when
+        // ffprobe is missing a recording must not be silently promoted to a
+        // pass, and must not be failed either.
+
+        /// <summary>Verdict on the delivered file versus the request.</summary>
+        public enum RecordingFidelity
+        {
+            /// <summary>Measured and within tolerance.</summary>
+            Pass = 0,
+            /// <summary>Measured and materially below the request. The file is
+            /// still saved - duration validation owns the SAVED decision - but
+            /// it is no longer reported as a clean success.</summary>
+            Degraded = 1,
+            /// <summary>Could not be measured (ffprobe absent, stream unreadable).
+            /// Never treated as a pass.</summary>
+            Unknown = 2
+        }
+
+        /// <summary>Fraction of the requested frame rate that still passes.
+        /// 0.95 accepts 57-60 fps for a 60 fps request: container timestamp
+        /// rounding and the final partial frame sit inside that band, while a
+        /// throttled capture (30, 15, 8 fps) sits far outside it. Deliberately
+        /// not tighter - failing a recording over 59.94 vs 60 would be noise.</summary>
+        public const double FpsPassFraction = 0.95;
+
+        /// <summary>Classifies a measured average frame rate against the request.</summary>
+        public static RecordingFidelity ClassifyFrameRate(int requestedFps, double? actualFps)
+        {
+            if (requestedFps <= 0) return RecordingFidelity.Unknown;
+            if (!actualFps.HasValue || actualFps.Value <= 0) return RecordingFidelity.Unknown;
+            return actualFps.Value >= requestedFps * FpsPassFraction
+                ? RecordingFidelity.Pass
+                : RecordingFidelity.Degraded;
+        }
+
+        /// <summary>Classifies measured geometry against the requested output
+        /// size. Exact match: a 1920x1080 file sold as 4K is a real defect,
+        /// not a rounding difference.</summary>
+        public static RecordingFidelity ClassifyResolution(
+            int requestedWidth, int requestedHeight, int? actualWidth, int? actualHeight)
+        {
+            if (requestedWidth <= 0 || requestedHeight <= 0) return RecordingFidelity.Unknown;
+            if (!actualWidth.HasValue || !actualHeight.HasValue) return RecordingFidelity.Unknown;
+            return actualWidth.Value == requestedWidth && actualHeight.Value == requestedHeight
+                ? RecordingFidelity.Pass
+                : RecordingFidelity.Degraded;
+        }
+
+        /// <summary>Worst of two verdicts, treating Unknown as weaker than Pass
+        /// but stronger than Degraded - so one measured failure is never
+        /// masked by one unmeasurable check.</summary>
+        public static RecordingFidelity WorstFidelity(
+            RecordingFidelity a, RecordingFidelity b)
+        {
+            if (a == RecordingFidelity.Degraded || b == RecordingFidelity.Degraded)
+                return RecordingFidelity.Degraded;
+            if (a == RecordingFidelity.Unknown || b == RecordingFidelity.Unknown)
+                return RecordingFidelity.Unknown;
+            return RecordingFidelity.Pass;
+        }
+
+        /// <summary>Average bitrate of the delivered file in Mbps, from its
+        /// size and measured duration - the number that explains a suspiciously
+        /// small file. Null when either input is unusable, so a missing
+        /// measurement can never be printed as 0.0 Mbps.</summary>
+        public static double? AverageBitrateMbps(long fileSizeBytes, double durationSeconds)
+        {
+            if (fileSizeBytes <= 0 || durationSeconds <= 0) return null;
+            return fileSizeBytes * 8.0 / durationSeconds / 1_000_000.0;
+        }
+
         // Incremented from BOTH the capture loop and thread-pool encode
         // tasks. Plain ++ on an int is a read-modify-write and loses counts
         // under contention, which made the HUD's dropped/encoded figures
@@ -209,6 +355,17 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         private long _capturedFrames;
 
         public long CapturedFrames => Volatile.Read(ref _capturedFrames);
+
+        private long _throttleDowns;
+        private long _throttleUps;
+
+        /// <summary>How many times the adaptive throttle HALVED the rate and
+        /// how many times it stepped back up. Downs far exceeding ups means
+        /// the recording spent most of its life below the requested rate -
+        /// the number that explains a small file far better than CRF does.</summary>
+        public long ThrottleDowns => Volatile.Read(ref _throttleDowns);
+        public long ThrottleUps => Volatile.Read(ref _throttleUps);
+
         public int FinalEffectiveFps { get; private set; }
         public TimeSpan? LoopbackAudioSeconds { get; private set; }
         public TimeSpan? MicAudioSeconds { get; private set; }
@@ -304,6 +461,8 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             Interlocked.Exchange(ref _droppedFrames, 0);
             Interlocked.Exchange(ref _encodedFrames, 0);
             Interlocked.Exchange(ref _capturedFrames, 0);
+            Interlocked.Exchange(ref _throttleDowns, 0);
+            Interlocked.Exchange(ref _throttleUps, 0);
             FinalEffectiveFps = Math.Max(1, _settings.Fps);
             LoopbackAudioSeconds = null;
             MicAudioSeconds = null;
@@ -761,8 +920,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             int effectiveFps = fps;
             var effInterval = interval;
             double slowStreak = 0;
-            const double UiBudgetFraction = 0.5;   // never eat >50% of a frame
-            const int MinFps = 8;
+            double fastStreak = 0;
 
             // PHASE-2 DIAGNOSTIC: periodic health line — every 100 written
             // frames or 10 s, whichever comes first. Never per-frame, so it
@@ -827,12 +985,14 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                             // deliberately slower than back-off, because
                             // oscillating between rates looks worse to the
                             // user than simply running at the lower one.
-                            if (slowStreak >= 5 && effectiveFps > MinFps)
+                            if (slowStreak >= SlowStreakToHalve && effectiveFps > MinThrottledFps)
                             {
-                                effectiveFps = Math.Max(MinFps, effectiveFps / 2);
+                                effectiveFps = StepThrottleDown(effectiveFps);
                                 effInterval = TimeSpan.FromMilliseconds(1000.0 / effectiveFps);
                                 FinalEffectiveFps = effectiveFps;   // PHASE-2: record the throttle
                                 slowStreak = 0;
+                                fastStreak = 0;
+                                Interlocked.Increment(ref _throttleDowns);
 
                                 AppLogService.Debug(
                                     $"[Recording] capture {capture.LastCaptureMs:F0}ms " +
@@ -843,6 +1003,38 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                         else
                         {
                             slowStreak = Math.Max(0, slowStreak - 0.25);
+
+                            // ── RECOVERY (2026-09-16) ────────────────────
+                            // Only frames that were COMFORTABLE - not merely
+                            // under budget - count toward recovery, and a long
+                            // clean streak is required before stepping up.
+                            // Without this branch the throttle was one-way and
+                            // a single slow moment cost the rest of the file.
+                            if (capture.LastCaptureMs <=
+                                effInterval.TotalMilliseconds * RecoveryBudgetFraction)
+                            {
+                                fastStreak++;
+                            }
+                            else
+                            {
+                                fastStreak = Math.Max(0, fastStreak - 1);
+                            }
+
+                            if (fastStreak >= FastStreakToRecover && effectiveFps < fps)
+                            {
+                                int before = effectiveFps;
+                                effectiveFps = StepThrottleUp(effectiveFps, fps);
+                                effInterval = TimeSpan.FromMilliseconds(1000.0 / effectiveFps);
+                                FinalEffectiveFps = effectiveFps;
+                                fastStreak = 0;
+                                slowStreak = 0;
+                                Interlocked.Increment(ref _throttleUps);
+
+                                AppLogService.Debug(
+                                    $"[Recording] capture settled at " +
+                                    $"{capture.LastCaptureMs:F0}ms; frame rate recovered " +
+                                    $"{before}fps -> {effectiveFps}fps (requested {fps}fps).");
+                            }
                         }
                     }
                 }

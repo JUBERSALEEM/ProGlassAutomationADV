@@ -69,6 +69,11 @@ namespace ProGlassAutomation.Agent.Demo.Video
         // The concrete encoder this pipe actually uses (hardware or CPU)
         // and the live process handle for performance sampling.
         public string EncodeName { get; private set; } = "libx264";
+
+        /// <summary>PHASE 6 — the literal ffmpeg command line this pipe was
+        /// started with, kept so a later diagnostic can quote the exact
+        /// invocation instead of rebuilding it from resolved parameters.</summary>
+        public string CommandLine { get; private set; } = "";
         public bool HardwareEncoder { get; private set; }
         public Process? FfmpegProcess { get { try { return _process; } catch { return null; } } }
 
@@ -202,6 +207,17 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 $"-movflags +faststart " +
                 $"\"{videoPath}\"";
 
+            // ── PHASE 6 (2026-09-16): the exact command, verbatim ─────────
+            // [RecEncode] logs the resolved PARAMETERS (encoder, preset, CRF,
+            // in/out geometry). This logs the literal command line actually
+            // handed to the child process, so diagnosing a recording never
+            // depends on reconstructing arguments from several separate
+            // fields - and so an option conflict is visible at a glance.
+            // One line per recording, never periodic.
+            AppLogService.Info(
+                $"[RecFfmpegCmd] \"{ffmpeg}\" {args}",
+                new LogContext { Module = "Recording", Operation = "FfmpegCommandLine" });
+
             try
             {
                 var toolResult = ProcessStartGuard.TryStartTool(
@@ -230,6 +246,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
                     HardwareEncoder = encoder.Hardware,
                     EncodePreset = encoderPreset,
                     EncodeCrfUsed = qArgs.QualityValue,
+                    CommandLine = args,
                     NominalFps = fps,
                     OutputWidth = outW,
                     OutputHeight = outH

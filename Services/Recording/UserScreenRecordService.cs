@@ -206,6 +206,93 @@ namespace ProGlassAutomation.Services.Recording
                 $"MBPerMinute={(mbPerMinute?.ToString("0.##") ?? "n/a")}",
                 new LogContext { Module = "Recording", Operation = "QualityTelemetry" });
 
+            // ── PHASE 7 (2026-09-16): MEASURED fidelity verdict ──────────
+            // [RecQuality] above reports the REQUESTED geometry - outW/outH
+            // come from the settings object - so it printed 3840x2160 even
+            // for a file that came out smaller, and nothing compared the
+            // frame rate a viewer actually receives against the one asked
+            // for. Duration WAS already validated mandatorily, and duration
+            // is correct by construction: the -itsscale retime stretches
+            // whatever arrived onto the real elapsed time. That is precisely
+            // how a 4K/60 request that collapsed to 8 real fps produced a
+            // six-minute file which passed every existing check and was
+            // reported as a success while containing ~2880 frames instead of
+            // ~21600.
+            //
+            // One extra bounded ffprobe measures the delivered stream. A
+            // degraded verdict does NOT refuse the save - duration validation
+            // still owns the SAVED decision, and refusing would break
+            // existing recordings on slower machines - but it is no longer
+            // silent: Warning severity, an explicit verdict token in the
+            // record, and the user-facing Status says so.
+            var facts = FfmpegMp4Composer.TryProbeVideoFacts(mp4);
+            var fpsVerdict = WindowScreenRecorder.ClassifyFrameRate(rec.Fps, facts?.AvgFrameRate);
+            var resVerdict = WindowScreenRecorder.ClassifyResolution(
+                outW, outH, facts?.Width, facts?.Height);
+            var fidelity = WindowScreenRecorder.WorstFidelity(fpsVerdict, resVerdict);
+
+            double? measuredDuration = facts?.DurationSeconds ?? durationSec;
+            double? avgMbps = WindowScreenRecorder.AverageBitrateMbps(
+                info.Length, measuredDuration ?? 0.0);
+            double wallSeconds = recorder.Duration.TotalSeconds;
+            double? captureFps = wallSeconds > 0.05
+                ? recorder.CapturedFrames / wallSeconds : null;
+            double? encodedFps = measuredDuration > 0.05
+                ? recorder.EncodedFrames / measuredDuration.Value : null;
+
+            string verdictText = fidelity switch
+            {
+                WindowScreenRecorder.RecordingFidelity.Pass => "PASS",
+                WindowScreenRecorder.RecordingFidelity.Degraded => "DEGRADED",
+                _ => "UNKNOWN (ffprobe unavailable)"
+            };
+
+            // PHASE 2: the concise completion record - one line per recording,
+            // built from counters, never one message per frame.
+            AppLogService.Info(
+                $"[RecCompleted] requested={outW}x{outH}@{rec.Fps}fps " +
+                $"delivered={(facts?.Width?.ToString() ?? "?")}x{(facts?.Height?.ToString() ?? "?")}" +
+                $"@{(facts?.AvgFrameRate?.ToString("0.##") ?? "?")}fps " +
+                $"captured={recorder.CapturedFrames} encoded={recorder.EncodedFrames} " +
+                $"dropped={recorder.DroppedFrames} " +
+                $"probeFrames={(facts?.FrameCount?.ToString() ?? "n/a")} " +
+                $"captureFps={(captureFps?.ToString("0.##") ?? "n/a")} " +
+                $"encodedFps={(encodedFps?.ToString("0.##") ?? "n/a")} " +
+                $"throttleDowns={recorder.ThrottleDowns} throttleUps={recorder.ThrottleUps} " +
+                $"finalFps={recorder.FinalEffectiveFps} retime={recorder.RetimeScale:0.0000} " +
+                $"duration={(measuredDuration?.ToString("0.##") ?? "n/a")}s wall={wallSeconds:0.##}s " +
+                $"size={info.Length}B avgBitrate={(avgMbps?.ToString("0.###") ?? "n/a")}Mbps " +
+                $"codec=h264 encoder={recorder.EncodeName} rateControl={rateControl} " +
+                $"quality={recorder.EncodeCrfUsed} preset={recorder.EncodePreset} " +
+                $"tier={rec.QualityTier} pixfmt=yuv420p audio={audioNote} " +
+                $"validation={verdictText}",
+                new LogContext { Module = "Recording", Operation = "CompletedTelemetry" });
+
+            if (fidelity == WindowScreenRecorder.RecordingFidelity.Degraded)
+            {
+                string detail =
+                    fpsVerdict == WindowScreenRecorder.RecordingFidelity.Degraded
+                        ? $"frame rate {(facts?.AvgFrameRate?.ToString("0.##") ?? "?")}fps " +
+                          $"against {rec.Fps}fps requested"
+                        : $"resolution {(facts?.Width?.ToString() ?? "?")}x" +
+                          $"{(facts?.Height?.ToString() ?? "?")} against {outW}x{outH} requested";
+
+                Status = $"Saved {Path.GetFileName(mp4)} - DEGRADED: {detail}. " +
+                         "The file is the right length but does not hold the requested frame rate.";
+
+                AppLogService.Warning(
+                    $"[RecDegraded] {Path.GetFileName(mp4)}: {detail}. " +
+                    $"captured={recorder.CapturedFrames} encoded={recorder.EncodedFrames} " +
+                    $"dropped={recorder.DroppedFrames} throttleDowns={recorder.ThrottleDowns} " +
+                    $"throttleUps={recorder.ThrottleUps} finalFps={recorder.FinalEffectiveFps} " +
+                    $"retime={recorder.RetimeScale:0.0000} " +
+                    $"avgBitrate={(avgMbps?.ToString("0.###") ?? "n/a")}Mbps. " +
+                    "Duration validation passed because the save path retimes onto real " +
+                    "elapsed time; the frame deficit is the actual defect. Saved anyway, " +
+                    "flagged degraded rather than reported as a clean success.",
+                    new LogContext { Module = "Recording", Operation = "FidelityDegraded" });
+            }
+
             // PHASE-2 DIAGNOSTIC: the delivered file vs wall clock — the
             // final comparison line for the "5 minutes → 5 seconds" question.
             // PHASE 4: + measured average bitrate, so quality/filesize
