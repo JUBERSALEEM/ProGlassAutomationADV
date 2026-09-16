@@ -676,6 +676,28 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                       ProGlassAutomation.Services.Optimization.OptimizationResultFeed.SourceLabel
                     : "Optimization source is ON but no run is available — falling back to the Step 6 setup.";
 
+        /// <summary>
+        /// Per-row provenance for the sheet figures, so a tab where some panes
+        /// came from the run and others fell back to Step 6 is auditable row by
+        /// row instead of only in the header label.
+        ///
+        /// Returns null when the switch is off, which keeps the existing
+        /// diagnostics byte-identical for anyone not using it.
+        /// </summary>
+        private string? DescribeSheetSource(bool fromFeed, int sheets, decimal utilization)
+        {
+            if (fromFeed)
+                return $"Sheet qty ({sheets}) and utilization ({utilization:0.##}%) read from the optimization run.";
+
+            // Switch on but this pane kept its Step 6 figures: either the run
+            // has no row for it, or another pane already claimed that rack. Both
+            // are worth saying, because the header label alone cannot show which
+            // rows are which.
+            return _useOptimizationSheetSource
+                ? "Optimization source is ON; this pane stayed on the Step 6 setup (no unclaimed run row for it)."
+                : null;
+        }
+
         /// <summary>Re-reads the feed's provenance for the switch label. Called
         /// when a new run publishes, so the label names the run on screen rather
         /// than the one that was current when the tab was last built.</summary>
@@ -901,10 +923,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             // for this pane replace the Step 6 allocation. The
                             // source carries its sheet size, which confirms the
                             // rack rather than matching on the pane name alone.
-                            if (TryGetOptimizationSheetFigures(
-                                    src.SpecNumber, src.SideLabel,
-                                    src.SheetWidthMm, src.SheetHeightMm,
-                                    out int feedSheets, out decimal feedUtilization))
+                            bool fromFeed = TryGetOptimizationSheetFigures(
+                                src.SpecNumber, src.SideLabel,
+                                src.SheetWidthMm, src.SheetHeightMm,
+                                out int feedSheets, out decimal feedUtilization);
+
+                            if (fromFeed)
                             {
                                 buySheets = feedSheets;
                                 usedSheets = feedSheets;
@@ -943,6 +967,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                     : "Step 6 wastage setup source — bought and used sheet quantity both read from Step 6.";
                             if (charge <= 0m && wastageArea > 0m && !setupShortfall)
                                 diagnostic += " No active wastage charge is posted for the leftover area.";
+
+                            // Appended, not prepended: this tab is deliberately
+                            // alerts-first, so a SHORTFALL stays at the front.
+                            string? sourceNote = DescribeSheetSource(
+                                fromFeed, feedSheets, feedUtilization);
+                            if (sourceNote != null) diagnostic += " " + sourceNote;
 
                             string key = SheetSourceKey(src.SpecNumber, src.SideLabel);
                             step6HandledSources.Add(key);
@@ -1012,10 +1042,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         // by; a null side means this pane has no Step 6 identity
                         // and therefore nothing to look up.
                         decimal optimizationUtilization = 0m;
-                        if (paneStep6SideLabel != null &&
+
+                        // Declared separately, not as out-var declarations inside
+                        // the condition: the && short-circuits when this pane has
+                        // no Step 6 side, so the call never happens and the
+                        // compiler cannot prove them assigned. Reading them later
+                        // for the provenance note would then be CS0165.
+                        int paneFeedSheets = 0;
+                        decimal paneFeedUtilization = 0m;
+
+                        bool paneFromFeed = paneStep6SideLabel != null &&
                             TryGetOptimizationSheetFigures(
                                 specGroup.SpecNumber, paneStep6SideLabel, 0, 0,
-                                out int paneFeedSheets, out decimal paneFeedUtilization))
+                                out paneFeedSheets, out paneFeedUtilization);
+
+                        if (paneFromFeed)
                         {
                             step6SheetQuantity = paneFeedSheets;
                             optimizationUtilization = paneFeedUtilization;
@@ -1093,6 +1134,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         {
                             diagnostic = "";
                         }
+
+                        string? paneSourceNote = DescribeSheetSource(
+                            paneFromFeed, paneFeedSheets, paneFeedUtilization);
+                        if (paneSourceNote != null) diagnostic += " " + paneSourceNote;
 
                         var row = new SheetProfitRow
                         {
