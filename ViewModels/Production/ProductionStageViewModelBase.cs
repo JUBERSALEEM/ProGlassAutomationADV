@@ -125,6 +125,7 @@ namespace ProGlassAutomation.ViewModels.Production
             // screen), every stage module re-reads its list, KPIs, chain
             // and open detail page — no manual refresh button needed.
             ProductionRepository.WorkItemsChanged += OnWorkItemsChanged;
+            AsyncUtility.SafeFireAndForget(LoadAllAsync, "Production stage initial load");
         }
 
         /// <summary>Marker: "complete every piece that arrived" (inflow).</summary>
