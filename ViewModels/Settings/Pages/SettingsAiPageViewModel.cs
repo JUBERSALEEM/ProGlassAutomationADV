@@ -219,6 +219,44 @@ namespace ProGlassAutomation.ViewModels.Settings.Pages
         public bool HasSavedApiKey =>
             !string.IsNullOrWhiteSpace(_config?.Ai?.ApiKey);
 
+        /// <summary>
+        /// Whether saved API keys persist between sessions. Backs the
+        /// "Keep keys saved" switch in Views/Settings/Sections/Cards/
+        /// AiSecurityCard.xaml, which binds it TwoWay.
+        ///
+        /// RESTORED 2026-09-16 - this property was lost in the phase-3b
+        /// promotion out of the god class. Both this file's header and
+        /// SettingsAiPageViewModel.Commands.cs record that it "moved from
+        /// SettingsViewModel.Security.cs", but no declaration survived the
+        /// move: repo-wide the name existed only in those two comments and
+        /// in a SettingsRedesignTests InlineData string. The switch
+        /// therefore read nothing and wrote nowhere - WPF fails a TwoWay
+        /// binding to a missing property silently, so it animated, appeared
+        /// to work, and persisted no preference. The test did not catch it
+        /// because it asserts the XAML CONTAINS the binding text, never that
+        /// a member backs it.
+        ///
+        /// The underlying flag was never missing: AiSettings.RememberApiKeys
+        /// (default true), honoured by ConfigService.PersistKeysToVault,
+        /// which keeps keys session-only when it is false. Default matches
+        /// the model so the first frame reads the same value the config
+        /// already holds.
+        /// </summary>
+        public bool KeepApiKeysSaved
+        {
+            get => _config?.Ai?.RememberApiKeys ?? true;
+            set
+            {
+                if (_config?.Ai != null &&
+                    _config.Ai.RememberApiKeys != value)
+                {
+                    _config.Ai.RememberApiKeys = value;
+                    SaveConfig();
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public bool ApiKeyJustSaved
         {
             get => _apiKeyJustSaved;
