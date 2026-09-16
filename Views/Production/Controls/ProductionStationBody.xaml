@@ -2,6 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:production="clr-namespace:ProGlassAutomation.Views.Production.Controls"
+             xmlns:util="clr-namespace:ProGlassAutomation.Utilities"
              FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
@@ -65,6 +66,21 @@
                                           Command="{Binding OpenUnitCommand}"
                                           CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
                         </DataGrid.InputBindings>
+
+                        <!-- COLUMN BINDING INFRASTRUCTURE (2026-09-18, owner report:
+                             "cutting section qty after job no still not visible").
+                             A DataGridColumn lives in DataGrid.Columns, which is in
+                             NEITHER the visual nor the logical tree, so a binding set
+                             directly on a column property has no DataContext to
+                             resolve against — wave 5's Header="{Binding …}" was
+                             therefore still dead. A Freezable proxy inherits the
+                             DataGrid's DataContext through WPF's inheritance context
+                             and hands columns an explicit Source= binding, which
+                             needs no tree at all. See Utilities/BindingProxy.cs. -->
+                        <DataGrid.Resources>
+                            <util:BindingProxy x:Key="StationVm" Data="{Binding}"/>
+                        </DataGrid.Resources>
+
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Header="#" Width="44" HeaderStyle="{StaticResource StationCenterHeaderStyle}">
                                 <DataGridTemplateColumn.CellTemplate>
@@ -94,25 +110,44 @@
                      container exactly. Fixed 160 left the grid bunched
                      left with dead space on wide screens. -->
                             <DataGridTextColumn Header="CUSTOMER" Binding="{Binding Customer}" Width="*"/>
-                            <DataGridTextColumn Header="W×H" Binding="{Binding SizeLabel}" Width="*" ElementStyle="{StaticResource StationLeftTextStyle}"/>
-                            <DataGridTextColumn Header="GLASS" Binding="{Binding GlassLabel}" Width="*" ElementStyle="{StaticResource StationLeftTextStyle}"/>
-                            <DataGridTextColumn Header="TREATMENT" Binding="{Binding TreatmentLabel}" Width="*" ElementStyle="{StaticResource StationLeftTextStyle}"/>
-                            <DataGridTextColumn Header="LM" Binding="{Binding LmLabel}" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"/>
-                            <DataGridTextColumn Header="LOAD" Binding="{Binding LoadLabel}" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"/>
-                            <DataGridTextColumn Header="MATCH" Binding="{Binding MatchLabel}" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"/>
+                            <DataGridTextColumn  Header="W×H" Binding="{Binding SizeLabel}" Width="*" ElementStyle="{StaticResource StationLeftTextStyle}"
+                                 Visibility="{Binding Data.ShowSizeColumn, Source={StaticResource StationVm}, Converter={StaticResource BoolToVis}}"/>
+                            <DataGridTextColumn  Header="GLASS" Binding="{Binding GlassLabel}" Width="*" ElementStyle="{StaticResource StationLeftTextStyle}"
+                                 Visibility="{Binding Data.ShowGlassColumn, Source={StaticResource StationVm}, Converter={StaticResource BoolToVis}}"/>
+                            <DataGridTextColumn  Header="TREATMENT" Binding="{Binding TreatmentLabel}" Width="*" ElementStyle="{StaticResource StationLeftTextStyle}"
+                                 Visibility="{Binding Data.ShowTreatmentColumn, Source={StaticResource StationVm}, Converter={StaticResource BoolToVis}}"/>
+                            <DataGridTextColumn  Header="LM" Binding="{Binding LmLabel}" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"
+                                 Visibility="{Binding Data.ShowLmColumn, Source={StaticResource StationVm}, Converter={StaticResource BoolToVis}}"/>
+                            <DataGridTextColumn  Header="LOAD" Binding="{Binding LoadLabel}" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"
+                                 Visibility="{Binding Data.ShowLoadColumn, Source={StaticResource StationVm}, Converter={StaticResource BoolToVis}}"/>
+                            <DataGridTextColumn  Header="MATCH" Binding="{Binding MatchLabel}" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"
+                                 Visibility="{Binding Data.ShowMatchColumn, Source={StaticResource StationVm}, Converter={StaticResource BoolToVis}}"/>
                             <!-- HEADER BINDING FIX (2026-09-17 owner report:
                                  "in cutting section qty missing from column qty
-                                 text"). A DataGridColumn is NOT part of the
-                                 visual tree, so it inherits no DataContext:
-                                 Header="{Binding InColumnHeader}" resolved
-                                 against the column itself, failed silently and
-                                 rendered an EMPTY header — the Cutting station
-                                 lost its "TOTAL" label (every other station
-                                 lost "IN"). Columns must bind through an
-                                 ancestor that IS in the tree. -->
-                            <DataGridTemplateColumn Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}"
-                                                    Header="{Binding DataContext.InColumnHeader,
-                                                        RelativeSource={RelativeSource AncestorType=DataGrid}}">
+                                 text"; STILL broken 2026-09-18: "cutting section
+                                 qty after job no still not visible").
+
+                                 Wave 5 moved the binding onto Header= with a
+                                 RelativeSource — but Header is a property OF THE
+                                 COLUMN, and the column is not in the tree, so the
+                                 ancestor walk had nowhere to start and the header
+                                 stayed EMPTY (Cutting lost "TOTAL", every other
+                                 station lost "IN").
+
+                                 The only two mechanisms that actually work here:
+                                   • HeaderTemplate — the template is instantiated
+                                     by the DataGridColumnHeader, which IS in the
+                                     visual tree, so RelativeSource resolves;
+                                   • BindingProxy (used for Visibility below).
+                                 This column uses the HeaderTemplate form. -->
+                            <DataGridTemplateColumn Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding DataContext.InColumnHeader,
+                                                     RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding InflowLabel}" FontWeight="{DynamicResource Weight.SemiBold}"
