@@ -366,7 +366,7 @@
             </Grid.RowDefinitions>
 
             <!-- ═══ MODULE HEADER STRIP — hamburger + active report title ═══ -->
-            <Border Grid.Row="0"
+            <Border Grid.Row="0" Style="{StaticResource ReportTableHeaderStyle}"
                     Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource DividerBrush}"
                     BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
@@ -388,10 +388,10 @@
                             Margin="0,0,12,0"/>
 
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding CurrentReportTitle}"
+                        <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Text="{Binding CurrentReportTitle}"
                                    FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <TextBlock Text="{DynamicResource Reports.CentralReporting}"
+                        <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Text="{DynamicResource Reports.CentralReporting}"
                                    FontSize="{DynamicResource FontSize.Body}"
                                    Foreground="{DynamicResource TextTertiaryBrush}"
                                    Margin="0,1,0,0"/>
@@ -409,7 +409,7 @@
                             <Border Width="7" Height="7" CornerRadius="{DynamicResource Radius.XSmall}"
                                     Background="{DynamicResource SuccessBrush}"
                                     VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}"/>
-                            <TextBlock Text="{DynamicResource Reports.LIVEDATA}"
+                            <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Text="{DynamicResource Reports.LIVEDATA}"
                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource SuccessBrush}"
                                        Margin="6,0,0,0"

@@ -231,7 +231,7 @@
                              Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
                         <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Padding="16,7" Margin="0,1" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1">
+                                    <Border Style="{StaticResource ModuleListRowStyle}" Padding="16,7" Margin="0,1" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="1.4*"/>
@@ -269,7 +269,7 @@
 
                                             <!-- Traceability chips: PI → JO → DN → TI -->
                                             <StackPanel Grid.Column="7" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                                <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="4,1" Margin="1,0" ToolTip="Proforma Invoice">
+                                                <Border Style="{StaticResource ModuleListRowStyle}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="4,1" Margin="1,0" ToolTip="Proforma Invoice">
                                                     <Border.Style>
                                                         <Style TargetType="Border">
                                                             <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
@@ -277,7 +277,7 @@
                                                     </Border.Style>
                                                     <TextBlock Text="PI" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}"/>
                                                 </Border>
-                                                <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="4,1" Margin="1,0" ToolTip="{Binding JobOrderId}">
+                                                <Border Style="{StaticResource ModuleListRowStyle}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="4,1" Margin="1,0" ToolTip="{Binding JobOrderId}">
                                                     <Border.Style>
                                                         <Style TargetType="Border">
                                                             <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
@@ -290,7 +290,7 @@
                                                     </Border.Style>
                                                     <TextBlock Text="JO" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                                 </Border>
-                                                <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="4,1" Margin="1,0" ToolTip="{Binding DeliveryNoteId}">
+                                                <Border Style="{StaticResource ModuleListRowStyle}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="4,1" Margin="1,0" ToolTip="{Binding DeliveryNoteId}">
                                                     <Border.Style>
                                                         <Style TargetType="Border">
                                                             <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
@@ -303,7 +303,7 @@
                                                     </Border.Style>
                                                     <TextBlock Text="DN" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                                 </Border>
-                                                <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="4,1" Margin="1,0" ToolTip="{Binding TaxInvoiceNumber}">
+                                                <Border Style="{StaticResource ModuleListRowStyle}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="4,1" Margin="1,0" ToolTip="{Binding TaxInvoiceNumber}">
                                                     <Border.Style>
                                                         <Style TargetType="Border">
                                                             <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>

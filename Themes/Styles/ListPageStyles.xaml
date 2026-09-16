@@ -186,6 +186,11 @@
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
             </Trigger>
+            <!-- P4 zebra: every second row gets a soft surface so report
+                 columns read as a table, not floating text. -->
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=(ItemsControl.AlternationIndex)}" Value="1">
+                <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+            </DataTrigger>
         </Style.Triggers>
     </Style>
 
@@ -220,6 +225,9 @@
         <Setter Property="VirtualizingPanel.CacheLength" Value="400,800"/>
         <Setter Property="VirtualizingPanel.CacheLengthUnit" Value="Pixel"/>
         <Setter Property="ItemContainerStyle" Value="{StaticResource ModuleListBoxItemStyle}"/>
+        <!-- P4: zebra rhythm for report tables (pairs with the alternation
+             trigger in ModuleListRowStyle). -->
+        <Setter Property="AlternationCount" Value="2"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 

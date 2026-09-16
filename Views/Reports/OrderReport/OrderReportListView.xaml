@@ -33,7 +33,7 @@
         </Grid.RowDefinitions>
 
         <!-- ══ ROW 0 — HEADER ══ -->
-        <Border Grid.Row="0" Margin="24,16,24,0"
+        <Border Grid.Row="0" Style="{StaticResource ReportTableHeaderStyle}" Margin="24,16,24,0"
                 CornerRadius="{DynamicResource CardCornerRadius}" ClipToBounds="True">
             <Border CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource AccentBrush}" Padding="24,20">
                 <Grid>
@@ -46,7 +46,7 @@
                     <Border Grid.Column="0" Width="56" Height="56"
                             Background="{DynamicResource SurfacePrimaryBrush}"
                             CornerRadius="{DynamicResource CardCornerRadius}" Margin="0,0,18,0">
-                        <TextBlock Text="≡" FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
+                        <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Text="≡" FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AccentBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
@@ -420,7 +420,7 @@
                                                        FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal">
-                                            <Border Background="{DynamicResource TintIndigoBrush}"
+                                            <Border Style="{StaticResource ModuleListRowStyle}" Background="{DynamicResource TintIndigoBrush}"
                                                     CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
                                                     Margin="0,0,8,0">
                                                 <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
@@ -437,7 +437,7 @@
                                 </Border>
 
                                 <!-- Quantities -->
-                                <Border Grid.Column="2" Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                                <Border Style="{StaticResource ModuleListRowStyle}" Grid.Column="2" Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                                         Margin="0,10,8,10" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,10">
                                     <TextBlock Text="{Binding QuantitiesDisplay, Mode=OneWay}" FontSize="{DynamicResource FontSize.Body}"
                                                Foreground="{DynamicResource TextPrimaryBrush}"
@@ -445,7 +445,7 @@
                                 </Border>
 
                                 <!-- Invoiced value -->
-                                <Border Grid.Column="3" Background="{DynamicResource SuccessBrush}"
+                                <Border Style="{StaticResource ModuleListRowStyle}" Grid.Column="3" Background="{DynamicResource SuccessBrush}"
                                         Margin="0,10,8,10" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,10">
                                     <TextBlock Text="{Binding TotalInvoicedValueDisplay, Mode=OneWay}"
                                                FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
@@ -453,7 +453,7 @@
                                 </Border>
 
                                 <!-- Missing docs -->
-                                <Border Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                <Border Style="{StaticResource ModuleListRowStyle}" Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Left"
                                         CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,6">
                                     <Border.Style>
                                         <Style TargetType="Border">

@@ -77,7 +77,7 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" Margin="0,0,8,0">
+                                    <Border Style="{StaticResource ModuleListRowStyle}" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" Margin="0,0,8,0">
                                         <StackPanel>
                                             <TextBlock Text="{Binding Title}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                                             <TextBlock Text="{Binding Value}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{Binding BrushKey, Converter={StaticResource BrushKeyConverter}}" Margin="0,6,0,0" TextTrimming="CharacterEllipsis"/>

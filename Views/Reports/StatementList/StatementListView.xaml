@@ -513,7 +513,7 @@
                                     </StackPanel>
 
                                     <StackPanel Orientation="Horizontal">
-                                        <Border Background="{DynamicResource TintIndigoBrush}"
+                                        <Border Style="{StaticResource ModuleListRowStyle}" Background="{DynamicResource TintIndigoBrush}"
                                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Padding="8,3"
                                                 Margin="0,0,8,0">
@@ -531,7 +531,7 @@
                                                    VerticalAlignment="Center"
                                                    Margin="0,0,8,0"/>
 
-                                        <Border Background="{DynamicResource TintGreenBrush}"
+                                        <Border Style="{StaticResource ModuleListRowStyle}" Background="{DynamicResource TintGreenBrush}"
                                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Padding="8,3"
                                                 Visibility="{Binding HasAttachments,
@@ -576,7 +576,7 @@
                                 </StackPanel>
 
                                 <!-- COL 4: Status pill (tinted, not solid) -->
-                                <Border Grid.Column="4"
+                                <Border Style="{StaticResource ModuleListRowStyle}" Grid.Column="4"
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Center"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"

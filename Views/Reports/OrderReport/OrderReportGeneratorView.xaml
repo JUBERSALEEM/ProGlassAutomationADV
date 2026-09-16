@@ -81,7 +81,7 @@
         <!-- ═══════════════════════════════════════════════════════════
              ROW 0 — STEPPER BAR
         ═══════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="0"
+        <Border Grid.Row="0" Style="{StaticResource ReportTableHeaderStyle}"
                 Background="{DynamicResource SurfacePrimaryBrush}"
                 BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                 BorderBrush="{DynamicResource BorderDefaultBrush}">
@@ -97,9 +97,9 @@
                     <Border Width="6" Height="26" CornerRadius="{DynamicResource Radius.XSmall}"
                             Background="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <StackPanel>
-                        <TextBlock Text="Report Generator" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                        <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Text="Report Generator" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AccentBrush}"/>
-                        <TextBlock Text="Proforma → Job Order → Delivery → Invoice"
+                        <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Text="Proforma → Job Order → Delivery → Invoice"
                                    FontSize="{DynamicResource FontSize.BodySmall}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>
