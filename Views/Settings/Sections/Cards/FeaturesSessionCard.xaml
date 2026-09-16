@@ -1,0 +1,61 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/FeaturesSessionCard.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — one card of the FeaturesSection page, split out of
+     SettingsFeaturesSection.xaml (2026-09-17) so no section carries six cards in one
+     1,200+ line tree. DataContext inherits SettingsViewModel from the
+     section; styles come from the two merged module dictionaries.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.FeaturesSessionCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Settings.Session}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.SignShiftHandoverForgetAutoSignCredentials}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <StackPanel Margin="{StaticResource SettingsRowMargin}">
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE77B;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.SessionSecurity}"/>
+                                    </StackPanel>
+                                    <!-- Full-width action row: buttons stretch evenly
+                                         across the whole card (no left-cramped gap). -->
+                                    <Border 
+                Style="{StaticResource SurfacePanelTileStyle}">
+                                        <UniformGrid Columns="2">
+                                            <Button Content="{DynamicResource Settings.ForgetDevice}"
+                                                Command="{Binding DataContext.ForgetThisDeviceCommand,
+                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                Style="{StaticResource SettingsActionButtonStyle}"
+                                                ToolTip="{DynamicResource Settings.ClearSkipLoginVaultEntryMachineWithout}"/>
+                                            <Button Content="{DynamicResource Login.SignOut}"
+                                                Command="{Binding DataContext.SignOutCommand,
+                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                Style="{StaticResource SettingsActionButtonStyle}"
+                                                Margin="0"
+                                                ToolTip="{DynamicResource Settings.EndSessionClearSkipLoginVaultEntryReturn}"/>
+                                        </UniformGrid>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- ═══════════ PROFORMA INVOICE FIELD VISIBILITY ═══════════
+                             The rest of the proforma toggles re-scope DataContext.
+                             Company Name, Customer Name and Proforma ID cannot be
+                             hidden — the database needs them. -->
+                    </StackPanel>
+                </Border>
+</UserControl>

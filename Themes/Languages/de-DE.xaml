@@ -2711,4 +2711,8 @@
     <sys:String x:Key="Void.ThisDocument">dieses Dokument</sys:String>
     <sys:String x:Key="Void.Title">Dokument stornieren</sys:String>
 
+    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
+         hard-coded English in SettingsDataSection.xaml. -->
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">Gemeinsamen Unternehmens-Datenbankordner verwenden</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">Lokale Daten kopieren, wenn der gemeinsame Ordner leer ist</sys:String>
 </ResourceDictionary>

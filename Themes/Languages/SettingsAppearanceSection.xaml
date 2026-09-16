@@ -1,0 +1,76 @@
+﻿<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/SettingsAppearanceSection.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v2 — APPEARANCE page (redesigned Aug 2026)
+     REDESIGN
+       Was: one giant SectionCardStyle per subject (Theme mode, Wallpaper,
+       Accent, Font, Motion, Module wallpapers) containing full-width
+       DockPanel rows. On wide monitors that wasted 60-70% of horizontal
+       space; on 1366 laptops it felt endless.
+       Now: page cards from the module grammar (SettingsCardStyles.xaml) —
+       a card per subject with its heading in the card header, rows directly
+       inside it, and SettingsInnerTileStyle for surfaces within a card.
+       MODE and DISPLAY DENSITY are their own cards (sheets 02/03) because a
+       segmented control needs the width. Every binding is preserved
+       byte-for-byte — this is a layout redesign, not a data change.
+     Bindings target SettingsViewModel (DataContext flows from shell).
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsAppearanceSection"
+             xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:cards="clr-namespace:ProGlassAutomation.Views.Settings.Sections.Cards"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False"
+                      PanningMode="VerticalOnly"
+                      behaviors:SmoothScrollBehavior.IsEnabled="True"
+                      Focusable="False"
+                      FocusVisualStyle="{x:Null}">
+            <StackPanel Margin="{StaticResource SettingsPagePadding}">
+
+                <!-- ═══ CARD — THEME & LAYOUT ═══ -->
+                <cards:AppearanceThemeLayoutCard/>
+
+                <!-- ═══ CARD — MODE (sheet 02: the base colour mode) ═══ -->
+                <cards:AppearanceModeCard/>
+
+                <!-- ═══ CARD — DISPLAY DENSITY (sheet 03) ═══ -->
+                <cards:AppearanceDensityCard/>
+
+                <!-- ═══ CARD — ACCENT & FONT ═══ -->
+                <cards:AppearanceAccentFontCard/>
+
+                <!-- ═══ CARD — WALLPAPERS ═══ -->
+                <cards:AppearanceWallpapersCard/>
+
+                <!-- ═══ CARD — LANGUAGE &amp; CURRENCY ═══ -->
+                <cards:AppearanceLanguageCard/>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

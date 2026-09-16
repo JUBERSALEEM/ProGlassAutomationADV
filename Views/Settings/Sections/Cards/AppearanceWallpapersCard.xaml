@@ -1,0 +1,180 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/AppearanceWallpapersCard.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — one card of the AppearanceSection page, split out of
+     SettingsAppearanceSection.xaml (2026-09-17) so no section carries six cards in one
+     1,200+ line tree. DataContext inherits SettingsViewModel from the
+     section; styles come from the two merged module dictionaries.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.AppearanceWallpapersCard"
+             xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Settings.Wallpapers}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.OneImageBehindModulePlusModuleOverrides}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <!-- One card per row (Columns=1): Global Wallpaper fills the
+                             full width, then Per-Module Wallpapers fills the full
+                             width below it with its own three-column grid. -->
+                        <StackPanel Margin="{StaticResource SettingsRowMargin}">
+
+                            <!-- Global wallpaper — one card, all controls on one line -->
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xEB9F;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.GlobalWallpaper}"/>
+                                    </StackPanel>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.AppliedSystemWideBehindModuleModuleOverrides}"/>
+                                    <!-- Single line: SET / CLEAR on the left, visibility
+                                         slider on the right, so global wallpaper + its
+                                         visibility no longer take two separate tiles. -->
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="200"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Grid.Column="0"
+                                                Style="{StaticResource OutlinedPillButton}"
+                                                Tag="&#xE728;" Content="{DynamicResource Settings.SET}"
+                                                Command="{Binding SetWallpaperCommand}"
+                                                VerticalAlignment="Center"/>
+                                        <Button Grid.Column="1"
+                                                Style="{StaticResource RowOutlinedButton}"
+                                                Tag="&#xE711;" Content="{DynamicResource Action.Clear}"
+                                                Command="{Binding ClearWallpaperCommand}"
+                                                Margin="{StaticResource SettingsIconTextMargin}"
+                                                VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="3"
+                                                   Text="{DynamicResource Settings.Visibility}"
+                                                   Style="{StaticResource Typography.Label}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="{StaticResource SettingsInlineGap8R}"/>
+                                        <Slider Grid.Column="4"
+                                        AutomationProperties.Name="{DynamicResource Settings.GlobalWallpaper}"
+                                                Value="{Binding WallpaperOpacity}"
+                                                Style="{StaticResource ModernSliderStyle}"
+                                                Minimum="0.3" Maximum="1"
+                                                VerticalAlignment="Center"/>
+                                    </Grid>
+                                    <TextBlock Text="{Binding WallpaperStatus}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Per-module wallpapers — three columns under one card so
+                                 the list no longer grows the page by 17 stacked rows. -->
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B9;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.ModuleWallpapers}"/>
+                                    </StackPanel>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.GiveModuleBackgroundImageListSplitThree}"/>
+
+                                    <ItemsControl ItemsSource="{Binding ModuleWallpaperRows}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <UniformGrid Columns="3"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border CornerRadius="{DynamicResource CardCornerRadius}"
+                                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                                        BorderThickness="{DynamicResource Border.RightBottomHairlineThickness}"
+                                                        Padding="4,7"
+                                                        Margin="{StaticResource SettingsTrailingGap}" Style="{StaticResource SettingsWashTileStyle}">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+
+                                                        <!-- 2026-08-25: checkmark replaced with an
+                                                             iOS-style on/off pill (ModernToggleSwitch). -->
+                                                        <ToggleButton Grid.Column="0"
+                                                        AutomationProperties.Name="{DynamicResource Settings.ModuleWallpapers}"
+                                                                      Style="{StaticResource ModernToggleSwitch}"
+                                                                      IsChecked="{Binding Enabled, Mode=TwoWay}"
+                                                                      VerticalAlignment="Center"
+                                                                      ToolTip="{DynamicResource Settings.EnableModuleSWallpaper}"
+                                                                      Margin="{StaticResource SettingsInlineGap8R}"/>
+
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="{Binding Label}"
+                                                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                                   VerticalAlignment="Center"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   Margin="{StaticResource SettingsInlineGap6R}"
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}">
+                                                            <TextBlock.ToolTip>
+                                                                <StackPanel>
+                                                                    <TextBlock Text="{Binding Label}" FontWeight="{DynamicResource Weight.SemiBold}" TextWrapping="Wrap"/>
+                                                                    <TextBlock Text="{Binding FileName}" FontSize="{DynamicResource FontSize.BodySmall}"
+                                                                               Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap"/>
+                                                                </StackPanel>
+                                                            </TextBlock.ToolTip>
+                                                        </TextBlock>
+
+                                                        <Slider Grid.Column="2"
+                                                        AutomationProperties.Name="{DynamicResource Settings.ModuleWallpapers}"
+                                                                Value="{Binding OpacityValue}"
+                                                                Style="{StaticResource ModernSliderStyle}"
+                                                                Minimum="0.3" Maximum="1"
+                                                                Width="76"
+                                                                ToolTip="{DynamicResource Settings.Visibility}"
+                                                                VerticalAlignment="Center"/>
+
+                                                        <Button Grid.Column="3"
+                                                                Style="{StaticResource RowOutlinedButton}"
+                                                                Tag="&#xE728;" Content="{DynamicResource Settings.SET}"
+                                                                Command="{Binding DataContext.SetModuleWallpaperCommand,
+                                                                                    RelativeSource={RelativeSource
+                                                                                        AncestorType=UserControl}}"
+                                                                CommandParameter="{Binding}"
+                                                                Margin="{StaticResource SettingsInlineGap6}"
+                                                                FontSize="{DynamicResource FontSize.BodySmall}"
+                                                                Padding="8,2"/>
+
+                                                        <Button Grid.Column="4"
+                                                                Style="{StaticResource RowDangerButton}"
+                                                                Tag="&#xE711;" Content=""
+                                                                Command="{Binding DataContext.ClearModuleWallpaperCommand,
+                                                                            RelativeSource={RelativeSource
+                                                                                AncestorType=UserControl}}"
+                                                                CommandParameter="{Binding}"
+                                                                Margin="{StaticResource SettingsInlineGap6}"
+                                                                ToolTip="{DynamicResource Settings.RemoveModuleSWallpaper}"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+
+                        <!-- ═════════ GROUP: LANGUAGE &amp; CURRENCY ═════════ -->
+                    </StackPanel>
+                </Border>
+</UserControl>

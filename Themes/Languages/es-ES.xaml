@@ -2711,4 +2711,8 @@
     <sys:String x:Key="Void.ThisDocument">este documento</sys:String>
     <sys:String x:Key="Void.Title">Anular documento</sys:String>
 
+    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
+         hard-coded English in SettingsDataSection.xaml. -->
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">Usar la carpeta de base de datos compartida de la empresa</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">Copiar los locales actuales si la carpeta compartida está vacía</sys:String>
 </ResourceDictionary>

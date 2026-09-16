@@ -2711,4 +2711,8 @@
     <sys:String x:Key="Void.ThisDocument">이 문서</sys:String>
     <sys:String x:Key="Void.Title">문서 취소</sys:String>
 
+    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
+         hard-coded English in SettingsDataSection.xaml. -->
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">공유 회사 데이터베이스 폴더 사용</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">공유 폴더가 비어 있으면 현재 로컬 데이터 복사</sys:String>
 </ResourceDictionary>

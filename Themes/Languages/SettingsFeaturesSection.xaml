@@ -1,0 +1,233 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/SettingsFeaturesSection.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v2 — FEATURES page (tile-grid redesign Aug 2026)
+     REDESIGN
+       Was: every optional field was a full-width Grid row (label +
+       toggle) stacked inside a giant full-width card per step. On a
+       wide pane each toggle row stretched the whole width, so 65% of
+       horizontal space was empty and the page was a long vertical
+       list of identical rows.
+       Now: each optional field is its own 320-wide tile (title +
+       hint + toggle) dropped into a WrapPanel, so they reflow into
+       3–4 columns and the page becomes a tidy grid of switches. The
+       two bulk-action headers (Proforma Invoice / Inquiry) and the
+       Session card stay as full-row tiles. Every PiToggleSwitch
+       IsChecked binding, both DataContext re-scopes, and the
+       SettingsFeaturesRoot ElementName handoff are preserved.
+     UX contract (unchanged):
+       • DB-required fields never appear here — Company Name, Customer
+         Name and Proforma ID are always visible in the wizard.
+       • Every toggle is an iPhone-style PiToggleSwitch, off = field
+         hidden, on = field visible. Defaults are ALL ON.
+       • Changes persist immediately (no Apply / Save button).
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsFeaturesSection"
+             x:Name="SettingsFeaturesRoot"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:cards="clr-namespace:ProGlassAutomation.Views.Settings.Sections.Cards"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+
+        <!-- ═══════════ MODULE TAB SWITCH ═══════════
+             Only the selected module's field-toggles are shown, so the
+             page is not a long stack of five modules. Anchored to the
+             shell DataContext via ElementName (feature sections re-scope
+             their own DataContext, so a plain {Binding} here would break).
+             This mirrors the Settings shell navigation pattern. -->
+        <WrapPanel Grid.Row="0" Margin="{StaticResource SettingsFlagGridMargin}">
+            <Button Content="{DynamicResource Module.ProformaInvoice}" Margin="{StaticResource SettingsTileWrapMargin}" MinWidth="130"
+                    Command="{Binding DataContext.SwitchFeaturesModuleCommand,
+                                ElementName=SettingsFeaturesRoot}"
+                    CommandParameter="Proforma">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DataContext.IsProformaFeaturesModule,
+                                ElementName=SettingsFeaturesRoot}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <Button Content="{DynamicResource Module.Inquiry}" Margin="{StaticResource SettingsTileWrapMargin}" MinWidth="110"
+                    Command="{Binding DataContext.SwitchFeaturesModuleCommand,
+                                ElementName=SettingsFeaturesRoot}"
+                    CommandParameter="Inquiry">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DataContext.IsInquiryFeaturesModule,
+                                ElementName=SettingsFeaturesRoot}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <Button Content="{DynamicResource Common.JobOrder}" Margin="{StaticResource SettingsTileWrapMargin}" MinWidth="120"
+                    Command="{Binding DataContext.SwitchFeaturesModuleCommand,
+                                ElementName=SettingsFeaturesRoot}"
+                    CommandParameter="JobOrder">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DataContext.IsJobOrderFeaturesModule,
+                                ElementName=SettingsFeaturesRoot}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <Button Content="{DynamicResource Module.DeliveryNote}" Margin="{StaticResource SettingsTileWrapMargin}" MinWidth="130"
+                    Command="{Binding DataContext.SwitchFeaturesModuleCommand,
+                                ElementName=SettingsFeaturesRoot}"
+                    CommandParameter="DeliveryNote">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DataContext.IsDeliveryNoteFeaturesModule,
+                                ElementName=SettingsFeaturesRoot}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <Button Content="{DynamicResource Module.TaxInvoice}" Margin="{StaticResource SettingsTileWrapMargin}" MinWidth="120"
+                    Command="{Binding DataContext.SwitchFeaturesModuleCommand,
+                                ElementName=SettingsFeaturesRoot}"
+                    CommandParameter="TaxInvoice">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DataContext.IsTaxInvoiceFeaturesModule,
+                                ElementName=SettingsFeaturesRoot}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </WrapPanel>
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False"
+                      PanningMode="VerticalOnly"
+                      behaviors:SmoothScrollBehavior.IsEnabled="True"
+                      Focusable="False"
+                      FocusVisualStyle="{x:Null}">
+            <StackPanel Margin="{StaticResource SettingsPagePadding}">
+
+                <!-- ═══════════ SESSION ═══════════
+                     Bound to the parent SettingsViewModel via
+                     ElementName since the descendant toggles below
+                     re-scope their DataContext. Sits above everything
+                     so a shift-change operator sees it first. -->
+                <!-- ═══ CARD — SESSION ═══ -->
+                <cards:FeaturesSessionCard/>
+
+                <StackPanel DataContext="{Binding ProformaFeatures}"
+                            Visibility="{Binding DataContext.IsProformaFeaturesModule,
+                                ElementName=SettingsFeaturesRoot,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
+
+                <!-- ═══ CARD — PROFORMA INVOICE ═══ -->
+                    <cards:FeaturesProformaCard/>
+
+                </StackPanel>   <!-- close DataContext=ProformaFeatures scope -->
+
+                <!-- ═══════════ INQUIRY FIELD VISIBILITY ═══════════
+                     Sibling of the Proforma toggles. Re-scopes DataContext
+                     to InquiryFeatures for the same reason. Customer Name
+                     and Project Name are DB-required and always visible. -->
+                <StackPanel DataContext="{Binding DataContext.InquiryFeatures,
+                                ElementName=SettingsFeaturesRoot}"
+                            Visibility="{Binding DataContext.IsInquiryFeaturesModule,
+                                ElementName=SettingsFeaturesRoot,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
+
+                <!-- ═══ CARD — INQUIRY ═══ -->
+                    <cards:FeaturesInquiryCard/>
+
+                </StackPanel>   <!-- close DataContext=InquiryFeatures scope -->
+
+                <!-- ═══════════ JOB ORDER FIELD VISIBILITY ═══════════
+                     Re-scopes DataContext to JobOrderFeatures. Only the
+                     optional production fields toggle; Status / Priority /
+                     Delivery Date (workflow controls) stay visible. -->
+                <StackPanel DataContext="{Binding DataContext.JobOrderFeatures,
+                                ElementName=SettingsFeaturesRoot}"
+                            Visibility="{Binding DataContext.IsJobOrderFeaturesModule,
+                                ElementName=SettingsFeaturesRoot,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
+
+                <!-- ═══ CARD — JOB ORDER ═══ -->
+                    <cards:FeaturesJobOrderCard/>
+
+                </StackPanel>   <!-- close DataContext=JobOrderFeatures scope -->
+
+                <!-- ═══════════ DELIVERY NOTE FIELD VISIBILITY ═══════════
+                     Re-scopes DataContext to DeliveryNoteFeatures. Only
+                     the optional dispatch fields toggle; Status stays. -->
+                <StackPanel DataContext="{Binding DataContext.DeliveryNoteFeatures,
+                                ElementName=SettingsFeaturesRoot}"
+                            Visibility="{Binding DataContext.IsDeliveryNoteFeaturesModule,
+                                ElementName=SettingsFeaturesRoot,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
+
+                <!-- ═══ CARD — DELIVERY NOTE ═══ -->
+                    <cards:FeaturesDeliveryNoteCard/>
+
+                </StackPanel>   <!-- close DataContext=DeliveryNoteFeatures scope -->
+
+                <!-- ═══════════ TAX INVOICE FIELD VISIBILITY ═══════════
+                     Re-scopes DataContext to TaxInvoiceFeatures. Only the
+                     optional accounting fields toggle; Issue Date stays. -->
+                <StackPanel DataContext="{Binding DataContext.TaxInvoiceFeatures,
+                                ElementName=SettingsFeaturesRoot}"
+                            Visibility="{Binding DataContext.IsTaxInvoiceFeaturesModule,
+                                ElementName=SettingsFeaturesRoot,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
+
+                <!-- ═══ CARD — TAX INVOICE ═══ -->
+                    <cards:FeaturesTaxInvoiceCard/>
+
+                </StackPanel>   <!-- close DataContext=TaxInvoiceFeatures scope -->
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

@@ -1,0 +1,197 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/FeaturesInquiryCard.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — one card of the FeaturesSection page, split out of
+     SettingsFeaturesSection.xaml (2026-09-17) so no section carries six cards in one
+     1,200+ line tree. DataContext inherits SettingsViewModel from the
+     section; styles come from the two merged module dictionaries.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.FeaturesInquiryCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource Module.Inquiry}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                            <TextBlock Text="{DynamicResource Settings.TurnOptionalFieldsInquiryEditorCustomerName}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            <StackPanel Margin="{StaticResource SettingsRowMargin}">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9D2;"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.BulkActions}"/>
+                                        </StackPanel>
+                                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.FlipInquiryFieldOnce}"/>
+                                        <Border 
+                Style="{StaticResource SurfacePanelTileStyle}">
+                                            <UniformGrid Columns="3">
+                                                <Button Content="{DynamicResource Settings.Enable}"
+                                                Command="{Binding EnableAllCommand}"
+                                                Style="{StaticResource SettingsActionButtonStyle}"/>
+                                                <Button Content="{DynamicResource Settings.HideOptional}"
+                                                Command="{Binding DisableAllOptionalCommand}"
+                                                Style="{StaticResource SettingsActionButtonStyle}"/>
+                                                <Button Content="{DynamicResource ProformaInvoice.ResetDefaults}"
+                                                Command="{Binding ResetToDefaultsCommand}"
+                                                Style="{StaticResource SettingsActionButtonStyle}"
+                                                Margin="0"/>
+                                            </UniformGrid>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <TextBlock Text="{DynamicResource Settings.InquiryEditor}"
+                                   Style="{StaticResource SettingsGroupCaptionStyle}"
+                                   Margin="{StaticResource SettingsStackGap18}"/>
+
+                            <UniformGrid Columns="4" Margin="{StaticResource SettingsRowMargin}">
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
+                                    <Grid>
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <Border Grid.Row="0"
+                Style="{StaticResource SettingsInnerTileStyle}">
+                                            <StackPanel>
+                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
+                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Inquiry.InquiryReference}"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.ShortCustomerFacingReferenceLineInquiry}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowInquiryReference}"
+                                        AutomationProperties.Name="{DynamicResource Inquiry.InquiryReference}"
+                                        />
+                                    </Grid>
+                                </Border>
+
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
+                                    <Grid>
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <Border Grid.Row="0"
+                Style="{StaticResource SettingsInnerTileStyle}">
+                                            <StackPanel>
+                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
+                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.CustomerLocation}"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.EmirateCityCarriedProformaBillingAddress}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCustomerLocation}"
+                                        AutomationProperties.Name="{DynamicResource Settings.CustomerLocation}"
+                                        />
+                                    </Grid>
+                                </Border>
+
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
+                                    <Grid>
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <Border Grid.Row="0"
+                Style="{StaticResource SettingsInnerTileStyle}">
+                                            <StackPanel>
+                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
+                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.ProjectDescription}"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.LongerFreeTextDescriptionProjectScope}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowProjectDescription}"
+                                        AutomationProperties.Name="{DynamicResource Settings.ProjectDescription}"
+                                        />
+                                    </Grid>
+                                </Border>
+
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
+                                    <Grid>
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <Border Grid.Row="0"
+                Style="{StaticResource SettingsInnerTileStyle}">
+                                            <StackPanel>
+                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
+                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Common.Salesman}"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.SalesRepresentativeWhoOwnsInquiry}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSalesman}"
+                                        AutomationProperties.Name="{DynamicResource Common.Salesman}"
+                                        />
+                                    </Grid>
+                                </Border>
+
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
+                                    <Grid>
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <Border Grid.Row="0"
+                Style="{StaticResource SettingsInnerTileStyle}">
+                                            <StackPanel>
+                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
+                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Inquiry.Prepared2}"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.OperatorWhoFirstTypedInquiry}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowPreparedBy}"
+                                        AutomationProperties.Name="{DynamicResource Inquiry.Prepared2}"
+                                        />
+                                    </Grid>
+                                </Border>
+
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
+                                    <Grid>
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <Border Grid.Row="0"
+                Style="{StaticResource SettingsInnerTileStyle}">
+                                            <StackPanel>
+                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
+                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Common.Priority}"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.UrgentHighNormalLowTriageBucket}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowPriority}"
+                                        AutomationProperties.Name="{DynamicResource Common.Priority}"
+                                        />
+                                    </Grid>
+                                </Border>
+
+                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
+                                    <Grid>
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <Border Grid.Row="0"
+                Style="{StaticResource SettingsInnerTileStyle}">
+                                            <StackPanel>
+                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
+                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.EstimatedValue}"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.RoughAEDEstimatePotentialOrder}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowInquiryValue}"
+                                        AutomationProperties.Name="{DynamicResource Settings.EstimatedValue}"
+                                        />
+                                    </Grid>
+                                </Border>
+
+                                <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                    <Grid>
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <Border Grid.Row="0"
+                Style="{StaticResource SettingsInnerTileStyle}">
+                                            <StackPanel>
+                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
+                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Common.Notes}"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.FreeformNotesStoredInquiryRecord}"/>
+                                        <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowNotes}"
+                                        AutomationProperties.Name="{DynamicResource Common.Notes}"
+                                        />
+                                    </Grid>
+                                </Border>
+                            </UniformGrid>
+                        </StackPanel>
+                    </Border>
+</UserControl>

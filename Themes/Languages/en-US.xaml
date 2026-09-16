@@ -2711,4 +2711,8 @@
     <sys:String x:Key="Void.ThisDocument">this document</sys:String>
     <sys:String x:Key="Void.Title">Void document</sys:String>
 
+    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
+         hard-coded English in SettingsDataSection.xaml. -->
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">Use shared company database folder</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">Copy current local data if shared folder is empty</sys:String>
 </ResourceDictionary>

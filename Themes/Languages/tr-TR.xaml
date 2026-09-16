@@ -2711,4 +2711,8 @@
     <sys:String x:Key="Void.ThisDocument">bu belge</sys:String>
     <sys:String x:Key="Void.Title">Belgeyi iptal et</sys:String>
 
+    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
+         hard-coded English in SettingsDataSection.xaml. -->
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">Paylaşılan şirket veritabanı klasörünü kullan</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">Paylaşılan klasör boşsa mevcut yerel verileri kopyala</sys:String>
 </ResourceDictionary>

@@ -2711,4 +2711,8 @@
     <sys:String x:Key="Void.ThisDocument">этот документ</sys:String>
     <sys:String x:Key="Void.Title">Аннулировать документ</sys:String>
 
+    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
+         hard-coded English in SettingsDataSection.xaml. -->
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">Использовать общую папку базы данных компании</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">Копировать текущие локальные данные, если общая папка пуста</sys:String>
 </ResourceDictionary>

@@ -1,0 +1,110 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/AppearanceCrystalTile.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — inner tile of the Theme & Layout card,
+     split out (2026-09-17) to keep every file under the line budget.
+     DataContext inherits SettingsViewModel through the card.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.AppearanceCrystalTile"
+             xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+                        <Border Style="{StaticResource SettingsInnerTileStyle}"
+                                Margin="{StaticResource SettingsStackBottom10}"
+                                Visibility="{DynamicResource CrystalPreviewHostVisibility}">
+                            <Grid UseLayoutRounding="True" SnapsToDevicePixels="True"
+                                  MinHeight="330" ClipToBounds="True">
+
+                                <!-- environment highlight trio (file-20 §22) -->
+                                <Border Background="{DynamicResource CrystalEnvironmentHighlightTopLeftBrush}"
+                                        IsHitTestVisible="False"/>
+                                <Border Background="{DynamicResource CrystalEnvironmentCyanTopRightBrush}"
+                                        IsHitTestVisible="False"/>
+                                <Border Background="{DynamicResource CrystalEnvironmentCyanBottomRightBrush}"
+                                        IsHitTestVisible="False"/>
+                                <crystal:CrystalAmbientBackground/>
+
+                                <StackPanel Margin="{StaticResource SettingsUniformGap}" VerticalAlignment="Stretch">
+
+                                    <!-- KPI strip with water (file-20 rows) -->
+                                    <UniformGrid Columns="3" Margin="{StaticResource SettingsStackBottom10}">
+                                        <crystal:CrystalKpiCard Title="Proforma"
+                                                Value="128 KP"
+                                                WaterLevel="0.42" BubbleCount="3"
+                                                Margin="{StaticResource SettingsInlineGap6R}">
+                                            <crystal:CrystalKpiCard.Icon>
+                                                <TextBlock Text="◇" FontSize="{DynamicResource FontSize.Title}"/>
+                                            </crystal:CrystalKpiCard.Icon>
+                                            <crystal:CrystalStatusPill Content="+12.8%"
+                                                    StatusColor="{DynamicResource CrystalPositiveBrush}"/>
+                                        </crystal:CrystalKpiCard>
+                                        <crystal:CrystalKpiCard Title="Active"
+                                                Value="24" WaterLevel="0.58"
+                                                Margin="3,0">
+                                            <crystal:CrystalKpiCard.Icon>
+                                                <TextBlock Text="□" FontSize="{DynamicResource FontSize.Title}"/>
+                                            </crystal:CrystalKpiCard.Icon>
+                                            <crystal:CrystalStatusPill Content="running"
+                                                    StatusColor="{DynamicResource CrystalPositiveBrush}"/>
+                                        </crystal:CrystalKpiCard>
+                                        <crystal:CrystalKpiCard Title="Margin"
+                                                Value="27.4%" WaterLevel="0.31"
+                                                BubbleEnabled="False"
+                                                Margin="{StaticResource SettingsInlineGap6}">
+                                            <crystal:CrystalKpiCard.Icon>
+                                                <TextBlock Text="✓" FontSize="{DynamicResource FontSize.Title}"/>
+                                            </crystal:CrystalKpiCard.Icon>
+                                        </crystal:CrystalKpiCard>
+                                    </UniformGrid>
+
+                                    <!-- authored nav (reference styles, demo group) -->
+                                    <TextBlock Style="{StaticResource CrystalNavLabelStyle}"
+                                               Text="IOS-17PM"/>
+                                    <UniformGrid Columns="3" Rows="1" Margin="{StaticResource SettingsStackBottom10}">
+                                        <RadioButton Style="{StaticResource CrystalNavButtonStyle}"
+                                                     Content="Dashboard" IsChecked="True" Margin="{StaticResource SettingsInlineGap6R}"/>
+                                        <RadioButton Style="{StaticResource CrystalNavButtonStyle}"
+                                                     Content="Production" Margin="3,0"/>
+                                        <RadioButton Style="{StaticResource CrystalNavButtonStyle}"
+                                                     Content="Reports" Margin="{StaticResource SettingsInlineGap6}"/>
+                                    </UniformGrid>
+
+                                    <!-- status pill + DETERMINATE progress (authored) -->
+                                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
+                                        <crystal:CrystalStatusPill Content="online"
+                                                StatusColor="{DynamicResource CrystalPositiveBrush}"
+                                                Margin="{StaticResource SettingsInlineGap8R}"/>
+                                        <crystal:CrystalProgressBar Value="64"
+                                                Minimum="0" Maximum="100"
+                                                VerticalAlignment="Center"
+                                                Width="220"/>
+                                    </StackPanel>
+
+                                    <!-- authored grid chrome (headers only; demo
+                                         shows grid-line + header identity, zero
+                                         invented data rows) -->
+                                    <DataGrid Style="{StaticResource CrystalDataGridStyle}"
+                                              ColumnHeaderStyle="{StaticResource CrystalDataGridColumnHeaderStyle}"
+                                              RowStyle="{StaticResource CrystalDataGridRowStyle}"
+                                              CellStyle="{StaticResource CrystalDataGridCellStyle}"
+                                              AutoGenerateColumns="False" IsReadOnly="True"
+                                              RowHeaderWidth="0" CanUserAddRows="False"
+                                              CanUserResizeColumns="False"
+                                              MaxHeight="86">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Material" Width="*"/>
+                                            <DataGridTextColumn Header="Qty" Width="*"/>
+                                            <DataGridTextColumn Header="Status" Width="*"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+</UserControl>

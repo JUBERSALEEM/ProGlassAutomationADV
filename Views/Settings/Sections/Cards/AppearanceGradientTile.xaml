@@ -1,0 +1,44 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/AppearanceGradientTile.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — inner tile of the Theme & Layout card,
+     split out (2026-09-17) to keep every file under the line budget.
+     DataContext inherits SettingsViewModel through the card.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.AppearanceGradientTile"
+             xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Border Grid.Row="0"
+                Style="{StaticResource SettingsInnerTileStyle}">
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7F4;"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.GradientSurfaces}"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <TextBlock Grid.Row="1"
+                                               Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.RendersMonetGlassCardsWindowBackgroundAccent}"/>
+                                    <ToggleButton Grid.Row="3"
+                                    AutomationProperties.Name="{DynamicResource Settings.GradientSurfaces}"
+                                                  HorizontalAlignment="Left"
+                                                  IsChecked="{Binding UseGradientSurfaces, Mode=TwoWay}"
+                                                  Style="{StaticResource ModernToggleSwitch}"/>
+                                </Grid>
+                            </Border>
+</UserControl>

@@ -1,0 +1,35 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/AppearanceThemeFamilyTile.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — inner tile of the Theme & Layout card,
+     split out (2026-09-17) to keep every file under the line budget.
+     DataContext inherits SettingsViewModel through the card.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.AppearanceThemeFamilyTile"
+             xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.LblThemeFamily}"/>
+                                    </StackPanel>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.NormalMonetIos17pm}"/>
+                                    <ComboBox ItemsSource="{Binding VisualThemeOptions}"
+                                              DisplayMemberPath="Display"
+                                              SelectedValuePath="Key"
+                                              SelectedValue="{Binding SelectedVisualTheme, Mode=TwoWay}"
+                                              HorizontalAlignment="Stretch"
+                                              Padding="10,7" FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+                                </StackPanel>
+                            </Border>
+</UserControl>

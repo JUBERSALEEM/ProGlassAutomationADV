@@ -1,0 +1,36 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/AppearanceDensityCard.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — one card of the AppearanceSection page, split out of
+     SettingsAppearanceSection.xaml (2026-09-17) so no section carries six cards in one
+     1,200+ line tree. DataContext inherits SettingsViewModel from the
+     section; styles come from the two merged module dictionaries.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.AppearanceDensityCard"
+             xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Settings.GrpDensity}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.CompactFitsMoreLaptopComfortableGivesLarger}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <!-- Data-driven segments: ItemsSource + SelectedItem read
+                             the VM list, so the option set still has ONE source.
+                             The fill variant spans the card (sheet 03). -->
+                        <ListBox Style="{StaticResource SettingsSegmentTrackFillStyle}"
+                        AutomationProperties.Name="{DynamicResource Settings.MotionPerformance}"
+                                 ItemsSource="{Binding DisplayDensityOptions}"
+                                 SelectedItem="{Binding DisplayDensity, Mode=TwoWay}"
+                                 AutomationProperties.AutomationId="Settings.DisplayDensity"/>
+                    </StackPanel>
+                </Border>
+</UserControl>

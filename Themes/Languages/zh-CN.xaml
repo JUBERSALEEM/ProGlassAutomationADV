@@ -2711,4 +2711,8 @@
     <sys:String x:Key="Void.ThisDocument">此单据</sys:String>
     <sys:String x:Key="Void.Title">作废单据</sys:String>
 
+    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
+         hard-coded English in SettingsDataSection.xaml. -->
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">使用共享的公司数据库文件夹</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">共享文件夹为空时复制当前本地数据</sys:String>
 </ResourceDictionary>

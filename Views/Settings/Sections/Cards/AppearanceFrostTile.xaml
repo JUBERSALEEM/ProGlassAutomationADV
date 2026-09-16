@@ -1,0 +1,77 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/AppearanceFrostTile.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — inner tile of the Theme & Layout card,
+     split out (2026-09-17) to keep every file under the line budget.
+     DataContext inherits SettingsViewModel through the card.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.AppearanceFrostTile"
+             xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE792;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="Frosted module cards"/>
+                                        <TextBlock VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextMargin}"
+                                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                                   Foreground="{DynamicResource AccentBrush}">
+                                            <Run Text="{Binding CardBlurIntensity, Mode=OneWay, StringFormat={}{0:0}}"/>
+                                            <Run Text="/100"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="Blurs the module wallpaper behind every screen. Cards stay sharp. 1 = light frost, 50 = professional, 100 = max. Colour plate tints the shared card fill."/>
+                                    <Slider Style="{StaticResource ModernSliderStyle}"
+                                    AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                                            Minimum="1" Maximum="100"
+                                            Value="{Binding CardBlurIntensity, Mode=TwoWay}"
+                                            VerticalAlignment="Center" Margin="{StaticResource SettingsStackGap8}"/>
+                                    <TextBlock Margin="{StaticResource SettingsStackGap16Bottom4}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="Frost colour plate"/>
+                                    <ItemsControl ItemsSource="{Binding CardEdgePalette}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button Command="{Binding DataContext.ApplyCardFrostTintCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding Key}"
+                                                        Style="{StaticResource AccentChipStyle}">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Ellipse Width="11" Height="11" Fill="{Binding Swatch}"
+                                                                 VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
+                                                        <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackGap12}">
+                                        <Ellipse Width="14" Height="14"
+                                                 Fill="{Binding CardFrostTintSwatch}"
+                                                 Stroke="{DynamicResource BorderDefaultBrush}" StrokeThickness="1"
+                                                 VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap10R}"/>
+                                        <TextBox Text="{Binding CardFrostTint, UpdateSourceTrigger=PropertyChanged}"
+                                                 Width="110" Padding="8,6" FontSize="{DynamicResource FontSize.Body}"
+                                                 FontFamily="{DynamicResource FontFamily.Code}" VerticalAlignment="Center" Style="{StaticResource TextBoxStyle}"/>
+                                        <Button Command="{Binding ApplyCardFrostTintCommand}" CommandParameter="Auto"
+                                                Style="{StaticResource AccentChipStyle}" Margin="{StaticResource SettingsInlineGap8}">
+                                            <TextBlock Text="Auto (theme)"/>
+                                        </Button>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+</UserControl>

@@ -1,0 +1,44 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/AppearanceModeCard.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — one card of the AppearanceSection page, split out of
+     SettingsAppearanceSection.xaml (2026-09-17) so no section carries six cards in one
+     1,200+ line tree. DataContext inherits SettingsViewModel from the
+     section; styles come from the two merged module dictionaries.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.AppearanceModeCard"
+             xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Settings.Mode}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.ModeHelp}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <!-- Segmented control (grammar: SettingsSegmentTrackStyle +
+                             SettingsSegmentItemStyle). SelectedValue + Tag, so the
+                             VM holds the persisted token ("Light"/"Dark") and the
+                             labels stay in the language files. -->
+                        <ListBox Style="{StaticResource SettingsSegmentTrackStyle}"
+                        AutomationProperties.Name="{DynamicResource Settings.MotionPerformance}"
+                                 SelectedValuePath="Tag"
+                                 SelectedValue="{Binding ThemeMode, Mode=TwoWay}"
+                                 AutomationProperties.AutomationId="Settings.ThemeMode">
+                            <ListBoxItem Tag="Light"
+                                         Content="{DynamicResource Settings.ModeLight}"
+                                         Style="{StaticResource SettingsSegmentItemStyle}"/>
+                            <ListBoxItem Tag="Dark"
+                                         Content="{DynamicResource Settings.ModeDark}"
+                                         Style="{StaticResource SettingsSegmentItemStyle}"/>
+                        </ListBox>
+                    </StackPanel>
+                </Border>
+</UserControl>

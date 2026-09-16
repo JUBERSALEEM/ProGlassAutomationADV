@@ -1,0 +1,89 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/AppearanceCardEdgesTile.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — inner tile of the Theme & Layout card,
+     split out (2026-09-17) to keep every file under the line budget.
+     DataContext inherits SettingsViewModel through the card.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.AppearanceCardEdgesTile"
+             xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE71B;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.DefinedCardEdges}"/>
+                                        <TextBlock VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextMargin}"
+                                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                                   Foreground="{DynamicResource AccentBrush}">
+                                            <Run Text="{Binding CardEdgeThickness, Mode=OneWay, StringFormat={}{0:0.#}}"/>
+                                            <Run Text="{DynamicResource Settings.DIP}"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.AddsStrongDarkOutlineRoundedCardsPillButtons}"/>
+                                    <ToggleButton HorizontalAlignment="Left" Margin="{StaticResource SettingsStackGap8}"
+                                    AutomationProperties.Name="{DynamicResource Settings.DefinedCardEdges}"
+                                                  IsChecked="{Binding UseDefinedOutline, Mode=TwoWay}"
+                                                  Style="{StaticResource ModernToggleSwitch}"/>
+
+                                    <!-- Edge weight 1–100 -->
+                                    <TextBlock Margin="{StaticResource SettingsStackGap16}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.CardEdgeThickness}"/>
+                                    <Slider Style="{StaticResource ModernSliderStyle}"
+                                    AutomationProperties.Name="{DynamicResource Settings.DefinedCardEdges}"
+                                            Minimum="1" Maximum="100"
+                                            Value="{Binding CardEdgeThickness, Mode=TwoWay}"
+                                            VerticalAlignment="Center" Margin="{StaticResource SettingsStackGap4}"/>
+
+                                    <!-- Edge colour plate (same palette as the accent section) -->
+                                    <TextBlock Margin="{StaticResource SettingsStackGap16Bottom4}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.CardEdgeColorLabel}"/>
+                                    <ItemsControl ItemsSource="{Binding CardEdgePalette}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button Command="{Binding DataContext.ApplyCardEdgePresetCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding Key}"
+                                                        Style="{StaticResource AccentChipStyle}">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Ellipse Width="11" Height="11" Fill="{Binding Swatch}"
+                                                                 VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
+                                                        <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <!-- Custom edge colour -->
+                                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackGap12}">
+                                        <Ellipse Width="14" Height="14"
+                                                 Fill="{Binding CardEdgeSwatch}"
+                                                 Stroke="{DynamicResource BorderDefaultBrush}" StrokeThickness="1"
+                                                 VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap10R}"/>
+                                        <TextBox Text="{Binding CardEdgeColor, UpdateSourceTrigger=PropertyChanged}"
+                                                 Width="110" Padding="8,6" FontSize="{DynamicResource FontSize.Body}"
+                                                 FontFamily="{DynamicResource FontFamily.Code}" VerticalAlignment="Center" Style="{StaticResource TextBoxStyle}"/>
+                                        <TextBlock VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextMargin}"
+                                                   Style="{StaticResource SettingsRowMetaStyle}"
+                                                   Text="{DynamicResource Settings.CardEdgeColorHint}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+</UserControl>

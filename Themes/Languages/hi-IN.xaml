@@ -2711,4 +2711,8 @@
     <sys:String x:Key="Void.ThisDocument">यह दस्तावेज़</sys:String>
     <sys:String x:Key="Void.Title">दस्तावेज़ शून्य करें</sys:String>
 
+    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
+         hard-coded English in SettingsDataSection.xaml. -->
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">साझा कंपनी डेटाबेस फ़ोल्डर उपयोग करें</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">साझा फ़ोल्डर खाली हो तो वर्तमान स्थानीय डेटा कॉपी करें</sys:String>
 </ResourceDictionary>

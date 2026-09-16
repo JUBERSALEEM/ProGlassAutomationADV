@@ -2711,4 +2711,8 @@
     <sys:String x:Key="Void.ThisDocument">この文書</sys:String>
     <sys:String x:Key="Void.Title">文書を取り消す</sys:String>
 
+    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
+         hard-coded English in SettingsDataSection.xaml. -->
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">共有会社データベース フォルダーを使用する</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">共有フォルダーが空の場合は現在のローカル データをコピーする</sys:String>
 </ResourceDictionary>

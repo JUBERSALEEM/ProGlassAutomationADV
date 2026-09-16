@@ -2711,4 +2711,8 @@
     <sys:String x:Key="Void.ThisDocument">یہ دستاویز</sys:String>
     <sys:String x:Key="Void.Title">دستاویز منسوخ کریں</sys:String>
 
+    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
+         hard-coded English in SettingsDataSection.xaml. -->
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">شیئر کردہ کمپنی ڈیٹا بیس فولڈر استعمال کریں</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">شیئر فولڈر خالی ہو تو موجودہ مقامی ڈیٹا کاپی کریں</sys:String>
 </ResourceDictionary>
