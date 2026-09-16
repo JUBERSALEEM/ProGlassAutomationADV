@@ -46,6 +46,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Windows.Input;
 using System.Linq;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.ProformaInvoice;
@@ -184,6 +185,40 @@ public sealed class AboutViewModel : ViewModelBase
     // ══════════════════════════════════════════════════════════════════
 
     /// <summary>Application name shown in the hero header.</summary>
+    // ── NAV RAIL OPEN/CLOSE (2026-09-16) ─────────────────────────────────
+    // Owner: "sidebar in setting implement reports sidebar action open close
+    // same styles dont include any separate line etc to trigger sidebar open
+    // close check reports hub sidebar implement that in settings and about
+    // sidebar properly. So full module can be visible properly."
+    //
+    // Reports (SalesReportViewModel.IsRailOpen / ToggleRailCommand) and
+    // Settings (IsSettingsRailOpen / ToggleSettingsRailCommand) both collapse
+    // their rail on demand. About's was a fixed 264px column with no toggle at
+    // all, so the module could never be viewed full width — the content column
+    // was permanently 264px narrower than the window. Same single-click toggle
+    // and same member names as the Reports hub.
+    private bool _isRailOpen = true;
+
+    /// <summary>True while the left navigation rail is expanded.</summary>
+    public bool IsRailOpen
+    {
+        get => _isRailOpen;
+        set
+        {
+            if (_isRailOpen == value) return;
+            _isRailOpen = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private ICommand _toggleRailCommand;
+
+    /// <summary>Single-click collapse/expand of the About navigation rail.
+    /// Bound by both the in-rail collapse button and the hamburger in the
+    /// module heading card, exactly as the Reports hub does.</summary>
+    public ICommand ToggleRailCommand =>
+        _toggleRailCommand ??= new RelayCommand(_ => IsRailOpen = !IsRailOpen);
+
     public string AppName { get; } = "ProGlass Automation";
 
     /// <summary>One-line tagline shown under the app name.</summary>

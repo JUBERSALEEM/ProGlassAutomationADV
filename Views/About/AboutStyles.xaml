@@ -201,4 +201,54 @@
         </Border>
     </DataTemplate>
 
+
+    <!-- ═══ RAIL HAMBURGER (2026-09-16) ═══
+         The Reports hub's open/close action, restyled onto the About token
+         set so it adapts to this module's surface like everything else here.
+         Owner: "sidebar in setting implement reports sidebar action open
+         close same styles dont include any separate line etc to trigger
+         sidebar open close check reports hub sidebar implement that in
+         settings and about sidebar properly."
+
+         Same contract as SalesReportView's ReportHamburgerButton — E700
+         glyph, transparent 30px hit target, hover wash + accent glyph — but
+         every colour and radius resolves to an Ios26* key, so it follows the
+         theme family AND the corner-radius setting rather than being frozen.
+         No literal radius or hex colour (About audit contract). -->
+    <Style x:Key="AboutRailHamburger" TargetType="Button">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Width" Value="30"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ios26TextSecondaryBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource Ios26RadiusInner}"
+                            SnapsToDevicePixels="True">
+                        <TextBlock Text="&#xE700;"
+                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource Ios26FontSizeSubtitle}"
+                                   Foreground="{TemplateBinding Foreground}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Ios26HoverBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Ios26AccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Ios26TileBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

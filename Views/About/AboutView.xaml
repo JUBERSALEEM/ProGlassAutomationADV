@@ -103,7 +103,21 @@
         <!-- ═══ SHELL — frosted left rail (fixed) + scroll content ═══ -->
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="264"/>
+                <!-- Rail width follows IsRailOpen (Reports-hub behaviour):
+                     264 expanded, 0 collapsed, so the content column reclaims
+                     the full module width and the whole page is visible. -->
+                <ColumnDefinition>
+                    <ColumnDefinition.Style>
+                        <Style TargetType="ColumnDefinition">
+                            <Setter Property="Width" Value="264"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsRailOpen}" Value="False">
+                                    <Setter Property="Width" Value="0"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ColumnDefinition.Style>
+                </ColumnDefinition>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
@@ -112,15 +126,38 @@
                  Active item = deep-blue pill + white text + ACTIVE
                  chip. Simple triggers only — no Storyboard. -->
             <Border Grid.Column="0"
-                    Background="{DynamicResource Ios26RailBrush}"
-                    BorderBrush="{DynamicResource Ios26HairlineBrush}"
-                    BorderThickness="0,0,1,0"
                     SnapsToDevicePixels="True">
+                <!-- 2026-09-16: the 0,0,1,0 hairline rule is gone. Owner:
+                     "dont include any separate line etc to trigger sidebar
+                     open close." The rail is separated by its own frosted
+                     surface and a rounded brand card, not by a divider, and
+                     open/close is driven only by the two hamburger buttons. -->
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="{DynamicResource Ios26RailBrush}"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsRailOpen}" Value="False">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
                 <DockPanel Margin="16,18,16,18">
-                    <!-- Brand -->
-                    <StackPanel DockPanel.Dock="Top"
-                                Orientation="Horizontal"
-                                Margin="6,0,0,20">
+                    <!-- Brand — Reports-hub rail header: the module identity
+                         sits INSIDE a card together with its collapse button,
+                         so it keeps contrast in Dark instead of floating on
+                         the rail wash. -->
+                    <Border DockPanel.Dock="Top"
+                            Style="{StaticResource Ios26CardStyle}"
+                            Padding="12,12"
+                            Margin="0,0,0,20">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0"
+                                Orientation="Horizontal">
                         <Border Width="40" Height="40"
                                 Style="{StaticResource Ios26IconTileStyle}"
                                 CornerRadius="{DynamicResource Ios26RadiusInner}">
@@ -143,6 +180,13 @@
                                        TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
                     </StackPanel>
+                            <!-- Collapse the rail — Reports-hub action. -->
+                            <Button Grid.Column="1"
+                                    Style="{StaticResource AboutRailHamburger}"
+                                    Command="{Binding ToggleRailCommand}"
+                                    VerticalAlignment="Top"/>
+                        </Grid>
+                    </Border>
 
                     <!-- Nav list (Overview / License / Modules /
                          Developer / System / Diagnostics) -->
@@ -265,17 +309,57 @@
                           behaviors:SmoothScrollBehavior.IsEnabled="True">
                 <StackPanel Margin="32,26,32,32">
 
-                    <!-- Page title — "About → {active tab}" (mockups). -->
-                    <TextBlock FontSize="{DynamicResource Ios26FontSizeMetric}"
-                               FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource Ios26TextTitleBrush}"
-                               Margin="0,0,0,16"
-                               IsHitTestVisible="False">
-                        <!-- Run.Text defaults to TwoWay — CurrentTabTitle is
-                             read-only, so bind OneWay (ERR-38B0CA fix,
-                             same class as ERR-3C0789). -->
-                        <Run Text="About → "/><Run Text="{Binding CurrentTabTitle, Mode=OneWay}"/>
-                    </TextBlock>
+                    <!-- ═══ MODULE HEADING — now inside a card (2026-09-16) ═══
+                         Owner: "top panel module heading i want inside a card
+                         so it stay visible it dark mode also."
+
+                         This was a BARE TextBlock laid straight onto the
+                         invariant pastel stage. The stage is deliberately not
+                         theme-dynamic ("Background page dont make it dynamic"),
+                         so Ios26TextTitleBrush had no surface to contrast
+                         against: in Dark the title brush turns light while the
+                         stage stays light and the heading vanishes — the
+                         white-on-white the owner reported.
+
+                         Ios26CardStyle supplies a theme-owned surface whose
+                         background/foreground pair is guaranteed to contrast in
+                         both themes, and its CornerRadius is Ios26RadiusCard,
+                         so the heading now follows the corner-radius setting
+                         like every other About card instead of being frozen.
+                         Shape mirrors the Reports hub header strip: hamburger
+                         plus title together in one card. -->
+                    <Border Style="{StaticResource Ios26CardStyle}"
+                            Padding="14,12"
+                            Margin="0,0,0,18">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Rail open/close — the Reports-hub action
+                                 (ToggleRailCommand). The trigger is this
+                                 button, never a divider or grab strip. -->
+                            <Button Grid.Column="0"
+                                    Style="{StaticResource AboutRailHamburger}"
+                                    Command="{Binding ToggleRailCommand}"
+                                    VerticalAlignment="Center"
+                                    Margin="0,0,12,0"/>
+
+                            <TextBlock Grid.Column="1"
+                                       FontSize="{DynamicResource Ios26FontSizeMetric}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource Ios26TextTitleBrush}"
+                                       VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"
+                                       IsHitTestVisible="False">
+                                <!-- Run.Text defaults to TwoWay — CurrentTabTitle is
+                                     read-only, so bind OneWay (ERR-38B0CA fix,
+                                     same class as ERR-3C0789). -->
+                                <Run Text="About → "/><Run Text="{Binding CurrentTabTitle, Mode=OneWay}"/>
+                            </TextBlock>
+                        </Grid>
+                    </Border>
 
                     <!-- ═══ HERO — brand card, Overview tab only
                          (mockup 01: centered icon + title + tagline +
