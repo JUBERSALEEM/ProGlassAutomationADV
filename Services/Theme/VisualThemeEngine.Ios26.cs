@@ -187,30 +187,53 @@ namespace ProGlassAutomation.Services.Theme
         private static Dictionary<string, object> Ios26GlobalLight() =>
             new()
             {
-                // PLAIN WHITE stage (owner directive 2026-09-11: "use white
-                // background — plain white, enhance more") — vivid icon
-                // gradients and pastel ambient blobs glow against pure white.
-                // NOTE 2026-09-15: AppBackgroundBrush was removed from this
-                // table — the page background is now the invariant About stage
-                // and the family must not override it. WindowBackgroundBrush
-                // still carries the family's white stage.
-                ["WindowBackgroundBrush"]   = Ios26Lin2("#FFFFFF", "#FAFAFC", null),
-                ["ModuleBackgroundBrush"]   = Ios26Sol(false, "#FFFFFF", null),
-                ["SideMenuBackgroundBrush"] = Ios26Sol(false, "#FAFAFC", null),
+                // GROUPED-GREY STAGE, WHITE CARDS (owner report 2026-09-18:
+                // "visual theme page is now empty… defined edge cards broken,
+                // surface level broken — these were working properly before").
+                //
+                // The old light table painted EVERY level the same colour:
+                // Window #FFFFFF→#FAFAFC, Module #FFFFFF, Elevated/Popup/Dialog
+                // #FFFFFF, Surface.Primary a 96%→91% translucent white over that
+                // white module, Surface.Detail #FFFFFF — and the card edge was
+                // #14000000 (8% black). A card whose fill equals its stage and
+                // whose border is an 8% hairline has no visible boundary, so the
+                // whole page read as ONE empty white sheet with no surface
+                // hierarchy. That painter was dead until the 2026-09-17 dispatch
+                // fix wired Ios26 up (before that it silently fell through to
+                // Industrial, whose ramp is correct), which is exactly why the
+                // levels "worked properly before".
+                //
+                // This is Apple's own light ramp: systemGroupedBackground
+                // #F2F2F7 for the stage, opaque #FFFFFF for cards above it, and
+                // the SAME step structure the dark table already uses (window
+                // darkest → module → elevated → popup/dialog). The white
+                // directive of 2026-09-11 is honoured where it matters — the
+                // CARDS are pure white; only the stage behind them is grouped
+                // grey, which is what makes them read as cards.
+                // NOTE 2026-09-15: AppBackgroundBrush stays out of this table —
+                // the page background is the invariant About stage.
+                ["WindowBackgroundBrush"]   = Ios26Lin2("#F2F2F7", "#EDEDF2", null),
+                ["ModuleBackgroundBrush"]   = Ios26Sol(false, "#F2F2F7", null),
+                ["SideMenuBackgroundBrush"] = Ios26Sol(false, "#F7F7FA", null),
                 ["ElevatedSurfaceBrush"]    = Ios26Sol(false, "#FFFFFF", null),
                 ["PopupSurfaceBrush"]       = Ios26Sol(false, "#FFFFFF", null),
                 ["DialogSurfaceBrush"]      = Ios26Sol(false, "#FFFFFF", null),
                 ["DialogInsetBrush"]        = Ios26Sol(false, "#F2F2F7", null),
                 ["SidebarCardBrush"]        = Ios26Lin2("#F4FFFFFF", "#E8FFFFFF", null),
 
-                // Surface.* white family — re-skins every token-driven card,
-                // badge and icon tile app-wide (IconBadge*, SurfaceDetail…)
-                ["Surface.Primary.BackgroundBrush"]   = Ios26Lin2("#F6FFFFFF", "#E9FFFFFF", null),
+                // Surface.* — the CARD level. Opaque white, never translucent:
+                // a 96% white fill over a white stage was the "empty" the owner
+                // saw, and translucency only earns its cost over a coloured or
+                // grey stage. On the #F2F2F7 module these are now unambiguous
+                // elevated cards. Borders rise from 8%→14% black so a "defined
+                // edge card" actually shows its edge, mirroring the dark table's
+                // 18%/13%/12% white hairlines.
+                ["Surface.Primary.BackgroundBrush"]   = Ios26Lin2("#FFFFFFFF", "#FDFDFF", null),
                 ["Surface.Secondary.BackgroundBrush"] = Ios26Sol(false, "#F7F7FA", null),
                 ["Surface.Detail.BackgroundBrush"]    = Ios26Sol(false, "#FFFFFF", null),
-                ["Surface.Primary.BorderBrush"]       = Ios26Sol(false, "#14000000", null),
-                ["Surface.Secondary.BorderBrush"]     = Ios26Sol(false, "#10000000", null),
-                ["Surface.Detail.BorderBrush"]        = Ios26Sol(false, "#10000000", null),
+                ["Surface.Primary.BorderBrush"]       = Ios26Sol(false, "#24000000", null),
+                ["Surface.Secondary.BorderBrush"]     = Ios26Sol(false, "#1C000000", null),
+                ["Surface.Detail.BorderBrush"]        = Ios26Sol(false, "#1A000000", null),
                 ["Surface.Primary.CornerRadius"]      = IosRadius(16),
                 ["Surface.Secondary.CornerRadius"]    = IosRadius(14),
                 ["Surface.Detail.CornerRadius"]       = IosRadius(12),
@@ -231,11 +254,13 @@ namespace ProGlassAutomation.Services.Theme
                 ["TextPrimaryBrush"]         = Ios26Sol(false, "#1D1D1F", null),
                 ["TextSecondaryBrush"]       = Ios26Sol(false, "#5A5A60", null),
 
-                // Hairlines (macOS separators)
-                ["DividerBrush"]          = Ios26Sol(false, "#12000000", null),
-                ["OutlineBrush"]          = Ios26Sol(false, "#0F000000", null),
-                ["OutlineDefaultBrush"]   = Ios26Sol(false, "#14000000", null),
-                ["OutlineStrongBrush"]    = Ios26Sol(false, "#24000000", null),
+                // Hairlines (macOS separators). Apple's light separator is
+                // #3C3C43 at 29% — a 7% black line is not a separator, it is a
+                // printing artefact, so list rows ran together.
+                ["DividerBrush"]          = Ios26Sol(false, "#1F000000", null),
+                ["OutlineBrush"]          = Ios26Sol(false, "#14000000", null),
+                ["OutlineDefaultBrush"]   = Ios26Sol(false, "#1F000000", null),
+                ["OutlineStrongBrush"]    = Ios26Sol(false, "#33000000", null),
 
                 // Radius scale — iOS continuous-corner language
                 ["CardCornerRadius"]      = IosRadius(14),
@@ -246,10 +271,14 @@ namespace ProGlassAutomation.Services.Theme
                 ["Radius.Large"]          = IosRadius(16),
                 ["Radius.Hero"]           = IosRadius(22),
 
-                // GLOBAL shadows — small, soft, cheap (perf guard)
-                ["ShadowSoft"]                  = Ios26Shadow(false, 10, 2, 0.10),
-                ["ShadowElevated"]              = Ios26Shadow(false, 14, 3, 0.14),
-                ["ShadowDeep"]                  = Ios26Shadow(false, 14, 4, 0.18),
+                // GLOBAL shadows — small, soft, cheap (perf guard: blur ≤ 14,
+                // depth ≤ 3). A white card on a grey stage separates by shadow
+                // as well as by border, so the opacity steps up slightly; the
+                // deep shadow keeps the guard (it was depth 4) and pays for it
+                // with opacity instead of distance.
+                ["ShadowSoft"]                  = Ios26Shadow(false, 10, 2, 0.12),
+                ["ShadowElevated"]              = Ios26Shadow(false, 14, 3, 0.16),
+                ["ShadowDeep"]                  = Ios26Shadow(false, 14, 3, 0.20),
                 ["DashCardShadowEffect"]        = Ios26Shadow(false, 10, 2, 0.10),
                 ["DashSubtleShadowEffect"]      = Ios26Shadow(false, 8, 1, 0.08),
                 ["DashInteractiveShadowEffect"] = Ios26Shadow(false, 12, 3, 0.16),
@@ -329,7 +358,7 @@ namespace ProGlassAutomation.Services.Theme
 
                 ["ShadowSoft"]                  = Ios26Shadow(true, 10, 2, 0.30),
                 ["ShadowElevated"]              = Ios26Shadow(true, 14, 3, 0.36),
-                ["ShadowDeep"]                  = Ios26Shadow(true, 14, 4, 0.42),
+                ["ShadowDeep"]                  = Ios26Shadow(true, 14, 3, 0.42),
                 ["DashCardShadowEffect"]        = Ios26Shadow(true, 10, 2, 0.30),
                 ["DashSubtleShadowEffect"]      = Ios26Shadow(true, 8, 1, 0.24),
                 ["DashInteractiveShadowEffect"] = Ios26Shadow(true, 12, 3, 0.34),
