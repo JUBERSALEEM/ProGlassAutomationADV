@@ -624,6 +624,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // operator to press SAVE on a session.
             PublishLiveFeed();
 
+            // ...and keep a durable copy, so a quote reopened in a LATER app
+            // session can still be checked against this run. One reserved row,
+            // replaced each run — auto-saving named sessions would bury the ones
+            // the operator chose to keep.
+            AsyncUtility.SafeFireAndForget(
+                () => PersistLatestRunAsync(), "Optimization latest-run snapshot");
+
             RebuildIndustrialReport();
 
             RunMessage = string.Format(CultureInfo.InvariantCulture,

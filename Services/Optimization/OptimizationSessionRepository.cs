@@ -56,6 +56,32 @@ namespace ProGlassAutomation.Services.Optimization
             await db.SaveChangesAsync(ct).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Writes the latest run into the one reserved row, replacing whatever was
+        /// there. Insert-or-update rather than insert: the row has a fixed id, so
+        /// a second run would otherwise collide on the primary key.
+        /// </summary>
+        public async Task UpsertLatestRunAsync(
+            SavedOptimizationSession session, CancellationToken ct = default)
+        {
+            if (session == null) return;
+
+            session.Id = SavedOptimizationSession.LatestRunId;
+
+            await using var db = new OptimizationDbContext();
+
+            var existing = await db.Sessions
+                .FirstOrDefaultAsync(s => s.Id == session.Id, ct)
+                .ConfigureAwait(false);
+
+            if (existing == null)
+                db.Sessions.Add(session);
+            else
+                db.Entry(existing).CurrentValues.SetValues(session);
+
+            await db.SaveChangesAsync(ct).ConfigureAwait(false);
+        }
+
         public async Task DeleteAsync(string id, CancellationToken ct = default)
         {
             if (string.IsNullOrWhiteSpace(id)) return;

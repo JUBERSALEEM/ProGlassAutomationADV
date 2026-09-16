@@ -20,6 +20,8 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.Optimization;
+using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Services.Optimization;
 
 namespace ProGlassAutomation.ViewModels.Optimization
@@ -150,6 +152,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
             SavedSessions.Clear();
             foreach (var s in list)
             {
+                // The auto-saved latest run is plumbing for the Step 6 / Step 9
+                // feed, not something the operator saved and wants to reopen.
+                if (s.Id == SavedOptimizationSession.LatestRunId) continue;
+
                 SavedSessions.Add(new SessionRowVm
                 {
                     Id = s.Id,
@@ -168,6 +174,73 @@ namespace ProGlassAutomation.ViewModels.Optimization
         }
 
         // ── save ───────────────────────────────────────────────────────
+
+        /// <summary>
+        /// The per-rack breakdown the REPORT tab already computes, in the shape
+        /// that gets persisted. Shared by the named SAVE and by the automatic
+        /// latest-run snapshot, so the two can never drift apart — a field added
+        /// to CostingRowVm has exactly one projection to update.
+        /// </summary>
+        private List<ResultRowDto> BuildResultRows() => CostingRows
+            .Select(c => new ResultRowDto
+            {
+                W = c.WidthMm,
+                H = c.HeightMm,
+                Composition = c.Composition,
+                Thickness = c.Thickness,
+                Sheets = c.SheetCount,
+                Pieces = c.PieceCount,
+                UtilizationPct = c.UtilizationPercent,
+                GlassSqm = c.GlassM2,
+                StockSqm = c.StockM2,
+                WasteSqm = c.WasteM2Value,
+                RatePerSqm = c.Rate,
+                HasPrice = c.HasPrice,
+                IsSharedAcrossSpecs = c.IsSharedAcrossSpecs,
+                SharedWithSpecs = c.SharedWithSpecs,
+                Panes = c.Panes.ToList()
+            })
+            .ToList();
+
+        /// <summary>
+        /// Persists the run that just finished into the one reserved latest-run
+        /// row, so a quote reopened in a later app session can still be checked
+        /// against real figures instead of falling back to whatever was typed.
+        ///
+        /// Deliberately not a named session: an operator iterating on a cut would
+        /// otherwise accumulate dozens of entries in Saved Sessions.
+        /// </summary>
+        private async Task PersistLatestRunAsync()
+        {
+            try
+            {
+                if (!HasResult) return;
+
+                var resultRows = BuildResultRows();
+
+                // No pane identity means nothing can be joined to a Step 6 row,
+                // so there is nothing worth writing.
+                if (resultRows.Count == 0) return;
+
+                await _sessions.EnsureCreatedAsync();
+
+                await _sessions.UpsertLatestRunAsync(new SavedOptimizationSession
+                {
+                    Name = "Latest run (auto-saved)",
+                    EngineStage = LastRunStage,
+                    SheetsUsed = _groupRuns.Sum(r => r.Result.Sheets.Count),
+                    UnplacedCount = _groupRuns.Sum(r => r.Result.Unplaced.Count),
+                    ResultJson = JsonSerializer.Serialize(resultRows)
+                });
+            }
+            catch (Exception ex)
+            {
+                // Plumbing for a reporting bridge. It must never surface as a
+                // failed run, and never block the UI thread.
+                AppLogService.Debug("[Optimization] latest-run snapshot not saved: " +
+                    ExceptionMessages.Deep(ex));
+            }
+        }
 
         private async Task SaveSessionAsync()
         {
@@ -210,29 +283,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     })
                     .ToList();
 
-                // The per-rack breakdown the REPORT tab already computes. Saving
-                // it is what lets Step 6 and Step 9 quote the real sheet count
-                // and utilization of a pane rather than a typed estimate.
-                var resultRows = CostingRows
-                    .Select(c => new ResultRowDto
-                    {
-                        W = c.WidthMm,
-                        H = c.HeightMm,
-                        Composition = c.Composition,
-                        Thickness = c.Thickness,
-                        Sheets = c.SheetCount,
-                        Pieces = c.PieceCount,
-                        UtilizationPct = c.UtilizationPercent,
-                        GlassSqm = c.GlassM2,
-                        StockSqm = c.StockM2,
-                        WasteSqm = c.WasteM2Value,
-                        RatePerSqm = c.Rate,
-                        HasPrice = c.HasPrice,
-                        IsSharedAcrossSpecs = c.IsSharedAcrossSpecs,
-                        SharedWithSpecs = c.SharedWithSpecs,
-                        Panes = c.Panes.ToList()
-                    })
-                    .ToList();
+                var resultRows = BuildResultRows();
 
                 var margins = new MarginDto
                 {

@@ -15,6 +15,17 @@ namespace ProGlassAutomation.Models.Optimization
     /// <summary>A saved optimization run (reopenable, re-verifiable).</summary>
     public class SavedOptimizationSession
     {
+        /// <summary>
+        /// Reserved id for the single auto-saved "latest run" row.
+        ///
+        /// A finished run persists itself here so a quote reopened in a LATER app
+        /// session can still be checked against it — the live publish only covers
+        /// the current process. It is one row, replaced on every run, and it is
+        /// filtered out of the Saved Sessions list: auto-saving named sessions
+        /// would bury the ones the operator chose to keep.
+        /// </summary>
+        public const string LatestRunId = "__latest_run__";
+
         public string Id { get; set; } = Guid.NewGuid().ToString("N");
         public string Name { get; set; } = string.Empty;
 
