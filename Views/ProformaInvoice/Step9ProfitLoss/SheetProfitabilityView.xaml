@@ -110,6 +110,33 @@
                 </StackPanel>
             </Grid>
 
+            <!-- ═══ SECOND SHEET-SOURCE SWITCH ═══
+                 Where the pane figures on this tab come from. OFF keeps the
+                 existing behaviour — driven by the Step 6 wastage setup, which
+                 is itself optionally fed by the run. ON reads sheet qty and
+                 utilization straight from a finished optimization run.
+                 Provenance is always shown: a number whose source is invisible
+                 is how a quote quietly drifts from the plan. -->
+            <Grid Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <ToggleButton Style="{StaticResource PiToggleSwitch}"
+                                  IsChecked="{Binding UseOptimizationSheetSource}"
+                                  VerticalAlignment="Center"
+                                  AutomationProperties.Name="Read sheet quantity and utilization from the optimization run"/>
+                    <TextBlock Text="Read from optimization run" VerticalAlignment="Center" Margin="8,0,0,0"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                </StackPanel>
+                <TextBlock Grid.Column="1" Text="{Binding OptimizationSheetSourceLabel}"
+                           VerticalAlignment="Center" Margin="12,0,0,0" TextWrapping="Wrap"
+                           FontSize="{DynamicResource FontSize.BodySmall}"
+                           Foreground="{DynamicResource TextTertiaryBrush}"/>
+            </Grid>
+
             <!-- ═══ SHORTFALL BANNER (errors) ═══ -->
             <Border Background="{DynamicResource TintRedBrush}"
                     BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"

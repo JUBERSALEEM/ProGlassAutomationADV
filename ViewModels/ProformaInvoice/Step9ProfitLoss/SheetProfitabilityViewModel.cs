@@ -617,6 +617,78 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         }
 
         /// <summary>True while a sheet row's detail screen is open.</summary>
+        // ════════════════════════════════════════════════════════════════
+        //  SECOND SHEET-SOURCE SWITCH
+        //
+        //  OFF (the default) leaves this tab exactly as it was: driven by the
+        //  Step 6 WASTAGE CHARGE SETUP, per the "Senior ERP rule" below. Step 6
+        //  can itself now be fed by the optimization run, so turning that on
+        //  already improves this tab without changing anything here.
+        //
+        //  ON reads each pane's sheet quantity and utilization straight from the
+        //  finished run, bypassing whatever was typed in Step 6. It is a
+        //  per-pane override with a fallback, never a replacement pipeline: a
+        //  pane the run has no row for keeps its Step 6 figures rather than
+        //  dropping to zero, because a missing sheet count here silently zeroes
+        //  the buy side of the ledger.
+        // ════════════════════════════════════════════════════════════════
+
+        private bool _useOptimizationSheetSource;
+
+        /// <summary>Read the Sheet Details pane figures from the optimization
+        /// run instead of from the Step 6 setup. Off by default.</summary>
+        public bool UseOptimizationSheetSource
+        {
+            get => _useOptimizationSheetSource;
+            set
+            {
+                if (_useOptimizationSheetSource == value) return;
+                _useOptimizationSheetSource = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(OptimizationSheetSourceLabel));
+
+                // Flipping the source has to rebuild the tab, otherwise the
+                // switch looks dead until REFRESH is pressed. Guarded so a flip
+                // during an in-flight analysis cannot re-enter it.
+                if (!IsBusy) RefreshAnalysis();
+            }
+        }
+
+        /// <summary>Provenance for the switch, always visible so the operator
+        /// knows which source produced the sheet numbers on screen.</summary>
+        public string OptimizationSheetSourceLabel =>
+            !_useOptimizationSheetSource
+                ? "Sheet Details are driven by the Step 6 wastage setup."
+                : ProGlassAutomation.Services.Optimization.OptimizationResultFeed.HasData
+                    ? "Sheet Details read sheet qty and utilization from the optimization run — " +
+                      ProGlassAutomation.Services.Optimization.OptimizationResultFeed.SourceLabel
+                    : "Optimization source is ON but no run is available — falling back to the Step 6 setup.";
+
+        /// <summary>
+        /// Resolves one pane against the optimization run. Returns false when the
+        /// switch is off, when no run is loaded, or when the run has no row for
+        /// this pane — in all three cases the caller keeps its existing figures.
+        /// </summary>
+        private bool TryGetOptimizationSheetFigures(
+            int specNumber, string? sideLabel, int widthMm, int heightMm,
+            out int sheets, out decimal utilizationPercent)
+        {
+            sheets = 0;
+            utilizationPercent = 0m;
+
+            if (!_useOptimizationSheetSource) return false;
+
+            var hit = ProGlassAutomation.Services.Optimization.OptimizationResultFeed.Find(
+                ProGlassAutomation.Services.Optimization.OptimizationResultFeed.Current,
+                specNumber, sideLabel, widthMm, heightMm);
+
+            if (hit == null || hit.SheetQuantity <= 0) return false;
+
+            sheets = hit.SheetQuantity;
+            utilizationPercent = hit.UtilizationPercent;
+            return true;
+        }
+
         public bool HasSelectedRow => SelectedRow != null;
 
         // ══════════════════════════════════════════════════════════════
@@ -797,8 +869,23 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                             decimal buySheets = allocation.SheetQuantity;
                             decimal usedSheets = allocation.SheetQuantity;
-                            decimal buySheetArea = Math.Round(buySheets * sheetSqm, 4);
                             decimal utilizationPercent = Math.Min(100m, allocation.UtilizationPercent);
+
+                            // Second sheet-source switch: the run's own figures
+                            // for this pane replace the Step 6 allocation. The
+                            // source carries its sheet size, which confirms the
+                            // rack rather than matching on the pane name alone.
+                            if (TryGetOptimizationSheetFigures(
+                                    src.SpecNumber, src.SideLabel,
+                                    src.SheetWidthMm, src.SheetHeightMm,
+                                    out int feedSheets, out decimal feedUtilization))
+                            {
+                                buySheets = feedSheets;
+                                usedSheets = feedSheets;
+                                utilizationPercent = Math.Min(100m, feedUtilization);
+                            }
+
+                            decimal buySheetArea = Math.Round(buySheets * sheetSqm, 4);
                             decimal usedArea = utilizationPercent > 0m
                                 ? Math.Round(buySheetArea * utilizationPercent / 100m, 4)
                                 : src.SqmValue;
@@ -894,6 +981,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             specGroup.SpecNumber, paneSide);
                         var step6 = ResolveStep6Charge(specGroup.SpecNumber, paneSide);
 
+                        // Second sheet-source switch. paneStep6SideLabel is the
+                        // Step 6 side vocabulary, which is what the run is keyed
+                        // by; a null side means this pane has no Step 6 identity
+                        // and therefore nothing to look up.
+                        decimal optimizationUtilization = 0m;
+                        if (paneStep6SideLabel != null &&
+                            TryGetOptimizationSheetFigures(
+                                specGroup.SpecNumber, paneStep6SideLabel, 0, 0,
+                                out int paneFeedSheets, out decimal paneFeedUtilization))
+                        {
+                            step6SheetQuantity = paneFeedSheets;
+                            optimizationUtilization = paneFeedUtilization;
+                        }
+
                         // Used side of the ledger. When Step 6 sheet setup is
                         // present, the bought sheet count is the used sheet
                         // count (e.g. 17 bought = 17 used). The Step 6 OPT %
@@ -915,7 +1016,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             ? requiredSqm
                             : Math.Round(buySheets * sheetSqm, 4);
 
-                        decimal utilizationPercent = step6.OptimizationPercent > 0m
+                        decimal utilizationPercent = optimizationUtilization > 0m
+                            ? optimizationUtilization
+                            : step6.OptimizationPercent > 0m
                             ? step6.OptimizationPercent
                             : buySheetArea > 0m
                                 ? Math.Min(100m, Math.Round(requiredSqm / buySheetArea * 100m, 2))
