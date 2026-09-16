@@ -257,9 +257,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
         }
 
         /// <summary>
-        /// Combined action: layout + parts + stocks in ONE document, grouped
-        /// by a leading SECTION column (LAYOUT SUMMARY / PARTS SUMMARY /
-        /// STOCKS SUMMARY).
+        /// The ONE export. Everything the REPORT tab can show goes into a single
+        /// sectioned document — run summary, the Step 4 priced costing, the
+        /// owner's industrial cut report, then the layout / parts / stocks
+        /// summaries — instead of five separate downloads the operator had to
+        /// staple together. Sections share one row shape and leave the columns
+        /// they do not use empty, which is how the existing combined export
+        /// already groups rows.
         /// </summary>
         private void ExportAll(ExportFormat format)
         {
@@ -271,6 +275,104 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             var rows = new List<OptimizationReportExport.CombinedRow>();
 
+            // ── 1. RUN SUMMARY — headline numbers, and which SETTINGS level
+            //       produced this plan, so a level-2 plan is never read as a
+            //       level-5 one.
+            rows.Add(new OptimizationReportExport.CombinedRow
+            {
+                Section = "Run Summary", GlassSheet = "Stage", SizeThickness = ResultStage
+            });
+            rows.Add(new OptimizationReportExport.CombinedRow
+            {
+                Section = "Run Summary", GlassSheet = "Optimization level",
+                SizeThickness = ResultEffortLabel
+            });
+            rows.Add(new OptimizationReportExport.CombinedRow
+            {
+                Section = "Run Summary", GlassSheet = "Sheets",
+                SizeThickness = ResultSheets, UtilArea = ResultUtilization
+            });
+            rows.Add(new OptimizationReportExport.CombinedRow
+            {
+                Section = "Run Summary", GlassSheet = "Wastage",
+                SizeThickness = ResultWaste, UtilArea = ResultWastePct
+            });
+            rows.Add(new OptimizationReportExport.CombinedRow
+            {
+                Section = "Run Summary", GlassSheet = "Unplaced", SizeThickness = ResultUnplaced
+            });
+            rows.Add(new OptimizationReportExport.CombinedRow
+            {
+                Section = "Run Summary", GlassSheet = "Oracle", SizeThickness = ResultOracle
+            });
+            if (HasUpgradeSummary)
+                rows.Add(new OptimizationReportExport.CombinedRow
+                {
+                    Section = "Run Summary", GlassSheet = "Upgrade", SizeThickness = UpgradeSummaryLabel
+                });
+            if (HasCostingTotal)
+                rows.Add(new OptimizationReportExport.CombinedRow
+                {
+                    Section = "Run Summary", GlassSheet = "Plan total", SizeThickness = CostingTotalLabel
+                });
+            if (HasCostingPriceNote)
+                rows.Add(new OptimizationReportExport.CombinedRow
+                {
+                    Section = "Run Summary", GlassSheet = "Pricing note", SizeThickness = CostingPriceNote
+                });
+
+            // ── 2. OPTIMIZATION COSTING — sheet size, sheet qty, utilization
+            //       and the Step 4 rate, with the money split into the glass we
+            //       kept and the glass we threw away.
+            foreach (var c in CostingRows)
+                rows.Add(new OptimizationReportExport.CombinedRow
+                {
+                    Section = "Optimization Costing",
+                    GlassSheet = c.Composition,
+                    SizeThickness = c.SheetSize,
+                    Pieces = c.PieceQty,
+                    UtilArea = c.Utilization,
+                    OffcutUsed = c.WasteArea + " m²",
+                    Source = c.Thickness,
+                    SheetQty = c.SheetQty,
+                    RateLabel = c.RateLabel,
+                    GlassCostLabel = c.GlassCostLabel,
+                    WasteCostLabel = c.WasteCostLabel,
+                    TotalCostLabel = c.TotalCostLabel,
+                    SheetQtyValue = c.SheetCount,
+                    Rate = c.HasPrice ? c.Rate : (decimal?)null,
+                    GlassCost = c.HasPrice ? c.GlassCost : (decimal?)null,
+                    WasteCost = c.HasPrice ? c.WasteCost : (decimal?)null,
+                    TotalCost = c.HasPrice ? c.TotalCost : (decimal?)null
+                });
+
+            // ── 3. INDUSTRIAL CUT REPORT — the owner's fixed external format,
+            //       now a section of the same document rather than a separate
+            //       download.
+            foreach (var spec in IndustrialReport)
+            {
+                foreach (var line in spec.Utilization)
+                    rows.Add(new OptimizationReportExport.CombinedRow
+                    {
+                        Section = "Industrial · " + spec.Composition,
+                        SizeThickness = line.Line
+                    });
+
+                foreach (var piece in spec.Pieces)
+                    rows.Add(new OptimizationReportExport.CombinedRow
+                    {
+                        Section = "Industrial · " + spec.Composition,
+                        GlassSheet = piece.GlassRef,
+                        SizeThickness = piece.W1 + "×" + piece.H1 +
+                            (string.IsNullOrWhiteSpace(piece.W2)
+                                ? string.Empty
+                                : " / " + piece.W2 + "×" + piece.H2),
+                        Pieces = piece.Qty,
+                        UtilArea = piece.TotalSqm + " m²"
+                    });
+            }
+
+            // ── 4/5/6. the three session summaries, unchanged.
             foreach (var r in SheetRows)
                 rows.Add(new OptimizationReportExport.CombinedRow
                 {
@@ -290,21 +392,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     GlassSheet = g.Composition,
                     SizeThickness = g.Thickness,
                     Pieces = g.PieceCount,
-                    UtilArea = g.AreaM2 + " m²",
-                    OffcutUsed = string.Empty,
-                    Source = string.Empty
+                    UtilArea = g.AreaM2 + " m²"
                 });
 
-            foreach (var s in Stocks)
+            foreach (var st in Stocks)
                 rows.Add(new OptimizationReportExport.CombinedRow
                 {
                     Section = "Stocks Summary",
-                    GlassSheet = s.CompositionLabel,
-                    SizeThickness = s.WidthText + "×" + s.HeightText,
-                    Pieces = string.Empty,
-                    UtilArea = s.AvailableText,
-                    OffcutUsed = s.UsedLabel,
-                    Source = s.SourceLabel
+                    GlassSheet = st.CompositionLabel,
+                    SizeThickness = st.WidthText + "×" + st.HeightText,
+                    UtilArea = st.AvailableText,
+                    OffcutUsed = st.UsedLabel,
+                    Source = st.HasPrice ? st.SourceLabel + " · " + st.PriceLabel : st.SourceLabel
                 });
 
             if (rows.Count == 0)
@@ -315,8 +414,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             AsyncUtility.SafeFireAndForget(
                 async () => await OptimizationReportExport.RunCombinedAsync(format, rows),
-                "Optimization combined report export");
+                "Optimization full report export");
         }
+
 
         // ── industrial report build ──────────────────────────────────
 

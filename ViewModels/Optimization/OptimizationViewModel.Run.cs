@@ -616,6 +616,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             RefreshStockUsage(runs);
 
+            // Priced plan from the same runs, keyed the same way as the usage
+            // tally above so the two never disagree about which rack is which.
+            RebuildCosting(runs);
+
             RebuildIndustrialReport();
 
             RunMessage = string.Format(CultureInfo.InvariantCulture,

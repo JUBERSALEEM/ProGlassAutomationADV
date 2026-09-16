@@ -56,17 +56,17 @@
                                                            FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource AccentBrush}"/>
                                             </Border>
                                             <StackPanel VerticalAlignment="Center">
-                                                <TextBlock Text="EXPORT ALL SUMMARIES" Style="{StaticResource OptHeader}"/>
+                                                <TextBlock Text="EXPORT FULL REPORT" Style="{StaticResource OptHeader}"/>
                                                 <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                                                     <Button Content="CSV" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
                                                             Command="{Binding ExportAllCommand}" CommandParameter="CSV"
-                                                            ToolTip="Layout + Parts + Stocks summaries as one CSV"/>
+                                                            ToolTip="One CSV: run summary, Step 4 priced costing, industrial cut report, layout, parts and stocks"/>
                                                     <Button Content="Excel" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
                                                             Command="{Binding ExportAllCommand}" CommandParameter="Excel"
-                                                            ToolTip="Layout + Parts + Stocks summaries as one Excel workbook"/>
+                                                            ToolTip="One Excel workbook: run summary, Step 4 priced costing, industrial cut report, layout, parts and stocks. Money stays numeric."/>
                                                     <Button Content="PDF" Style="{StaticResource PrimaryPillButton}"
                                                             Command="{Binding ExportAllCommand}" CommandParameter="PDF"
-                                                            ToolTip="Layout + Parts + Stocks summaries as one PDF"/>
+                                                            ToolTip="One paginated PDF: run summary, Step 4 priced costing, industrial cut report, layout, parts and stocks"/>
                                                 </StackPanel>
                                             </StackPanel>
                                         </StackPanel>
@@ -121,17 +121,6 @@
                                             <TextBlock Text="1 · INDUSTRIAL CUT REPORT"/>
                                             <TextBlock Text="Grouped by glass composition — thickness, spec, sheet size, utilized quantity and utilization %, then the glass-ref size table per spec."
                                                        FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap"/>
-                                        </StackPanel>
-                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Button Content="CSV" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
-                                                    Command="{Binding ExportIndustrialReportCommand}" CommandParameter="CSV"
-                                                    ToolTip="Export the owner-format report (utilization lines + GLASS REF / W1 / H1 / W2 / H2 / QTY / TOTAL SQM tables) as CSV"/>
-                                            <Button Content="Excel" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
-                                                    Command="{Binding ExportIndustrialReportCommand}" CommandParameter="Excel"
-                                                    ToolTip="Export the industrial cut report as a sectioned Excel workbook"/>
-                                            <Button Content="PDF" Style="{StaticResource PrimaryPillButton}"
-                                                    Command="{Binding ExportIndustrialReportCommand}" CommandParameter="PDF"
-                                                    ToolTip="Export the industrial cut report as a paginated PDF"/>
                                         </StackPanel>
                                     </Grid>
 
@@ -263,14 +252,6 @@
                                             <TextBlock Text="Every sheet the engine produced — stock, pieces, utilization and offcut."
                                                        FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                                         </StackPanel>
-                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Button Content="CSV" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
-                                                    Command="{Binding ExportLayoutReportCommand}" CommandParameter="CSV"/>
-                                            <Button Content="Excel" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
-                                                    Command="{Binding ExportLayoutReportCommand}" CommandParameter="Excel"/>
-                                            <Button Content="PDF" Style="{StaticResource OutlinedPillButton}"
-                                                    Command="{Binding ExportLayoutReportCommand}" CommandParameter="PDF"/>
-                                        </StackPanel>
                                     </Grid>
                                     <StackPanel Grid.Row="1">
                                         <Grid Margin="0,0,0,6">
@@ -355,14 +336,6 @@
                                             <TextBlock Text="Merged glass groups — the cutting list summarized by composition."
                                                        FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                                         </StackPanel>
-                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Button Content="CSV" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
-                                                    Command="{Binding ExportPartsReportCommand}" CommandParameter="CSV"/>
-                                            <Button Content="Excel" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
-                                                    Command="{Binding ExportPartsReportCommand}" CommandParameter="Excel"/>
-                                            <Button Content="PDF" Style="{StaticResource OutlinedPillButton}"
-                                                    Command="{Binding ExportPartsReportCommand}" CommandParameter="PDF"/>
-                                        </StackPanel>
                                     </Grid>
                                     <StackPanel Grid.Row="1">
                                         <Grid Margin="0,0,0,6">
@@ -423,14 +396,6 @@
                                             <TextBlock Text="{Binding StocksStatusText}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                        Foreground="{DynamicResource TextTertiaryBrush}"/>
                                         </StackPanel>
-                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Button Content="CSV" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
-                                                    Command="{Binding ExportStocksReportCommand}" CommandParameter="CSV"/>
-                                            <Button Content="Excel" Style="{StaticResource OutlinedPillButton}" Margin="0,0,6,0"
-                                                    Command="{Binding ExportStocksReportCommand}" CommandParameter="Excel"/>
-                                            <Button Content="PDF" Style="{StaticResource OutlinedPillButton}"
-                                                    Command="{Binding ExportStocksReportCommand}" CommandParameter="PDF"/>
-                                        </StackPanel>
                                     </Grid>
                                     <StackPanel Grid.Row="1">
                                         <Grid Margin="0,0,0,6">
@@ -482,7 +447,136 @@
                                 </Grid>
                             </Border>
 
-                            <!-- ══ 5 · SAVED SESSIONS ══ -->
+                            <!-- ══ 5 · STEP 4 PRICED COSTING ══ -->
+                            <Border Style="{StaticResource OptPanelCard}" Margin="0,0,0,16">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                                        <StackPanel>
+                                            <TextBlock Text="5 · STEP 4 PRICED COSTING" Style="{StaticResource OptPanelTitle}"/>
+                                            <TextBlock Text="What this plan costs — sheet size and quantity, utilization, and the rate Step 4 used for that sheet."
+                                                       FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}"
+                                                       TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- empty hint -->
+                                    <TextBlock Grid.Row="1" Text="No priced plan yet — run a cut and it will be costed against Step 4."
+                                               FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextTertiaryBrush}"
+                                               TextWrapping="Wrap" Margin="0,0,0,8"
+                                               Visibility="{Binding HasCosting, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+
+                                    <StackPanel Grid.Row="1">
+                                        <Grid Margin="0,0,0,6">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="140"/>
+                                                <ColumnDefinition Width="62"/>
+                                                <ColumnDefinition Width="62"/>
+                                                <ColumnDefinition Width="70"/>
+                                                <ColumnDefinition Width="86"/>
+                                                <ColumnDefinition Width="86"/>
+                                                <ColumnDefinition Width="86"/>
+                                                <ColumnDefinition Width="124"/>
+                                                <ColumnDefinition Width="112"/>
+                                                <ColumnDefinition Width="112"/>
+                                                <ColumnDefinition Width="120"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="GLASS / GROUP" Style="{StaticResource OptHeader}"/>
+                                            <TextBlock Grid.Column="1" Text="SHEET SIZE (MM)" Style="{StaticResource OptHeader}"/>
+                                            <TextBlock Grid.Column="2" Text="SHEETS" Style="{StaticResource OptHeader}" TextAlignment="Right"/>
+                                            <TextBlock Grid.Column="3" Text="PIECES" Style="{StaticResource OptHeader}" TextAlignment="Right"/>
+                                            <TextBlock Grid.Column="4" Text="UTIL" Style="{StaticResource OptHeader}" TextAlignment="Right"/>
+                                            <TextBlock Grid.Column="5" Text="GLASS M²" Style="{StaticResource OptHeader}" TextAlignment="Right"/>
+                                            <TextBlock Grid.Column="6" Text="STOCK M²" Style="{StaticResource OptHeader}" TextAlignment="Right"/>
+                                            <TextBlock Grid.Column="7" Text="WASTAGE M²" Style="{StaticResource OptHeader}" TextAlignment="Right"/>
+                                            <TextBlock Grid.Column="8" Text="STEP 4 RATE" Style="{StaticResource OptHeader}" TextAlignment="Right"/>
+                                            <TextBlock Grid.Column="9" Text="GLASS COST" Style="{StaticResource OptHeader}" TextAlignment="Right"/>
+                                            <TextBlock Grid.Column="10" Text="WASTAGE COST" Style="{StaticResource OptHeader}" TextAlignment="Right"/>
+                                            <TextBlock Grid.Column="11" Text="TOTAL" Style="{StaticResource OptHeader}" TextAlignment="Right"/>
+                                        </Grid>
+
+                                        <ItemsControl ItemsSource="{Binding CostingRows}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Padding="0,7" BorderThickness="0,0,0,1"
+                                                            BorderBrush="{DynamicResource DividerBrush}">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="140"/>
+                                                                <ColumnDefinition Width="62"/>
+                                                                <ColumnDefinition Width="62"/>
+                                                                <ColumnDefinition Width="70"/>
+                                                                <ColumnDefinition Width="86"/>
+                                                                <ColumnDefinition Width="86"/>
+                                                                <ColumnDefinition Width="86"/>
+                                                                <ColumnDefinition Width="124"/>
+                                                                <ColumnDefinition Width="112"/>
+                                                                <ColumnDefinition Width="112"/>
+                                                                <ColumnDefinition Width="120"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0" Text="{Binding Composition}"
+                                                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
+                                                            <TextBlock Grid.Column="1" Text="{Binding SheetSize}"
+                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                       Margin="0,0,8,0"/>
+                                                            <TextBlock Grid.Column="2" Text="{Binding SheetQty}" TextAlignment="Right"
+                                                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                            <TextBlock Grid.Column="3" Text="{Binding PieceQty}" TextAlignment="Right"
+                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                            <TextBlock Grid.Column="4" Text="{Binding Utilization}" TextAlignment="Right"
+                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource AccentBrush}"/>
+                                                            <TextBlock Grid.Column="5" Text="{Binding GlassArea}" TextAlignment="Right"
+                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                            <TextBlock Grid.Column="6" Text="{Binding StockArea}" TextAlignment="Right"
+                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                            <TextBlock Grid.Column="7" Text="{Binding WasteArea}" TextAlignment="Right"
+                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                            <TextBlock Grid.Column="8" Text="{Binding RateLabel}" TextAlignment="Right" Margin="8,0,0,0"
+                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                            <TextBlock Grid.Column="9" Text="{Binding GlassCostLabel}" TextAlignment="Right"
+                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                            <TextBlock Grid.Column="10" Text="{Binding WasteCostLabel}" TextAlignment="Right"
+                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                            <TextBlock Grid.Column="11" Text="{Binding TotalCostLabel}" TextAlignment="Right"
+                                                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+
+                                    <!-- grand total: totals cover the priced rows only -->
+                                    <Grid Grid.Row="2" Margin="0,12,0,0" Visibility="{Binding HasCostingTotal, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="PLAN TOTAL" Style="{StaticResource OptHeader}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding CostingTotalLabel}"
+                                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                                   Foreground="{DynamicResource AccentBrush}"/>
+                                    </Grid>
+
+                                    <!-- honest pricing caveat -->
+                                    <TextBlock Grid.Row="3" Text="{Binding CostingPriceNote}" Margin="0,8,0,0"
+                                               FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}"
+                                               TextWrapping="Wrap"
+                                               Visibility="{Binding HasCostingPriceNote, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- ══ 6 · SAVED SESSIONS ══ -->
                             <Border Style="{StaticResource OptPanelCard}" Margin="0,16,0,0">
                                 <StackPanel>
                                     <Grid Margin="0,0,0,10">
@@ -491,7 +585,7 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Grid.Column="0">
-                                            <TextBlock Text="5 · SAVED SESSIONS" Style="{StaticResource OptPanelTitle}"/>
+                                            <TextBlock Text="6 · SAVED SESSIONS" Style="{StaticResource OptPanelTitle}"/>
                                             <TextBlock Text="{Binding SessionStatus}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                        Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="0,2,0,0"/>
                                         </StackPanel>

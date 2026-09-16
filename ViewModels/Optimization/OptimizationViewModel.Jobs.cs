@@ -75,7 +75,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
             /// tagged with the pane's glass composition so the STOCKS tab can
             /// route each cutting group to its OWN rack (never the whole store).
             /// Tuple = (W, H, glass composition, provenance).</summary>
-            public List<(int W, int H, string Composition, string Source)> Step4Sheets { get; } = new();
+            /// <summary>Step 4 stock sheets for this job. PricePerSqm is the
+            /// rate Step 4 itself used for that sheet, carried alongside the
+            /// size so the REPORT tab can cost the plan without re-deriving a
+            /// colour match against the Sheet Store.</summary>
+            public List<(int W, int H, string Composition, string Source, decimal PricePerSqm)> Step4Sheets { get; } = new();
 
             public int TotalPcs => Specs.Sum(s => s.Layers.Where(l => l.Kind == "Pane").Sum(l => l.TotalPcs));
         }
@@ -417,12 +421,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             if (group.OuterSheetWidthMm > 0 && group.OuterSheetHeightMm > 0)
                                 opt.Step4Sheets.Add((group.OuterSheetWidthMm, group.OuterSheetHeightMm,
                                     ComposeForSlot(PaneSlot.Pane1),
-                                    "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture) + " outer"));
+                                    "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture) + " outer",
+                                    group.OuterSheetPricePerSqm));
 
                             if (group.InnerSheetWidthMm > 0 && group.InnerSheetHeightMm > 0)
                                 opt.Step4Sheets.Add((group.InnerSheetWidthMm, group.InnerSheetHeightMm,
                                     ComposeForSlot(PaneSlot.Pane2),
-                                    "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture) + " inner"));
+                                    "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture) + " inner",
+                                    group.InnerSheetPricePerSqm));
                         }
                     }
 

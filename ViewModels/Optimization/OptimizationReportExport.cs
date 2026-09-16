@@ -63,7 +63,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         // ── combined "export all" ──────────────────────────────────────
 
-        /// <summary>One row of the combined layout + parts + stocks document.</summary>
+        /// <summary>One row of the single combined report. Every section shares
+        /// this shape; a section leaves the columns it does not use empty.</summary>
         public sealed class CombinedRow
         {
             public string Section = string.Empty;
@@ -73,12 +74,28 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public string UtilArea = string.Empty;
             public string OffcutUsed = string.Empty;
             public string Source = string.Empty;
+
+            // ── Step 4 priced costing columns ──
+            public string SheetQty = string.Empty;
+            public string RateLabel = string.Empty;
+            public string GlassCostLabel = string.Empty;
+            public string WasteCostLabel = string.Empty;
+            public string TotalCostLabel = string.Empty;
+
+            // Typed companions so Excel receives numbers, not text. Null means
+            // "this section has no money" and falls back to the label ("—").
+            public int? SheetQtyValue;
+            public decimal? Rate;
+            public decimal? GlassCost;
+            public decimal? WasteCost;
+            public decimal? TotalCost;
         }
 
         public static readonly string[] CombinedHeaders =
         {
             "SECTION", "GLASS / SHEET", "SIZE / THICKNESS", "PIECES",
-            "UTILIZATION / AREA", "OFFCUT / USED", "SOURCE"
+            "UTILIZATION / AREA", "OFFCUT / USED", "SOURCE",
+            "SHEET QTY", "STEP 4 RATE / M²", "GLASS COST", "WASTAGE COST", "TOTAL COST"
         };
 
         /// <summary>
@@ -90,23 +107,32 @@ namespace ProGlassAutomation.ViewModels.Optimization
             ExportFormat format,
             IReadOnlyList<CombinedRow> rows)
         {
-            const string title = "Optimization — Session Report";
+            const string title = "Optimization — Full Report";
             var request = new ExportRequest
             {
                 PromptForLocation = true,
                 OpenAfterSave = true,
-                SuggestedFileName = "Optimization_Session_Report"
+                SuggestedFileName = "Optimization_Full_Report"
             };
 
             static string[] Text(CombinedRow r) => new[]
             {
                 r.Section, r.GlassSheet, r.SizeThickness, r.Pieces,
-                r.UtilArea, r.OffcutUsed, r.Source
+                r.UtilArea, r.OffcutUsed, r.Source,
+                r.SheetQty, r.RateLabel, r.GlassCostLabel, r.WasteCostLabel, r.TotalCostLabel
             };
+
+            // Money and quantities go to Excel as numbers so the sheet can be
+            // totalled; a section with no money falls back to its label.
             static object[] Excel(CombinedRow r) => new object[]
             {
                 r.Section, r.GlassSheet, r.SizeThickness, r.Pieces,
-                r.UtilArea, r.OffcutUsed, r.Source
+                r.UtilArea, r.OffcutUsed, r.Source,
+                (object)r.SheetQtyValue ?? r.SheetQty,
+                (object)r.Rate ?? r.RateLabel,
+                (object)r.GlassCost ?? r.GlassCostLabel,
+                (object)r.WasteCost ?? r.WasteCostLabel,
+                (object)r.TotalCost ?? r.TotalCostLabel
             };
 
             return format switch

@@ -37,6 +37,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             private string _sourceLabel = string.Empty;
             private string _composition = string.Empty;
             private bool _isUsedInRun = true;
+            private decimal _pricePerSqm;
 
             public StockEntryVm(string w, string h) { _widthText = w; _heightText = h; }
             public StockEntryVm(string w, string h, string source) { _widthText = w; _heightText = h; _sourceLabel = source; }
@@ -44,6 +45,28 @@ namespace ProGlassAutomation.ViewModels.Optimization
             {
                 _widthText = w; _heightText = h; _composition = composition ?? string.Empty; _sourceLabel = source;
             }
+
+            /// <summary>Step 4 rate for this rack, per m². 0 when the rack was
+            /// added by hand or the job recorded no price — the costing then
+            /// shows "—" rather than treating the glass as free.</summary>
+            public decimal PricePerSqm
+            {
+                get => _pricePerSqm;
+                set
+                {
+                    if (_pricePerSqm == value) return;
+                    _pricePerSqm = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(PriceLabel));
+                    OnPropertyChanged(nameof(HasPrice));
+                }
+            }
+
+            public bool HasPrice => _pricePerSqm > 0m;
+
+            public string PriceLabel => _pricePerSqm > 0m
+                ? string.Format(CultureInfo.InvariantCulture, "AED {0:0.##} / m²", _pricePerSqm)
+                : "—";
 
             public string WidthText { get => _widthText; set { _widthText = value; OnPropertyChanged(); } }
             public string HeightText { get => _heightText; set { _heightText = value; OnPropertyChanged(); } }
@@ -182,7 +205,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             Stocks.Clear();
             var seen = new HashSet<(int W, int H, string C)>();
-            foreach (var (w, h, composition, source) in sheets)
+            foreach (var (w, h, composition, source, pricePerSqm) in sheets)
             {
                 if (w <= 0 || h <= 0) continue;
                 string comp = (composition ?? string.Empty).Trim();
@@ -195,7 +218,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     h.ToString(CultureInfo.InvariantCulture),
                     comp,
                     "Step 4 · " + source)
-                { IsUsedInRun = true });
+                { IsUsedInRun = true, PricePerSqm = pricePerSqm });
             }
 
             if (sheets.Count == 0 && Stocks.Count == 0)
