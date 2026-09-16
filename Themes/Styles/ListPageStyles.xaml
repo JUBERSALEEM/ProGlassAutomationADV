@@ -76,6 +76,7 @@
     </Style>
 
     <Style x:Key="ModuleListFilterComboStyle" TargetType="ComboBox">
+        <Setter Property="Template" Value="{StaticResource Themed.ComboBoxTemplate}"/>
         <Setter Property="Height" Value="34"/>
         <Setter Property="MinWidth" Value="128"/>
         <Setter Property="Padding" Value="10,0"/>

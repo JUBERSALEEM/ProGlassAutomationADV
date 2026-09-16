@@ -92,6 +92,7 @@
          COMBO — same 26 px so rows line up
     ══════════════════════════════════════════════════════════════ -->
     <Style x:Key="Step4ComboStyle" TargetType="ComboBox">
+        <Setter Property="Template" Value="{StaticResource Themed.ComboBoxTemplate}"/>
         <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
         <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="BorderThickness"          Value="1"/>
@@ -114,6 +115,7 @@
     <Style x:Key="Step4EditableComboStyle"
            TargetType="ComboBox"
            BasedOn="{StaticResource Step4ComboStyle}">
+        <Setter Property="Template" Value="{StaticResource Themed.EditableComboBoxTemplate}"/>
         <Setter Property="IsEditable"          Value="True"/>
         <Setter Property="IsTextSearchEnabled" Value="True"/>
     </Style>

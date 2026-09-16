@@ -50,6 +50,9 @@
                      DesignTokens so every downstream dictionary and view can
                      consume the semantic vocabulary. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/SemanticTokens.xaml"/>
+                <!-- ComboBox templates — must precede ListPageStyles,
+                     Step4SectionStyles and PiIndustrialStyles, which inherit them. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ComboTemplates.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/PrintTokens.xaml"/>
                 <!-- ProGlass Design System LAYOUT LAYER (2026-09-13).
                      Additive canonical density vocabulary (ProGlassLayout.*)

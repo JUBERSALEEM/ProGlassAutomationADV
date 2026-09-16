@@ -14,6 +14,7 @@
 
         <!-- Compact top-bar module filter -->
         <Style x:Key="GsModuleComboStyle" TargetType="ComboBox">
+            <Setter Property="Template" Value="{StaticResource Themed.ComboBoxTemplate}"/>
             <Setter Property="Background"               Value="Transparent"/>
             <Setter Property="Foreground"               Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Setter Property="BorderThickness"          Value="0"/>
