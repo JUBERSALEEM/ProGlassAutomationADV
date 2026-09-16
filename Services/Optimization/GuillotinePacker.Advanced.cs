@@ -68,7 +68,8 @@ namespace ProGlassAutomation.Services.Optimization
         /// </summary>
         private static OptimizationResult RunSheetFill(
             IReadOnlyList<CutPiece> pieces, IReadOnlyList<StockSize> stocks,
-            MarginProfile margins, RotationPolicy rotation, SplitMode split)
+            MarginProfile margins, RotationPolicy rotation, SplitMode split,
+            int consolidationSweeps = int.MaxValue)
         {
             var remaining = Sort(pieces, OrderBy.MaxSide);
             var sheets = new List<SheetState>();
@@ -119,7 +120,7 @@ namespace ProGlassAutomation.Services.Optimization
                 }
             }
 
-            ConsolidateAll(sheets, margins, rotation, split);
+            ConsolidateAll(sheets, margins, rotation, split, consolidationSweeps);
             return FinishFromSheets(sheets, unplaced, rotation);
         }
 
@@ -129,7 +130,8 @@ namespace ProGlassAutomation.Services.Optimization
         /// </summary>
         private static OptimizationResult RunWallSeed(
             IReadOnlyList<CutPiece> pieces, IReadOnlyList<StockSize> stocks,
-            MarginProfile margins, RotationPolicy rotation, SplitMode split)
+            MarginProfile margins, RotationPolicy rotation, SplitMode split,
+            int consolidationSweeps = int.MaxValue)
         {
             var remaining = pieces.ToList();
             var walls = remaining
@@ -187,7 +189,7 @@ namespace ProGlassAutomation.Services.Optimization
                     leftover.Remove(piece);
             }
 
-            ConsolidateAll(sheets, margins, rotation, split);
+            ConsolidateAll(sheets, margins, rotation, split, consolidationSweeps);
             return FinishFromSheets(sheets, leftover, rotation);
         }
 
@@ -275,6 +277,11 @@ namespace ProGlassAutomation.Services.Optimization
             target.Free.Clear();
             target.Free.AddRange(next);
             target.Layout.Pieces.Add(p);
+            // This is the fourth and final mutation site for a sheet's Free /
+            // Pieces lists. Refreshing here keeps MaxFreeW / MaxFreeH /
+            // PlacedArea exact, which the TryPlace prune and the fullest-first
+            // sort both depend on for result-identical behaviour.
+            target.RefreshAll();
             return true;
         }
 

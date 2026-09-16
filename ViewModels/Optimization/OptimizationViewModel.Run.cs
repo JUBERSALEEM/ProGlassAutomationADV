@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using ProGlassAutomation.Commands;
@@ -134,6 +135,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public ICommand RunQuickCommand { get; }
         public ICommand RunOptimizeCommand { get; }
 
+        /// <summary>Cancels an in-flight run. The engine checks the token once
+        /// per part, so cancelling takes effect within about a second even on a
+        /// group large enough to have taken minutes.</summary>
+        public ICommand CancelRunCommand { get; }
+
         private string _runMessage = string.Empty;
         public string RunMessage
         {
@@ -156,6 +162,28 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         /// <summary>Run buttons are enabled only when no run is in flight.</summary>
         public bool CanRun => !_isRunning;
+
+        /// <summary>Cancel source for the in-flight run; null while idle.</summary>
+        private CancellationTokenSource _runCts;
+
+        /// <summary>True while a run is in flight and can still be cancelled.</summary>
+        public bool CanCancel => _isRunning && _runCts != null;
+
+        /// <summary>Requests cancellation. Safe to call when nothing is running.</summary>
+        private void CancelRun()
+        {
+            var cts = _runCts;
+            if (cts == null) return;
+            try
+            {
+                cts.Cancel();
+                RunStageLabel = "Cancelling…";
+            }
+            catch (ObjectDisposedException)
+            {
+                // The run completed between the null check and Cancel().
+            }
+        }
 
         private string _runStageLabel = string.Empty;
         public string RunStageLabel { get => _runStageLabel; private set { _runStageLabel = value; OnPropertyChanged(); } }
@@ -207,6 +235,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 ? $"Optimizing {groups.Count.ToString(CultureInfo.InvariantCulture)} cutting group(s) · level {effort.ToString(CultureInfo.InvariantCulture)}…"
                 : $"Quick packing {groups.Count.ToString(CultureInfo.InvariantCulture)} cutting group(s)…";
             RunMessage = "";
+
+            _runCts?.Dispose();
+            _runCts = new CancellationTokenSource();
+            OnPropertyChanged(nameof(CanCancel));
 
             AsyncUtility.SafeFireAndForget(
                 () => RunCoreAsync(stage, groups, stockPool, margins, rotation, effort),
@@ -297,11 +329,25 @@ namespace ProGlassAutomation.ViewModels.Optimization
             List<(StockSize Stock, string Composition)> stockPool,
             MarginProfile margins, RotationPolicy rotation, int effort)
         {
+            // ── SCALE / ROBUSTNESS ────────────────────────────────────────
+            // This method had try/finally with NO catch, and it is invoked
+            // through SafeFireAndForget. An OutOfMemoryException from a very
+            // large cutting group was therefore swallowed: the spinner cleared,
+            // no results appeared, and the operator was told nothing about why.
+            // Every failure mode now reports itself in the run header.
+            var ct = _runCts?.Token ?? CancellationToken.None;
+            int groupCount = groups.Count;
+            int groupIndex = 0;
+            var scaleNotes = new List<string>();
+
             try
             {
                 var runs = new List<GroupRun>();
                 foreach (var (composition, groupPieces) in groups)
                 {
+                    groupIndex++;
+                    ct.ThrowIfCancellationRequested();
+
                     var (groupMargins, marginNote) = ResolveGroupMargins(composition, margins);
 
                     // Each cutting group packs against ITS OWN Step 4 rack
@@ -315,10 +361,25 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             ? stockNote
                             : marginNote + " · " + stockNote);
 
+                    // Progress<T> captures the UI synchronization context when
+                    // it is constructed, so the engine can report from the
+                    // worker thread and the label updates on the dispatcher.
+                    int gi = groupIndex;
+                    var groupProgress = new Progress<OptimizeProgress>(p =>
+                        RunStageLabel = stage == "OPTIMIZE"
+                            ? $"Optimizing {composition} · group {gi} of {groupCount} · {p.Message}"
+                            : $"Quick packing {composition} · group {gi} of {groupCount}");
+
                     var result = await Task.Run(() => stage == "OPTIMIZE"
-                        ? GuillotinePacker.PackOptimize(groupPieces, groupStocks, groupMargins, rotation, effort)
-                        : GuillotinePacker.PackQuick(groupPieces, groupStocks, groupMargins, rotation))
+                        ? GuillotinePacker.PackOptimize(groupPieces, groupStocks, groupMargins,
+                              rotation, effort, ct, groupProgress)
+                        : GuillotinePacker.PackQuick(groupPieces, groupStocks, groupMargins,
+                              rotation, SplitMode.HorizontalFirst, ct))
                         .ConfigureAwait(true);
+
+                    // Size-driven search reductions are surfaced, never silent.
+                    foreach (var scaleNote in result.ScaleNotes)
+                        if (!scaleNotes.Contains(scaleNote)) scaleNotes.Add(scaleNote);
 
                     double glass = result.Sheets.Sum(s => s.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm));
                     double stockArea = result.Sheets.Sum(s => (long)s.Stock.WidthMm * s.Stock.HeightMm);
@@ -341,10 +402,42 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 }
 
                 ApplyResults(stage, runs, rotation);
+
+                // APPEND, never replace: ApplyResults has just written the
+                // sheet-count / utilization summary the operator reads first.
+                // Overwriting it would hide the result exactly on the large
+                // jobs where the note matters most.
+                if (scaleNotes.Count > 0)
+                {
+                    string notes = string.Join(" ", scaleNotes);
+                    RunMessage = string.IsNullOrWhiteSpace(RunMessage)
+                        ? notes
+                        : RunMessage + " " + notes;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                RunStageLabel = "Cancelled.";
+                RunMessage = "Optimization cancelled. No results were applied.";
+            }
+            catch (OutOfMemoryException)
+            {
+                RunStageLabel = "Stopped — out of memory.";
+                RunMessage = "Optimization stopped: this machine ran out of memory packing a group " +
+                    "this large. Split the job into smaller cutting groups or close other " +
+                    "applications, then run it again.";
+            }
+            catch (Exception ex)
+            {
+                RunStageLabel = "Failed.";
+                RunMessage = $"Optimization failed: {ex.Message}";
             }
             finally
             {
                 IsRunning = false;
+                _runCts?.Dispose();
+                _runCts = null;
+                OnPropertyChanged(nameof(CanCancel));
             }
         }
 

@@ -149,11 +149,126 @@ namespace ProGlassAutomation.Services.Optimization
     }
 
     /// <summary>Whole-run result.</summary>
+    /// <summary>Which scale band an input falls into. Decided purely by part
+    /// count so that a given job always gets the same search budget and the
+    /// engine stays deterministic.</summary>
+    public enum ScaleTier
+    {
+        /// <summary>Full search. Everything the calibration benchmark covers
+        /// lands here, so results stay bit-identical to earlier releases.</summary>
+        Standard = 0,
+        /// <summary>Search breadth trimmed; ordering and split diversity kept.</summary>
+        Large = 1,
+        /// <summary>Minimum viable search, chosen so the run terminates.</summary>
+        Huge = 2
+    }
+
+    /// <summary>
+    /// How much search the optimizer is allowed to perform for a given input
+    /// size. The engine's cost grows roughly with parts x sheets, so a group of
+    /// 100,000 parts is not 1,000 times a group of 100 — it is about a million
+    /// times. Rather than run for hours or exhaust memory, large inputs trade
+    /// search BREADTH (deterministic shuffles, beam widening) for termination,
+    /// while keeping the ordering and split-rule diversity that produces most
+    /// of the quality. Every reduction is recorded on the result so it is
+    /// visible to the operator instead of silently degrading the plan.
+    /// </summary>
+    public sealed class ScaleProfile
+    {
+        /// <summary>Above this many parts in one group, breadth is trimmed.</summary>
+        public const int LargeThreshold = 2000;
+        /// <summary>Above this many parts, only the minimum search is run.</summary>
+        public const int HugeThreshold = 20000;
+
+        public ScaleProfile(int pieceCount, int requestedEffort, ScaleTier tier,
+            int shuffleCap, bool allowBeam, int maxRectsOrderings, int consolidationSweeps)
+        {
+            PieceCount = pieceCount;
+            RequestedEffort = requestedEffort;
+            Tier = tier;
+            ShuffleCap = shuffleCap;
+            AllowBeam = allowBeam;
+            MaxRectsOrderings = maxRectsOrderings;
+            ConsolidationSweeps = consolidationSweeps;
+        }
+
+        public int PieceCount { get; }
+        public int RequestedEffort { get; }
+        public ScaleTier Tier { get; }
+        /// <summary>Maximum number of deterministic shuffles per ordering/split pair.</summary>
+        public int ShuffleCap { get; }
+        /// <summary>Beam search copies the whole open-sheet list per candidate,
+        /// which is O(sheets^2). Disabled above the standard band.</summary>
+        public bool AllowBeam { get; }
+        /// <summary>How many orderings the MaxRects candidate may run.</summary>
+        public int MaxRectsOrderings { get; }
+        /// <summary>Consolidation restarts its sweep after every improvement, so
+        /// an unbounded loop is O(parts x sheets^2). Capped above the standard band.</summary>
+        public int ConsolidationSweeps { get; }
+
+        /// <summary>True when any search breadth was reduced because of size.</summary>
+        public bool IsReduced => Tier != ScaleTier.Standard;
+
+        public static ScaleProfile For(int pieceCount, int requestedEffort)
+        {
+            if (pieceCount <= LargeThreshold)
+                return new ScaleProfile(pieceCount, requestedEffort, ScaleTier.Standard,
+                    int.MaxValue, true, int.MaxValue, int.MaxValue);
+
+            if (pieceCount <= HugeThreshold)
+                return new ScaleProfile(pieceCount, requestedEffort, ScaleTier.Large,
+                    1, false, 3, 2);
+
+            return new ScaleProfile(pieceCount, requestedEffort, ScaleTier.Huge,
+                0, false, 1, 1);
+        }
+
+        /// <summary>Plain-language description of what was reduced and why.</summary>
+        public string Summary => Tier switch
+        {
+            ScaleTier.Standard =>
+                $"{PieceCount} parts: full search at effort {RequestedEffort}.",
+            ScaleTier.Large =>
+                $"{PieceCount} parts exceeds {LargeThreshold}, so the search was narrowed to " +
+                $"finish: deterministic shuffles capped at {ShuffleCap}, beam search off, " +
+                $"MaxRects orderings capped at {MaxRectsOrderings}, consolidation sweeps capped " +
+                $"at {ConsolidationSweeps}. All orderings and split rules are still tried.",
+            _ =>
+                $"{PieceCount} parts exceeds {HugeThreshold}, so only the minimum search was run " +
+                $"(no shuffles, no beam, {MaxRectsOrderings} MaxRects ordering, " +
+                $"{ConsolidationSweeps} consolidation sweep). Split the job into smaller groups " +
+                $"for a deeper search."
+        };
+    }
+
+    /// <summary>Progress checkpoint reported by the optimizer. Emitted between
+    /// candidate passes, which is the natural granularity: each pass is one
+    /// complete packing of the group.</summary>
+    public sealed class OptimizeProgress
+    {
+        public string Stage { get; init; } = "";
+        public int Completed { get; init; }
+        public int Total { get; init; }
+        public string Message { get; init; } = "";
+
+        public double Fraction => Total <= 0
+            ? 0d
+            : System.Math.Min(1d, (double)Completed / Total);
+
+        public static OptimizeProgress Of(string stage, int completed, int total, string message = "") =>
+            new OptimizeProgress { Stage = stage, Completed = completed, Total = total, Message = message };
+    }
+
     public sealed class OptimizationResult
     {
         public List<SheetLayout> Sheets { get; } = new();
         public List<CutPiece> Unplaced { get; } = new();
         public RotationPolicy Rotation { get; init; }
+
+        /// <summary>Search reductions applied because of input size, in plain
+        /// language. Always empty for standard-size groups, so existing reports
+        /// and tests are unaffected.</summary>
+        public List<string> ScaleNotes { get; } = new();
 
         public int SheetsUsed => Sheets.Count;
 

@@ -116,7 +116,8 @@ namespace ProGlassAutomation.Services.Optimization
         /// </summary>
         private static OptimizationResult RunBestSplit(
             IReadOnlyList<CutPiece> pieces, IReadOnlyList<StockSize> stocks,
-            MarginProfile margins, RotationPolicy rotation)
+            MarginProfile margins, RotationPolicy rotation,
+            int consolidationSweeps = int.MaxValue)
         {
             var remaining = Sort(pieces, OrderBy.MaxSide);
             var sheets = new List<SheetState>();
@@ -162,7 +163,8 @@ namespace ProGlassAutomation.Services.Optimization
                 remaining = chosenLeft;
             }
 
-            ConsolidateAll(sheets, margins, rotation, SplitMode.HorizontalFirst);
+            ConsolidateAll(sheets, margins, rotation, SplitMode.HorizontalFirst,
+                consolidationSweeps);
             return FinishFromSheets(sheets, unplaced, rotation);
         }
 

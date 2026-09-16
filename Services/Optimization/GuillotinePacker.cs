@@ -34,6 +34,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace ProGlassAutomation.Services.Optimization
 {
@@ -50,12 +51,54 @@ namespace ProGlassAutomation.Services.Optimization
             public SheetLayout Layout { get; }
             public List<FreeRect> Free { get; } = new();
             public int StockIndex { get; }
+
+            // ── SCALE METRICS ────────────────────────────────────────────
+            // Maintained at every mutation of Free / Layout.Pieces, of which
+            // there are exactly four: this constructor, Commit, the
+            // consolidation rollback, and the MaxRects commit in
+            // GuillotinePacker.Advanced.cs. Keeping them EXACT is what makes
+            // the TryPlace prune result-identical rather than approximate.
+
+            /// <summary>Largest width among this sheet's free rects.</summary>
+            public int MaxFreeW;
+            /// <summary>Largest height among this sheet's free rects.</summary>
+            public int MaxFreeH;
+            /// <summary>Total placed glass area in mm^2, cached so sorting and
+            /// consolidation stop recomputing a LINQ Sum per comparison.</summary>
+            public long PlacedArea;
+
             public SheetState(SheetLayout layout, int stockIndex)
             {
                 Layout = layout;
                 StockIndex = stockIndex;
                 Free.Add(new FreeRect(layout.UsableX, layout.UsableY,
                     layout.UsableWidth, layout.UsableHeight));
+                RefreshAll();
+            }
+
+            /// <summary>Recompute the free-rect bounds. O(|Free|), and a
+            /// guillotine split keeps only a handful of rects.</summary>
+            public void RefreshFreeBounds()
+            {
+                int mw = 0, mh = 0;
+                for (int i = 0; i < Free.Count; i++)
+                {
+                    if (Free[i].W > mw) mw = Free[i].W;
+                    if (Free[i].H > mh) mh = Free[i].H;
+                }
+                MaxFreeW = mw;
+                MaxFreeH = mh;
+            }
+
+            /// <summary>Recompute bounds AND area. Use after a bulk rebuild of
+            /// either list (construction, rollback, MaxRects commit).</summary>
+            public void RefreshAll()
+            {
+                RefreshFreeBounds();
+                long a = 0;
+                var ps = Layout.Pieces;
+                for (int i = 0; i < ps.Count; i++) a += (long)ps[i].WidthMm * ps[i].HeightMm;
+                PlacedArea = a;
             }
         }
 
@@ -65,7 +108,8 @@ namespace ProGlassAutomation.Services.Optimization
             IReadOnlyList<StockSize> stocks,
             MarginProfile margins,
             RotationPolicy rotation,
-            SplitMode split = SplitMode.HorizontalFirst)
+            SplitMode split = SplitMode.HorizontalFirst,
+            CancellationToken cancellationToken = default)
         {
             // 2026-09-16: was OrderBy.MaxSide, which cost a whole sheet on the
             // owner's own benchmark. MaxSide packs the Low-E group into 18
@@ -73,7 +117,14 @@ namespace ProGlassAutomation.Services.Optimization
             // the file header claims and Benchmark_LowE_MatchesReference pins.
             // Area is also identical on Clear (17) and Ramly (1 sheet, smallest
             // stock), so it is a strict improvement for the QUICK stage.
-            return RunPass(Sort(pieces, OrderBy.Area), stocks, margins, rotation, split);
+            // QUICK runs a single pass, but ConsolidateAll still restarts its
+            // donor sweep after every improvement, which is unbounded in the
+            // number of sheets. Applying the same size-based sweep cap keeps a
+            // very large group from hanging here too. Below LargeThreshold the
+            // cap is unlimited, so QUICK stays bit-identical.
+            var scale = ScaleProfile.For(pieces.Count, 1);
+            return RunPass(Sort(pieces, OrderBy.Area), stocks, margins, rotation, split,
+                cancellationToken, scale.ConsolidationSweeps);
         }
 
         /// <summary>
@@ -87,8 +138,24 @@ namespace ProGlassAutomation.Services.Optimization
             IReadOnlyList<StockSize> stocks,
             MarginProfile margins,
             RotationPolicy rotation,
-            int effortLevel = 3)
+            int effortLevel = 3,
+            CancellationToken cancellationToken = default,
+            IProgress<OptimizeProgress> progress = null)
         {
+            if (pieces == null) throw new ArgumentNullException(nameof(pieces));
+            if (stocks == null || stocks.Count == 0)
+                throw new ArgumentException("At least one stock size is required.", nameof(stocks));
+            if (margins == null) throw new ArgumentNullException(nameof(margins));
+
+            // Decides how much search this group can afford. For every group
+            // the calibration benchmark covers this returns ScaleTier.Standard
+            // with unlimited caps, so the combo list below is unchanged and the
+            // results stay bit-identical.
+            var scale = ScaleProfile.For(pieces.Count, effortLevel);
+
+            if (pieces.Count == 0)
+                return new OptimizationResult { Rotation = rotation };
+
             // LiSEC / Editway-style multi-start: several decreasing
             // orderings × guillotine split rules. Higher effort adds
             // deterministic shuffles (reproducible, not random).
@@ -114,17 +181,47 @@ namespace ProGlassAutomation.Services.Optimization
             else
             {
                 int shuffles = effortLevel >= 5 ? 6 : 3;
+                // Shuffles are the dominant multiplier at effort 5 (7x on top
+                // of 6 orderings x 3 splits = 126 passes). Capping them is the
+                // cheapest breadth reduction available: it keeps every ordering
+                // and every split rule and only drops the randomized restarts.
+                shuffles = System.Math.Min(shuffles, scale.ShuffleCap);
                 combos = orderings.SelectMany(o => splits.SelectMany(s =>
                     Enumerable.Range(0, shuffles + 1).Select(k => (o, s, k))));
             }
 
+            // Materialized so progress can report a real total.
+            var comboList = combos.ToList();
+
+            // ── SCALE FIX 4: cache the base sorts ──
+            // Sort(pieces, order) is a pure function of the input and the
+            // ordering key, yet effort 5 re-ran it for all 126 combos. There are
+            // only six distinct keys, so at 100k parts this was ~120 redundant
+            // full sorts (each an O(n log n) LINQ chain allocating a new list).
+            // ShuffleDeterministic copies its input before permuting it, so
+            // handing out the cached list is safe.
+            var sortCache = new Dictionary<OrderBy, List<CutPiece>>();
+
             OptimizationResult best = null;
-            foreach (var (order, split, shuffle) in combos)
+            for (int ci = 0; ci < comboList.Count; ci++)
             {
-                var ordered = Sort(pieces, order);
+                cancellationToken.ThrowIfCancellationRequested();
+                var (order, split, shuffle) = comboList[ci];
+
+                if (!sortCache.TryGetValue(order, out var ordered))
+                {
+                    ordered = Sort(pieces, order);
+                    sortCache[order] = ordered;
+                }
                 if (shuffle > 0)
                     ordered = ShuffleDeterministic(ordered, 17 + shuffle * 131 + (int)order * 7);
-                var candidate = RunPass(ordered, stocks, margins, rotation, split);
+
+                progress?.Report(OptimizeProgress.Of("pass", ci, comboList.Count,
+                    $"Pass {ci + 1} of {comboList.Count}: {order} / {split}" +
+                    (shuffle > 0 ? $" / shuffle {shuffle}" : "")));
+
+                var candidate = RunPass(ordered, stocks, margins, rotation, split,
+                    cancellationToken, scale.ConsolidationSweeps);
                 best = Better(best, candidate);
             }
 
@@ -132,31 +229,64 @@ namespace ProGlassAutomation.Services.Optimization
             {
                 foreach (var split in splits)
                 {
-                    best = Better(best, RunSheetFill(pieces, stocks, margins, rotation, split));
-                    best = Better(best, RunWallSeed(pieces, stocks, margins, rotation, split));
+                    cancellationToken.ThrowIfCancellationRequested();
+                    best = Better(best, RunSheetFill(pieces, stocks, margins, rotation, split,
+                        scale.ConsolidationSweeps));
+                    best = Better(best, RunWallSeed(pieces, stocks, margins, rotation, split,
+                        scale.ConsolidationSweeps));
                 }
+                cancellationToken.ThrowIfCancellationRequested();
 
                 // Per-sheet split selection — see GuillotinePacker.BestSplit.cs.
                 // This is the candidate that takes the Clear group from 17
                 // sheets to the owner's reference 16.
-                best = Better(best, RunBestSplit(pieces, stocks, margins, rotation));
+                best = Better(best, RunBestSplit(pieces, stocks, margins, rotation,
+                    scale.ConsolidationSweeps));
             }
 
             if (effortLevel >= 3)
             {
-                foreach (var order in orderings.Take(effortLevel >= 5 ? 6 : 3))
+                // Math.Min with an unlimited cap leaves the standard band
+                // exactly as it was (6 orderings at effort 5, 3 below).
+                foreach (var order in orderings.Take(System.Math.Min(
+                             effortLevel >= 5 ? 6 : 3, scale.MaxRectsOrderings)))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
                     best = Better(best, RunMaxRects(Sort(pieces, order), stocks, margins, rotation));
+                }
 
                 // Beam-corrected version: greedy per-sheet selection is myopic
                 // (measured worse than the shipped engine on 17 of 40
                 // randomized instances when used ALONE), so it is widened here.
                 // Adding candidates can never regress — Better() takes the min.
-                best = Better(best, RunBestSplitBeam(pieces, stocks, margins, rotation, 4));
-                if (effortLevel >= 4)
-                    best = Better(best, RunBestSplitBeam(pieces, stocks, margins, rotation, 8));
+                // The beam clones the whole open-sheet list for every candidate
+                // (new List<SheetState>(state.Sheets) per split, per step), so
+                // its cost is O(sheets^2 x beam width). At 5,000 sheets that is
+                // hundreds of millions of reference copies on top of holding
+                // eight full layouts alive at once — the other main memory
+                // multiplier. It only ever ADDS candidates, so skipping it can
+                // raise the sheet count but never produces an invalid layout.
+                if (scale.AllowBeam)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    best = Better(best, RunBestSplitBeam(pieces, stocks, margins, rotation, 4));
+                    if (effortLevel >= 4)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        best = Better(best, RunBestSplitBeam(pieces, stocks, margins, rotation, 8));
+                    }
+                }
             }
 
-            return best ?? PackQuick(pieces, stocks, margins, rotation);
+            var final = best ?? PackQuick(pieces, stocks, margins, rotation);
+
+            // Never let a size-driven reduction be invisible: the operator sees
+            // exactly what was skipped and why, next to the sheet count.
+            if (scale.IsReduced) final.ScaleNotes.Add(scale.Summary);
+
+            progress?.Report(OptimizeProgress.Of("done", comboList.Count, comboList.Count,
+                $"{final.Sheets.Count} sheets"));
+            return final;
         }
 
         private static OptimizationResult Better(OptimizationResult a, OptimizationResult b)
@@ -179,7 +309,9 @@ namespace ProGlassAutomation.Services.Optimization
             IReadOnlyList<StockSize> stocks,
             MarginProfile margins,
             RotationPolicy rotation,
-            SplitMode split)
+            SplitMode split,
+            CancellationToken cancellationToken = default,
+            int consolidationSweeps = int.MaxValue)
         {
             if (orderedPieces == null) throw new ArgumentNullException(nameof(orderedPieces));
             if (stocks == null || stocks.Count == 0)
@@ -194,6 +326,11 @@ namespace ProGlassAutomation.Services.Optimization
 
             foreach (var piece in orderedPieces)
             {
+                // Checked per part so a Cancel takes effect within one part
+                // rather than one whole pass. On a default token this is a
+                // single boolean test and costs nothing measurable.
+                cancellationToken.ThrowIfCancellationRequested();
+
                 if (!PlaceOnOpenSheets(sheets, piece, margins, rotation, split))
                 {
                     if (!OpenNewSheet(sheets, sheetsPerStock, stocks, piece, margins, rotation, split, result))
@@ -201,7 +338,7 @@ namespace ProGlassAutomation.Services.Optimization
                 }
             }
 
-            ConsolidateAll(sheets, margins, rotation, split);
+            ConsolidateAll(sheets, margins, rotation, split, consolidationSweeps);
             SortSheetsFullestFirst(sheets);
 
             for (int i = 0; i < sheets.Count; i++)
@@ -215,11 +352,12 @@ namespace ProGlassAutomation.Services.Optimization
         /// <summary>Industrial report order: fullest sheet first, emptiest last.</summary>
         private static void SortSheetsFullestFirst(List<SheetState> sheets)
         {
+            // PlacedArea is cached on the sheet. Recomputing two LINQ Sums
+            // inside a comparator made this O(sheets log sheets x parts), and
+            // it runs on every pass.
             sheets.Sort((a, b) =>
             {
-                long aa = a.Layout.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm);
-                long ba = b.Layout.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm);
-                int cmp = ba.CompareTo(aa);
+                int cmp = b.PlacedArea.CompareTo(a.PlacedArea);
                 if (cmp != 0) return cmp;
                 return a.Layout.Pieces.Count.CompareTo(b.Layout.Pieces.Count) * -1;
             });
@@ -342,8 +480,42 @@ namespace ProGlassAutomation.Services.Optimization
             waste = long.MaxValue;
             PlacedPiece best = null;
 
-            foreach (var (w, h, rot, orientationRank) in Orientations(piece, rotation))
+            // ── SCALE FIX 1: no allocation on the hot path ──
+            // Orientations() built a new List<(int,int,bool,int)> on EVERY
+            // call, and this method runs once per (piece x sheet). At 100k
+            // parts over ~5,000 sheets that is ~500 million throwaway list
+            // allocations per pass — enough on its own to exhaust memory and
+            // take the process down. The walk is inlined; Orientations() is
+            // left intact for its other callers.
+            int ow = piece.WidthMm, oh = piece.HeightMm;
+            bool canRotate = rotation == RotationPolicy.Free90 && piece.AllowRotate && ow != oh;
+            int orientationCount = canRotate ? 2 : 1;
+
+            // ── SCALE FIX 2: sound whole-sheet prune ──
+            // MaxFreeW / MaxFreeH are the EXACT maxima over this sheet's free
+            // rects, so an orientation exceeding them exceeds every rect, and
+            // the scan below could not have placed it. Returning null here is
+            // indistinguishable from scanning and finding nothing — identical
+            // results — but a full sheet is now rejected in O(1) instead of
+            // O(rects). That is the difference between O(parts x sheets x
+            // rects) and O(parts x sheets) once sheets start filling up.
+            bool anyFits = false;
+            for (int oi = 0; oi < orientationCount; oi++)
             {
+                int wProbe = oi == 0 ? ow : oh;
+                int hProbe = oi == 0 ? oh : ow;
+                if (wProbe <= sheet.MaxFreeW && hProbe <= sheet.MaxFreeH) { anyFits = true; break; }
+            }
+            if (!anyFits) return null;
+
+            for (int oi = 0; oi < orientationCount; oi++)
+            {
+                int w = oi == 0 ? ow : oh;
+                int h = oi == 0 ? oh : ow;
+                bool rot = oi == 1;
+                int orientationRank = oi;
+                if (w > sheet.MaxFreeW || h > sheet.MaxFreeH) continue;
+
                 for (int i = 0; i < sheet.Free.Count; i++)
                 {
                     var rect = sheet.Free[i];
@@ -440,6 +612,12 @@ namespace ProGlassAutomation.Services.Optimization
             }
 
             sheet.Layout.Pieces.Add(placed);
+
+            // Keep the scale metrics exact (see SheetState). Area is O(1)
+            // incremental; the bounds need a rescan because the rect we just
+            // consumed may have been the widest or tallest one.
+            sheet.PlacedArea += (long)placed.WidthMm * placed.HeightMm;
+            sheet.RefreshFreeBounds();
         }
 
         // ── stock selection ──────────────────────────────────────────────
@@ -498,17 +676,48 @@ namespace ProGlassAutomation.Services.Optimization
         /// Try to empty every sheet from sparsest to densest. One successful
         /// evacuation restarts the scan — LiSEC-style leftover squeeze.
         /// </summary>
+        /// <summary>
+        /// Records a copy-on-write snapshot of <paramref name="sheet"/> the
+        /// first time an operation is about to modify it. Repeat calls for the
+        /// same sheet are no-ops, so the snapshot always holds the pre-attempt
+        /// state. Must be called BEFORE the write.
+        /// </summary>
+        private static void SnapshotBeforeWrite(
+            SheetState sheet,
+            HashSet<SheetState> seen,
+            List<SheetState> touched,
+            List<List<PlacedPiece>> touchedPieces,
+            List<List<FreeRect>> touchedFree)
+        {
+            if (!seen.Add(sheet)) return;
+            touched.Add(sheet);
+            touchedPieces.Add(sheet.Layout.Pieces.ToList());
+            touchedFree.Add(sheet.Free.ToList());
+        }
+
         private static void ConsolidateAll(
-            List<SheetState> sheets, MarginProfile margins, RotationPolicy rotation, SplitMode split)
+            List<SheetState> sheets, MarginProfile margins, RotationPolicy rotation, SplitMode split,
+            int maxSweeps = int.MaxValue)
         {
             if (sheets.Count <= 1) return;
 
+            // Each successful evacuation breaks out and restarts the whole
+            // donor scan, and a failed donor still costs O(parts_on_donor x
+            // sheets). Unbounded, that is O(parts x sheets^2) — at 100k parts
+            // over 5,000 sheets, trillions of operations. maxSweeps is
+            // unlimited for standard-size groups, so their behaviour (and the
+            // calibration benchmark) is unchanged.
             bool improved = true;
-            while (improved && sheets.Count > 1)
+            int sweeps = 0;
+            while (improved && sheets.Count > 1 && sweeps < maxSweeps)
             {
+                sweeps++;
                 improved = false;
+                // PlacedArea is the same value the Sum produced, maintained
+                // incrementally by Commit. OrderBy is a stable sort, so with
+                // identical keys this yields an identical order.
                 var order = Enumerable.Range(0, sheets.Count)
-                    .OrderBy(i => sheets[i].Layout.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm))
+                    .OrderBy(i => sheets[i].PlacedArea)
                     .ToList();
 
                 foreach (int donorIndex in order)
@@ -528,10 +737,24 @@ namespace ProGlassAutomation.Services.Optimization
                         .OrderByDescending(p => (long)p.WidthMm * p.HeightMm)
                         .ToList();
 
-                    var snapshotPlacements = sheets.Select(s => s.Layout.Pieces.ToList()).ToList();
-                    var snapshotFree = sheets.Select(s => s.Free.ToList()).ToList();
+                    // ── SCALE FIX 3: snapshot only what this attempt writes ──
+                    // The previous code deep-copied every sheet's pieces AND
+                    // every sheet's free rects for every donor, then restored
+                    // all of them on failure. That is O(sheets x parts) per
+                    // attempt, in a loop that restarts after each improvement,
+                    // at the end of every pass: roughly 500 million reference
+                    // copies per pass at 100k parts / 5,000 sheets. It was the
+                    // largest single allocation source in the engine. Recording
+                    // only the sheets actually touched makes the rollback exact
+                    // (same pieces, same rects, same order) at O(touched).
+                    var touched = new List<SheetState>();
+                    var touchedPieces = new List<List<PlacedPiece>>();
+                    var touchedFree = new List<List<FreeRect>>();
+                    var seen = new HashSet<SheetState>();
 
+                    SnapshotBeforeWrite(donor, seen, touched, touchedPieces, touchedFree);
                     donor.Layout.Pieces.Clear();
+                    donor.PlacedArea = 0;
                     bool allEvacuated = true;
 
                     foreach (var victim in victims)
@@ -542,6 +765,7 @@ namespace ProGlassAutomation.Services.Optimization
                             if (si == donorIndex) continue;
                             var moved = TryPlace(sheets[si], victim.Piece, rotation, out _, out _);
                             if (moved == null) continue;
+                            SnapshotBeforeWrite(sheets[si], seen, touched, touchedPieces, touchedFree);
                             Commit(sheets[si], moved, margins, split);
                             placed = true;
                             break;
@@ -556,12 +780,15 @@ namespace ProGlassAutomation.Services.Optimization
                         break;
                     }
 
-                    for (int i = 0; i < sheets.Count; i++)
+                    // Roll back exactly the sheets we wrote, newest first, and
+                    // restore their cached metrics so the invariants hold.
+                    for (int t = touched.Count - 1; t >= 0; t--)
                     {
-                        sheets[i].Layout.Pieces.Clear();
-                        sheets[i].Layout.Pieces.AddRange(snapshotPlacements[i]);
-                        sheets[i].Free.Clear();
-                        sheets[i].Free.AddRange(snapshotFree[i]);
+                        touched[t].Layout.Pieces.Clear();
+                        touched[t].Layout.Pieces.AddRange(touchedPieces[t]);
+                        touched[t].Free.Clear();
+                        touched[t].Free.AddRange(touchedFree[t]);
+                        touched[t].RefreshAll();
                     }
                 }
             }
