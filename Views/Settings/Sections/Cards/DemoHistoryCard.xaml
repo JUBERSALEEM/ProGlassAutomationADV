@@ -1,0 +1,59 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/DemoHistoryCard.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — one card of the DemoSection page, split out
+     (2026-09-17) for the module line budget. DataContext inherits
+     SettingsViewModel from the section; styles from the two merged
+     module dictionaries.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.DemoHistoryCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Common.Status}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.WhatLastRunDidWhereOutput}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <UniformGrid Columns="2" Margin="{StaticResource SettingsRowMargin}">
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9D2;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.State}"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding StateText}"
+                                               TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding StatusText}"
+                                               Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding VerifiedText}"
+                                               Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7C1;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.LastOutput}"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding LastMp4Text}"
+                                               Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding FfmpegStatus}"
+                                               Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+
+                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+                    </StackPanel>
+                </Border>
+</UserControl>

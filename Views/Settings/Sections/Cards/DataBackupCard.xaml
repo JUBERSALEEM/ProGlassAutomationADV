@@ -1,0 +1,125 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/DataBackupCard.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — one card of the DataSection page, split out
+     (2026-09-17) for the module line budget. DataContext inherits
+     SettingsViewModel from the section; styles from the two merged
+     module dictionaries.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.DataBackupCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Settings.BackupRestore}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.BackupSetCopiesDatabaseSettingsOne}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <UniformGrid Columns="3" Margin="{StaticResource SettingsRowMargin}">
+
+                            <!-- Backup actions tile -->
+                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE74E;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.BackupActions}"/>
+                                    </StackPanel>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.CreateBackupSetNowRefreshListOpenFolderWhere}"/>
+                                    <StackPanel>
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource Settings.CreateBackupNOW}"
+                                                Command="{Binding CreateBackupNowCommand}"
+                                                HorizontalAlignment="Stretch"/>
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource Action.Refresh}"
+                                                Command="{Binding RefreshBackupsCommand}"
+                                                HorizontalAlignment="Stretch"
+                                                Margin="{StaticResource SettingsStackGap8}"/>
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource About.OPENFolder}"
+                                                Command="{Binding OpenBackupsFolderCommand}"
+                                                HorizontalAlignment="Stretch"
+                                                Margin="{StaticResource SettingsStackGap8}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Restore tile -->
+                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE895;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource ProformaInvoice.Restore}"/>
+                                    </StackPanel>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.RestoreAlwaysSnapshotsCurrentDataFirstBad}"/>
+                                    <Button Style="{StaticResource SuccessPillButton}"
+                                            Tag="&#xE895;" Content="{DynamicResource Settings.RestoreSelectedBackup}"
+                                            Command="{Binding RestoreSelectedBackupCommand}"
+                                            HorizontalAlignment="Stretch"/>
+                                    <TextBlock Text="{Binding BackupStatus}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"
+                                               FontWeight="{DynamicResource Weight.SemiBold}"
+                                               Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Backup sets list (wide tile) -->
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F7;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.BackupSets}"/>
+                                    </StackPanel>
+                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                               Text="{DynamicResource Settings.PickSetRestoreSelectingEnoughRestoreButton}"/>
+                                    <ListBox ItemsSource="{Binding BackupSets}"
+                                    AutomationProperties.Name="{DynamicResource Settings.PickSetRestoreSelectingEnoughRestoreButton}"
+                                             SelectedItem="{Binding SelectedBackup}"
+                                             MaxHeight="170"
+                                             BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                             BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                             Background="{DynamicResource SurfaceTertiaryBrush}">
+                                        <ListBox.ItemTemplate
+                                        AutomationProperties.Name="{DynamicResource Settings.PickSetRestoreSelectingEnoughRestoreButton}"
+                                        >
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" Margin="2">
+                                                    <TextBlock Text="&#xE968;"
+                                                               FontFamily="{DynamicResource FontFamily.Icon}"
+                                                               FontSize="{DynamicResource FontSize.Body}"
+                                                               Margin="{StaticResource SettingsInlineGap8R}"
+                                                               VerticalAlignment="Center"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                               IsHitTestVisible="False"/>
+                                                    <TextBlock VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
+                                                               IsHitTestVisible="False">
+                                                        <Run Text="{Binding CreatedAt, Mode=OneWay,
+                                                                     StringFormat='dd MMM yyyy  HH:mm'}"/>
+                                                        <Run Text="  •  "/>
+                                                        <Run Text="{Binding FileCount, Mode=OneWay}"/>
+                                                        <Run Text="{DynamicResource Settings.Files}"/>
+                                                        <Run Text="{Binding SizeDisplay, Mode=OneWay}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </StackPanel>
+                            </Border>
+
+                        </UniformGrid>
+
+                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+                    </StackPanel>
+                </Border>
+</UserControl>

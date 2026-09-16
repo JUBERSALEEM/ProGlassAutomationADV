@@ -93,11 +93,16 @@ namespace ProGlassAutomation.ViewModels.Settings
             App.ServiceProvider?.GetService<ISpeechToTextService>()!,
             App.ServiceProvider?.GetService<IDatabaseServices>()!){ }
 
+        /// <summary>Sharing Center page (v3 pilot: first page-scoped VM).
+        /// The page template binds the section's DataContext to this.</summary>
+        public ViewModels.Settings.Pages.SettingsSharingPageViewModel SharingPage { get; private set; } = null!;
+
         // ── Shared initialization (ERR-633EEB) ─────────────────────
         // Extracted verbatim from the parameterless ctor so both it
         // and the DI-selected parameterized ctor initialize fully.
         private void InitializeCore()
         {
+            SharingPage = new ViewModels.Settings.Pages.SettingsSharingPageViewModel(_config);
             _config.DataConnectivity ??= new DataConnectivitySettings();
 
             // v2 shell: navigation between the settings pages.

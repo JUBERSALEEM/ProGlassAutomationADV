@@ -59,7 +59,8 @@
     </DataTemplate>
 
     <DataTemplate x:Key="SettingsPage.Sharing">
-        <sections:SettingsSharingSection/>
+        <!-- v3 pilot: the section binds its page-scoped VM, not the shell -->
+        <sections:SettingsSharingSection DataContext="{Binding SharingPage}"/>
     </DataTemplate>
 
     <DataTemplate x:Key="SettingsPage.About">

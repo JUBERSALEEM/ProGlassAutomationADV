@@ -1,0 +1,115 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/DataRootCard.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — one card of the DataSection page, split out
+     (2026-09-17) for the module line budget. DataContext inherits
+     SettingsViewModel from the section; styles from the two merged
+     module dictionaries.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.DataRootCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Company LAN / Wi-Fi Database"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="Connect all office workstations to one shared ProGlass data folder on the same network. Use a stable Windows/SMB shared folder, not a cloud-sync folder. Restart is required after changing this."
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackBottom10}">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.2*"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="2*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <Border 
+                Style="{StaticResource SettingsInnerTileStyle}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE968;"/>
+                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{Binding DataRootModeDisplay}"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <CheckBox Content="Use shared company database folder"
+                                        AutomationProperties.Name="Use shared company database folder"
+                                                  IsChecked="{Binding UseSharedDataRoot, Mode=TwoWay}"
+                                                  FontWeight="{DynamicResource Weight.SemiBold}"
+                                                  Foreground="{DynamicResource TextPrimaryBrush}"
+                                                  Margin="{StaticResource SettingsStackGap8}"/>
+                                        <CheckBox Content="Copy current local data if shared folder is empty"
+                                        AutomationProperties.Name="Copy current local data if shared folder is empty"
+                                                  IsChecked="{Binding CopyLocalDataOnEnable, Mode=TwoWay}"
+                                                  Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                  Margin="{StaticResource SettingsStackGap8}"/>
+                                        <TextBlock Text="Current live root:"
+                                                   Style="{StaticResource SettingsRowMetaStyle}"
+                                                   Margin="{StaticResource SettingsStackGap10}"/>
+                                        <TextBlock Text="{Binding CurrentDataRootDisplay}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   TextWrapping="Wrap"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Shared folder path (UNC recommended: \\SERVER\ProGlassData)"
+                                                   Style="{StaticResource SettingsRowMetaStyle}"/>
+                                        <TextBox Text="{Binding SharedDataRootPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 Padding="10,7"
+                                                 FontSize="{DynamicResource FontSize.Body}"
+                                                 ToolTip="Example: \\Office-PC\ProGlassData or Z:\ProGlassData" Style="{StaticResource TextBoxStyle}"/>
+                                        <TextBlock Text="Workstation name for support/audit"
+                                                   Style="{StaticResource SettingsRowMetaStyle}"
+                                                   Margin="{StaticResource SettingsStackGap8}"/>
+                                        <TextBox Text="{Binding WorkstationName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 Padding="10,7"
+                                                 FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
+
+                                        <Border Margin="{StaticResource SettingsStackGap10}"
+                Style="{StaticResource SurfacePanelTileStyle}">
+                                            <UniformGrid Columns="3">
+                                                <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                    Content="Test Connection"
+                                                    Command="{Binding TestSharedDataRootCommand}"
+                                                    HorizontalAlignment="Stretch"/>
+                                                <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                    Content="Prepare Folder"
+                                                    Command="{Binding PrepareSharedDataRootCommand}"
+                                                    HorizontalAlignment="Stretch"/>
+                                                <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                    Content="Save + Restart Required"
+                                                    Command="{Binding ApplySharedDataRootCommand}"
+                                                    HorizontalAlignment="Stretch"/>
+                                            </UniformGrid>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Border CornerRadius="{DynamicResource CardCornerRadius}"
+                                        Background="{DynamicResource TintAmberBrush}"
+                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                        BorderThickness="{DynamicResource CardBorderThickness}"
+                                        Padding="10,8"
+                                        Margin="{StaticResource SettingsStackGap12}" Style="{StaticResource SettingsInnerTileStyle}">
+                                    <TextBlock Text="{Binding NetworkDataRootStatus}"
+                                               TextWrapping="Wrap"
+                                               FontSize="{DynamicResource FontSize.Body}"
+                                               FontWeight="{DynamicResource Weight.SemiBold}"
+                                               Foreground="{DynamicResource WarningBrush}"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+                    </StackPanel>
+                </Border>
+</UserControl>

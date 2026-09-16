@@ -133,6 +133,13 @@ namespace ProGlassAutomation.Tests.Audit
                          Path.Combine(Root(), "ViewModels", "Settings"), "SettingsViewModel*.cs"))
                 Assert.True(File.ReadAllLines(file).Length <= 350,
                     Path.GetFileName(file) + " exceeds the 350-line budget — split it");
+
+            // Per-page ViewModels promoted out of the god class (v3 pilot:
+            // Sharing) live under Pages/ and obey the same budget.
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "ViewModels", "Settings", "Pages"), "*PageViewModel*.cs"))
+                Assert.True(File.ReadAllLines(file).Length <= 350,
+                    Path.GetFileName(file) + " exceeds the 350-line budget — split it");
         }
 
         [Fact]
@@ -140,6 +147,24 @@ namespace ProGlassAutomation.Tests.Audit
         {
             var shell = Path.Combine(Root(), "Views", "Settings", "SettingsView.xaml");
             Assert.True(File.ReadAllLines(shell).Length <= 420, "SettingsView.xaml exceeded 420 lines");
+        }
+
+        [Fact]
+        public void Sections_Stay_Under_400_Lines()
+        {
+            foreach (var file in Sections())
+                Assert.True(File.ReadAllLines(file).Length <= 400,
+                    Path.GetFileName(file) + " exceeded 400 lines — split its cards");
+        }
+
+        [Fact]
+        public void Cards_Stay_Under_520_Lines()
+        {
+            var cards = Path.Combine(Root(), "Views", "Settings", "Sections", "Cards");
+            if (!Directory.Exists(cards)) return;
+            foreach (var file in Directory.EnumerateFiles(cards, "*.xaml"))
+                Assert.True(File.ReadAllLines(file).Length <= 520,
+                    Path.GetFileName(file) + " exceeded 520 lines — split its tiles");
         }
     }
 }

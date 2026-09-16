@@ -1,0 +1,57 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/DemoIsolationCard.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — one card of the DemoSection page, split out
+     (2026-09-17) for the module line budget. DataContext inherits
+     SettingsViewModel from the section; styles from the two merged
+     module dictionaries.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.DemoIsolationCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Settings.Isolation}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.DemoModeKeepsProductionDataUntouchedWhile}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <StackPanel Margin="{StaticResource SettingsRowMargin}">
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7EB;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.DemoMode}"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding IsolationText}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"/>
+                                    <!-- Full-width action row: buttons stretch evenly. -->
+                                    <Border Margin="{StaticResource SettingsStackGap10}"
+                Style="{StaticResource SurfacePanelTileStyle}">
+                                        <UniformGrid Columns="2">
+                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource Settings.EnterDEMOMODE}"
+                                                Command="{Binding EnterDemoCommand}"
+                                                HorizontalAlignment="Stretch"/>
+                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource Settings.EXITDEMOMODE}"
+                                                Command="{Binding ExitDemoCommand}"
+                                                HorizontalAlignment="Stretch"
+                                                Margin="0"/>
+                                        </UniformGrid>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+                    </StackPanel>
+                </Border>
+</UserControl>

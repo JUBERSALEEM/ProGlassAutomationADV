@@ -1,0 +1,95 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/Cards/DemoWorkflowCard.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v3 — one card of the DemoSection page, split out
+     (2026-09-17) for the module line budget. DataContext inherits
+     SettingsViewModel from the section; styles from the two merged
+     module dictionaries.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.DemoWorkflowCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Inquiry.Workflow}"
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource Settings.PickModuleGenerateLandsWorkspaceFirstVoice}"
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <StackPanel Margin="{StaticResource SettingsRowMargin}">
+                            <Border Style="{StaticResource SettingsInnerTileStyle}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE896;"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.Module}"/>
+                                    </StackPanel>
+                                    <!-- 2026-08-25 senior fix: the dropdown showed
+                                         "ProGlassAutomation.Agent.Demo.DemoWorkflow"
+                                         type names. DisplayMemberPath alone proved
+                                         fragile, so an explicit ItemTemplate renders
+                                         the Title. NOTE: DisplayMemberPath and
+                                         ItemTemplate must NOT both be set — WPF
+                                         throws InvalidOperationException at item
+                                         generation when they are, which killed the
+                                         whole Settings page (blank screen). -->
+                                    <ComboBox ItemsSource="{Binding Modules}"
+                                              SelectedItem="{Binding SelectedWorkflow, Mode=TwoWay}"
+                                              IsSynchronizedWithCurrentItem="False"
+                                              MinWidth="260"
+                                              Padding="10,7"
+                                              FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Title}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                    <TextBlock Text="{Binding SelectedPurpose}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"/>
+                                    <TextBlock Text="{Binding WorkflowHint}"
+                                               Style="{StaticResource SettingsRowMetaStyle}"/>
+                                    <!-- Full-width action row: buttons stretch evenly. -->
+                                    <Border Margin="{StaticResource SettingsStackGap12}"
+                Style="{StaticResource SurfacePanelTileStyle}">
+                                        <UniformGrid Columns="5">
+                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource Settings.GenerateSelected}"
+                                                Command="{Binding GenerateSelectedCommand}"
+                                                AutomationProperties.AutomationId="DemoCenter.GenerateSelected"
+                                                HorizontalAlignment="Stretch"/>
+                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource Settings.GenerateModules}"
+                                                Command="{Binding GenerateAllCommand}"
+                                                AutomationProperties.AutomationId="DemoCenter.GenerateAll"
+                                                HorizontalAlignment="Stretch"/>
+                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource Settings.RetryLAST}"
+                                                Command="{Binding RetryCommand}"
+                                                HorizontalAlignment="Stretch"/>
+                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource Action.Cancel}"
+                                                Command="{Binding CancelCommand}"
+                                                HorizontalAlignment="Stretch"/>
+                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="{DynamicResource Settings.OPENOutput}"
+                                                Command="{Binding OpenOutputCommand}"
+                                                HorizontalAlignment="Stretch"
+                                                Margin="0"/>
+                                        </UniformGrid>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+                    </StackPanel>
+                </Border>
+</UserControl>

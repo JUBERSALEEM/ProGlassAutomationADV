@@ -1,35 +1,44 @@
 // ═══════════════════════════════════════════════════════════════════════
-// FILE: ViewModels/Settings/SettingsViewModel.Sharing.cs
+// FILE: ViewModels/Settings/Pages/SettingsSharingPageViewModel.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Settings — Sharing Center preferences (Stage 2)
+// MODULE: Settings v3 — per-page ViewModel PILOT (phase 3b)
 //
-// Edits AppConfig.Sharing in place (same pattern as the other settings
-// partials): every setter writes through + ConfigService.SaveDebounced.
-// Every control here drives working code — providers gate the composer,
-// defaults seed it, document rules steer it, templates render it.
+// First page promoted out of the SettingsViewModel god class. The Sharing
+// page was chosen because its members are referenced by exactly one section
+// (SettingsSharingSection.xaml) and no other partial: a clean seam.
 //
-// Document rules bind directly to the SharingSettings.DocumentRules list
-// (mutable rule objects); template overrides edit through the selected
-// key + text + explicit Save (a dictionary has no per-key binding).
+// Contract: the shell exposes this as SettingsViewModel.SharingPage and the
+// page template sets the section's DataContext to it, so every binding inside
+// the section keeps its exact property names. Shared state arrives through
+// the constructor (AppConfig); writes go through ConfigService.SaveDebounced
+// + AuditService exactly as before.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
-using ProGlassAutomation.Services.Sharing;
 using ProGlassAutomation.Services.Sharing.Providers;
 using ProGlassAutomation.Services.Sharing.Templates;
-using System;
+using ProGlassAutomation.Services.Sharing;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
+using System;
 
 namespace ProGlassAutomation.ViewModels.Settings
 {
-    public sealed partial class SettingsViewModel : ViewModelBase, IDisposable
+    /// <summary>Sharing Center page state: providers, defaults, document
+    /// rules and message templates. Owned by the shell, scoped to the page.</summary>
+    public sealed partial class SettingsSharingPageViewModel : ViewModelBase
     {
+        private readonly AppConfig _config;
+
+        public SettingsSharingPageViewModel(AppConfig config)
+        {
+            _config = config;
+        }
         private SharingSettings SharingCfg => _config.Sharing;
 
         private void SaveSharing(string action, string details)
@@ -148,6 +157,57 @@ namespace ProGlassAutomation.ViewModels.Settings
                 }
                 OnPropertyChanged();
             }
+        }
+
+        // ── Document rules ─────────────────────────────────────────
+
+        public ObservableCollection<ShareDocumentRule> SharingDocumentRules { get; }
+            = new();
+
+        public string[] SharingFormatOptions { get; } = { "Pdf", "Excel", "Csv" };
+
+        public string[] SharingRecipientKindOptions { get; } =
+        {
+            "CustomerAttention", "Customer",
+            "CompanyRepresentative", "Salesman"
+        };
+
+        private void LoadSharingDocumentRules()
+        {
+            try
+            {
+                SharingDocumentRules.Clear();
+                foreach (var rule in SharingCfg.DocumentRules)
+                    SharingDocumentRules.Add(rule);
+                _sharingRulesSignature = SharingRulesSignature();
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug($"[Settings.Sharing] rules load failed: {ex.Message}");
+            }
+        }
+
+        private string _sharingRulesSignature = "";
+
+        private string SharingRulesSignature() =>
+            string.Join(";", SharingDocumentRules.Select(r =>
+                $"{r.DocumentTypeKey}={r.DefaultFormat}," +
+                $"{r.DefaultProviderId},{r.DefaultRecipientKind}," +
+                $"{r.AllowMessageEdit}"));
+
+        /// <summary>
+        /// Called by the section when a rule combo changes (rules are
+        /// mutable objects bound directly; this persists + audits).
+        /// Signature-guarded: initial binding fires the same events, and
+        /// re-saving identical values would spam the audit on page open.
+        /// </summary>
+        public void SaveSharingDocumentRules()
+        {
+            string sig = SharingRulesSignature();
+            if (sig == _sharingRulesSignature) return;
+            _sharingRulesSignature = sig;
+            SaveSharing("Sharing document rules changed",
+                SharingDocumentRules.Count + " rules");
         }
 
     }

@@ -1,81 +1,29 @@
 // ═══════════════════════════════════════════════════════════════════════
-// FILE: ViewModels/Settings/SettingsViewModel.Sharing.RulesTemplates.cs
+// FILE: ViewModels/Settings/Pages/SettingsSharingPageViewModel.Templates.cs
 // PROJECT: ProGlassAutomation
-// ─────────────────────────────────────────────────────────────────────────
-// Settings v3 redesign (2026-09-17): split out of SettingsViewModel.Sharing.cs so no file in the
-// module exceeds the ~350-line budget. Same partial class, members moved
-// verbatim at member boundaries — behaviour unchanged.
+// MODULE: Settings v3 — Sharing page VM: message-template members
+//
+// Split out of SettingsSharingPageViewModel.cs so both files stay inside
+// the 350-line Settings VM budget (see SettingsRedesignAuditTests).
 // ═══════════════════════════════════════════════════════════════════════
+
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
-using ProGlassAutomation.Services.Sharing;
 using ProGlassAutomation.Services.Sharing.Providers;
 using ProGlassAutomation.Services.Sharing.Templates;
-using System;
+using ProGlassAutomation.Services.Sharing;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
+using System;
 
 namespace ProGlassAutomation.ViewModels.Settings
 {
-    public sealed partial class SettingsViewModel : ViewModelBase, IDisposable
+    public sealed partial class SettingsSharingPageViewModel
     {
-        // ── Document rules ─────────────────────────────────────────
-
-        public ObservableCollection<ShareDocumentRule> SharingDocumentRules { get; }
-            = new();
-
-        public string[] SharingFormatOptions { get; } = { "Pdf", "Excel", "Csv" };
-
-        public string[] SharingRecipientKindOptions { get; } =
-        {
-            "CustomerAttention", "Customer",
-            "CompanyRepresentative", "Salesman"
-        };
-
-        private void LoadSharingDocumentRules()
-        {
-            try
-            {
-                SharingDocumentRules.Clear();
-                foreach (var rule in SharingCfg.DocumentRules)
-                    SharingDocumentRules.Add(rule);
-                _sharingRulesSignature = SharingRulesSignature();
-            }
-            catch (Exception ex)
-            {
-                AppLogService.Debug($"[Settings.Sharing] rules load failed: {ex.Message}");
-            }
-        }
-
-        private string _sharingRulesSignature = "";
-
-        private string SharingRulesSignature() =>
-            string.Join(";", SharingDocumentRules.Select(r =>
-                $"{r.DocumentTypeKey}={r.DefaultFormat}," +
-                $"{r.DefaultProviderId},{r.DefaultRecipientKind}," +
-                $"{r.AllowMessageEdit}"));
-
-        /// <summary>
-        /// Called by the section when a rule combo changes (rules are
-        /// mutable objects bound directly; this persists + audits).
-        /// Signature-guarded: initial binding fires the same events, and
-        /// re-saving identical values would spam the audit on page open.
-        /// </summary>
-        public void SaveSharingDocumentRules()
-        {
-            string sig = SharingRulesSignature();
-            if (sig == _sharingRulesSignature) return;
-            _sharingRulesSignature = sig;
-            SaveSharing("Sharing document rules changed",
-                SharingDocumentRules.Count + " rules");
-        }
-
-        // ── Templates ──────────────────────────────────────────────
-
         public string[] SharingTemplateKeyOptions { get; } =
         {
             "GLOBAL",
