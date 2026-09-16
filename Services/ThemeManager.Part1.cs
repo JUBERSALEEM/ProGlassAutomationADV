@@ -657,6 +657,39 @@ namespace ProGlassAutomation.Services
             FreezeAndSet(resources, "AboutInteractiveBorderStrongBrush", panelBorderStrong);
             FreezeAndSet(resources, "AboutCardBorderBrush", cardBorder);
             FreezeAndSet(resources, "AboutDividerBrush", divider);
+
+            // ── ABOUT MODULE BRIDGE (owner report: About "adapts font but NOT theme") ──
+            // The About views read Ios26* keys; this engine publishes About*/Liquid*
+            // keys. Exactly one bridge was ever built - AboutSurfaceTokens.Publish
+            // aliases AboutCardBorderBrush onto Ios26CardBorderBrush - so 97 of the
+            // module's 98 visual tokens stayed at their theme-dictionary literals and
+            // moved on a Light/Dark switch alone, never on a Monet / family pass.
+            //
+            // Ios26AccentBrush was the clearest case: a hardcoded #0369A1 (light) /
+            // #38BDF8 (dark) blue, read by eight About files, while the real accent was
+            // computed twelve lines above and published as LiquidAccent - a key no About
+            // file reads. The engine changed keys nobody read; About read keys nobody
+            // changed. These aliases close that gap on the same pass, so ordering is
+            // guaranteed and no second publish hook is needed.
+            //
+            // Bridged: only the tokens whose whole purpose is to carry the accent.
+            // Deliberately NOT bridged:
+            //   - Ios26Text* : neutral ink. Tinting body copy with the accent would
+            //     trade readability for theme-awareness.
+            //   - Ios26CardBrush / Ios26TileBrush / Ios26RailBrush : the approved card
+            //     design ("Keeping the cards as it is design"), pinned by
+            //     AboutModuleAuditTests and AppStageAuditTests.
+            //   - Ios26CanvasBrush and the four Ios26Orb* : AppStageAuditTests requires
+            //     them declared in Themes/Styles/AppStage.xaml, OUTSIDE the theme swap.
+            // The XAML literals in Light/DarkTheme.xaml are left in place on purpose:
+            // they are the first-frame fallback and AboutModuleAuditTests asserts every
+            // one of them is declared there.
+            FreezeAndSet(resources, "Ios26AccentBrush", accent);
+            FreezeAndSet(resources, "Ios26AccentSoftTextBrush", accentDeep);
+            FreezeAndSet(resources, "Ios26AccentSoftBrush",
+                ColorMath.WithAlpha(accent, dark ? (byte)0x33 : (byte)0x22));
+            FreezeAndSet(resources, "Ios26HairlineBrush", divider);
+            FreezeAndSet(resources, "Ios26HoverBrush", panelHover);
         }
 
         private static void PublishDashAmbience(
