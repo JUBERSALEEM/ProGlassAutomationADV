@@ -6,6 +6,7 @@ using ProGlassAutomation.Services.Theme;
 using ProGlassAutomation.Services.Theme.Engine;
 using ProGlassAutomation.Services.AI.AIConfig;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -165,38 +166,60 @@ namespace ProGlassAutomation.Services
             var resources = Application.Current?.Resources;
             if (resources == null) return;
 
-            double inputH, buttonH, rowH, title, kpi, body, buttonMin;
+            double inputH, buttonH, rowH, title, kpi, body, buttonMin, typeScale;
             Thickness cardPad, stripPad, pageMargin;
 
+            // 2026-09-16 owner report: "current ui view is too big for even
+            // normal and compact and spacious should have the size which
+            // currently compact having." Two independent defects caused that.
+            //
+            //   (a) The ladder was anchored far too large — Compact was 28px
+            //       inputs and 10,6 page margins, which is what most apps call
+            //       "default", so no step felt compact on a laptop. Spacious
+            //       now takes the OLD Compact numbers exactly, and the three
+            //       steps below it descend from there.
+            //
+            //   (b) The type scale was never wired up at all. Every FontSize.*
+            //       token is a static <sys:Double> in GlobalDesignSystem.xaml
+            //       and nothing ever rewrote it, while views read
+            //       {DynamicResource FontSize.Body} 1747 times — 2460 FontSize.*
+            //       references in total and ZERO StaticResource ones. The switch
+            //       moved the 6 Density*FontSize aliases and left the real
+            //       consumers untouched, so Compact and Spacious rendered
+            //       identical type. typeScale below closes that gap.
             switch (key)
             {
-                case "Spacious":
-                    inputH = 42; buttonH = 44; rowH = 38;
-                    title = 24; kpi = 22; body = 14; buttonMin = 120;
-                    cardPad = new Thickness(20, 14, 20, 14);
-                    stripPad = new Thickness(22, 14, 22, 14);
-                    pageMargin = new Thickness(22, 16, 22, 16);
-                    break;
-                case "Comfortable":
-                    inputH = 38; buttonH = 40; rowH = 34;
-                    title = 22; kpi = 20; body = 14; buttonMin = 110;
-                    cardPad = new Thickness(16, 12, 16, 12);
-                    stripPad = new Thickness(18, 12, 18, 12);
-                    pageMargin = new Thickness(18, 12, 18, 12);
-                    break;
-                case "Normal":
-                    inputH = 34; buttonH = 36; rowH = 30;
-                    title = 20; kpi = 18; body = 13; buttonMin = 96;
-                    cardPad = new Thickness(12, 9, 12, 9);
-                    stripPad = new Thickness(14, 9, 14, 9);
-                    pageMargin = new Thickness(14, 10, 14, 10);
-                    break;
-                default: // Compact — default, slightly tighter than before
+                case "Spacious":   // == the old Compact
                     inputH = 28; buttonH = 30; rowH = 26;
                     title = 17; kpi = 16; body = 13; buttonMin = 84;
                     cardPad = new Thickness(8, 6, 8, 6);
                     stripPad = new Thickness(10, 6, 10, 6);
                     pageMargin = new Thickness(10, 6, 10, 6);
+                    typeScale = 1.00;
+                    break;
+                case "Comfortable":
+                    inputH = 26; buttonH = 28; rowH = 24;
+                    title = 16; kpi = 15; body = 12.5; buttonMin = 78;
+                    cardPad = new Thickness(7, 5, 7, 5);
+                    stripPad = new Thickness(9, 5, 9, 5);
+                    pageMargin = new Thickness(9, 5, 9, 5);
+                    typeScale = 0.96;
+                    break;
+                case "Normal":
+                    inputH = 24; buttonH = 26; rowH = 22;
+                    title = 15; kpi = 14; body = 12; buttonMin = 72;
+                    cardPad = new Thickness(6, 5, 6, 5);
+                    stripPad = new Thickness(8, 5, 8, 5);
+                    pageMargin = new Thickness(8, 5, 8, 5);
+                    typeScale = 0.92;
+                    break;
+                default: // Compact — genuinely small, fits a 13" laptop
+                    inputH = 22; buttonH = 24; rowH = 20;
+                    title = 14; kpi = 13; body = 11.5; buttonMin = 66;
+                    cardPad = new Thickness(5, 4, 5, 4);
+                    stripPad = new Thickness(7, 4, 7, 4);
+                    pageMargin = new Thickness(7, 4, 7, 4);
+                    typeScale = 0.88;
                     break;
             }
 
@@ -224,6 +247,13 @@ namespace ProGlassAutomation.Services
             resources["CardPadding"] = cardPad;
             resources["PagePadding"] = pageMargin;
 
+            // ── TYPE SCALE ── scale the whole FontSize.* family off the values
+            // the design dictionary published, rounded to the nearest half point
+            // so steps stay crisp. This is the write that was missing: without it
+            // the 2460 {DynamicResource FontSize.*} consumers never moved.
+            foreach (var pair in FontSizeDefaults(resources))
+                resources[pair.Key] = Math.Round(pair.Value * typeScale * 2.0) / 2.0;
+
             // ── DASHBOARD DENSITY (2026-09-13): Db* tokens now follow Density
             // so dashboards scale with Compact/Normal/Comfortable/Spacious.
             // Previously DbPageMargin=20,16,20,20 was fixed, so Compact mode
@@ -233,14 +263,16 @@ namespace ProGlassAutomation.Services
             double chartMinH;
             switch (key)
             {
+                // Re-anchored with the control ladder above: Spacious takes the
+                // old Compact numbers, the rest descend from there.
                 case "Spacious":
-                    gutter = 14; kpiMinH = 110; chartMinH = 240; break;
-                case "Comfortable":
-                    gutter = 12; kpiMinH = 100; chartMinH = 212; break;
-                case "Normal":
-                    gutter = 10; kpiMinH = 90; chartMinH = 200; break;
-                default:
                     gutter = 8; kpiMinH = 80; chartMinH = 180; break;
+                case "Comfortable":
+                    gutter = 7; kpiMinH = 72; chartMinH = 164; break;
+                case "Normal":
+                    gutter = 6; kpiMinH = 64; chartMinH = 150; break;
+                default:
+                    gutter = 5; kpiMinH = 58; chartMinH = 136; break;
             }
             // Dashboard cards are intentionally a touch larger than module cards
             var dbCardPad = new Thickness(cardPad.Left + 6, cardPad.Top + 7, cardPad.Right + 6, cardPad.Bottom + 7);
@@ -281,6 +313,43 @@ namespace ProGlassAutomation.Services
 
             ApplySemanticSurfacePadding(resources, cardPad, stripPad);
             PublishProGlassDesignSystem();
+        }
+
+        /// <summary>
+        /// Every <c>FontSize.*</c> design token published by
+        /// <c>Themes/Styles/GlobalDesignSystem.xaml</c>. Listed explicitly rather
+        /// than discovered by enumerating <c>ResourceDictionary.Keys</c>, so a
+        /// token added to the dictionary shows up as a review-time gap instead of
+        /// silently rendering at one fixed size forever. Keep in step with it.
+        /// </summary>
+        private static readonly string[] FontSizeTokenKeys =
+        {
+            "FontSize.Display", "FontSize.H1", "FontSize.H2", "FontSize.H3",
+            "FontSize.Title", "FontSize.Subtitle", "FontSize.Body", "FontSize.BodySmall",
+            "FontSize.Label", "FontSize.Caption", "FontSize.Kpi", "FontSize.Button",
+            "FontSize.Navigation", "FontSize.DataGrid", "FontSize.Money",
+            "FontSize.Icon", "FontSize.Input", "FontSize.Tab", "FontSize.Chip",
+            "FontSize.Badge",
+        };
+
+        /// <summary>
+        /// Pristine <c>FontSize.*</c> defaults, captured from the application
+        /// resources the first time density is applied and cached thereafter.
+        /// Scaling must always start from the design value — scaling the live
+        /// value would compound on every theme or density change.
+        /// </summary>
+        private static Dictionary<string, double>? _fontSizeDefaults;
+
+        private static Dictionary<string, double> FontSizeDefaults(ResourceDictionary resources)
+        {
+            if (_fontSizeDefaults is not null) return _fontSizeDefaults;
+
+            var captured = new Dictionary<string, double>(StringComparer.Ordinal);
+            foreach (var key in FontSizeTokenKeys)
+                if (resources[key] is double value) captured[key] = value;
+
+            _fontSizeDefaults = captured;
+            return captured;
         }
 
 
