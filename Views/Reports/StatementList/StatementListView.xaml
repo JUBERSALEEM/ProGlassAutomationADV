@@ -576,7 +576,7 @@
                                 </StackPanel>
 
                                 <!-- COL 4: Status pill (tinted, not solid) -->
-                                <Border Style="{StaticResource ModuleListRowStyle}" Grid.Column="4"
+                                <Border Grid.Column="4"
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Center"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"

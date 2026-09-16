@@ -89,9 +89,7 @@
                                              BorderThickness="{DynamicResource Border.HairlineThickness}"
                                              BorderBrush="{DynamicResource BorderDefaultBrush}"
                                              Background="{DynamicResource SurfaceTertiaryBrush}">
-                                        <ListBox.ItemTemplate
-                                        AutomationProperties.Name="{DynamicResource Settings.PickSetRestoreSelectingEnoughRestoreButton}"
-                                        >
+                                        <ListBox.ItemTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal" Margin="2">
                                                     <TextBlock Text="&#xE968;"

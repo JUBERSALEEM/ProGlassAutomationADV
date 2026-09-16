@@ -84,9 +84,7 @@
                                              BorderThickness="{DynamicResource Border.HairlineThickness}"
                                              BorderBrush="{DynamicResource BorderDefaultBrush}"
                                              Background="{DynamicResource SurfaceTertiaryBrush}">
-                                        <ListBox.ItemTemplate
-                                        AutomationProperties.Name="{DynamicResource Settings.RebuildDatabasesEmergency}"
-                                        >
+                                        <ListBox.ItemTemplate>
                                             <DataTemplate>
                                                 <Grid Margin="2">
                                                     <Grid.ColumnDefinitions>

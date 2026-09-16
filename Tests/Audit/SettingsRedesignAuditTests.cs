@@ -127,6 +127,30 @@ namespace ProGlassAutomation.Tests.Audit
         // ── 5. FILE-SIZE BUDGETS ──────────────────────────────────────────
 
         [Fact]
+        public void Xaml_No_Style_Set_Twice_And_No_PropertyElement_Attributes()
+        {
+            // REGRESSION LOCKS (owner build 2026-09-16):
+            //  MC3024/XLS0501 — a Border with BOTH a Style attribute and a
+            //  <Border.Style> property element; MC3057 — attributes set on
+            //  property elements (e.g. <ListBox.ItemTemplate AutomationProperties...>).
+            var dup = new System.Text.RegularExpressions.Regex(
+                "<Border[^>]*\\sStyle=\"[^>]*>\\s*<Border\\.Style>");
+            var prop = new System.Text.RegularExpressions.Regex(
+                "<(\\w+\\.[A-Z]\\w+)\\s+[A-Za-z][^>]*>");
+            foreach (var file in Directory.EnumerateFiles(
+                         Path.Combine(Root(), "Views"), "*.xaml", SearchOption.AllDirectories))
+            {
+                string x = File.ReadAllText(file);
+                Assert.False(dup.IsMatch(x),
+                    Path.GetFileName(file) + ": Border sets Style twice (attribute + property element)");
+                foreach (System.Text.RegularExpressions.Match m in prop.Matches(x))
+                    Assert.True(m.Groups[1].Value.Contains(":"),
+                        Path.GetFileName(file) + ": property element " +
+                        m.Groups[1].Value + " carries attributes (MC3057)");
+            }
+        }
+
+        [Fact]
         public void Shell_Helpers_Are_Defined()
         {
             // REGRESSION LOCK: the phase-3a split once dropped SaveConfig()'s

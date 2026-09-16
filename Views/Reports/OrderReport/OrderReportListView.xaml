@@ -453,7 +453,7 @@
                                 </Border>
 
                                 <!-- Missing docs -->
-                                <Border Style="{StaticResource ModuleListRowStyle}" Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                <Border Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Left"
                                         CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,6">
                                     <Border.Style>
                                         <Style TargetType="Border">
