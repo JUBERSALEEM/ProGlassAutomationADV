@@ -279,7 +279,22 @@ public sealed class AboutViewModel : ViewModelBase
     /// The glyph codepoints are unchanged from the old triggers, so this is a
     /// robustness fix rather than a redesign.
     /// </summary>
-    public IReadOnlyList<AboutTab> TabItems { get; } = new[]
+    /// <summary>
+    /// The About tabs in display order, as a shared static table.
+    /// </summary>
+    /// <remarks>
+    /// A field rather than an inline initializer because <see cref="Tabs"/> is
+    /// derived from it, and C# forbids a field or auto-property initializer from
+    /// referencing another instance member (CS0236) — declaration order does not
+    /// help, the reference itself is what is illegal. A static field is a legal
+    /// operand, which is the same idiom <see cref="ActiveModuleCatalog"/> already
+    /// uses for <see cref="Modules"/>.
+    ///
+    /// Sharing one array across instances is safe: <see cref="AboutTab"/> is an
+    /// immutable positional record and both consumers expose it as
+    /// <see cref="IReadOnlyList{T}"/>.
+    /// </remarks>
+    private static readonly AboutTab[] TabDefinitions =
     {
         new AboutTab("Overview",    "\uE80F"),
         new AboutTab("License",     "\uE72E"),
@@ -289,13 +304,15 @@ public sealed class AboutViewModel : ViewModelBase
         new AboutTab("Diagnostics", "\uE9A9"),
     };
 
+    public IReadOnlyList<AboutTab> TabItems { get; } = TabDefinitions;
+
     /// <summary>Tab captions alone. <see cref="CurrentTabTitle"/> and the audit
     /// contract (AboutModuleAuditTests asserts on <c>Tabs.Count</c>) both read
-    /// it, so it stays — but it is DERIVED from <see cref="TabItems"/> rather
-    /// than written out twice. Initializers run in declaration order, so
-    /// TabItems is already populated here.</summary>
+    /// it, so it stays — but it is DERIVED from <see cref="TabDefinitions"/>
+    /// rather than written out twice, so a caption can never drift from the
+    /// glyph bound beside it.</summary>
     public IReadOnlyList<string> Tabs { get; } =
-        TabItems.Select(t => t.Label).ToList();
+        TabDefinitions.Select(t => t.Label).ToList();
 
     /// <summary>
     /// Large page title shown above the content (2026-09-15 Part 1
