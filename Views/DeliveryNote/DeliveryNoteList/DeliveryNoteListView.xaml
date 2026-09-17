@@ -252,7 +252,6 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
@@ -454,48 +453,59 @@
                             Style="{StaticResource Tab.InactiveRadio}"/>
                 </Grid>
 
-                <Border Grid.Row="4">
-                    <Border.Style>
-                        <Style TargetType="Border" BasedOn="{StaticResource ModuleListTableHeaderStyle}">
-                            <Setter Property="Visibility" Value="Visible"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding SelectedTabIndex}" Value="3">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="3"/>
-                            <ColumnDefinition Width="264"/>
-                            <ColumnDefinition Width="264"/>
-                            <ColumnDefinition Width="264"/>
-                            <ColumnDefinition Width="264"/>
-                            <ColumnDefinition Width="264"/>
-                            <ColumnDefinition Width="264"/>
-                            <ColumnDefinition Width="264"/>
-                            </Grid.ColumnDefinitions>
-                        <!-- 2026-09-14: header labels carry the same gutters +
-                             alignment as their row cells (text left, numbers
-                             right, status center) so every label sits exactly
-                             over its data. -->
-                        <TextBlock Grid.Column="1" Text="{DynamicResource Dnl.JobOrder}" Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   Margin="14,0"/>
-                        <TextBlock Grid.Column="2" Text="{DynamicResource Dnl.CustomerProject}" Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   Margin="8,0"/>
-                        <TextBlock Grid.Column="3" Text="{DynamicResource Dnl.Progress}" Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   Margin="8,0"/>
-                        <TextBlock Grid.Column="4" Text="{DynamicResource Dnl.QtyOrdDelBal}" Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   HorizontalAlignment="Right" Margin="0,0,12,0"/>
-                        <TextBlock Grid.Column="5" Text="{DynamicResource God.Sqm}" Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   HorizontalAlignment="Right" Margin="0,0,12,0"/>
-                        <TextBlock Grid.Column="6" Text="{DynamicResource Dnl.Status}" Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   HorizontalAlignment="Center"/>
-                    </Grid>
-                </Border>
+                <!-- ═══ HORIZONTAL SCROLL ENVELOPE FOR 8-COLUMN INDUSTRIAL TABLE ═══ -->
+                <ScrollViewer Grid.Row="4"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Disabled"
+                              Focusable="False">
+                    <Grid Width="1851">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
 
-                <Grid Grid.Row="5">
+                        <Border Grid.Row="0">
+                            <Border.Style>
+                                <Style TargetType="Border" BasedOn="{StaticResource ModuleListTableHeaderStyle}">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedTabIndex}" Value="3">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="3"/>
+                                    <ColumnDefinition Width="264"/>
+                                    <ColumnDefinition Width="264"/>
+                                    <ColumnDefinition Width="264"/>
+                                    <ColumnDefinition Width="264"/>
+                                    <ColumnDefinition Width="264"/>
+                                    <ColumnDefinition Width="264"/>
+                                    <ColumnDefinition Width="264"/>
+                                </Grid.ColumnDefinitions>
+                                <!-- 2026-09-14: header labels carry the same gutters +
+                                     alignment as their row cells (text left, numbers
+                                     right, status center) so every label sits exactly
+                                     over its data. -->
+                                <TextBlock Grid.Column="1" Text="{DynamicResource Dnl.JobOrder}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                           Margin="14,0"/>
+                                <TextBlock Grid.Column="2" Text="{DynamicResource Dnl.CustomerProject}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                           Margin="8,0"/>
+                                <TextBlock Grid.Column="3" Text="{DynamicResource Dnl.Progress}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                           Margin="8,0"/>
+                                <TextBlock Grid.Column="4" Text="{DynamicResource Dnl.QtyOrdDelBal}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                           HorizontalAlignment="Right" Margin="0,0,12,0"/>
+                                <TextBlock Grid.Column="5" Text="{DynamicResource God.Sqm}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                           HorizontalAlignment="Right" Margin="0,0,12,0"/>
+                                <TextBlock Grid.Column="6" Text="{DynamicResource Dnl.Status}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                           HorizontalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <Grid Grid.Row="1">
 
                     <!-- TAB 0: ALL -->
                     <Grid>
@@ -853,6 +863,8 @@
                     </Grid>
                 </Grid>
             </Grid>
+        </ScrollViewer>
+        </Grid>
         </Border>
     </Grid>
 </UserControl>
