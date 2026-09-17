@@ -288,6 +288,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`OPTIMIZATION_PHASE23_EXPORTS_AND_SOURCE_LOCK_2026-09-12.md`](OPTIMIZATION_PHASE23_EXPORTS_AND_SOURCE_LOCK_2026-09-12.md) | Optimization — Phase 2/3, Exports & Source-Lock Fixes (2026-09-12) |
 | [`OPTIMIZATION_STOCKS_STEP4_FIX_2026-09-12.md`](OPTIMIZATION_STOCKS_STEP4_FIX_2026-09-12.md) | Optimization — "Broken Module" Root-Cause Analysis & Fix (2026-09-12) |
 | [`OPTIMIZATION_UI_UX_REDESIGN_2026-09-12.md`](OPTIMIZATION_UI_UX_REDESIGN_2026-09-12.md) | Optimization Module — UI/UX Audit, Rating & 10/10 Phase Plan (2026-09-12) |
+| [`OPTIMIZATION_WORKFLOW_2026-09-17.md`](OPTIMIZATION_WORKFLOW_2026-09-17.md) | OPTIMIZATION — HOW A RUN ACTUALLY WORKS |
 | [`PHASE_BALANCE.md`](PHASE_BALANCE.md) | Phase Balance — ProGlass Automation ADV |
 | [`PHASE_HISTORY_FORENSIC_REPORT.md`](PHASE_HISTORY_FORENSIC_REPORT.md) | PHASE HISTORY FORENSIC REPORT |
 | [`PI_PDF_WYSIWYG_REDESIGN_2026-09-11.md`](PI_PDF_WYSIWYG_REDESIGN_2026-09-11.md) | PI Step 7 / PDF Export — WYSIWYG Redesign (Senior Analysis) |
@@ -313,6 +314,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`VISUAL_THEME_4_FAMILY_CONSOLIDATION_2026-09-12.md`](VISUAL_THEME_4_FAMILY_CONSOLIDATION_2026-09-12.md) | VISUAL THEME — 4-FAMILY CONSOLIDATION (2026-09-12) |
 | [`WASTAGE_COLOUR_SYNC_FIX.md`](WASTAGE_COLOUR_SYNC_FIX.md) | Step 6 Wastage Charges — Colour Import & Spec-Side Sync Fix |
 | [`WORKFLOW.md`](WORKFLOW.md) | Application Workflow |
+| [`recorder-native-4k-investigation.md`](recorder-native-4k-investigation.md) | Native 4K Rendering — Investigation & Prototype Plan |
 
 ## Sub-folders
 

@@ -14,9 +14,18 @@
 //                  rotation, consolidation.
 //   PackOptimize — multi-start effort levels (orderings × split modes,
 //                  plus per-sheet split selection and a beam over it —
-//                  see GuillotinePacker.BestSplit.cs), each consolidated,
-//                  best run wins by sheets then utilization.
-//                  Level = iteration budget.
+//                  see GuillotinePacker.BestSplit.cs — and the smart
+//                  placement policy, see GuillotinePacker.SmartPlacement.cs),
+//                  each consolidated, best run wins by sheets then
+//                  utilization. Level = iteration budget.
+//   PackSmart    — one capacity-preserving pass: every placement is scored
+//                  by what SURVIVES it (least area condemned to sub-breakout
+//                  trim, then the largest remaining free rectangle), both
+//                  split directions are evaluated per placement instead of
+//                  being fixed for the run, and MarginProfile.MinBreakoutMm
+//                  is honoured. Runs as an OPTIMIZE candidate at effort 2+,
+//                  so it can only improve the chosen plan. Public, so the
+//                  oracle tests can hold it to the same guarantees.
 //
 // A note on "utilization": total glass area is fixed by the order, so
 // utilization is purely a function of SHEET COUNT. Reducing sheets by one
@@ -29,6 +38,9 @@
 //   • rotation only when the policy allows it (Free90 = original
 //     orientation first, rotate only when the piece otherwise won't fit)
 //   • deterministic — same input, same layout
+//   • smart placement never offers stock narrower than the minimum
+//     breakout, so it cannot ask the floor to cut an uncuttable sliver
+//     (AuditBreakout reports any that a legacy plan contains)
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -40,7 +52,9 @@ namespace ProGlassAutomation.Services.Optimization
 {
     public static partial class GuillotinePacker
     {
-        private struct FreeRect
+        // Internal, not private: GuillotinePacker.SmartPlacement.cs shares the
+        // split maths below, and the test assembly has InternalsVisibleTo.
+        internal struct FreeRect
         {
             public int X, Y, W, H;
             public FreeRect(int x, int y, int w, int h) { X = x; Y = y; W = w; H = h; }
@@ -193,6 +207,17 @@ namespace ProGlassAutomation.Services.Optimization
             // Materialized so progress can report a real total.
             var comboList = combos.ToList();
 
+            // SMART PLACEMENT adds one or two more complete plans to the search
+            // (see GuillotinePacker.SmartPlacement.cs). Counted up front so the
+            // bar keeps moving forward instead of reaching 100% and then dropping
+            // back while the last candidates run. Zero at effort 1, so the total
+            // is exactly what it was before and QUICK-equivalent runs are
+            // unaffected.
+            int smartPasses = effortLevel >= 2 && scale.Tier != ScaleTier.Huge
+                ? (effortLevel >= 4 && scale.Tier == ScaleTier.Standard ? 2 : 1)
+                : 0;
+            int smartTotal = comboList.Count + smartPasses;
+
             // ── SCALE FIX 4: cache the base sorts ──
             // Sort(pieces, order) is a pure function of the input and the
             // ordering key, yet effort 5 re-ran it for all 126 combos. There are
@@ -216,7 +241,7 @@ namespace ProGlassAutomation.Services.Optimization
                 if (shuffle > 0)
                     ordered = ShuffleDeterministic(ordered, 17 + shuffle * 131 + (int)order * 7);
 
-                progress?.Report(OptimizeProgress.Of("pass", ci, comboList.Count,
+                progress?.Report(OptimizeProgress.Of("pass", ci, smartTotal,
                     $"Pass {ci + 1} of {comboList.Count}: {order} / {split}" +
                     (shuffle > 0 ? $" / shuffle {shuffle}" : "")));
 
@@ -242,6 +267,32 @@ namespace ProGlassAutomation.Services.Optimization
                 // sheets to the owner's reference 16.
                 best = Better(best, RunBestSplit(pieces, stocks, margins, rotation,
                     scale.ConsolidationSweeps));
+
+                // ── SMART PLACEMENT (2026-09-17) ──────────────────────────
+                // Capacity-preserving placement, per-placement split choice and
+                // the configured minimum breakout enforced. Added as a candidate,
+                // never as a replacement: Better() keeps the minimum on unplaced,
+                // then sheets, then utilization, so this can only improve the
+                // chosen plan or lose. Skipped in the Huge band, where finishing
+                // matters more than the last sheet — and the ScaleProfile summary
+                // the operator already sees says exactly that.
+                if (scale.Tier != ScaleTier.Huge)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    progress?.Report(OptimizeProgress.Of("smart", comboList.Count, smartTotal,
+                        "Smart placement: capacity-preserving, breakout-aware"));
+                    best = Better(best, PackSmart(pieces, stocks, margins, rotation,
+                        SplitMode.HorizontalFirst, scale.ConsolidationSweeps, cancellationToken));
+
+                    if (effortLevel >= 4 && scale.Tier == ScaleTier.Standard)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        progress?.Report(OptimizeProgress.Of("smart", comboList.Count + 1, smartTotal,
+                            "Smart placement: vertical-split preference"));
+                        best = Better(best, PackSmart(pieces, stocks, margins, rotation,
+                            SplitMode.VerticalFirst, scale.ConsolidationSweeps, cancellationToken));
+                    }
+                }
             }
 
             if (effortLevel >= 3)
@@ -638,10 +689,59 @@ namespace ProGlassAutomation.Services.Optimization
         }
 
         /// <summary>
+        /// The guillotine split, as a pure function: given the host rectangle and a
+        /// piece placed at its top-left corner, append the remainder(s) to
+        /// <paramref name="output"/> in the order the free-rect ledger expects.
+        ///
+        /// ONE SOURCE OF TRUTH. Commit used to inline this, so any smarter split
+        /// policy would have had to duplicate it — and a duplicated split is how a
+        /// plan ends up valid in one code path and not in another.
+        ///
+        /// <paramref name="minBreakout"/> is the narrowest offcut the floor can
+        /// actually cut. 0 — the default, and what every existing caller passes —
+        /// keeps every positive remainder, exactly as before. A positive value drops
+        /// remainders narrower than it in either dimension: that area becomes trim
+        /// waste instead of fictional stock, which is what
+        /// MarginProfile.MinBreakoutMm has always claimed to mean.
+        /// </summary>
+        internal static void SplitRemainder(
+            in FreeRect host, int pieceW, int pieceH, int kerf, int minBreakout,
+            SplitMode split, List<FreeRect> output)
+        {
+            int rightW = host.W - pieceW - kerf;
+            int bottomH = host.H - pieceH - kerf;
+
+            bool verticalFirst = split == SplitMode.VerticalFirst ||
+                (split == SplitMode.LongerLeftover && rightW >= bottomH);
+
+            if (verticalFirst)
+            {
+                if (rightW > 0 && Keepable(rightW, host.H, minBreakout))
+                    output.Add(new FreeRect(host.X + pieceW + kerf, host.Y, rightW, host.H));
+                if (bottomH > 0 && Keepable(pieceW, bottomH, minBreakout))
+                    output.Add(new FreeRect(host.X, host.Y + pieceH + kerf, pieceW, bottomH));
+            }
+            else
+            {
+                if (bottomH > 0 && Keepable(host.W, bottomH, minBreakout))
+                    output.Add(new FreeRect(host.X, host.Y + pieceH + kerf, host.W, bottomH));
+                if (rightW > 0 && Keepable(rightW, pieceH, minBreakout))
+                    output.Add(new FreeRect(host.X + pieceW + kerf, host.Y, rightW, pieceH));
+            }
+        }
+
+        /// <summary>True when a remainder is wide enough in BOTH dimensions to
+        /// survive as stock. A minBreakout of 0 or less disables the check, which
+        /// is what keeps every legacy path bit-identical.</summary>
+        internal static bool Keepable(int w, int h, int minBreakout) =>
+            minBreakout <= 0 || (w >= minBreakout && h >= minBreakout);
+
+        /// <summary>
         /// Commits a placement: consumes the host free rectangle and splits
         /// the remainder with one guillotine cut (kerf consumed).
         /// </summary>
-        private static void Commit(SheetState sheet, PlacedPiece placed, MarginProfile margins, SplitMode split)
+        private static void Commit(SheetState sheet, PlacedPiece placed, MarginProfile margins,
+            SplitMode split, int minBreakout = 0)
         {
             int kerf = margins.KerfMm;
 
@@ -655,28 +755,10 @@ namespace ProGlassAutomation.Services.Optimization
             var rect = sheet.Free[idx];
             sheet.Free.RemoveAt(idx);
 
-            int rightW = rect.W - placed.WidthMm - kerf;
-            int bottomH = rect.H - placed.HeightMm - kerf;
-
-            bool verticalFirst = split == SplitMode.VerticalFirst ||
-                (split == SplitMode.LongerLeftover && rightW >= bottomH);
-
-            if (verticalFirst)
-            {
-                if (rightW > 0)
-                    sheet.Free.Add(new FreeRect(rect.X + placed.WidthMm + kerf, rect.Y, rightW, rect.H));
-                if (bottomH > 0)
-                    sheet.Free.Add(new FreeRect(rect.X, rect.Y + placed.HeightMm + kerf,
-                        placed.WidthMm, bottomH));
-            }
-            else
-            {
-                if (bottomH > 0)
-                    sheet.Free.Add(new FreeRect(rect.X, rect.Y + placed.HeightMm + kerf, rect.W, bottomH));
-                if (rightW > 0)
-                    sheet.Free.Add(new FreeRect(rect.X + placed.WidthMm + kerf, rect.Y,
-                        rightW, placed.HeightMm));
-            }
+            // minBreakout defaults to 0, which reproduces the previous behaviour
+            // exactly: every positive remainder stayed available as stock.
+            SplitRemainder(rect, placed.WidthMm, placed.HeightMm, kerf, minBreakout,
+                split, sheet.Free);
 
             sheet.Layout.Pieces.Add(placed);
 
@@ -764,7 +846,7 @@ namespace ProGlassAutomation.Services.Optimization
 
         private static void ConsolidateAll(
             List<SheetState> sheets, MarginProfile margins, RotationPolicy rotation, SplitMode split,
-            int maxSweeps = int.MaxValue)
+            int maxSweeps = int.MaxValue, int minBreakout = 0)
         {
             if (sheets.Count <= 1) return;
 
@@ -832,7 +914,8 @@ namespace ProGlassAutomation.Services.Optimization
                             if (si == donorIndex) continue;
                             if (!TryPlaceCore(sheets[si], victim.Piece, rotation, out var moved)) continue;
                             SnapshotBeforeWrite(sheets[si], seen, touched, touchedPieces, touchedFree);
-                            Commit(sheets[si], moved.Materialize(victim.Piece), margins, split);
+                            Commit(sheets[si], moved.Materialize(victim.Piece), margins,
+                                split, minBreakout);
                             placed = true;
                             break;
                         }

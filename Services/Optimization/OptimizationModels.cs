@@ -269,6 +269,12 @@ namespace ProGlassAutomation.Services.Optimization
         /// language. Always empty for standard-size groups, so existing reports
         /// and tests are unaffected.</summary>
         public List<string> ScaleNotes { get; } = new();
+            /// <summary>Which strategy produced this plan. Empty for every legacy
+            /// candidate, so nothing that reads a result today changes. It exists
+            /// because a multi-start run evaluates up to 147 complete plans and
+            /// keeps the best — without this the operator cannot tell whether a
+            /// better number came from the placement policy or from luck.</summary>
+            public string Strategy { get; set; } = "";
 
         public int SheetsUsed => Sheets.Count;
 

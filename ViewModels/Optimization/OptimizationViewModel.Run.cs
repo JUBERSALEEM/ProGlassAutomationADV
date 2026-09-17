@@ -375,6 +375,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             int groupCount = groups.Count;
             int groupIndex = 0;
             var scaleNotes = new List<string>();
+            var smartWins = new List<string>();
             _lastRunEffort = effort;
 
             try
@@ -435,6 +436,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     foreach (var scaleNote in result.ScaleNotes)
                         if (!scaleNotes.Contains(scaleNote)) scaleNotes.Add(scaleNote);
 
+                    // Which strategy actually won this group. A multi-start run
+                    // evaluates up to 147 complete plans and keeps one, so without
+                    // this a better sheet count is unexplainable — and an
+                    // unexplainable improvement is one nobody trusts.
+                    if (string.Equals(result.Strategy, GuillotinePacker.SmartStrategyLabel,
+                            StringComparison.Ordinal) && !smartWins.Contains(composition))
+                        smartWins.Add(composition);
+
                     double glass = result.Sheets.Sum(s => s.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm));
                     double stockArea = result.Sheets.Sum(s => (long)s.Stock.WidthMm * s.Stock.HeightMm);
                     int problems = GuillotinePacker.Verify(result, groupMargins).Count;
@@ -468,6 +477,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     RunMessage = string.IsNullOrWhiteSpace(RunMessage)
                         ? notes
                         : RunMessage + " " + notes;
+                }
+
+                // Same append-never-replace rule: the summary ApplyResults wrote
+                // is what the operator reads first.
+                if (smartWins.Count > 0)
+                {
+                    string smartNote = string.Format(CultureInfo.InvariantCulture,
+                        "Smart placement won {0} of {1} cutting group(s): {2}.",
+                        smartWins.Count, runs.Count, string.Join(", ", smartWins));
+                    RunMessage = string.IsNullOrWhiteSpace(RunMessage)
+                        ? smartNote
+                        : RunMessage + " " + smartNote;
                 }
             }
             catch (OperationCanceledException)
