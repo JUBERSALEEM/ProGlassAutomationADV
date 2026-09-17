@@ -465,8 +465,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         RunProgressPercent = (int)Math.Round(((gi - 1) * 100.0) / groupCount);
 
                     var result = await Task.Run(() => stage == "OPTIMIZE"
-                        ? GuillotinePacker.PackOptimize(groupPieces, groupStocks, groupMargins,
-                              rotation, effort, ct, groupProgress)
+                        ? (groupPieces.Count > 2000
+                            ? GuillotinePacker.PackOptimizePartitioned(groupPieces, groupStocks, groupMargins,
+                                  rotation, effort, ct, groupProgress)
+                            : GuillotinePacker.PackOptimize(groupPieces, groupStocks, groupMargins,
+                                  rotation, effort, ct, groupProgress))
                         : GuillotinePacker.PackQuick(groupPieces, groupStocks, groupMargins,
                               rotation, SplitMode.HorizontalFirst, ct, groupProgress))
                         .ConfigureAwait(true);
