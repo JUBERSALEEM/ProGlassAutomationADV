@@ -63,7 +63,9 @@ Key code: `ViewModels/Optimization/OptimizationViewModel.Run.cs:231` (`Run`),
 `:363` (`RunCoreAsync`), `:287` (`BuildCuttingGroups`), `:501` (`ApplyResults`),
 `:625` (`PublishLiveFeed`). Strategy candidates live in `GuillotinePacker.Advanced.cs`
 (`RunSheetFill:69`, `RunWallSeed:137`, `RunMaxRects:206`) and
-`GuillotinePacker.BestSplit.cs` (`RunBestSplit:119`, `RunBestSplitBeam:214`).
+`GuillotinePacker.BestSplit.cs` (`RunBestSplit:119`, `RunBestSplitBeam:214`) and the smart
+placement policy in `GuillotinePacker.SmartPlacement.cs` (`PackSmart:94`, `TrySmartPlace:278`,
+`AuditBreakout:401`).
 
 ### 3.1 What one candidate plan does — `RunPass`
 
@@ -100,13 +102,50 @@ benchmark (Low-E 18 @ 78.18% vs Area 17 @ 82.77%).
 candidates. Every candidate is a complete packing; `Better()` keeps the fewest sheets, then the
 highest utilization. Fully deterministic — shuffles are seeded, never random.
 
-| Level | Ordering × split passes | + SheetFill / WallSeed | + BestSplit | + MaxRects | + Beam | Total candidates |
-|---|---|---|---|---|---|---|
-| 1 | 1 (mirrors QUICK exactly) | – | – | – | – | **1** |
-| 2 | 3 | 6 | 1 | – | – | **10** |
-| 3 | 12 | 6 | 1 | 3 | 1 (width 4) | **23** |
-| 4 | 72 (6×3×4 shuffles) | 6 | 1 | 3 | 2 (4, 8) | **90** |
-| 5 | 126 (6×3×7 shuffles) | 6 | 1 | 6 | 2 (4, 8) | **147** |
+| Level | Ordering × split passes | + SheetFill / WallSeed | + BestSplit | + Smart | + MaxRects | + Beam | Total candidates |
+|---|---|---|---|---|---|---|---|
+| 1 | 1 (mirrors QUICK exactly) | – | – | – | – | – | **1** |
+| 2 | 3 | 6 | 1 | 1 | – | – | **11** |
+| 3 | 12 | 6 | 1 | 1 | 3 | 1 (width 4) | **24** |
+| 4 | 72 (6×3×4 shuffles) | 6 | 1 | 2 | 3 | 2 (4, 8) | **92** |
+| 5 | 126 (6×3×7 shuffles) | 6 | 1 | 2 | 6 | 2 (4, 8) | **149** |
+
+*Smart = the capacity-preserving, breakout-aware policy in
+`GuillotinePacker.SmartPlacement.cs` (§4.1). Skipped entirely in the Huge scale
+band, where termination matters more than the last sheet.*
+
+### 4.1 Smart placement — the policy added 2026-09-17
+
+Every other strategy in that table asks the same question at every placement:
+*which free rectangle does this piece go in?* The legacy score answers it locally —
+exact-edge fit, then best-short-side-fit, then leftover area, all measured **inside the
+rectangle being consumed**. `PackSmart` answers it by what *survives* the placement:
+
+1. least stock area condemned to sub-breakout trim;
+2. then the **largest free rectangle that survives**, by area;
+3. then that rectangle's **shortest side** — a long thin survivor is worth much less than a
+   squarer one of the same area;
+4. then the legacy geometry as a tie-break, so equal-capacity choices behave like the engine
+   the benchmark was calibrated on;
+5. then orientation, rectangle index, position and input order — a total order, so the run
+   stays deterministic.
+
+It also stops forcing two things that were forced before:
+
+* **Split direction.** Legacy candidates fix one `SplitMode` for the whole run. Smart evaluates
+  *both* directions at every placement, and the caller's `SplitMode` is only a tie-break
+  preference. Whether the remainder belongs to the right or below is a local decision, and now
+  it is made locally.
+* **Minimum breakout.** `MarginProfile.MinBreakoutMm` is now honoured: a remainder narrower
+  than it in either dimension becomes trim waste instead of being offered as stock the saw
+  cannot cut out.
+
+`GuillotinePacker.AuditBreakout(result, margins)` reports thin offcuts in any finished plan. It
+is deliberately **not** part of `Verify` — Verify is the oracle that runs on every group of
+every run, and a thin offcut is not an illegal layout, so folding it in would have turned every
+legacy plan into "N issue(s)" overnight. The winning strategy is named on the result
+(`OptimizationResult.Strategy`) and reported in the run message, so a better sheet count is
+explainable rather than lucky.
 
 Two facts worth knowing operationally:
 
@@ -132,10 +171,15 @@ Two facts worth knowing operationally:
 | Kerf (blade gap) | 3mm | 3mm | 4mm |
 | Min breakout (narrowest offcut worth keeping) | 15mm | 15mm | 15mm |
 
-Margins are edge trims cut off the raw stock **before** placement; kerf is the gap **between**
-cuts; anything thinner than min-breakout is reported as trim waste, not as a usable offcut.
-When a cutting group's thickness differs from the MARGINS tab, the group is cut with its own
-thickness-correct profile and the run carries a `MarginNote` saying so.
+Margins are edge trims cut off the raw stock **before** placement and kerf is the gap
+**between** cuts. When a cutting group's thickness differs from the MARGINS tab, the group is
+cut with its own thickness-correct profile and the run carries a `MarginNote` saying so.
+
+**Minimum breakout was, until 2026-09-17, a setting nothing obeyed.** It was editable,
+persisted and drawn in the 2D preview, but `Commit` kept every remainder above zero as usable
+stock. Smart placement honours it; the legacy candidates still do not, because every benchmark
+pin is measured through their behaviour and they are deliberately left bit-identical.
+`AuditBreakout` is the diagnostic that tells the truth about any plan.
 
 ---
 
@@ -234,7 +278,10 @@ flag dangling.
 
 Pinned by tests, not by memory: `Benchmark_LowE_MatchesReference`,
 `Benchmark_OptimizeStage_NeverRegressesQuick`, plus determinism (same input → same plan).
-Related suites: `OptimizationScaleTests`, `OptimizationFeedTests`, `OptimizationCutListTabTests`,
+`OptimizationSmartPlacementTests` pins the new policy: the extracted split maths checked
+rectangle-by-rectangle against the legacy rule, oracle-clean output, determinism, stock caps,
+locked rotation, oversized pieces, and the monotone guarantee that adding a candidate never
+costs a sheet. Related suites: `OptimizationScaleTests`, `OptimizationFeedTests`, `OptimizationCutListTabTests`,
 `OptimizationCutListWorkspaceTests`, `Step5OptimizationRunTests`,
 `WastageOptimizationFormulaTests`.
 
@@ -268,6 +315,9 @@ Services/Optimization/
   GuillotinePacker.cs              PackQuick, PackOptimize, RunPass, Verify (oracle)
   GuillotinePacker.Advanced.cs     RunSheetFill, RunWallSeed, RunMaxRects, beam
   GuillotinePacker.BestSplit.cs    per-sheet split selection — Clear 17 → 16
+  GuillotinePacker.SmartPlacement.cs
+                                   PackSmart + AuditBreakout: capacity-preserving
+                                   placement, per-placement split choice, breakout honoured
   OptimizationModels.cs            CutPiece, StockSize, SheetLayout, MarginProfile,
                                    RotationPolicy, SplitMode, ScaleProfile, OptimizeProgress,
                                    OptimizationResult
