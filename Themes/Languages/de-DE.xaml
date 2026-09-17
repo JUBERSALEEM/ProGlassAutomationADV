@@ -1880,6 +1880,7 @@
     <sys:String x:Key="Settings.ContractNumber">Vertragsnummer</sys:String>
     <sys:String x:Key="Settings.ControlKeyPersistenceWipeStoredConversation">Schlüsselpersistenz steuern und gespeicherten Gesprächsverlauf löschen.</sys:String>
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">Steuern, ob der Agent mit dem Internet spricht und was er sagen darf.</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">Lokale Daten kopieren, wenn der gemeinsame Ordner leer ist</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">JETZT SICHERUNG ERSTELLEN</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">Jetzt einen Sicherungssatz erstellen, die Liste aktualisieren oder den Ordner öffnen, in dem Sicherungen aufbewahrt werden.</sys:String>
     <sys:String x:Key="Settings.CrystalBubbleIntensity">Blasenintensität</sys:String>
@@ -2202,6 +2203,7 @@
     <sys:String x:Key="Settings.UpdateHistory">UPDATE-HISTORIE</sys:String>
     <sys:String x:Key="Settings.UrgentHighNormalLowTriageBucket">Dringend / Hoch / Normal / Niedrig-Triage-Kategorie.</sys:String>
     <sys:String x:Key="Settings.UseRealBusinessData">Echte Geschäftsdaten verwenden</sys:String>
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">Gemeinsamen Unternehmens-Datenbankordner verwenden</sys:String>
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">Auf jedem Bildschirm, Dialog und jeder Tabelle verwendet (Symbole bleiben auf Segoe MDL2).</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">Sichtbarkeit</sys:String>
@@ -2712,8 +2714,4 @@
     <sys:String x:Key="Void.ThisDocument">dieses Dokument</sys:String>
     <sys:String x:Key="Void.Title">Dokument stornieren</sys:String>
 
-    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
-         hard-coded English in SettingsDataSection.xaml. -->
-    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">Gemeinsamen Unternehmens-Datenbankordner verwenden</sys:String>
-    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">Lokale Daten kopieren, wenn der gemeinsame Ordner leer ist</sys:String>
 </ResourceDictionary>

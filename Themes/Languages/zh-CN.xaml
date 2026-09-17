@@ -1880,6 +1880,7 @@
     <sys:String x:Key="Settings.ContractNumber">合同编号</sys:String>
     <sys:String x:Key="Settings.ControlKeyPersistenceWipeStoredConversation">控制密钥持久性并清除存储的对话记忆。</sys:String>
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">控制代理是否与互联网通信，以及允许它说什么。</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">共享文件夹为空时复制当前本地数据</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">立即创建备份</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">立即创建备份集、刷新列表，或打开备份存放的文件夹。</sys:String>
     <sys:String x:Key="Settings.CrystalBubbleIntensity">气泡强度</sys:String>
@@ -2202,6 +2203,7 @@
     <sys:String x:Key="Settings.UpdateHistory">更新历史</sys:String>
     <sys:String x:Key="Settings.UrgentHighNormalLowTriageBucket">紧急/高/正常/低分流桶。</sys:String>
     <sys:String x:Key="Settings.UseRealBusinessData">使用真实业务数据</sys:String>
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">使用共享的公司数据库文件夹</sys:String>
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">用于每个屏幕、对话框和表格（图标保持 Segoe MDL2）。</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">可见性</sys:String>
@@ -2712,8 +2714,4 @@
     <sys:String x:Key="Void.ThisDocument">此单据</sys:String>
     <sys:String x:Key="Void.Title">作废单据</sys:String>
 
-    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
-         hard-coded English in SettingsDataSection.xaml. -->
-    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">使用共享的公司数据库文件夹</sys:String>
-    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">共享文件夹为空时复制当前本地数据</sys:String>
 </ResourceDictionary>

@@ -1880,6 +1880,7 @@
     <sys:String x:Key="Settings.ContractNumber">अनुबंध संख्या</sys:String>
     <sys:String x:Key="Settings.ControlKeyPersistenceWipeStoredConversation">कुंजी स्थायित्व नियंत्रित करें और संग्रहीत वार्तालाप मेमोरी मिटाएँ।</sys:String>
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">नियंत्रित करें कि एजेंट इंटरनेट से बात करता है या नहीं, और उसे क्या कहने की अनुमति है।</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">साझा फ़ोल्डर खाली हो तो वर्तमान स्थानीय डेटा कॉपी करें</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">अभी बैकअप बनाएँ</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">अभी बैकअप सेट बनाएँ, सूची ताज़ा करें, या वह फ़ोल्डर खोलें जहाँ बैकअप रखे जाते हैं।</sys:String>
     <sys:String x:Key="Settings.CrystalBubbleIntensity">बुलबुला तीव्रता</sys:String>
@@ -2202,6 +2203,7 @@
     <sys:String x:Key="Settings.UpdateHistory">अपडेट इतिहास</sys:String>
     <sys:String x:Key="Settings.UrgentHighNormalLowTriageBucket">तत्काल / उच्च / सामान्य / निम्न ट्रायेज श्रेणी।</sys:String>
     <sys:String x:Key="Settings.UseRealBusinessData">वास्तविक व्यावसायिक डेटा उपयोग करें</sys:String>
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">साझा कंपनी डेटाबेस फ़ोल्डर उपयोग करें</sys:String>
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">हर स्क्रीन, डायलॉग और तालिका पर उपयोग (आइकन Segoe MDL2 पर रहते हैं)।</sys:String>
     <sys:String x:Key="Settings.V">संस्करण</sys:String>
     <sys:String x:Key="Settings.Visibility">दृश्यता</sys:String>
@@ -2712,8 +2714,4 @@
     <sys:String x:Key="Void.ThisDocument">यह दस्तावेज़</sys:String>
     <sys:String x:Key="Void.Title">दस्तावेज़ शून्य करें</sys:String>
 
-    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
-         hard-coded English in SettingsDataSection.xaml. -->
-    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">साझा कंपनी डेटाबेस फ़ोल्डर उपयोग करें</sys:String>
-    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">साझा फ़ोल्डर खाली हो तो वर्तमान स्थानीय डेटा कॉपी करें</sys:String>
 </ResourceDictionary>

@@ -1309,6 +1309,7 @@ STRINGS = {
     "ProformaInvoice.RATEAED": "TARIF (AED)",
     "ProformaInvoice.REF": "REF #",
     "ProformaInvoice.RateAED": "Tarif: AED",
+    "ProformaInvoice.ReadFromOptimizationRun": "BACA DARI PROSES OPTIMASI",
     "ProformaInvoice.Recalculate": "HITUNG ULANG",
     "ProformaInvoice.RefNo": "No. ref.:",
     "ProformaInvoice.ReferenceCODE": "KODE REFERENSI",
@@ -2710,4 +2711,9 @@ STRINGS = {
     "Void.ShowVoidedTip": "Sertakan dokumen yang dibatalkan (soft-close) dalam daftar. Dokumen yang dibatalkan selalu terlihat di laporan dan jejak audit.",
     "Void.ThisDocument": "dokumen ini",
     "Void.Title": "Batalkan dokumen",
+    # L1 (2026-09-17): Data & Backup shared-root checkboxes. These were
+    # hand-added to the generated .xaml only, so build.py dropped them;
+    # sourced here so regeneration preserves them.
+    "Settings.CopyCurrentLocalDataIfSharedFolderEmpty": "Salin data lokal saat ini jika folder bersama kosong",
+    "Settings.UseSharedCompanyDatabaseFolder": "Gunakan folder basis data perusahaan bersama",
 }

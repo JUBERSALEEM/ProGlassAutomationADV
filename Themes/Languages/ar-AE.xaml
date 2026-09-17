@@ -1880,6 +1880,7 @@
     <sys:String x:Key="Settings.ContractNumber">رقم العقد</sys:String>
     <sys:String x:Key="Settings.ControlKeyPersistenceWipeStoredConversation">التحكم في حفظ المفاتيح ومسح ذاكرة المحادثة المخزنة.</sys:String>
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">التحكم فيما إذا كان الوكيل يتصل بالإنترنت وما المسموح له بقوله.</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">نسخ البيانات المحلية الحالية إذا كان المجلد المشترك فارغاً</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">إنشاء نسخة احتياطية الآن</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">أنشئ مجموعة نسخ احتياطي الآن، حدّث القائمة، أو افتح المجلد الذي تُحفظ فيه النسخ.</sys:String>
     <sys:String x:Key="Settings.CrystalBubbleIntensity">شدة الفقاعات</sys:String>
@@ -2202,6 +2203,7 @@
     <sys:String x:Key="Settings.UpdateHistory">سجل التحديثات</sys:String>
     <sys:String x:Key="Settings.UrgentHighNormalLowTriageBucket">حاوية الفرز: عاجل / مرتفع / عادي / منخفض.</sys:String>
     <sys:String x:Key="Settings.UseRealBusinessData">استخدام بيانات أعمال حقيقية</sys:String>
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">استخدام مجلد قاعدة بيانات الشركة المشترك</sys:String>
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">مستخدم في كل شاشة وحوار وجدول (تبقى الأيقونات على Segoe MDL2).</sys:String>
     <sys:String x:Key="Settings.V">الإصدار</sys:String>
     <sys:String x:Key="Settings.Visibility">الرؤية</sys:String>
@@ -2712,8 +2714,4 @@
     <sys:String x:Key="Void.ThisDocument">هذا المستند</sys:String>
     <sys:String x:Key="Void.Title">إلغاء المستند</sys:String>
 
-    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
-         hard-coded English in SettingsDataSection.xaml. -->
-    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">استخدام مجلد قاعدة بيانات الشركة المشترك</sys:String>
-    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">نسخ البيانات المحلية الحالية إذا كان المجلد المشترك فارغاً</sys:String>
 </ResourceDictionary>

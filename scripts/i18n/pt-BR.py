@@ -1309,6 +1309,7 @@ STRINGS = {
     "ProformaInvoice.RATEAED": "TARIFA (AED)",
     "ProformaInvoice.REF": "REF #",
     "ProformaInvoice.RateAED": "Tarifa: AED",
+    "ProformaInvoice.ReadFromOptimizationRun": "LER DA EXECUÇÃO DE OTIMIZAÇÃO",
     "ProformaInvoice.Recalculate": "RECALCULAR",
     "ProformaInvoice.RefNo": "Nº de ref.:",
     "ProformaInvoice.ReferenceCODE": "CÓDIGO DE REFERÊNCIA",
@@ -2710,4 +2711,9 @@ STRINGS = {
     "Void.ShowVoidedTip": "Incluir documentos cancelados (fechamento suave) na lista. Documentos cancelados são sempre visíveis para relatórios e trilha de auditoria.",
     "Void.ThisDocument": "este documento",
     "Void.Title": "Cancelar documento",
+    # L1 (2026-09-17): Data & Backup shared-root checkboxes. These were
+    # hand-added to the generated .xaml only, so build.py dropped them;
+    # sourced here so regeneration preserves them.
+    "Settings.CopyCurrentLocalDataIfSharedFolderEmpty": "Copiar os dados locais atuais se a pasta compartilhada estiver vazia",
+    "Settings.UseSharedCompanyDatabaseFolder": "Usar a pasta de banco de dados compartilhada da empresa",
 }

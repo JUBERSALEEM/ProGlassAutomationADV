@@ -1880,6 +1880,7 @@
     <sys:String x:Key="Settings.ContractNumber">Номер контракта</sys:String>
     <sys:String x:Key="Settings.ControlKeyPersistenceWipeStoredConversation">Управляйте сохранением ключей и стирайте сохранённую память переписки.</sys:String>
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">Управляйте тем, общается ли агент с интернетом и что ему разрешено говорить.</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">Копировать текущие локальные данные, если общая папка пуста</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">СОЗДАТЬ РЕЗЕРВНУЮ КОПИЮ СЕЙЧАС</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">Создайте набор резервной копии сейчас, обновите список или откройте папку, где хранятся резервные копии.</sys:String>
     <sys:String x:Key="Settings.CrystalBubbleIntensity">Интенсивность пузырей</sys:String>
@@ -2202,6 +2203,7 @@
     <sys:String x:Key="Settings.UpdateHistory">ИСТОРИЯ ОБНОВЛЕНИЙ</sys:String>
     <sys:String x:Key="Settings.UrgentHighNormalLowTriageBucket">Группа сортировки Срочно / Высоко / Нормально / Низко.</sys:String>
     <sys:String x:Key="Settings.UseRealBusinessData">Использовать реальные бизнес-данные</sys:String>
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">Использовать общую папку базы данных компании</sys:String>
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">Используется на каждом экране, в диалогах и таблицах (иконки остаются на Segoe MDL2).</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">Видимость</sys:String>
@@ -2712,8 +2714,4 @@
     <sys:String x:Key="Void.ThisDocument">этот документ</sys:String>
     <sys:String x:Key="Void.Title">Аннулировать документ</sys:String>
 
-    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
-         hard-coded English in SettingsDataSection.xaml. -->
-    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">Использовать общую папку базы данных компании</sys:String>
-    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">Копировать текущие локальные данные, если общая папка пуста</sys:String>
 </ResourceDictionary>

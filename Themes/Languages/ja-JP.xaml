@@ -1880,6 +1880,7 @@
     <sys:String x:Key="Settings.ContractNumber">契約番号</sys:String>
     <sys:String x:Key="Settings.ControlKeyPersistenceWipeStoredConversation">キー永続化を制御し、保存済み会話メモリを消去。</sys:String>
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">エージェントがインターネットと通信するか、何を言うことを許可するかを制御。</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">共有フォルダーが空の場合は現在のローカル データをコピーする</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">今すぐバックアップを作成</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">今すぐバックアップセットを作成、リストを更新、またはバックアップ保存フォルダを開きます。</sys:String>
     <sys:String x:Key="Settings.CrystalBubbleIntensity">気泡の強度</sys:String>
@@ -2202,6 +2203,7 @@
     <sys:String x:Key="Settings.UpdateHistory">更新履歴</sys:String>
     <sys:String x:Key="Settings.UrgentHighNormalLowTriageBucket">緊急/高/通常/低トリアージバケット。</sys:String>
     <sys:String x:Key="Settings.UseRealBusinessData">実際の業務データを使用</sys:String>
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">共有会社データベース フォルダーを使用する</sys:String>
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">すべての画面、ダイアログ、テーブルで使用（アイコンはSegoe MDL2のまま）。</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">表示</sys:String>
@@ -2712,8 +2714,4 @@
     <sys:String x:Key="Void.ThisDocument">この文書</sys:String>
     <sys:String x:Key="Void.Title">文書を取り消す</sys:String>
 
-    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
-         hard-coded English in SettingsDataSection.xaml. -->
-    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">共有会社データベース フォルダーを使用する</sys:String>
-    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">共有フォルダーが空の場合は現在のローカル データをコピーする</sys:String>
 </ResourceDictionary>

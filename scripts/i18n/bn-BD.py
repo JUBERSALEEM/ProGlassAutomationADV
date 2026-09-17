@@ -1309,6 +1309,7 @@ STRINGS = {
     "ProformaInvoice.RATEAED": "হার (AED)",
     "ProformaInvoice.REF": "রেফারেন্স #",
     "ProformaInvoice.RateAED": "হার: AED",
+    "ProformaInvoice.ReadFromOptimizationRun": "অপ্টিমাইজেশন রান থেকে পড়ুন",
     "ProformaInvoice.Recalculate": "পুনরায় গণনা",
     "ProformaInvoice.RefNo": "রেফারেন্স নম্বর:",
     "ProformaInvoice.ReferenceCODE": "রেফারেন্স কোড",
@@ -2710,4 +2711,9 @@ STRINGS = {
     "Void.ShowVoidedTip": "তালিকায় বাতিলকৃত (সফট-ক্লোজ) নথি অন্তর্ভুক্ত করুন। বাতিলকৃত নথি রিপোর্ট ও অডিট ট্রেইলে সর্বদা দৃশ্যমান।",
     "Void.ThisDocument": "এই নথি",
     "Void.Title": "নথি বাতিল করুন",
+    # L1 (2026-09-17): Data & Backup shared-root checkboxes. These were
+    # hand-added to the generated .xaml only, so build.py dropped them;
+    # sourced here so regeneration preserves them.
+    "Settings.CopyCurrentLocalDataIfSharedFolderEmpty": "শেয়ার ফোল্ডার খালি হলে বর্তমান লোকাল ডেটা কপি করুন",
+    "Settings.UseSharedCompanyDatabaseFolder": "শেয়ার করা কোম্পানি ডেটাবেস ফোল্ডার ব্যবহার করুন",
 }

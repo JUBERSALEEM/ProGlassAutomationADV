@@ -1309,6 +1309,7 @@ STRINGS = {
     "ProformaInvoice.RATEAED": "费率（AED）",
     "ProformaInvoice.REF": "REF #",
     "ProformaInvoice.RateAED": "费率：AED",
+    "ProformaInvoice.ReadFromOptimizationRun": "从优化运行读取",
     "ProformaInvoice.Recalculate": "重新计算",
     "ProformaInvoice.RefNo": "参考编号：",
     "ProformaInvoice.ReferenceCODE": "参考代码",
@@ -2710,4 +2711,9 @@ STRINGS = {
     "Void.ShowVoidedTip": "在列表中包含已作废（软关闭）的单据。已作废单据始终对报表和审计追踪可见。",
     "Void.ThisDocument": "此单据",
     "Void.Title": "作废单据",
+    # L1 (2026-09-17): Data & Backup shared-root checkboxes. These were
+    # hand-added to the generated .xaml only, so build.py dropped them;
+    # sourced here so regeneration preserves them.
+    "Settings.CopyCurrentLocalDataIfSharedFolderEmpty": "共享文件夹为空时复制当前本地数据",
+    "Settings.UseSharedCompanyDatabaseFolder": "使用共享的公司数据库文件夹",
 }

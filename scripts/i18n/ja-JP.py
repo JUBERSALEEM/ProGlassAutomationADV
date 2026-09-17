@@ -1309,6 +1309,7 @@ STRINGS = {
     "ProformaInvoice.RATEAED": "レート（AED）",
     "ProformaInvoice.REF": "REF #",
     "ProformaInvoice.RateAED": "レート: AED",
+    "ProformaInvoice.ReadFromOptimizationRun": "最適化実行から読み込む",
     "ProformaInvoice.Recalculate": "再計算",
     "ProformaInvoice.RefNo": "参照番号:",
     "ProformaInvoice.ReferenceCODE": "参照コード",
@@ -2710,4 +2711,9 @@ STRINGS = {
     "Void.ShowVoidedTip": "取消済み（ソフトクローズ）の文書をリストに含めます。取消済み文書は常にレポートと監査証跡に表示されます。",
     "Void.ThisDocument": "この文書",
     "Void.Title": "文書を取り消す",
+    # L1 (2026-09-17): Data & Backup shared-root checkboxes. These were
+    # hand-added to the generated .xaml only, so build.py dropped them;
+    # sourced here so regeneration preserves them.
+    "Settings.CopyCurrentLocalDataIfSharedFolderEmpty": "共有フォルダーが空の場合は現在のローカル データをコピーする",
+    "Settings.UseSharedCompanyDatabaseFolder": "共有会社データベース フォルダーを使用する",
 }

@@ -1880,6 +1880,7 @@
     <sys:String x:Key="Settings.ContractNumber">کنٹریکٹ نمبر</sys:String>
     <sys:String x:Key="Settings.ControlKeyPersistenceWipeStoredConversation">کلید کی مستقل مزاجی کو کنٹرول کریں اور محفوظ گفتگو میموری مٹائیں۔</sys:String>
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">کنٹرول کریں کہ ایجنٹ انٹرنیٹ سے بات کرتا ہے یا نہیں، اور اسے کیا کہنے کی اجازت ہے۔</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">شیئر فولڈر خالی ہو تو موجودہ مقامی ڈیٹا کاپی کریں</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">ابھی بیک اپ بنائیں</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">ابھی بیک اپ سیٹ بنائیں، فہرست تازہ کریں، یا وہ فولڈر کھولیں جہاں بیک اپ رکھے جاتے ہیں۔</sys:String>
     <sys:String x:Key="Settings.CrystalBubbleIntensity">بلبلوں کی شدت</sys:String>
@@ -2202,6 +2203,7 @@
     <sys:String x:Key="Settings.UpdateHistory">اپ ڈیٹ ہسٹری</sys:String>
     <sys:String x:Key="Settings.UrgentHighNormalLowTriageBucket">فوری / زیادہ / معمول / کم ٹرائیج زمرہ۔</sys:String>
     <sys:String x:Key="Settings.UseRealBusinessData">حقیقی کاروباری ڈیٹا استعمال کریں</sys:String>
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">شیئر کردہ کمپنی ڈیٹا بیس فولڈر استعمال کریں</sys:String>
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">ہر اسکرین، ڈائیلاگ اور جدول پر استعمال (آئیکنز Segoe MDL2 پر رہتے ہیں)۔</sys:String>
     <sys:String x:Key="Settings.V">ورژن</sys:String>
     <sys:String x:Key="Settings.Visibility">مرئیت</sys:String>
@@ -2712,8 +2714,4 @@
     <sys:String x:Key="Void.ThisDocument">یہ دستاویز</sys:String>
     <sys:String x:Key="Void.Title">دستاویز منسوخ کریں</sys:String>
 
-    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
-         hard-coded English in SettingsDataSection.xaml. -->
-    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">شیئر کردہ کمپنی ڈیٹا بیس فولڈر استعمال کریں</sys:String>
-    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">شیئر فولڈر خالی ہو تو موجودہ مقامی ڈیٹا کاپی کریں</sys:String>
 </ResourceDictionary>

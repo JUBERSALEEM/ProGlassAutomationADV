@@ -1880,6 +1880,7 @@
     <sys:String x:Key="Settings.ContractNumber">계약 번호</sys:String>
     <sys:String x:Key="Settings.ControlKeyPersistenceWipeStoredConversation">키 유지 관리 및 저장된 대화 메모리 삭제 제어.</sys:String>
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">에이전트가 인터넷과 통신하는지, 무엇을 말할 수 있는지 제어.</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">공유 폴더가 비어 있으면 현재 로컬 데이터 복사</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">지금 백업 만들기</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">지금 백업 세트를 만들고, 목록을 새로 고치거나 백업이 보관된 폴더를 엽니다.</sys:String>
     <sys:String x:Key="Settings.CrystalBubbleIntensity">거품 강도</sys:String>
@@ -2202,6 +2203,7 @@
     <sys:String x:Key="Settings.UpdateHistory">업데이트 기록</sys:String>
     <sys:String x:Key="Settings.UrgentHighNormalLowTriageBucket">긴급/높음/보통/낮음 분류 버킷.</sys:String>
     <sys:String x:Key="Settings.UseRealBusinessData">실제 비즈니스 데이터 사용</sys:String>
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">공유 회사 데이터베이스 폴더 사용</sys:String>
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">모든 화면, 대화 상자, 테이블에서 사용(아이콘은 Segoe MDL2 유지).</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">표시 여부</sys:String>
@@ -2712,8 +2714,4 @@
     <sys:String x:Key="Void.ThisDocument">이 문서</sys:String>
     <sys:String x:Key="Void.Title">문서 취소</sys:String>
 
-    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
-         hard-coded English in SettingsDataSection.xaml. -->
-    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">공유 회사 데이터베이스 폴더 사용</sys:String>
-    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">공유 폴더가 비어 있으면 현재 로컬 데이터 복사</sys:String>
 </ResourceDictionary>

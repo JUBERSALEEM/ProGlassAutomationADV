@@ -1880,6 +1880,7 @@
     <sys:String x:Key="Settings.ContractNumber">Nomor Kontrak</sys:String>
     <sys:String x:Key="Settings.ControlKeyPersistenceWipeStoredConversation">Kontrol persistensi kunci dan hapus memori percakapan tersimpan.</sys:String>
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">Kontrol apakah agen berbicara dengan internet, dan apa yang diizinkan untuk dikatakan.</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">Salin data lokal saat ini jika folder bersama kosong</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">BUAT CADANGAN SEKARANG</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">Buat set cadangan sekarang, segarkan daftar, atau buka folder tempat cadangan disimpan.</sys:String>
     <sys:String x:Key="Settings.CrystalBubbleIntensity">Intensitas gelembung</sys:String>
@@ -2202,6 +2203,7 @@
     <sys:String x:Key="Settings.UpdateHistory">RIWAYAT PEMBARUAN</sys:String>
     <sys:String x:Key="Settings.UrgentHighNormalLowTriageBucket">Ember triase Mendesak / Tinggi / Normal / Rendah.</sys:String>
     <sys:String x:Key="Settings.UseRealBusinessData">Gunakan Data Bisnis Nyata</sys:String>
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">Gunakan folder basis data perusahaan bersama</sys:String>
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">Digunakan di setiap layar, dialog, dan tabel (ikon tetap di Segoe MDL2).</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">Visibilitas</sys:String>
@@ -2712,8 +2714,4 @@
     <sys:String x:Key="Void.ThisDocument">dokumen ini</sys:String>
     <sys:String x:Key="Void.Title">Batalkan dokumen</sys:String>
 
-    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
-         hard-coded English in SettingsDataSection.xaml. -->
-    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">Gunakan folder basis data perusahaan bersama</sys:String>
-    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">Salin data lokal saat ini jika folder bersama kosong</sys:String>
 </ResourceDictionary>

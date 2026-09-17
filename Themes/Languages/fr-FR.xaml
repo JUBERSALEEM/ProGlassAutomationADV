@@ -1880,6 +1880,7 @@
     <sys:String x:Key="Settings.ContractNumber">Numéro de contrat</sys:String>
     <sys:String x:Key="Settings.ControlKeyPersistenceWipeStoredConversation">Contrôler la persistance des clés et effacer la mémoire de conversation stockée.</sys:String>
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">Contrôler si l&#x27;agent parle à Internet et ce qu&#x27;il est autorisé à dire.</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">Copier les données locales actuelles si le dossier partagé est vide</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">CRÉER LA SAUVEGARDE MAINTENANT</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">Créez un jeu de sauvegarde maintenant, actualisez la liste ou ouvrez le dossier où les sauvegardes sont conservées.</sys:String>
     <sys:String x:Key="Settings.CrystalBubbleIntensity">Intensité des bulles</sys:String>
@@ -2202,6 +2203,7 @@
     <sys:String x:Key="Settings.UpdateHistory">HISTORIQUE DES MISES À JOUR</sys:String>
     <sys:String x:Key="Settings.UrgentHighNormalLowTriageBucket">Compartiment de tri Urgent / Élevé / Normal / Faible.</sys:String>
     <sys:String x:Key="Settings.UseRealBusinessData">Utiliser les vraies données métier</sys:String>
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">Utiliser le dossier de base de données partagé de l&#x27;entreprise</sys:String>
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">Utilisée sur chaque écran, dialogue et tableau (les icônes restent sur Segoe MDL2).</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">Visibilité</sys:String>
@@ -2712,8 +2714,4 @@
     <sys:String x:Key="Void.ThisDocument">ce document</sys:String>
     <sys:String x:Key="Void.Title">Annuler le document</sys:String>
 
-    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
-         hard-coded English in SettingsDataSection.xaml. -->
-    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">Utiliser le dossier de base de données partagé de l'entreprise</sys:String>
-    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">Copier les données locales actuelles si le dossier partagé est vide</sys:String>
 </ResourceDictionary>

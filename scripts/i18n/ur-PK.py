@@ -1309,6 +1309,7 @@ STRINGS = {
     "ProformaInvoice.RATEAED": "شرح (AED)",
     "ProformaInvoice.REF": "حوالہ #",
     "ProformaInvoice.RateAED": "شرح: AED",
+    "ProformaInvoice.ReadFromOptimizationRun": "آپٹیمائزیشن رن سے پڑھیں",
     "ProformaInvoice.Recalculate": "دوبارہ حساب کریں",
     "ProformaInvoice.RefNo": "حوالہ نمبر:",
     "ProformaInvoice.ReferenceCODE": "حوالہ کوڈ",
@@ -2710,4 +2711,9 @@ STRINGS = {
     "Void.ShowVoidedTip": "فہرست میں منسوخ شدہ (سافٹ کلوز) دستاویزات شامل کریں۔ منسوخ شدہ دستاویزات رپورٹس اور آڈٹ ٹریل میں ہمیشہ نظر آتی ہیں۔",
     "Void.ThisDocument": "یہ دستاویز",
     "Void.Title": "دستاویز منسوخ کریں",
+    # L1 (2026-09-17): Data & Backup shared-root checkboxes. These were
+    # hand-added to the generated .xaml only, so build.py dropped them;
+    # sourced here so regeneration preserves them.
+    "Settings.CopyCurrentLocalDataIfSharedFolderEmpty": "شیئر فولڈر خالی ہو تو موجودہ مقامی ڈیٹا کاپی کریں",
+    "Settings.UseSharedCompanyDatabaseFolder": "شیئر کردہ کمپنی ڈیٹا بیس فولڈر استعمال کریں",
 }

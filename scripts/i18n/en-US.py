@@ -1309,6 +1309,7 @@ STRINGS = {
     "ProformaInvoice.RATEAED": "RATE (AED)",
     "ProformaInvoice.REF": "REF #",
     "ProformaInvoice.RateAED": "Rate: AED",
+    "ProformaInvoice.ReadFromOptimizationRun": "READ FROM OPTIMIZATION RUN",
     "ProformaInvoice.Recalculate": "RECALCULATE",
     "ProformaInvoice.RefNo": "Ref No:",
     "ProformaInvoice.ReferenceCODE": "REFERENCE CODE",
@@ -2710,4 +2711,9 @@ STRINGS = {
     "Void.ShowVoidedTip": "Include voided (soft-closed) documents in the list. Voided documents are always visible to reports and the audit trail.",
     "Void.ThisDocument": "this document",
     "Void.Title": "Void document",
+    # L1 (2026-09-17): Data & Backup shared-root checkboxes. These were
+    # hand-added to the generated .xaml only, so build.py dropped them;
+    # sourced here so regeneration preserves them.
+    "Settings.CopyCurrentLocalDataIfSharedFolderEmpty": "Copy current local data if shared folder is empty",
+    "Settings.UseSharedCompanyDatabaseFolder": "Use shared company database folder",
 }

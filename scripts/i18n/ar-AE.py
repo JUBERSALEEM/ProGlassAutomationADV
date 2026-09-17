@@ -1309,6 +1309,7 @@ STRINGS = {
     "ProformaInvoice.RATEAED": "السعر (درهم)",
     "ProformaInvoice.REF": "المرجع #",
     "ProformaInvoice.RateAED": "السعر: درهم",
+    "ProformaInvoice.ReadFromOptimizationRun": "قراءة من تشغيل التحسين",
     "ProformaInvoice.Recalculate": "إعادة الحساب",
     "ProformaInvoice.RefNo": "رقم المرجع:",
     "ProformaInvoice.ReferenceCODE": "رمز المرجع",
@@ -2710,4 +2711,9 @@ STRINGS = {
     "Void.ShowVoidedTip": "تضمين المستندات الملغاة (المُغلقة مبدئيًا) في القائمة. المستندات الملغاة مرئية دائمًا للتقارير وسجل التدقيق.",
     "Void.ThisDocument": "هذا المستند",
     "Void.Title": "إلغاء المستند",
+    # L1 (2026-09-17): Data & Backup shared-root checkboxes. These were
+    # hand-added to the generated .xaml only, so build.py dropped them;
+    # sourced here so regeneration preserves them.
+    "Settings.CopyCurrentLocalDataIfSharedFolderEmpty": "نسخ البيانات المحلية الحالية إذا كان المجلد المشترك فارغاً",
+    "Settings.UseSharedCompanyDatabaseFolder": "استخدام مجلد قاعدة بيانات الشركة المشترك",
 }

@@ -1309,6 +1309,7 @@ STRINGS = {
     "ProformaInvoice.RATEAED": "ÜCRET (AED)",
     "ProformaInvoice.REF": "REF #",
     "ProformaInvoice.RateAED": "Ücret: AED",
+    "ProformaInvoice.ReadFromOptimizationRun": "OPTİMİZASYON ÇALIŞTIRMASINDAN OKU",
     "ProformaInvoice.Recalculate": "YENİDEN HESAPLA",
     "ProformaInvoice.RefNo": "Ref no:",
     "ProformaInvoice.ReferenceCODE": "REFERANS KODU",
@@ -2710,4 +2711,9 @@ STRINGS = {
     "Void.ShowVoidedTip": "İptal edilen (yumuşak kapatılan) belgeleri listeye dahil et. İptal edilen belgeler raporlarda ve denetim izinde her zaman görünür.",
     "Void.ThisDocument": "bu belge",
     "Void.Title": "Belgeyi iptal et",
+    # L1 (2026-09-17): Data & Backup shared-root checkboxes. These were
+    # hand-added to the generated .xaml only, so build.py dropped them;
+    # sourced here so regeneration preserves them.
+    "Settings.CopyCurrentLocalDataIfSharedFolderEmpty": "Paylaşılan klasör boşsa mevcut yerel verileri kopyala",
+    "Settings.UseSharedCompanyDatabaseFolder": "Paylaşılan şirket veritabanı klasörünü kullan",
 }

@@ -1880,6 +1880,7 @@
     <sys:String x:Key="Settings.ContractNumber">Sözleşme Numarası</sys:String>
     <sys:String x:Key="Settings.ControlKeyPersistenceWipeStoredConversation">Anahtar kalıcılığını kontrol edin ve saklanan konuşma belleğini silin.</sys:String>
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">Ajanın internetle konuşup konuşmayacağını ve ne söylemesine izin verildiğini kontrol edin.</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">Paylaşılan klasör boşsa mevcut yerel verileri kopyala</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">ŞİMDİ YEDEK OLUŞTUR</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">Şimdi bir yedek kümesi oluşturun, listeyi yenileyin veya yedeklerin tutulduğu klasörü açın.</sys:String>
     <sys:String x:Key="Settings.CrystalBubbleIntensity">Kabarcık yoğunluğu</sys:String>
@@ -2202,6 +2203,7 @@
     <sys:String x:Key="Settings.UpdateHistory">GÜNCELLEME GEÇMİŞİ</sys:String>
     <sys:String x:Key="Settings.UrgentHighNormalLowTriageBucket">Acil / Yüksek / Normal / Düşük triyaj kovası.</sys:String>
     <sys:String x:Key="Settings.UseRealBusinessData">Gerçek İş Verilerini Kullan</sys:String>
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">Paylaşılan şirket veritabanı klasörünü kullan</sys:String>
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">Her ekranda, iletişim kutusunda ve tabloda kullanılır (simgeler Segoe MDL2&#x27;de kalır).</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">Görünürlük</sys:String>
@@ -2712,8 +2714,4 @@
     <sys:String x:Key="Void.ThisDocument">bu belge</sys:String>
     <sys:String x:Key="Void.Title">Belgeyi iptal et</sys:String>
 
-    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
-         hard-coded English in SettingsDataSection.xaml. -->
-    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">Paylaşılan şirket veritabanı klasörünü kullan</sys:String>
-    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">Paylaşılan klasör boşsa mevcut yerel verileri kopyala</sys:String>
 </ResourceDictionary>

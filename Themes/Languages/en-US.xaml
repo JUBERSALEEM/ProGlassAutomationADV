@@ -1880,6 +1880,7 @@
     <sys:String x:Key="Settings.ContractNumber">Contract Number</sys:String>
     <sys:String x:Key="Settings.ControlKeyPersistenceWipeStoredConversation">Control key persistence and wipe stored conversation memory.</sys:String>
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">Control whether the agent talks to the internet, and what it is allowed to say.</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">Copy current local data if shared folder is empty</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">CREATE BACKUP NOW</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">Create a backup set now, refresh the list, or open the folder where backups are kept.</sys:String>
     <sys:String x:Key="Settings.CrystalBubbleIntensity">Bubble intensity</sys:String>
@@ -2202,6 +2203,7 @@
     <sys:String x:Key="Settings.UpdateHistory">UPDATE HISTORY</sys:String>
     <sys:String x:Key="Settings.UrgentHighNormalLowTriageBucket">Urgent / High / Normal / Low triage bucket.</sys:String>
     <sys:String x:Key="Settings.UseRealBusinessData">Use Real Business Data</sys:String>
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">Use shared company database folder</sys:String>
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">Used on every screen, dialog and table (icons stay on Segoe MDL2).</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">Visibility</sys:String>
@@ -2712,8 +2714,4 @@
     <sys:String x:Key="Void.ThisDocument">this document</sys:String>
     <sys:String x:Key="Void.Title">Void document</sys:String>
 
-    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
-         hard-coded English in SettingsDataSection.xaml. -->
-    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">Use shared company database folder</sys:String>
-    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">Copy current local data if shared folder is empty</sys:String>
 </ResourceDictionary>

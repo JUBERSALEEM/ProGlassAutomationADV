@@ -1309,6 +1309,7 @@ STRINGS = {
     "ProformaInvoice.RATEAED": "TARIF (AED)",
     "ProformaInvoice.REF": "RÉF #",
     "ProformaInvoice.RateAED": "Tarif : AED",
+    "ProformaInvoice.ReadFromOptimizationRun": "LIRE DEPUIS L'EXÉCUTION D'OPTIMISATION",
     "ProformaInvoice.Recalculate": "RECALCULER",
     "ProformaInvoice.RefNo": "N° de réf. :",
     "ProformaInvoice.ReferenceCODE": "CODE DE RÉFÉRENCE",
@@ -2710,4 +2711,9 @@ STRINGS = {
     "Void.ShowVoidedTip": "Inclure les documents annulés (clôture douce) dans la liste. Les documents annulés sont toujours visibles pour les rapports et la piste d'audit.",
     "Void.ThisDocument": "ce document",
     "Void.Title": "Annuler le document",
+    # L1 (2026-09-17): Data & Backup shared-root checkboxes. These were
+    # hand-added to the generated .xaml only, so build.py dropped them;
+    # sourced here so regeneration preserves them.
+    "Settings.CopyCurrentLocalDataIfSharedFolderEmpty": "Copier les données locales actuelles si le dossier partagé est vide",
+    "Settings.UseSharedCompanyDatabaseFolder": "Utiliser le dossier de base de données partagé de l'entreprise",
 }

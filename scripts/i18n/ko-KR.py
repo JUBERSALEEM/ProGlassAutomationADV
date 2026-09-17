@@ -1309,6 +1309,7 @@ STRINGS = {
     "ProformaInvoice.RATEAED": "요율(AED)",
     "ProformaInvoice.REF": "REF #",
     "ProformaInvoice.RateAED": "요율: AED",
+    "ProformaInvoice.ReadFromOptimizationRun": "최적화 실행에서 읽기",
     "ProformaInvoice.Recalculate": "재계산",
     "ProformaInvoice.RefNo": "참조 번호:",
     "ProformaInvoice.ReferenceCODE": "참조 코드",
@@ -2710,4 +2711,9 @@ STRINGS = {
     "Void.ShowVoidedTip": "취소된(소프트 클로즈) 문서를 목록에 포함합니다. 취소된 문서는 항상 보고서 및 감사 추적에 표시됩니다.",
     "Void.ThisDocument": "이 문서",
     "Void.Title": "문서 취소",
+    # L1 (2026-09-17): Data & Backup shared-root checkboxes. These were
+    # hand-added to the generated .xaml only, so build.py dropped them;
+    # sourced here so regeneration preserves them.
+    "Settings.CopyCurrentLocalDataIfSharedFolderEmpty": "공유 폴더가 비어 있으면 현재 로컬 데이터 복사",
+    "Settings.UseSharedCompanyDatabaseFolder": "공유 회사 데이터베이스 폴더 사용",
 }

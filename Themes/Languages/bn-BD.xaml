@@ -1880,6 +1880,7 @@
     <sys:String x:Key="Settings.ContractNumber">চুক্তি নম্বর</sys:String>
     <sys:String x:Key="Settings.ControlKeyPersistenceWipeStoredConversation">কী ধরে রাখা নিয়ন্ত্রণ করুন এবং সংরক্ষিত কথোপকথন মেমরি মুছুন।</sys:String>
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">এজেন্ট ইন্টারনেটের সাথে কথা বলে কি না এবং কী বলতে পারবে তা নিয়ন্ত্রণ করুন।</sys:String>
+    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">শেয়ার ফোল্ডার খালি হলে বর্তমান লোকাল ডেটা কপি করুন</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">এখনই ব্যাকআপ তৈরি করুন</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">এখনই ব্যাকআপ সেট তৈরি করুন, তালিকা রিফ্রেশ করুন, বা ব্যাকআপ রাখা ফোল্ডারটি খুলুন।</sys:String>
     <sys:String x:Key="Settings.CrystalBubbleIntensity">বুদবুদের তীব্রতা</sys:String>
@@ -2202,6 +2203,7 @@
     <sys:String x:Key="Settings.UpdateHistory">আপডেট ইতিহাস</sys:String>
     <sys:String x:Key="Settings.UrgentHighNormalLowTriageBucket">জরুরি / উচ্চ / স্বাভাবিক / নিম্ন ট্রায়েজ বিভাগ।</sys:String>
     <sys:String x:Key="Settings.UseRealBusinessData">প্রকৃত ব্যবসায়িক ডেটা ব্যবহার করুন</sys:String>
+    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">শেয়ার করা কোম্পানি ডেটাবেস ফোল্ডার ব্যবহার করুন</sys:String>
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">প্রতিটি স্ক্রিন, ডায়ালগ ও টেবিলে ব্যবহৃত (আইকন Segoe MDL2-তে থাকে)।</sys:String>
     <sys:String x:Key="Settings.V">সংস্করণ</sys:String>
     <sys:String x:Key="Settings.Visibility">দৃশ্যমানতা</sys:String>
@@ -2712,8 +2714,4 @@
     <sys:String x:Key="Void.ThisDocument">এই নথি</sys:String>
     <sys:String x:Key="Void.Title">নথি বাতিল করুন</sys:String>
 
-    <!-- L1 (2026-09-17): Data & Backup shared-root checkboxes, previously
-         hard-coded English in SettingsDataSection.xaml. -->
-    <sys:String x:Key="Settings.UseSharedCompanyDatabaseFolder">শেয়ার করা কোম্পানি ডেটাবেস ফোল্ডার ব্যবহার করুন</sys:String>
-    <sys:String x:Key="Settings.CopyCurrentLocalDataIfSharedFolderEmpty">শেয়ার ফোল্ডার খালি হলে বর্তমান লোকাল ডেটা কপি করুন</sys:String>
 </ResourceDictionary>
