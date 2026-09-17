@@ -210,7 +210,14 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         public string StatusMessage { get => _statusMessage; set { if (_statusMessage == value) return; _statusMessage = value ?? ""; OnPropertyChanged(); } }
 
         // ── Load ────────────────────────────────────────────────────────
-        public async void LoadJobDetail(string proformaId)
+        public void LoadJobDetail(string proformaId)
+        {
+            AsyncUtility.SafeFireAndForget(
+                () => LoadJobDetailAsync(proformaId),
+                $"[JobDetailVM] LoadJobDetail for {proformaId}");
+        }
+
+        public async Task LoadJobDetailAsync(string proformaId)
         {
             if (string.IsNullOrWhiteSpace(proformaId))
             {

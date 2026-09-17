@@ -247,8 +247,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public ICommand SelectAllPanesCommand { get; }
         public ICommand ClearPaneSelectionCommand { get; }
 
+        public void LoadJobs()
+        {
+            AsyncUtility.SafeFireAndForget(
+                LoadJobsInternalAsync,
+                "[OptimizationViewModel] LoadJobs");
+        }
 
-        private async void LoadJobsAsync()
+        public async Task LoadJobsInternalAsync()
         {
             JobsStatusText = "Loading confirmed job orders…";
             try
@@ -492,6 +498,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
             catch (Exception ex)
             {
+                AppLogService.Warning(
+                    "[OptimizationViewModel] LoadJobs failed: " + ex.Message,
+                    new LogContext { Module = "Optimization", Class = nameof(OptimizationViewModel), Method = nameof(LoadJobsInternalAsync) });
                 JobsStatusText = "Job list unavailable: " + ex.Message;
             }
         }

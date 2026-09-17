@@ -371,9 +371,16 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         // ── open ───────────────────────────────────────────────────────
 
-        private async void OpenSession(SessionRowVm row)
+        private void OpenSession(SessionRowVm row)
         {
             if (row == null) return;
+            AsyncUtility.SafeFireAndForget(
+                () => OpenSessionInternalAsync(row),
+                $"[OptimizationViewModel] OpenSession {row.Id}");
+        }
+
+        private async Task OpenSessionInternalAsync(SessionRowVm row)
+        {
             try
             {
                 // No ConfigureAwait(false): restoring the VM must stay on
@@ -390,6 +397,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
             catch (Exception ex)
             {
+                AppLogService.Warning(
+                    $"[OptimizationViewModel] Could not open session {row.Id}: {ex.Message}",
+                    new LogContext { Module = "Optimization", Operation = "OpenSession" });
                 SessionStatus = "Could not open session: " + ex.Message;
             }
         }
@@ -518,9 +528,16 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         // ── delete ─────────────────────────────────────────────────────
 
-        private async void DeleteSession(SessionRowVm row)
+        private void DeleteSession(SessionRowVm row)
         {
             if (row == null) return;
+            AsyncUtility.SafeFireAndForget(
+                () => DeleteSessionInternalAsync(row),
+                $"[OptimizationViewModel] DeleteSession {row.Id}");
+        }
+
+        private async Task DeleteSessionInternalAsync(SessionRowVm row)
+        {
             try
             {
                 await _sessions.DeleteAsync(row.Id);
@@ -530,6 +547,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
             catch (Exception ex)
             {
+                AppLogService.Warning(
+                    $"[OptimizationViewModel] Could not delete session {row.Id}: {ex.Message}",
+                    new LogContext { Module = "Optimization", Operation = "DeleteSession" });
                 SessionStatus = "Could not delete session: " + ex.Message;
             }
         }

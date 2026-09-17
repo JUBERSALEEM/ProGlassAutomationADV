@@ -52,7 +52,8 @@ namespace ProGlassAutomation.ViewModels.Settings
             AppLogService.Debug(
                 "[Wallpapers] Studio initialized — commands wired",
                 new LogContext { Module = "Wallpapers", Operation = "Init" });
-            FetchWallpaperCommand = new RelayCommand(_ => FetchWallpaperAsync());
+            FetchWallpaperCommand = new RelayCommand(_ =>
+                AsyncUtility.SafeFireAndForget(FetchWallpaperInternalAsync, "[WallpaperStudio] FetchWallpaper"));
             ApplyCachedWallpaperCommand = new RelayCommand(p =>
             {
                 if (p is string path && File.Exists(path))
@@ -209,7 +210,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// library, and applies it as the File wallpaper. The provider
         /// reports every stage into the status line, so a working
         /// download is VISIBLE while it happens.</summary>
-        private async void FetchWallpaperAsync()
+        private async Task FetchWallpaperInternalAsync()
         {
             if (_isWallpaperBusy) return;
             IsWallpaperBusy = true;
