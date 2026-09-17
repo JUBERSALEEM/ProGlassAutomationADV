@@ -64,41 +64,46 @@
          keep animating them (imperative, Freezable-safe); the other
          two are static fillers for the mesh. -->
     <Grid>
-        <Border Background="{DynamicResource Ios26CanvasBrush}"
-                IsHitTestVisible="False"/>
+        <!-- ═══ AMBIENT BACKGROUND LAYER (GPU Cached for zero scroll jitter) ═══ -->
+        <Grid IsHitTestVisible="False">
+            <Grid.CacheMode>
+                <BitmapCache EnableClearType="False" RenderAtScale="1"/>
+            </Grid.CacheMode>
+            <Border Background="{DynamicResource Ios26CanvasBrush}"/>
 
-        <Ellipse Width="560" Height="560"
-                 HorizontalAlignment="Right" VerticalAlignment="Top"
-                 Margin="0,-180,-140,0" IsHitTestVisible="False"
-                 Fill="{DynamicResource Ios26OrbTealBrush}"
-                 RenderTransformOrigin="0.5,0.5">
-            <Ellipse.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform x:Name="OrbAScale" ScaleX="1" ScaleY="1"/>
-                    <TranslateTransform x:Name="OrbATranslate" X="0" Y="0"/>
-                </TransformGroup>
-            </Ellipse.RenderTransform>
-        </Ellipse>
-        <Ellipse Width="420" Height="420"
-                 HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                 Margin="-120,0,0,-120" IsHitTestVisible="False"
-                 Fill="{DynamicResource Ios26OrbBlueBrush}"
-                 RenderTransformOrigin="0.5,0.5">
-            <Ellipse.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform x:Name="OrbBScale" ScaleX="1" ScaleY="1"/>
-                    <TranslateTransform x:Name="OrbBTranslate" X="0" Y="0"/>
-                </TransformGroup>
-            </Ellipse.RenderTransform>
-        </Ellipse>
-        <Ellipse Width="480" Height="480"
-                 HorizontalAlignment="Left" VerticalAlignment="Top"
-                 Margin="-170,-170,0,0" IsHitTestVisible="False"
-                 Fill="{DynamicResource Ios26OrbLavenderBrush}"/>
-        <Ellipse Width="400" Height="400"
-                 HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                 Margin="0,-150,-150,0" IsHitTestVisible="False"
-                 Fill="{DynamicResource Ios26OrbGreenBrush}"/>
+            <Ellipse Width="560" Height="560"
+                     HorizontalAlignment="Right" VerticalAlignment="Top"
+                     Margin="0,-180,-140,0"
+                     Fill="{DynamicResource Ios26OrbTealBrush}"
+                     RenderTransformOrigin="0.5,0.5">
+                <Ellipse.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform x:Name="OrbAScale" ScaleX="1" ScaleY="1"/>
+                        <TranslateTransform x:Name="OrbATranslate" X="0" Y="0"/>
+                    </TransformGroup>
+                </Ellipse.RenderTransform>
+            </Ellipse>
+            <Ellipse Width="420" Height="420"
+                     HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                     Margin="-120,0,0,-120"
+                     Fill="{DynamicResource Ios26OrbBlueBrush}"
+                     RenderTransformOrigin="0.5,0.5">
+                <Ellipse.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform x:Name="OrbBScale" ScaleX="1" ScaleY="1"/>
+                        <TranslateTransform x:Name="OrbBTranslate" X="0" Y="0"/>
+                    </TransformGroup>
+                </Ellipse.RenderTransform>
+            </Ellipse>
+            <Ellipse Width="480" Height="480"
+                     HorizontalAlignment="Left" VerticalAlignment="Top"
+                     Margin="-170,-170,0,0"
+                     Fill="{DynamicResource Ios26OrbLavenderBrush}"/>
+            <Ellipse Width="400" Height="400"
+                     HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                     Margin="0,-150,-150,0"
+                     Fill="{DynamicResource Ios26OrbGreenBrush}"/>
+        </Grid>
 
         <!-- ═══ SHELL — frosted left rail (fixed) + scroll content ═══ -->
         <Grid>

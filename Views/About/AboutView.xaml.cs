@@ -228,19 +228,22 @@ namespace ProGlassAutomation.Views.About
                     {
                         From = 0,
                         To = 1,
-                        Duration = TimeSpan.FromSeconds(0.32),
+                        Duration = TimeSpan.FromSeconds(0.22),
+                        EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut },
                     };
+                    Timeline.SetDesiredFrameRate(fade, 60);
                     section.BeginAnimation(OpacityProperty, fade);
 
                     if (section.RenderTransform is TranslateTransform shift)
                     {
                         var slide = new DoubleAnimation
                         {
-                            From = 14,
+                            From = 8,
                             To = 0,
-                            Duration = TimeSpan.FromSeconds(0.34),
+                            Duration = TimeSpan.FromSeconds(0.24),
                             EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut },
                         };
+                        Timeline.SetDesiredFrameRate(slide, 60);
                         shift.BeginAnimation(TranslateTransform.YProperty, slide);
                     }
                 }
