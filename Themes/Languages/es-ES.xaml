@@ -496,6 +496,10 @@
     <sys:String x:Key="Dg.Qty">CANT.</sys:String>
     <sys:String x:Key="Dg.Rate">PRECIO</sys:String>
     <sys:String x:Key="Dg.RemoveSpec">Eliminar grupo de especificación</sys:String>
+    <sys:String x:Key="Dg.RunOptimize">OPTIMIZAR</sys:String>
+    <sys:String x:Key="Dg.RunOptimizeTip">La búsqueda multiinicio más profunda sobre esta cuadrícula del paso 5 — gana el mejor aprovechamiento y tarda más.</sys:String>
+    <sys:String x:Key="Dg.RunQuick">RÁPIDO</sys:String>
+    <sys:String x:Key="Dg.RunQuickTip">Un pase de corte rápido sobre esta cuadrícula del paso 5 — el paso 6 lee entonces la cantidad real de hojas y el aprovechamiento.</sys:String>
     <sys:String x:Key="Dg.Specification">ESPECIFICACIÓN</sys:String>
     <sys:String x:Key="Dg.Specs">ESPECIFICACIONES</sys:String>
     <sys:String x:Key="Dg.SurchargePct">RECARGO %</sys:String>

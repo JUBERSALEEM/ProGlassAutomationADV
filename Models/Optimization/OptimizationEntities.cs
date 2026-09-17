@@ -26,6 +26,36 @@ namespace ProGlassAutomation.Models.Optimization
         /// </summary>
         public const string LatestRunId = "__latest_run__";
 
+        /// <summary>
+        /// Prefix of a PER-DOCUMENT latest-run row: <c>__latest_run__:{proforma id}</c>.
+        /// </summary>
+        /// <remarks>
+        /// One reserved row per document rather than one global row, so a quote
+        /// reopened later is checked against the plan IT was cut against. The
+        /// global <see cref="LatestRunId"/> is kept for rows written before
+        /// stamping existed and for runs that have no document identity (a run
+        /// driven from the OPTIMIZATION tab for a Job Order).
+        ///
+        /// Encoding the identity in the existing string primary key is deliberate:
+        /// the store is created with Database.EnsureCreated and has no migrations,
+        /// so adding a column would leave every existing installation querying a
+        /// column that does not exist.
+        /// </remarks>
+        public const string LatestRunIdPrefix = "__latest_run__:";
+
+        /// <summary>Reserved-row id for a document. Empty key = the legacy global row.</summary>
+        public static string LatestRunIdFor(string? documentKey) =>
+            string.IsNullOrWhiteSpace(documentKey)
+                ? LatestRunId
+                : LatestRunIdPrefix + documentKey.Trim();
+
+        /// <summary>True for ANY reserved latest-run row, global or per-document.
+        /// These are feed plumbing and must never appear in Saved Sessions.</summary>
+        public static bool IsReservedLatestRunId(string? id) =>
+            !string.IsNullOrWhiteSpace(id)
+            && (string.Equals(id, LatestRunId, StringComparison.Ordinal)
+                || id!.StartsWith(LatestRunIdPrefix, StringComparison.Ordinal));
+
         public string Id { get; set; } = Guid.NewGuid().ToString("N");
         public string Name { get; set; } = string.Empty;
 

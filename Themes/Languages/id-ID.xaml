@@ -496,6 +496,10 @@
     <sys:String x:Key="Dg.Qty">JML</sys:String>
     <sys:String x:Key="Dg.Rate">TARIF</sys:String>
     <sys:String x:Key="Dg.RemoveSpec">Hapus grup spesifikasi</sys:String>
+    <sys:String x:Key="Dg.RunOptimize">OPTIMALKAN</sys:String>
+    <sys:String x:Key="Dg.RunOptimizeTip">Pencarian multi-awal terdalam pada grid Langkah 5 ini — utilisasi terbaik menang, dan butuh waktu lebih lama.</sys:String>
+    <sys:String x:Key="Dg.RunQuick">CEPAT</sys:String>
+    <sys:String x:Key="Dg.RunQuickTip">Satu jalur pemotongan cepat pada grid Langkah 5 ini — Langkah 6 kemudian membaca jumlah lembar dan utilisasi nyata darinya.</sys:String>
     <sys:String x:Key="Dg.Specification">SPESIFIKASI</sys:String>
     <sys:String x:Key="Dg.Specs">SPESIFIKASI</sys:String>
     <sys:String x:Key="Dg.SurchargePct">BIAYA TAMBAHAN %</sys:String>

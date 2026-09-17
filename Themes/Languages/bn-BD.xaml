@@ -496,6 +496,10 @@
     <sys:String x:Key="Dg.Qty">পরিমাণ</sys:String>
     <sys:String x:Key="Dg.Rate">রেট</sys:String>
     <sys:String x:Key="Dg.RemoveSpec">স্পেক গ্রুপ সরান</sys:String>
+    <sys:String x:Key="Dg.RunOptimize">অপ্টিমাইজ</sys:String>
+    <sys:String x:Key="Dg.RunOptimizeTip">এই ধাপ ৫ গ্রিডে গভীরতম অনুসন্ধান — সেরা ব্যবহারের হার জেতে, এবং বেশি সময় লাগে।</sys:String>
+    <sys:String x:Key="Dg.RunQuick">দ্রুত</sys:String>
+    <sys:String x:Key="Dg.RunQuickTip">এই ধাপ ৫ গ্রিডে একটি দ্রুত কাটিং পাস — এরপর ধাপ ৬ এখান থেকে প্রকৃত শীট সংখ্যা ও ব্যবহারের হার পড়ে।</sys:String>
     <sys:String x:Key="Dg.Specification">স্পেসিফিকেশন</sys:String>
     <sys:String x:Key="Dg.Specs">স্পেসিফিকেশন</sys:String>
     <sys:String x:Key="Dg.SurchargePct">সারচার্জ %</sys:String>

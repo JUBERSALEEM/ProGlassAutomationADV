@@ -496,6 +496,10 @@
     <sys:String x:Key="Dg.Qty">수량</sys:String>
     <sys:String x:Key="Dg.Rate">단가</sys:String>
     <sys:String x:Key="Dg.RemoveSpec">사양 그룹 제거</sys:String>
+    <sys:String x:Key="Dg.RunOptimize">최적화</sys:String>
+    <sys:String x:Key="Dg.RunOptimizeTip">이 5단계 그리드를 가장 깊이 다중 시작 탐색합니다. 최고 활용률이 우선이며 시간이 더 걸립니다.</sys:String>
+    <sys:String x:Key="Dg.RunQuick">빠르게</sys:String>
+    <sys:String x:Key="Dg.RunQuickTip">이 5단계 그리드를 한 번 빠르게 절단 계산합니다. 그런 다음 6단계에서 실제 시트 수량과 활용률을 읽습니다.</sys:String>
     <sys:String x:Key="Dg.Specification">사양</sys:String>
     <sys:String x:Key="Dg.Specs">사양</sys:String>
     <sys:String x:Key="Dg.SurchargePct">할증 %</sys:String>

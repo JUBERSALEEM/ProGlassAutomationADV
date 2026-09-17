@@ -2716,4 +2716,10 @@ STRINGS = {
     # sourced here so regeneration preserves them.
     "Settings.CopyCurrentLocalDataIfSharedFolderEmpty": "공유 폴더가 비어 있으면 현재 로컬 데이터 복사",
     "Settings.UseSharedCompanyDatabaseFolder": "공유 회사 데이터베이스 폴더 사용",
+    # Step 5 top panel: run the cutting engine over the LIVE grid so Step 6
+    # can read real sheet qty / utilization instead of typed numbers.
+    "Dg.RunQuick": "빠르게",
+    "Dg.RunOptimize": "최적화",
+    "Dg.RunQuickTip": "이 5단계 그리드를 한 번 빠르게 절단 계산합니다. 그런 다음 6단계에서 실제 시트 수량과 활용률을 읽습니다.",
+    "Dg.RunOptimizeTip": "이 5단계 그리드를 가장 깊이 다중 시작 탐색합니다. 최고 활용률이 우선이며 시간이 더 걸립니다.",
 }

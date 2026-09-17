@@ -496,6 +496,10 @@
     <sys:String x:Key="Dg.Qty">ADET</sys:String>
     <sys:String x:Key="Dg.Rate">ORAN</sys:String>
     <sys:String x:Key="Dg.RemoveSpec">Spesifikasyon grubunu kaldır</sys:String>
+    <sys:String x:Key="Dg.RunOptimize">OPTİMİZE ET</sys:String>
+    <sys:String x:Key="Dg.RunOptimizeTip">Bu Adım 5 tablosu üzerinde en derin çok başlangıçlı arama — en iyi verimlilik kazanır ve daha uzun sürer.</sys:String>
+    <sys:String x:Key="Dg.RunQuick">HIZLI</sys:String>
+    <sys:String x:Key="Dg.RunQuickTip">Bu Adım 5 tablosu üzerinde tek bir hızlı kesim geçişi — ardından Adım 6 gerçek sac adedini ve verimliliği buradan okur.</sys:String>
     <sys:String x:Key="Dg.Specification">SPESİFİKASYON</sys:String>
     <sys:String x:Key="Dg.Specs">SPESİFİKASYONLAR</sys:String>
     <sys:String x:Key="Dg.SurchargePct">EK ÜCRET %</sys:String>

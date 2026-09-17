@@ -496,6 +496,10 @@
     <sys:String x:Key="Dg.Qty">تعداد</sys:String>
     <sys:String x:Key="Dg.Rate">ریٹ</sys:String>
     <sys:String x:Key="Dg.RemoveSpec">اسپیک گروپ ہٹائیں</sys:String>
+    <sys:String x:Key="Dg.RunOptimize">بہتر بنائیں</sys:String>
+    <sys:String x:Key="Dg.RunOptimizeTip">اس مرحلہ 5 گرڈ پر سب سے گہری تلاش — بہترین استعمال جیتتا ہے، اور زیادہ وقت لگتا ہے۔</sys:String>
+    <sys:String x:Key="Dg.RunQuick">فوری</sys:String>
+    <sys:String x:Key="Dg.RunQuickTip">اس مرحلہ 5 گرڈ پر ایک تیز کٹائی پاس — پھر مرحلہ 6 اس سے اصل شیٹ تعداد اور استعمال پڑھتا ہے۔</sys:String>
     <sys:String x:Key="Dg.Specification">خصوصیت</sys:String>
     <sys:String x:Key="Dg.Specs">خصوصیات</sys:String>
     <sys:String x:Key="Dg.SurchargePct">سرچارج %</sys:String>

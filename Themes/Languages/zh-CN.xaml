@@ -496,6 +496,10 @@
     <sys:String x:Key="Dg.Qty">数量</sys:String>
     <sys:String x:Key="Dg.Rate">单价</sys:String>
     <sys:String x:Key="Dg.RemoveSpec">移除规格组</sys:String>
+    <sys:String x:Key="Dg.RunOptimize">优化</sys:String>
+    <sys:String x:Key="Dg.RunOptimizeTip">对此第 5 步表格执行最深层的多次起始搜索 —— 利用率最优者胜出，耗时更长。</sys:String>
+    <sys:String x:Key="Dg.RunQuick">快速</sys:String>
+    <sys:String x:Key="Dg.RunQuickTip">对此第 5 步表格执行一次快速切割 —— 第 6 步随后从中读取实际片数和利用率。</sys:String>
     <sys:String x:Key="Dg.Specification">规格</sys:String>
     <sys:String x:Key="Dg.Specs">规格</sys:String>
     <sys:String x:Key="Dg.SurchargePct">附加费 %</sys:String>

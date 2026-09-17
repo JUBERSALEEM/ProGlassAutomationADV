@@ -2716,4 +2716,10 @@ STRINGS = {
     # sourced here so regeneration preserves them.
     "Settings.CopyCurrentLocalDataIfSharedFolderEmpty": "Copier les données locales actuelles si le dossier partagé est vide",
     "Settings.UseSharedCompanyDatabaseFolder": "Utiliser le dossier de base de données partagé de l'entreprise",
+    # Step 5 top panel: run the cutting engine over the LIVE grid so Step 6
+    # can read real sheet qty / utilization instead of typed numbers.
+    "Dg.RunQuick": "RAPIDE",
+    "Dg.RunOptimize": "OPTIMISER",
+    "Dg.RunQuickTip": "Une passe de découpe rapide sur cette grille de l'étape 5 — l'étape 6 lit ensuite la quantité réelle de feuilles et le taux d'utilisation.",
+    "Dg.RunOptimizeTip": "La recherche multi-départs la plus profonde sur cette grille de l'étape 5 — le meilleur taux l'emporte, et c'est plus long.",
 }

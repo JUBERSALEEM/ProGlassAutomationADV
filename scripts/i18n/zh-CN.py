@@ -2716,4 +2716,10 @@ STRINGS = {
     # sourced here so regeneration preserves them.
     "Settings.CopyCurrentLocalDataIfSharedFolderEmpty": "共享文件夹为空时复制当前本地数据",
     "Settings.UseSharedCompanyDatabaseFolder": "使用共享的公司数据库文件夹",
+    # Step 5 top panel: run the cutting engine over the LIVE grid so Step 6
+    # can read real sheet qty / utilization instead of typed numbers.
+    "Dg.RunQuick": "快速",
+    "Dg.RunOptimize": "优化",
+    "Dg.RunQuickTip": "对此第 5 步表格执行一次快速切割 —— 第 6 步随后从中读取实际片数和利用率。",
+    "Dg.RunOptimizeTip": "对此第 5 步表格执行最深层的多次起始搜索 —— 利用率最优者胜出，耗时更长。",
 }

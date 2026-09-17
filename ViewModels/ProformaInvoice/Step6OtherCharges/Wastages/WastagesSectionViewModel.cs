@@ -121,7 +121,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             if (feed == null || feed.Count == 0)
             {
                 row.SetOptimizationFeed(0, 0m, false,
-                    "No optimization run yet — run a cut on the OPTIMIZATION tab to read real sheet qty and utilization.");
+                    "No optimization run yet — press QUICK or OPTIMIZE on the Step 5 top panel (or run a cut on the OPTIMIZATION tab) to read real sheet qty and utilization.");
                 return;
             }
 
@@ -196,6 +196,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             label += " · source: " + racks[0].SessionName;
 
             row.SetOptimizationFeed(sheets, utilization, shared, label);
+
+            // The run really does cover this row's panes, so read it by default
+            // instead of waiting for the operator to notice a per-row switch.
+            // Called AFTER SetOptimizationFeed and with the row's own sheet
+            // quantity already in place, because enabling parks whatever the row
+            // is currently holding as the manual value to return to. A row the
+            // operator has switched by hand is left exactly as they left it.
+            row.TryEnableFeedAutomatically();
         }
 
         public void BindStep4SectionsProvider(Func<IReadOnlyList<Step4PricingSnapshot>> provider)
@@ -326,8 +334,27 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                     UseOptimizationFormula = previousRow?.UseOptimizationFormula ?? true,
                     FormulaPricePerSqm = previousRow?.FormulaPricePerSqm ?? 0m,
                     OptimizationPercent = previousRow?.OptimizationPercent ?? 0m,
-                    SheetQuantity = previousRow?.SheetQuantity ?? 1
+                    SheetQuantity = previousRow?.SheetQuantity ?? 1,
+
+                    // ORDER MATTERS. Turning the feed on parks whatever
+                    // SheetQuantity currently holds as the value to hand back on
+                    // a switch to manual, so the restored number must be in place
+                    // first — otherwise flipping the row off later restores the
+                    // initializer's 1 instead of the saved quantity.
+                    //
+                    // The operator's own choice is carried too, so an explicit ON
+                    // or OFF survives the rebuild that every Step 5 edit triggers.
+                    FeedSwitchTouchedByUser = previousRow?.FeedSwitchTouchedByUser ?? false,
+                    UseOptimizationFeed = previousRow?.UseOptimizationFeed ?? false
                 };
+
+                // A row the feed is driving reports the RUN's number in
+                // SheetQuantity/OptimizationPercent, which is what the
+                // initializer above just copied. Hand the parked manual pair
+                // across explicitly, or the first Step 5 edit after a row went
+                // onto the feed makes "back to manual" restore the run's 17
+                // instead of the operator's own 5.
+                row.CarryManualSnapshotFrom(previousRow);
 
                 PopulateSourcesForRestoredRow(row);
 

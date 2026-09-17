@@ -2716,4 +2716,10 @@ STRINGS = {
     # sourced here so regeneration preserves them.
     "Settings.CopyCurrentLocalDataIfSharedFolderEmpty": "Copiar los locales actuales si la carpeta compartida está vacía",
     "Settings.UseSharedCompanyDatabaseFolder": "Usar la carpeta de base de datos compartida de la empresa",
+    # Step 5 top panel: run the cutting engine over the LIVE grid so Step 6
+    # can read real sheet qty / utilization instead of typed numbers.
+    "Dg.RunQuick": "RÁPIDO",
+    "Dg.RunOptimize": "OPTIMIZAR",
+    "Dg.RunQuickTip": "Un pase de corte rápido sobre esta cuadrícula del paso 5 — el paso 6 lee entonces la cantidad real de hojas y el aprovechamiento.",
+    "Dg.RunOptimizeTip": "La búsqueda multiinicio más profunda sobre esta cuadrícula del paso 5 — gana el mejor aprovechamiento y tarda más.",
 }

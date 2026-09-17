@@ -496,6 +496,10 @@
     <sys:String x:Key="Dg.Qty">MENGE</sys:String>
     <sys:String x:Key="Dg.Rate">SATZ</sys:String>
     <sys:String x:Key="Dg.RemoveSpec">Spez.-Gruppe entfernen</sys:String>
+    <sys:String x:Key="Dg.RunOptimize">OPTIMIEREN</sys:String>
+    <sys:String x:Key="Dg.RunOptimizeTip">Tiefste Multi-Start-Suche über dieses Schritt-5-Raster — beste Ausnutzung gewinnt, dauert aber länger.</sys:String>
+    <sys:String x:Key="Dg.RunQuick">SCHNELL</sys:String>
+    <sys:String x:Key="Dg.RunQuickTip">Ein schneller Zuschnitt-Durchlauf über dieses Schritt-5-Raster — Schritt 6 liest daraus die echte Scheibenanzahl und Ausnutzung.</sys:String>
     <sys:String x:Key="Dg.Specification">SPEZIFIKATION</sys:String>
     <sys:String x:Key="Dg.Specs">SPEZIFIKATIONEN</sys:String>
     <sys:String x:Key="Dg.SurchargePct">AUFSCHLAG %</sys:String>

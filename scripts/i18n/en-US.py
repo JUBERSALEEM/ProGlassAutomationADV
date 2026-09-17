@@ -2716,4 +2716,10 @@ STRINGS = {
     # sourced here so regeneration preserves them.
     "Settings.CopyCurrentLocalDataIfSharedFolderEmpty": "Copy current local data if shared folder is empty",
     "Settings.UseSharedCompanyDatabaseFolder": "Use shared company database folder",
+    # Step 5 top panel: run the cutting engine over the LIVE grid so Step 6
+    # can read real sheet qty / utilization instead of typed numbers.
+    "Dg.RunQuick": "QUICK",
+    "Dg.RunOptimize": "OPTIMIZE",
+    "Dg.RunQuickTip": "One fast cutting pass over this Step 5 grid — Step 6 then reads real sheet qty and utilization from it.",
+    "Dg.RunOptimizeTip": "Deepest multi-start search over this Step 5 grid — best utilization wins, and it takes longer.",
 }

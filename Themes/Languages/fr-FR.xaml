@@ -496,6 +496,10 @@
     <sys:String x:Key="Dg.Qty">QTÉ</sys:String>
     <sys:String x:Key="Dg.Rate">TAUX</sys:String>
     <sys:String x:Key="Dg.RemoveSpec">Supprimer le groupe de spécifications</sys:String>
+    <sys:String x:Key="Dg.RunOptimize">OPTIMISER</sys:String>
+    <sys:String x:Key="Dg.RunOptimizeTip">La recherche multi-départs la plus profonde sur cette grille de l&#x27;étape 5 — le meilleur taux l&#x27;emporte, et c&#x27;est plus long.</sys:String>
+    <sys:String x:Key="Dg.RunQuick">RAPIDE</sys:String>
+    <sys:String x:Key="Dg.RunQuickTip">Une passe de découpe rapide sur cette grille de l&#x27;étape 5 — l&#x27;étape 6 lit ensuite la quantité réelle de feuilles et le taux d&#x27;utilisation.</sys:String>
     <sys:String x:Key="Dg.Specification">SPÉCIFICATION</sys:String>
     <sys:String x:Key="Dg.Specs">SPÉCIFICATIONS</sys:String>
     <sys:String x:Key="Dg.SurchargePct">MAJORATION %</sys:String>

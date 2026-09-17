@@ -79,7 +79,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 ? "live run has no Step 4 pane identity — import the Step 4 sheets on the STOCKS tab to link it to a spec"
                 : string.Format(CultureInfo.InvariantCulture,
                     "live {0} run · {1:yyyy-MM-dd HH:mm} · {2} pane row(s)",
-                    LastRunStage, DateTime.Now, rows.Count));
+                    LastRunStage, DateTime.Now, rows.Count),
+                // Stamped so Step 6 of a DIFFERENT quote cannot read this run.
+                // Empty for a run driven from the OPTIMIZATION tab, which has no
+                // proforma identity and stays usable everywhere as before.
+                DocumentKey);
         }
     }
 }

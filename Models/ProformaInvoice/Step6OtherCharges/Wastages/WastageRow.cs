@@ -589,6 +589,17 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
         // ════════════════════════════════════════════════════════════════
 
         private bool _useOptimizationFeed;
+
+        // Set when the switch was moved by anyone OTHER than the automatic
+        // enable below — in practice the operator clicking it in the grid. An
+        // explicit choice has to survive every feed refresh and every Step 5
+        // rebuild, so the default never fights the operator.
+        private bool _feedSwitchTouchedByUser;
+
+        // Guards the setter while the automatic default is being applied, so
+        // enabling a row by default is not recorded as a user decision.
+        private bool _applyingAutomaticFeed;
+
         private int _optimizationSheetQuantity;
         private decimal _optimizationUtilizationPercent;
         private bool _isSharedOptimizationRack;
@@ -609,6 +620,8 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
                 if (_useOptimizationFeed == value) return;
                 _useOptimizationFeed = value;
 
+                if (!_applyingAutomaticFeed) _feedSwitchTouchedByUser = true;
+
                 // Park the operator's numbers ONCE, on the way in. This has to
                 // happen here and not in ApplySheetSourceMode: the feed is
                 // re-resolved every time a pane source is ticked, and parking on
@@ -628,8 +641,70 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
             }
         }
 
+        /// <summary>True once the operator has moved the feed switch themselves.
+        /// Carried across Step 5 rebuilds so an explicit OFF is not undone by the
+        /// next refresh. Deliberately not persisted: it describes this editing
+        /// session, and a reopened quote re-derives its default from whatever run
+        /// is available for it.</summary>
+        public bool FeedSwitchTouchedByUser
+        {
+            get => _feedSwitchTouchedByUser;
+            set => _feedSwitchTouchedByUser = value;
+        }
+
+        /// <summary>
+        /// Turns the feed on for a row the run actually resolved, so real figures
+        /// are read without the operator having to flip a per-row switch first.
+        /// </summary>
+        /// <remarks>
+        /// Refuses once the operator has moved the switch themselves — an
+        /// explicit OFF must survive every refresh and every rebuild.
+        ///
+        /// Goes through the property setter, never the field: parking happens on
+        /// the false→true transition only, so writing the field directly would
+        /// leave <c>_manualSheetQuantity</c> at its initializer and a later
+        /// switch back to manual would restore 1 instead of the operator's own
+        /// number. Callers must therefore have put the row's real sheet quantity
+        /// in place BEFORE calling this.
+        /// </remarks>
+        /// <returns>True when the row is reading the feed afterwards.</returns>
+        public bool TryEnableFeedAutomatically()
+        {
+            if (_feedSwitchTouchedByUser) return _useOptimizationFeed;
+            if (_useOptimizationFeed) return true;
+
+            _applyingAutomaticFeed = true;
+            try { UseOptimizationFeed = true; }
+            finally { _applyingAutomaticFeed = false; }
+
+            return _useOptimizationFeed;
+        }
+
         public bool IsOptimizationFeedMode => _useOptimizationFeed;
         public bool IsManualSheetSourceMode => !_useOptimizationFeed;
+
+        /// <summary>
+        /// Carries the parked manual numbers from the row this one replaces.
+        /// </summary>
+        /// <remarks>
+        /// While the feed drives a row, <c>SheetQuantity</c> and
+        /// <c>OptimizationPercent</c> hold the RUN's figures — so a rebuild that
+        /// copies those properties and then turns the feed back on parks the run's
+        /// own number as though the operator had typed it. Switching back to
+        /// manual after any Step 5 edit would then restore 17 instead of the 5
+        /// they actually entered. Copying the parked pair keeps the switch
+        /// lossless across the rebuild every Step 5 edit triggers.
+        ///
+        /// Call AFTER the row initializer: the initializer's
+        /// <c>UseOptimizationFeed</c> assignment parks whatever it was given, and
+        /// this has to be the last word on what is handed back.
+        /// </remarks>
+        public void CarryManualSnapshotFrom(WastageRow? previous)
+        {
+            if (previous == null) return;
+            _manualSheetQuantity = previous._manualSheetQuantity;
+            _manualOptimizationPercent = previous._manualOptimizationPercent;
+        }
 
         /// <summary>Sheet count the run actually produced for this pane.</summary>
         public int OptimizationSheetQuantity

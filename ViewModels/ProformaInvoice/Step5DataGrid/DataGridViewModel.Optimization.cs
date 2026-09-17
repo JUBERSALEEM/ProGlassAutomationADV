@@ -1,0 +1,199 @@
+// ═══════════════════════════════════════════════════════════════════════
+//  FILE: ViewModels/ProformaInvoice/Step5DataGrid/DataGridViewModel.Optimization.cs
+//  PROJECT: ProGlassAutomation
+//
+//  WHY THIS EXISTS
+//  ---------------------------------------------------------------------
+//  QUICK / OPTIMIZE on the Step 5 top panel, so a cut plan can be produced
+//  from the grid the operator is actually looking at instead of requiring a
+//  confirmed Job Order on the OPTIMIZATION tab. Step 6 then reads sheet qty
+//  and utilization from the run rather than from hand-typed numbers.
+//
+//  LAYERING
+//  This grid does not reference the optimization module. It snapshots its own
+//  data and hands it to a delegate the composer (ProformaInvoiceViewModel)
+//  binds — the same late-bound idiom already used for Step 4 pricing
+//  (BindStep4Pricing) and the Step 6 feed (BindOptimizationFeed). One writer,
+//  many readers, no new constructor arguments on a DI-resolved view model.
+//
+//  NO EXISTING CODE PATH IS ALTERED
+//  The commands are created lazily on first binding rather than assigned in
+//  InitializeCore, so the shared two-phase initialization that ERR-633EEB
+//  hardened is not touched.
+// ═══════════════════════════════════════════════════════════════════════
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using ProGlassAutomation.Commands;
+using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using System.Windows.Input;
+
+namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
+{
+    public partial class DataGridViewModel
+    {
+        /// <summary>
+        /// Runs a cut plan over a Step 5 snapshot. Returns whether a run
+        /// actually started plus an operator-facing message for the status line.
+        /// </summary>
+        /// <param name="specGroups">Live Step 5 spec groups in snapshot form,
+        /// including the Step 4 sheet sizes and prices each spec was quoted on —
+        /// without those there is no rack to cut against.</param>
+        /// <param name="stage">"QUICK" or "OPTIMIZE".</param>
+        public delegate (bool Started, string Message) Step5OptimizationRunner(
+            IReadOnlyList<SpecGroupSnapshot> specGroups, string stage);
+
+        private Step5OptimizationRunner? _optimizationRunner;
+
+        /// <summary>True once the composer has bound a runner, so the buttons
+        /// can be disabled instead of failing on click when Step 5 is hosted
+        /// somewhere that has no optimization module behind it.</summary>
+        public bool CanRunOptimization => _optimizationRunner != null;
+
+        /// <summary>Binds the runner. Called once by ProformaInvoiceViewModel.</summary>
+        public void BindOptimizationRunner(Step5OptimizationRunner? runner)
+        {
+            _optimizationRunner = runner;
+            OnPropertyChanged(nameof(CanRunOptimization));
+
+            // The buttons take their enabled state from CanExecute, and WPF only
+            // re-queries that when the command tells it to. The composer binds
+            // before the view normally does, so this is usually a no-op — but if
+            // that order ever changes (previewer, a future refactor) the buttons
+            // would otherwise stay disabled with a perfectly good runner behind
+            // them. The commands are created lazily, so these may still be null.
+            _runQuickOptimizationCommand?.RaiseCanExecuteChanged();
+            _runOptimizeOptimizationCommand?.RaiseCanExecuteChanged();
+        }
+
+        private RelayCommand? _runQuickOptimizationCommand;
+        private RelayCommand? _runOptimizeOptimizationCommand;
+
+        /// <summary>One fast deterministic pass over the live Step 5 grid.</summary>
+        public ICommand RunQuickOptimizationCommand =>
+            _runQuickOptimizationCommand ??= new RelayCommand(
+                _ => RunOptimizationFromStep5("QUICK"),
+                _ => CanRunOptimization);
+
+        /// <summary>Deepest multi-start search over the live Step 5 grid.</summary>
+        public ICommand RunOptimizeOptimizationCommand =>
+            _runOptimizeOptimizationCommand ??= new RelayCommand(
+                _ => RunOptimizationFromStep5("OPTIMIZE"),
+                _ => CanRunOptimization);
+
+        /// <summary>
+        /// Snapshots the grid and asks the bound runner to cut it.
+        /// </summary>
+        /// <remarks>
+        /// Reports through <see cref="IoStatus"/>, which the top panel already
+        /// binds and already collapses when empty, so the operator gets feedback
+        /// in the strip they clicked without any new XAML surface. The run
+        /// itself is asynchronous inside the optimization module; this returns
+        /// as soon as it has started or been refused.
+        /// </remarks>
+        private void RunOptimizationFromStep5(string stage)
+        {
+            var runner = _optimizationRunner;
+            if (runner == null)
+            {
+                IoStatus = "Optimization is not available on this screen.";
+                return;
+            }
+
+            try
+            {
+                var groups = BuildSpecGroupSnapshotsForOptimization();
+
+                if (groups.Count == 0)
+                {
+                    IoStatus = "Nothing to optimize yet — add a spec and enter pane sizes on Step 5.";
+                    return;
+                }
+
+                var (started, message) = runner(groups, stage);
+
+                IoStatus = string.IsNullOrWhiteSpace(message)
+                    ? (started ? "Optimization run started." : "Optimization run did not start.")
+                    : message;
+            }
+            catch (Exception ex)
+            {
+                // A reporting convenience must never take the quoting grid down.
+                IoStatus = "Could not start the optimization run: " + ex.Message;
+                Services.Logging.AppLogService.Warning(
+                    "[Step5] optimization run failed to start: " +
+                    Utilities.ExceptionMessages.Deep(ex));
+            }
+        }
+
+        /// <summary>
+        /// Live Step 5 → <see cref="SpecGroupSnapshot"/>, including the Step 4
+        /// sheet sizes and prices.
+        /// </summary>
+        /// <remarks>
+        /// Deliberately separate from Step 6's <c>BuildSpecSnapshotsForCalculator</c>,
+        /// which copies only the fields a price calculation needs. The optimizer
+        /// additionally needs the rack each spec was quoted on
+        /// (<c>OuterSheet*</c> / <c>InnerSheet*</c>) and the pane colours, and it
+        /// must not be given them by widening a method another step depends on.
+        /// </remarks>
+        public IReadOnlyList<SpecGroupSnapshot> BuildSpecGroupSnapshotsForOptimization()
+        {
+            var result = new List<SpecGroupSnapshot>(SpecGroups.Count);
+
+            foreach (var g in SpecGroups)
+            {
+                if (g == null) continue;
+
+                var snap = new SpecGroupSnapshot
+                {
+                    GroupNumber = g.GroupNumber,
+                    GroupName = g.GroupName ?? "",
+                    SelectedGlassType = g.SelectedGlassType ?? "",
+                    SelectedSpecName = g.SelectedSpecName ?? "",
+                    OuterGlassColor = g.OuterGlassColor ?? "",
+                    InnerGlassColor = g.InnerGlassColor ?? "",
+
+                    // The rack this spec was quoted on. Zero on a spec whose
+                    // Step 4 sheet was never chosen; RunFromStep5 reports that
+                    // rather than cutting against an invented size.
+                    OuterSheetWidthMm = g.OuterSheetWidthMm,
+                    OuterSheetHeightMm = g.OuterSheetHeightMm,
+                    InnerSheetWidthMm = g.InnerSheetWidthMm,
+                    InnerSheetHeightMm = g.InnerSheetHeightMm,
+                    OuterSheetPricePerSqm = g.OuterSheetPricePerSqm,
+                    InnerSheetPricePerSqm = g.InnerSheetPricePerSqm
+                };
+
+                foreach (var r in g.ItemRows)
+                {
+                    if (r == null || r.IsEmpty) continue;
+
+                    // A row with no quantity or no usable pane dimension cannot
+                    // become a cutting piece; skipping it here keeps the run's
+                    // piece count honest instead of padding it with zeros.
+                    if (r.Qty <= 0) continue;
+                    if (r.W1 <= 0 && r.W2 <= 0) continue;
+
+                    snap.ItemRows.Add(new GlassItemRowSnapshot
+                    {
+                        SerialNumber = r.SerialNumber,
+                        GlassRef = r.GlassRef ?? "",
+                        W1 = r.W1,
+                        H1 = r.H1,
+                        W2 = r.W2,
+                        H2 = r.H2,
+                        Qty = r.Qty,
+                        Rate = r.Rate,
+                        PerimeterFactor = r.PerimeterFactor
+                    });
+                }
+
+                if (snap.ItemRows.Count > 0) result.Add(snap);
+            }
+
+            return result;
+        }
+    }
+}

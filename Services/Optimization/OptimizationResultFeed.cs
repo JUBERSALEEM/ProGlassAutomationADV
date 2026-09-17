@@ -59,6 +59,7 @@
 //  enumerating a complete list.
 // ════════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Models.Optimization;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -164,6 +165,12 @@ namespace ProGlassAutomation.Services.Optimization
         // saved session and the quote would be checked against the wrong plan.
         private static bool _isLive;
 
+        // Identity of the document the snapshot was produced for. Empty means
+        // "unstamped" — a run driven from the OPTIMIZATION tab for a Job Order
+        // has no proforma identity, and those stay usable everywhere they were
+        // usable before, rather than being rejected for lack of a stamp.
+        private static string _documentKey = string.Empty;
+
         /// <summary>The most recently refreshed run, per pane. Empty until
         /// RefreshAsync succeeds — consumers must treat empty as "not available"
         /// and fall back to their own manual numbers, never as zero.</summary>
@@ -229,6 +236,40 @@ namespace ProGlassAutomation.Services.Optimization
             get { lock (Gate) return _isLive; }
         }
 
+        /// <summary>Identity of the document the current snapshot was produced
+        /// for. Empty when the run had no document identity.</summary>
+        public static string DocumentKey
+        {
+            get { lock (Gate) return _documentKey; }
+        }
+
+        /// <summary>
+        /// Whether the current snapshot may be applied to
+        /// <paramref name="documentKey"/>.
+        /// </summary>
+        /// <remarks>
+        /// Refuses a run that was stamped for a DIFFERENT document. Without this
+        /// a quote can silently read another job's figures: the join is
+        /// structural (spec number + side + sheet size), so two quotes that both
+        /// have a "Spec 1 outer" on the same rack size match each other.
+        ///
+        /// An unstamped snapshot — or a caller with no identity yet, e.g. a draft
+        /// that has not been through Step 1 — is accepted, because there is no
+        /// evidence of a mismatch and rejecting it would only revive the "read
+        /// from optimization does nothing" report this guard exists to prevent.
+        /// </remarks>
+        public static bool IsForDocument(string? documentKey)
+        {
+            lock (Gate)
+            {
+                if (_current.Count == 0) return false;
+                if (string.IsNullOrWhiteSpace(_documentKey)) return true;
+                if (string.IsNullOrWhiteSpace(documentKey)) return true;
+                return string.Equals(_documentKey.Trim(), documentKey.Trim(),
+                    StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
         /// <summary>
         /// Drops the snapshot and the live flag. Mirrors SpecSheetRegistry.Clear,
         /// whose documented purpose is likewise "new invoice / test isolation":
@@ -237,7 +278,7 @@ namespace ProGlassAutomation.Services.Optimization
         /// </summary>
         public static void Reset() =>
             Set(Array.Empty<OptimizationPaneResult>(),
-                "no optimization run loaded", isLive: false);
+                "no optimization run loaded", isLive: false, documentKey: string.Empty);
 
         /// <summary>
         /// Maps a Step 6 pane onto the two racks the optimization module imports
@@ -286,7 +327,8 @@ namespace ProGlassAutomation.Services.Optimization
         /// failure leaves the previous snapshot and label in place rather than
         /// blanking a screen the operator is reading.
         /// </summary>
-        public static async Task RefreshAsync(CancellationToken ct = default)
+        public static async Task RefreshAsync(
+            string? documentKey = null, CancellationToken ct = default)
         {
             // Never trade a live run for an older saved one.
             lock (Gate)
@@ -298,6 +340,21 @@ namespace ProGlassAutomation.Services.Optimization
             {
                 var repo = new OptimizationSessionRepository();
                 await repo.EnsureCreatedAsync(ct).ConfigureAwait(false);
+
+                // This document's own reserved row outranks everything else on
+                // disk: it is the plan THIS quote was cut against.
+                if (!string.IsNullOrWhiteSpace(documentKey))
+                {
+                    var own = await repo.GetLatestRunAsync(documentKey, ct)
+                        .ConfigureAwait(false);
+                    if (own != null)
+                    {
+                        var ownRows = Parse(own.ResultJson, own.Name, own.CreatedUtc);
+                        Set(ownRows, DescribeSavedRun(own, ownRows.Count),
+                            isLive: false, documentKey: documentKey);
+                        return;
+                    }
+                }
 
                 var sessions = await repo.ListAsync(ct).ConfigureAwait(false);
                 if (sessions == null || sessions.Count == 0)
@@ -316,12 +373,12 @@ namespace ProGlassAutomation.Services.Optimization
 
                 var rows = Parse(newest.ResultJson, newest.Name, newest.CreatedUtc);
 
-                Set(rows, rows.Count == 0
-                    ? "saved run has no per-pane breakdown — re-run and save on the OPTIMIZATION tab"
-                    : string.Format(CultureInfo.InvariantCulture,
-                        "optimization run \"{0}\" · {1:yyyy-MM-dd HH:mm} · {2} pane row(s)",
-                        newest.Name, newest.CreatedUtc.ToLocalTime(), rows.Count),
-                    isLive: false);
+                // Unstamped on purpose: a globally-newest session cannot prove
+                // which document it belongs to, so it stays usable exactly as it
+                // was before stamping existed. The session name rides in the
+                // label so the operator can see which run they are looking at.
+                Set(rows, DescribeSavedRun(newest, rows.Count),
+                    isLive: false, documentKey: string.Empty);
             }
             catch (Exception ex)
             {
@@ -337,11 +394,13 @@ namespace ProGlassAutomation.Services.Optimization
         /// that can see both modules.
         /// </summary>
         public static void PublishLive(
-            IReadOnlyList<OptimizationPaneResult> rows, string label)
+            IReadOnlyList<OptimizationPaneResult> rows, string label,
+            string? documentKey = null)
         {
             Set(rows ?? Array.Empty<OptimizationPaneResult>(),
                 string.IsNullOrWhiteSpace(label) ? "live optimization run" : label,
-                isLive: true);
+                isLive: true,
+                documentKey: documentKey ?? string.Empty);
 
             // Raised outside the lock: a handler that refreshes a wizard step
             // must never run while the snapshot gate is held.
@@ -393,8 +452,17 @@ namespace ProGlassAutomation.Services.Optimization
         /// disk" just because a read threw, or the next refresh would happily
         /// overwrite newer live figures with an older saved session.
         /// </summary>
+        /// <summary>Provenance line for a run read back from disk.</summary>
+        private static string DescribeSavedRun(SavedOptimizationSession session, int rowCount) =>
+            rowCount == 0
+                ? "saved run has no per-pane breakdown — re-run and save on the OPTIMIZATION tab"
+                : string.Format(CultureInfo.InvariantCulture,
+                    "optimization run \"{0}\" · {1:yyyy-MM-dd HH:mm} · {2} pane row(s)",
+                    session.Name, session.CreatedUtc.ToLocalTime(), rowCount);
+
         private static void Set(
-            IReadOnlyList<OptimizationPaneResult> rows, string label, bool? isLive = null)
+            IReadOnlyList<OptimizationPaneResult> rows, string label, bool? isLive = null,
+            string? documentKey = null)
         {
             lock (Gate)
             {
@@ -404,6 +472,10 @@ namespace ProGlassAutomation.Services.Optimization
                     : label;
 
                 if (isLive.HasValue) _isLive = isLive.Value;
+
+                // null = "leave the stamp alone" (an error path must not unstamp
+                // a snapshot it did not replace); empty = "explicitly unstamped".
+                if (documentKey != null) _documentKey = documentKey.Trim();
             }
         }
 

@@ -2716,4 +2716,10 @@ STRINGS = {
     # sourced here so regeneration preserves them.
     "Settings.CopyCurrentLocalDataIfSharedFolderEmpty": "Salin data lokal saat ini jika folder bersama kosong",
     "Settings.UseSharedCompanyDatabaseFolder": "Gunakan folder basis data perusahaan bersama",
+    # Step 5 top panel: run the cutting engine over the LIVE grid so Step 6
+    # can read real sheet qty / utilization instead of typed numbers.
+    "Dg.RunQuick": "CEPAT",
+    "Dg.RunOptimize": "OPTIMALKAN",
+    "Dg.RunQuickTip": "Satu jalur pemotongan cepat pada grid Langkah 5 ini — Langkah 6 kemudian membaca jumlah lembar dan utilisasi nyata darinya.",
+    "Dg.RunOptimizeTip": "Pencarian multi-awal terdalam pada grid Langkah 5 ini — utilisasi terbaik menang, dan butuh waktu lebih lama.",
 }

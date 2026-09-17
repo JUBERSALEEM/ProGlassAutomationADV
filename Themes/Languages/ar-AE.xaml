@@ -496,6 +496,10 @@
     <sys:String x:Key="Dg.Qty">الكمية</sys:String>
     <sys:String x:Key="Dg.Rate">السعر</sys:String>
     <sys:String x:Key="Dg.RemoveSpec">إزالة مجموعة المواصفات</sys:String>
+    <sys:String x:Key="Dg.RunOptimize">تحسين</sys:String>
+    <sys:String x:Key="Dg.RunOptimizeTip">أعمق بحث متعدد البدايات على شبكة الخطوة 5 — أفضل استغلال يفوز، ويستغرق وقتًا أطول.</sys:String>
+    <sys:String x:Key="Dg.RunQuick">سريع</sys:String>
+    <sys:String x:Key="Dg.RunQuickTip">تمريرة قطع سريعة واحدة على شبكة الخطوة 5 — ثم تقرأ الخطوة 6 كمية الألواح الحقيقية ونسبة الاستغلال منها.</sys:String>
     <sys:String x:Key="Dg.Specification">المواصفة</sys:String>
     <sys:String x:Key="Dg.Specs">المواصفات</sys:String>
     <sys:String x:Key="Dg.SurchargePct">رسوم إضافية %</sys:String>

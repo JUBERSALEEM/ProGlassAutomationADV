@@ -28,6 +28,23 @@ namespace ProGlassAutomation.Services.Optimization
             await db.Database.EnsureCreatedAsync(ct).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// The reserved latest-run row for one document, or null when that
+        /// document has never had a run persisted. An empty key addresses the
+        /// legacy global row.
+        /// </summary>
+        public async Task<SavedOptimizationSession?> GetLatestRunAsync(
+            string? documentKey, CancellationToken ct = default)
+        {
+            string id = SavedOptimizationSession.LatestRunIdFor(documentKey);
+
+            await using var db = new OptimizationDbContext();
+            return await db.Sessions
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Id == id, ct)
+                .ConfigureAwait(false);
+        }
+
         public async Task<List<SavedOptimizationSession>> ListAsync(CancellationToken ct = default)
         {
             await using var db = new OptimizationDbContext();
@@ -62,11 +79,15 @@ namespace ProGlassAutomation.Services.Optimization
         /// a second run would otherwise collide on the primary key.
         /// </summary>
         public async Task UpsertLatestRunAsync(
-            SavedOptimizationSession session, CancellationToken ct = default)
+            SavedOptimizationSession session, string? documentKey = null,
+            CancellationToken ct = default)
         {
             if (session == null) return;
 
-            session.Id = SavedOptimizationSession.LatestRunId;
+            // Stamped with the document the run was produced for, so a quote
+            // reopened later reads its OWN plan and not whichever run happened
+            // to be newest globally.
+            session.Id = SavedOptimizationSession.LatestRunIdFor(documentKey);
 
             await using var db = new OptimizationDbContext();
 

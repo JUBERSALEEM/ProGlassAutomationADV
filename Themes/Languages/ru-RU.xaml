@@ -496,6 +496,10 @@
     <sys:String x:Key="Dg.Qty">КОЛ-ВО</sys:String>
     <sys:String x:Key="Dg.Rate">СТАВКА</sys:String>
     <sys:String x:Key="Dg.RemoveSpec">Удалить группу спецификаций</sys:String>
+    <sys:String x:Key="Dg.RunOptimize">ОПТИМИЗИРОВАТЬ</sys:String>
+    <sys:String x:Key="Dg.RunOptimizeTip">Самый глубокий многоначальный поиск по этой сетке шага 5 — побеждает лучшее использование, но это занимает больше времени.</sys:String>
+    <sys:String x:Key="Dg.RunQuick">БЫСТРО</sys:String>
+    <sys:String x:Key="Dg.RunQuickTip">Один быстрый проход раскроя по этой сетке шага 5 — затем шаг 6 читает из него реальное количество листов и использование.</sys:String>
     <sys:String x:Key="Dg.Specification">СПЕЦИФИКАЦИЯ</sys:String>
     <sys:String x:Key="Dg.Specs">СПЕЦИФИКАЦИИ</sys:String>
     <sys:String x:Key="Dg.SurchargePct">НАЦЕНКА %</sys:String>

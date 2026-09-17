@@ -2716,4 +2716,10 @@ STRINGS = {
     # sourced here so regeneration preserves them.
     "Settings.CopyCurrentLocalDataIfSharedFolderEmpty": "شیئر فولڈر خالی ہو تو موجودہ مقامی ڈیٹا کاپی کریں",
     "Settings.UseSharedCompanyDatabaseFolder": "شیئر کردہ کمپنی ڈیٹا بیس فولڈر استعمال کریں",
+    # Step 5 top panel: run the cutting engine over the LIVE grid so Step 6
+    # can read real sheet qty / utilization instead of typed numbers.
+    "Dg.RunQuick": "فوری",
+    "Dg.RunOptimize": "بہتر بنائیں",
+    "Dg.RunQuickTip": "اس مرحلہ 5 گرڈ پر ایک تیز کٹائی پاس — پھر مرحلہ 6 اس سے اصل شیٹ تعداد اور استعمال پڑھتا ہے۔",
+    "Dg.RunOptimizeTip": "اس مرحلہ 5 گرڈ پر سب سے گہری تلاش — بہترین استعمال جیتتا ہے، اور زیادہ وقت لگتا ہے۔",
 }

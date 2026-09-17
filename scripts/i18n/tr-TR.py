@@ -2716,4 +2716,10 @@ STRINGS = {
     # sourced here so regeneration preserves them.
     "Settings.CopyCurrentLocalDataIfSharedFolderEmpty": "Paylaşılan klasör boşsa mevcut yerel verileri kopyala",
     "Settings.UseSharedCompanyDatabaseFolder": "Paylaşılan şirket veritabanı klasörünü kullan",
+    # Step 5 top panel: run the cutting engine over the LIVE grid so Step 6
+    # can read real sheet qty / utilization instead of typed numbers.
+    "Dg.RunQuick": "HIZLI",
+    "Dg.RunOptimize": "OPTİMİZE ET",
+    "Dg.RunQuickTip": "Bu Adım 5 tablosu üzerinde tek bir hızlı kesim geçişi — ardından Adım 6 gerçek sac adedini ve verimliliği buradan okur.",
+    "Dg.RunOptimizeTip": "Bu Adım 5 tablosu üzerinde en derin çok başlangıçlı arama — en iyi verimlilik kazanır ve daha uzun sürer.",
 }

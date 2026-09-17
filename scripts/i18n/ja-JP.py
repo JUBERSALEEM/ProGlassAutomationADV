@@ -2716,4 +2716,10 @@ STRINGS = {
     # sourced here so regeneration preserves them.
     "Settings.CopyCurrentLocalDataIfSharedFolderEmpty": "共有フォルダーが空の場合は現在のローカル データをコピーする",
     "Settings.UseSharedCompanyDatabaseFolder": "共有会社データベース フォルダーを使用する",
+    # Step 5 top panel: run the cutting engine over the LIVE grid so Step 6
+    # can read real sheet qty / utilization instead of typed numbers.
+    "Dg.RunQuick": "クイック",
+    "Dg.RunOptimize": "最適化",
+    "Dg.RunQuickTip": "このステップ5のグリッドを1回だけ高速に切断計算します。ステップ6はそこから実際の枚数と歩留まりを読み取ります。",
+    "Dg.RunOptimizeTip": "このステップ5のグリッドを最も深く多起点探索します。最高の歩留まりが優先され、時間は長くなります。",
 }

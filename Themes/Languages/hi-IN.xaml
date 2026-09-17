@@ -496,6 +496,10 @@
     <sys:String x:Key="Dg.Qty">मात्रा</sys:String>
     <sys:String x:Key="Dg.Rate">दर</sys:String>
     <sys:String x:Key="Dg.RemoveSpec">स्पेक समूह हटाएँ</sys:String>
+    <sys:String x:Key="Dg.RunOptimize">अनुकूलित</sys:String>
+    <sys:String x:Key="Dg.RunOptimizeTip">इस चरण 5 ग्रिड पर सबसे गहरी खोज — सर्वोत्तम उपयोग जीतता है, और अधिक समय लगता है।</sys:String>
+    <sys:String x:Key="Dg.RunQuick">त्वरित</sys:String>
+    <sys:String x:Key="Dg.RunQuickTip">इस चरण 5 ग्रिड पर एक तेज़ कटाई पास — फिर चरण 6 इससे वास्तविक शीट संख्या और उपयोग पढ़ता है।</sys:String>
     <sys:String x:Key="Dg.Specification">विनिर्देश</sys:String>
     <sys:String x:Key="Dg.Specs">विनिर्देश</sys:String>
     <sys:String x:Key="Dg.SurchargePct">अधिभार %</sys:String>

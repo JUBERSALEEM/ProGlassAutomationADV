@@ -157,7 +157,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             {
                 // The auto-saved latest run is plumbing for the Step 6 / Step 9
                 // feed, not something the operator saved and wants to reopen.
-                if (s.Id == SavedOptimizationSession.LatestRunId) continue;
+                if (SavedOptimizationSession.IsReservedLatestRunId(s.Id)) continue;
 
                 SavedSessions.Add(new SessionRowVm
                 {
@@ -236,7 +236,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
                 await _sessions.EnsureCreatedAsync();
 
-                await _sessions.UpsertLatestRunAsync(snapshot);
+                await _sessions.UpsertLatestRunAsync(snapshot, DocumentKey);
             }
             catch (Exception ex)
             {

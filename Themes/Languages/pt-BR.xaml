@@ -496,6 +496,10 @@
     <sys:String x:Key="Dg.Qty">QTDE</sys:String>
     <sys:String x:Key="Dg.Rate">TARIFA</sys:String>
     <sys:String x:Key="Dg.RemoveSpec">Remover grupo de especificação</sys:String>
+    <sys:String x:Key="Dg.RunOptimize">OTIMIZAR</sys:String>
+    <sys:String x:Key="Dg.RunOptimizeTip">A busca multi-início mais profunda nesta grade da Etapa 5 — o melhor aproveitamento vence, e demora mais.</sys:String>
+    <sys:String x:Key="Dg.RunQuick">RÁPIDO</sys:String>
+    <sys:String x:Key="Dg.RunQuickTip">Uma passada de corte rápida nesta grade da Etapa 5 — a Etapa 6 então lê a quantidade real de chapas e o aproveitamento.</sys:String>
     <sys:String x:Key="Dg.Specification">ESPECIFICAÇÃO</sys:String>
     <sys:String x:Key="Dg.Specs">ESPECIFICAÇÕES</sys:String>
     <sys:String x:Key="Dg.SurchargePct">SOBRETAXA %</sys:String>

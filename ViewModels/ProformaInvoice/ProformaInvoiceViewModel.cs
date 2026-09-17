@@ -232,19 +232,42 @@ public ProformaInvoiceViewModel() : this(
             Step6VM.BindStep4Pricing(() => Step4VM.CaptureSectionSnapshots());
 
             // 2026-09-16: SHEET QTY and the optimization % can be read from a
-            // finished optimization run instead of typed by hand. Step 6 stays
-            // manual by default — this only makes the real figures available to
-            // the per-row switch. The feed prefers a run produced in this app
-            // session and falls back to the newest saved session; RefreshAsync
-            // refuses to trade live figures for an older saved one.
+            // finished optimization run instead of typed by hand. The feed
+            // prefers a run produced in this app session and falls back to the
+            // newest saved session; RefreshAsync refuses to trade live figures
+            // for an older saved one.
+            //
+            // 2026-09-17: a row now reads the run automatically once the feed
+            // actually resolves one for its panes, so the operator no longer has
+            // to flip a per-row switch to get real numbers. Manual stays fully
+            // available — the switch is still there, and an explicit OFF is
+            // never overridden. See WastageRow.TryEnableFeedAutomatically.
+            //
+            // DOCUMENT GUARD: a run stamped for a DIFFERENT proforma is filtered
+            // out here, so Step 6 sees an empty feed and keeps its manual values
+            // rather than reading another job's sheet count. The join is
+            // structural (spec number + side + sheet size), so two quotes that
+            // both have a "Spec 1 outer" on the same rack size would otherwise
+            // match each other.
             Step6VM.BindOptimizationFeed(
-                () => Services.Optimization.OptimizationResultFeed.Current);
+                () => Services.Optimization.OptimizationResultFeed.IsForDocument(CurrentDocumentKey)
+                    ? Services.Optimization.OptimizationResultFeed.Current
+                    : System.Array.Empty<Services.Optimization.OptimizationPaneResult>());
 
             AsyncUtility.SafeFireAndForget(async () =>
             {
-                await Services.Optimization.OptimizationResultFeed.RefreshAsync();
+                // Passes this proforma's identity so the run loaded back from
+                // disk is the one THIS quote was cut against, not simply the
+                // newest one anywhere in the database.
+                await Services.Optimization.OptimizationResultFeed.RefreshAsync(CurrentDocumentKey);
                 Step6VM.RefreshOptimizationFeed();
             }, "Step 6 optimization feed");
+
+            // QUICK / OPTIMIZE on the Step 5 top panel: runs the engine over the
+            // live grid and publishes to the same feed, stamped with this
+            // proforma. Late-bound so the grid never references the
+            // optimization module — the same idiom as the two bindings above.
+            Step5VM.BindOptimizationRunner(RunOptimizationFromStep5);
 
             // A run finished while this invoice was open. Without this the feed
             // would keep showing the previous run until something else happened
@@ -409,6 +432,48 @@ public ProformaInvoiceViewModel() : this(
         /// a partially-constructed child must never block the other from
         /// refreshing, which is the same rule Dispose follows.
         /// </summary>
+        /// <summary>
+        /// Engine host for the Step 5 QUICK / OPTIMIZE buttons.
+        /// </summary>
+        /// <remarks>
+        /// Created on first use and kept: its constructor reads the Job Order
+        /// list and the saved sessions from the database, so building one per
+        /// click would repeat that for no benefit. It is never bound to a view —
+        /// it exists only to run the engine, publish to the feed and persist the
+        /// latest-run row, all of which the OPTIMIZATION tab's own buttons do
+        /// through the same code paths.
+        /// </remarks>
+        private ViewModels.Optimization.OptimizationViewModel? _optimizationHost;
+
+        /// <summary>
+        /// The proforma this wizard is editing. Read at call time rather than
+        /// captured at wiring time: the operator may still be on Step 1 when
+        /// these bindings are built, and the identity is published as they move
+        /// through the wizard.
+        /// </summary>
+        private static string CurrentDocumentKey =>
+            Services.ProformaInvoice.ActiveInvoiceContext.ProformaId ?? string.Empty;
+
+        /// <summary>
+        /// Runs a cut plan over the live Step 5 grid. Bound into
+        /// <see cref="Step5DataGrid.DataGridViewModel"/> as its optimization
+        /// runner; the grid supplies the snapshot, this supplies the engine.
+        /// </summary>
+        private (bool Started, string Message) RunOptimizationFromStep5(
+            System.Collections.Generic.IReadOnlyList<Models.ProformaInvoice.SavedInvoice.SpecGroupSnapshot> specGroups,
+            string stage)
+        {
+            var host = _optimizationHost ??=
+                new ViewModels.Optimization.OptimizationViewModel();
+
+            // Stamp BEFORE the run: both the live publish and the persisted
+            // latest-run row read DocumentKey when the run finishes.
+            host.DocumentKey = CurrentDocumentKey;
+
+            bool started = host.RunFromStep5(specGroups, stage, out string message);
+            return (started, message);
+        }
+
         private void OnOptimizationRunPublished()
         {
             try { Step6VM?.RefreshOptimizationFeed(); }

@@ -165,6 +165,31 @@
                     <StackPanel Grid.Column="3"
                                 Orientation="Horizontal"
                                 VerticalAlignment="Center">
+                        <!-- QUICK / OPTIMIZE: cut the LIVE grid instead of a
+                             confirmed Job Order, so Step 6 can read real sheet
+                             qty and utilization rather than hand-typed numbers.
+                             Same two stages, same pill styles and same engine as
+                             the OPTIMIZATION tab. Enabled state comes from the
+                             commands' CanExecute, which is false until the
+                             composer binds a runner — so the buttons disable
+                             instead of failing on click when Step 5 is hosted
+                             somewhere with no optimization module behind it.
+                             Outcome is reported on the IoStatus strip to the
+                             left, which this panel already binds. -->
+                        <Button Command="{Binding RunQuickOptimizationCommand}"
+                                Style="{StaticResource OutlinedPillButton}"
+                                Height="32"
+                                Margin="0,0,8,0"
+                                VerticalAlignment="Center"
+                                ToolTip="{DynamicResource Dg.RunQuickTip}"
+                                Content="{DynamicResource Dg.RunQuick}"/>
+                        <Button Command="{Binding RunOptimizeOptimizationCommand}"
+                                Style="{StaticResource PrimaryPillButton}"
+                                Height="32"
+                                Margin="0,0,10,0"
+                                VerticalAlignment="Center"
+                                ToolTip="{DynamicResource Dg.RunOptimizeTip}"
+                                Content="{DynamicResource Dg.RunOptimize}"/>
                         <TextBlock Text="{DynamicResource Dg.Specs}"
                                    FontSize="{DynamicResource FontSize.Body}"
                                    FontWeight="{DynamicResource Weight.Bold}"

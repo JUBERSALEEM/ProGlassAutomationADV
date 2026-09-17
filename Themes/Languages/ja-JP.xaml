@@ -496,6 +496,10 @@
     <sys:String x:Key="Dg.Qty">数量</sys:String>
     <sys:String x:Key="Dg.Rate">単価</sys:String>
     <sys:String x:Key="Dg.RemoveSpec">仕様グループを削除</sys:String>
+    <sys:String x:Key="Dg.RunOptimize">最適化</sys:String>
+    <sys:String x:Key="Dg.RunOptimizeTip">このステップ5のグリッドを最も深く多起点探索します。最高の歩留まりが優先され、時間は長くなります。</sys:String>
+    <sys:String x:Key="Dg.RunQuick">クイック</sys:String>
+    <sys:String x:Key="Dg.RunQuickTip">このステップ5のグリッドを1回だけ高速に切断計算します。ステップ6はそこから実際の枚数と歩留まりを読み取ります。</sys:String>
     <sys:String x:Key="Dg.Specification">仕様</sys:String>
     <sys:String x:Key="Dg.Specs">仕様</sys:String>
     <sys:String x:Key="Dg.SurchargePct">割増 %</sys:String>
