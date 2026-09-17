@@ -227,28 +227,53 @@
                 </StackPanel>
             </Border>
 
-            <!-- Filters + pairing actions -->
-            <Border Padding="12" CornerRadius="{DynamicResource CardCornerRadius}"
-                    Background="{DynamicResource SurfaceSecondaryBrush}" Style="{StaticResource SurfaceSecondaryStyle}"
-                    Margin="0,0,0,12">
+            <!-- ── Streamlined Station Filters & Execution Actions ── -->
+            <Border Padding="16,14" CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                    Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                    Margin="0,0,0,14">
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <UniformGrid Columns="4" VerticalAlignment="Center">
-                        <ComboBox Margin="0,0,8,0" SelectedItem="{Binding ProcessFilter}" ItemsSource="{Binding ProcessOptions}" Style="{StaticResource SurfaceComboBox}"/>
-                        <TextBox Margin="0,0,8,0" Text="{Binding JobFilter, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SurfaceTextBox}" Tag="Filter Job"/>
-                        <TextBox Margin="0,0,8,0" Text="{Binding PiFilter, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SurfaceTextBox}" Tag="PI"/>
-                        <TextBox Margin="0,0,8,0" Text="{Binding SpecFilter, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SurfaceTextBox}" Tag="Spec"/>
-                        <TextBox Margin="0,8,8,0" Text="{Binding MaterialFilter, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SurfaceTextBox}" Tag="Material"/>
-                        <ComboBox Margin="0,8,8,0" SelectedItem="{Binding StatusFilter}" ItemsSource="{Binding StatusOptions}" Style="{StaticResource SurfaceComboBox}"/>
-                        <TextBox Margin="0,8,8,0" Text="{Binding JobRefInput, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SurfaceTextBox}" Tag="Job Ref Input"/>
-                    </UniformGrid>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Button Content="Pair DGU" Command="{Binding PairCommand}" Style="{StaticResource OutlinedPillButton}" Margin="0,0,8,0"/>
-                        <Button Content="Assemble" Command="{Binding AssembleCommand}" Style="{StaticResource PrimaryPillButton}"/>
-                    </StackPanel>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.5*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                            <TextBlock Text="JOB FILTER" Style="{StaticResource OptHeader}"/>
+                            <TextBox Text="{Binding JobFilter, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SurfaceTextBox}" Height="34" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                            <TextBlock Text="SPECIFICATION" Style="{StaticResource OptHeader}"/>
+                            <TextBox Text="{Binding SpecFilter, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SurfaceTextBox}" Height="34" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Margin="0,0,10,0">
+                            <TextBlock Text="MATERIAL" Style="{StaticResource OptHeader}"/>
+                            <TextBox Text="{Binding MaterialFilter, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SurfaceTextBox}" Height="34" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="3">
+                            <TextBlock Text="STATUS" Style="{StaticResource OptHeader}"/>
+                            <ComboBox SelectedItem="{Binding StatusFilter}" ItemsSource="{Binding StatusOptions}" Style="{StaticResource SurfaceComboBox}" Height="34" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="STAGE EXECUTION WORKBENCH" Style="{StaticResource OptHeader}" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="Pair DGU A/B" Command="{Binding PairCommand}" Style="{StaticResource OutlinedPillButton}" Height="34" Padding="14,0" Margin="0,0,8,0"/>
+                            <Button Content="Assemble Unit" Command="{Binding AssembleCommand}" Style="{StaticResource PrimaryPillButton}" Height="34" Padding="16,0"/>
+                        </StackPanel>
+                    </Grid>
                 </Grid>
             </Border>
 
