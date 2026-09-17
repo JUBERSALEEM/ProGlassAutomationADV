@@ -167,6 +167,15 @@
                                 <TextBlock Text="{DynamicResource Dnl.Return}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource DangerBrush}"/>
                             </Border>
+                            <!-- VOID BADGE for soft-closed / voided delivery notes -->
+                            <Border Background="{DynamicResource TintRedBrush}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="7,2" Margin="0,0,4,2"
+                                    Visibility="{Binding IsLatestVoid,
+                                                 Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                                <TextBlock Text="VOIDED" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource DangerBrush}"/>
+                            </Border>
                         </WrapPanel>
                     </StackPanel>
 

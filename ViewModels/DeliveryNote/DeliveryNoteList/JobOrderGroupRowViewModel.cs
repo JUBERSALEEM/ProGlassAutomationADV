@@ -59,6 +59,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public bool HasFoc { get; }
         public bool HasRework { get; }
         public bool HasReturn { get; }
+        public bool IsLatestVoid { get; }
 
         // ── Factory ───────────────────────────────────────────────────────
 
@@ -169,6 +170,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             HasReturn = family.Any(x =>
                 string.Equals(x.DeliveryType, "Return",
                     StringComparison.OrdinalIgnoreCase));
+            IsLatestVoid = latest.IsVoid;
         }
     }
 }

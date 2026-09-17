@@ -207,10 +207,35 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
                 Style = (Style)FindResource("ModernMenuSeparatorStyle")
             });
 
+            // ── Void latest DN (Soft-close with audit & reason) ───────
+            var voidItem = new MenuItem
+            {
+                Header = $"🚫  Void latest DN ({group.LatestDnId})",
+                Foreground = (System.Windows.Media.Brush)FindResource("WarningBrush"),
+                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Padding = new Thickness(8, 6, 20, 6)
+            };
+            voidItem.Click += (_, __) =>
+            {
+                var latestRow = vm.AllItems
+                    .FirstOrDefault(r => r.Id == group.LatestDnDbId);
+
+                if (latestRow != null)
+                    vm.DeleteCommand.Execute(latestRow);
+                else
+                    Prompts.Show(
+                        "Could not find the delivery note to void.\n\n" +
+                        "Please refresh the list and try again.",
+                        "Not Found",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+            };
+            menu.Items.Add(voidItem);
+
             // ── Delete latest DN ──────────────────────────────────────
             var deleteItem = new MenuItem
             {
-                Header = $"🗑  Delete latest DN ({group.LatestDnId})",
+                Header = $"🗑  Delete / Purge DN ({group.LatestDnId})",
                 Foreground = (System.Windows.Media.Brush)FindResource("DangerBrush"),
                 Style = (Style)FindResource("ModernMenuItemStyle"),
                 Padding = new Thickness(8, 6, 20, 6)
