@@ -121,6 +121,25 @@ namespace ProGlassAutomation.ViewModels.Optimization
             int racksAdded = 0;
             var rackSeen = new HashSet<(int W, int H, string C)>();
             var compositions = new List<string>();
+            // ── sheet-size provenance (2026-09-17) ────────────────────────────────────
+            // Step 4 is the AUTHORITY for sheet size, and for SGU / DGU / LAM it
+            // supplies one. Two builds cannot: DGU+LAM's Step 4 panel has no
+            // sheet-size fields at all (ApplyStep4PaneAndSheetMetadata writes 0),
+            // and a legacy or malformed build type lands in its default branch,
+            // which also writes 0. Until now those groups contributed no rack, so
+            // the run either refused outright or — worse, and the bug actually
+            // reported — cut their panes against whatever rack another spec
+            // happened to bring, i.e. the WRONG sheet size. wantedByGroup is what
+            // needs cutting, rackedKeys is what Step 4 already covered; the gap is
+            // cross-checked against the Sheet Store after the loop.
+            var wantedByGroup = new Dictionary<int, HashSet<string>>();
+            var rackedKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var sheetNotes = new List<string>();
+            // One identity per (spec group, composition) so a rack is matched to
+            // the parts that actually cut from it, not to the group as a whole.
+            string compKey(int groupNumber, string? composition) =>
+                groupNumber.ToString(CultureInfo.InvariantCulture) + "|"
+                + (composition ?? string.Empty).Trim();
 
             foreach (var group in groups)
             {
@@ -166,6 +185,16 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         compositions.Add(composition);
                     }
 
+                    if (!string.IsNullOrWhiteSpace(composition))
+                    {
+                        if (!wantedByGroup.TryGetValue(group.GroupNumber, out var wanted))
+                        {
+                            wanted = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                            wantedByGroup[group.GroupNumber] = wanted;
+                        }
+                        wanted.Add(composition);
+                    }
+
                     // Merge identical sizes so one row carries the total qty,
                     // and keep the Step 5 glass refs as the piece label so the
                     // 2D view and cut plan stay traceable back to the grid.
@@ -199,22 +228,67 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 // (W2/H2) — the routing the whole chain already agrees on.
                 if (group.OuterSheetWidthMm > 0 && group.OuterSheetHeightMm > 0)
                 {
+                    string outerComp = ComposeForSlot(PaneSlot.Pane1);
                     racksAdded += AddStep5Rack(rackSeen,
                         group.OuterSheetWidthMm, group.OuterSheetHeightMm,
-                        ComposeForSlot(PaneSlot.Pane1),
+                        outerComp,
                         specLabel + " outer", group.OuterSheetPricePerSqm,
                         group.GroupNumber, "Outer");
+                    rackedKeys.Add(compKey(group.GroupNumber, outerComp));
+                    CrossCheckStep4Sheet(group.GroupNumber, "outer", group.OuterGlassColor,
+                        group.OuterSheetWidthMm, group.OuterSheetHeightMm, sheetNotes);
                 }
 
                 if (group.InnerSheetWidthMm > 0 && group.InnerSheetHeightMm > 0)
                 {
+                    string innerComp = ComposeForSlot(PaneSlot.Pane2);
                     racksAdded += AddStep5Rack(rackSeen,
                         group.InnerSheetWidthMm, group.InnerSheetHeightMm,
-                        ComposeForSlot(PaneSlot.Pane2),
+                        innerComp,
                         specLabel + " inner", group.InnerSheetPricePerSqm,
                         group.GroupNumber, "Inner");
+                    rackedKeys.Add(compKey(group.GroupNumber, innerComp));
+                    CrossCheckStep4Sheet(group.GroupNumber, "inner", group.InnerGlassColor,
+                        group.InnerSheetWidthMm, group.InnerSheetHeightMm, sheetNotes);
                 }
             }
+
+            // ── Sheet Store cross-check fallback ─────────────────────────────────
+            // Only for compositions Step 4 left without a sheet. Never overrides
+            // a size Step 4 supplied: this fills holes, it does not second-guess.
+            // The lookup is sync and cache-only (see SheetStorePricingService's
+            // header note), so it cannot stall the UI thread on the database;
+            // when inventory cannot answer, the honest refusal below still runs.
+            int storeRacks = 0;
+            int glassThicknessMm =
+                Services.ProformaInvoice.SheetStorePricingService.ParseMm(ThicknessText);
+            foreach (var group in groups)
+            {
+                if (!wantedByGroup.TryGetValue(group.GroupNumber, out var wanted)) continue;
+                foreach (var comp in wanted)
+                {
+                    if (rackedKeys.Contains(compKey(group.GroupNumber, comp))) continue;
+                    string colour = !string.IsNullOrWhiteSpace(group.OuterGlassColor)
+                        ? group.OuterGlassColor
+                        : group.InnerGlassColor;
+                    if (!Services.ProformaInvoice.SheetStorePricingService.TryResolveStockSheet(
+                            colour, glassThicknessMm, out int sheetW, out int sheetH))
+                    {
+                        continue;
+                    }
+                    storeRacks += AddStep5Rack(rackSeen, sheetW, sheetH, comp,
+                        "Sheet Store cross-check", group.OuterSheetPricePerSqm,
+                        group.GroupNumber, "Outer");
+                    rackedKeys.Add(compKey(group.GroupNumber, comp));
+                    sheetNotes.Add(string.Format(CultureInfo.InvariantCulture,
+                        "Spec {0} had no sheet size from Step 4 — cut against the largest "
+                        + "{1} sheet in the Sheet Store ({2} × {3}); confirm it on Step 4.",
+                        group.GroupNumber,
+                        string.IsNullOrWhiteSpace(colour) ? "stocked" : colour,
+                        sheetW, sheetH));
+                }
+            }
+            racksAdded += storeRacks;
 
             if (Pieces.Count == 0)
             {
@@ -225,7 +299,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
             if (Stocks.Count == 0)
             {
                 message = "The Step 5 specs have no sheet sizes, so there is no rack to cut against — "
-                    + "set the outer/inner sheet size on Step 4 first.";
+                    + "set the outer/inner sheet size on Step 4 first. "
+                    + "The Sheet Store had no stocked size for these glass colours either.";
                 return false;
             }
 
@@ -251,7 +326,47 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 piecesAdded,
                 compositions.Count,
                 racksAdded);
+            // Provenance is part of the answer: an operator who sees a rack they
+            // did not pick on Step 4 must be told it came from the Sheet Store,
+            // not left to wonder why the sheet count moved.
+            if (sheetNotes.Count > 0)
+                message += " " + string.Join(" ", sheetNotes);
             return true;
+        }
+
+        /// <summary>
+        /// Cross-checks a sheet size Step 4 supplied against Sheet Store
+        /// inventory and, when they disagree, adds a NOTE.
+        /// </summary>
+        /// <remarks>
+        /// Deliberately never an override: Step 4 is the authority for what this
+        /// quote is cut from, and inventory legitimately holds sizes a supplier
+        /// has stopped listing. It also stays silent when the store cannot answer
+        /// at all (snapshot not primed yet, or that colour is not stocked), so a
+        /// cold cache can never manufacture a false warning.
+        /// </remarks>
+        private static void CrossCheckStep4Sheet(
+            int specNumber, string side, string? colour, int widthMm, int heightMm,
+            List<string> notes)
+        {
+            if (widthMm <= 0 || heightMm <= 0) return;
+            if (string.IsNullOrWhiteSpace(colour)) return;
+            // "Can the store say anything about this colour?" False means unknown
+            // — cold snapshot or an unstocked colour — not "wrong size".
+            if (!Services.ProformaInvoice.SheetStorePricingService
+                    .TryResolveStockSheet(colour, 0, out int stockedW, out int stockedH))
+            {
+                return;
+            }
+            if (Services.ProformaInvoice.SheetStorePricingService
+                    .IsStockedSize(colour, 0, widthMm, heightMm))
+            {
+                return;
+            }
+            notes.Add(string.Format(CultureInfo.InvariantCulture,
+                "Spec {0} {1}: the Step 4 sheet {2} × {3} is not a size the Sheet Store "
+                + "stocks for {4} (largest stocked is {5} × {6}) — Step 4 still governs the run.",
+                specNumber, side, widthMm, heightMm, colour, stockedW, stockedH));
         }
 
         /// <summary>

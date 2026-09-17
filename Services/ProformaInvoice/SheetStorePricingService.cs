@@ -28,6 +28,14 @@
 // NOTE ON CACHING: intentionally none. Sheet Store rows change while the
 // wizard is open (buy / use stock) and a full GetAllAsync() on a local
 // SQLite table is cheap. Correctness beats micro-optimisation here.
+//
+// ONE EXCEPTION (2026-09-17): TryResolveStockSheet / IsStockedSize are SYNC,
+// because the Step 5 optimization run builds its rack list on the UI thread and
+// must not block on the database. They read a small snapshot the caller primes
+// (PrimeSyncSnapshot) and self-refresh in the background; every async lookup
+// above still reads the store fresh, so nothing that prices a quote can ever see
+// a stale number. The snapshot is a CROSS-CHECK, not an authority: it only fills
+// in a sheet size Step 4 did not supply.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.SheetStore;
@@ -377,5 +385,139 @@ namespace ProGlassAutomation.Services.ProformaInvoice
         public static Task<List<(int W, int H, string Display, decimal Sqm)>>
             GetSizesAsync(string? color, string? thicknessText) =>
             GetSizesAsync(color, ParseMm(thicknessText));
+
+        // ═══════════════════════════════════════════
+        //  SYNC CROSS-CHECK — for callers that cannot await (2026-09-17)
+        // ═══════════════════════════════════════════
+        private static readonly object _snapshotGate = new object();
+        private static List<GlassSheet>? _snapshot;
+        private static DateTime _snapshotAtUtc;
+        /// <summary>How long a snapshot is trusted before it is refreshed in the
+        /// background. Short, because the Sheet Store changes while a quote is
+        /// open; the stale copy still answers the current call so nobody
+        /// waits.</summary>
+        private const int SnapshotTrustSeconds = 60;
+
+        /// <summary>
+        /// Warms the snapshot the sync lookups read. Fire-and-forget and
+        /// non-throwing: call it when a screen opens, not when a button is
+        /// clicked, so the first click already has inventory to cross-check.
+        /// </summary>
+        public static void PrimeSyncSnapshot()
+        {
+            _ = RefreshSyncSnapshotAsync();
+        }
+
+        /// <summary>Re-reads the store into the sync snapshot. Never throws.</summary>
+        public static async Task RefreshSyncSnapshotAsync()
+        {
+            var all = await LoadAllAsync().ConfigureAwait(false);
+            lock (_snapshotGate)
+            {
+                _snapshot = all;
+                _snapshotAtUtc = DateTime.UtcNow;
+            }
+        }
+
+        private static bool TryGetSnapshot(out List<GlassSheet> snapshot)
+        {
+            snapshot = new List<GlassSheet>();
+            try
+            {
+                bool stale;
+                lock (_snapshotGate)
+                {
+                    // Local copy first: it keeps the null check and the use under
+                    // one flow analysis, so the non-nullable out parameter never
+                    // sees the nullable field (CS8601 under warnings-as-errors).
+                    var current = _snapshot;
+                    if (current == null)
+                    {
+                        // Nothing primed yet: ask for it now so the NEXT call has
+                        // data and report "unknown" for this one. Guessing a sheet
+                        // size would be worse than admitting we do not have one.
+                        PrimeSyncSnapshot();
+                        return false;
+                    }
+                    snapshot = current;
+                    stale = (DateTime.UtcNow - _snapshotAtUtc).TotalSeconds > SnapshotTrustSeconds;
+                }
+                if (stale) PrimeSyncSnapshot();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug($"[SheetStorePricingService] snapshot read failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Largest sheet the store stocks for a colour, preferring an exact
+        /// thickness match and falling back to any thickness of that colour.
+        /// Sync and non-blocking (see the header note): false means "the store
+        /// cannot say", never "the store is empty".
+        /// </summary>
+        public static bool TryResolveStockSheet(
+            string? color, int thicknessMm, out int widthMm, out int heightMm)
+        {
+            widthMm = 0;
+            heightMm = 0;
+            var key = Norm(color);
+            if (key.Length == 0) return false;
+            if (!TryGetSnapshot(out var snapshot)) return false;
+            try
+            {
+                var candidates = snapshot
+                    .Where(s => s != null
+                                && Norm(s.Color) == key
+                                && s.WidthMm > 0
+                                && s.HeightMm > 0)
+                    .OrderByDescending(s => (long)s.WidthMm * s.HeightMm)
+                    .ToList();
+                if (candidates.Count == 0) return false;
+                // Same preference the async GetSizesAsync uses: exact thickness
+                // first, largest area first.
+                var pick = thicknessMm > 0
+                    ? candidates.FirstOrDefault(s => s.ThicknessMm == thicknessMm) ?? candidates[0]
+                    : candidates[0];
+                widthMm = pick.WidthMm;
+                heightMm = pick.HeightMm;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug($"[SheetStorePricingService] resolve failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// True when the store stocks this exact colour + size (thickness ignored
+        /// when 0). Used to CROSS-CHECK a size Step 4 supplied: the answer never
+        /// overrides Step 4, it only lets the caller tell the operator that the
+        /// rack on screen is not one inventory holds. False also covers "the
+        /// store cannot say right now", so callers must treat it as a note, never
+        /// as an error.
+        /// </summary>
+        public static bool IsStockedSize(string? color, int thicknessMm, int widthMm, int heightMm)
+        {
+            var key = Norm(color);
+            if (key.Length == 0 || widthMm <= 0 || heightMm <= 0) return false;
+            if (!TryGetSnapshot(out var snapshot)) return false;
+            try
+            {
+                return snapshot.Any(s => s != null
+                    && Norm(s.Color) == key
+                    && (thicknessMm <= 0 || s.ThicknessMm == thicknessMm)
+                    && ((s.WidthMm == widthMm && s.HeightMm == heightMm)
+                        || (s.WidthMm == heightMm && s.HeightMm == widthMm)));
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug($"[SheetStorePricingService] stocked-size check failed: {ex.Message}");
+                return false;
+            }
+        }
     }
 }

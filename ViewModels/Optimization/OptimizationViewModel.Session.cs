@@ -446,6 +446,19 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             RefreshDerived();
 
+            // VIEW RESULT lands on SUMMARY, and everything SUMMARY and COSTING
+            // show was persisted with the run — so restore it instead of cutting
+            // glass again. Re-running here (the behaviour until 2026-09-17) meant
+            // rebuilding every grid row on the UI thread and then repeating the
+            // whole search at the stored effort: on a large quote that is a frozen
+            // window, and at 30k parts a dead process. OpenSession still re-runs,
+            // because it asks for the REPORT tab and that needs real geometry.
+            if (!openToReport && TryRestoreStoredResult(s))
+            {
+                _openToReportAfterRun = false;
+                return;
+            }
+
             _openToReportAfterRun = openToReport;
             Run(string.Equals(s.EngineStage, "OPTIMIZE", StringComparison.OrdinalIgnoreCase)
                 ? "OPTIMIZE" : "QUICK");
@@ -492,8 +505,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     return;
                 }
 
+                // Stamp BEFORE restoring: PublishLiveFeed reads DocumentKey, and
+                // an unstamped publish is one every other quote can read back.
+                DocumentKey = documentKey ?? string.Empty;
                 RestoreSessionCore(s, openToReport: false);
-                SessionStatus = "Showing the latest run — re-running its layout…";
             }
             catch (Exception ex)
             {
@@ -518,5 +533,186 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 SessionStatus = "Could not delete session: " + ex.Message;
             }
         }
+        /// <summary>
+        /// Rebuilds the SUMMARY and COSTING surface from the result rows a
+        /// finished run persisted, so opening a result is a read, not a re-cut.
+        /// </summary>
+        /// <remarks>
+        /// What the stored row carries: every headline number, one priced row per
+        /// sheet size × composition, and the Step 5 pane identity Step 6 and
+        /// Step 9 join on. What it does not carry is sheet-by-sheet geometry, so
+        /// the 2D view and the REPORT are cleared and the status line says the
+        /// layout needs a re-cut — in words, rather than rendering an empty
+        /// canvas the operator would read as a broken button.
+        /// </remarks>
+        /// <returns>True when a stored result was restored and no re-run is needed.</returns>
+        private bool TryRestoreStoredResult(SavedOptimizationSession s)
+        {
+            if (s == null || string.IsNullOrWhiteSpace(s.ResultJson)) return false;
+            List<ResultRowDto> rows;
+            try
+            {
+                rows = JsonSerializer.Deserialize<List<ResultRowDto>>(s.ResultJson)
+                       ?? new List<ResultRowDto>();
+            }
+            catch (Exception ex)
+            {
+                SessionStatus = "The saved result could not be read: " + ex.Message;
+                return false;
+            }
+            rows = rows.Where(r => r != null).ToList();
+            if (rows.Count == 0) return false;
+
+            string stage = string.Equals(s.EngineStage, "OPTIMIZE", StringComparison.OrdinalIgnoreCase)
+                ? "OPTIMIZE"
+                : "QUICK";
+            _lastRunStage = stage;
+            // Clear the previous run's geometry rather than leave sheets on screen
+            // behind numbers that did not produce them.
+            _groupRuns.Clear();
+            _flatSheets.Clear();
+            SheetRows.Clear();
+            UnplacedRows.Clear();
+
+            decimal totStock = 0m, totGlass = 0m, totWaste = 0m, totCost = 0m;
+            int pricedRows = 0;
+            CostingRows.Clear();
+            foreach (var r in rows)
+            {
+                bool hasPrice = r.HasPrice && r.RatePerSqm > 0m;
+                decimal glassCost = r.GlassSqm * r.RatePerSqm;
+                decimal wasteCost = r.WasteSqm * r.RatePerSqm;
+                decimal totalCost = r.StockSqm * r.RatePerSqm;
+                totStock += r.StockSqm;
+                totGlass += r.GlassSqm;
+                totWaste += r.WasteSqm;
+                if (hasPrice)
+                {
+                    pricedRows++;
+                    totCost += totalCost;
+                }
+                var identities = r.Panes ?? new List<PaneIdentity>();
+                var row = new CostingRowVm
+                {
+                    Composition = r.Composition,
+                    Thickness = r.Thickness,
+                    SheetSize = r.W.ToString(CultureInfo.InvariantCulture) + " \u00d7 "
+                        + r.H.ToString(CultureInfo.InvariantCulture),
+                    SheetQty = r.Sheets.ToString(CultureInfo.InvariantCulture),
+                    PieceQty = r.Pieces.ToString(CultureInfo.InvariantCulture),
+                    Utilization = r.UtilizationPct.ToString("0.00", CultureInfo.InvariantCulture) + "%",
+                    GlassArea = r.GlassSqm.ToString("0.00", CultureInfo.InvariantCulture),
+                    StockArea = r.StockSqm.ToString("0.00", CultureInfo.InvariantCulture),
+                    WasteArea = r.WasteSqm.ToString("0.00", CultureInfo.InvariantCulture),
+                    RateLabel = hasPrice
+                        ? string.Format(CultureInfo.InvariantCulture, "AED {0:0.##} / m\u00b2", r.RatePerSqm)
+                        : "\u2014",
+                    GlassCostLabel = hasPrice
+                        ? string.Format(CultureInfo.InvariantCulture, "AED {0:N2}", glassCost) : "\u2014",
+                    WasteCostLabel = hasPrice
+                        ? string.Format(CultureInfo.InvariantCulture, "AED {0:N2}", wasteCost) : "\u2014",
+                    TotalCostLabel = hasPrice
+                        ? string.Format(CultureInfo.InvariantCulture, "AED {0:N2}", totalCost) : "\u2014",
+                    HasPrice = hasPrice,
+                    SheetCount = r.Sheets,
+                    Rate = r.RatePerSqm,
+                    GlassM2 = r.GlassSqm,
+                    StockM2 = r.StockSqm,
+                    WasteM2Value = r.WasteSqm,
+                    GlassCost = glassCost,
+                    WasteCost = wasteCost,
+                    TotalCost = totalCost,
+                    WidthMm = r.W,
+                    HeightMm = r.H,
+                    PieceCount = r.Pieces,
+                    UtilizationPercent = r.UtilizationPct,
+                    SpecNumber = identities.Count == 1 ? identities[0].SpecNumber : 0,
+                    Side = identities.Count == 1 ? identities[0].Side : string.Empty,
+                    IsSharedAcrossSpecs = r.IsSharedAcrossSpecs || identities.Count > 1,
+                    SharedWithSpecs = r.SharedWithSpecs > 0 ? r.SharedWithSpecs : identities.Count
+                };
+                foreach (var idn in identities) row.Panes.Add(idn);
+                row.PaneLabel = DescribePanes(identities);
+                CostingRows.Add(row);
+            }
+            CostingTotalLabel = string.Format(CultureInfo.InvariantCulture,
+                "{0} sheet(s) \u00b7 {1:0.00} m\u00b2 stock \u00b7 {2:0.00} m\u00b2 glass \u00b7 {3:0.00} m\u00b2 wastage \u00b7 AED {4:N2}",
+                s.SheetsUsed, totStock, totGlass, totWaste, totCost);
+            CostingPriceNote = CostingRows.Count == 0 || pricedRows == CostingRows.Count
+                ? string.Empty
+                : string.Format(CultureInfo.InvariantCulture,
+                    "No Step 4 rate for {0} of {1} row(s) \u2014 those amounts are pending, not free.",
+                    CostingRows.Count - pricedRows, CostingRows.Count);
+
+            // Same breakdown shape a live run fills, grouped the way the stored
+            // rows allow (composition), fullest first.
+            GroupResults.Clear();
+            foreach (var byComp in rows
+                         .GroupBy(r => r.Composition ?? string.Empty)
+                         .OrderByDescending(g => g.Sum(x => x.UtilizationPct)))
+            {
+                decimal stockM2 = byComp.Sum(x => x.StockSqm);
+                decimal glassM2 = byComp.Sum(x => x.GlassSqm);
+                decimal util = stockM2 == 0m ? 0m : glassM2 / stockM2 * 100m;
+                GroupResults.Add(new CuttingGroupResultVm
+                {
+                    Composition = byComp.Key,
+                    Thickness = byComp.First().Thickness,
+                    PieceCount = byComp.Sum(x => x.Pieces).ToString(CultureInfo.InvariantCulture),
+                    Sheets = byComp.Sum(x => x.Sheets).ToString(CultureInfo.InvariantCulture),
+                    Utilization = util.ToString("0.0", CultureInfo.InvariantCulture) + "%",
+                    Waste = Math.Max(0m, stockM2 - glassM2).ToString("0.00", CultureInfo.InvariantCulture) + " m\u00b2",
+                    Unplaced = "\u2014",
+                    Note = "Restored from the saved run"
+                });
+            }
+
+            string rotationLabel = s.RotationEnabled ? "rotation ON" : "rotation LOCKED";
+            ResultStage = string.Format(CultureInfo.InvariantCulture,
+                stage == "OPTIMIZE"
+                    ? "OPTIMIZE \u00b7 level {0} \u00b7 {1} \u00b7 saved {2:dd MMM yyyy HH:mm}"
+                    : "QUICK \u00b7 {1} \u00b7 saved {2:dd MMM yyyy HH:mm}",
+                s.EffortLevel, rotationLabel, s.UpdatedUtc.ToLocalTime());
+            ResultSheets = s.SheetsUsed.ToString(CultureInfo.InvariantCulture);
+            ResultUtilization = s.UtilizationPct.ToString("0.00", CultureInfo.InvariantCulture) + "%";
+            ResultUnplaced = s.UnplacedCount.ToString(CultureInfo.InvariantCulture);
+            ResultWaste = Math.Max(0m, totWaste).ToString("0.00", CultureInfo.InvariantCulture) + " m\u00b2";
+            ResultWastePct = totStock == 0m
+                ? "0.0%"
+                : (Math.Max(0m, totStock - totGlass) / totStock * 100m).ToString("0.0", CultureInfo.InvariantCulture) + "%";
+            // The oracle checks live geometry, which is not stored. It says so
+            // instead of showing a tick this restore did not earn.
+            OraclePassed = false;
+            ResultOracle = "Not re-verified \u2014 this is the saved run, not a fresh layout check.";
+            HasUnplaced = s.UnplacedCount > 0;
+            if (HasUnplaced)
+            {
+                UnplacedRows.Add(string.Format(CultureInfo.InvariantCulture,
+                    "{0} part(s) were unplaced in the saved run. Which parts is not stored \u2014 re-run to list them.",
+                    s.UnplacedCount));
+            }
+            ResultEffortLabel = stage == "OPTIMIZE"
+                ? string.Format(CultureInfo.InvariantCulture,
+                    "Optimization level {0} of 5 (from SETTINGS)", s.EffortLevel)
+                : string.Format(CultureInfo.InvariantCulture,
+                    "Quick single pass \u2014 saved at level {0}", s.EffortLevel);
+            UpgradeSummaryLabel = string.Empty;
+            HasResult = true;
+            _selectedSheetIndex = -1;
+            SelectedSheetIndex = 0;
+            RebuildPreview();
+            RunMessage = string.Format(CultureInfo.InvariantCulture,
+                "{0}: {1} sheet(s), {2:0.00}% utilization, {3} unplaced \u2014 restored from the saved run ({4} priced row(s)), no re-cut.",
+                stage, s.SheetsUsed, s.UtilizationPct, s.UnplacedCount, CostingRows.Count);
+            // Step 6 and Step 9 read a run through this feed, so a quote reopened
+            // days later gets its real figures back without cutting glass again.
+            PublishLiveFeed();
+            SelectedTabIndex = TabIndexSummary;
+            SessionStatus = string.Format(CultureInfo.InvariantCulture,
+                "Showing the saved run \u2014 {0} sheet(s) at {1:0.00}%. The sheet-by-sheet layout is not stored; press OPTIMIZE to re-cut and open the 2D view.",
+                s.SheetsUsed, s.UtilizationPct);
+            return true;
+        }
+
     }
 }

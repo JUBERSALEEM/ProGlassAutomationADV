@@ -117,13 +117,21 @@ namespace ProGlassAutomation.Services.Optimization
         }
 
         /// <summary>QUICK stage — one fast deterministic pass.</summary>
+        /// <param name="progress">Optional per-part progress. QUICK reported
+        /// nothing at all until 2026-09-17, so the bar sat pinned at 0% for the
+        /// whole run and then jumped to 100% — and because a Step 5 quote is
+        /// usually ONE cutting group, the operator watched a frozen bar for the
+        /// entire cut. Reporting is purely observational: the pass below is
+        /// identical with or without it, which is what keeps the owner's
+        /// benchmark figures (Low-E 17 @ 82.77%) exact.</param>
         public static OptimizationResult PackQuick(
             IReadOnlyList<CutPiece> pieces,
             IReadOnlyList<StockSize> stocks,
             MarginProfile margins,
             RotationPolicy rotation,
             SplitMode split = SplitMode.HorizontalFirst,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default,
+            IProgress<OptimizeProgress> progress = null)
         {
             // 2026-09-16: was OrderBy.MaxSide, which cost a whole sheet on the
             // owner's own benchmark. MaxSide packs the Low-E group into 18
@@ -138,7 +146,7 @@ namespace ProGlassAutomation.Services.Optimization
             // cap is unlimited, so QUICK stays bit-identical.
             var scale = ScaleProfile.For(pieces.Count, 1);
             return RunPass(Sort(pieces, OrderBy.Area), stocks, margins, rotation, split,
-                cancellationToken, scale.ConsolidationSweeps);
+                cancellationToken, scale.ConsolidationSweeps, progress);
         }
 
         /// <summary>
@@ -245,8 +253,14 @@ namespace ProGlassAutomation.Services.Optimization
                     $"Pass {ci + 1} of {comboList.Count}: {order} / {split}" +
                     (shuffle > 0 ? $" / shuffle {shuffle}" : "")));
 
+                // A single-candidate search (effort 1) has no candidate
+                // sequence to drive the bar, so hand the sink to the pass
+                // itself: real per-part progress instead of one 0% → 100%
+                // jump. Multi-candidate runs keep the candidate-level reports
+                // above, which are already smooth, and pay no per-part cost.
                 var candidate = RunPass(ordered, stocks, margins, rotation, split,
-                    cancellationToken, scale.ConsolidationSweeps);
+                    cancellationToken, scale.ConsolidationSweeps,
+                    comboList.Count == 1 ? progress : null);
                 best = Better(best, candidate);
             }
 
@@ -373,7 +387,8 @@ namespace ProGlassAutomation.Services.Optimization
             RotationPolicy rotation,
             SplitMode split,
             CancellationToken cancellationToken = default,
-            int consolidationSweeps = int.MaxValue)
+            int consolidationSweeps = int.MaxValue,
+            IProgress<OptimizeProgress> progress = null)
         {
             if (orderedPieces == null) throw new ArgumentNullException(nameof(orderedPieces));
             if (stocks == null || stocks.Count == 0)
@@ -385,6 +400,22 @@ namespace ProGlassAutomation.Services.Optimization
 
             var sheets = new List<SheetState>();
             var sheetsPerStock = new int[stocks.Count];
+
+            // ── real progress (2026-09-17) ────────────────────────────────────
+            // Placement is the dominant work in a single pass, so it owns 0-90%
+            // and consolidation owns the last 10%: a bar that reaches 100% and
+            // then keeps working for another minute is exactly the lie this
+            // replaces. Reports are throttled to whole-percent changes because
+            // Progress<T> posts to the captured UI context, and posting once per
+            // part on a 30,000-part group would cost more than the packing
+            // itself. progress is null on every OPTIMIZE candidate pass, so the
+            // multi-start search keeps its own candidate-level reporting and
+            // pays nothing here. Purely observational: the packing above is
+            // byte-identical with or without a sink, which is what keeps the
+            // owner's benchmark figures exact.
+            int totalParts = orderedPieces.Count;
+            int placedParts = 0;
+            int lastPercent = -1;
 
             foreach (var piece in orderedPieces)
             {
@@ -398,8 +429,18 @@ namespace ProGlassAutomation.Services.Optimization
                     if (!OpenNewSheet(sheets, sheetsPerStock, stocks, piece, margins, rotation, split, result))
                         result.Unplaced.Add(piece);
                 }
+
+                if (progress == null) continue;
+                placedParts++;
+                int percent = (int)((long)placedParts * 90 / totalParts);
+                if (percent == lastPercent) continue;
+                lastPercent = percent;
+                progress.Report(OptimizeProgress.Of("quick", percent, 100,
+                    $"Placing part {placedParts} of {totalParts} · {sheets.Count} sheet(s) open"));
             }
 
+            progress?.Report(OptimizeProgress.Of("consolidate", 92, 100,
+                $"Consolidating {sheets.Count} sheet(s)"));
             ConsolidateAll(sheets, margins, rotation, split, consolidationSweeps,
                 cancellationToken: cancellationToken);
             SortSheetsFullestFirst(sheets);
@@ -409,6 +450,12 @@ namespace ProGlassAutomation.Services.Optimization
             for (int i = 0; i < result.Sheets.Count; i++)
                 result.Sheets[i].SheetNo = i + 1;
 
+            // The pass is genuinely finished here, so the bar is allowed to say
+            // 100%. Without this a QUICK run topped out at 92% and the last 8%
+            // arrived only as the progress panel disappearing, which reads as a
+            // stall rather than a finish.
+            progress?.Report(OptimizeProgress.Of("done", 100, 100,
+                $"{result.Sheets.Count} sheet(s) cut \u00b7 {result.Unplaced.Count} unplaced"));
             return result;
         }
 

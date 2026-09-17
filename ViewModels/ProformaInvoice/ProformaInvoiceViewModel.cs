@@ -500,6 +500,12 @@ public ProformaInvoiceViewModel() : this(
         {
             var host = new ViewModels.Optimization.OptimizationViewModel();
             host.PropertyChanged += OnOptimizationHostPropertyChanged;
+            // Warm the Sheet Store snapshot that RunFromStep5 cross-checks sheet
+            // sizes against (2026-09-17). Fire-and-forget and non-blocking: a run
+            // started before it lands simply gets no cross-check note for that
+            // click, which is better than making the operator wait on a database
+            // read to press QUICK.
+            Services.ProformaInvoice.SheetStorePricingService.PrimeSyncSnapshot();
             return host;
         }
 

@@ -163,8 +163,8 @@
                         Background="{DynamicResource ChatBrand}"
                         Cursor="SizeAll"
                         SnapsToDevicePixels="True"
-                        behaviors:CanvasDragBehavior.Panel="{Binding ElementName=ChatPanelRef}"
-                        behaviors:CanvasDragBehavior.Canvas="{Binding ElementName=ChatCanvasRef}"
+                        behaviors:CanvasDragBehavior.Panel="{Binding ElementName=ChatPanel}"
+                        behaviors:CanvasDragBehavior.Canvas="{Binding ElementName=ChatCanvas}"
                         behaviors:CanvasDragBehavior.ShadowResourceKey="PanelShadow" Style="{StaticResource SurfacePrimaryStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>

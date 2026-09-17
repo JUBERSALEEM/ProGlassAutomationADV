@@ -419,9 +419,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         RunProgressPercent = (int)Math.Round(done * 100.0);
                     });
 
-                    // QUICK runs a single pass and reports no per-pass progress,
-                    // so drive the bar from group position instead of leaving it
-                    // pinned at zero for the whole run.
+                    // QUICK reports per-part progress as of 2026-09-17, so this
+                    // is a seed rather than the whole story: it puts the bar at
+                    // the right place for this group before the first part lands.
                     if (stage != "OPTIMIZE" && groupCount > 0)
                         RunProgressPercent = (int)Math.Round(((gi - 1) * 100.0) / groupCount);
 
@@ -429,7 +429,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         ? GuillotinePacker.PackOptimize(groupPieces, groupStocks, groupMargins,
                               rotation, effort, ct, groupProgress)
                         : GuillotinePacker.PackQuick(groupPieces, groupStocks, groupMargins,
-                              rotation, SplitMode.HorizontalFirst, ct))
+                              rotation, SplitMode.HorizontalFirst, ct, groupProgress))
                         .ConfigureAwait(true);
 
                     // Size-driven search reductions are surfaced, never silent.

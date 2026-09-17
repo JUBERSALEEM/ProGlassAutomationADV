@@ -84,8 +84,60 @@ whole pass. Then `ConsolidateAll` (donor sweeps — moves pieces between sheets 
 `Progress<OptimizeProgress>` is constructed on the UI thread, so the engine reports from the
 worker and the label updates on the dispatcher. Overall completion is
 `(finished groups + this group's pass fraction) / group count` — a 12-group job moves smoothly
-instead of jumping once per group. QUICK emits no per-pass progress, so its bar is driven by
-group position instead of sitting at zero.
+instead of jumping once per group.
+
+**QUICK reports real per-part progress (2026-09-17).** It used to emit nothing, so its bar was
+driven by group position — and because a Step 5 quote is normally ONE cutting group, the bar
+sat at 0% for the entire cut and then jumped to 100%. `PackQuick` and `RunPass` now take an
+optional `IProgress<OptimizeProgress>`:
+
+| share of the bar | work | reports |
+| --- | --- | --- |
+| 0–90% | placing parts | one per whole-percent change, `stage="quick"` |
+| 92% | consolidating sheets | `stage="consolidate"` |
+| 100% | pass finished | `stage="done"` |
+
+Reporting is throttled to whole-percent changes because `Progress<T>` posts to the captured UI
+context, and posting once per part on a 30,000-part group would cost more than the packing. It is
+also purely observational — the plan produced with a sink is identical to the plan produced
+without one, which is what keeps the benchmark figures in §5 exact. `progress` is `null` on
+every OPTIMIZE candidate pass (those keep their candidate-level reports), except when the search
+has exactly one candidate: effort level 1 then reports per part for the same reason QUICK does.
+
+### 3.3 Where the sheet size comes from
+
+Step 4 is the authority: `RunFromStep5` builds one rack per spec group from
+`OuterSheetWidthMm/HeightMm` and `InnerSheetWidthMm/HeightMm`. Two builds cannot supply one —
+**DGU+LAM** (its Step 4 snapshot has no sheet-size fields, so `ApplyStep4PaneAndSheetMetadata`
+writes 0) and any **legacy/unknown build type** (the `default:` branch also writes 0). Those
+groups used to contribute no rack, so the run either refused or cut their panes against a rack
+another spec happened to bring — the wrong sheet size.
+
+Now the run tracks which `(spec group, composition)` pairs Step 4 covered and, for the gaps only,
+cross-checks the **Sheet Store**: the largest stocked sheet for that glass colour (exact thickness
+preferred), tagged `Sheet Store cross-check` and announced in the status line so the operator can
+see a rack they did not pick. Step 4 sizes are never overridden. A Step 4 size that inventory does
+not stock also produces a note, never a substitution. The lookup is synchronous and cache-only
+(`SheetStorePricingService.TryResolveStockSheet`, snapshot primed when the quote's optimization
+host is created), so it cannot stall the UI thread; when inventory cannot answer, the run says so.
+
+### 3.4 Opening a saved run
+
+`VIEW RESULT` on Step 5 → `ShowLatestRunAsync(documentKey)` → the reserved per-document
+latest-run row → `RestoreSessionCore(s, openToReport: false)` → SUMMARY.
+
+The stored row carries every headline number, one priced row per sheet size × composition, and
+the `(SpecNumber, Side)` pane identity, so this path now **restores and publishes** it
+(`TryRestoreStoredResult`) instead of rebuilding the cutting list and re-running the engine —
+which on a large quote meant thousands of grid rows on the UI thread followed by a full repeat of
+the search at the stored effort. The document key is stamped before the publish, so the restored
+run reaches Step 6 / Step 9 of *this* quote only.
+
+Sheet-by-sheet geometry is **not** stored. The 2D view and REPORT are therefore cleared, the oracle
+reads "not re-verified", and the status line says a re-cut is one button away — rather than
+rendering an empty canvas that reads as a broken button. Reopening a **named** session
+(`openToReport: true`) still re-runs, because it asks for the REPORT tab and that needs real
+geometry. A row with no stored result (legacy) also falls back to the re-run.
 
 ---
 
