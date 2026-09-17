@@ -113,11 +113,23 @@
                                         <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
                                                    Text="{DynamicResource Settings.LblAccent}"/>
                                     </StackPanel>
-                                    <!-- One-Tap Factory Theme Reset -->
-                                    <Button Grid.Column="1" AutomationProperties.AutomationId="Settings.ResetThemeFamilyStudio"
-                                            Command="{Binding ResetThemeFamilyCommand}"
-                                            Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0"
-                                            Content="{DynamicResource Settings.ResetThemeFamily}"/>
+                                    <!-- Action Strip: Theme Reset, Export & Import Theme Pack -->
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Button AutomationProperties.AutomationId="Settings.ExportThemePackStudio"
+                                                Command="{Binding ExportThemeProfileCommand}"
+                                                Style="{StaticResource RowOutlinedButton}" Height="28" Padding="10,0" Margin="0,0,6,0"
+                                                ToolTip="Export theme pack configuration to clipboard"
+                                                Content="Export Pack"/>
+                                        <Button AutomationProperties.AutomationId="Settings.ImportThemePackStudio"
+                                                Command="{Binding ImportThemeProfileCommand}"
+                                                Style="{StaticResource RowOutlinedButton}" Height="28" Padding="10,0" Margin="0,0,6,0"
+                                                ToolTip="Import theme pack configuration from clipboard"
+                                                Content="Import Pack"/>
+                                        <Button AutomationProperties.AutomationId="Settings.ResetThemeFamilyStudio"
+                                                Command="{Binding ResetThemeFamilyCommand}"
+                                                Style="{StaticResource RowOutlinedButton}" Height="28" Padding="10,0"
+                                                Content="{DynamicResource Settings.ResetThemeFamily}"/>
+                                    </StackPanel>
                                 </Grid>
                                 <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                            Text="{DynamicResource Settings.ButtonsTintsHoverStatesMonetGlassSurfaces}"/>

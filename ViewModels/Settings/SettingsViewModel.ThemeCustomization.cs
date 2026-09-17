@@ -269,5 +269,57 @@ namespace ProGlassAutomation.ViewModels.Settings
             NotifyAllCrystalAxes();
             OnPropertyChanged(nameof(IsCrystalThemeActive));
         }
+
+        private ICommand? _exportThemeProfileCommand;
+        public ICommand ExportThemeProfileCommand =>
+            _exportThemeProfileCommand ??= new RelayCommand(_ =>
+            {
+                try
+                {
+                    string json = ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine.ExportThemeProfile();
+                    Clipboard.SetText(json);
+                    AuditService.Log(AuditSections.Settings, "Theme profile exported to clipboard", "");
+                    CustomAccentStatus = "Theme Pack exported to clipboard!";
+                    OnPropertyChanged(nameof(CustomAccentStatus));
+                }
+                catch (System.Exception ex)
+                {
+                    AppLogService.Warning($"[ThemeStudio] Export failed: {ex.Message}");
+                }
+            });
+
+        private ICommand? _importThemeProfileCommand;
+        public ICommand ImportThemeProfileCommand =>
+            _importThemeProfileCommand ??= new RelayCommand(_ =>
+            {
+                try
+                {
+                    string json = Clipboard.GetText();
+                    if (string.IsNullOrWhiteSpace(json))
+                    {
+                        CustomAccentStatus = "Clipboard does not contain theme JSON.";
+                        OnPropertyChanged(nameof(CustomAccentStatus));
+                        return;
+                    }
+
+                    if (ProGlassAutomation.Services.Theme.Engine.ProGlassThemeEngine.ImportThemeProfile(json))
+                    {
+                        AuditService.Log(AuditSections.Settings, "Theme profile imported from clipboard", "");
+                        CustomAccentStatus = "Theme Pack imported successfully!";
+                        OnPropertyChanged(nameof(CustomAccentStatus));
+                        OnPropertyChanged(nameof(SelectedVisualTheme));
+                        OnPropertyChanged(nameof(ThemeMode));
+                    }
+                    else
+                    {
+                        CustomAccentStatus = "Invalid theme pack format.";
+                        OnPropertyChanged(nameof(CustomAccentStatus));
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    AppLogService.Warning($"[ThemeStudio] Import failed: {ex.Message}");
+                }
+            });
     }
 }
