@@ -256,5 +256,86 @@ namespace ProGlassAutomation.Services.Theme.Engine
             brush.Freeze();
             resources[key] = brush;
         }
+
+        /// <summary>
+        /// Exports the active corporate theme pack as a serialized JSON profile.
+        /// </summary>
+        public static string ExportThemeProfile()
+        {
+            var p = new ProGlassThemeProfile
+            {
+                Family = Family.ToString(),
+                Mode = Mode.ToString(),
+                Material = Material.ToString(),
+                Density = Density.ToString(),
+                AccentColorHex = ThemeManager.AccentColor.ToString(),
+                CardCornerRadius = ThemeManager.CardCornerRadius,
+                CardEdgeThickness = ThemeManager.CardEdgeThickness,
+                UseGradients = ThemeManager.UseGradients,
+                UseDefinedOutline = ThemeManager.UseDefinedOutline
+            };
+            return System.Text.Json.JsonSerializer.Serialize(p, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+        }
+
+        /// <summary>
+        /// Imports and applies a corporate theme pack JSON profile.
+        /// </summary>
+        public static bool ImportThemeProfile(string json)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(json)) return false;
+                var p = System.Text.Json.JsonSerializer.Deserialize<ProGlassThemeProfile>(json);
+                if (p == null) return false;
+
+                if (!string.IsNullOrWhiteSpace(p.Family))
+                {
+                    var familyConst = PersistFamily(ParseFamily(p.Family));
+                    VisualThemeEngine.Apply(familyConst);
+                }
+
+                if (!string.IsNullOrWhiteSpace(p.Mode))
+                {
+                    bool isDark = p.Mode.Equals("Dark", System.StringComparison.OrdinalIgnoreCase);
+                    ThemePipeline.Rebuild(isDark, "Theme profile import");
+                }
+
+                if (!string.IsNullOrWhiteSpace(p.AccentColorHex))
+                {
+                    var color = (Color)ColorConverter.ConvertFromString(p.AccentColorHex);
+                    ThemeManager.ApplyAccent(color);
+                }
+
+                if (p.CardCornerRadius > 0)
+                    ThemeManager.ApplyCardCornerRadius(p.CardCornerRadius);
+
+                if (!string.IsNullOrWhiteSpace(p.Density))
+                    ThemeManager.ApplyDisplayDensity(p.Density);
+
+                ThemeManager.ApplyGradientsPreference(p.UseGradients);
+                ThemeManager.ApplyOutlinePreference(p.UseDefinedOutline);
+
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                AppLogService.Warning($"[ThemeProfile] Import failed: {ex.Message}");
+                return false;
+            }
+        }
+    }
+
+    /// <summary>Corporate brand theme pack representation.</summary>
+    public sealed class ProGlassThemeProfile
+    {
+        public string Family { get; set; } = "Industrial";
+        public string Mode { get; set; } = "Light";
+        public string Material { get; set; } = "Frosted";
+        public string Density { get; set; } = "Compact";
+        public string AccentColorHex { get; set; } = "#0369A1";
+        public double CardCornerRadius { get; set; } = 12.0;
+        public double CardEdgeThickness { get; set; } = 1.0;
+        public bool UseGradients { get; set; } = false;
+        public bool UseDefinedOutline { get; set; } = true;
     }
 }
