@@ -202,6 +202,9 @@
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
+                                    <TextBlock Text="{Binding SheetRowsOverflowLabel}" FontSize="{DynamicResource FontSize.Body}" FontStyle="Italic"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,6,0,0"
+                                               Visibility="{Binding HasSheetRowsOverflow, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                                     <!-- Unplaced pieces -->
                                     <StackPanel Margin="0,10,0,0" Visibility="{Binding HasUnplaced, Converter={StaticResource BoolToVisibilityConverter}}">
@@ -221,6 +224,9 @@
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
+                                        <TextBlock Text="{Binding UnplacedOverflowLabel}" FontSize="{DynamicResource FontSize.Body}" FontStyle="Italic"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,3,0,0"
+                                                   Visibility="{Binding HasUnplacedOverflow, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </StackPanel>
                                 </StackPanel>
                             </ScrollViewer>

@@ -433,7 +433,39 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             {
                 RecalculateEstimatedRate();
                 UpdateCurrentCalculationSectionSnapshot();
+                NotifySpecFingerprintChanged();
             }
+        }
+
+        private string _currentSpecFingerprint = "";
+
+        /// <summary>
+        /// Fingerprint of the current section's full Step 4 selection
+        /// (spec name, panes, sheets, rate — see ComputeContentHash).
+        /// Raised ONLY when it actually changes, so Step 5 can live-sync
+        /// glass/pane/sheet edits even when the computed rate doesn't move
+        /// (same-price glass swap fires no rate notification). The wizard
+        /// coordinator subscribes to this property.
+        /// </summary>
+        public string CurrentSpecFingerprint => _currentSpecFingerprint;
+
+        private void NotifySpecFingerprintChanged()
+        {
+            string next = SelectedCalculationSection?.Snapshot?.ComputeContentHash() ?? "";
+            if (string.Equals(next, _currentSpecFingerprint, StringComparison.Ordinal))
+                return;
+            _currentSpecFingerprint = next;
+            OnPropertyChanged(nameof(CurrentSpecFingerprint));
+        }
+
+        /// <summary>
+        /// Silent cache refresh for section switches (they restore under
+        /// _isRestoringSnapshot, bypassing the notifier above).
+        /// </summary>
+        private void ResetSpecFingerprintCache()
+        {
+            _currentSpecFingerprint =
+                SelectedCalculationSection?.Snapshot?.ComputeContentHash() ?? "";
         }
 
         private void RecalculateEstimatedRate()

@@ -467,6 +467,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
 
             SelectedCalculationSection = group;
             ApplyPricingSnapshot(group.Snapshot);
+            ResetSpecFingerprintCache();
         }
 
         private void UpdateCurrentCalculationSectionSnapshot()

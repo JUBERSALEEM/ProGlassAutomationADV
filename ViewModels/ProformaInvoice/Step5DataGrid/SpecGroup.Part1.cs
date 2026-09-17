@@ -146,6 +146,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         /// </summary>
         public string LastSyncedStep4SpecName { get; set; } = "";
         public string LastSyncedStep4GlassType { get; set; } = "";
+        /// <summary>
+        /// Content fingerprint of the Step 4 section at the last sync.
+        /// Lets the coordinator force-update Step 5 when Step 4 moves to a
+        /// NEW selection (any pane/sheet/rate edit), while still respecting
+        /// operator overrides when Step 4 is untouched. Persisted with the
+        /// invoice; "" on legacy data (no hash baseline).
+        /// </summary>
+        public string LastSyncedStep4ContentHash { get; set; } = "";
 
         /// <summary>
         /// Explicit Step 5 intent survives a blank selection too. A manual
@@ -862,6 +870,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     ? string.Empty
                     : snapshot.GeneratedSpecName;
                 LastSyncedStep4GlassType = glassType;
+                LastSyncedStep4ContentHash = snapshot.ComputeContentHash();
 
                 // A typed Step 5 base price is operator-owned even when the
                 // spec/type are still Step-4-owned. Step 9 live recalc used
@@ -1038,10 +1047,40 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         /// free-typed spec text cannot be parsed; blanking it would erase the
         /// only reliable outer/inner source identity for wastage.
         /// </summary>
-        public void RefreshColorsFromSpecName() => RefreshGlassColorsFromSpecName();
+        public void RefreshColorsFromSpecName()
+        {
+            // Step 6 calls this after every Step 4 sync and on entering
+            // Step 6. When the group is Step-4-owned with authoritative
+            // snapshot colours already present, re-parsing the spec NAME
+            // can only degrade them (the name does not losslessly encode
+            // pane/substrate/supplier detail) — keep the snapshot colours.
+            // Blank colours still fall through to the name parser below.
+            if (IsStep4OwnedSelection && !string.IsNullOrWhiteSpace(OuterGlassColor))
+                return;
+            RefreshGlassColorsFromSpecName();
+        }
+
+        /// <summary>
+        /// True when the current selection is exactly what Step 4 last
+        /// synced (markers match, no operator override since).
+        /// </summary>
+        private bool IsStep4OwnedSelection =>
+            !HasManualStep5SpecOverride
+            && !HasManualStep5GlassTypeOverride
+            && !string.IsNullOrWhiteSpace(LastSyncedStep4SpecName)
+            && string.Equals(_selectedSpecName, LastSyncedStep4SpecName,
+                StringComparison.OrdinalIgnoreCase)
+            && string.Equals(_selectedGlassType, LastSyncedStep4GlassType,
+                StringComparison.OrdinalIgnoreCase);
 
         private void RefreshGlassColorsFromSpecName()
         {
+            // During the Step 4 handoff the snapshot carries authoritative
+            // pane colours (applied right after the name assignment) — the
+            // name parser must not overwrite them mid-handoff.
+            if (_isSynchronizingFromStep4)
+                return;
+
             if (string.IsNullOrWhiteSpace(_selectedSpecName))
             {
                 OuterGlassColor = "";

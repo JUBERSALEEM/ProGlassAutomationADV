@@ -22,6 +22,8 @@ using ProGlassAutomation.Models.MasterData;
 using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Text;
 using System.Text.Json.Serialization;
 
 namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
@@ -175,6 +177,72 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public DguPricingPanelSnapshot Dgu { get; set; } = new();
         public LamPricingPanelSnapshot Lam { get; set; } = new();
         public DguLamPricingPanelSnapshot DguLam { get; set; } = new();
+
+        /// <summary>
+        /// Stable content fingerprint of the whole Step 4 selection
+        /// (type, generated name, rate and every panel field — panes,
+        /// treatments, spacers, sheets, prices). The Step 4 → Step 5
+        /// coordinator compares it against the group's last-synced hash:
+        /// any Step 4 edit — even one that leaves the spec name and the
+        /// rate unchanged (same glass, different stock sheet) — forces a
+        /// re-sync instead of leaving Step 5 on stale specs/sheets.
+        /// Invariant-culture, separator-safe (unit separator), never null.
+        /// </summary>
+        public string ComputeContentHash()
+        {
+            var sb = new StringBuilder(512);
+            void Put(string? v) { sb.Append(v ?? "").Append('\u001F'); }
+            void PutM(decimal v) { sb.Append(v.ToString("0.########", CultureInfo.InvariantCulture)).Append('\u001F'); }
+            void PutI(int v) { sb.Append(v.ToString(CultureInfo.InvariantCulture)).Append('\u001F'); }
+
+            Put(SelectedGlassTypeCode);
+            Put(GeneratedSpecName);
+            PutM(EstimatedRatePerSqm);
+
+            var sgu = Sgu ?? new SguPricingPanelSnapshot();
+            Put(sgu.SelectedThickness); Put(sgu.GlassColor); Put(sgu.SelectedTreatment);
+            PutM(sgu.BasePricePerSqm); PutM(sgu.CuttingCostPerSqm); PutM(sgu.TemperingCostPerSqm);
+            PutM(sgu.YieldFactor); PutM(sgu.TargetMarginPercent); Put(sgu.SelectedPolishOption);
+            PutI(sgu.SheetWidthMm); PutI(sgu.SheetHeightMm);
+
+            var dgu = Dgu ?? new DguPricingPanelSnapshot();
+            Put(dgu.OuterThickness); Put(dgu.OuterGlassColor); Put(dgu.OuterTreatment);
+            PutM(dgu.OuterBasePrice); PutI(dgu.OuterSheetWidthMm); PutI(dgu.OuterSheetHeightMm);
+            Put(dgu.SpacerWidth); Put(dgu.SpacerMaterial); PutM(dgu.SpacerPrice);
+            Put(dgu.SpacerExtra); PutM(dgu.UInsertPricePerSqm); Put(dgu.PanelExtra);
+            Put(dgu.InnerThickness); Put(dgu.InnerGlassColor); Put(dgu.InnerTreatment);
+            PutM(dgu.InnerBasePrice); PutI(dgu.InnerSheetWidthMm); PutI(dgu.InnerSheetHeightMm);
+            PutM(dgu.YieldFactor); PutM(dgu.MarginProfitPercent);
+
+            var lam = Lam ?? new LamPricingPanelSnapshot();
+            Put(lam.OuterThickness); Put(lam.OuterGlassColor); Put(lam.OuterTreatment);
+            PutM(lam.OuterBasePrice); PutI(lam.OuterSheetWidthMm); PutI(lam.OuterSheetHeightMm);
+            Put(lam.InnerThickness); Put(lam.InnerGlassColor); Put(lam.InnerTreatment);
+            PutM(lam.InnerBasePrice); PutI(lam.InnerSheetWidthMm); PutI(lam.InnerSheetHeightMm);
+            Put(lam.PvbThickness); Put(lam.PvbColor); PutM(lam.PvbMaterialRate);
+            Put(lam.LaminationPolish);
+            PutM(lam.OuterCuttingCost); PutM(lam.InnerCuttingCost);
+            PutM(lam.OuterTemperingCost); PutM(lam.InnerTemperingCost);
+            PutM(lam.YieldFactor); PutM(lam.MarginProfitPercent);
+
+            var dl = DguLam ?? new DguLamPricingPanelSnapshot();
+            Put(dl.OuterThickness); Put(dl.OuterGlassColor); Put(dl.OuterTreatment);
+            PutM(dl.OuterBasePrice);
+            Put(dl.SpacerThickness); PutM(dl.SpacerPrice); Put(dl.SpacerExtra);
+            Put(dl.LamOuterThickness); Put(dl.LamOuterColor); Put(dl.LamOuterTreatment);
+            PutM(dl.LamOuterBasePrice);
+            Put(dl.InterlayerType); Put(dl.InterlayerThickness); Put(dl.InterlayerColor);
+            PutM(dl.InterlayerBuyPrice); PutM(dl.InterlayerSellPrice);
+            Put(dl.LamInnerThickness); Put(dl.LamInnerColor); Put(dl.LamInnerTreatment);
+            PutM(dl.LamInnerBasePrice);
+            Put(dl.PanelExtra); Put(dl.EdgePolish);
+            PutM(dl.OuterCuttingCost); PutM(dl.OuterTemperingCost);
+            PutM(dl.LamOuterCuttingCost); PutM(dl.LamOuterTemperingCost);
+            PutM(dl.LamInnerCuttingCost); PutM(dl.LamInnerTemperingCost);
+            PutM(dl.YieldFactor); PutM(dl.MarginProfitPercent);
+
+            return sb.ToString();
+        }
     }
 
     public class SguPricingPanelSnapshot
@@ -290,6 +358,14 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         // Old snapshots naturally deserialize these additive fields as empty.
         public string LastSyncedStep4SpecName { get; set; } = "";
         public string LastSyncedStep4GlassType { get; set; } = "";
+        /// <summary>
+        /// ADDITIVE (2026-09-17). Content fingerprint of the Step 4 section
+        /// at the last sync (see Step4PricingSnapshot.ComputeContentHash).
+        /// Lets the coordinator tell "Step 4 moved to a NEW selection —
+        /// force-update Step 5" from "Step 4 untouched — respect operator
+        /// overrides". Old snapshots deserialize as "" (no hash baseline).
+        /// </summary>
+        public string LastSyncedStep4ContentHash { get; set; } = "";
         public bool HasManualStep5SpecOverride { get; set; }
         public bool HasManualStep5GlassTypeOverride { get; set; }
         public bool HasManualStep5BaseRateOverride { get; set; }

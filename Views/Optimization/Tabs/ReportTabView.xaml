@@ -315,6 +315,9 @@
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
+                                        <TextBlock Text="{Binding SheetRowsOverflowLabel}" FontSize="{DynamicResource FontSize.Body}" FontStyle="Italic"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,6,0,0"
+                                                   Visibility="{Binding HasSheetRowsOverflow, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </StackPanel>
                                 </Grid>
                             </Border>

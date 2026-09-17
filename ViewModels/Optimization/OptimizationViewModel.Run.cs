@@ -55,6 +55,45 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         public ObservableCollection<SheetRowVm> SheetRows { get; } = new();
 
+        // ── Million-scale UI guards ──────────────────────────────────
+        // SheetRows / UnplacedRows bind to NON-virtualized ItemsControls:
+        // at 10k+ rows they hang the UI thread and burn memory per row
+        // object. The DATA always stays complete (_flatSheets drives the
+        // 2D preview + navigation, the report export lists every sheet)
+        // — only the on-screen rows cap, with an honest overflow label.
+        private const int MaxSheetRows = 2000;
+        private const int MaxUnplacedRows = 500;
+
+        private string _sheetRowsOverflowLabel = string.Empty;
+        /// <summary>"Showing first 2,000 of 17,175 sheets…" (empty when all fit).</summary>
+        public string SheetRowsOverflowLabel
+        {
+            get => _sheetRowsOverflowLabel;
+            private set { _sheetRowsOverflowLabel = value; OnPropertyChanged(); }
+        }
+
+        private bool _hasSheetRowsOverflow;
+        public bool HasSheetRowsOverflow
+        {
+            get => _hasSheetRowsOverflow;
+            private set { _hasSheetRowsOverflow = value; OnPropertyChanged(); }
+        }
+
+        private string _unplacedOverflowLabel = string.Empty;
+        /// <summary>"…and N more unplaced pieces" (empty when all fit).</summary>
+        public string UnplacedOverflowLabel
+        {
+            get => _unplacedOverflowLabel;
+            private set { _unplacedOverflowLabel = value; OnPropertyChanged(); }
+        }
+
+        private bool _hasUnplacedOverflow;
+        public bool HasUnplacedOverflow
+        {
+            get => _hasUnplacedOverflow;
+            private set { _hasUnplacedOverflow = value; OnPropertyChanged(); }
+        }
+
         private bool _hasResult;
         public bool HasResult
         {
@@ -591,6 +630,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     unplacedSeen - unplacedListed));
             }
             HasUnplaced = unplacedSeen > 0;
+            HasUnplacedOverflow = unplacedSeen > unplacedListed;
+            UnplacedOverflowLabel = HasUnplacedOverflow
+                ? string.Format(CultureInfo.InvariantCulture,
+                    "…and {0:N0} more unplaced pieces (the full list is in the REPORT export).",
+                    unplacedSeen - unplacedListed)
+                : string.Empty;
 
             // Per-cutting-group breakdown (composition → sheets / util / waste).
             GroupResults.Clear();
@@ -632,21 +677,34 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     double sheetWaste = sheetStock - sheetGlass;
                     double sheetUtil = sheetStock == 0 ? 0 : sheetGlass / sheetStock * 100.0;
                     _flatSheets.Add(new FlatSheet { Run = r, SheetIndex = i });
-                    SheetRows.Add(new SheetRowVm
+                    if (SheetRows.Count < MaxSheetRows)
                     {
-                        SheetNo = (flatIndex + 1).ToString(CultureInfo.InvariantCulture),
-                        StockLabel = string.Format(CultureInfo.InvariantCulture,
-                            "{0} × {1}", sheet.Stock.WidthMm, sheet.Stock.HeightMm),
-                        PieceCount = sheet.Pieces.Count.ToString(CultureInfo.InvariantCulture),
-                        Utilization = sheetUtil.ToString("0.0", CultureInfo.InvariantCulture) + "%",
-                        UtilizationTone = sheetUtil >= 85.0 ? "Good" : sheetUtil >= 70.0 ? "Mid" : "Low",
-                        WasteLabel = (sheetWaste / 1_000_000.0).ToString("0.00", CultureInfo.InvariantCulture) + " m²",
-                        Composition = r.Composition,
-                        Index = flatIndex
-                    });
+                        // On-screen rows cap (the ItemsControls don't
+                        // virtualize); _flatSheets stays complete so the 2D
+                        // preview, navigation and export see every sheet.
+                        SheetRows.Add(new SheetRowVm
+                        {
+                            SheetNo = (flatIndex + 1).ToString(CultureInfo.InvariantCulture),
+                            StockLabel = string.Format(CultureInfo.InvariantCulture,
+                                "{0} × {1}", sheet.Stock.WidthMm, sheet.Stock.HeightMm),
+                            PieceCount = sheet.Pieces.Count.ToString(CultureInfo.InvariantCulture),
+                            Utilization = sheetUtil.ToString("0.0", CultureInfo.InvariantCulture) + "%",
+                            UtilizationTone = sheetUtil >= 85.0 ? "Good" : sheetUtil >= 70.0 ? "Mid" : "Low",
+                            WasteLabel = (sheetWaste / 1_000_000.0).ToString("0.00", CultureInfo.InvariantCulture) + " m²",
+                            Composition = r.Composition,
+                            Index = flatIndex
+                        });
+                    }
                     flatIndex++;
                 }
             }
+
+            HasSheetRowsOverflow = flatIndex > SheetRows.Count;
+            SheetRowsOverflowLabel = HasSheetRowsOverflow
+                ? string.Format(CultureInfo.InvariantCulture,
+                    "Showing first {0:N0} of {1:N0} sheets — the full list is in the REPORT export.",
+                    SheetRows.Count, flatIndex)
+                : string.Empty;
 
             HasResult = true;
             _selectedSheetIndex = -1;
