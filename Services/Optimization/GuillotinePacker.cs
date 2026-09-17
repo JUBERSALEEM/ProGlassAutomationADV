@@ -73,6 +73,13 @@ namespace ProGlassAutomation.Services.Optimization
             // GuillotinePacker.Advanced.cs. Keeping them EXACT is what makes
             // the TryPlace prune result-identical rather than approximate.
 
+            /// <summary>Sealed by the open-sheet window: never re-scanned
+            /// for placement. Only set when a window binds (large tiers).</summary>
+            public bool IsClosed { get; set; }
+            /// <summary>Removed by consolidation (tombstone so the window
+            /// queue can skip dead entries in amortized O(1)).</summary>
+            public bool IsRemoved { get; set; }
+
             /// <summary>Largest width among this sheet's free rects.</summary>
             public int MaxFreeW;
             /// <summary>Largest height among this sheet's free rects.</summary>
@@ -116,6 +123,46 @@ namespace ProGlassAutomation.Services.Optimization
             }
         }
 
+        /// <summary>
+        /// Bounded open-sheet window — the industrial "active plates"
+        /// pattern. A pass keeps at most <see cref="OpenWindow"/> sheets
+        /// open for placement; opening beyond that seals the OLDEST open
+        /// sheet (it already received every placement attempt since it
+        /// opened, so it is near-final — same idea as completing one
+        /// plate before starting another). Per-piece scan cost drops from
+        /// O(all sheets) to O(window): a 30k-part job scans ~128 sheets
+        /// per piece instead of ~7,000. FIFO order is deterministic, so
+        /// runs stay reproducible. int.MaxValue = unbounded (FULL tier).
+        /// </summary>
+        private sealed class PackingContext
+        {
+            public int OpenWindow = int.MaxValue;
+            public int OpenCount;
+            public readonly Queue<SheetState> OpenQueue = new();
+        }
+
+        /// <summary>Registers a freshly opened sheet; seals the oldest
+        /// open sheet when the window is full (amortized O(1)).</summary>
+        private static void RegisterOpenedSheet(PackingContext ctx, SheetState state)
+        {
+            if (ctx.OpenCount >= ctx.OpenWindow)
+                CloseOldestOpenSheet(ctx);
+            else
+                ctx.OpenCount++;
+            ctx.OpenQueue.Enqueue(state);
+        }
+
+        private static void CloseOldestOpenSheet(PackingContext ctx)
+        {
+            while (ctx.OpenQueue.Count > 0)
+            {
+                var s = ctx.OpenQueue.Dequeue();
+                if (s.IsRemoved || s.IsClosed) continue;
+                s.IsClosed = true;
+                return;
+            }
+        }
+
         /// <summary>QUICK stage — one fast deterministic pass.</summary>
         /// <param name="progress">Optional per-part progress. QUICK reported
         /// nothing at all until 2026-09-17, so the bar sat pinned at 0% for the
@@ -145,8 +192,11 @@ namespace ProGlassAutomation.Services.Optimization
             // very large group from hanging here too. Below LargeThreshold the
             // cap is unlimited, so QUICK stays bit-identical.
             var scale = ScaleProfile.For(pieces.Count, 1);
+            int window = pieces.Count > ScaleProfile.HugeThreshold ? 128
+                       : pieces.Count > ScaleProfile.LargeThreshold ? 256
+                       : int.MaxValue;
             return RunPass(Sort(pieces, OrderBy.Area), stocks, margins, rotation, split,
-                cancellationToken, scale.ConsolidationSweeps, progress);
+                cancellationToken, scale.ConsolidationSweeps, progress, window);
         }
 
         /// <summary>
@@ -192,7 +242,14 @@ namespace ProGlassAutomation.Services.Optimization
             };
 
             IEnumerable<(OrderBy o, SplitMode s, int shuffle)> combos;
-            if (effortLevel <= 1)
+            if (pieces.Count > ScaleProfile.HugeThreshold && effortLevel > 1)
+            {
+                // Huge-job multi-candidate grid: try all 6 orderings × 3 splits (18 windowed candidates)
+                // instead of only a single guess! With the 128-sheet window, each pass is fast (O(128*N)),
+                // allowing a full multi-candidate search to complete in ~1-2s for 30,000+ parts.
+                combos = orderings.SelectMany(o => splits.Select(s => (o, s, 0)));
+            }
+            else if (effortLevel <= 1)
                 // Must mirror PackQuick exactly: Benchmark_OptimizeStage_
                 // NeverRegressesQuick asserts OPTIMIZE <= QUICK.
                 combos = new[] { (OrderBy.Area, SplitMode.HorizontalFirst, 0) };
@@ -258,9 +315,12 @@ namespace ProGlassAutomation.Services.Optimization
                 // itself: real per-part progress instead of one 0% → 100%
                 // jump. Multi-candidate runs keep the candidate-level reports
                 // above, which are already smooth, and pay no per-part cost.
+                int window = pieces.Count > ScaleProfile.HugeThreshold ? 128
+                           : pieces.Count > ScaleProfile.LargeThreshold ? 256
+                           : int.MaxValue;
                 var candidate = RunPass(ordered, stocks, margins, rotation, split,
                     cancellationToken, scale.ConsolidationSweeps,
-                    comboList.Count == 1 ? progress : null);
+                    comboList.Count == 1 ? progress : null, window);
                 best = Better(best, candidate);
             }
 
@@ -388,7 +448,8 @@ namespace ProGlassAutomation.Services.Optimization
             SplitMode split,
             CancellationToken cancellationToken = default,
             int consolidationSweeps = int.MaxValue,
-            IProgress<OptimizeProgress> progress = null)
+            IProgress<OptimizeProgress> progress = null,
+            int openSheetWindow = int.MaxValue)
         {
             if (orderedPieces == null) throw new ArgumentNullException(nameof(orderedPieces));
             if (stocks == null || stocks.Count == 0)
@@ -400,6 +461,7 @@ namespace ProGlassAutomation.Services.Optimization
 
             var sheets = new List<SheetState>();
             var sheetsPerStock = new int[stocks.Count];
+            var ctx = new PackingContext { OpenWindow = openSheetWindow };
 
             // ── real progress (2026-09-17) ────────────────────────────────────
             // Placement is the dominant work in a single pass, so it owns 0-90%
@@ -426,7 +488,7 @@ namespace ProGlassAutomation.Services.Optimization
 
                 if (!PlaceOnOpenSheets(sheets, piece, margins, rotation, split))
                 {
-                    if (!OpenNewSheet(sheets, sheetsPerStock, stocks, piece, margins, rotation, split, result))
+                    if (!OpenNewSheet(sheets, sheetsPerStock, stocks, piece, margins, rotation, split, result, ctx))
                         result.Unplaced.Add(piece);
                 }
 
@@ -442,7 +504,7 @@ namespace ProGlassAutomation.Services.Optimization
             progress?.Report(OptimizeProgress.Of("consolidate", 92, 100,
                 $"Consolidating {sheets.Count} sheet(s)"));
             ConsolidateAll(sheets, margins, rotation, split, consolidationSweeps,
-                cancellationToken: cancellationToken);
+                cancellationToken: cancellationToken, ctx: ctx);
             SortSheetsFullestFirst(sheets);
 
             for (int i = 0; i < sheets.Count; i++)
@@ -553,7 +615,9 @@ namespace ProGlassAutomation.Services.Optimization
 
             for (int si = 0; si < sheets.Count; si++)
             {
-                if (!TryPlaceCore(sheets[si], piece, rotation, out var candidate)) continue;
+                var sheet = sheets[si];
+                if (sheet.IsClosed) continue;
+                if (!TryPlaceCore(sheet, piece, rotation, out var candidate)) continue;
 
                 if (!found
                     || candidate.FitRank < bestCand.FitRank
@@ -833,7 +897,7 @@ namespace ProGlassAutomation.Services.Optimization
         private static bool OpenNewSheet(
             List<SheetState> sheets, int[] sheetsPerStock, IReadOnlyList<StockSize> stocks,
             CutPiece piece, MarginProfile margins, RotationPolicy rotation,
-            SplitMode split, OptimizationResult result)
+            SplitMode split, OptimizationResult result, PackingContext? ctx = null)
         {
             // "Best sheet size" rule: try the SMALLEST stock that fits the
             // piece first, so large racks are saved for the glass that
@@ -867,6 +931,7 @@ namespace ProGlassAutomation.Services.Optimization
                 var state = new SheetState(layout, i);
                 sheets.Add(state);
                 sheetsPerStock[i]++;
+                if (ctx != null) RegisterOpenedSheet(ctx, state);
 
                 var placed = TryPlace(state, piece, rotation, out _, out _);
                 if (placed == null)
@@ -906,7 +971,8 @@ namespace ProGlassAutomation.Services.Optimization
         private static void ConsolidateAll(
             List<SheetState> sheets, MarginProfile margins, RotationPolicy rotation, SplitMode split,
             int maxSweeps = int.MaxValue, int minBreakout = 0,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default,
+            PackingContext? ctx = null)
         {
             if (sheets.Count <= 1) return;
 
@@ -941,7 +1007,10 @@ namespace ProGlassAutomation.Services.Optimization
                     var donor = sheets[donorIndex];
                     if (donor.Layout.Pieces.Count == 0)
                     {
+                        bool donorWasOpen = !donor.IsClosed;
+                        donor.IsRemoved = true;
                         sheets.RemoveAt(donorIndex);
+                        if (donorWasOpen && ctx != null) ctx.OpenCount--;
                         improved = true;
                         break;
                     }
@@ -976,9 +1045,11 @@ namespace ProGlassAutomation.Services.Optimization
                         for (int si = 0; si < sheets.Count; si++)
                         {
                             if (si == donorIndex) continue;
-                            if (!TryPlaceCore(sheets[si], victim.Piece, rotation, out var moved)) continue;
-                            SnapshotBeforeWrite(sheets[si], seen, touched, touchedPieces, touchedFree);
-                            Commit(sheets[si], moved.Materialize(victim.Piece), margins,
+                            var host = sheets[si];
+                            if (host.IsClosed) continue;
+                            if (!TryPlaceCore(host, victim.Piece, rotation, out var moved)) continue;
+                            SnapshotBeforeWrite(host, seen, touched, touchedPieces, touchedFree);
+                            Commit(host, moved.Materialize(victim.Piece), margins,
                                 split, minBreakout);
                             placed = true;
                             break;
@@ -988,7 +1059,10 @@ namespace ProGlassAutomation.Services.Optimization
 
                     if (allEvacuated)
                     {
+                        bool donorWasOpen = !sheets[donorIndex].IsClosed;
+                        sheets[donorIndex].IsRemoved = true;
                         sheets.RemoveAt(donorIndex);
+                        if (donorWasOpen && ctx != null) ctx.OpenCount--;
                         improved = true;
                         break;
                     }

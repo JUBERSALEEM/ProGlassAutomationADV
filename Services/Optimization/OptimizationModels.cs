@@ -246,11 +246,11 @@ namespace ProGlassAutomation.Services.Optimization
                 $"MaxRects orderings capped at {MaxRectsOrderings}, consolidation sweeps capped " +
                 $"at {ConsolidationSweeps}. All orderings and split rules are still tried.",
             _ =>
-                $"{PieceCount} parts exceeds {HugeThreshold}, so only the minimum search was run " +
-                $"(no shuffles, no beam, no sheet-fill / wall-seed / best-split — those are " +
-                $"quadratic in the job size and would not finish, {MaxRectsOrderings} MaxRects " +
-                $"ordering, {ConsolidationSweeps} consolidation sweep). Split the job into smaller " +
-                $"groups for a deeper search."
+                $"Packing all {PieceCount:N0} parts — high-throughput search (over {HugeThreshold:N0}): " +
+                $"full order × split grid (18 candidates), 128-sheet packing window, {MaxRectsOrderings} MaxRects " +
+                $"ordering, {ConsolidationSweeps} consolidation sweep — no shuffles, no beam, no sheet-fill / " +
+                $"wall-seed / best-split: those are quadratic in the job size and would not finish. " +
+                $"Split the job into smaller groups for a deeper search."
         };
     }
 
