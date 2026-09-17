@@ -199,9 +199,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                         $"(via {origin}){jobTag}",
                         "SHEET", sheet.Id.ToString());
                 }
-                catch {
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("unknown suppressed");
-            }
+                catch (Exception auditEx)
+                {
+                    AppLogService.Warning(
+                        "[SheetStockLinkService] Sheet inventory audit log failed: " + auditEx.Message,
+                        new LogContext { Module = "SheetStock", Class = nameof(SheetStockLinkService), Operation = "ConsumeFromInventory" });
+                }
 
                 return new SheetStockLinkResult
                 {

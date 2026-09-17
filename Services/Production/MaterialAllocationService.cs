@@ -115,10 +115,10 @@ namespace ProGlassAutomation.Services.Production
                     var raced = await db.Allocations.FirstOrDefaultAsync(a => a.AllocationId == allocationId, ct).ConfigureAwait(false);
                     if (raced != null) return (true, raced, "Allocation already exists (race idempotent).");
                 }
-                catch
-            {
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("unknown suppressed");
-            }
+                catch (Exception raceEx)
+                {
+                    AppLogService.Debug("[MaterialAllocation] Race resolution query failed: " + raceEx.Message);
+                }
                 return (false, null, "Allocation conflict (unique).");
             }
             catch (Exception ex)

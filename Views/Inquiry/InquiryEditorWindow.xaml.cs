@@ -214,7 +214,9 @@ namespace ProGlassAutomation.Views.Inquiry
                 // the operation and log so the user can paste plain text
                 // into a different field instead.
                 e.CancelCommand();
-                System.Diagnostics.Debug.WriteLine($"OnValuePaste failed: {ex}");
+                ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                    $"OnValuePaste failed: {ex.Message}",
+                    new ProGlassAutomation.Services.Logging.LogContext { Module = "Inquiry", Screen = "InquiryEditorWindow", Operation = "OnValuePaste" });
             }
         }
 

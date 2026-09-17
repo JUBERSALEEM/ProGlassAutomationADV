@@ -677,12 +677,11 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             {
                 // master-data write-back is best-effort. The inquiry is already
                 // saved; a failure here should not roll that back. But it
-                // should be visible: log to Debug so an attached debugger
-                // or the in-app log panel sees the exception type and
-                // message. The end-user sees nothing because the master-
-                // data write isn't part of the inquiry-save contract.
-                System.Diagnostics.Debug.WriteLine(
-                    $"TryUpsertMasterDataAsync: master-data write-back failed: {ex}");
+                // should be visible: log to AppLogService so support/diagnostics
+                // see the exception type and message in production release builds.
+                AppLogService.Warning(
+                    "TryUpsertMasterDataAsync: master-data write-back failed: " + ex.Message,
+                    new LogContext { Module = "Inquiry", Class = nameof(InquiryEditorViewModel), Method = nameof(TryUpsertMasterDataAsync) });
             }
         }
 

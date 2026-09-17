@@ -930,14 +930,16 @@ namespace ProGlassAutomation.ViewModels
                     // Guard refused (the Documents root isn't in its
                     // AllowedRoots). Fall back to a direct start after
                     // applying our own starts-with check.
-                    System.Diagnostics.Debug.WriteLine(
-                        $"OpenAttachmentsFolder: guard refused ({guardResult.Error}) - falling back to direct start after manual validation");
+                    ProGlassAutomation.Services.Logging.AppLogService.Debug(
+                        $"OpenAttachmentsFolder: guard refused ({guardResult.Error}) - falling back to direct start after manual validation",
+                        new ProGlassAutomation.Services.Logging.LogContext { Module = "Main", Operation = "OpenAttachmentsFolder" });
                     string documentsRoot = System.IO.Path.GetFullPath(
                         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
                     if (!fullPath.StartsWith(documentsRoot, StringComparison.OrdinalIgnoreCase))
                     {
-                        System.Diagnostics.Debug.WriteLine(
-                            $"OpenAttachmentsFolder: refused path outside Documents: {fullPath}");
+                        ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                            $"OpenAttachmentsFolder: refused path outside Documents: {fullPath}",
+                            new ProGlassAutomation.Services.Logging.LogContext { Module = "Main", Operation = "OpenAttachmentsFolder" });
                         return;
                     }
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
@@ -950,7 +952,9 @@ namespace ProGlassAutomation.ViewModels
                 {
                     // Log and move on - the inquiry list VM's command has
                     // its own "handler not wired" fallback status message.
-                    System.Diagnostics.Debug.WriteLine($"OpenAttachmentsFolder failed: {ex}");
+                    ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                        $"OpenAttachmentsFolder failed: {ex.Message}",
+                        new ProGlassAutomation.Services.Logging.LogContext { Module = "Main", Operation = "OpenAttachmentsFolder" });
                 }
             };;
 

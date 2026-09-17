@@ -106,9 +106,12 @@ namespace ProGlassAutomation.ViewModels.Settings
                 OnPropertyChanged();
                 if (App.Config == null) return;
                 App.Config.Localization.PhoneCountryIso = value.Iso;
-                try { ConfigService.SaveDebounced(App.Config); } catch {
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("unknown suppressed");
-            }
+                try { ConfigService.SaveDebounced(App.Config); }
+                catch (Exception ex)
+                {
+                    ProGlassAutomation.Services.Logging.AppLogService.Debug(
+                        "[SettingsViewModel.Appearance] SaveDebounced PhoneCountryIso failed: " + ex.Message);
+                }
             }
         }
 
@@ -122,9 +125,12 @@ namespace ProGlassAutomation.ViewModels.Settings
                 OnPropertyChanged();
                 if (App.Config == null) return;
                 App.Config.Localization.AutoSuggestByRegion = value;
-                try { ConfigService.SaveDebounced(App.Config); } catch {
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("unknown suppressed");
-            }
+                try { ConfigService.SaveDebounced(App.Config); }
+                catch (Exception ex)
+                {
+                    ProGlassAutomation.Services.Logging.AppLogService.Debug(
+                        "[SettingsViewModel.Appearance] SaveDebounced AutoSuggestByRegion failed: " + ex.Message);
+                }
             }
         }
 

@@ -137,10 +137,10 @@ namespace ProGlassAutomation.Services.Production
                         .ConfigureAwait(false);
                     if (raced != null) return (true, raced, "Reservation already exists (race idempotent).");
                 }
-                catch
-            {
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("unknown suppressed");
-            }
+                catch (Exception raceEx)
+                {
+                    AppLogService.Debug("[MaterialReservation] Race resolution query failed: " + raceEx.Message);
+                }
                 AppLogService.Warning($"[MaterialReservation] UNIQUE race for {reservationId}: {ex.Message}",
                     new LogContext { Module = "Production", Class = nameof(MaterialReservationService), Operation = nameof(ReserveAsync) });
                 return (false, null, "Reservation conflict (unique).");

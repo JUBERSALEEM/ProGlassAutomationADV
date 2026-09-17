@@ -440,9 +440,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                         .GetDeliveryCapsAsync(_entity.JobOrderId)
                         .ConfigureAwait(true);
                 }
-                catch {
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("unknown suppressed");
-            }
+                catch (Exception ex)
+                {
+                    ProGlassAutomation.Services.Logging.AppLogService.Debug(
+                        $"[DeliveryNoteDetailViewModel] Delivery caps query failed for JO {_entity.JobOrderId}: {ex.Message}");
+                }
 
                 var rows = dedupedItems
                     .Select(i => new DnItemRowViewModel(i,

@@ -102,9 +102,10 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("unknown suppressed");
+                ProGlassAutomation.Services.Logging.AppLogService.Debug(
+                    "[PdfChrome] Logo file candidate search failed: " + ex.Message);
             }
 
             return null;
