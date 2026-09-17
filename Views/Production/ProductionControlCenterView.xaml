@@ -41,31 +41,165 @@
         <StackPanel Margin="24,20,24,16">
 
             <!-- Header -->
-            <Border Padding="16" CornerRadius="{DynamicResource CardCornerRadius}" Margin="0,0,0,12"
-                    Background="{DynamicResource SurfacePrimaryBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+            <Border Padding="18,16" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Margin="0,0,0,14"
+                    Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Text="{Binding Title}" FontSize="{DynamicResource FontSize.TitleLarge}"
-                                   FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Title}" FontSize="{DynamicResource FontSize.TitleLarge}"
+                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="4" Padding="8,3" Margin="14,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="HIGH-CAPACITY PRODUCTION PIPELINE" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                            </Border>
+                        </StackPanel>
                         <TextBlock Text="{Binding Subtitle}" FontSize="{DynamicResource FontSize.BodySmall}"
                                    Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap"/>
-                        <TextBlock Text="{Binding KpiSummary}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                   Foreground="{DynamicResource AccentBrush}" Margin="0,8,0,0" TextWrapping="Wrap"
-                                   FontWeight="{DynamicResource Weight.SemiBold}"/>
-                        <TextBlock Text="{Binding OverallProgress.Label, FallbackValue=Overall 0%}"
-                                   FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SuccessBrush}"
-                                   Margin="0,4,0,0" FontWeight="{DynamicResource Weight.Bold}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
-                        <Button Content="Load / Refresh" Command="{Binding LoadCommand}" Style="{StaticResource PrimaryButtonStyle}" Padding="16,6" Margin="0,0,8,0"/>
-                        <Button Content="Cancel" Command="{Binding CancelCommand}" Style="{StaticResource SecondaryButtonStyle}" Padding="12,6"/>
+                        <Button Content="Load / Refresh" Command="{Binding LoadCommand}" Style="{StaticResource PrimaryPillButton}" Height="36" Padding="18,0" Margin="0,0,8,0"/>
+                        <Button Content="Cancel" Command="{Binding CancelCommand}" Style="{StaticResource OutlinedPillButton}" Height="36" Padding="14,0"/>
                     </StackPanel>
                 </Grid>
             </Border>
+
+            <!-- ══ 3-PILLAR STAGE SWITCH RIBBON (Left: Cutting | Center: Tempering | Right: DGU) ══ -->
+            <Grid Margin="0,0,0,14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- TAB 1: CUTTING (LEFT) -->
+                <RadioButton Grid.Column="0" GroupName="ProductionStages" Margin="0,0,8,0"
+                             IsChecked="{Binding IsCuttingTab, Mode=OneWay}"
+                             Command="{Binding SelectCuttingTabCommand}"
+                             Style="{StaticResource OptRailTab}">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE8C6;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="1. CUTTING &amp; NESTING" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </RadioButton>
+
+                <!-- TAB 2: TEMPERING (CENTER) -->
+                <RadioButton Grid.Column="1" GroupName="ProductionStages" Margin="4,0,4,0"
+                             IsChecked="{Binding IsTemperingTab, Mode=OneWay}"
+                             Command="{Binding SelectTemperingTabCommand}"
+                             Style="{StaticResource OptRailTab}">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE9CA;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="2. TEMPERING &amp; FURNACE" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </RadioButton>
+
+                <!-- TAB 3: DGU / INSULATION (RIGHT) -->
+                <RadioButton Grid.Column="2" GroupName="ProductionStages" Margin="8,0,0,0"
+                             IsChecked="{Binding IsDguTab, Mode=OneWay}"
+                             Command="{Binding SelectDguTabCommand}"
+                             Style="{StaticResource OptRailTab}">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE7B8;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="3. DGU &amp; ASSEMBLY" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </RadioButton>
+            </Grid>
+
+            <!-- ══ REAL-TIME AUTO-SUM AGGREGATION METRIC CARDS ══ -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="1.2*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 1. TOTAL SCHEDULED -->
+                <Border Grid.Column="0" Background="{DynamicResource SurfaceSecondaryBrush}"
+                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                        CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="16,12" Margin="0,0,10,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintBlueBrush}">
+                            <TextBlock Text="&#xE821;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="16"
+                                       Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="TOTAL SCHEDULED" Style="{StaticResource OptHeader}"/>
+                            <TextBlock Text="{Binding TotalScheduledPcs, StringFormat={}{0:N0} Pcs}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <TextBlock Text="{Binding TotalScheduledSqm, StringFormat={}{0:N1} m²}" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- 2. COMPLETED / DONE -->
+                <Border Grid.Column="1" Background="{DynamicResource SurfaceSecondaryBrush}"
+                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                        CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="16,12" Margin="0,0,10,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintGreenBrush}">
+                            <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="16"
+                                       Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="COMPLETED / DONE" Style="{StaticResource OptHeader}"/>
+                            <TextBlock Text="{Binding CompletedDonePcs, StringFormat={}{0:N0} Pcs}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                            <TextBlock Text="{Binding CompletedDoneSqm, StringFormat={}{0:N1} m²}" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- 3. BALANCE PENDING -->
+                <Border Grid.Column="2" Background="{DynamicResource SurfaceSecondaryBrush}"
+                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                        CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="16,12" Margin="0,0,10,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource OptKpiBadge}" Background="{DynamicResource TintAmberBrush}">
+                            <TextBlock Text="&#xE9D9;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="16"
+                                       Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="BALANCE PENDING" Style="{StaticResource OptHeader}"/>
+                            <TextBlock Text="{Binding BalancePendingPcs, StringFormat={}{0:N0} Pcs}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                            <TextBlock Text="{Binding BalancePendingSqm, StringFormat={}{0:N1} m²}" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- 4. STAGE COMPLETION RATE -->
+                <Border Grid.Column="3" Background="{DynamicResource SurfaceSecondaryBrush}"
+                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                        CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="16,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock Text="STAGE COMPLETION" Style="{StaticResource OptHeader}"/>
+                            <ProgressBar Height="8" Minimum="0" Maximum="100" Value="{Binding StageCompletionPct, Mode=OneWay}"
+                                         Margin="0,8,0,0" Foreground="{DynamicResource SuccessBrush}"/>
+                        </StackPanel>
+                        <TextBlock Grid.Column="1" Text="{Binding StageCompletionPct, StringFormat={}{0:F1}%}"
+                                   FontSize="22" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"
+                                   VerticalAlignment="Center" Margin="12,0,0,0"/>
+                    </Grid>
+                </Border>
+            </Grid>
 
             <!-- Filters: uniform labelled field grid -->
             <Border Padding="12" CornerRadius="{DynamicResource CardCornerRadius}" Margin="0,0,0,12"

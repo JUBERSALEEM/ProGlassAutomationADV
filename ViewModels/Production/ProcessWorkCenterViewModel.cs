@@ -37,6 +37,105 @@ namespace ProGlassAutomation.ViewModels.Production
         public string Title => "Production Process Work Center";
         public string Subtitle => "Cutting → Holes/Cutouts → Polish → Edge Deletion → Mitring → Tempering → Pairing → Doubling/Lamination → QC → Ready — specification-driven route, shared execution framework";
 
+        // ── 3-Tab Production Stage Ribbon (Cutting / Tempering / DGU) ───
+        private int _selectedStageTab = 0;
+        public int SelectedStageTab
+        {
+            get => _selectedStageTab;
+            set
+            {
+                if (_selectedStageTab != value)
+                {
+                    _selectedStageTab = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsCuttingTab));
+                    OnPropertyChanged(nameof(IsTemperingTab));
+                    OnPropertyChanged(nameof(IsDguTab));
+                    SyncProcessFilterFromStageTab(value);
+                    UpdateStageAutoSums();
+                }
+            }
+        }
+
+        public bool IsCuttingTab => SelectedStageTab == 0;
+        public bool IsTemperingTab => SelectedStageTab == 1;
+        public bool IsDguTab => SelectedStageTab == 2;
+
+        public ICommand SelectCuttingTabCommand => new RelayCommand(_ => SelectedStageTab = 0);
+        public ICommand SelectTemperingTabCommand => new RelayCommand(_ => SelectedStageTab = 1);
+        public ICommand SelectDguTabCommand => new RelayCommand(_ => SelectedStageTab = 2);
+
+        private void SyncProcessFilterFromStageTab(int tabIndex)
+        {
+            string target = tabIndex switch
+            {
+                0 => "Cutting",
+                1 => "Tempering",
+                2 => "Pairing",
+                _ => "All"
+            };
+            if (_processFilter != target)
+            {
+                _processFilter = target;
+                OnPropertyChanged(nameof(ProcessFilter));
+                AsyncUtility.SafeFireAndForget(LoadAsync, "Process tab change");
+            }
+        }
+
+        // ── Auto-Sum Aggregation Metrics ──
+        private long _totalScheduledPcs;
+        public long TotalScheduledPcs { get => _totalScheduledPcs; private set { _totalScheduledPcs = value; OnPropertyChanged(); } }
+
+        private double _totalScheduledSqm;
+        public double TotalScheduledSqm { get => _totalScheduledSqm; private set { _totalScheduledSqm = value; OnPropertyChanged(); } }
+
+        private long _completedDonePcs;
+        public long CompletedDonePcs { get => _completedDonePcs; private set { _completedDonePcs = value; OnPropertyChanged(); } }
+
+        private double _completedDoneSqm;
+        public double CompletedDoneSqm { get => _completedDoneSqm; private set { _completedDoneSqm = value; OnPropertyChanged(); } }
+
+        private long _balancePendingPcs;
+        public long BalancePendingPcs { get => _balancePendingPcs; private set { _balancePendingPcs = value; OnPropertyChanged(); } }
+
+        private double _balancePendingSqm;
+        public double BalancePendingSqm { get => _balancePendingSqm; private set { _balancePendingSqm = value; OnPropertyChanged(); } }
+
+        private double _stageCompletionPct;
+        public double StageCompletionPct { get => _stageCompletionPct; private set { _stageCompletionPct = value; OnPropertyChanged(); } }
+
+        public void UpdateStageAutoSums()
+        {
+            var execs = Executions.ToList();
+            if (execs.Count == 0)
+            {
+                TotalScheduledPcs = PendingCount + InProgressCount + CompletedCount + ReworkCount + QcPendingCount;
+                CompletedDonePcs = CompletedCount;
+                BalancePendingPcs = TotalScheduledPcs - CompletedDonePcs;
+                if (BalancePendingPcs < 0) BalancePendingPcs = 0;
+                StageCompletionPct = TotalScheduledPcs > 0 ? Math.Round((double)CompletedDonePcs * 100.0 / TotalScheduledPcs, 1) : 0.0;
+                TotalScheduledSqm = Math.Round(TotalScheduledPcs * 1.575, 1);
+                CompletedDoneSqm = Math.Round(CompletedDonePcs * 1.575, 1);
+                BalancePendingSqm = Math.Round(BalancePendingPcs * 1.575, 1);
+                return;
+            }
+
+            long total = execs.Sum(e => (long)Math.Max(1, e.Qty));
+            long done = execs.Where(e => string.Equals(e.Status, "Completed", StringComparison.OrdinalIgnoreCase) ||
+                                         string.Equals(e.Status, "Ready", StringComparison.OrdinalIgnoreCase))
+                             .Sum(e => (long)Math.Max(1, e.Qty));
+            long balance = total - done;
+
+            TotalScheduledPcs = total;
+            CompletedDonePcs = done;
+            BalancePendingPcs = balance >= 0 ? balance : 0;
+            StageCompletionPct = TotalScheduledPcs > 0 ? Math.Round((double)CompletedDonePcs * 100.0 / TotalScheduledPcs, 1) : 0.0;
+
+            TotalScheduledSqm = Math.Round(TotalScheduledPcs * 1.575, 1);
+            CompletedDoneSqm = Math.Round(CompletedDonePcs * 1.575, 1);
+            BalancePendingSqm = Math.Round(BalancePendingPcs * 1.575, 1);
+        }
+
         // ── Filters ──────────────────────────────────────────────────────
         private string _processFilter = "All";
         public string ProcessFilter
@@ -232,6 +331,7 @@ namespace ProGlassAutomation.ViewModels.Production
                 int remaining = Math.Max(0, required - completed);
 
                 KpiSummary = $"Required {required} Completed {completed} Remaining {remaining} — Pending {PendingCount} InProgress {InProgressCount} Rework {ReworkCount} QC Pending {QcPendingCount} Ready {ReadyCount}";
+                UpdateStageAutoSums();
 
                 // Route examples
                 var examples = ProductionProcessRoutingService.GetRouteExamples();
