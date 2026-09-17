@@ -99,6 +99,26 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             var group = new SpecGroup();
 
+            // ── PUBLISH BEFORE WIRING (2026-09-17 — crash fix) ────────────
+            // The backing field MUST be assigned before anything below runs.
+            // The two wiring steps raise change notifications synchronously:
+            // the PropertyChanged hook re-raises CutListCompositionDisplay,
+            // and the SelectedGlassType setter fires the moment it is given
+            // the default build type. Every one of those notifications makes
+            // the CUT LIST tab's bindings re-read this very property (the
+            // title row binds CutListCompositionDisplay, whose getter reads
+            // ManualCutList; the pane controls bind ManualCutList.* paths).
+            // If the field were still null at that point — the old `??=`
+            // assigned it only AFTER this method returned — each re-read
+            // re-entered CreateManualCutList, which raised the notifications
+            // again: unbounded re-entry, a StackOverflowException the moment
+            // the Optimization module opened, and because a stack overflow
+            // cannot be caught in .NET, no log line and no crash report.
+            // Publishing first turns every re-entrant read into an immediate
+            // return of the (mid-initialisation but already self-consistent)
+            // instance, so the constructor can never nest.
+            _manualCutList = group;
+
             // The title row shows what this list is made of from every pane, so
             // it has to follow the group's own edits — glass type, colours,
             // specification, sheet size — none of which go through this VM.

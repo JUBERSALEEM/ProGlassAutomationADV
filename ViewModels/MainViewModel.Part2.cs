@@ -197,6 +197,26 @@ namespace ProGlassAutomation.ViewModels
                 return;
             }
 
+            // ── Module-open breadcrumb (2026-09-17) ───────────────────────
+            // Written synchronously to the on-disk log BEFORE the module's
+            // view model is constructed and its view inflated. Uncatchable
+            // crashes (StackOverflowException and friends) bypass every .NET
+            // exception handler and write no crash report, so the last line
+            // in app-*.log is the only record of what the app was opening
+            // when it died. If a module ever kills the process again, this
+            // line names it.
+            try
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Info(
+                    $"Navigation → {targetKey ?? "(none)"}",
+                    new ProGlassAutomation.Services.Logging.LogContext
+                    {
+                        Module = "Navigation",
+                        Operation = "Navigate"
+                    });
+            }
+            catch { /* breadcrumb must never break navigation */ }
+
             CurrentModuleKey = targetKey ?? "";
             switch (targetKey)
             {

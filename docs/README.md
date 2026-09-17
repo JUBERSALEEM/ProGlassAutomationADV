@@ -285,6 +285,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`OPTIMIZATION_CLEAR_16SHEET_ANALYSIS_2026-09-12.md`](OPTIMIZATION_CLEAR_16SHEET_ANALYSIS_2026-09-12.md) | CLEAR Job — Deep 16-Sheet Feasibility Analysis (2026-09-12) |
 | [`OPTIMIZATION_IMPORT_AND_SPEC_COUNT_FIXES_2026-09-12.md`](OPTIMIZATION_IMPORT_AND_SPEC_COUNT_FIXES_2026-09-12.md) | Optimization — Size-Import & Spec-Count Fixes (2026-09-12) |
 | [`OPTIMIZATION_MODULE_DESIGN_2026-09-12.md`](OPTIMIZATION_MODULE_DESIGN_2026-09-12.md) | Glass Cutting Optimization Module — Deep Analysis & Implementation Plan |
+| [`OPTIMIZATION_OPEN_CRASH_ROOT_CAUSE_2026-09-17.md`](OPTIMIZATION_OPEN_CRASH_ROOT_CAUSE_2026-09-17.md) | Optimization — "Crash on Open, No Logs" Root-Cause Analysis & Fix (2026-09-17) |
 | [`OPTIMIZATION_PHASE23_EXPORTS_AND_SOURCE_LOCK_2026-09-12.md`](OPTIMIZATION_PHASE23_EXPORTS_AND_SOURCE_LOCK_2026-09-12.md) | Optimization — Phase 2/3, Exports & Source-Lock Fixes (2026-09-12) |
 | [`OPTIMIZATION_STOCKS_STEP4_FIX_2026-09-12.md`](OPTIMIZATION_STOCKS_STEP4_FIX_2026-09-12.md) | Optimization — "Broken Module" Root-Cause Analysis & Fix (2026-09-12) |
 | [`OPTIMIZATION_UI_UX_REDESIGN_2026-09-12.md`](OPTIMIZATION_UI_UX_REDESIGN_2026-09-12.md) | Optimization Module — UI/UX Audit, Rating & 10/10 Phase Plan (2026-09-12) |

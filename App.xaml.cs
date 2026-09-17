@@ -326,6 +326,15 @@ namespace ProGlassAutomation
             Presence?.Dispose();
             SpeechToText?.Dispose();
             TextToSpeech?.Dispose();
+
+            // LAST act of a clean shutdown: remove the "session is open"
+            // marker. If the process dies hard (StackOverflowException,
+            // native fault, Task Manager kill) this never runs, and the next
+            // startup logs that the previous session crashed. Keep it after
+            // every flush above so a failure mid-shutdown still reads as
+            // unclean on the next launch.
+            AppLogService.MarkCleanShutdown();
+
             base.OnExit(e);
         }
     }

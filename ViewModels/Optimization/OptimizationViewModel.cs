@@ -59,6 +59,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         public OptimizationViewModel()
         {
+            // Breadcrumb for uncatchable crashes (e.g. a StackOverflowException
+            // kills the process before any exception handler can run, so the
+            // LAST line in app-*.log is the only evidence of where it died).
+            // Written synchronously to disk by AppLogService.
+            ProGlassAutomation.Services.Logging.AppLogService.Info(
+                "Optimization module opening — constructing view model",
+                new ProGlassAutomation.Services.Logging.LogContext
+                {
+                    Module = "Optimization",
+                    Operation = "OpenModule"
+                });
+
             AddPieceCommand = new RelayCommand(_ => AddPiece());
             RemovePieceCommand = new RelayCommand(p => RemovePiece(p as PieceEntryVm));
             ClearPiecesCommand = new RelayCommand(_ => { Pieces.Clear(); RefreshDerived(); });
@@ -122,6 +134,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // Phase 14 + 15 bridge + cutting workflow
             InitPhase14Optimization();
             InitPhase15Optimization();
+
+            // Pairs with the opening breadcrumb above. If the process dies
+            // between the two lines, the fault is inside this constructor;
+            // if the log shows this line but the view never appeared, the
+            // fault is in the view's XAML / binding inflation instead.
+            ProGlassAutomation.Services.Logging.AppLogService.Info(
+                "Optimization module — view model constructed",
+                new ProGlassAutomation.Services.Logging.LogContext
+                {
+                    Module = "Optimization",
+                    Operation = "OpenModule"
+                });
         }
     }
 }

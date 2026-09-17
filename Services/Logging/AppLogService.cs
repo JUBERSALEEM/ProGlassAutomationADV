@@ -39,6 +39,17 @@ namespace ProGlassAutomation.Services.Logging
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "ProGlassAutomation", "logs");
 
+        /// <summary>
+        /// "Session is open" marker. Written when logging initialises,
+        /// removed by <see cref="MarkCleanShutdown"/>. If it still exists
+        /// at the next startup, the previous session ended without a clean
+        /// shutdown — the signature of an uncatchable crash (a
+        /// StackOverflowException, native fault or kill) that could not run
+        /// any exception handler and therefore wrote no crash report.
+        /// </summary>
+        private static string SessionMarkerPath =>
+            Path.Combine(LogFolder, "session-open.marker");
+
         /// <summary>Raised on the UI thread after each entry is written.</summary>
         public static event EventHandler<LogEntry>? LogWritten;
 
@@ -58,6 +69,72 @@ namespace ProGlassAutomation.Services.Logging
                 }
             }
             catch { /* never fail startup because of logging */ }
+
+            // ── Unclean-shutdown detection (2026-09-17) ─────────────────
+            // A StackOverflowException (or any native / process-level fault)
+            // terminates a .NET process immediately: DispatcherUnhandledException,
+            // AppDomain.UnhandledException and UnobservedTaskException NEVER
+            // run for it, so no log entry and no crash-*.txt can be written
+            // at the moment of death. The marker below is the evidence that
+            // survives: it is only removed on a clean exit, so its presence
+            // at startup proves the previous run died hard. The app-*.log
+            // lines around the recorded end time then show the last thing
+            // the app was doing (module navigation breadcrumbs are written
+            // synchronously to disk for exactly this reason).
+            try
+            {
+                bool unclean = File.Exists(SessionMarkerPath);
+                string previousMarker = unclean
+                    ? SafeReadMarker()
+                    : "";
+
+                File.WriteAllText(
+                    SessionMarkerPath,
+                    $"session-open pid={Environment.ProcessId} " +
+                    $"started={DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}");
+
+                if (unclean)
+                {
+                    Warning(
+                        "Previous session ended WITHOUT a clean shutdown " +
+                        "(no OnExit). This is the signature of an uncatchable " +
+                        "crash such as a StackOverflowException — those bypass " +
+                        "every .NET exception handler, which is why no crash " +
+                        "report was written at the time. Previous session: " +
+                        (string.IsNullOrWhiteSpace(previousMarker)
+                            ? "(marker unreadable)"
+                            : previousMarker.Trim()) +
+                        ". Check the log lines immediately before this entry " +
+                        "and the Windows Event Viewer (Application log, " +
+                        ".NET Runtime / Application Error) for the faulting " +
+                        "module.",
+                        new LogContext { Operation = "Startup" });
+                }
+            }
+            catch { /* marker bookkeeping must never break startup */ }
+        }
+
+        private static string SafeReadMarker()
+        {
+            try { return File.ReadAllText(SessionMarkerPath); }
+            catch { return ""; }
+        }
+
+        /// <summary>
+        /// Removes the "session is open" marker. Called from App.OnExit so
+        /// only a clean shutdown clears it. A crash-triggered Shutdown still
+        /// runs OnExit — that is fine, because a catchable crash has already
+        /// written its crash report; this marker exists for the uncatchable
+        /// ones that write nothing.
+        /// </summary>
+        public static void MarkCleanShutdown()
+        {
+            try
+            {
+                if (File.Exists(SessionMarkerPath))
+                    File.Delete(SessionMarkerPath);
+            }
+            catch { /* never throw from shutdown bookkeeping */ }
         }
 
         // ── Convenience API ─────────────────────────────────────────────
