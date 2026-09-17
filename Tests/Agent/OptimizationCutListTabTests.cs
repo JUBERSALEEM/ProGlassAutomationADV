@@ -362,6 +362,22 @@ namespace ProGlassAutomation.Tests.Agent
         // ── 6. the grid the tab hosts really does the arithmetic ───────────
 
         [Fact]
+        public void The_manual_cut_list_starts_on_a_real_build_type()
+        {
+            // OptimizationViewModel cannot be built in a test — its constructor
+            // starts live database loads — so this pins the creation policy in
+            // source. The hosted field begins empty, and on a tab whose whole
+            // purpose is "start here with nothing" a blank GLASS TYPE dropdown
+            // reads as broken rather than as a choice not yet made. The type
+            // also drives the perimeter factor GENERATE applies to new rows.
+            string vm = Read("ViewModels/Optimization/OptimizationViewModel.CutList.cs");
+
+            Assert.Contains("string.IsNullOrWhiteSpace(group.SelectedGlassType)", vm);
+            Assert.Contains("group.SelectedGlassType = CutListGlassTypeOptions[0];", vm);
+            Assert.Contains("\"SGU\"", vm);
+        }
+
+        [Fact]
         public void A_manual_row_computes_both_pane_areas_and_the_autosums()
         {
             var group = new SpecGroup();
