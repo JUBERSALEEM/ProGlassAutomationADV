@@ -1100,6 +1100,16 @@ namespace ProGlassAutomation.Services.Optimization
                     if (p.X < sheet.UsableX || p.Y < sheet.UsableY ||
                         p.X + p.WidthMm > usableRight || p.Y + p.HeightMm > usableBottom)
                         problems.Add($"Sheet {sheet.SheetNo}: {Label(p)} breaches the margin zone.");
+
+                    // Verify rotation permission adherence
+                    if (result.Rotation == RotationPolicy.Locked && p.Rotated)
+                        problems.Add($"Sheet {sheet.SheetNo}: {Label(p)} is rotated under Locked policy.");
+
+                    // Verify dimension integrity
+                    bool origMatch = (p.WidthMm == p.Piece.WidthMm && p.HeightMm == p.Piece.HeightMm) ||
+                                     (p.WidthMm == p.Piece.HeightMm && p.HeightMm == p.Piece.WidthMm && p.Rotated);
+                    if (!origMatch)
+                        problems.Add($"Sheet {sheet.SheetNo}: {Label(p)} dimension mutated from {p.Piece.WidthMm}x{p.Piece.HeightMm} to {p.WidthMm}x{p.HeightMm}.");
                 }
 
                 for (int i = 0; i < sheet.Pieces.Count; i++)
@@ -1123,9 +1133,44 @@ namespace ProGlassAutomation.Services.Optimization
                             b.Y - (a.Y + a.HeightMm), a.Y - (b.Y + b.HeightMm));
 
                         if (xOverlap && !yOverlap && yGap < kerf)
-                            problems.Add($"Sheet {sheet.SheetNo}: {Label(a)} breaks kerf against {Label(b)}.");
+                            problems.Add($"Sheet {sheet.SheetNo}: {Label(a)} breaks kerf against {Label(b)} ({yGap}mm < {kerf}mm).");
                         if (yOverlap && !xOverlap && xGap < kerf)
-                            problems.Add($"Sheet {sheet.SheetNo}: {Label(a)} breaks kerf against {Label(b)}.");
+                            problems.Add($"Sheet {sheet.SheetNo}: {Label(a)} breaks kerf against {Label(b)} ({xGap}mm < {kerf}mm).");
+                    }
+                }
+            }
+
+            return problems;
+        }
+
+        /// <summary>
+        /// Comprehensive independent verification oracle validating geometry, kerf,
+        /// margins, minimum breakout, quantity conservation, and material conservation.
+        /// </summary>
+        public static List<string> VerifyComprehensive(
+            OptimizationResult result,
+            IReadOnlyList<CutPiece> inputPieces,
+            MarginProfile margins)
+        {
+            var problems = Verify(result, margins);
+
+            // Quantity conservation: InputCount == PlacedCount + UnplacedCount
+            int totalPlaced = result.Sheets.Sum(s => s.Pieces.Count);
+            int totalUnplaced = result.Unplaced.Count;
+            if (inputPieces != null && totalPlaced + totalUnplaced != inputPieces.Count)
+            {
+                problems.Add($"Quantity conservation violation: input {inputPieces.Count} != placed {totalPlaced} + unplaced {totalUnplaced}.");
+            }
+
+            // Material conservation: All pieces on each sheet must match the sheet's stock material / thickness
+            foreach (var sheet in result.Sheets)
+            {
+                foreach (var p in sheet.Pieces)
+                {
+                    if (sheet.Stock != null && p.Piece.ThicknessMm > 0 && sheet.Stock.ThicknessMm > 0 &&
+                        p.Piece.ThicknessMm != sheet.Stock.ThicknessMm)
+                    {
+                        problems.Add($"Sheet {sheet.SheetNo}: piece {Label(p)} thickness {p.Piece.ThicknessMm}mm does not match stock {sheet.Stock.ThicknessMm}mm.");
                     }
                 }
             }
