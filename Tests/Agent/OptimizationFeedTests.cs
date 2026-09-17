@@ -571,10 +571,31 @@ namespace ProGlassAutomation.Tests.Agent
 
             // ResultJson used to be written as string.Empty, so a saved session
             // could not answer "what did the run produce for spec 3 inner".
-            Assert.Contains("ResultJson = JsonSerializer.Serialize(resultRows)", session);
+            // The rows are projected inside the shared snapshot builder now.
+            Assert.Contains("ResultJson = JsonSerializer.Serialize(BuildResultRows())", session);
             Assert.DoesNotContain("ResultJson = string.Empty", session);
             Assert.Contains("public int SpecNumber { get; set; }", session);
             Assert.Contains("public string Side { get; set; }", session);
+        }
+
+        [Fact]
+        public void The_auto_saved_latest_run_row_carries_the_full_snapshot()
+        {
+            string session = Read(LocateProjectRoot(),
+                "ViewModels/Optimization/OptimizationViewModel.Session.cs");
+
+            // One builder, two callers. The automatic upsert used to construct
+            // its own partial entity — ResultJson plus two summary counts — so
+            // the reserved row had no stocks, pieces or margins. OpenSession
+            // deserializes exactly those three columns, which made the auto-
+            // saved row the one row that could not be restored. If the two
+            // paths are ever split apart again, this fails.
+            Assert.Contains("private SavedOptimizationSession BuildSessionSnapshot(string name)", session);
+            Assert.Contains("BuildSessionSnapshot(LatestRunSessionName)", session);
+            Assert.Contains("var session = BuildSessionSnapshot(string.Format(CultureInfo.InvariantCulture,", session);
+            Assert.Contains("StocksJson = JsonSerializer.Serialize(stocks)", session);
+            Assert.Contains("PiecesJson = JsonSerializer.Serialize(pieces)", session);
+            Assert.Contains("MarginsJson = JsonSerializer.Serialize(margins)", session);
         }
 
         [Fact]
