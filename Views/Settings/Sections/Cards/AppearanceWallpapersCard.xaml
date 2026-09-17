@@ -174,7 +174,180 @@
 
                         </StackPanel>
 
-                        <!-- ═════════ GROUP: LANGUAGE &amp; CURRENCY ═════════ -->
+                        <!-- ═══ WALLPAPER STUDIO (2026-09-05) ═══
+                             Dynamic theme-linked scenes (code-drawn, accent-aware),
+                             six built-in designs, one-tap 4K downloads with a
+                             persistent local library. -->
+                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackBottom10}">
+                            <StackPanel>
+                                <StackPanel>
+                                    <TextBlock
+                                               Text="{DynamicResource Settings.WallpaperStudio}"/>
+                                    <TextBlock TextWrapping="Wrap"
+                                               Text="{DynamicResource Settings.WallpaperStudioCaption}"/>
+                                </StackPanel>
+
+                                <!-- Mode: dynamic / file / pinned scene -->
+                                <TextBlock Text="{DynamicResource Settings.WallpaperMode}"
+                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"/>
+                                <ComboBox ItemsSource="{Binding WallpaperModeOptions}"
+                                          SelectedItem="{Binding SelectedWallpaperMode, Mode=TwoWay}"
+                                          Width="300" HorizontalAlignment="Left" Margin="0,2,0,4" Style="{StaticResource ComboBoxStyle}"/>
+
+                                <!-- Built-in theme scenes (live swatches) -->
+                                <TextBlock Text="{DynamicResource Settings.WallpaperBuiltin}"
+                                           FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Margin="{StaticResource SettingsStackGap6Bottom2}"
+                                           Foreground="{DynamicResource AccentBrush}"/>
+                                <ItemsControl ItemsSource="{Binding BuiltinSceneRows}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <!-- No Padding override: the pill template
+                                                 owns its metrics (2026-09-05 lesson —
+                                                 overrides collapsed the button text). -->
+                                            <Button Style="{StaticResource OutlinedPillButton}"
+                                                    Command="{Binding DataContext.ApplyBuiltinSceneCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding Key}"
+                                                    Margin="{StaticResource SettingsTileWrapMargin}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Rectangle Width="36" Height="20" RadiusX="5" RadiusY="5"
+                                                               Fill="{Binding Preview}"/>
+                                                    <TextBlock Text="{Binding Label}" Margin="{StaticResource SettingsInlineGap8}"
+                                                               VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <!-- Download 4K from the internet -->
+                                <TextBlock Text="{DynamicResource Settings.WallpaperOnline}"
+                                           FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Margin="{StaticResource SettingsStackGap6Bottom2}"
+                                           Foreground="{DynamicResource AccentBrush}"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                    <ComboBox ItemsSource="{Binding OnlineCategoryRows}"
+                                              DisplayMemberPath="Label" SelectedValuePath="Key"
+                                              SelectedValue="{Binding SelectedOnlineCategoryKey, Mode=TwoWay}"
+                                              Width="230" HorizontalAlignment="Left" Style="{StaticResource ComboBoxStyle}"/>
+                                    <Button Style="{StaticResource SuccessPillButton}"
+                                            Command="{Binding FetchWallpaperCommand}"
+                                            IsEnabled="{Binding IsWallpaperIdle}"
+                                            Margin="{StaticResource SettingsIconTextMargin}"
+                                            Content="{DynamicResource Settings.WallpaperFetch}"/>
+                                    <ProgressBar Width="120" Height="8" Margin="{StaticResource SettingsInlineGap14}"
+                                                 VerticalAlignment="Center" IsIndeterminate="True"
+                                                 Foreground="{DynamicResource AccentBrush}"
+                                                 Visibility="{Binding IsWallpaperBusy, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                </StackPanel>
+                                <!-- Phase 3: failure is now VISIBLE — the status
+                                     line switches to the danger tint whenever the
+                                     last wallpaper operation failed, instead of
+                                     hiding behind the same grey as success. -->
+                                <TextBlock Text="{Binding WallpaperFetchStatus}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                           TextWrapping="Wrap" Margin="{StaticResource SettingsRowMargin}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground"
+                                                    Value="{DynamicResource TextSecondaryBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsWallpaperFetchError}"
+                                                             Value="True">
+                                                    <Setter Property="Foreground"
+                                                            Value="{DynamicResource TintRedBrush}"/>
+                                                    <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+
+                                <!-- Downloaded library (offline reuse) + management -->
+                                <DockPanel Margin="0,4,0,2">
+                                    <TextBlock Text="{DynamicResource Settings.WallpaperLibrary}"
+                                               FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               VerticalAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Style="{StaticResource OutlinedPillButton}"
+                                                Command="{Binding OpenWallpaperFolderCommand}"
+                                                Margin="{StaticResource SettingsInlineGap6R}"
+                                                Content="{DynamicResource Settings.WallpaperOpenFolder}"/>
+                                        <Button Style="{StaticResource OutlinedPillButton}"
+                                                Command="{Binding ClearWallpaperLibraryCommand}"
+                                                Content="{DynamicResource Settings.WallpaperClearAll}"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <TextBlock Text="{Binding WallpaperLibrarySummary}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,0,0,4"/>
+                                <ScrollViewer MaxHeight="170" VerticalScrollBarVisibility="Auto"
+                                              HorizontalScrollBarVisibility="Disabled">
+                                    <ItemsControl ItemsSource="{Binding CachedWallpapers}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <DockPanel Margin="0,1,0,1">
+                                                    <Button DockPanel.Dock="Right"
+                                                            Style="{StaticResource DangerButton}"
+                                                            Command="{Binding DataContext.DeleteCachedWallpaperCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            CommandParameter="{Binding FullPath}"
+                                                            FontSize="{DynamicResource FontSize.BodySmall}"
+                                                            VerticalAlignment="Center"
+                                                            Content="✕"/>
+                                                    <Button DockPanel.Dock="Right"
+                                                            Style="{StaticResource OutlinedPillButton}"
+                                                            Command="{Binding DataContext.ApplyCachedWallpaperCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            CommandParameter="{Binding FullPath}"
+                                                            FontSize="{DynamicResource FontSize.BodySmall}"
+                                                            VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap6R}"
+                                                            Content="{DynamicResource Settings.WallpaperApply}"/>
+                                                    <TextBlock DockPanel.Dock="Right" Text="{Binding SizeText}"
+                                                               FontSize="{DynamicResource FontSize.BodySmall}"
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                                               VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextTightMargin}"/>
+                                                    <TextBlock Text="{Binding Name}"
+                                                               FontSize="{DynamicResource FontSize.Body}"
+                                                               VerticalAlignment="Center"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                </DockPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+
+                                <!-- OS-level window backdrop (experimental) -->
+                                <TextBlock Text="{DynamicResource Settings.WallpaperBackdrop}"
+                                           FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Margin="{StaticResource SettingsStackGap12Bottom2}"
+                                           Foreground="{DynamicResource AccentBrush}"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Style="{StaticResource OutlinedPillButton}"
+                                            Command="{Binding SetWindowBackdropCommand}" CommandParameter="Off"
+                                            Margin="{StaticResource SettingsInlineGap8R}"
+                                            Content="{DynamicResource Settings.WallpaperBackdropOff}"/>
+                                    <Button Style="{StaticResource OutlinedPillButton}"
+                                            Command="{Binding SetWindowBackdropCommand}" CommandParameter="Mica"
+                                            Margin="{StaticResource SettingsInlineGap8R}"
+                                            Content="{DynamicResource Settings.WallpaperBackdropMica}"/>
+                                    <Button Style="{StaticResource OutlinedPillButton}"
+                                            Command="{Binding SetWindowBackdropCommand}" CommandParameter="Acrylic"
+                                            Content="{DynamicResource Settings.WallpaperBackdropAcrylic}"/>
+                                </StackPanel>
+                                <TextBlock Text="{DynamicResource Settings.WallpaperBackdropCaption}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           TextWrapping="Wrap" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+
+                        
+
+
                     </StackPanel>
                 </Border>
 </UserControl>

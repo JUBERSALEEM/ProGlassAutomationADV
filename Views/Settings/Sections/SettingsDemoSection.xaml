@@ -44,7 +44,8 @@
 
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled">
+                      HorizontalScrollBarVisibility="Disabled"
+                      behaviors:SmoothScrollBehavior.IsEnabled="True">
             <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══════ GROUP: FFMPEG (conditional) ═══════ -->
