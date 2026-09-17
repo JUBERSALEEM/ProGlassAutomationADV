@@ -225,14 +225,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 // so there is nothing worth writing.
                 if (resultRows.Count == 0) return;
 
+                // Captured synchronously, before the first await. The snapshot
+                // reads four UI-bound ObservableCollections — Pieces, Stocks,
+                // AvailableJobs and CostingRows — so building it after an await
+                // would let an operator edit land mid-write and store results
+                // from this run next to stocks that no longer match them.
+                // SafeFireAndForget invokes this on the calling (UI) thread and
+                // ConfigureAwait(true) keeps it there, so this is the UI thread.
+                var snapshot = BuildSessionSnapshot(LatestRunSessionName, resultRows);
+
                 await _sessions.EnsureCreatedAsync();
 
-                // The same full snapshot the manual SAVE button writes, so the
-                // reserved row carries stocks, pieces, margins and the summary
-                // figures as well as the results. BuildResultRows() is projected
-                // again inside the builder; this runs once per run on a
-                // background path, so clarity beats saving one projection.
-                await _sessions.UpsertLatestRunAsync(BuildSessionSnapshot(LatestRunSessionName));
+                await _sessions.UpsertLatestRunAsync(snapshot);
             }
             catch (Exception ex)
             {
@@ -255,7 +259,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// rebuilt later.
         /// </remarks>
         /// <param name="name">Session name. The manual save stamps a timestamp.</param>
-        private SavedOptimizationSession BuildSessionSnapshot(string name)
+        /// <param name="resultRows">Per-pane rows, projected by the caller so
+        /// that the whole snapshot is captured at one instant. Call this on the
+        /// UI thread before the first await — see the callers.</param>
+        private SavedOptimizationSession BuildSessionSnapshot(
+            string name, List<ResultRowDto> resultRows)
         {
             var pieces = Pieces
                 .Where(p => p.TryParse(out _, out _, out _))
@@ -323,7 +331,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 MarginsJson = JsonSerializer.Serialize(margins),
                 StocksJson = JsonSerializer.Serialize(stocks),
                 PiecesJson = JsonSerializer.Serialize(pieces),
-                ResultJson = JsonSerializer.Serialize(BuildResultRows())
+                ResultJson = JsonSerializer.Serialize(resultRows)
             };
         }
 
@@ -337,12 +345,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     return;
                 }
 
+                // Captured before the first await, on the UI thread this command
+                // handler runs on, for the same reason as PersistLatestRunAsync:
+                // one atomic view of the four UI-bound collections rather than a
+                // mix of pre- and post-await state.
+                var resultRows = BuildResultRows();
+
+                var session = BuildSessionSnapshot(string.Format(CultureInfo.InvariantCulture,
+                    "{0} · {1:yyyy-MM-dd HH:mm}", LastRunStage, DateTime.Now), resultRows);
+
                 // No ConfigureAwait(false) here: every VM mutation below must
                 // happen on the captured UI synchronization context.
                 await _sessions.EnsureCreatedAsync();
-
-                var session = BuildSessionSnapshot(string.Format(CultureInfo.InvariantCulture,
-                    "{0} · {1:yyyy-MM-dd HH:mm}", LastRunStage, DateTime.Now));
 
                 await _sessions.InsertAsync(session);
                 SessionStatus = "Session saved — " + session.Name;

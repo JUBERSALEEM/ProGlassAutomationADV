@@ -571,8 +571,7 @@ namespace ProGlassAutomation.Tests.Agent
 
             // ResultJson used to be written as string.Empty, so a saved session
             // could not answer "what did the run produce for spec 3 inner".
-            // The rows are projected inside the shared snapshot builder now.
-            Assert.Contains("ResultJson = JsonSerializer.Serialize(BuildResultRows())", session);
+            Assert.Contains("ResultJson = JsonSerializer.Serialize(resultRows)", session);
             Assert.DoesNotContain("ResultJson = string.Empty", session);
             Assert.Contains("public int SpecNumber { get; set; }", session);
             Assert.Contains("public string Side { get; set; }", session);
@@ -590,12 +589,26 @@ namespace ProGlassAutomation.Tests.Agent
             // deserializes exactly those three columns, which made the auto-
             // saved row the one row that could not be restored. If the two
             // paths are ever split apart again, this fails.
-            Assert.Contains("private SavedOptimizationSession BuildSessionSnapshot(string name)", session);
-            Assert.Contains("BuildSessionSnapshot(LatestRunSessionName)", session);
+            Assert.Contains("string name, List<ResultRowDto> resultRows)", session);
+            Assert.Contains("var snapshot = BuildSessionSnapshot(LatestRunSessionName, resultRows);", session);
             Assert.Contains("var session = BuildSessionSnapshot(string.Format(CultureInfo.InvariantCulture,", session);
             Assert.Contains("StocksJson = JsonSerializer.Serialize(stocks)", session);
             Assert.Contains("PiecesJson = JsonSerializer.Serialize(pieces)", session);
             Assert.Contains("MarginsJson = JsonSerializer.Serialize(margins)", session);
+
+            // The capture must stay ahead of the first await. The snapshot reads
+            // four UI-bound ObservableCollections — Pieces, Stocks,
+            // AvailableJobs, CostingRows — so building it after an await would
+            // let an operator edit land mid-write and persist results from this
+            // run next to stocks that no longer match them. Easy to break by
+            // moving one line, hence locked by position rather than by comment.
+            int capture = session.IndexOf(
+                "var snapshot = BuildSessionSnapshot(LatestRunSessionName, resultRows);",
+                StringComparison.Ordinal);
+            int firstAwait = session.IndexOf("await _sessions.EnsureCreatedAsync();",
+                capture, StringComparison.Ordinal);
+            Assert.True(capture >= 0 && firstAwait > capture,
+                "the latest-run snapshot must be captured before the first await");
         }
 
         [Fact]
