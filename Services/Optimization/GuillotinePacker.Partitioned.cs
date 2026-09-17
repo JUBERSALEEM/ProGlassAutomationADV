@@ -196,51 +196,7 @@ namespace ProGlassAutomation.Services.Optimization
             }
 
             return batches;
-        }        private static List<List<CutPiece>> PartitionIntoBatches(List<CutPiece> pieces, int batchTargetSize)
-        {
-            var batches = new List<List<CutPiece>>();
-            int count = pieces.Count;
-            if (count == 0) return batches;
-
-            int target = Math.Max(200, batchTargetSize);
-<<<<<<< HEAD
-            for (int i = 0; i < count; i += target)
-            {
-                int len = Math.Min(target, count - i);
-                batches.Add(pieces.GetRange(i, len));
-            }
-=======
-            int batchCount = (int)Math.Ceiling((double)count / target);
-            if (batchCount <= 1)
-            {
-                batches.Add(new List<CutPiece>(pieces));
-                return batches;
-            }
-
-            for (int b = 0; b < batchCount; b++)
-            {
-                batches.Add(new List<CutPiece>(target + 50));
-            }
-
-            // Stratified round-robin distribution preserving local sorted order within each batch
-            // pieces are pre-sorted descending (e.g. by Area). Distributing them across batches
-            // in snake/round-robin fashion ensures every batch receives an equal proportion of
-            // large anchors, mid-range panels, and small filler pieces.
-            for (int i = 0; i < count; i++)
-            {
-                int batchIndex = i % batchCount;
-                batches[batchIndex].Add(pieces[i]);
-            }
-
->>>>>>> 880ebfa (feat(optimization): implement 5-stage stratified adaptive smart-search cutting engine)
-            return batches;
-        }
-
-        /// <summary>
-        /// Optimizes a single production batch using bounded multi-candidate smart search.
-        /// Evaluates deterministic orderings, windowed Best-Split, and Smart Placement.
-        /// </summary>
-        private static OptimizationResult OptimizeBatch(
+        }        private static OptimizationResult OptimizeBatch(
             List<CutPiece> batchPieces,
             IReadOnlyList<StockSize> stocks,
             MarginProfile margins,
