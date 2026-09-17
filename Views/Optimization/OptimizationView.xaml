@@ -230,25 +230,20 @@
             </Grid>
         </Grid>
 
-        <!-- ══ OPTIMIZATION PROGRESS SCREEN ══════════════════════════════
-             Covers the module while a run is in flight. A large job (many
-             cutting groups, thousands of parts) can legitimately take
-             minutes, and the old 3px indeterminate header bar made that
-             indistinguishable from a hung UI. Determinate progress is
-             reported per candidate pass (OPTIMIZE) or per cutting group
-             (QUICK) with live telemetry, active plate and search stats,
-             elapsed timer, and high-visibility danger stop controls.
-             Rendered last so it sits above the tab host. -->
+        <!-- ══ OPTIMIZATION PROGRESS SCREEN (PREMIUM MODAL) ══════════════
+             High-visibility, spacious, modern industrial optimization cockpit.
+             Displays real-time stage strategy, dual progress meters, live plate telemetry,
+             scale profile, and stop controls. -->
         <Grid Visibility="{Binding IsRunProgressVisible, Converter={StaticResource BoolToVisibilityConverter}}">
-            <Border Background="{DynamicResource Surface.Secondary.BackgroundBrush}" Opacity="0.96"/>
+            <Border Background="{DynamicResource Surface.Secondary.BackgroundBrush}" Opacity="0.94"/>
 
-            <Border HorizontalAlignment="Center" VerticalAlignment="Center" Width="680"
-                    Padding="32,28" CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                    Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
-                    BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
-                    Effect="{DynamicResource ShadowSoft}">
+            <Border HorizontalAlignment="Center" VerticalAlignment="Center" Width="820"
+                    Padding="36,32" CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                    Background="{DynamicResource SurfacePrimaryBrush}"
+                    BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1.5"
+                    Effect="{DynamicResource ShadowHeavy}">
                 <StackPanel>
-                    <!-- Header with Industrial Status & Badge -->
+                    <!-- Header with Industrial Badge & Real-Time Clock -->
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -258,73 +253,145 @@
                         <StackPanel Grid.Column="0" VerticalAlignment="Center">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource ControlCornerRadius}"
-                                        Width="28" Height="28" Margin="0,0,10,0">
+                                        Width="36" Height="36" Margin="0,0,12,0">
                                     <TextBlock Text="&#xE9D9;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                               FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource AccentBrush}"
+                                               FontSize="{DynamicResource FontSize.Title}" Foreground="{DynamicResource AccentBrush}"
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
-                                <TextBlock Text="OPTIMIZATION IN PROGRESS" Style="{StaticResource OptPanelTitle}"
-                                           FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"/>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="PROGLASS ADAPTIVE SMART-SEARCH ENGINE" Style="{StaticResource OptHeader}"
+                                               FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource AccentBrush}"/>
+                                    <TextBlock Text="CUTTING OPTIMIZATION IN PROGRESS" Style="{StaticResource OptPanelTitle}"
+                                               FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
                             </StackPanel>
 
                             <TextBlock Text="{Binding RunStageLabel}"
-                                       TextWrapping="Wrap" Margin="0,8,0,0"
+                                       TextWrapping="Wrap" Margin="0,12,0,0"
                                        FontSize="{DynamicResource FontSize.Title}"
-                                       FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource AccentBrush}"/>
+                                       FontWeight="{DynamicResource Weight.SemiBold}"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         </StackPanel>
 
-                        <!-- Live Telemetry Timer Badge -->
+                        <!-- Live Elapsed Time Pill -->
                         <Border Grid.Column="1" VerticalAlignment="Top"
-                                Background="{DynamicResource SurfacePrimaryBrush}"
+                                Background="{DynamicResource SurfaceSecondaryBrush}"
                                 BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
-                                Padding="14,8">
+                                Padding="16,10">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE823;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                           FontSize="{DynamicResource FontSize.BodySmall}"
-                                           Foreground="{DynamicResource TextTertiaryBrush}"
+                                           FontSize="{DynamicResource FontSize.Body}"
+                                           Foreground="{DynamicResource AccentBrush}"
                                            VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <TextBlock Text="{Binding RunElapsedLabel, StringFormat=Elapsed {0}}"
-                                           FontSize="{DynamicResource FontSize.BodySmall}"
-                                           FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"
-                                           VerticalAlignment="Center"/>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="ELAPSED TIME" Style="{StaticResource OptHeader}" FontSize="10"/>
+                                    <TextBlock Text="{Binding RunElapsedLabel}"
+                                               FontSize="{DynamicResource FontSize.Body}"
+                                               FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
                     </Grid>
 
-                    <!-- Industrial Determinate Progress Meter -->
-                    <Grid Margin="0,22,0,0">
-                        <ProgressBar Height="10" Minimum="0" Maximum="100"
-                                     Value="{Binding RunProgressPercent, Mode=OneWay}"/>
+                    <!-- Industrial Gradient Determinate Progress Meter -->
+                    <Grid Margin="0,26,0,0">
+                        <Border Height="14" CornerRadius="7" Background="{DynamicResource SurfaceSecondaryBrush}">
+                            <ProgressBar Height="14" Minimum="0" Maximum="100"
+                                         Value="{Binding RunProgressPercent, Mode=OneWay}"
+                                         Foreground="{DynamicResource AccentBrush}"/>
+                        </Border>
                     </Grid>
 
                     <!-- Progress Percentage & Sub-status Detail -->
-                    <Grid Margin="0,10,0,0">
+                    <Grid Margin="0,12,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{Binding RunProgressDetail}" TextWrapping="Wrap"
-                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                   FontWeight="{DynamicResource Weight.Medium}"
-                                   Foreground="{DynamicResource TextSecondaryBrush}"
-                                   VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="1" VerticalAlignment="Center" Margin="14,0,0,0"
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding RunProgressDetail}" TextWrapping="Wrap"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       FontWeight="{DynamicResource Weight.Medium}"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                        </StackPanel>
+                        <TextBlock Grid.Column="1" VerticalAlignment="Center" Margin="16,0,0,0"
                                    Text="{Binding RunProgressPercent, StringFormat={}{0}%}"
-                                   FontSize="{DynamicResource FontSize.Title}"
+                                   FontSize="{DynamicResource FontSize.H2}"
                                    FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                   Foreground="{DynamicResource AccentBrush}"/>
                     </Grid>
 
-                    <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,20,0,16"/>
+                    <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,24,0,20"/>
 
-                    <!-- Operational Scale Profile & Search Strategy Inset -->
-                    <Border Background="{DynamicResource SurfacePrimaryBrush}"
+                    <!-- Real-Time Strategy & Hardware Telemetry Cards -->
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Card 1: Active Strategy Stage -->
+                        <Border Grid.Column="0" Background="{DynamicResource SurfaceSecondaryBrush}"
+                                BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                Padding="16,12" Margin="0,0,8,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Background="{DynamicResource TintBlueBrush}"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                                        Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center">
+                                    <TextBlock Text="&#xE713;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                               FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource AccentBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="SELECTED STRATEGY STAGE" Style="{StaticResource OptHeader}" FontSize="10"/>
+                                    <TextBlock Text="{Binding SelectedStageStrategy}" TextTrimming="CharacterEllipsis"
+                                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Card 2: Scale Tier & Batching Status -->
+                        <Border Grid.Column="1" Background="{DynamicResource SurfaceSecondaryBrush}"
+                                BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                Padding="16,12" Margin="8,0,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Background="{DynamicResource TintGreenBrush}"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                                        Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center">
+                                    <TextBlock Text="&#xE7B8;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                               FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SuccessBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="SCALE ARCHITECTURE" Style="{StaticResource OptHeader}" FontSize="10"/>
+                                    <TextBlock Text="Stratified Proportional Batches (K=400)"
+                                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <!-- Operational Scale Profile & Diagnostics Inset -->
+                    <Border Background="{DynamicResource SurfaceSecondaryBrush}"
                             BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
                             CornerRadius="{DynamicResource CardCornerRadius}"
-                            Padding="16,12"
+                            Padding="16,14" Margin="0,0,0,24"
                             Visibility="{Binding HasRunScale, Converter={StaticResource BoolToVisibilityConverter}}">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -333,26 +400,27 @@
                             </Grid.ColumnDefinitions>
                             <Border Grid.Column="0" Background="{DynamicResource TintTealBrush}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Width="26" Height="26" Margin="0,0,12,0" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE7B8;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                    Width="28" Height="28" Margin="0,0,12,0" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE946;" FontFamily="{DynamicResource FontFamily.Icon}"
                                            FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource AccentBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <TextBlock Grid.Column="1" Text="{Binding RunScaleLabel}" TextWrapping="Wrap"
                                        VerticalAlignment="Center"
-                                       FontSize="{DynamicResource FontSize.Caption}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
                                        FontWeight="{DynamicResource Weight.Medium}"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
                         </Grid>
                     </Border>
 
-                    <!-- Emergency Stop / Cancellation Action -->
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,22,0,0">
+                    <!-- Stop / Cancel Action Button -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <Button Content="Stop Optimization" Tag="&#xE71A;"
                                 Style="{StaticResource DangerButton}"
                                 Command="{Binding CancelRunCommand}" IsEnabled="{Binding CanCancel}"
-                                Height="38" MinWidth="180" Padding="24,0"
-                                ToolTip="Immediately abort the optimization engine — safe checkpoint reached per part"/>
+                                Height="42" MinWidth="220" Padding="28,0"
+                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                ToolTip="Gracefully stop optimization and retain all completed plates"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
