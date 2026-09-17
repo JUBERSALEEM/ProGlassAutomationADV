@@ -54,7 +54,69 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public string SelectedEffortLevel
         {
             get => _selectedEffortLevel;
-            set { _selectedEffortLevel = value; OnPropertyChanged(); }
+            set
+            {
+                if (_selectedEffortLevel != value)
+                {
+                    _selectedEffortLevel = value;
+                    OnPropertyChanged();
+                    SyncStageStrategyFromEffort(value);
+                }
+            }
+        }
+
+        public ObservableCollection<string> StageStrategies { get; } = new()
+        {
+            "Stage 1: QUICK (Deterministic Shelf)",
+            "Stage 2: Effort 2 (Multi-Order Grid)",
+            "Stage 3: Effort 3 (Stratified Smart Search)",
+            "Stage 4: Effort 4 (Windowed Best-Split & Sheet-Fill)",
+            "Stage 5: Effort 5 (Deep Smart Placement & Consolidation)"
+        };
+
+        private string _selectedStageStrategy = "Stage 3: Effort 3 (Stratified Smart Search)";
+        public string SelectedStageStrategy
+        {
+            get => _selectedStageStrategy;
+            set
+            {
+                if (_selectedStageStrategy != value)
+                {
+                    _selectedStageStrategy = value;
+                    OnPropertyChanged();
+                    SyncEffortFromStageStrategy(value);
+                }
+            }
+        }
+
+        private void SyncStageStrategyFromEffort(string effort)
+        {
+            _selectedStageStrategy = effort switch
+            {
+                "1" => StageStrategies[0],
+                "2" => StageStrategies[1],
+                "3" => StageStrategies[2],
+                "4" => StageStrategies[3],
+                "5" => StageStrategies[4],
+                _ => StageStrategies[2]
+            };
+            OnPropertyChanged(nameof(SelectedStageStrategy));
+        }
+
+        private void SyncEffortFromStageStrategy(string strategy)
+        {
+            if (string.IsNullOrWhiteSpace(strategy)) return;
+            string effort = strategy.StartsWith("Stage 1", StringComparison.OrdinalIgnoreCase) ? "1"
+                          : strategy.StartsWith("Stage 2", StringComparison.OrdinalIgnoreCase) ? "2"
+                          : strategy.StartsWith("Stage 3", StringComparison.OrdinalIgnoreCase) ? "3"
+                          : strategy.StartsWith("Stage 4", StringComparison.OrdinalIgnoreCase) ? "4"
+                          : strategy.StartsWith("Stage 5", StringComparison.OrdinalIgnoreCase) ? "5"
+                          : "3";
+            if (_selectedEffortLevel != effort)
+            {
+                _selectedEffortLevel = effort;
+                OnPropertyChanged(nameof(SelectedEffortLevel));
+            }
         }
 
         // ── margins ────────────────────────────────────────────────────

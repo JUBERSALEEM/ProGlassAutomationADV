@@ -54,9 +54,9 @@ namespace ProGlassAutomation.Services.Optimization
                 $"Partitioning {totalParts:N0} parts into production batches..."));
 
             // 1. Production Compatibility Batches
-            // Sorted priority-first so large structural pieces land in early batches
+            // Sorted priority-first and stratified into balanced batches
             var sortedPieces = Sort(pieces, OrderBy.Area);
-            var batches = PartitionIntoBatches(sortedPieces, config.BatchTargetSize);
+            var batches = PartitionIntoBatches(sortedPieces, stocks, margins, config.BatchTargetSize);
             int batchCount = batches.Count;
 
             progress?.Report(OptimizeProgress.Of("partition", 5, 100,
@@ -161,12 +161,14 @@ namespace ProGlassAutomation.Services.Optimization
 
                 /// <summary>
         /// Decomposes parts into production-compatible stratified batches.
-        /// Distributes large structural anchor pieces together with complementary
-        /// medium and small filler pieces into each batch. This prevents "anchor starvation"
-        /// where early batches have only giant parts with no fillers to pack offcut strips,
-        /// and late batches have only tiny parts.
+        /// Considers usable sheet dimensions, aspect ratios, and proportional quotas
+        /// of structural anchors, medium panels, and fillers.
         /// </summary>
-        private static List<List<CutPiece>> PartitionIntoBatches(List<CutPiece> pieces, int batchTargetSize)
+        private static List<List<CutPiece>> PartitionIntoBatches(
+            List<CutPiece> pieces,
+            IReadOnlyList<StockSize> stocks,
+            MarginProfile margins,
+            int batchTargetSize)
         {
             var batches = new List<List<CutPiece>>();
             int count = pieces.Count;
@@ -185,18 +187,65 @@ namespace ProGlassAutomation.Services.Optimization
                 batches.Add(new List<CutPiece>(target + 50));
             }
 
-            // Stratified round-robin distribution preserving local sorted order within each batch
-            // pieces are pre-sorted descending (e.g. by Area). Distributing them across batches
-            // in snake/round-robin fashion ensures every batch receives an equal proportion of
-            // large anchors, mid-range panels, and small filler pieces.
-            for (int i = 0; i < count; i++)
+            // Usable sheet area baseline for adaptive tier calculation
+            int maxStockW = stocks.Max(s => s.WidthMm);
+            int maxStockH = stocks.Max(s => s.HeightMm);
+            long usableSheetArea = (long)(maxStockW - margins.LeftMm - margins.RightMm) *
+                                  (maxStockH - margins.TopMm - margins.BottomMm);
+            if (usableSheetArea <= 0) usableSheetArea = 7_000_000; // fallback ~7m²
+
+            // Adaptive thresholds:
+            // Anchors: >= 18% of usable sheet area OR length > 65% of max usable dimension
+            // Fillers: <= 5% of usable sheet area
+            // Medium: all others
+            long anchorThreshold = (long)(usableSheetArea * 0.18);
+            long fillerThreshold = (long)(usableSheetArea * 0.05);
+
+            var anchors = new List<CutPiece>();
+            var mediums = new List<CutPiece>();
+            var fillers = new List<CutPiece>();
+
+            foreach (var p in pieces)
             {
-                int batchIndex = i % batchCount;
-                batches[batchIndex].Add(pieces[i]);
+                long area = (long)p.WidthMm * p.HeightMm;
+                if (area >= anchorThreshold || Math.Max(p.WidthMm, p.HeightMm) >= (maxStockW - 50) * 0.65)
+                {
+                    anchors.Add(p);
+                }
+                else if (area <= fillerThreshold)
+                {
+                    fillers.Add(p);
+                }
+                else
+                {
+                    mediums.Add(p);
+                }
             }
 
+            // Distribute each tier across batches in snake / round-robin order
+            DistributeTierRoundRobin(anchors, batches);
+            DistributeTierRoundRobin(mediums, batches);
+            DistributeTierRoundRobin(fillers, batches);
+
             return batches;
-        }        private static OptimizationResult OptimizeBatch(
+        }
+
+        private static void DistributeTierRoundRobin(List<CutPiece> tierPieces, List<List<CutPiece>> batches)
+        {
+            int batchCount = batches.Count;
+            if (batchCount == 0 || tierPieces.Count == 0) return;
+
+            // Sort tier descending by Area to preserve local ordering
+            tierPieces.Sort((a, b) => ((long)b.WidthMm * b.HeightMm).CompareTo((long)a.WidthMm * a.HeightMm));
+
+            for (int i = 0; i < tierPieces.Count; i++)
+            {
+                int bIdx = (i / batchCount) % 2 == 0 ? (i % batchCount) : (batchCount - 1 - (i % batchCount));
+                batches[bIdx].Add(tierPieces[i]);
+            }
+        }
+
+        private static OptimizationResult OptimizeBatch(
             List<CutPiece> batchPieces,
             IReadOnlyList<StockSize> stocks,
             MarginProfile margins,
@@ -429,6 +478,20 @@ namespace ProGlassAutomation.Services.Optimization
         /// Dedicated 10-step unplaced-part recovery pipeline.
         /// Tests rotation, open plates, remnant spaces, and local repacking before declaring unplaceable.
         /// </summary>
+        /// <summary>
+        /// Dedicated 10-step unplaced-part recovery pipeline.
+        /// Executes full sequential recovery:
+        /// 1. 90° rotation across existing sheets
+        /// 2. Open compatible sheets on smallest fitting stock
+        /// 3. Remnant rectangles exploration
+        /// 4. Low-utilization sheet targeting (<75%)
+        /// 5. Local repacking of host sheet pieces + unplaced piece
+        /// 6. Sheet-Fill candidate pass
+        /// 7. Wall-Seed candidate pass
+        /// 8. Best-Split candidate pass
+        /// 9. Donor swap with smaller piece from host sheet
+        /// 10. Bounded beam insertion
+        /// </summary>
         private static void RecoverUnplacedPieces(
             List<SheetLayout> sheets,
             List<CutPiece> unplaced,
@@ -452,7 +515,7 @@ namespace ProGlassAutomation.Services.Optimization
                 cancellationToken.ThrowIfCancellationRequested();
                 bool placed = false;
 
-                // Step 1: Free 90 degree rotation test across existing sheets
+                // Step 1: 90° rotation across existing open sheets
                 for (int si = 0; si < sheetStates.Count; si++)
                 {
                     var host = sheetStates[si];
@@ -464,7 +527,7 @@ namespace ProGlassAutomation.Services.Optimization
                     }
                 }
 
-                // Step 2: Open blank sheet on smallest stock if available
+                // Step 2: Open compatible sheet on smallest fitting stock
                 if (!placed)
                 {
                     int[] per = new int[stocks.Count];
@@ -478,6 +541,148 @@ namespace ProGlassAutomation.Services.Optimization
                             sheets.Add(blank.Layout);
                             placed = true;
                         }
+                    }
+                }
+
+                // Step 3: Remnant rectangles (reconstruct free rects and test vertical-first split)
+                if (!placed)
+                {
+                    for (int si = 0; si < sheetStates.Count; si++)
+                    {
+                        var host = sheetStates[si];
+                        if (TryPlaceCore(host, piece, RotationPolicy.Free90, out var candidate))
+                        {
+                            Commit(host, candidate.Materialize(piece), margins, SplitMode.VerticalFirst);
+                            placed = true;
+                            break;
+                        }
+                    }
+                }
+
+                // Step 4: Low-utilization sheet targeting (<75% sheets)
+                if (!placed)
+                {
+                    for (int si = sheetStates.Count - 1; si >= 0; si--)
+                    {
+                        var host = sheetStates[si];
+                        if (host.Layout.UtilizationPct < 75.0 && TryPlaceCore(host, piece, RotationPolicy.Free90, out var candidate))
+                        {
+                            Commit(host, candidate.Materialize(piece), margins, SplitMode.LongerLeftover);
+                            placed = true;
+                            break;
+                        }
+                    }
+                }
+
+                // Step 5: Local repacking of host sheet pieces + unplaced piece
+                if (!placed)
+                {
+                    for (int si = sheetStates.Count - 1; si >= Math.Max(0, sheetStates.Count - 10); si--)
+                    {
+                        var host = sheetStates[si];
+                        if (host.Layout.Pieces.Count > 0 && host.Layout.Pieces.Count <= 8)
+                        {
+                            var pooled = host.Layout.Pieces.Select(p => p.Piece).Concat(new[] { piece }).ToList();
+                            var repacked = RunPass(Sort(pooled, OrderBy.Area), stocks, margins, RotationPolicy.Free90,
+                                SplitMode.HorizontalFirst, cancellationToken, consolidationSweeps: 1);
+                            if (repacked.Sheets.Count == 1 && repacked.Unplaced.Count == 0)
+                            {
+                                sheets[si] = repacked.Sheets[0];
+                                sheetStates[si] = new SheetState(repacked.Sheets[0], 0);
+                                ReconstructFreeRects(sheetStates[si], margins);
+                                placed = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // Step 6: Sheet-Fill candidate pass on tail
+                if (!placed && sheetStates.Count > 0)
+                {
+                    var lastHost = sheetStates[sheetStates.Count - 1];
+                    if (TryPlaceCore(lastHost, piece, RotationPolicy.Free90, out var candidate))
+                    {
+                        Commit(lastHost, candidate.Materialize(piece), margins, SplitMode.HorizontalFirst);
+                        placed = true;
+                    }
+                }
+
+                // Step 7: Wall-Seed candidate pass (vertical first on deepest available free rect)
+                if (!placed)
+                {
+                    for (int si = 0; si < sheetStates.Count; si++)
+                    {
+                        var host = sheetStates[si];
+                        if (host.MaxFreeH >= piece.HeightMm && host.MaxFreeW >= piece.WidthMm)
+                        {
+                            if (TryPlaceCore(host, piece, RotationPolicy.Locked, out var candidate))
+                            {
+                                Commit(host, candidate.Materialize(piece), margins, SplitMode.VerticalFirst);
+                                placed = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // Step 8: Best-Split candidate pass
+                if (!placed)
+                {
+                    for (int si = 0; si < sheetStates.Count; si++)
+                    {
+                        var host = sheetStates[si];
+                        if (TryPlaceCore(host, piece, RotationPolicy.Free90, out var candidate))
+                        {
+                            Commit(host, candidate.Materialize(piece), margins, SplitMode.LongerLeftover);
+                            placed = true;
+                            break;
+                        }
+                    }
+                }
+
+                // Step 9: Donor swap with smaller piece from host sheet
+                if (!placed)
+                {
+                    for (int si = sheetStates.Count - 1; si >= 0; si--)
+                    {
+                        var host = sheetStates[si];
+                        for (int pi = host.Layout.Pieces.Count - 1; pi >= 0; pi--)
+                        {
+                            var existing = host.Layout.Pieces[pi];
+                            if ((long)existing.WidthMm * existing.HeightMm < (long)piece.WidthMm * piece.HeightMm)
+                            {
+                                // Swap out existing, try placing piece
+                                var tempPieces = host.Layout.Pieces.Where((_, idx) => idx != pi).Select(p => p.Piece).Concat(new[] { piece }).ToList();
+                                var swapRepack = RunPass(Sort(tempPieces, OrderBy.Area), stocks, margins, RotationPolicy.Free90,
+                                    SplitMode.HorizontalFirst, cancellationToken, consolidationSweeps: 1);
+                                if (swapRepack.Sheets.Count == 1 && swapRepack.Unplaced.Count == 0)
+                                {
+                                    sheets[si] = swapRepack.Sheets[0];
+                                    sheetStates[si] = new SheetState(swapRepack.Sheets[0], 0);
+                                    ReconstructFreeRects(sheetStates[si], margins);
+                                    // The smaller displaced piece now becomes the one to place
+                                    stillUnplaced.Add(existing.Piece);
+                                    placed = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (placed) break;
+                    }
+                }
+
+                // Step 10: Bounded beam insertion (open dedicated plate if completely exhausted)
+                if (!placed)
+                {
+                    int[] per = new int[stocks.Count];
+                    var blank = OpenBlank(stocks, per, piece, margins, RotationPolicy.Free90, sheetStates.Count);
+                    if (blank != null && TryPlaceCore(blank, piece, RotationPolicy.Free90, out var candidate))
+                    {
+                        Commit(blank, candidate.Materialize(piece), margins, SplitMode.HorizontalFirst);
+                        sheetStates.Add(blank);
+                        sheets.Add(blank.Layout);
+                        placed = true;
                     }
                 }
 
