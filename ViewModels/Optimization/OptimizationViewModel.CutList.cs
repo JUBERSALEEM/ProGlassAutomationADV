@@ -91,7 +91,26 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// hooks the spec catalogue, and the headless host a proforma quote
         /// drives its Step 5 runs through never opens this tab.
         /// </summary>
-        public SpecGroup ManualCutList => _manualCutList ??= new SpecGroup();
+        public SpecGroup ManualCutList => _manualCutList ??= CreateManualCutList();
+
+        private SpecGroup CreateManualCutList()
+        {
+            var group = new SpecGroup();
+
+            // A build type up front. The field starts empty, and on a tab whose
+            // whole purpose is "start here with nothing" an empty GLASS TYPE
+            // dropdown reads as broken rather than as a choice not yet made. It
+            // also drives the perimeter factor GENERATE applies to new rows.
+            // Setting it here is side-effect free: the setter clears a spec that
+            // belongs to a different family, and there is no spec yet.
+            if (string.IsNullOrWhiteSpace(group.SelectedGlassType)
+                && CutListGlassTypeOptions.Count > 0)
+            {
+                group.SelectedGlassType = CutListGlassTypeOptions[0];
+            }
+
+            return group;
+        }
 
         /// <summary>Build types offered for the cut list, mirroring Step 5's
         /// <c>GlassTypeOptions</c> so the same vocabulary is used everywhere.
