@@ -562,17 +562,35 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 : ((stockArea - glass) / stockArea * 100.0).ToString("0.0", CultureInfo.InvariantCulture) + "%";
 
             UnplacedRows.Clear();
+            // SCALE FIX: a job that cannot be placed pushes one string per part
+            // into a bound ObservableCollection, on the dispatcher, one
+            // CollectionChanged each. At 30,000 parts that is a frozen window
+            // rather than a list — and the list is not even the number the
+            // operator needs, because ResultUnplaced already carries the true
+            // total. So this shows a sample and says that it is a sample.
+            const int unplacedRowCap = 500;
+            int unplacedListed = 0;
+            int unplacedSeen = 0;
             foreach (var r in runs)
             {
                 foreach (var up in r.Result.Unplaced)
                 {
+                    unplacedSeen++;
+                    if (unplacedListed >= unplacedRowCap) continue;
                     string label = string.IsNullOrWhiteSpace(up.PieceLabel) ? up.GlassRef : up.PieceLabel;
                     UnplacedRows.Add(string.Format(CultureInfo.InvariantCulture,
                         "{0} · {1} · {2} × {3} mm",
                         r.Composition, label, up.WidthMm, up.HeightMm));
+                    unplacedListed++;
                 }
             }
-            HasUnplaced = UnplacedRows.Count > 0;
+            if (unplacedSeen > unplacedListed)
+            {
+                UnplacedRows.Add(string.Format(CultureInfo.InvariantCulture,
+                    "…and {0} more. The UNPLACED total above is the full count.",
+                    unplacedSeen - unplacedListed));
+            }
+            HasUnplaced = unplacedSeen > 0;
 
             // Per-cutting-group breakdown (composition → sheets / util / waste).
             GroupResults.Clear();

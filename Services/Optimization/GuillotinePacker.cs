@@ -250,15 +250,25 @@ namespace ProGlassAutomation.Services.Optimization
                 best = Better(best, candidate);
             }
 
-            if (effortLevel >= 2)
+            // SCALE FIX 5: the sheet-at-a-time strategies are quadratic in the
+            // job — every placement re-scans the whole remaining part list, and
+            // RunBestSplit does that three times per sheet, once per split rule.
+            // At 30,000 parts across roughly 1,000 sheets that is billions of
+            // placement attempts: a run that does not come back, which the
+            // operator experiences as a crashed application. ScaleProfile
+            // already told them "only the minimum search was run"; now the code
+            // agrees with it. Everything here stays available up to the Huge
+            // threshold, and the linear passes, MaxRects and consolidation still
+            // run beyond it.
+            if (effortLevel >= 2 && scale.AllowQuadraticStrategies)
             {
                 foreach (var split in splits)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     best = Better(best, RunSheetFill(pieces, stocks, margins, rotation, split,
-                        scale.ConsolidationSweeps));
+                        scale.ConsolidationSweeps, cancellationToken));
                     best = Better(best, RunWallSeed(pieces, stocks, margins, rotation, split,
-                        scale.ConsolidationSweeps));
+                        scale.ConsolidationSweeps, cancellationToken));
                 }
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -266,7 +276,7 @@ namespace ProGlassAutomation.Services.Optimization
                 // This is the candidate that takes the Clear group from 17
                 // sheets to the owner's reference 16.
                 best = Better(best, RunBestSplit(pieces, stocks, margins, rotation,
-                    scale.ConsolidationSweeps));
+                    scale.ConsolidationSweeps, cancellationToken));
 
                 // ── SMART PLACEMENT (2026-09-17) ──────────────────────────
                 // Capacity-preserving placement, per-placement split choice and
@@ -303,7 +313,8 @@ namespace ProGlassAutomation.Services.Optimization
                              effortLevel >= 5 ? 6 : 3, scale.MaxRectsOrderings)))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    best = Better(best, RunMaxRects(Sort(pieces, order), stocks, margins, rotation));
+                    best = Better(best, RunMaxRects(Sort(pieces, order), stocks, margins, rotation,
+                            cancellationToken));
                 }
 
                 // Beam-corrected version: greedy per-sheet selection is myopic
@@ -320,11 +331,11 @@ namespace ProGlassAutomation.Services.Optimization
                 if (scale.AllowBeam)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    best = Better(best, RunBestSplitBeam(pieces, stocks, margins, rotation, 4));
+                    best = Better(best, RunBestSplitBeam(pieces, stocks, margins, rotation, 4, cancellationToken));
                     if (effortLevel >= 4)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
-                        best = Better(best, RunBestSplitBeam(pieces, stocks, margins, rotation, 8));
+                        best = Better(best, RunBestSplitBeam(pieces, stocks, margins, rotation, 8, cancellationToken));
                     }
                 }
             }
@@ -389,7 +400,8 @@ namespace ProGlassAutomation.Services.Optimization
                 }
             }
 
-            ConsolidateAll(sheets, margins, rotation, split, consolidationSweeps);
+            ConsolidateAll(sheets, margins, rotation, split, consolidationSweeps,
+                cancellationToken: cancellationToken);
             SortSheetsFullestFirst(sheets);
 
             for (int i = 0; i < sheets.Count; i++)
@@ -846,7 +858,8 @@ namespace ProGlassAutomation.Services.Optimization
 
         private static void ConsolidateAll(
             List<SheetState> sheets, MarginProfile margins, RotationPolicy rotation, SplitMode split,
-            int maxSweeps = int.MaxValue, int minBreakout = 0)
+            int maxSweeps = int.MaxValue, int minBreakout = 0,
+            CancellationToken cancellationToken = default)
         {
             if (sheets.Count <= 1) return;
 
@@ -871,6 +884,10 @@ namespace ProGlassAutomation.Services.Optimization
 
                 foreach (int donorIndex in order)
                 {
+                    // One check per donor: evacuating a sheet costs
+                    // victims x sheets placement attempts, so this is the
+                    // granularity at which Cancel can actually be honoured.
+                    cancellationToken.ThrowIfCancellationRequested();
                     if (sheets.Count <= 1) break;
                     if (donorIndex >= sheets.Count) continue;
 

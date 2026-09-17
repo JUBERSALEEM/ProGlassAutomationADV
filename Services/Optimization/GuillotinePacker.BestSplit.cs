@@ -48,6 +48,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace ProGlassAutomation.Services.Optimization
 {
@@ -68,7 +69,8 @@ namespace ProGlassAutomation.Services.Optimization
         /// </summary>
         private static (SheetState Sheet, List<CutPiece> Remaining) FillOneSheet(
             List<CutPiece> remaining, IReadOnlyList<StockSize> stocks, int[] sheetsPerStock,
-            MarginProfile margins, RotationPolicy rotation, SplitMode split)
+            MarginProfile margins, RotationPolicy rotation, SplitMode split,
+            CancellationToken cancellationToken = default)
         {
             var state = OpenBlank(stocks, sheetsPerStock, remaining[0], margins, rotation, 0);
             if (state == null) return (null, remaining);
@@ -77,6 +79,10 @@ namespace ProGlassAutomation.Services.Optimization
             bool progressed = true;
             while (progressed)
             {
+                // The hottest loop in the engine at scale: once per placement,
+                // three times per sheet (one trial per split rule), and each
+                // pass scans every remaining part.
+                cancellationToken.ThrowIfCancellationRequested();
                 progressed = false;
                 int bestIdx = -1;
                 PlacementCandidate bestCand = default;
@@ -119,7 +125,8 @@ namespace ProGlassAutomation.Services.Optimization
         private static OptimizationResult RunBestSplit(
             IReadOnlyList<CutPiece> pieces, IReadOnlyList<StockSize> stocks,
             MarginProfile margins, RotationPolicy rotation,
-            int consolidationSweeps = int.MaxValue)
+            int consolidationSweeps = int.MaxValue,
+            CancellationToken cancellationToken = default)
         {
             var remaining = Sort(pieces, OrderBy.MaxSide);
             var sheets = new List<SheetState>();
@@ -128,6 +135,7 @@ namespace ProGlassAutomation.Services.Optimization
 
             while (remaining.Count > 0)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 SheetState chosen = null;
                 List<CutPiece> chosenLeft = null;
                 int[] chosenPer = null;
@@ -137,9 +145,10 @@ namespace ProGlassAutomation.Services.Optimization
 
                 for (int si = 0; si < AllSplits.Length; si++)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     var trialPer = (int[])per.Clone();
                     var (sheet, left) = FillOneSheet(remaining, stocks, trialPer,
-                        margins, rotation, AllSplits[si]);
+                          margins, rotation, AllSplits[si], cancellationToken);
                     if (sheet == null) continue;
 
                     long area = PlacedArea(sheet);
@@ -166,7 +175,7 @@ namespace ProGlassAutomation.Services.Optimization
             }
 
             ConsolidateAll(sheets, margins, rotation, SplitMode.HorizontalFirst,
-                consolidationSweeps);
+                  consolidationSweeps, cancellationToken: cancellationToken);
             return FinishFromSheets(sheets, unplaced, rotation);
         }
 
@@ -213,7 +222,8 @@ namespace ProGlassAutomation.Services.Optimization
         /// </summary>
         private static OptimizationResult RunBestSplitBeam(
             IReadOnlyList<CutPiece> pieces, IReadOnlyList<StockSize> stocks,
-            MarginProfile margins, RotationPolicy rotation, int beam)
+            MarginProfile margins, RotationPolicy rotation, int beam,
+            CancellationToken cancellationToken = default)
         {
             if (beam < 1) beam = 1;
             var start = Sort(pieces, OrderBy.MaxSide);
@@ -227,6 +237,7 @@ namespace ProGlassAutomation.Services.Optimization
 
             while (states.Count > 0)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 var next = new List<BeamState>();
 
                 foreach (var state in states)
@@ -246,9 +257,10 @@ namespace ProGlassAutomation.Services.Optimization
 
                     foreach (var split in AllSplits)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
                         var trialPer = (int[])state.Per.Clone();
                         var (sheet, left) = FillOneSheet(state.Remaining, stocks, trialPer,
-                            margins, rotation, split);
+                              margins, rotation, split, cancellationToken);
                         if (sheet == null) continue;
 
                         var sheets = new List<SheetState>(state.Sheets) { sheet };
@@ -288,7 +300,8 @@ namespace ProGlassAutomation.Services.Optimization
             if (winner == null)
                 return FinishFromSheets(new List<SheetState>(), start, rotation);
 
-            ConsolidateAll(winner, margins, rotation, SplitMode.HorizontalFirst);
+            ConsolidateAll(winner, margins, rotation, SplitMode.HorizontalFirst,
+                cancellationToken: cancellationToken);
             return FinishFromSheets(winner, new List<CutPiece>(), rotation);
         }
     }

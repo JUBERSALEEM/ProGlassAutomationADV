@@ -212,7 +212,8 @@ namespace ProGlassAutomation.Services.Optimization
             // Consolidation still squeezes out the emptiest sheet — that is what
             // moves the sheet count — but it commits through the same breakout
             // rule, so it cannot reintroduce a sliver the placement phase refused.
-            ConsolidateAll(sheets, margins, rotation, split, consolidationSweeps, breakout);
+            ConsolidateAll(sheets, margins, rotation, split, consolidationSweeps, breakout,
+                cancellationToken);
 
             var result = FinishFromSheets(sheets, unplaced, rotation);
             result.Strategy = SmartStrategyLabel;

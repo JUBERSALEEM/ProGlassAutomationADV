@@ -188,15 +188,29 @@ pin is measured through their behaviour and they are deliberately left bit-ident
 `ScaleProfile.For(pieceCount, effort)` in `OptimizationModels.cs:176`. Cost grows roughly with
 parts × sheets, so 100,000 parts is not 1,000× a group of 100 — it is about a million times.
 
-| Band | Parts | Shuffles | Beam | MaxRects orderings | Consolidation sweeps |
-|---|---|---|---|---|---|
-| **Standard** | ≤ 2,000 | unlimited | on | unlimited | unlimited |
-| **Large** | ≤ 20,000 | 1 | off | 3 | 2 |
-| **Huge** | > 20,000 | 0 | off | 1 | 1 |
+| Band | Parts | Shuffles | Beam | MaxRects orderings | Consolidation sweeps | Sheet-fill / wall-seed / best-split |
+|---|---|---|---|---|---|---|
+| **Standard** | ≤ 2,000 | unlimited | on | unlimited | unlimited | all 3 split rules |
+| **Large** | ≤ 20,000 | 1 | off | 3 | 2 | all 3 split rules |
+| **Huge** | > 20,000 | 0 | off | 1 | 1 | **dropped** (`AllowQuadraticStrategies`) |
+
+The last column was added after a 30,000-part job took the application down. Those three
+strategies are *sheet-at-a-time*: every placement re-scans the whole remaining part list, and
+`RunBestSplit` does it three times per sheet — one trial per split rule. Their cost is quadratic
+in the job, so at 30,000 parts across ~1,000 sheets they amount to billions of placement
+attempts. `ScaleProfile.Summary` had already been telling the operator "only the minimum search
+was run" while all six still executed; now the code agrees with the message.
 
 Everything the calibration benchmark covers is in the **Standard** band, so those results stay
 bit-identical. Ordering and split-rule diversity — which produces most of the quality — is kept
 in every band; only *breadth* is traded for termination.
+
+**Every stage is cancellable.** `RunPass`, `RunSheetFill`, `RunWallSeed`, `RunMaxRects`,
+`FillOneSheet`, `RunBestSplit`, `RunBestSplitBeam`, `PackSmart` and `ConsolidateAll` all accept a
+`CancellationToken` and check it inside their hot loops — per part, per placement, per sheet or
+per donor, whichever is the expensive unit. `Advanced.cs` and `BestSplit.cs` previously contained
+**zero** cancellation checks, which is why Cancel did nothing during the phase where a large run
+spends all of its time.
 
 **No reduction is ever silent.** `scale.Summary` is added to `result.ScaleNotes` and shown next
 to the sheet count, in plain language, telling the operator exactly what was skipped and why.
@@ -252,7 +266,7 @@ flag dangling.
 
 | Case | Message |
 |---|---|
-| Cancelled | "Optimization cancelled. **No results were applied.**" |
+| Cancelled | "Optimization cancelled. **No results were applied.**" — honoured inside every strategy, not just between them |
 | Out of memory | "Stopped: this machine ran out of memory packing a group this large. Split the job into smaller cutting groups or close other applications, then run it again." |
 | Other exception | "Optimization failed: {message}" |
 | Selected group has no valid pieces | "The selected cutting group has no valid pieces." |

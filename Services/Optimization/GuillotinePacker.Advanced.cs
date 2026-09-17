@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace ProGlassAutomation.Services.Optimization
 {
@@ -69,7 +70,8 @@ namespace ProGlassAutomation.Services.Optimization
         private static OptimizationResult RunSheetFill(
             IReadOnlyList<CutPiece> pieces, IReadOnlyList<StockSize> stocks,
             MarginProfile margins, RotationPolicy rotation, SplitMode split,
-            int consolidationSweeps = int.MaxValue)
+            int consolidationSweeps = int.MaxValue,
+            CancellationToken cancellationToken = default)
         {
             var remaining = Sort(pieces, OrderBy.MaxSide);
             var sheets = new List<SheetState>();
@@ -78,6 +80,9 @@ namespace ProGlassAutomation.Services.Optimization
 
             while (remaining.Count > 0)
             {
+                // Per sheet: a sheet-fill pass over 30,000 parts is minutes of
+                // work, and Cancel used to be a no-op for all of it.
+                cancellationToken.ThrowIfCancellationRequested();
                 var opener = remaining[0];
                 var state = OpenBlank(stocks, per, opener, margins, rotation, sheets.Count);
                 if (state == null)
@@ -90,6 +95,7 @@ namespace ProGlassAutomation.Services.Optimization
                 bool progressed = true;
                 while (progressed)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     progressed = false;
                     int bestIdx = -1;
                     PlacementCandidate bestCand = default;
@@ -126,7 +132,8 @@ namespace ProGlassAutomation.Services.Optimization
                 }
             }
 
-            ConsolidateAll(sheets, margins, rotation, split, consolidationSweeps);
+            ConsolidateAll(sheets, margins, rotation, split, consolidationSweeps,
+                cancellationToken: cancellationToken);
             return FinishFromSheets(sheets, unplaced, rotation);
         }
 
@@ -137,7 +144,8 @@ namespace ProGlassAutomation.Services.Optimization
         private static OptimizationResult RunWallSeed(
             IReadOnlyList<CutPiece> pieces, IReadOnlyList<StockSize> stocks,
             MarginProfile margins, RotationPolicy rotation, SplitMode split,
-            int consolidationSweeps = int.MaxValue)
+            int consolidationSweeps = int.MaxValue,
+            CancellationToken cancellationToken = default)
         {
             var remaining = pieces.ToList();
             var walls = remaining
@@ -157,6 +165,7 @@ namespace ProGlassAutomation.Services.Optimization
 
             for (int i = 0; i + 2 < walls.Count; i += 3)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 var trio = new[] { walls[i], walls[i + 1], walls[i + 2] };
                 var state = OpenBlank(stocks, per, trio[0], margins, rotation, sheets.Count);
                 if (state == null) break;
@@ -184,6 +193,7 @@ namespace ProGlassAutomation.Services.Optimization
             var leftover = new List<CutPiece>();
             foreach (var piece in remaining)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 if (!PlaceOnOpenSheets(sheets, piece, margins, rotation, split))
                     leftover.Add(piece);
             }
@@ -195,7 +205,8 @@ namespace ProGlassAutomation.Services.Optimization
                     leftover.Remove(piece);
             }
 
-            ConsolidateAll(sheets, margins, rotation, split, consolidationSweeps);
+            ConsolidateAll(sheets, margins, rotation, split, consolidationSweeps,
+                cancellationToken: cancellationToken);
             return FinishFromSheets(sheets, leftover, rotation);
         }
 
@@ -205,7 +216,8 @@ namespace ProGlassAutomation.Services.Optimization
         /// </summary>
         private static OptimizationResult RunMaxRects(
             IReadOnlyList<CutPiece> ordered, IReadOnlyList<StockSize> stocks,
-            MarginProfile margins, RotationPolicy rotation)
+            MarginProfile margins, RotationPolicy rotation,
+            CancellationToken cancellationToken = default)
         {
             int kerf = margins.KerfMm;
             var remaining = ordered.ToList();
@@ -215,6 +227,7 @@ namespace ProGlassAutomation.Services.Optimization
 
             foreach (var piece in remaining)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 if (MaxRectsPlace(sheets, piece, rotation, kerf)) continue;
 
                 var state = OpenBlank(stocks, per, piece, margins, rotation, sheets.Count);

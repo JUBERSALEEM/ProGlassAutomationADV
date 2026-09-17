@@ -208,6 +208,18 @@ namespace ProGlassAutomation.Services.Optimization
 
         /// <summary>True when any search breadth was reduced because of size.</summary>
         public bool IsReduced => Tier != ScaleTier.Standard;
+        /// <summary>
+        /// Sheet-fill, wall-seed, best-split and its beam are SHEET-AT-A-TIME:
+        /// every placement re-scans the whole remaining part list, and best-split
+        /// does that three times per sheet, once per split rule. Their cost is
+        /// therefore quadratic in the job rather than linear like the ordering
+        /// passes — at 30,000 parts across roughly 1,000 sheets they amount to
+        /// billions of placement attempts, which is a run that does not come back
+        /// and reads to the operator as a crashed application. Above the huge
+        /// threshold they are dropped; the linear passes, MaxRects and
+        /// consolidation still run, and Summary says so.
+        /// </summary>
+        public bool AllowQuadraticStrategies => Tier != ScaleTier.Huge;
 
         public static ScaleProfile For(int pieceCount, int requestedEffort)
         {
@@ -235,9 +247,10 @@ namespace ProGlassAutomation.Services.Optimization
                 $"at {ConsolidationSweeps}. All orderings and split rules are still tried.",
             _ =>
                 $"{PieceCount} parts exceeds {HugeThreshold}, so only the minimum search was run " +
-                $"(no shuffles, no beam, {MaxRectsOrderings} MaxRects ordering, " +
-                $"{ConsolidationSweeps} consolidation sweep). Split the job into smaller groups " +
-                $"for a deeper search."
+                $"(no shuffles, no beam, no sheet-fill / wall-seed / best-split — those are " +
+                $"quadratic in the job size and would not finish, {MaxRectsOrderings} MaxRects " +
+                $"ordering, {ConsolidationSweeps} consolidation sweep). Split the job into smaller " +
+                $"groups for a deeper search."
         };
     }
 
