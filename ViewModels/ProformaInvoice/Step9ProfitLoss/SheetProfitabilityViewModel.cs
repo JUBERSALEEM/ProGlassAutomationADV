@@ -668,6 +668,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         /// <summary>Provenance for the switch, always visible so the operator
         /// knows which source produced the sheet numbers on screen.</summary>
+        /// <remarks>
+        /// English by design. The switch <i>label</i> next to this is localized
+        /// (<c>ProformaInvoice.ReadFromOptimizationRun</c>) because it is UI
+        /// chrome; the explanation underneath is a diagnostic, and the whole
+        /// diagnostic channel — this property, <see cref="DescribeSheetSource"/>,
+        /// the Step 6 wastage mode captions and the optimization export titles —
+        /// is English. Mixing the two would split one surface across languages.
+        /// The full rationale, and the procedure for localizing the channel
+        /// properly if that decision changes, is on
+        /// <c>OptimizationResultFeed.SourceLabel</c>.
+        /// </remarks>
         public string OptimizationSheetSourceLabel =>
             !_useOptimizationSheetSource
                 ? "Sheet Details are driven by the Step 6 wastage setup."

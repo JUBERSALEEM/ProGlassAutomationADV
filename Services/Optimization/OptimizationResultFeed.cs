@@ -174,6 +174,30 @@ namespace ProGlassAutomation.Services.Optimization
 
         /// <summary>Human-readable provenance of <see cref="Current"/>, including
         /// which session it came from and when, so a stale read is visible.</summary>
+        /// <remarks>
+        /// <para><b>Deliberately English, and deliberately not routed through
+        /// <c>LocalizationService</c>.</b> This is a diagnostic string: it names
+        /// the session and timestamp a set of figures came from, and it gets read
+        /// when a number looks wrong. Everything else in that channel is English
+        /// too — the Step 6 wastage mode captions in <c>WastageRow</c>, the Step 9
+        /// per-row and header provenance in <c>SheetProfitabilityViewModel</c>, and
+        /// the export titles and section names in <c>OptimizationViewModel.Report</c>.
+        /// Translating this one string alone would put two languages on the same
+        /// diagnostic surface, which is harder to read at the moment it matters
+        /// than one consistent language is.</para>
+        /// <para>The line being drawn is <i>chrome versus diagnostics</i>. The
+        /// operator-facing switches that turn this feed on and off ARE localized —
+        /// <c>ProformaInvoice.OptimizationFormula</c> and
+        /// <c>ProformaInvoice.ReadFromOptimizationRun</c> — because those belong to
+        /// the UI vocabulary the rest of the application translates.</para>
+        /// <para>If the diagnostics decision is ever revisited, localize the whole
+        /// channel in one pass rather than string by string, and add the keys to
+        /// <c>scripts/i18n/{code}.py</c>. Do not add them to
+        /// <c>Themes/Languages/*.xaml</c>: those files are generated from the
+        /// <c>.py</c> sources by <c>scripts/i18n/build.py</c>, which enforces key
+        /// parity across all 15 languages and silently drops any key that was
+        /// written into the XAML by hand.</para>
+        /// </remarks>
         public static string SourceLabel
         {
             get { lock (Gate) return _sourceLabel; }
