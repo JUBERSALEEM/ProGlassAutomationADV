@@ -396,6 +396,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                 }
                 catch (Exception ex)
                 {
+                    AppLogService.Error("[CompanyCenter] Save company failed", ex);
                     Status = "Save failed: " + ExceptionMessages.Deep(ex);
                 }
             });
@@ -426,6 +427,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                 }
                 catch (Exception ex)
                 {
+                    AppLogService.Error("[CompanyCenter] Delete company failed", ex);
                     Status = "Delete failed: " + ExceptionMessages.Deep(ex);
                 }
             });
@@ -512,6 +514,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
             }
             catch (Exception ex)
             {
+                AppLogService.Error("[CompanyCenter] Load companies failed", ex);
                 Status = "Load failed: " + ExceptionMessages.Deep(ex);
             }
         }

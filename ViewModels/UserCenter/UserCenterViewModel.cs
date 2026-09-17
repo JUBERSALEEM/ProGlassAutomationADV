@@ -243,6 +243,7 @@ namespace ProGlassAutomation.ViewModels.UserCenter
             }
             catch (Exception ex)
             {
+                AppLogService.Error("[UserCenter] Load users failed", ex);
                 UiDispatch.Run(() => Status = "Load failed: " + ExceptionMessages.Deep(ex));
             }
         }
