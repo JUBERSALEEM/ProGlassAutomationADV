@@ -140,6 +140,10 @@ namespace ProGlassAutomation.Services.Theme
                 ThemeManager.ReapplySemanticSurfaces();
                 ThemeManager.PublishProGlassDesignSystem();
 
+                // 2026-09-17: Ensure About surface tokens (corner radii + borders)
+                // stay in sync with the live family & slider on every family rebuild.
+                AboutSurfaceTokens.Publish(System.Windows.Application.Current?.Resources, ThemeManager.CardCornerRadius);
+
                 AppLogService.Debug(
                     $"[ThemePipeline] Rebuilt: {reason} | family={appearance?.VisualTheme} " +
                     $"wallpaper={appearance?.WallpaperMode}/{appearance?.BuiltinScene}",

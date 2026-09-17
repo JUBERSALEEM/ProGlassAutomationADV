@@ -57,6 +57,34 @@ namespace ProGlassAutomation.Services.Theme.Engine
                 ["PrintBorderBrush"] = "ReportBorderBrush",
                 ["PrintTextPrimaryBrush"] = "ReportTextBrush",
                 ["PrintAccentBrush"] = "ReportAccentBrush",
+
+                // ═══ ABOUT MODULE DYNAMIC BRIDGE ═══
+                // Dual-write semantic tokens to the Ios26* keys read by About views
+                // so the About module cards and text dynamically adapt to Monet,
+                // Crystal Fluid, Industrial, and custom accent colors in real-time.
+                ["Ios26CardBrush"] = "SurfacePrimaryBrush",
+                ["Ios26TileBrush"] = "SurfaceSecondaryBrush",
+                ["Ios26RailBrush"] = "SurfaceSecondaryBrush",
+                ["Ios26CardBorderBrush"] = "BorderDefaultBrush",
+                ["Ios26TileBorderBrush"] = "BorderSubtleBrush",
+                ["Ios26HairlineBrush"] = "DividerBrush",
+                ["Ios26TrackBrush"] = "DividerBrush",
+                ["Ios26HoverBrush"] = "SurfaceTertiaryBrush",
+                ["Ios26TextTitleBrush"] = "TextPrimaryBrush",
+                ["Ios26TextBodyBrush"] = "TextPrimaryBrush",
+                ["Ios26TextSecondaryBrush"] = "TextSecondaryBrush",
+                ["Ios26TextMutedBrush"] = "TextTertiaryBrush",
+                ["Ios26TextFaintBrush"] = "TextTertiaryBrush",
+                ["Ios26AccentBrush"] = "AccentBrush",
+                ["Ios26AccentDeepBrush"] = "AccentPressedBrush",
+                ["Ios26AccentSoftBrush"] = "TintBlueBrush",
+                ["Ios26AccentSoftTextBrush"] = "AccentBrush",
+                ["Ios26SuccessBrush"] = "SuccessBrush",
+                ["Ios26SuccessSoftBrush"] = "TintGreenBrush",
+                ["Ios26ValuePillBrush"] = "SurfaceSecondaryBrush",
+                ["Ios26SearchBrush"] = "SurfaceInputBrush",
+                ["Ios26NumberBrush"] = "AccentBrush",
+                ["Ios26DangerDotBrush"] = "DangerBrush",
             };
 
         /// <summary>Engine-managed keys copied INTO the TokenStore (live family paint → semantic).</summary>
