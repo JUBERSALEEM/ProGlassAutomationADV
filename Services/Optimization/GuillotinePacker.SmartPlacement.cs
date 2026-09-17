@@ -99,7 +99,8 @@ namespace ProGlassAutomation.Services.Optimization
             SplitMode split = SplitMode.HorizontalFirst,
             int consolidationSweeps = int.MaxValue,
             CancellationToken cancellationToken = default,
-            IProgress<OptimizeProgress> progress = null)
+            IProgress<OptimizeProgress> progress = null,
+            int candidateWindowSize = int.MaxValue)
         {
             if (pieces == null) throw new ArgumentNullException(nameof(pieces));
             if (stocks == null || stocks.Count == 0)
@@ -124,6 +125,12 @@ namespace ProGlassAutomation.Services.Optimization
 
             int totalPieces = remaining.Count;
 
+            // Priority candidate window: at large scales, scanning the top K candidate parts
+            // preserves placement quality while reducing complexity from O(N^2) to O(K*N).
+            int scanLimit = candidateWindowSize > 0 && candidateWindowSize < int.MaxValue
+                ? candidateWindowSize
+                : (totalPieces > 2000 ? 400 : int.MaxValue);
+
             while (remaining.Count > 0)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -137,7 +144,8 @@ namespace ProGlassAutomation.Services.Optimization
                     // Probing uses a COPY of the per-stock counters, because
                     // OpenBlank consumes quota when it succeeds and a probe must
                     // not spend stock it is not going to use.
-                    for (int i = 1; i < remaining.Count && state == null; i++)
+                    int probeCount = Math.Min(remaining.Count, scanLimit);
+                    for (int i = 1; i < probeCount && state == null; i++)
                     {
                         var probePer = (int[])per.Clone();
                         if (OpenBlank(stocks, probePer, remaining[i], margins, rotation, sheets.Count) == null)
@@ -163,7 +171,8 @@ namespace ProGlassAutomation.Services.Optimization
                     int bestIdx = -1;
                     SmartOption bestOption = default;
 
-                    for (int i = 0; i < remaining.Count; i++)
+                    int searchLimit = Math.Min(remaining.Count, scanLimit);
+                    for (int i = 0; i < searchLimit; i++)
                     {
                         // Per part, so Cancel lands inside one placement decision
                         // rather than after a whole sheet.
@@ -212,7 +221,8 @@ namespace ProGlassAutomation.Services.Optimization
             // Consolidation still squeezes out the emptiest sheet — that is what
             // moves the sheet count — but it commits through the same breakout
             // rule, so it cannot reintroduce a sliver the placement phase refused.
-            ConsolidateAll(sheets, margins, rotation, split, consolidationSweeps, breakout,
+            int sweeps = totalPieces > 20000 ? Math.Min(consolidationSweeps, 1) : consolidationSweeps;
+            ConsolidateAll(sheets, margins, rotation, split, sweeps, breakout,
                 cancellationToken);
 
             var result = FinishFromSheets(sheets, unplaced, rotation);

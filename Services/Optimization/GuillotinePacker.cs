@@ -352,30 +352,27 @@ namespace ProGlassAutomation.Services.Optimization
                 best = Better(best, RunBestSplit(pieces, stocks, margins, rotation,
                     scale.ConsolidationSweeps, cancellationToken));
 
-                // ── SMART PLACEMENT (2026-09-17) ──────────────────────────
+                // ── SMART PLACEMENT ──────────────────────────
                 // Capacity-preserving placement, per-placement split choice and
                 // the configured minimum breakout enforced. Added as a candidate,
                 // never as a replacement: Better() keeps the minimum on unplaced,
                 // then sheets, then utilization, so this can only improve the
-                // chosen plan or lose. Skipped in the Huge band, where finishing
-                // matters more than the last sheet — and the ScaleProfile summary
-                // the operator already sees says exactly that.
-                if (scale.Tier != ScaleTier.Huge)
+                // chosen plan or lose. Enabled across all tiers using windowed candidate scanning.
+                cancellationToken.ThrowIfCancellationRequested();
+                progress?.Report(OptimizeProgress.Of("smart", comboList.Count, smartTotal,
+                    "Smart placement: capacity-preserving, breakout-aware"));
+                best = Better(best, PackSmart(pieces, stocks, margins, rotation,
+                    SplitMode.HorizontalFirst, scale.ConsolidationSweeps, cancellationToken,
+                    progress: null, candidateWindowSize: scale.Tier == ScaleTier.Huge ? 300 : scale.Tier == ScaleTier.Large ? 400 : int.MaxValue));
+
+                if (effortLevel >= 4 && (scale.Tier == ScaleTier.Standard || scale.Tier == ScaleTier.Large))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    progress?.Report(OptimizeProgress.Of("smart", comboList.Count, smartTotal,
-                        "Smart placement: capacity-preserving, breakout-aware"));
+                    progress?.Report(OptimizeProgress.Of("smart", comboList.Count + 1, smartTotal,
+                        "Smart placement: vertical-split preference"));
                     best = Better(best, PackSmart(pieces, stocks, margins, rotation,
-                        SplitMode.HorizontalFirst, scale.ConsolidationSweeps, cancellationToken));
-
-                    if (effortLevel >= 4 && scale.Tier == ScaleTier.Standard)
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-                        progress?.Report(OptimizeProgress.Of("smart", comboList.Count + 1, smartTotal,
-                            "Smart placement: vertical-split preference"));
-                        best = Better(best, PackSmart(pieces, stocks, margins, rotation,
-                            SplitMode.VerticalFirst, scale.ConsolidationSweeps, cancellationToken));
-                    }
+                        SplitMode.VerticalFirst, scale.ConsolidationSweeps, cancellationToken,
+                        progress: null, candidateWindowSize: scale.Tier == ScaleTier.Large ? 400 : int.MaxValue));
                 }
             }
 

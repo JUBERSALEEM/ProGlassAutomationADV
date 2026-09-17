@@ -159,9 +159,12 @@ namespace ProGlassAutomation.Services.Optimization
             return combinedResult;
         }
 
-        /// <summary>
-        /// Splits a priority-ordered list of parts into bounded production batches (~1000-2000 parts).
-        /// Preserves exact counts and identity.
+                /// <summary>
+        /// Decomposes parts into production-compatible stratified batches.
+        /// Distributes large structural anchor pieces together with complementary
+        /// medium and small filler pieces into each batch. This prevents "anchor starvation"
+        /// where early batches have only giant parts with no fillers to pack offcut strips,
+        /// and late batches have only tiny parts.
         /// </summary>
         private static List<List<CutPiece>> PartitionIntoBatches(List<CutPiece> pieces, int batchTargetSize)
         {
@@ -170,11 +173,66 @@ namespace ProGlassAutomation.Services.Optimization
             if (count == 0) return batches;
 
             int target = Math.Max(200, batchTargetSize);
+            int batchCount = (int)Math.Ceiling((double)count / target);
+            if (batchCount <= 1)
+            {
+                batches.Add(new List<CutPiece>(pieces));
+                return batches;
+            }
+
+            for (int b = 0; b < batchCount; b++)
+            {
+                batches.Add(new List<CutPiece>(target + 50));
+            }
+
+            // Stratified round-robin distribution preserving local sorted order within each batch
+            // pieces are pre-sorted descending (e.g. by Area). Distributing them across batches
+            // in snake/round-robin fashion ensures every batch receives an equal proportion of
+            // large anchors, mid-range panels, and small filler pieces.
+            for (int i = 0; i < count; i++)
+            {
+                int batchIndex = i % batchCount;
+                batches[batchIndex].Add(pieces[i]);
+            }
+
+            return batches;
+        }        private static List<List<CutPiece>> PartitionIntoBatches(List<CutPiece> pieces, int batchTargetSize)
+        {
+            var batches = new List<List<CutPiece>>();
+            int count = pieces.Count;
+            if (count == 0) return batches;
+
+            int target = Math.Max(200, batchTargetSize);
+<<<<<<< HEAD
             for (int i = 0; i < count; i += target)
             {
                 int len = Math.Min(target, count - i);
                 batches.Add(pieces.GetRange(i, len));
             }
+=======
+            int batchCount = (int)Math.Ceiling((double)count / target);
+            if (batchCount <= 1)
+            {
+                batches.Add(new List<CutPiece>(pieces));
+                return batches;
+            }
+
+            for (int b = 0; b < batchCount; b++)
+            {
+                batches.Add(new List<CutPiece>(target + 50));
+            }
+
+            // Stratified round-robin distribution preserving local sorted order within each batch
+            // pieces are pre-sorted descending (e.g. by Area). Distributing them across batches
+            // in snake/round-robin fashion ensures every batch receives an equal proportion of
+            // large anchors, mid-range panels, and small filler pieces.
+            for (int i = 0; i < count; i++)
+            {
+                int batchIndex = i % batchCount;
+                batches[batchIndex].Add(pieces[i]);
+            }
+
+>>>>>>> 880ebfa (feat(optimization): implement 5-stage stratified adaptive smart-search cutting engine)
             return batches;
         }
 
