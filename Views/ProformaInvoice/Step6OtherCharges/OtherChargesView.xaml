@@ -267,12 +267,18 @@
                             <ColumnDefinition Width="0.9*"/>
                             <ColumnDefinition Width="1.8*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{DynamicResource ProformaInvoice.ON}"/>
+                        <!-- Each header cell carries the SAME alignment as the
+                             data cell beneath it. ON is a centred toggle, QTY and
+                             RATE are centred values, RESULT is right-aligned —
+                             these labels used to all sit left, visibly off their
+                             numbers. The 6px inset on RESULT keeps it clear of the
+                             table edge instead of ending flush against it. -->
+                        <TextBlock Grid.Column="0" Text="{DynamicResource ProformaInvoice.ON}" HorizontalAlignment="Center"/>
                         <TextBlock Grid.Column="1" Text="{DynamicResource ProformaInvoice.Charge}" HorizontalAlignment="Left"/>
                         <TextBlock Grid.Column="2" Text="{DynamicResource ProformaInvoice.Basis}" HorizontalAlignment="Left"/>
-                        <TextBlock Grid.Column="3" Text="QTY"/>
-                        <TextBlock Grid.Column="4" Text="{DynamicResource Common.Rate}"/>
-                        <TextBlock Grid.Column="5" Text="{DynamicResource ProformaInvoice.Result}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="3" Text="QTY" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="4" Text="{DynamicResource Common.Rate}" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="5" Text="{DynamicResource ProformaInvoice.Result}" HorizontalAlignment="Right" Margin="0,0,6,0"/>
                     </Grid>
                 </Border>
 
@@ -281,7 +287,7 @@
                         <DataTemplate>
                             <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
                                     BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                                    Padding="8,8">
+                                    Padding="10,8">
                                 <StackPanel>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -493,6 +499,7 @@
                                         <TextBlock Grid.Column="5"
                                                    Text="{Binding FormulaDisplay}"
                                                    FontSize="{DynamicResource FontSize.Body}"
+                                                   Margin="0,0,6,0"
                                                    TextAlignment="Right"
                                                    TextWrapping="Wrap"
                                                    VerticalAlignment="Center">

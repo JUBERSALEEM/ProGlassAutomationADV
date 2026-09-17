@@ -73,7 +73,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         if (matchingLayout != null)
                         {
                             SelectedSheetIndex = _flatSheets.IndexOf(matchingLayout);
-                            SelectedTabIndex = 5; // 2D VIEW
+                            SelectedTabIndex = TabIndexTwoDView;
                         }
                     }
                 },

@@ -32,6 +32,7 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="CUTTING GROUP" Style="{StaticResource OptPanelTitle}"
@@ -40,7 +41,17 @@
                                               SelectedItem="{Binding SelectedCuttingGroup}"
                                               Style="{StaticResource OptComboStyle}"
                                               ToolTip="Optimize one pane group at a time (outer / inner / …) against its own Step 4 sheet"/>
-                                    <TextBlock Grid.Column="2" Text="{Binding PieceSummary}" FontSize="{DynamicResource FontSize.Body}"
+                                    <!-- An empty cutting group usually means there are no
+                                         pieces yet, and the only way to get some used to be a
+                                         confirmed Job Order. This is the door to the standalone
+                                         path: type or paste a cut list, no proforma needed. -->
+                                    <Button Grid.Column="2" Content="MANUAL CUT LIST"
+                                            Command="{Binding OpenCutListTabCommand}"
+                                            Style="{StaticResource OutlinedPillButton}"
+                                            Height="32" Margin="10,0,0,0"
+                                            VerticalAlignment="Center"
+                                            ToolTip="Type or paste a cut list and optimize it with no proforma invoice behind it — the standalone way to drive this engine."/>
+                                    <TextBlock Grid.Column="3" Text="{Binding PieceSummary}" FontSize="{DynamicResource FontSize.Body}"
                                                FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                 </Grid>

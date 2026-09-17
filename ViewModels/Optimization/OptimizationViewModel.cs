@@ -106,7 +106,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (p is int idx && idx >= 0 && idx < _flatSheets.Count)
                 {
                     SelectedSheetIndex = idx;
-                    SelectedTabIndex = 5; // jump straight to the 2D VIEW
+                    SelectedTabIndex = TabIndexTwoDView; // jump straight to the 2D VIEW
                 }
             });
             PreviewZoomInCommand = new RelayCommand(_ => PreviewScale += 0.25);

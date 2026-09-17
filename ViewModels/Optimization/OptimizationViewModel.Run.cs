@@ -641,7 +641,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             // A session reopen re-runs the saved stage and lands on the
             // REPORT tab; a manual run lands on RESULT.
-            SelectedTabIndex = _openToReportAfterRun ? 6 : 4;
+            SelectedTabIndex = _openToReportAfterRun ? TabIndexReport : TabIndexSummary;
             _openToReportAfterRun = false;
         }
 

@@ -81,6 +81,16 @@
                 <RadioButton GroupName="OptTabs" Tag="&#xE8A7;" Content="SIZES"
                              IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=1}"
                              Style="{StaticResource OptRailTab}" Margin="0,0,8,0"/>
+                <!-- CUT LIST — manual entry, so the engine can be driven with no
+                     proforma invoice behind it at all. Shown second on the rail,
+                     but its SelectedTabIndex is 7, the last value: inserting it
+                     at 2 would have renumbered five tabs across seven XAML
+                     triggers and three C# jump sites. Visual order comes from
+                     element order here, not from the index. See TabIndexCutList
+                     in OptimizationViewModel.CutList.cs. -->
+                <RadioButton GroupName="OptTabs" Tag="&#xE70F;" Content="CUT LIST"
+                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=7}"
+                             Style="{StaticResource OptRailTab}" Margin="0,0,8,0"/>
                 <RadioButton GroupName="OptTabs" Tag="&#xE7B8;" Content="STOCKS"
                              IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=2}"
                              Style="{StaticResource OptRailTab}" Margin="0,0,8,0"/>
@@ -204,6 +214,7 @@
             <Grid Grid.Row="3">
                 <tabs:JobsTabView/>
                 <tabs:SizesTabView/>
+                <tabs:CutListTabView/>
                 <tabs:StocksTabView/>
                 <tabs:SettingsTabView/>
                 <tabs:SummaryTabView/>

@@ -1,0 +1,302 @@
+<!-- ════════════════════════════════════════════════════════════════════
+     FILE: Views/Optimization/Tabs/CutListTabView.xaml
+     MODULE: Optimization — CUT LIST tab (hosted by OptimizationView).
+     DataContext = OptimizationViewModel (inherited from the shell).
+
+     WHY THIS TAB EXISTS
+     Until now the only way to feed the engine was a confirmed Job Order on
+     the JOBS tab. This is the standalone entry point: type or paste a cut
+     list, send it to the engine, add racks on STOCKS, run. No proforma
+     invoice involved — the way a normal cutting-optimization app works.
+
+     THE GRID IS Step 5's, NOT A COPY
+     The rows are bound to OptimizationViewModel.ManualCutList, which is a
+     ProformaInvoice SpecGroup — the same grid engine Step 5 uses. That is
+     what makes the cell-anchored Excel paste work here: the ListView's
+     DataContext is set to the SpecGroup so DataGridNavigationBehavior can
+     find it as an IExcelPasteable, exactly as it does in Step 5. Paste a
+     single GLASS REF column, a W1/H1 pair, or all six across — click the
+     cell you want to start at, then Ctrl+V.
+
+     COLUMN DEFINITIONS ARE DECLARED IDENTICALLY IN THREE PLACES
+     (header, row template, footer). That is deliberate: these tables are
+     hand-built Grids, so the only thing keeping a label over its own column
+     is the two definitions agreeing. Step 6's charges tables drifted apart
+     and the headers sat visibly off their numbers.
+
+     INDEX 7, DISPLAYED SECOND
+     The rail shows this tab straight after SIZES, but its SelectedTabIndex
+     is 7 — the last value. See the note on TabIndexCutList in
+     OptimizationViewModel.CutList.cs: inserting it at 2 would have
+     renumbered five tabs across seven XAML triggers and three C# jump sites.
+════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Optimization.Tabs.CutListTabView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:controls="clr-namespace:ProGlassAutomation.Controls.AutoCompleteTextBox"
+             FontFamily="{DynamicResource AppFontFamily}"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <Grid>
+        <Grid.Style>
+            <Style TargetType="Grid">
+                <Setter Property="Visibility" Value="Collapsed"/>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="7">
+                        <Setter Property="Visibility" Value="Visible"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Style>
+
+        <Border Style="{StaticResource OptPanelCard}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- ── title + what the pieces will be cut from ─────────── -->
+                <Grid Grid.Row="0" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="MANUAL CUT LIST"
+                               Style="{StaticResource OptPanelTitle}" VerticalAlignment="Center"/>
+
+                    <TextBlock Grid.Column="1" Text="{Binding PieceSummary}"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               VerticalAlignment="Center" Margin="14,0,0,0"
+                               TextTrimming="CharacterEllipsis"/>
+
+                    <StackPanel Grid.Column="3" Margin="0,0,10,0">
+                        <TextBlock Text="{DynamicResource Dg.GlassType}"
+                                   Style="{StaticResource OptHeader}" Margin="0,0,0,3"/>
+                        <ComboBox ItemsSource="{Binding CutListGlassTypeOptions}"
+                                  SelectedItem="{Binding ManualCutList.SelectedGlassType}"
+                                  Style="{StaticResource OptComboStyle}"
+                                  MinWidth="120"
+                                  ToolTip="Build type. Drives the perimeter factor the grid applies to new rows."/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="4">
+                        <TextBlock Text="{DynamicResource Dg.Specification}"
+                                   Style="{StaticResource OptHeader}" Margin="0,0,0,3"/>
+                        <controls:AutoCompleteTextBox
+                            MinWidth="240"
+                            ItemsSource="{Binding ManualCutList.FilteredSpecs}"
+                            Text="{Binding ManualCutList.SpecTypedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SelectedItem="{Binding ManualCutList.SelectedSpecItem, Mode=TwoWay}"
+                            IsDropDownOpen="{Binding ManualCutList.IsSpecDropdownOpen, Mode=TwoWay}"
+                            DisplayMemberPath="SpecName"
+                            ToolTip="What every piece on this list is cut from. Pick from the catalogue or just type it — the text you leave here becomes the cutting group."/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- ── toolbar ──────────────────────────────────────────── -->
+                <Grid Grid.Row="1" Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBox Width="64"
+                                 Text="{Binding CutListRowCountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource OptIntInput}"
+                                 VerticalAlignment="Center"
+                                 ToolTip="How many blank rows GENERATE adds"/>
+                        <Button Command="{Binding GenerateCutListRowsCommand}"
+                                Content="{DynamicResource Dg.Generate}"
+                                Style="{StaticResource OutlinedPillButton}"
+                                Height="32" Margin="8,0,0,0"
+                                VerticalAlignment="Center"/>
+                        <Button Command="{Binding ManualCutList.AddRowCommand}"
+                                Content="{DynamicResource Dg.AddRowShort}"
+                                Style="{StaticResource OutlinedPillButton}"
+                                Height="32" Margin="8,0,0,0"
+                                VerticalAlignment="Center"/>
+                        <Button Command="{Binding ClearCutListCommand}"
+                                Content="CLEAR"
+                                Style="{StaticResource OptGhostButton}"
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                ToolTip="Empties this list. Leaves the engine's piece list and the racks alone."/>
+                        <TextBlock Text="{DynamicResource Dg.PasteHint}"
+                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                   VerticalAlignment="Center" Margin="14,0,0,0"/>
+                    </StackPanel>
+
+                    <Button Grid.Column="2"
+                            Command="{Binding SendCutListToEngineCommand}"
+                            Content="SEND TO ENGINE"
+                            Style="{StaticResource PrimaryPillButton}"
+                            Height="34" MinWidth="170"
+                            VerticalAlignment="Center"
+                            ToolTip="Rebuilds the engine's piece list from this cut list — W1×H1 as the outer pane, W2×H2 as the inner. Replaces whatever the JOBS import put there, so sending twice cannot double the pieces. Racks on STOCKS are left as you set them."/>
+                </Grid>
+
+                <!-- ── column header ────────────────────────────────────── -->
+                <Border Grid.Row="2" Style="{StaticResource PiTableHeaderStyle}" Padding="6,5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="36"/>
+                            <ColumnDefinition Width="1.6*"/>
+                            <ColumnDefinition Width="0.75*"/>
+                            <ColumnDefinition Width="0.75*"/>
+                            <ColumnDefinition Width="0.75*"/>
+                            <ColumnDefinition Width="0.75*"/>
+                            <ColumnDefinition Width="0.65*"/>
+                            <ColumnDefinition Width="0.9*"/>
+                            <ColumnDefinition Width="0.9*"/>
+                            <ColumnDefinition Width="30"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{DynamicResource Dg.Hash}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="1" Text="{DynamicResource Dg.GlassRef}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Column="2" Text="{DynamicResource Dg.W1}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="3" Text="{DynamicResource Dg.H1}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="4" Text="{DynamicResource Dg.W2}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="5" Text="{DynamicResource Dg.H2}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="6" Text="{DynamicResource Dg.Qty}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="7" Text="SQM 1" Style="{StaticResource LineItemsHeaderTextStyle}"
+                                   ToolTip="Total area of W1×H1 × QTY — the outer pane."/>
+                        <TextBlock Grid.Column="8" Text="SQM 2" Style="{StaticResource LineItemsHeaderTextStyle}"
+                                   ToolTip="Total area of W2×H2 × QTY — the inner pane."/>
+                    </Grid>
+                </Border>
+
+                <!-- ── rows ─────────────────────────────────────────────── -->
+                <!-- DataContext is the SpecGroup itself: that is how
+                     DataGridNavigationBehavior finds the IExcelPasteable and
+                     gives this grid Step 5's paste, arrow-key navigation,
+                     Ctrl+Delete and fill-down. Every ListView setting below is
+                     the one Step 5 uses — they are load-bearing for that
+                     behavior, not decoration. -->
+                <ListView Grid.Row="3"
+                          DataContext="{Binding ManualCutList}"
+                          ItemsSource="{Binding ItemRows}"
+                          Background="Transparent"
+                          BorderThickness="{DynamicResource Border.NoneThickness}"
+                          Padding="0"
+                          Margin="0"
+                          MinHeight="120"
+                          AllowDrop="False"
+                          Focusable="True"
+                          HorizontalAlignment="Stretch"
+                          HorizontalContentAlignment="Stretch"
+                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ScrollViewer.CanContentScroll="False"
+                          behaviors:DataGridNavigationBehavior.EnableExcelNav="True">
+                    <ListView.Template>
+                        <ControlTemplate TargetType="ListView">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
+                                <ItemsPresenter/>
+                            </ScrollViewer>
+                        </ControlTemplate>
+                    </ListView.Template>
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical"/>
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="36"/>
+                                    <ColumnDefinition Width="1.6*"/>
+                                    <ColumnDefinition Width="0.75*"/>
+                                    <ColumnDefinition Width="0.75*"/>
+                                    <ColumnDefinition Width="0.75*"/>
+                                    <ColumnDefinition Width="0.75*"/>
+                                    <ColumnDefinition Width="0.65*"/>
+                                    <ColumnDefinition Width="0.9*"/>
+                                    <ColumnDefinition Width="0.9*"/>
+                                    <ColumnDefinition Width="30"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{Binding SerialNumber}" Style="{StaticResource LineItemsSerialStyle}"/>
+                                <TextBox Grid.Column="1" Text="{Binding GlassRef, UpdateSourceTrigger=LostFocus}" Style="{StaticResource LineItemsTextCellStyle}" Margin="2,0"/>
+                                <TextBox Grid.Column="2" Text="{Binding W1, UpdateSourceTrigger=LostFocus}" Style="{StaticResource LineItemsIntCellStyle}" Margin="2,0"/>
+                                <TextBox Grid.Column="3" Text="{Binding H1, UpdateSourceTrigger=LostFocus}" Style="{StaticResource LineItemsIntCellStyle}" Margin="2,0"/>
+                                <TextBox Grid.Column="4" Text="{Binding W2, UpdateSourceTrigger=LostFocus}" Style="{StaticResource LineItemsIntCellStyle}" Margin="2,0"/>
+                                <TextBox Grid.Column="5" Text="{Binding H2, UpdateSourceTrigger=LostFocus}" Style="{StaticResource LineItemsIntCellStyle}" Margin="2,0"/>
+                                <TextBox Grid.Column="6" Text="{Binding Qty, UpdateSourceTrigger=LostFocus}" Style="{StaticResource LineItemsIntCellStyle}" Margin="2,0"/>
+                                <TextBlock Grid.Column="7" Text="{Binding TotalSqm, StringFormat={}{0:0.000}}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                <TextBlock Grid.Column="8" Text="{Binding TotalSqm2, StringFormat={}{0:0.000}}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                <Button Grid.Column="9"
+                                        Command="{Binding DataContext.RemoveRowCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                        CommandParameter="{Binding}"
+                                        Style="{StaticResource PiIconButtonStyle}"
+                                        ToolTip="{DynamicResource Dg.DeleteRow}">
+                                    <TextBlock Text="&#xE711;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource DangerBrush}"/>
+                                </Button>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+                <!-- ── autosums ─────────────────────────────────────────── -->
+                <!-- Same column definitions again, so each total lands under
+                     its own column. Figures come from the SpecGroup's own
+                     footer, which recalculates as rows change. -->
+                <Border Grid.Row="4" BorderBrush="{DynamicResource DividerBrush}"
+                        BorderThickness="{DynamicResource Border.TopHairlineThickness}"
+                        Padding="6,6" Margin="0,6,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="36"/>
+                            <ColumnDefinition Width="1.6*"/>
+                            <ColumnDefinition Width="0.75*"/>
+                            <ColumnDefinition Width="0.75*"/>
+                            <ColumnDefinition Width="0.75*"/>
+                            <ColumnDefinition Width="0.75*"/>
+                            <ColumnDefinition Width="0.65*"/>
+                            <ColumnDefinition Width="0.9*"/>
+                            <ColumnDefinition Width="0.9*"/>
+                            <ColumnDefinition Width="30"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Grid.ColumnSpan="6" Text="TOTAL"
+                                   Style="{StaticResource OptHeader}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="6" Text="{Binding ManualCutList.FooterTotalQty, Mode=OneWay}"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="7" Text="{Binding ManualCutList.FooterTotalSqm, StringFormat={}{0:0.000}, Mode=OneWay}"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="8" Text="{Binding ManualCutList.FooterTotalSqm2, StringFormat={}{0:0.000}, Mode=OneWay}"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+
+                <!-- ── status ───────────────────────────────────────────── -->
+                <TextBlock Grid.Row="5" Text="{Binding CutListStatus}"
+                           FontSize="{DynamicResource FontSize.Body}"
+                           FontWeight="{DynamicResource Weight.SemiBold}"
+                           Foreground="{DynamicResource AccentBrush}"
+                           TextWrapping="Wrap" Margin="2,8,2,0"
+                           Visibility="{Binding HasCutListStatus, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

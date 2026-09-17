@@ -156,11 +156,15 @@
                     </TextBox.Text>
                 </TextBox>
             </StackPanel>
+            <!-- Height and MinWidth are deliberately NOT overridden. The style
+                 is 40 tall with a 120 minimum and a template padding of 16,0;
+                 forcing it to 28x72 left ~40px for the label, which fits the
+                 English "Add" and clips almost every other language this app
+                 ships ("Добавить", "Hinzufügen", "إضافة"). PrintPreviewView uses
+                 this style unmodified — that is the reference. -->
             <Button Grid.Column="8"
                     Command="{Binding AddChargeCommand}"
                     Style="{StaticResource PiFooterPrimaryButton}"
-                    Height="28"
-                    MinWidth="72"
                     VerticalAlignment="Bottom"
                     Content="{DynamicResource Action.Add}"/>
         </Grid>

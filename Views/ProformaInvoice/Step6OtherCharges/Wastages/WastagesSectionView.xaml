@@ -96,11 +96,13 @@
                     <ColumnDefinition Width="1.6*"/>
                     <ColumnDefinition Width="36"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="{DynamicResource ProformaInvoice.ON}"/>
+                <!-- Header alignment mirrors the data cells: ON is a centred
+                     toggle, SQM is a centred figure, RATE is centred text. -->
+                <TextBlock Grid.Column="0" Text="{DynamicResource ProformaInvoice.ON}" HorizontalAlignment="Center"/>
                 <TextBlock Grid.Column="1" Text="{DynamicResource ProformaInvoice.Colour}" HorizontalAlignment="Left"/>
                 <TextBlock Grid.Column="2" Text="{DynamicResource ProformaInvoice.Source}" HorizontalAlignment="Left"/>
-                <TextBlock Grid.Column="3" Text="SQM"/>
-                <TextBlock Grid.Column="4" Text="{DynamicResource Common.Rate}"/>
+                <TextBlock Grid.Column="3" Text="SQM" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Column="4" Text="{DynamicResource Common.Rate}" HorizontalAlignment="Center"/>
                 <TextBlock Grid.Column="5" Text="{DynamicResource ProformaInvoice.Setup}"/>
                 <TextBlock Grid.Column="6" Text="{DynamicResource Common.Amount}" HorizontalAlignment="Right"/>
             </Grid>
@@ -111,7 +113,7 @@
                 <DataTemplate>
                     <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                            Padding="8,6">
+                            Padding="10,6">
                         <StackPanel>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -320,6 +322,7 @@
                                          Style="{StaticResource Input.TextBox}"
                                          behaviors:TextBoxBehaviors.AcceptDecimals="True"
                                          IsEnabled="{Binding IsManualRateMode}"
+                                         HorizontalContentAlignment="Center"
                                          Margin="4,0"/>
                                 <Grid Grid.Column="5" Margin="4,0">
                                     <ToggleButton x:Name="SetupToggle"

@@ -463,8 +463,7 @@ public ProformaInvoiceViewModel() : this(
             System.Collections.Generic.IReadOnlyList<Models.ProformaInvoice.SavedInvoice.SpecGroupSnapshot> specGroups,
             string stage)
         {
-            var host = _optimizationHost ??=
-                new ViewModels.Optimization.OptimizationViewModel();
+            var host = _optimizationHost ??= CreateOptimizationHost();
 
             // Stamp BEFORE the run: both the live publish and the persisted
             // latest-run row read DocumentKey when the run finishes.
@@ -472,6 +471,65 @@ public ProformaInvoiceViewModel() : this(
 
             bool started = host.RunFromStep5(specGroups, stage, out string message);
             return (started, message);
+        }
+
+        /// <summary>
+        /// Creates the one headless optimization host this quote drives its runs
+        /// through, and wires the engine's own progress onto Step 5.
+        /// </summary>
+        /// <remarks>
+        /// The constructor does database work (job list, saved sessions), so the
+        /// host is created once and cached rather than per click.
+        /// </remarks>
+        private ViewModels.Optimization.OptimizationViewModel CreateOptimizationHost()
+        {
+            var host = new ViewModels.Optimization.OptimizationViewModel();
+            host.PropertyChanged += OnOptimizationHostPropertyChanged;
+            return host;
+        }
+
+        /// <summary>
+        /// Mirrors the run state onto Step 5, so the operator sees the run
+        /// happening on the screen they clicked instead of a frozen grid.
+        /// </summary>
+        /// <remarks>
+        /// Only the three progress properties are mirrored; everything else the
+        /// host raises (and it raises a lot) is ignored, because this quote never
+        /// displays the host's own tab surface.
+        /// </remarks>
+        private void OnOptimizationHostPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(ViewModels.Optimization.OptimizationViewModel.IsRunning):
+                case nameof(ViewModels.Optimization.OptimizationViewModel.RunProgressPercent):
+                case nameof(ViewModels.Optimization.OptimizationViewModel.RunProgressDetail):
+                    break;
+                default:
+                    return;
+            }
+
+            var host = _optimizationHost;
+            if (host == null) return;
+
+            bool running = host.IsRunning;
+            int percent = host.RunProgressPercent;
+            string detail = host.RunProgressDetail;
+
+            // The engine reports from inside its packing loop, which is not
+            // necessarily the UI thread. PropertyChanged marshals itself, but
+            // keep the hop explicit so nothing downstream can ever touch a
+            // control off-thread.
+            var dispatcher = Application.Current?.Dispatcher;
+            if (dispatcher != null && !dispatcher.CheckAccess())
+            {
+                dispatcher.BeginInvoke(new Action(
+                    () => Step5VM.ReportOptimizationProgress(running, percent, detail)));
+            }
+            else
+            {
+                Step5VM.ReportOptimizationProgress(running, percent, detail);
+            }
         }
 
         private void OnOptimizationRunPublished()

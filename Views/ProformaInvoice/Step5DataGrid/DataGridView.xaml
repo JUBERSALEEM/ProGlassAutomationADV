@@ -165,6 +165,37 @@
                     <StackPanel Grid.Column="3"
                                 Orientation="Horizontal"
                                 VerticalAlignment="Center">
+                        <!-- LIVE RUN STATE. The run executes asynchronously
+                             inside the optimization module after the button's
+                             command has already returned, so without this the
+                             operator clicks QUICK and nothing on screen moves
+                             until Step 6 changes — which reads as "the button
+                             does nothing". The numbers are the engine's own
+                             (RunProgressPercent / RunProgressDetail), mirrored
+                             by ProformaInvoiceViewModel; nothing is estimated
+                             or animated for effect. Uses the app's themed
+                             progress track, and collapses to zero width when
+                             idle so the panel is unchanged at rest. -->
+                        <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Center"
+                                    Margin="0,0,12,0"
+                                    Visibility="{Binding IsOptimizationRunning, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <ProgressBar Style="{StaticResource PiProgressTrackStyle}"
+                                         Width="120"
+                                         Maximum="100"
+                                         VerticalAlignment="Center"
+                                         Value="{Binding OptimizationProgressPercent, Mode=OneWay}"
+                                         AutomationProperties.Name="Optimization run progress"/>
+                            <TextBlock Text="{Binding OptimizationProgressDetail, Mode=OneWay}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       VerticalAlignment="Center"
+                                       MaxWidth="240"
+                                       TextTrimming="CharacterEllipsis"
+                                       TextWrapping="NoWrap"
+                                       Margin="10,0,0,0"/>
+                        </StackPanel>
                         <!-- QUICK / OPTIMIZE: cut the LIVE grid instead of a
                              confirmed Job Order, so Step 6 can read real sheet
                              qty and utilization rather than hand-typed numbers.
@@ -411,15 +442,15 @@
                                                     <ColumnDefinition Width="26"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0" Text="{Binding SerialNumber}" Style="{StaticResource LineItemsSerialStyle}"/>
-                                                <TextBox Grid.Column="1" Text="{Binding GlassRef, UpdateSourceTrigger=LostFocus}" Style="{StaticResource Input.TextBox}" Margin="2,0"/>
-                                                <TextBox Grid.Column="2" Text="{Binding W1, UpdateSourceTrigger=LostFocus}" Style="{StaticResource Input.TextBox}" Margin="2,0"/>
-                                                <TextBox Grid.Column="3" Text="{Binding H1, UpdateSourceTrigger=LostFocus}" Style="{StaticResource Input.TextBox}" Margin="2,0"/>
-                                                <TextBox Grid.Column="4" Text="{Binding W2, UpdateSourceTrigger=LostFocus}" Style="{StaticResource Input.TextBox}" Margin="2,0"/>
-                                                <TextBox Grid.Column="5" Text="{Binding H2, UpdateSourceTrigger=LostFocus}" Style="{StaticResource Input.TextBox}" Margin="2,0"/>
-                                                <TextBox Grid.Column="6" Text="{Binding Qty, UpdateSourceTrigger=LostFocus}" Style="{StaticResource Input.TextBox}" Margin="2,0"/>
+                                                <TextBox Grid.Column="1" Text="{Binding GlassRef, UpdateSourceTrigger=LostFocus}" Style="{StaticResource LineItemsTextCellStyle}" Margin="2,0"/>
+                                                <TextBox Grid.Column="2" Text="{Binding W1, UpdateSourceTrigger=LostFocus}" Style="{StaticResource LineItemsIntCellStyle}" Margin="2,0"/>
+                                                <TextBox Grid.Column="3" Text="{Binding H1, UpdateSourceTrigger=LostFocus}" Style="{StaticResource LineItemsIntCellStyle}" Margin="2,0"/>
+                                                <TextBox Grid.Column="4" Text="{Binding W2, UpdateSourceTrigger=LostFocus}" Style="{StaticResource LineItemsIntCellStyle}" Margin="2,0"/>
+                                                <TextBox Grid.Column="5" Text="{Binding H2, UpdateSourceTrigger=LostFocus}" Style="{StaticResource LineItemsIntCellStyle}" Margin="2,0"/>
+                                                <TextBox Grid.Column="6" Text="{Binding Qty, UpdateSourceTrigger=LostFocus}" Style="{StaticResource LineItemsIntCellStyle}" Margin="2,0"/>
                                                 <TextBlock Grid.Column="7" Text="{Binding Sqm1, StringFormat={}{0:0.000}}" Style="{StaticResource LineItemsReadonlyStyle}"/>
                                                 <TextBlock Grid.Column="8" Text="{Binding TotalSqm, StringFormat={}{0:0.000}}" Style="{StaticResource LineItemsReadonlyStyle}"/>
-                                                <TextBox Grid.Column="9" Text="{Binding Rate, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}" Style="{StaticResource Input.TextBox}" Margin="1,0"/>
+                                                <TextBox Grid.Column="9" Text="{Binding Rate, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}" Style="{StaticResource LineItemsDecimalCellStyle}" Margin="1,0"/>
                                                 <TextBlock Grid.Column="10" Text="{Binding Value, StringFormat=AED {0:N2}}" Style="{StaticResource LineItemsMoneyStyle}"/>
                                                 <Button Grid.Column="11"
                                                         Command="{Binding DataContext.RemoveRowCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
@@ -458,11 +489,11 @@
                                             <Button Command="{Binding GenerateRowsCommand}"
                                                     Style="{StaticResource PiGhostChipButton}"
                                                     Margin="6,0,8,0"
-                                                    Height="24"
+                                                    VerticalAlignment="Center"
                                                     Content="{DynamicResource Dg.Generate}"/>
                                             <Button Command="{Binding AddRowCommand}"
                                                     Style="{StaticResource PiGhostChipButton}"
-                                                    Height="24"
+                                                    VerticalAlignment="Center"
                                                     Content="{DynamicResource Dg.AddRowShort}"/>
                                         </StackPanel>
 

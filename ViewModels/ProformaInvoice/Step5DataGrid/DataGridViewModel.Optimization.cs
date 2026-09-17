@@ -46,10 +46,81 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
         private Step5OptimizationRunner? _optimizationRunner;
 
-        /// <summary>True once the composer has bound a runner, so the buttons
-        /// can be disabled instead of failing on click when Step 5 is hosted
-        /// somewhere that has no optimization module behind it.</summary>
-        public bool CanRunOptimization => _optimizationRunner != null;
+        /// <summary>True once the composer has bound a runner AND no run is in
+        /// flight, so the buttons disable instead of failing on click — either
+        /// when Step 5 is hosted somewhere with no optimization module behind
+        /// it, or while a run is already going.</summary>
+        public bool CanRunOptimization => _optimizationRunner != null && !_isOptimizationRunning;
+
+        // ── live run state, mirrored from the optimization host ────────────
+        //
+        // The run happens inside the optimization module, asynchronously, after
+        // this grid's command has already returned. Without this the operator
+        // clicks QUICK and the screen shows nothing at all until Step 6 changes
+        // — which reads as "the button does nothing". The composer pushes the
+        // host's own progress numbers here; nothing is estimated or faked.
+
+        private bool _isOptimizationRunning;
+
+        /// <summary>True while an optimization run started from this grid (or
+        /// from the optimization module behind it) is in flight.</summary>
+        public bool IsOptimizationRunning
+        {
+            get => _isOptimizationRunning;
+            private set
+            {
+                if (_isOptimizationRunning == value) return;
+                _isOptimizationRunning = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CanRunOptimization));
+                _runQuickOptimizationCommand?.RaiseCanExecuteChanged();
+                _runOptimizeOptimizationCommand?.RaiseCanExecuteChanged();
+            }
+        }
+
+        private int _optimizationProgressPercent;
+
+        /// <summary>0–100, clamped. Drives the determinate bar.</summary>
+        public int OptimizationProgressPercent
+        {
+            get => _optimizationProgressPercent;
+            private set
+            {
+                int clamped = value < 0 ? 0 : (value > 100 ? 100 : value);
+                if (_optimizationProgressPercent == clamped) return;
+                _optimizationProgressPercent = clamped;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _optimizationProgressDetail = string.Empty;
+
+        /// <summary>What the engine is doing right now, in its own words.</summary>
+        public string OptimizationProgressDetail
+        {
+            get => _optimizationProgressDetail;
+            private set
+            {
+                string text = value ?? string.Empty;
+                if (_optimizationProgressDetail == text) return;
+                _optimizationProgressDetail = text;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Pushes run state in from the composer, which owns the optimization
+        /// host. Safe to call from the thread the run reports on: every property
+        /// here only raises <c>PropertyChanged</c>, which WPF marshals.
+        /// </summary>
+        public void ReportOptimizationProgress(bool running, int percent, string? detail)
+        {
+            OptimizationProgressPercent = percent;
+            OptimizationProgressDetail = detail;
+            // Running last: its setter requeries the buttons, and by then the
+            // bar already has the numbers to show.
+            IsOptimizationRunning = running;
+        }
 
         /// <summary>Binds the runner. Called once by ProformaInvoiceViewModel.</summary>
         public void BindOptimizationRunner(Step5OptimizationRunner? runner)
