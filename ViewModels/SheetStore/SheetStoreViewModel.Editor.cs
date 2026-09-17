@@ -29,6 +29,22 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 else OpenSheetWorkspace(null);
             });
 
+        /// <summary>
+        /// Opens the ADD SHEET workspace from outside the module — Step 4's
+        /// "Open Sheet Store — Add Sheet" lands here. Same permission gate and
+        /// same window as the module's own ADD NEW button, so there is one
+        /// add-sheet path rather than two that can drift.
+        /// </summary>
+        public void OpenAddSheetWorkspace()
+        {
+            // OpenAddPanelCommand branches on whichever view the operator last
+            // left open: on Consumables it adds a consumable, not a glass sheet.
+            // A caller asking for "add sheet" always means glass, so say so
+            // explicitly instead of inheriting the last navigation state.
+            if (IsConsumablesView) StockKind = "Glass";
+            OpenSheetWorkspace(null);
+        }
+
         private ICommand? _openEditPanelCommand;
         public ICommand OpenEditPanelCommand =>
             _openEditPanelCommand ??= new RelayCommand(

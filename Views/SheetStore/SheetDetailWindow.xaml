@@ -18,14 +18,24 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
         Title="{Binding HeaderTitle}"
-        WindowState="Maximized"
         WindowStartupLocation="CenterOwner"
+        Width="1240" Height="860"
         MinWidth="980" MinHeight="640"
+        ResizeMode="CanResizeWithGrip"
         Background="{DynamicResource WindowBackgroundBrush}"
         FontFamily="{DynamicResource AppFontFamily}"
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="ClearType"
         UseLayoutRounding="True" SnapsToDevicePixels="True">
+
+    <!-- A modal dialog, not a screen takeover. The Window above used to be
+         WindowState="Maximized", which stretched a seven-tab sheet workspace
+         across every pixel of whatever monitor it landed on, and made
+         WindowStartupLocation meaningless — a maximised window has no position
+         to centre. It is now bounded, centred on its owner and resizable with a
+         grip, matching AddEditSheetView: big enough for the work deck, small
+         enough to read as a document. MinWidth and MinHeight are untouched, so
+         nothing that fit before can clip now. -->
 
     <Window.InputBindings>
         <KeyBinding Key="Escape" Command="{Binding CloseCommand}"/>
@@ -516,7 +526,7 @@
                          that closed and silently recorded nothing. -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,4,0,0">
                         <Button Style="{StaticResource PrimaryPillButton}"
-                                Tag="&#xE74E;" Content="RECORD PURCHASE" MinWidth="240"
+                                Tag="&#xE74E;" Content="RECORD PURCHASE" MinWidth="200"
                                 Command="{Binding DataContext.ConfirmBuyCommand,
                                           RelativeSource={RelativeSource AncestorType=Window}}"/>
                     </StackPanel>
@@ -709,7 +719,7 @@
                          that closed and silently recorded nothing. -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,4,0,0">
                         <Button Style="{StaticResource PrimaryPillButton}"
-                                Content="RECORD USAGE" MinWidth="240"
+                                Content="RECORD USAGE" MinWidth="200"
                                 Command="{Binding DataContext.ConfirmUseCommand,
                                           RelativeSource={RelativeSource AncestorType=Window}}"/>
                     </StackPanel>
@@ -757,7 +767,9 @@
                                 <TextBlock Text="CATEGORY" Style="{StaticResource FieldLabel}"/>
                                 <ComboBox ItemsSource="{Binding CategoryOptions}"
                                           Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource DetailCombo}"/>
+                                          Style="{StaticResource DetailCombo}"
+                                          IsEditable="True"
+                                          IsTextSearchEnabled="True"/>
                                 <TextBlock Text="{Binding CategoryError}"
                                            Visibility="{Binding HasCategoryError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -766,7 +778,9 @@
                                 <TextBlock Text="THICKNESS (mm)"/>
                                 <ComboBox ItemsSource="{Binding ThicknessOptions}"
                                           Text="{Binding ThicknessText, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource DetailCombo}"/>
+                                          Style="{StaticResource DetailCombo}"
+                                          IsEditable="True"
+                                          IsTextSearchEnabled="True"/>
                                 <TextBlock Text="{Binding ThicknessError}"
                                            Visibility="{Binding HasThicknessError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -775,7 +789,9 @@
                                 <TextBlock Text="COLOUR"/>
                                 <ComboBox ItemsSource="{Binding ColorOptions}"
                                           Text="{Binding Color, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource DetailCombo}"/>
+                                          Style="{StaticResource DetailCombo}"
+                                          IsEditable="True"
+                                          IsTextSearchEnabled="True"/>
                                 <TextBlock Text="{Binding ColorError}"
                                            Visibility="{Binding HasColorError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -799,7 +815,9 @@
                                 <TextBlock Text="WIDTH (mm)"/>
                                 <ComboBox ItemsSource="{Binding WidthOptions}"
                                           Text="{Binding WidthText, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource DetailCombo}"/>
+                                          Style="{StaticResource DetailCombo}"
+                                          IsEditable="True"
+                                          IsTextSearchEnabled="True"/>
                                 <TextBlock Text="{Binding WidthError}"
                                            Visibility="{Binding HasWidthError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -808,7 +826,9 @@
                                 <TextBlock Text="HEIGHT (mm)"/>
                                 <ComboBox ItemsSource="{Binding HeightOptions}"
                                           Text="{Binding HeightText, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource DetailCombo}"/>
+                                          Style="{StaticResource DetailCombo}"
+                                          IsEditable="True"
+                                          IsTextSearchEnabled="True"/>
                                 <TextBlock Text="{Binding HeightError}"
                                            Visibility="{Binding HasHeightError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -817,7 +837,9 @@
                                 <TextBlock Text="SUPPLIER"/>
                                 <ComboBox ItemsSource="{Binding SupplierOptions}"
                                           Text="{Binding Supplier, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource DetailCombo}"/>
+                                          Style="{StaticResource DetailCombo}"
+                                          IsEditable="True"
+                                          IsTextSearchEnabled="True"/>
                                 <TextBlock Text="{Binding SupplierError}"
                                            Visibility="{Binding HasSupplierError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -881,7 +903,7 @@
                                    Visibility="{Binding HasValidationSummary,
                                                Converter={StaticResource BoolToVisibilityConverter}}"/>
                         <Button Style="{StaticResource PrimaryPillButton}"
-                                Tag="&#xE74E;" MinWidth="190"
+                                Tag="&#xE74E;" MinWidth="200"
                                 Command="{Binding DataContext.SaveCommand,
                                           RelativeSource={RelativeSource AncestorType=Window}}"
                                 Content="{Binding DataContext.SaveButtonText,

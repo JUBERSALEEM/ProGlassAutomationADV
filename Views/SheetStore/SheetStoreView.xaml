@@ -1072,13 +1072,15 @@
                                        Visibility="{Binding HasNameError, Converter={StaticResource BoolToVisibilityConverter}}"/>
                             <TextBlock Text="CATEGORY" Style="{StaticResource Typography.Label}"/>
                             <ComboBox ItemsSource="{Binding Categories}"
-                                      SelectedItem="{Binding Category}"
-                                      Style="{StaticResource ModernComboBoxStyle}"
+                                      Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
+                                      IsTextSearchEnabled="True"
+                                      Style="{StaticResource ModernEditableComboBoxStyle}"
                                       Margin="0,0,0,12" Height="40" MinHeight="40"/>
                             <TextBlock Text="UNIT OF MEASURE" Style="{StaticResource Typography.Label}"/>
                             <ComboBox ItemsSource="{Binding Uoms}"
-                                      SelectedItem="{Binding Uom}"
-                                      Style="{StaticResource ModernComboBoxStyle}"
+                                      Text="{Binding Uom, UpdateSourceTrigger=PropertyChanged}"
+                                      IsTextSearchEnabled="True"
+                                      Style="{StaticResource ModernEditableComboBoxStyle}"
                                       Margin="0,0,0,12" Height="40" MinHeight="40"/>
                             <TextBlock Text="SPECIFICATION" Style="{StaticResource Typography.Label}"/>
                             <TextBox Text="{Binding Specification, UpdateSourceTrigger=PropertyChanged}"

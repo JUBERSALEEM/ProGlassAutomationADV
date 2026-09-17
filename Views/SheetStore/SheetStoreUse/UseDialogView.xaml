@@ -161,7 +161,7 @@
                             <ColumnDefinition Width="50"/>
                         </Grid.ColumnDefinitions>
                         <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
-                                Content="−" MinWidth="50"
+                                Content="−" MinWidth="58"
                                 ToolTip="{DynamicResource SheetStore.DecreaseQuantity}"
                                 Command="{Binding DecreaseCommand}"/>
                         <!-- Raw text binding: an int binding cannot observe
@@ -190,7 +190,7 @@
                             </TextBox.Style>
                         </TextBox>
                         <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
-                                Content="+" MinWidth="50"
+                                Content="+" MinWidth="58"
                                 ToolTip="{DynamicResource SheetStore.IncreaseQuantity}"
                                 Command="{Binding IncreaseCommand}"/>
                     </Grid>

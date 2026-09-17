@@ -729,6 +729,22 @@
         <Setter Property="MinHeight" Value="{DynamicResource Density.ControlHeight}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Template" Value="{StaticResource Themed.ComboBoxTemplate}"/>
+        <Style.Triggers>
+            <!-- A custom Template REPLACES WPF's, and WPF's is the one that
+                 carries PART_EditableTextBox. So a style that pins the
+                 non-editable template silently makes IsEditable="True" do
+                 nothing: the box renders, the list still opens, and typing is
+                 dead. That is exactly what happened to the Sheet Store's
+                 category / thickness / colour / size / supplier fields, which
+                 bind Text= and are meant to accept a value the store has never
+                 seen. Swapping the template on the property — the way WPF's own
+                 default style does it — keeps the themed chrome and makes
+                 editing opt-in per control, so every picker that does NOT set
+                 IsEditable is untouched. Inherited by DetailCombo via BasedOn. -->
+            <Trigger Property="IsEditable" Value="True">
+                <Setter Property="Template" Value="{StaticResource Themed.EditableComboBoxTemplate}"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
     <Style x:Key="Input.DatePicker" TargetType="DatePicker">
         <Setter Property="Background" Value="{DynamicResource SurfaceInputBrush}"/>

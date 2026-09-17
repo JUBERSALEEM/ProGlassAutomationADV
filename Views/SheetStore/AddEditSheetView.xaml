@@ -98,7 +98,9 @@
                 <ComboBox Style="{StaticResource Input.ComboBox}"
                           ItemsSource="{Binding CategoryOptions}"
                           Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
-                          ToolTip="{DynamicResource SheetStore.EGClearFloatGuardianClimaguard70}"/>
+                          ToolTip="{DynamicResource SheetStore.EGClearFloatGuardianClimaguard70}"
+                          IsEditable="True"
+                          IsTextSearchEnabled="True"/>
 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -110,13 +112,17 @@
                         <TextBlock Text="{DynamicResource SheetStore.ThicknessMm}" Style="{StaticResource Typography.Label}"/>
                         <ComboBox Style="{StaticResource Input.ComboBox}"
                                   ItemsSource="{Binding ThicknessOptions}"
-                                  Text="{Binding ThicknessText, UpdateSourceTrigger=PropertyChanged}"/>
+                                  Text="{Binding ThicknessText, UpdateSourceTrigger=PropertyChanged}"
+                                  IsEditable="True"
+                                  IsTextSearchEnabled="True"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="{DynamicResource ProformaInvoice.Color}" Style="{StaticResource Typography.Label}"/>
                         <ComboBox Style="{StaticResource Input.ComboBox}"
                                   ItemsSource="{Binding ColorOptions}"
-                                  Text="{Binding Color, UpdateSourceTrigger=PropertyChanged}"/>
+                                  Text="{Binding Color, UpdateSourceTrigger=PropertyChanged}"
+                                  IsEditable="True"
+                                  IsTextSearchEnabled="True"/>
                     </StackPanel>
                 </Grid>
 
@@ -130,20 +136,26 @@
                         <TextBlock Text="{DynamicResource SheetStore.WidthMm}" Style="{StaticResource Typography.Label}"/>
                         <ComboBox Style="{StaticResource Input.ComboBox}"
                                   ItemsSource="{Binding WidthOptions}"
-                                  Text="{Binding WidthText, UpdateSourceTrigger=PropertyChanged}"/>
+                                  Text="{Binding WidthText, UpdateSourceTrigger=PropertyChanged}"
+                                  IsEditable="True"
+                                  IsTextSearchEnabled="True"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="{DynamicResource SheetStore.HeightMm}" Style="{StaticResource Typography.Label}"/>
                         <ComboBox Style="{StaticResource Input.ComboBox}"
                                   ItemsSource="{Binding HeightOptions}"
-                                  Text="{Binding HeightText, UpdateSourceTrigger=PropertyChanged}"/>
+                                  Text="{Binding HeightText, UpdateSourceTrigger=PropertyChanged}"
+                                  IsEditable="True"
+                                  IsTextSearchEnabled="True"/>
                     </StackPanel>
                 </Grid>
 
                 <TextBlock Text="{DynamicResource SheetStore.Supplier}" Style="{StaticResource Typography.Label}"/>
                 <ComboBox Style="{StaticResource Input.ComboBox}"
                           ItemsSource="{Binding SupplierOptions}"
-                          Text="{Binding Supplier, UpdateSourceTrigger=PropertyChanged}"/>
+                          Text="{Binding Supplier, UpdateSourceTrigger=PropertyChanged}"
+                          IsEditable="True"
+                          IsTextSearchEnabled="True"/>
 
                 <Grid>
                     <Grid.ColumnDefinitions>

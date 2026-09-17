@@ -817,8 +817,16 @@ namespace ProGlassAutomation.ViewModels
 
             // 2026-09-10: Step 4 "Open Sheet Store — Add Sheet" button.
             // License gate runs inside Navigate, same as every rail item.
+            // Step 4's button says "Open Sheet Store — Add Sheet", so it has to
+            // arrive with the add-sheet workspace open. Navigating alone lands on
+            // the module's list — the operator clicks, the page changes, and
+            // nothing they asked for appears. Navigate first (it applies the
+            // license gate and creates the VM), then open the workspace.
             ProformaInvoiceVM.Step4VM.NavigateToSheetStoreRequested += (_, _) =>
+            {
                 NavigateFromAgent("SheetStore");
+                SheetStoreVM.OpenAddSheetWorkspace();
+            };
             // Step 5 "VIEW RESULT": land on the optimization module's SUMMARY
             // tab showing the run that was just made. Navigate first — it
             // applies the license gate and creates the module VM — then ask
