@@ -363,15 +363,24 @@
 
                 </StackPanel>
 
-                <!-- ═══ CARD — MODULE WALLPAPERS ═══
-                     Family-independent, so it belongs on the Theme Engine page in
-                     EVERY family, not only while Crystal Fluid is active. Without
-                     it a non-crystal family left this page as one picker plus a
-                     one-line hint — the page read as empty (owner report
-                     2026-09-16). Same control as the Appearance page; both bind the
-                     one shared ModuleWallpaperRows source, so a change on either
-                     page is reflected on the other. -->
-                <cards:AppearanceWallpapersCard/>
+                <!-- ═══ CARD — WALLPAPERS LINKED NOTICE ═══
+                     Wallpaper library and per-module wallpaper controls are cleanly
+                     centralized in Settings -> Appearance -> Wallpapers to eliminate
+                     UI duplication across pages. -->
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xEB9F;"/>
+                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
+                                       Text="{DynamicResource Settings.Wallpapers}"/>
+                        </StackPanel>
+                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                   Text="Wallpapers and background scenes are managed centrally in Appearance to keep your workspace streamlined."/>
+                        <Button Style="{StaticResource RowOutlinedButton}" Height="30" Padding="14,0" HorizontalAlignment="Left" Margin="0,8,0,0"
+                                Command="{Binding NavigateSettingsPageCommand}" CommandParameter="Appearance"
+                                Content="Open Wallpapers in Appearance"/>
+                    </StackPanel>
+                </Border>
 
                 <!-- ═══ GROUP: CRYSTAL INACTIVE HINT (Normal/Monet only) ═══ -->
                 <Border Style="{StaticResource SettingsPageCardStyle}"

@@ -187,25 +187,18 @@ namespace ProGlassAutomation.Services
             //       moved the 6 Density*FontSize aliases and left the real
             //       consumers untouched, so Compact and Spacious rendered
             //       identical type. typeScale below closes that gap.
+            // 2026-09-17 owner mandate:
+            // "Normal is still big in display density and other are also too big.
+            //  Current normal apply to the biggest and rest three do more small display sizes accordingly"
+            //
+            // Ladder re-anchoring:
+            //   • Spacious: receives what was previously "Normal" (input 24, button 26, row 22, body 12)
+            //   • Comfortable: stepped down to compact professional sizing (input 22, button 24, row 20, body 11.5)
+            //   • Normal: stepped down further to crisp high-density desktop scale (input 20, button 22, row 18, body 11)
+            //   • Compact: ultra-efficient, dense shop-floor terminal fit (input 18, button 20, row 16, body 10.5)
             switch (key)
             {
-                case "Spacious":   // == the old Compact
-                    inputH = 28; buttonH = 30; rowH = 26;
-                    title = 17; kpi = 16; body = 13; buttonMin = 84;
-                    cardPad = new Thickness(8, 6, 8, 6);
-                    stripPad = new Thickness(10, 6, 10, 6);
-                    pageMargin = new Thickness(10, 6, 10, 6);
-                    typeScale = 1.00;
-                    break;
-                case "Comfortable":
-                    inputH = 26; buttonH = 28; rowH = 24;
-                    title = 16; kpi = 15; body = 12.5; buttonMin = 78;
-                    cardPad = new Thickness(7, 5, 7, 5);
-                    stripPad = new Thickness(9, 5, 9, 5);
-                    pageMargin = new Thickness(9, 5, 9, 5);
-                    typeScale = 0.96;
-                    break;
-                case "Normal":
+                case "Spacious":   // anchored to the previous "Normal" baseline
                     inputH = 24; buttonH = 26; rowH = 22;
                     title = 15; kpi = 14; body = 12; buttonMin = 72;
                     cardPad = new Thickness(6, 5, 6, 5);
@@ -213,13 +206,29 @@ namespace ProGlassAutomation.Services
                     pageMargin = new Thickness(8, 5, 8, 5);
                     typeScale = 0.92;
                     break;
-                default: // Compact — genuinely small, fits a 13" laptop
+                case "Comfortable": // compact step 1
                     inputH = 22; buttonH = 24; rowH = 20;
                     title = 14; kpi = 13; body = 11.5; buttonMin = 66;
                     cardPad = new Thickness(5, 4, 5, 4);
                     stripPad = new Thickness(7, 4, 7, 4);
                     pageMargin = new Thickness(7, 4, 7, 4);
                     typeScale = 0.88;
+                    break;
+                case "Normal": // compact step 2: crisp, sleek, and tight
+                    inputH = 20; buttonH = 22; rowH = 18;
+                    title = 13; kpi = 12.5; body = 11; buttonMin = 60;
+                    cardPad = new Thickness(4, 3, 4, 3);
+                    stripPad = new Thickness(6, 3, 6, 3);
+                    pageMargin = new Thickness(6, 3, 6, 3);
+                    typeScale = 0.84;
+                    break;
+                default: // Compact — ultra-dense, maximum data visibility
+                    inputH = 18; buttonH = 20; rowH = 16;
+                    title = 12; kpi = 11.5; body = 10.5; buttonMin = 54;
+                    cardPad = new Thickness(3, 2, 3, 2);
+                    stripPad = new Thickness(5, 2, 5, 2);
+                    pageMargin = new Thickness(5, 2, 5, 2);
+                    typeScale = 0.80;
                     break;
             }
 
