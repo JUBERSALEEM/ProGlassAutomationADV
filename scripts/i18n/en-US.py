@@ -2722,4 +2722,6 @@ STRINGS = {
     "Dg.RunOptimize": "OPTIMIZE",
     "Dg.RunQuickTip": "One fast cutting pass over this Step 5 grid — Step 6 then reads real sheet qty and utilization from it.",
     "Dg.RunOptimizeTip": "Deepest multi-start search over this Step 5 grid — best utilization wins, and it takes longer.",
+    "Dg.ViewResult": "VIEW RESULT",
+    "Dg.ViewResultTip": "Open the optimisation module on SUMMARY showing the run you just made.",
 }

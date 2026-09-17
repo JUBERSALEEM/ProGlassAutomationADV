@@ -507,6 +507,8 @@
     <sys:String x:Key="Dg.TotalSqmHint">Gesamt-m² (m² × Menge)</sys:String>
     <sys:String x:Key="Dg.UnitPanel">Stückfläche</sys:String>
     <sys:String x:Key="Dg.Value">WERT</sys:String>
+    <sys:String x:Key="Dg.ViewResult">ERGEBNIS</sys:String>
+    <sys:String x:Key="Dg.ViewResultTip">Öffnet das Optimierungsmodul auf ZUSAMMENFASSUNG mit dem letzten Lauf.</sys:String>
     <sys:String x:Key="Dg.W1">W1</sys:String>
     <sys:String x:Key="Dg.W2">W2</sys:String>
     <sys:String x:Key="Diagnostics.Errors">FEHLER</sys:String>

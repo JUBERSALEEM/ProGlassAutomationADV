@@ -320,11 +320,19 @@ namespace ProGlassAutomation.Tests.Agent
             // The tab has other Grids too (title bar, toolbar); the three that
             // must agree are the 10-column header, row template and footer.
             List<List<string>> tables = ColumnBlocks(tab)
-                .Where(b => b.Count == 10)
+                .Where(b => b.Count == 14)
                 .ToList();
 
             Assert.Equal(3, tables.Count);
             Assert.All(tables, b => Assert.Equal(tables[0], b));
+
+            // The RESULT pane's per-group table is hand-built the same way, so
+            // it can drift the same way.
+            List<List<string>> groupTables = ColumnBlocks(tab)
+                .Where(b => b.Count == 7)
+                .ToList();
+            Assert.Equal(2, groupTables.Count);
+            Assert.Equal(groupTables[0], groupTables[1]);
         }
 
         [Fact]

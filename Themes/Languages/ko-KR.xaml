@@ -507,6 +507,8 @@
     <sys:String x:Key="Dg.TotalSqmHint">총 m² (m² × 수량)</sys:String>
     <sys:String x:Key="Dg.UnitPanel">단위 면적</sys:String>
     <sys:String x:Key="Dg.Value">금액</sys:String>
+    <sys:String x:Key="Dg.ViewResult">결과 보기</sys:String>
+    <sys:String x:Key="Dg.ViewResultTip">방금 실행한 결과를 최적화 모듈 요약에서 엽니다.</sys:String>
     <sys:String x:Key="Dg.W1">W1</sys:String>
     <sys:String x:Key="Dg.W2">W2</sys:String>
     <sys:String x:Key="Diagnostics.Errors">오류</sys:String>

@@ -507,6 +507,8 @@
     <sys:String x:Key="Dg.TotalSqmHint">Toplam m² (m² × adet)</sys:String>
     <sys:String x:Key="Dg.UnitPanel">Birim alan</sys:String>
     <sys:String x:Key="Dg.Value">TUTAR</sys:String>
+    <sys:String x:Key="Dg.ViewResult">SONUCU GÖR</sys:String>
+    <sys:String x:Key="Dg.ViewResultTip">Az önce yapılan çalışmayı optimizasyon modülünde ÖZET olarak açar.</sys:String>
     <sys:String x:Key="Dg.W1">W1</sys:String>
     <sys:String x:Key="Dg.W2">W2</sys:String>
     <sys:String x:Key="Diagnostics.Errors">HATALAR</sys:String>

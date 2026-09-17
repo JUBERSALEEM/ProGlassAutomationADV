@@ -2722,4 +2722,6 @@ STRINGS = {
     "Dg.RunOptimize": "OPTIMIZAR",
     "Dg.RunQuickTip": "Un pase de corte rápido sobre esta cuadrícula del paso 5 — el paso 6 lee entonces la cantidad real de hojas y el aprovechamiento.",
     "Dg.RunOptimizeTip": "La búsqueda multiinicio más profunda sobre esta cuadrícula del paso 5 — gana el mejor aprovechamiento y tarda más.",
+    "Dg.ViewResult": "VER RESULTADO",
+    "Dg.ViewResultTip": "Abre el módulo de optimización en RESUMEN con la ejecución recién hecha.",
 }

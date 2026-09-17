@@ -2722,4 +2722,6 @@ STRINGS = {
     "Dg.RunOptimize": "OPTIMISER",
     "Dg.RunQuickTip": "Une passe de découpe rapide sur cette grille de l'étape 5 — l'étape 6 lit ensuite la quantité réelle de feuilles et le taux d'utilisation.",
     "Dg.RunOptimizeTip": "La recherche multi-départs la plus profonde sur cette grille de l'étape 5 — le meilleur taux l'emporte, et c'est plus long.",
+    "Dg.ViewResult": "VOIR RÉSULTAT",
+    "Dg.ViewResultTip": "Ouvre le module d'optimisation sur RÉSUMÉ avec le dernier calcul.",
 }

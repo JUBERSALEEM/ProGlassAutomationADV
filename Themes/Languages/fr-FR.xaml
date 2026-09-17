@@ -507,6 +507,8 @@
     <sys:String x:Key="Dg.TotalSqmHint">m² total (m² × quantité)</sys:String>
     <sys:String x:Key="Dg.UnitPanel">Surface unitaire</sys:String>
     <sys:String x:Key="Dg.Value">VALEUR</sys:String>
+    <sys:String x:Key="Dg.ViewResult">VOIR RÉSULTAT</sys:String>
+    <sys:String x:Key="Dg.ViewResultTip">Ouvre le module d&#x27;optimisation sur RÉSUMÉ avec le dernier calcul.</sys:String>
     <sys:String x:Key="Dg.W1">W1</sys:String>
     <sys:String x:Key="Dg.W2">W2</sys:String>
     <sys:String x:Key="Diagnostics.Errors">ERREURS</sys:String>

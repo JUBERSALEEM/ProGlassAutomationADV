@@ -2722,4 +2722,6 @@ STRINGS = {
     "Dg.RunOptimize": "OPTIMIEREN",
     "Dg.RunQuickTip": "Ein schneller Zuschnitt-Durchlauf über dieses Schritt-5-Raster — Schritt 6 liest daraus die echte Scheibenanzahl und Ausnutzung.",
     "Dg.RunOptimizeTip": "Tiefste Multi-Start-Suche über dieses Schritt-5-Raster — beste Ausnutzung gewinnt, dauert aber länger.",
+    "Dg.ViewResult": "ERGEBNIS",
+    "Dg.ViewResultTip": "Öffnet das Optimierungsmodul auf ZUSAMMENFASSUNG mit dem letzten Lauf.",
 }

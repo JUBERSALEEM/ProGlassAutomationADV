@@ -221,6 +221,19 @@
                                 VerticalAlignment="Center"
                                 ToolTip="{DynamicResource Dg.RunOptimizeTip}"
                                 Content="{DynamicResource Dg.RunOptimize}"/>
+                        <!-- VIEW RESULT: the run happens in the optimisation
+                             module, on this document's own host, so "did it
+                             work" is answered over there. Same pill height as
+                             its two neighbours, and deliberately no MinWidth —
+                             that is what clipped Step 6's ADD button in 14 of
+                             the 15 languages this app ships. -->
+                        <Button Command="{Binding ViewOptimizationResultCommand}"
+                                Style="{StaticResource OutlinedPillButton}"
+                                Height="32"
+                                Margin="0,0,10,0"
+                                VerticalAlignment="Center"
+                                ToolTip="{DynamicResource Dg.ViewResultTip}"
+                                Content="{DynamicResource Dg.ViewResult}"/>
                         <TextBlock Text="{DynamicResource Dg.Specs}"
                                    FontSize="{DynamicResource FontSize.Body}"
                                    FontWeight="{DynamicResource Weight.Bold}"

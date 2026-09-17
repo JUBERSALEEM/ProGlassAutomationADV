@@ -507,6 +507,8 @@
     <sys:String x:Key="Dg.TotalSqmHint">Общая м² (м² × кол-во)</sys:String>
     <sys:String x:Key="Dg.UnitPanel">Площадь изделия</sys:String>
     <sys:String x:Key="Dg.Value">СУММА</sys:String>
+    <sys:String x:Key="Dg.ViewResult">РЕЗУЛЬТАТ</sys:String>
+    <sys:String x:Key="Dg.ViewResultTip">Открывает модуль оптимизации на вкладке ИТОГ с последним прогоном.</sys:String>
     <sys:String x:Key="Dg.W1">W1</sys:String>
     <sys:String x:Key="Dg.W2">W2</sys:String>
     <sys:String x:Key="Diagnostics.Errors">ОШИБКИ</sys:String>

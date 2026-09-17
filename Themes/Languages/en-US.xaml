@@ -507,6 +507,8 @@
     <sys:String x:Key="Dg.TotalSqmHint">Total SQM (SQM × Qty)</sys:String>
     <sys:String x:Key="Dg.UnitPanel">Unit panel area</sys:String>
     <sys:String x:Key="Dg.Value">VALUE</sys:String>
+    <sys:String x:Key="Dg.ViewResult">VIEW RESULT</sys:String>
+    <sys:String x:Key="Dg.ViewResultTip">Open the optimisation module on SUMMARY showing the run you just made.</sys:String>
     <sys:String x:Key="Dg.W1">W1</sys:String>
     <sys:String x:Key="Dg.W2">W2</sys:String>
     <sys:String x:Key="Diagnostics.Errors">ERRORS</sys:String>

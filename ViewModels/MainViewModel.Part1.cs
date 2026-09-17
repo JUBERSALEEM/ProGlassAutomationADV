@@ -819,6 +819,17 @@ namespace ProGlassAutomation.ViewModels
             // License gate runs inside Navigate, same as every rail item.
             ProformaInvoiceVM.Step4VM.NavigateToSheetStoreRequested += (_, _) =>
                 NavigateFromAgent("SheetStore");
+            // Step 5 "VIEW RESULT": land on the optimization module's SUMMARY
+            // tab showing the run that was just made. Navigate first — it
+            // applies the license gate and creates the module VM — then ask
+            // that VM for the document's latest run. Fire-and-forget is right
+            // here: ShowLatestRunAsync reports its own failures on the
+            // module's status line, and nothing upstream could act on them.
+            ProformaInvoiceVM.NavigateToOptimizationSummaryRequested += documentKey =>
+            {
+                Navigate("Optimization");
+                _ = OptimizationVM.ShowLatestRunAsync(documentKey);
+            };
 
             // Cross-check hardening: the stock-ledger → Step 4 refresh
             // subscription is wired lazily in Navigate("SheetStore") so the

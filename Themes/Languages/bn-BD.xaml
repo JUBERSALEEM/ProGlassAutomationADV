@@ -507,6 +507,8 @@
     <sys:String x:Key="Dg.TotalSqmHint">মোট মি² (মি² × পরিমাণ)</sys:String>
     <sys:String x:Key="Dg.UnitPanel">একক ক্ষেত্রফল</sys:String>
     <sys:String x:Key="Dg.Value">মূল্য</sys:String>
+    <sys:String x:Key="Dg.ViewResult">ফলাফল দেখুন</sys:String>
+    <sys:String x:Key="Dg.ViewResultTip">সদ্য করা রান দেখাতে অপ্টিমাইজেশন মডিউলের সারাংশ খুলুন।</sys:String>
     <sys:String x:Key="Dg.W1">W1</sys:String>
     <sys:String x:Key="Dg.W2">W2</sys:String>
     <sys:String x:Key="Diagnostics.Errors">ত্রুটি</sys:String>

@@ -507,6 +507,8 @@
     <sys:String x:Key="Dg.TotalSqmHint">کل م² (م² × تعداد)</sys:String>
     <sys:String x:Key="Dg.UnitPanel">یونٹ رقبہ</sys:String>
     <sys:String x:Key="Dg.Value">قیمت</sys:String>
+    <sys:String x:Key="Dg.ViewResult">نتیجہ دیکھیں</sys:String>
+    <sys:String x:Key="Dg.ViewResultTip">حالیہ رن کا نتیجہ آپٹیمائزیشن ماڈیول کے خلاصہ میں کھولیں۔</sys:String>
     <sys:String x:Key="Dg.W1">W1</sys:String>
     <sys:String x:Key="Dg.W2">W2</sys:String>
     <sys:String x:Key="Diagnostics.Errors">خرابیاں</sys:String>

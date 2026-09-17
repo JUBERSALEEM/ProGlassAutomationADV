@@ -507,6 +507,8 @@
     <sys:String x:Key="Dg.TotalSqmHint">Total m² (m² × jumlah)</sys:String>
     <sys:String x:Key="Dg.UnitPanel">Luas satuan</sys:String>
     <sys:String x:Key="Dg.Value">NILAI</sys:String>
+    <sys:String x:Key="Dg.ViewResult">LIHAT HASIL</sys:String>
+    <sys:String x:Key="Dg.ViewResultTip">Buka modul optimasi pada RINGKASAN untuk run yang baru saja dibuat.</sys:String>
     <sys:String x:Key="Dg.W1">W1</sys:String>
     <sys:String x:Key="Dg.W2">W2</sys:String>
     <sys:String x:Key="Diagnostics.Errors">KESALAHAN</sys:String>

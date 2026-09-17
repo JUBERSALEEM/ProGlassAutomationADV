@@ -136,10 +136,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             // them. The commands are created lazily, so these may still be null.
             _runQuickOptimizationCommand?.RaiseCanExecuteChanged();
             _runOptimizeOptimizationCommand?.RaiseCanExecuteChanged();
+            _viewOptimizationResultCommand?.RaiseCanExecuteChanged();
         }
 
         private RelayCommand? _runQuickOptimizationCommand;
         private RelayCommand? _runOptimizeOptimizationCommand;
+        private RelayCommand? _viewOptimizationResultCommand;
 
         /// <summary>One fast deterministic pass over the live Step 5 grid.</summary>
         public ICommand RunQuickOptimizationCommand =>
@@ -152,6 +154,30 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             _runOptimizeOptimizationCommand ??= new RelayCommand(
                 _ => RunOptimizationFromStep5("OPTIMIZE"),
                 _ => CanRunOptimization);
+
+        /// <summary>
+        /// Raised when the operator asks to see the result of a run. The grid
+        /// does not know what a module or a document is, so it asks and the
+        /// composer decides — the same late-binding the runner above uses, which
+        /// keeps this view model free of any reference to the optimization
+        /// module.
+        /// </summary>
+        public event System.EventHandler? ViewOptimizationResultRequested;
+
+        /// <summary>
+        /// Opens the optimization module on its SUMMARY tab showing this
+        /// document's latest run. Enabled on exactly the same condition as the
+        /// run buttons — a runner is bound, so there is an optimization module
+        /// behind this grid to show anything at all. It is NOT gated on a run
+        /// having finished: a document run earlier in the day, or before a
+        /// restart, has a result worth looking at, and when there genuinely is
+        /// none the summary says so in words rather than the button being
+        /// mysteriously grey.
+        /// </summary>
+        public ICommand ViewOptimizationResultCommand =>
+            _viewOptimizationResultCommand ??= new RelayCommand(
+                _ => ViewOptimizationResultRequested?.Invoke(this, System.EventArgs.Empty),
+                _ => _optimizationRunner != null);
 
         /// <summary>
         /// Snapshots the grid and asks the bound runner to cut it.

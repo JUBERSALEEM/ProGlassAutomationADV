@@ -2722,4 +2722,6 @@ STRINGS = {
     "Dg.RunOptimize": "OPTIMALKAN",
     "Dg.RunQuickTip": "Satu jalur pemotongan cepat pada grid Langkah 5 ini — Langkah 6 kemudian membaca jumlah lembar dan utilisasi nyata darinya.",
     "Dg.RunOptimizeTip": "Pencarian multi-awal terdalam pada grid Langkah 5 ini — utilisasi terbaik menang, dan butuh waktu lebih lama.",
+    "Dg.ViewResult": "LIHAT HASIL",
+    "Dg.ViewResultTip": "Buka modul optimasi pada RINGKASAN untuk run yang baru saja dibuat.",
 }

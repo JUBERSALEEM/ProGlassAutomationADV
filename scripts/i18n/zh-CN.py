@@ -2722,4 +2722,6 @@ STRINGS = {
     "Dg.RunOptimize": "优化",
     "Dg.RunQuickTip": "对此第 5 步表格执行一次快速切割 —— 第 6 步随后从中读取实际片数和利用率。",
     "Dg.RunOptimizeTip": "对此第 5 步表格执行最深层的多次起始搜索 —— 利用率最优者胜出，耗时更长。",
+    "Dg.ViewResult": "查看结果",
+    "Dg.ViewResultTip": "在优化模块的汇总页打开刚完成的运行结果。",
 }

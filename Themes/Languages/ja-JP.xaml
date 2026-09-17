@@ -507,6 +507,8 @@
     <sys:String x:Key="Dg.TotalSqmHint">合計m²（m² × 数量）</sys:String>
     <sys:String x:Key="Dg.UnitPanel">単位面積</sys:String>
     <sys:String x:Key="Dg.Value">金額</sys:String>
+    <sys:String x:Key="Dg.ViewResult">結果を表示</sys:String>
+    <sys:String x:Key="Dg.ViewResultTip">直近の実行結果を最適化モジュールの概要で開きます。</sys:String>
     <sys:String x:Key="Dg.W1">W1</sys:String>
     <sys:String x:Key="Dg.W2">W2</sys:String>
     <sys:String x:Key="Diagnostics.Errors">エラー</sys:String>

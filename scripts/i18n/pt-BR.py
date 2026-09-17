@@ -2722,4 +2722,6 @@ STRINGS = {
     "Dg.RunOptimize": "OTIMIZAR",
     "Dg.RunQuickTip": "Uma passada de corte rápida nesta grade da Etapa 5 — a Etapa 6 então lê a quantidade real de chapas e o aproveitamento.",
     "Dg.RunOptimizeTip": "A busca multi-início mais profunda nesta grade da Etapa 5 — o melhor aproveitamento vence, e demora mais.",
+    "Dg.ViewResult": "VER RESULTADO",
+    "Dg.ViewResultTip": "Abre o módulo de otimização em RESUMO com a execução recém-feita.",
 }

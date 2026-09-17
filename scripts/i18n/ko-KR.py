@@ -2722,4 +2722,6 @@ STRINGS = {
     "Dg.RunOptimize": "최적화",
     "Dg.RunQuickTip": "이 5단계 그리드를 한 번 빠르게 절단 계산합니다. 그런 다음 6단계에서 실제 시트 수량과 활용률을 읽습니다.",
     "Dg.RunOptimizeTip": "이 5단계 그리드를 가장 깊이 다중 시작 탐색합니다. 최고 활용률이 우선이며 시간이 더 걸립니다.",
+    "Dg.ViewResult": "결과 보기",
+    "Dg.ViewResultTip": "방금 실행한 결과를 최적화 모듈 요약에서 엽니다.",
 }

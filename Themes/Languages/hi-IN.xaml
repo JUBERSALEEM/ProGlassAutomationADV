@@ -507,6 +507,8 @@
     <sys:String x:Key="Dg.TotalSqmHint">कुल मी² (मी² × मात्रा)</sys:String>
     <sys:String x:Key="Dg.UnitPanel">इकाई क्षेत्रफल</sys:String>
     <sys:String x:Key="Dg.Value">मूल्य</sys:String>
+    <sys:String x:Key="Dg.ViewResult">परिणाम देखें</sys:String>
+    <sys:String x:Key="Dg.ViewResultTip">हाल ही में किए गए रन का सारांश अनुकूलन मॉड्यूल में खोलें।</sys:String>
     <sys:String x:Key="Dg.W1">W1</sys:String>
     <sys:String x:Key="Dg.W2">W2</sys:String>
     <sys:String x:Key="Diagnostics.Errors">त्रुटियाँ</sys:String>

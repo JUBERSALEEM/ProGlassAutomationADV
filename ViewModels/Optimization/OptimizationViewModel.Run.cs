@@ -639,6 +639,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             RememberRunForUpgrade(stage, totalSheets);
 
+            // The CUT LIST tab reads this run back per row. Stamping here means
+            // its QTY USED and OPT % columns are current the moment the run
+            // lands, with no second click — and it is a no-op until that tab has
+            // rows of its own, so a proforma-driven run costs nothing here.
+            StampCutListResults();
+
             // A session reopen re-runs the saved stage and lands on the
             // REPORT tab; a manual run lands on RESULT.
             SelectedTabIndex = _openToReportAfterRun ? TabIndexReport : TabIndexSummary;

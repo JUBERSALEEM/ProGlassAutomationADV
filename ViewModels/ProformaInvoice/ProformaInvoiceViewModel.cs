@@ -269,6 +269,15 @@ public ProformaInvoiceViewModel() : this(
             // optimization module — the same idiom as the two bindings above.
             Step5VM.BindOptimizationRunner(RunOptimizationFromStep5);
 
+            // Step 5's VIEW RESULT. The grid raises it without knowing where
+            // "the result" lives; this adds the one thing only the invoice
+            // knows — which document the run belongs to — and hands it up to
+            // the shell. A run is persisted against its document key, so
+            // without it the module would open the global row, which belongs
+            // to whoever last optimized with no invoice open.
+            Step5VM.ViewOptimizationResultRequested += (_, _) =>
+                NavigateToOptimizationSummaryRequested?.Invoke(CurrentDocumentKey);
+
             // A run finished while this invoice was open. Without this the feed
             // would keep showing the previous run until something else happened
             // to re-resolve it. Static event, so it is torn down in Dispose
@@ -443,6 +452,12 @@ public ProformaInvoiceViewModel() : this(
         /// latest-run row, all of which the OPTIMIZATION tab's own buttons do
         /// through the same code paths.
         /// </remarks>
+        /// <summary>
+        /// Asks the shell to show the optimization module's SUMMARY tab for one
+        /// document's latest run. The parameter is that document's key.
+        /// </summary>
+        public event System.Action<string?>? NavigateToOptimizationSummaryRequested;
+
         private ViewModels.Optimization.OptimizationViewModel? _optimizationHost;
 
         /// <summary>

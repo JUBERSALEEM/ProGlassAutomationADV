@@ -507,6 +507,8 @@
     <sys:String x:Key="Dg.TotalSqmHint">总平方米（平方米 × 数量）</sys:String>
     <sys:String x:Key="Dg.UnitPanel">单件面积</sys:String>
     <sys:String x:Key="Dg.Value">金额</sys:String>
+    <sys:String x:Key="Dg.ViewResult">查看结果</sys:String>
+    <sys:String x:Key="Dg.ViewResultTip">在优化模块的汇总页打开刚完成的运行结果。</sys:String>
     <sys:String x:Key="Dg.W1">W1</sys:String>
     <sys:String x:Key="Dg.W2">W2</sys:String>
     <sys:String x:Key="Diagnostics.Errors">错误</sys:String>

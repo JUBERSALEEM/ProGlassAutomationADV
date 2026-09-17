@@ -385,61 +385,119 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     return;
                 }
 
-                var pieces = JsonSerializer.Deserialize<List<PieceDto>>(s.PiecesJson) ?? new List<PieceDto>();
-                var stocks = JsonSerializer.Deserialize<List<StockDto>>(s.StocksJson) ?? new List<StockDto>();
-                var margins = JsonSerializer.Deserialize<MarginDto>(s.MarginsJson);
-
-                // Restore margins / rotation / effort on the UI thread's
-                // field values (the run reads them synchronously next).
-                ThicknessText = margins?.Thickness ?? "6";
-                LeftMarginText = margins?.Left ?? "15";
-                RightMarginText = margins?.Right ?? "15";
-                TopMarginText = margins?.Top ?? "15";
-                BottomMarginText = margins?.Bottom ?? "15";
-                KerfText = margins?.Kerf ?? "3";
-                MinBreakoutText = margins?.MinBreakout ?? "15";
-                RotationEnabled = s.RotationEnabled;
-                if (s.EffortLevel >= 1 && s.EffortLevel <= 5)
-                    SelectedEffortLevel = s.EffortLevel.ToString(CultureInfo.InvariantCulture);
-                SelectedCuttingGroup = AllCuttingGroups;
-
-                // Restore the cutting list.
-                Pieces.Clear();
-                foreach (var p in pieces)
-                {
-                    var restored = NewPieceRow(
-                        string.IsNullOrWhiteSpace(p.GlassRef) ? "6mm clear ft glass" : p.GlassRef,
-                        p.PieceLabel ?? string.Empty,
-                        p.W, p.H, p.Qty);
-                    restored.Position = p.Position ?? string.Empty;
-                    Pieces.Add(restored);
-                }
-
-                // Restore the Step 4 stock pool.
-                Stocks.Clear();
-                foreach (var st in stocks)
-                {
-                    Stocks.Add(new StockEntryVm(st.W, st.H, st.Composition ?? string.Empty, st.Source ?? string.Empty)
-                    {
-                        AvailableText = string.IsNullOrWhiteSpace(st.Available) ? "99999999" : st.Available,
-                        IsUsedInRun = st.IsUsedInRun
-                    });
-                }
-
-                RefreshDerived();
-
-                // Re-run the saved engine stage — deterministic, so the
-                // reopened layout is byte-for-byte the saved one — then
-                // land on the REPORT tab.
-                _openToReportAfterRun = true;
-                Run(string.Equals(s.EngineStage, "OPTIMIZE", StringComparison.OrdinalIgnoreCase)
-                    ? "OPTIMIZE" : "QUICK");
-
+                RestoreSessionCore(s, openToReport: true);
                 SessionStatus = "Opened " + (s.Name ?? "session") + " — re-running its layout…";
             }
             catch (Exception ex)
             {
                 SessionStatus = "Could not open session: " + ex.Message;
+            }
+        }
+
+        /// <summary>
+        /// Puts a persisted session back on screen and re-runs its saved stage.
+        /// The engine is deterministic, so the reopened layout is byte-for-byte
+        /// the one that was saved. <paramref name="openToReport"/> decides where
+        /// that run lands: a session an operator deliberately reopened goes to
+        /// REPORT, a run they only asked to look at goes to SUMMARY.
+        /// </summary>
+        private void RestoreSessionCore(SavedOptimizationSession s, bool openToReport)
+        {
+            var pieces = JsonSerializer.Deserialize<List<PieceDto>>(s.PiecesJson) ?? new List<PieceDto>();
+            var stocks = JsonSerializer.Deserialize<List<StockDto>>(s.StocksJson) ?? new List<StockDto>();
+            var margins = JsonSerializer.Deserialize<MarginDto>(s.MarginsJson);
+
+            // Restore margins / rotation / effort on the UI thread's
+            // field values (the run reads them synchronously next).
+            ThicknessText = margins?.Thickness ?? "6";
+            LeftMarginText = margins?.Left ?? "15";
+            RightMarginText = margins?.Right ?? "15";
+            TopMarginText = margins?.Top ?? "15";
+            BottomMarginText = margins?.Bottom ?? "15";
+            KerfText = margins?.Kerf ?? "3";
+            MinBreakoutText = margins?.MinBreakout ?? "15";
+            RotationEnabled = s.RotationEnabled;
+            if (s.EffortLevel >= 1 && s.EffortLevel <= 5)
+                SelectedEffortLevel = s.EffortLevel.ToString(CultureInfo.InvariantCulture);
+            SelectedCuttingGroup = AllCuttingGroups;
+
+            // Restore the cutting list.
+            Pieces.Clear();
+            foreach (var p in pieces)
+            {
+                var restored = NewPieceRow(
+                    string.IsNullOrWhiteSpace(p.GlassRef) ? "6mm clear ft glass" : p.GlassRef,
+                    p.PieceLabel ?? string.Empty,
+                    p.W, p.H, p.Qty);
+                restored.Position = p.Position ?? string.Empty;
+                Pieces.Add(restored);
+            }
+
+            // Restore the Step 4 stock pool.
+            Stocks.Clear();
+            foreach (var st in stocks)
+            {
+                Stocks.Add(new StockEntryVm(st.W, st.H, st.Composition ?? string.Empty, st.Source ?? string.Empty)
+                {
+                    AvailableText = string.IsNullOrWhiteSpace(st.Available) ? "99999999" : st.Available,
+                    IsUsedInRun = st.IsUsedInRun
+                });
+            }
+
+            RefreshDerived();
+
+            _openToReportAfterRun = openToReport;
+            Run(string.Equals(s.EngineStage, "OPTIMIZE", StringComparison.OrdinalIgnoreCase)
+                ? "OPTIMIZE" : "QUICK");
+        }
+
+        /// <summary>
+        /// Lands on SUMMARY showing the most recent run for one document — the
+        /// bridge behind Step 5's VIEW RESULT button.
+        /// </summary>
+        /// <remarks>
+        /// A proforma runs the engine on its own private host view model, so the
+        /// run reaches this module the way it reaches Step 6: through the
+        /// reserved latest-run row that host persists when it finishes. That row
+        /// is deliberately excluded from <see cref="SavedSessions"/> — an
+        /// operator never saved it, and it should not appear as something they
+        /// can reopen by hand — which is why this reads it directly instead of
+        /// opening the newest listed session. Opening the newest session would
+        /// show an older, unrelated run and read as the button not working.
+        /// </remarks>
+        public async Task ShowLatestRunAsync(string? documentKey)
+        {
+            // Set first: Run() leaves early without touching the tab when it
+            // cannot start, and the operator still asked to see SUMMARY.
+            SelectedTabIndex = TabIndexSummary;
+
+            if (IsRunning)
+            {
+                // Restoring replaces Pieces and Stocks. Doing that underneath a
+                // live run would swap the list mid-flight.
+                SessionStatus = "A run is already in progress — wait for it to finish, then open the result.";
+                return;
+            }
+
+            try
+            {
+                // No ConfigureAwait(false): this restores UI-bound collections.
+                await _sessions.EnsureCreatedAsync();
+                var s = await _sessions.GetLatestRunAsync(documentKey);
+                if (s == null)
+                {
+                    SessionStatus = string.IsNullOrWhiteSpace(documentKey)
+                        ? "No optimisation run has been saved yet — run QUICK or OPTIMIZE first."
+                        : "No optimisation run has been saved for this document yet — run it from Step 5 first.";
+                    return;
+                }
+
+                RestoreSessionCore(s, openToReport: false);
+                SessionStatus = "Showing the latest run — re-running its layout…";
+            }
+            catch (Exception ex)
+            {
+                SessionStatus = "Could not open the latest run: " + ex.Message;
             }
         }
 

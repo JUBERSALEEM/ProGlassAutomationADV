@@ -2722,4 +2722,6 @@ STRINGS = {
     "Dg.RunOptimize": "OPTİMİZE ET",
     "Dg.RunQuickTip": "Bu Adım 5 tablosu üzerinde tek bir hızlı kesim geçişi — ardından Adım 6 gerçek sac adedini ve verimliliği buradan okur.",
     "Dg.RunOptimizeTip": "Bu Adım 5 tablosu üzerinde en derin çok başlangıçlı arama — en iyi verimlilik kazanır ve daha uzun sürer.",
+    "Dg.ViewResult": "SONUCU GÖR",
+    "Dg.ViewResultTip": "Az önce yapılan çalışmayı optimizasyon modülünde ÖZET olarak açar.",
 }

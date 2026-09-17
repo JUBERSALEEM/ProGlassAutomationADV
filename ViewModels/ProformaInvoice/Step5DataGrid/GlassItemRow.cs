@@ -245,6 +245,69 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
         internal bool SuppressRateAutoAdjust { get; set; } = false;
 
+        // ── optimisation read-back ─────────────────────────────────────────
+        // Stamped AFTER a run by OptimizationViewModel.StampCutListResults,
+        // which joins each row's pane sizes to that run's per-size results.
+        // Purely additive and display-only: no area, pricing or footer maths
+        // reads these, and Step 5's own grid never binds them, so a proforma
+        // invoice is unaffected by their existence.
+
+        private int _qtyUsed;
+        /// <summary>Pieces of this row's sizes the engine actually placed.</summary>
+        public int QtyUsed
+        {
+            get => _qtyUsed;
+            set
+            {
+                if (_qtyUsed == value) return;
+                _qtyUsed = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal _optPercent;
+        /// <summary>
+        /// Area-weighted utilization of the cutting groups this row's panes
+        /// landed in — glass m² over stock m² across both panes, which is the
+        /// row's true yield rather than either pane's on its own.
+        /// </summary>
+        public decimal OptPercent
+        {
+            get => _optPercent;
+            set
+            {
+                if (_optPercent == value) return;
+                _optPercent = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _hasOptimizationResult;
+        /// <summary>
+        /// True once a run has stamped this row. Drives the difference between
+        /// "0 placed" — a real answer, the size did not fit — and "—", no run
+        /// yet. Conflating those two would read as a failure before anything
+        /// was ever optimised.
+        /// </summary>
+        public bool HasOptimizationResult
+        {
+            get => _hasOptimizationResult;
+            set
+            {
+                if (_hasOptimizationResult == value) return;
+                _hasOptimizationResult = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>Drops a stale read-back, e.g. when the list is rebuilt.</summary>
+        public void ClearOptimizationStamp()
+        {
+            QtyUsed = 0;
+            OptPercent = 0m;
+            HasOptimizationResult = false;
+        }
+
         public bool IsEmpty =>
             string.IsNullOrWhiteSpace(_glassRef) &&
             _w1 == 0 && _h1 == 0 && _w2 == 0 && _h2 == 0;

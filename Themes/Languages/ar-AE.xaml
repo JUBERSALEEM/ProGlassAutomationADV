@@ -507,6 +507,8 @@
     <sys:String x:Key="Dg.TotalSqmHint">إجمالي م² (م² × كمية)</sys:String>
     <sys:String x:Key="Dg.UnitPanel">مساحة الوحدة</sys:String>
     <sys:String x:Key="Dg.Value">القيمة</sys:String>
+    <sys:String x:Key="Dg.ViewResult">عرض النتيجة</sys:String>
+    <sys:String x:Key="Dg.ViewResultTip">يفتح وحدة التحسين على شاشة الملخص لعرض آخر تشغيل تم إجراؤه.</sys:String>
     <sys:String x:Key="Dg.W1">W1</sys:String>
     <sys:String x:Key="Dg.W2">W2</sys:String>
     <sys:String x:Key="Diagnostics.Errors">الأخطاء</sys:String>

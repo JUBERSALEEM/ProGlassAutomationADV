@@ -507,6 +507,8 @@
     <sys:String x:Key="Dg.TotalSqmHint">m² total (m² × cantidad)</sys:String>
     <sys:String x:Key="Dg.UnitPanel">Área de unidad</sys:String>
     <sys:String x:Key="Dg.Value">VALOR</sys:String>
+    <sys:String x:Key="Dg.ViewResult">VER RESULTADO</sys:String>
+    <sys:String x:Key="Dg.ViewResultTip">Abre el módulo de optimización en RESUMEN con la ejecución recién hecha.</sys:String>
     <sys:String x:Key="Dg.W1">W1</sys:String>
     <sys:String x:Key="Dg.W2">W2</sys:String>
     <sys:String x:Key="Diagnostics.Errors">ERRORES</sys:String>
