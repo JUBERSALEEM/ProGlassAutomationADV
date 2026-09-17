@@ -70,7 +70,8 @@ namespace ProGlassAutomation.Services.Optimization
         private static (SheetState Sheet, List<CutPiece> Remaining) FillOneSheet(
             List<CutPiece> remaining, IReadOnlyList<StockSize> stocks, int[] sheetsPerStock,
             MarginProfile margins, RotationPolicy rotation, SplitMode split,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default,
+            int candidateWindowSize = int.MaxValue)
         {
             var state = OpenBlank(stocks, sheetsPerStock, remaining[0], margins, rotation, 0);
             if (state == null) return (null, remaining);
@@ -81,7 +82,7 @@ namespace ProGlassAutomation.Services.Optimization
             {
                 // The hottest loop in the engine at scale: once per placement,
                 // three times per sheet (one trial per split rule), and each
-                // pass scans every remaining part.
+                // pass scans candidateWindowSize remaining parts.
                 cancellationToken.ThrowIfCancellationRequested();
                 progressed = false;
                 int bestIdx = -1;
@@ -89,7 +90,8 @@ namespace ProGlassAutomation.Services.Optimization
                 bool haveBest = false;
                 (int fit, long ss, long waste, int rank, int i) bestKey = default;
 
-                for (int i = 0; i < work.Count; i++)
+                int scanLimit = candidateWindowSize >= work.Count ? work.Count : candidateWindowSize;
+                for (int i = 0; i < scanLimit; i++)
                 {
                     // Same value-comparison as RunSheetFill: no PlacedPiece is
                     // allocated for a candidate that loses.
@@ -126,7 +128,8 @@ namespace ProGlassAutomation.Services.Optimization
             IReadOnlyList<CutPiece> pieces, IReadOnlyList<StockSize> stocks,
             MarginProfile margins, RotationPolicy rotation,
             int consolidationSweeps = int.MaxValue,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default,
+            int candidateWindowSize = int.MaxValue)
         {
             var remaining = Sort(pieces, OrderBy.MaxSide);
             var sheets = new List<SheetState>();
@@ -148,7 +151,7 @@ namespace ProGlassAutomation.Services.Optimization
                     cancellationToken.ThrowIfCancellationRequested();
                     var trialPer = (int[])per.Clone();
                     var (sheet, left) = FillOneSheet(remaining, stocks, trialPer,
-                          margins, rotation, AllSplits[si], cancellationToken);
+                          margins, rotation, AllSplits[si], cancellationToken, candidateWindowSize);
                     if (sheet == null) continue;
 
                     long area = PlacedArea(sheet);

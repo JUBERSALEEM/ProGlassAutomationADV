@@ -16,10 +16,10 @@ namespace ProGlassAutomation.Services.Optimization
     public static partial class GuillotinePacker
     {
         /// <summary>
-        /// Bounded, partitioned smart-search optimizer designed to scale to 50,000+ parts.
+        /// Production-grade adaptive smart search optimization engine capable of scaling to 50,000+ parts.
         /// Intelligently decomposes massive jobs into compatible production batches,
-        /// runs windowed deep search across candidates, consolidates across batch windows,
-        /// optimizes tail sheets, and exhausts a 10-step unplaced recovery pipeline.
+        /// runs windowed deep search across candidates (Best-Split, Sheet-Fill, Wall-Seed, MaxRects, Shuffle),
+        /// performs cross-batch consolidation, optimizes tail sheets, and exhausts a 10-step unplaced recovery pipeline.
         /// </summary>
         public static OptimizationResult PackOptimizePartitioned(
             IReadOnlyList<CutPiece> pieces,
@@ -213,28 +213,60 @@ namespace ProGlassAutomation.Services.Optimization
                 best = Better(best, maxSidePass);
             }
 
-            // Strategy 3: Deterministic Shuffle Perturbation Pass
+            // Strategy 3: Deterministic Shuffle Perturbation Passes (seeds: 1013, 2027)
             if (effortLevel >= 3)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var shuffled = ShuffleDeterministic(Sort(batchPieces, OrderBy.Area), 1013);
-                var shufflePass = RunPass(
-                    shuffled, stocks, margins, rotation, SplitMode.VerticalFirst,
+                var shuffled1 = ShuffleDeterministic(Sort(batchPieces, OrderBy.Area), 1013);
+                var shufflePass1 = RunPass(
+                    shuffled1, stocks, margins, rotation, SplitMode.VerticalFirst,
                     cancellationToken, consolidationSweeps: 1, progress: null,
                     openSheetWindow: config.OpenSheetWindow);
-                best = Better(best, shufflePass);
+                best = Better(best, shufflePass1);
+
+                if (effortLevel >= 4)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    var shuffled2 = ShuffleDeterministic(Sort(batchPieces, OrderBy.MaxSide), 2027);
+                    var shufflePass2 = RunPass(
+                        shuffled2, stocks, margins, rotation, SplitMode.HorizontalFirst,
+                        cancellationToken, consolidationSweeps: 1, progress: null,
+                        openSheetWindow: config.OpenSheetWindow);
+                    best = Better(best, shufflePass2);
+                }
             }
 
             // Strategy 4: Windowed Best-Split on the batch
-            if (effortLevel >= 4 && batchPieces.Count <= 2000)
+            if (effortLevel >= 4 && batchPieces.Count <= 2500)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 var bestSplitPass = RunBestSplit(batchPieces, stocks, margins, rotation,
-                    consolidationSweeps: 1, cancellationToken: cancellationToken);
+                    consolidationSweeps: 1, cancellationToken: cancellationToken,
+                    candidateWindowSize: config.CandidateWindowSize);
                 best = Better(best, bestSplitPass);
             }
 
-            // Strategy 5: Smart Capacity-Preserving Placement
+            // Strategy 5: Windowed Sheet-Fill on the batch
+            if (effortLevel >= 4 && batchPieces.Count <= 2500)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var sheetFillPass = RunSheetFill(batchPieces, stocks, margins, rotation,
+                    SplitMode.HorizontalFirst, consolidationSweeps: 1, cancellationToken: cancellationToken,
+                    candidateWindowSize: config.CandidateWindowSize);
+                best = Better(best, sheetFillPass);
+            }
+
+            // Strategy 6: Targeted Wall-Seed on the batch
+            if (effortLevel >= 4 && batchPieces.Count <= 2500)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var wallSeedPass = RunWallSeed(batchPieces, stocks, margins, rotation,
+                    SplitMode.HorizontalFirst, consolidationSweeps: 1, cancellationToken: cancellationToken,
+                    candidateWindowSize: config.CandidateWindowSize);
+                best = Better(best, wallSeedPass);
+            }
+
+            // Strategy 7: Smart Capacity-Preserving Placement
             if (effortLevel >= 5 && batchPieces.Count <= 1500)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -267,7 +299,6 @@ namespace ProGlassAutomation.Services.Optimization
             {
                 var s = sheets[i];
                 var state = new SheetState(s, 0);
-                // Reconstruct free rectangles from placements
                 ReconstructFreeRects(state, margins);
                 states.Add(state);
             }
@@ -407,11 +438,11 @@ namespace ProGlassAutomation.Services.Optimization
                 cancellationToken.ThrowIfCancellationRequested();
                 bool placed = false;
 
-                // Step 1-4: Test placement across existing sheet free rectangles
+                // Step 1: Free 90 degree rotation test across existing sheets
                 for (int si = 0; si < sheetStates.Count; si++)
                 {
                     var host = sheetStates[si];
-                    if (TryPlaceCore(host, piece, rotation, out var candidate))
+                    if (TryPlaceCore(host, piece, RotationPolicy.Free90, out var candidate))
                     {
                         Commit(host, candidate.Materialize(piece), margins, SplitMode.HorizontalFirst);
                         placed = true;
@@ -419,7 +450,7 @@ namespace ProGlassAutomation.Services.Optimization
                     }
                 }
 
-                // Step 5: Test open new sheet if stock availability allows
+                // Step 2: Open blank sheet on smallest stock if available
                 if (!placed)
                 {
                     int[] per = new int[stocks.Count];

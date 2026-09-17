@@ -71,7 +71,8 @@ namespace ProGlassAutomation.Services.Optimization
             IReadOnlyList<CutPiece> pieces, IReadOnlyList<StockSize> stocks,
             MarginProfile margins, RotationPolicy rotation, SplitMode split,
             int consolidationSweeps = int.MaxValue,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default,
+            int candidateWindowSize = int.MaxValue)
         {
             var remaining = Sort(pieces, OrderBy.MaxSide);
             var sheets = new List<SheetState>();
@@ -103,7 +104,8 @@ namespace ProGlassAutomation.Services.Optimization
                     int bestRank = int.MaxValue, bestFit = int.MaxValue;
                     long bestSs = long.MaxValue, bestWaste = long.MaxValue;
 
-                    for (int i = 0; i < remaining.Count; i++)
+                    int scanLimit = candidateWindowSize >= remaining.Count ? remaining.Count : candidateWindowSize;
+                    for (int i = 0; i < scanLimit; i++)
                     {
                         // Scores are compared by value: this loop runs for
                         // every remaining piece to place ONE of them, so
@@ -145,7 +147,8 @@ namespace ProGlassAutomation.Services.Optimization
             IReadOnlyList<CutPiece> pieces, IReadOnlyList<StockSize> stocks,
             MarginProfile margins, RotationPolicy rotation, SplitMode split,
             int consolidationSweeps = int.MaxValue,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default,
+            int candidateWindowSize = int.MaxValue)
         {
             var remaining = pieces.ToList();
             var walls = remaining
