@@ -32,40 +32,72 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <!-- headline stats -->
-                            <Grid Grid.Row="0" Margin="0,0,0,14">
+                            <!-- ── Executive KPI Metric Cards (Summary Tab) ── -->
+                            <Grid Grid.Row="0" Margin="0,0,0,18">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="1.2*"/>
                                 </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="SHEETS" Style="{StaticResource OptHeader}"/>
-                                    <TextBlock Text="{Binding ResultSheets}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1">
-                                    <TextBlock Text="UTILIZATION" Style="{StaticResource OptHeader}"/>
-                                    <TextBlock Text="{Binding ResultUtilization}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                                               Foreground="{DynamicResource SuccessBrush}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="OFFCUT" Style="{StaticResource OptHeader}"/>
-                                    <TextBlock Text="{Binding ResultWaste}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                                               Foreground="{DynamicResource WarningBrush}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="3">
-                                    <TextBlock Text="UNPLACED" Style="{StaticResource OptHeader}"/>
-                                    <TextBlock Text="{Binding ResultUnplaced}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="4">
-                                    <TextBlock Text="VERIFICATION" Style="{StaticResource OptHeader}"/>
-                                    <TextBlock Text="{Binding ResultOracle}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                               Foreground="{DynamicResource SuccessBrush}" TextWrapping="Wrap"/>
-                                </StackPanel>
+
+                                <!-- SHEETS -->
+                                <Border Grid.Column="0" Background="{DynamicResource SurfaceSecondaryBrush}"
+                                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12" Margin="0,0,10,0">
+                                    <StackPanel>
+                                        <TextBlock Text="SHEETS REQUIRED" Style="{StaticResource OptHeader}"/>
+                                        <TextBlock Text="{Binding ResultSheets}" FontSize="24" FontWeight="{DynamicResource Weight.Bold}"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- UTILIZATION -->
+                                <Border Grid.Column="1" Background="{DynamicResource SurfaceSecondaryBrush}"
+                                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12" Margin="0,0,10,0">
+                                    <StackPanel>
+                                        <TextBlock Text="YIELD / UTILIZATION" Style="{StaticResource OptHeader}"/>
+                                        <TextBlock Text="{Binding ResultUtilization}" FontSize="24" FontWeight="{DynamicResource Weight.Bold}"
+                                                   Foreground="{DynamicResource SuccessBrush}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- OFFCUT / SCRAP -->
+                                <Border Grid.Column="2" Background="{DynamicResource SurfaceSecondaryBrush}"
+                                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12" Margin="0,0,10,0">
+                                    <StackPanel>
+                                        <TextBlock Text="OFFCUT / SCRAP" Style="{StaticResource OptHeader}"/>
+                                        <TextBlock Text="{Binding ResultWaste}" FontSize="24" FontWeight="{DynamicResource Weight.Bold}"
+                                                   Foreground="{DynamicResource WarningBrush}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- UNPLACED -->
+                                <Border Grid.Column="3" Background="{DynamicResource SurfaceSecondaryBrush}"
+                                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12" Margin="0,0,10,0">
+                                    <StackPanel>
+                                        <TextBlock Text="UNPLACED PIECES" Style="{StaticResource OptHeader}"/>
+                                        <TextBlock Text="{Binding ResultUnplaced}" FontSize="24" FontWeight="{DynamicResource Weight.Bold}"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- VERIFICATION ORACLE -->
+                                <Border Grid.Column="4" Background="{DynamicResource SurfaceSecondaryBrush}"
+                                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
+                                    <StackPanel>
+                                        <TextBlock Text="INDEPENDENT ORACLE" Style="{StaticResource OptHeader}"/>
+                                        <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="4" Padding="8,4" Margin="0,4,0,0" HorizontalAlignment="Left">
+                                            <TextBlock Text="{Binding ResultOracle}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                                       Foreground="{DynamicResource SuccessBrush}" TextWrapping="Wrap"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
                             </Grid>
 
                             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
