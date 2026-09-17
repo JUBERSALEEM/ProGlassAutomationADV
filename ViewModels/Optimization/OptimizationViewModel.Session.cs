@@ -147,6 +147,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
         }
 
+        /// <summary>Display name stored on the reserved latest-run row.</summary>
+        private const string LatestRunSessionName = "Latest run (auto-saved)";
+
         private void PopulateSessions(List<SavedOptimizationSession> list)
         {
             SavedSessions.Clear();
@@ -224,14 +227,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
                 await _sessions.EnsureCreatedAsync();
 
-                await _sessions.UpsertLatestRunAsync(new SavedOptimizationSession
-                {
-                    Name = "Latest run (auto-saved)",
-                    EngineStage = LastRunStage,
-                    SheetsUsed = _groupRuns.Sum(r => r.Result.Sheets.Count),
-                    UnplacedCount = _groupRuns.Sum(r => r.Result.Unplaced.Count),
-                    ResultJson = JsonSerializer.Serialize(resultRows)
-                });
+                // The same full snapshot the manual SAVE button writes, so the
+                // reserved row carries stocks, pieces, margins and the summary
+                // figures as well as the results. BuildResultRows() is projected
+                // again inside the builder; this runs once per run on a
+                // background path, so clarity beats saving one projection.
+                await _sessions.UpsertLatestRunAsync(BuildSessionSnapshot(LatestRunSessionName));
             }
             catch (Exception ex)
             {
@@ -240,6 +241,90 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 AppLogService.Debug("[Optimization] latest-run snapshot not saved: " +
                     ExceptionMessages.Deep(ex));
             }
+        }
+
+        /// <summary>
+        /// Builds the full session snapshot for the current state: pieces,
+        /// stocks, margins, results and the summary figures.
+        /// </summary>
+        /// <remarks>
+        /// One implementation, used by both the manual SAVE button and the
+        /// automatic latest-run upsert. That matters for the feed: a consumer
+        /// reading the reserved row must get whatever was current when the run
+        /// finished, so a half-populated row would silently narrow what can be
+        /// rebuilt later.
+        /// </remarks>
+        /// <param name="name">Session name. The manual save stamps a timestamp.</param>
+        private SavedOptimizationSession BuildSessionSnapshot(string name)
+        {
+            var pieces = Pieces
+                .Where(p => p.TryParse(out _, out _, out _))
+                .Select(p => new PieceDto
+                {
+                    GlassRef = p.GlassRef ?? string.Empty,
+                    PieceLabel = p.PieceLabel ?? string.Empty,
+                    Position = p.Position ?? string.Empty,
+                    W = p.WidthText,
+                    H = p.HeightText,
+                    Qty = p.QtyText
+                })
+                .ToList();
+
+            var stocks = Stocks
+                .Select(s => new StockDto
+                {
+                    W = s.WidthText,
+                    H = s.HeightText,
+                    Composition = s.Composition ?? string.Empty,
+                    Source = s.SourceLabel ?? string.Empty,
+                    Available = s.AvailableText,
+                    IsUsedInRun = s.IsUsedInRun,
+                    SpecNumber = s.SpecNumber,
+                    Side = s.Side ?? string.Empty
+                })
+                .ToList();
+
+            var margins = new MarginDto
+            {
+                Thickness = ThicknessText,
+                Left = LeftMarginText,
+                Right = RightMarginText,
+                Top = TopMarginText,
+                Bottom = BottomMarginText,
+                Kerf = KerfText,
+                MinBreakout = MinBreakoutText
+            };
+
+            int totalSheets = _groupRuns.Sum(r => r.Result.Sheets.Count);
+            int unplaced = _groupRuns.Sum(r => r.Result.Unplaced.Count);
+            long glass = _groupRuns.Sum(r => r.Result.Sheets.Sum(sh => sh.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm)));
+            long stockArea = _groupRuns.Sum(r => r.Result.Sheets.Sum(sh => (long)sh.Stock.WidthMm * sh.Stock.HeightMm));
+            double util = stockArea == 0 ? 0 : (double)glass / stockArea * 100.0;
+
+            int pieceTotal = 0;
+            foreach (var p in Pieces)
+                if (p.TryParse(out _, out _, out int q)) pieceTotal += q;
+
+            int effort = int.TryParse(SelectedEffortLevel, NumberStyles.Integer,
+                CultureInfo.InvariantCulture, out int lvl) && lvl >= 1 && lvl <= 5 ? lvl : 3;
+
+            return new SavedOptimizationSession
+            {
+                Name = name,
+                JobOrderRefs = string.Join(", ",
+                    AvailableJobs.Where(j => j.IsSelected).Select(j => j.JobOrderId).Distinct()),
+                EngineStage = LastRunStage,
+                EffortLevel = effort,
+                RotationEnabled = RotationEnabled,
+                PieceCount = pieceTotal,
+                SheetsUsed = totalSheets,
+                UnplacedCount = unplaced,
+                UtilizationPct = util,
+                MarginsJson = JsonSerializer.Serialize(margins),
+                StocksJson = JsonSerializer.Serialize(stocks),
+                PiecesJson = JsonSerializer.Serialize(pieces),
+                ResultJson = JsonSerializer.Serialize(BuildResultRows())
+            };
         }
 
         private async Task SaveSessionAsync()
@@ -256,77 +341,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 // happen on the captured UI synchronization context.
                 await _sessions.EnsureCreatedAsync();
 
-                var pieces = Pieces
-                    .Where(p => p.TryParse(out _, out _, out _))
-                    .Select(p => new PieceDto
-                    {
-                        GlassRef = p.GlassRef ?? string.Empty,
-                        PieceLabel = p.PieceLabel ?? string.Empty,
-                        Position = p.Position ?? string.Empty,
-                        W = p.WidthText,
-                        H = p.HeightText,
-                        Qty = p.QtyText
-                    })
-                    .ToList();
-
-                var stocks = Stocks
-                    .Select(s => new StockDto
-                    {
-                        W = s.WidthText,
-                        H = s.HeightText,
-                        Composition = s.Composition ?? string.Empty,
-                        Source = s.SourceLabel ?? string.Empty,
-                        Available = s.AvailableText,
-                        IsUsedInRun = s.IsUsedInRun,
-                        SpecNumber = s.SpecNumber,
-                        Side = s.Side ?? string.Empty
-                    })
-                    .ToList();
-
-                var resultRows = BuildResultRows();
-
-                var margins = new MarginDto
-                {
-                    Thickness = ThicknessText,
-                    Left = LeftMarginText,
-                    Right = RightMarginText,
-                    Top = TopMarginText,
-                    Bottom = BottomMarginText,
-                    Kerf = KerfText,
-                    MinBreakout = MinBreakoutText
-                };
-
-                int totalSheets = _groupRuns.Sum(r => r.Result.Sheets.Count);
-                int unplaced = _groupRuns.Sum(r => r.Result.Unplaced.Count);
-                long glass = _groupRuns.Sum(r => r.Result.Sheets.Sum(sh => sh.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm)));
-                long stockArea = _groupRuns.Sum(r => r.Result.Sheets.Sum(sh => (long)sh.Stock.WidthMm * sh.Stock.HeightMm));
-                double util = stockArea == 0 ? 0 : (double)glass / stockArea * 100.0;
-
-                int pieceTotal = 0;
-                foreach (var p in Pieces)
-                    if (p.TryParse(out _, out _, out int q)) pieceTotal += q;
-
-                int effort = int.TryParse(SelectedEffortLevel, NumberStyles.Integer,
-                    CultureInfo.InvariantCulture, out int lvl) && lvl >= 1 && lvl <= 5 ? lvl : 3;
-
-                var session = new SavedOptimizationSession
-                {
-                    Name = string.Format(CultureInfo.InvariantCulture,
-                        "{0} · {1:yyyy-MM-dd HH:mm}", LastRunStage, DateTime.Now),
-                    JobOrderRefs = string.Join(", ",
-                        AvailableJobs.Where(j => j.IsSelected).Select(j => j.JobOrderId).Distinct()),
-                    EngineStage = LastRunStage,
-                    EffortLevel = effort,
-                    RotationEnabled = RotationEnabled,
-                    PieceCount = pieceTotal,
-                    SheetsUsed = totalSheets,
-                    UnplacedCount = unplaced,
-                    UtilizationPct = util,
-                    MarginsJson = JsonSerializer.Serialize(margins),
-                    StocksJson = JsonSerializer.Serialize(stocks),
-                    PiecesJson = JsonSerializer.Serialize(pieces),
-                    ResultJson = JsonSerializer.Serialize(resultRows)
-                };
+                var session = BuildSessionSnapshot(string.Format(CultureInfo.InvariantCulture,
+                    "{0} · {1:yyyy-MM-dd HH:mm}", LastRunStage, DateTime.Now));
 
                 await _sessions.InsertAsync(session);
                 SessionStatus = "Session saved — " + session.Name;
