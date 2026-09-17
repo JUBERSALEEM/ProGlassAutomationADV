@@ -84,6 +84,7 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
@@ -102,7 +103,28 @@
                         </StackPanel>
                     </Border>
 
-                    <ScrollViewer Grid.Row="1"
+                    <!-- 🎨 THEME STUDIO QUICK ACCESS BANNER -->
+                    <Border Grid.Row="1" Background="{DynamicResource TintBlueBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1" Padding="14,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Width="30" Height="30" CornerRadius="15" Background="{DynamicResource AccentBrush}" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE790;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="13" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="10,0,8,0" VerticalAlignment="Center">
+                                <TextBlock Text="THEME STUDIO" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="Family, light/dark, and crystal glass" FontSize="10" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                            </StackPanel>
+                            <Button Grid.Column="2" Style="{StaticResource PrimaryPillButton}" Height="28" Padding="12,0"
+                                    Command="{Binding NavigateSettingsPageCommand}" CommandParameter="Themes"
+                                    Content="Open Studio" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="2"
                                   MaxHeight="520"
                                   VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled"
