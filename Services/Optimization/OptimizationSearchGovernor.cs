@@ -114,7 +114,7 @@ namespace ProGlassAutomation.Services.Optimization
                     MaxRectOrders = effortLevel >= 4 ? 3 : 1,
                     MaxConsolidationSweeps = 4,
                     MaxDonorAttempts = 3000,
-                    OpenSheetWindow = Math.Max(256, pieceCount / 4),
+                    OpenSheetWindow = int.MaxValue,
                     BatchTargetSize = Math.Min(2500, Math.Max(1200, pieceCount / cpuCores)),
                     CandidateWindowSize = 600,
                     ShortTag = "Adaptive Bounded Search",
@@ -123,9 +123,8 @@ namespace ProGlassAutomation.Services.Optimization
             }
 
             // Tier 3: Industrial High-Volume Workloads (15,001 - 1,000,000+ parts)
-            // Never disables optimization: employs stratified partitioning + reservoir repacking
+            // Never disables optimization: all plates remain open to all size strata for maximum nesting yield
             int adaptiveBatchSize = Math.Clamp(pieceCount / (cpuCores * 2), 1200, 3000);
-            int activeWindow = Math.Clamp(pieceCount / 10, 500, 2000);
 
             return new SearchPlan
             {
@@ -136,36 +135,25 @@ namespace ProGlassAutomation.Services.Optimization
                 MaxRectOrders = 1,
                 MaxConsolidationSweeps = 3,
                 MaxDonorAttempts = 2000,
-                OpenSheetWindow = activeWindow,
+                OpenSheetWindow = int.MaxValue,
                 BatchTargetSize = adaptiveBatchSize,
                 CandidateWindowSize = 500,
                 ShortTag = "Stratified Industrial Search",
-                Note = $"Packing {Count(pieceCount)} parts across adaptive stratified batches ({adaptiveBatchSize} parts/batch) with deep tail consolidation."
+                Note = $"Packing {Count(pieceCount)} parts across full open-plate strata with deep tail consolidation."
             };
         }
 
         /// <summary>Search plan for PackQuick.</summary>
         public static SearchPlan PlanForQuick(int pieceCount)
         {
-            if (pieceCount <= 2000)
-            {
-                return new SearchPlan
-                {
-                    Tier = SearchTier.Full,
-                    OpenSheetWindow = int.MaxValue,
-                    MaxConsolidationSweeps = 3,
-                    ShortTag = "Quick Single-Pass"
-                };
-            }
-
             return new SearchPlan
             {
-                Tier = SearchTier.Narrowed,
-                OpenSheetWindow = Math.Max(500, pieceCount / 6),
-                MaxConsolidationSweeps = 2,
+                Tier = pieceCount <= 2000 ? SearchTier.Full : SearchTier.Narrowed,
+                OpenSheetWindow = int.MaxValue,
+                MaxConsolidationSweeps = pieceCount <= 2000 ? 3 : 2,
                 MaxDonorAttempts = 1500,
-                ShortTag = "Adaptive Quick Pass",
-                Note = $"Packing {Count(pieceCount)} parts with adaptive windowed single pass."
+                ShortTag = pieceCount <= 2000 ? "Quick Single-Pass" : "Adaptive Quick Pass",
+                Note = pieceCount <= 2000 ? "" : $"Packing {Count(pieceCount)} parts with full open-plate quick pass."
             };
         }
     }

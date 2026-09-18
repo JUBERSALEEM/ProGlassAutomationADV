@@ -622,6 +622,11 @@ namespace ProGlassAutomation.Services.Optimization
                     found = true;
                     bestSheet = si;
                     bestCand = candidate;
+
+                    // Perfect fit shortcut: when a piece fits a free rectangle with 0 waste
+                    // and unrotated orientation, no other placement can improve upon it.
+                    if (candidate.FitRank == 0 && candidate.Waste == 0 && candidate.OrderRank == 0)
+                        break;
                 }
             }
 

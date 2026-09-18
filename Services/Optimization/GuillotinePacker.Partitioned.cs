@@ -93,6 +93,52 @@ namespace ProGlassAutomation.Services.Optimization
                     $"Optimized batch {done} of {batchCount} ({batchPieces.Count} parts)"));
             });
 
+            // Evaluate global unpartitioned passes (Area, MaxSide, Shuffles) to guarantee
+            // that the partitioned engine NEVER regresses the global deterministic benchmark.
+            progress?.Report(OptimizeProgress.Of("global", 68, 100, "Evaluating global baseline passes..."));
+            var globalQuick = PackQuick(pieces, stocks, margins, rotation, SplitMode.HorizontalFirst, cancellationToken);
+            var bestGlobal = globalQuick;
+
+            if (effortLevel >= 2)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var globalMaxSide = RunPass(
+                    Sort(pieces, OrderBy.MaxSide),
+                    stocks, margins, rotation, SplitMode.LongerLeftover,
+                    cancellationToken, consolidationSweeps: 2);
+                bestGlobal = Better(bestGlobal, globalMaxSide);
+            }
+
+            if (effortLevel >= 3)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var globalShuffle1 = RunPass(
+                    ShuffleDeterministic(Sort(pieces, OrderBy.Area), 1013),
+                    stocks, margins, rotation, SplitMode.VerticalFirst,
+                    cancellationToken, consolidationSweeps: 1);
+                bestGlobal = Better(bestGlobal, globalShuffle1);
+            }
+
+            if (effortLevel >= 4)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var globalShuffle2 = RunPass(
+                    ShuffleDeterministic(Sort(pieces, OrderBy.MaxSide), 2027),
+                    stocks, margins, rotation, SplitMode.HorizontalFirst,
+                    cancellationToken, consolidationSweeps: 1);
+                bestGlobal = Better(bestGlobal, globalShuffle2);
+            }
+
+            if (effortLevel >= 5)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var globalShuffle3 = RunPass(
+                    ShuffleDeterministic(Sort(pieces, OrderBy.Perimeter), 3041),
+                    stocks, margins, rotation, SplitMode.LongerLeftover,
+                    cancellationToken, consolidationSweeps: 1);
+                bestGlobal = Better(bestGlobal, globalShuffle3);
+            }
+
             // 3. Assemble Consolidated Global Result
             var combinedResult = new OptimizationResult { Rotation = rotation };
             var allSheets = new List<SheetLayout>();
@@ -146,17 +192,20 @@ namespace ProGlassAutomation.Services.Optimization
                 combinedResult.Unplaced.Add(up);
             }
 
+            // Select the absolute best between global multi-start and partitioned passes
+            var winningResult = Better(bestGlobal, combinedResult);
+
             sw.Stop();
             batchTelemetry.ExecutionTimeSeconds = sw.Elapsed.TotalSeconds;
 
-            combinedResult.ScaleNotes.Add(
-                $"Partitioned Adaptive Smart Search: {totalParts:N0} parts across {batchCount} batches, " +
+            winningResult.ScaleNotes.Add(
+                $"Partitioned Adaptive Smart Search: {totalParts:N0} parts across {batchCount} batches + global multi-pass, " +
                 $"cross-window consolidation + tail repacking in {sw.Elapsed.TotalSeconds:F1}s.");
 
             progress?.Report(OptimizeProgress.Of("done", 100, 100,
-                $"{combinedResult.Sheets.Count:N0} sheets cut · {combinedResult.Unplaced.Count} unplaced"));
+                $"{winningResult.Sheets.Count:N0} sheets cut · {winningResult.Unplaced.Count} unplaced"));
 
-            return combinedResult;
+            return winningResult;
         }
 
                 /// <summary>
