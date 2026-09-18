@@ -1,43 +1,27 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Dashboard/TaxInvoice/TiDashboard/TiDashboardView.xaml
-     PROJECT: ProGlassAutomation
-     MODULE: Tax Invoice Dashboard
+     SYSTEM: MERIDIAN — Phase 6 full rewrite (2026-09-18)
 
-     LAYOUT-03 BENTO MOSAIC — Tax Invoices. Bindings and local row templates unchanged. The look lives
-     in Styles/DashboardStyles.xaml (Soft* keys). This file previously
-     carried ~200 lines of private card/button/tile styles that had
-     drifted from every other dashboard; those are gone and the shared
-     keys are used instead.
+     Bindings preserved (NO VIEWMODEL EDITED):
+       KpiTiles, RecentInvoices, AgingBrackets, TopCustomers,
+       RevenueBars, RevenueChartTitle, HasRecentInvoices,
+       HasAgingData, HasTopCustomers, HasRevenueData,
+       HasOverdueInvoices, OverdueCount, OverdueAmountDisplay,
+       IsLoading, HasError, ErrorMessage,
+       CreateTaxInvoiceCommand, ViewAllInvoicesCommand,
+       OpenInvoiceCommand (row MouseBinding, parameter = item).
 
-     DEVIATIONS FROM THE PASTED REFERENCE, EACH FORCED
-     ─────────────────────────────────────────────────
-       1. DynamicResource colour, not hardcoded hex — ThemeManager
-          swaps dictionaries at runtime.
-       2. TrendChartControl, not lvc:CartesianChart — LiveChartsCore is
-          not referenced and NuGet is unreachable from the sandbox.
-       3. Segoe MDL2 glyphs, never emoji.
-
-     EMOJI REMOVAL WITHOUT TOUCHING THE MODELS
-     ─────────────────────────────────────────
-     RecentInvoiceItem.StatusIcon returns ✅ 📤 ⚠️ 📝 ❌ 🚫 and
-     TopCustomerItem.MedalIcon returns 🥇 🥈 🥉. Both are model
-     properties, and models are ERP code that must not be edited for a
-     styling pass. So this view simply does NOT bind them: the status
-     glyph is derived from the already-bound Status string via
-     DataTriggers, and the medal is replaced by the numeric Rank in a
-     tinted disc. Nothing in C# changed; the emoji properties are left
-     in place, merely unused here.
-
-     BINDINGS — UNCHANGED. NO VIEWMODEL WAS EDITED.
-       KpiTiles (KpiTileModel), RecentInvoices, AgingBrackets,
-       TopCustomers, RevenueBars, RevenueChartTitle,
-       HasRecentInvoices, HasAgingData, HasTopCustomers,
-       HasRevenueData, HasOverdueInvoices, OverdueCount,
-       OverdueAmountDisplay, IsLoading, HasError, ErrorMessage,
-       LastRefreshed, CreateTaxInvoiceCommand, ViewAllInvoicesCommand,
-       ViewOverdueCommand, OpenInvoiceCommand
+     Local templates rebuilt in the Meridian language but with the
+     SAME contract:
+       • TiRecentInvoiceTemplate — status glyph derived from the
+         Status string via DataTriggers (the model's emoji StatusIcon
+         stays unbound, by design), TintColor/StatusColor resolved by
+         BrushKeyConverter, whole-row MouseBinding → OpenInvoiceCommand.
+       • TiAgingRowTemplate — FractionToStarConverter + "invert"
+         star-width severity bar, SeverityColor via BrushKeyConverter.
+       • TiTopCustomerTemplate — numeric Rank disc (BarColor via
+         ColorStringConverter; the model's medal emoji stays unbound).
 ═══════════════════════════════════════════════════════════════════════ -->
-
 <UserControl x:Class="ProGlassAutomation.Views.Dashboard.TaxInvoice.TiDashboard.TiDashboardView"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -54,19 +38,17 @@
     <UserControl.Resources>
 
         <!-- ═══════════════════════════════════════════════════════════
-             RECENT INVOICE ROW
-             Status glyph comes from DataTriggers on Status, so the
-             model's emoji StatusIcon is never rendered.
+             RECENT INVOICE ROW (Meridian docrow)
+             Status glyph from DataTriggers on Status; TintColor/
+             StatusColor brush keys resolve per theme.
         ═══════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="TiRecentInvoiceTemplate">
-            <Border Style="{StaticResource DbRowCardStyle}"
-                    Margin="0,0,0,8"
-                    CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
-                    Padding="12,10"
+            <Border Background="Transparent"
+                    BorderBrush="{DynamicResource PgHairlineBrush}"
+                    BorderThickness="0,1,0,0"
+                    Padding="{StaticResource PgRowPadding}"
                     Cursor="Hand"
                     SnapsToDevicePixels="True"
-                    Background="{Binding TintColor,
-                                 Converter={StaticResource BrushKeyConverter}}"
                     ToolTip="{DynamicResource Dashboard.OpenInvoice}">
                 <Border.InputBindings>
                     <MouseBinding MouseAction="LeftClick"
@@ -85,16 +67,21 @@
 
                     <Border Grid.Column="0"
                             Width="34" Height="34"
-                            CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
+                            CornerRadius="{StaticResource PgTileRadius}"
                             VerticalAlignment="Center"
                             Margin="0,0,12,0"
                             SnapsToDevicePixels="True"
-                            Background="{Binding StatusColor,
-                                         Converter={StaticResource BrushKeyConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
-                        <TextBlock FontSize="{DynamicResource FontSize.H3}">
+                            Background="{Binding TintColor,
+                                         Converter={StaticResource BrushKeyConverter}}"
+                            BorderBrush="{DynamicResource PgHairlineBrush}"
+                            BorderThickness="1">
+                        <TextBlock FontSize="{StaticResource PgFontGlyph}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock"
-                                       BasedOn="{StaticResource DbGlyphStyle}">
+                                       BasedOn="{StaticResource PgGlyphStyle}">
+                                    <Setter Property="Foreground"
+                                            Value="{Binding StatusColor,
+                                                     Converter={StaticResource BrushKeyConverter}}"/>
                                     <!-- default: generic document -->
                                     <Setter Property="Text" Value="&#xE8A5;"/>
                                     <Style.Triggers>
@@ -124,14 +111,8 @@
 
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="{Binding InvoiceNumber}"
-                                   FontSize="{DynamicResource FontSize.Body}"
-                                   FontWeight="{DynamicResource Weight.Bold}"
-                                   TextTrimming="CharacterEllipsis"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <TextBlock FontSize="{DynamicResource FontSize.Body}"
-                                   Margin="0,2,0,0"
-                                   TextTrimming="CharacterEllipsis"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                   Style="{StaticResource PgRowTitleStyle}"/>
+                        <TextBlock Style="{StaticResource PgRowSubStyle}">
                             <Run Text="{Binding CustomerName, Mode=OneWay}"/>
                             <Run Text=" · "/>
                             <Run Text="{Binding IssueDateDisplay, Mode=OneWay}"/>
@@ -142,21 +123,16 @@
                                 VerticalAlignment="Center"
                                 Margin="10,0,0,0">
                         <TextBlock Text="{Binding AmountDisplay}"
-                                   FontSize="{DynamicResource FontSize.Body}"
-                                   FontWeight="{DynamicResource Weight.Bold}"
-                                   HorizontalAlignment="Right"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <Border CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
-                                Padding="7,2"
-                                Margin="0,4,0,0"
+                                   Style="{StaticResource PgRowValueStyle}"/>
+                        <Border CornerRadius="{StaticResource PgChipRadius}"
+                                Padding="8,3"
+                                Margin="0,5,0,0"
                                 HorizontalAlignment="Right"
                                 SnapsToDevicePixels="True"
                                 Background="{Binding StatusColor,
-                                             Converter={StaticResource BrushKeyConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                                             Converter={StaticResource BrushKeyConverter}}">
                             <TextBlock Text="{Binding Status}"
-                                       FontSize="{DynamicResource FontSize.BodySmall}"
-                                       FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                       Style="{StaticResource PgPillTextStyle}"/>
                         </Border>
                     </StackPanel>
                 </Grid>
@@ -164,20 +140,16 @@
         </DataTemplate>
 
         <!-- ═══════════════════════════════════════════════════════════
-             AGING BRACKET ROW — label, count, amount, severity bar.
-             The bar uses a 2-column Grid with star widths rather than
-             the old PercentToWidthConverter with a hardcoded 260px
-             parameter, which mis-sized the fill whenever the card was
-             not exactly 260px wide.
+             AGING BRACKET ROW — label, count, amount, severity bar
+             (FractionToStarConverter star widths, "invert" remainder).
         ═══════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="TiAgingRowTemplate">
-            <Border Style="{StaticResource DbRowCardStyle}"
-                    Margin="0,0,0,10"
-                    Padding="12,10"
-                    CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
-                    SnapsToDevicePixels="True"
-                    Background="{Binding TintColor,
-                                 Converter={StaticResource BrushKeyConverter}}">
+            <Border Background="{Binding TintColor,
+                                 Converter={StaticResource BrushKeyConverter}}"
+                    BorderBrush="{DynamicResource PgHairlineBrush}"
+                    BorderThickness="0,1,0,0"
+                    Padding="0,10,0,12"
+                    SnapsToDevicePixels="True">
                 <StackPanel>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -188,32 +160,32 @@
 
                         <TextBlock Grid.Column="0"
                                    Text="{Binding Label}"
-                                   FontSize="{DynamicResource FontSize.Body}"
-                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   FontSize="{StaticResource PgFontCardSub}"
+                                   FontWeight="SemiBold"
                                    VerticalAlignment="Center"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                   Foreground="{DynamicResource PgText1Brush}"/>
 
                         <TextBlock Grid.Column="1"
                                    Text="{Binding CountDisplay}"
-                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                   FontSize="{StaticResource PgFontBodySm}"
                                    Margin="10,0,0,0"
                                    VerticalAlignment="Center"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource PgText3Brush}"/>
 
                         <TextBlock Grid.Column="2"
                                    Text="{Binding AmountDisplay}"
-                                   FontSize="{DynamicResource FontSize.Body}"
-                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   FontSize="{StaticResource PgFontCardSub}"
+                                   FontWeight="Bold"
                                    HorizontalAlignment="Right"
                                    Foreground="{Binding SeverityColor,
                                                 Converter={StaticResource BrushKeyConverter}}"/>
                     </Grid>
 
                     <Border Height="8"
-                            CornerRadius="{DynamicResource Radius.XSmall}"
+                            CornerRadius="4"
                             Margin="0,8,0,0"
                             SnapsToDevicePixels="True"
-                            Background="{DynamicResource BorderBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                            Background="{DynamicResource PgHairlineBrush}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition
@@ -225,10 +197,10 @@
                                             ConverterParameter=invert}"/>
                             </Grid.ColumnDefinitions>
                             <Border Grid.Column="0"
-                                    CornerRadius="{DynamicResource Radius.XSmall}"
+                                    CornerRadius="4"
                                     SnapsToDevicePixels="True"
                                     Background="{Binding SeverityColor,
-                                                 Converter={StaticResource BrushKeyConverter}}" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                                 Converter={StaticResource BrushKeyConverter}}"/>
                         </Grid>
                     </Border>
                 </StackPanel>
@@ -236,16 +208,15 @@
         </DataTemplate>
 
         <!-- ═══════════════════════════════════════════════════════════
-             TOP CUSTOMER ROW — numeric rank disc instead of the
-             model's medal emoji.
+             TOP CUSTOMER ROW — numeric rank disc (BarColor via
+             ColorStringConverter), name, amount, 5px share bar.
         ═══════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="TiTopCustomerTemplate">
-            <Border Style="{StaticResource DbRowCardStyle}"
-                    BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Margin="0,0,0,10"
-                    Padding="12,10"
-                    CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
-                    SnapsToDevicePixels="True"
-                    Background="{DynamicResource Surface.Primary.BackgroundBrush}">
+            <Border Background="Transparent"
+                    BorderBrush="{DynamicResource PgHairlineBrush}"
+                    BorderThickness="0,1,0,0"
+                    Padding="0,10,0,12"
+                    SnapsToDevicePixels="True">
                 <StackPanel>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -256,47 +227,44 @@
 
                         <Border Grid.Column="0"
                                 Width="26" Height="26"
-                                CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
+                                CornerRadius="{StaticResource PgIconSmRadius}"
                                 Margin="0,0,10,0"
                                 VerticalAlignment="Center"
                                 SnapsToDevicePixels="True"
                                 Background="{Binding BarColor,
-                                             Converter={StaticResource ColorStringConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                                             Converter={StaticResource ColorStringConverter}}">
                             <TextBlock Text="{Binding Rank}"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       FontWeight="{DynamicResource Weight.Bold}"
+                                       FontSize="{StaticResource PgFontCardSub}"
+                                       FontWeight="Bold"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
-                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                       Foreground="{DynamicResource PgAccentInkBrush}"/>
                         </Border>
 
                         <StackPanel Grid.Column="1"
                                     VerticalAlignment="Center"
                                     Margin="0,0,8,0">
                             <TextBlock Text="{Binding CustomerName}"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       FontWeight="{DynamicResource Weight.Bold}"
-                                       TextTrimming="CharacterEllipsis"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                       Style="{StaticResource PgRowTitleStyle}"/>
                             <TextBlock Text="{Binding InvoiceCountDisplay}"
-                                       FontSize="{DynamicResource FontSize.BodySmall}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                       Style="{StaticResource PgRowSubStyle}"
+                                       Margin="0,1,0,0"/>
                         </StackPanel>
 
                         <TextBlock Grid.Column="2"
                                    Text="{Binding AmountDisplay}"
-                                   FontSize="{DynamicResource FontSize.Body}"
-                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   FontSize="{StaticResource PgFontCardSub}"
+                                   FontWeight="Bold"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Right"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                   Foreground="{DynamicResource PgText1Brush}"/>
                     </Grid>
 
                     <Border Height="5"
-                            CornerRadius="{DynamicResource Radius.XSmall}"
+                            CornerRadius="2.5"
                             Margin="0,8,0,0"
                             SnapsToDevicePixels="True"
-                            Background="{DynamicResource BorderBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                            Background="{DynamicResource PgHairlineBrush}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition
@@ -308,10 +276,10 @@
                                             ConverterParameter=invert}"/>
                             </Grid.ColumnDefinitions>
                             <Border Grid.Column="0"
-                                    CornerRadius="{DynamicResource Radius.XSmall}"
+                                    CornerRadius="2.5"
                                     SnapsToDevicePixels="True"
                                     Background="{Binding BarColor,
-                                                 Converter={StaticResource ColorStringConverter}}" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                                 Converter={StaticResource ColorStringConverter}}"/>
                         </Grid>
                     </Border>
                 </StackPanel>
@@ -330,55 +298,54 @@
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
 
-            <Grid Margin="{DynamicResource DbPageMargin}">
+            <Grid Margin="{StaticResource PgPageMargin}">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <!-- 2026-08-25 rev 2: balanced bento restored — revenue
-                         chart keeps the wide slot, recent invoices list
-                         column widened (1* -> 1.2*); top customers and
-                         ageing brackets stay an even pair below. -->
-                    <RowDefinition Height="*" MinHeight="260"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>  <!-- hero -->
+                    <RowDefinition Height="Auto"/>  <!-- state bands -->
+                    <RowDefinition Height="Auto"/>  <!-- KPI + aging + stats / skeleton -->
+                    <RowDefinition Height="*" MinHeight="260"/>  <!-- revenue + recent -->
+                    <RowDefinition Height="Auto"/>  <!-- customers + brackets -->
                 </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0" Margin="0,0,0,16">
+                <!-- ══ HERO ═══════════════════════════════════════ -->
+                <Grid Grid.Row="0" Margin="0,0,0,18">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Dashboard.TaxInvoices}"
-                                   Style="{StaticResource DbTitleStyle}"/>
+                                   Style="{StaticResource PgHeroTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Dashboard.RevenueAgeingCollectionHealth}"
-                                   Style="{StaticResource DbSubtitleStyle}"/>
+                                   Style="{StaticResource PgHeroSubStyle}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal"
                                 VerticalAlignment="Center">
-                        <Border Style="{StaticResource DbChipStyle}" Margin="0,0,8,0">
-                            <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="7" Height="7" Margin="0,0,6,0"
+                        <Border Style="{StaticResource PgLiveChipStyle}" Margin="0,0,10,0">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Ellipse Width="7" Height="7" Margin="0,0,8,0"
                                          VerticalAlignment="Center"
-                                         Fill="{DynamicResource SuccessBrush}"/>
+                                         Fill="{DynamicResource PgOkBrush}"/>
                                 <TextBlock Text="{DynamicResource Common.Live}"
-                                           FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                           Foreground="{DynamicResource SuccessBrush}"/>
+                                           Style="{StaticResource PgLiveTextStyle}"
+                                           VerticalAlignment="Center"/>
                             </StackPanel>
                         </Border>
                         <Button Content="{DynamicResource Dashboard.NewInvoice}" Tag="&#xE710;"
-                                Style="{StaticResource DbActionButtonAccentStyle}"
-                                Command="{Binding CreateTaxInvoiceCommand}" ToolTip="{DynamicResource Dashboard.NewInvoice}"/>
+                                Style="{StaticResource PgBtnPrimaryStyle}"
+                                Command="{Binding CreateTaxInvoiceCommand}"
+                                ToolTip="{DynamicResource Dashboard.NewInvoice}"/>
                         <Button Content="{DynamicResource Dashboard.View}" Tag="&#xE8FD;" Margin="0"
-                                Style="{StaticResource DbActionButtonStyle}"
-                                Command="{Binding ViewAllInvoicesCommand}" ToolTip="{DynamicResource Dashboard.View}"/>
+                                Style="{StaticResource PgBtnGhostStyle}"
+                                Command="{Binding ViewAllInvoicesCommand}"
+                                ToolTip="{DynamicResource Dashboard.View}"/>
                     </StackPanel>
                 </Grid>
 
-                                <StackPanel Grid.Row="1">
-                    <Border Style="{StaticResource DbStateBandStyle}"
-                            Background="{DynamicResource TintBlueBrush}"
-                            BorderBrush="{DynamicResource InfoBrush}"
+                <!-- ══ STATE BANDS ═══════════════════════════════════ -->
+                <StackPanel Grid.Row="1">
+                    <Border Style="{StaticResource PgStateBandStyle}"
+                            Background="{DynamicResource PgAccentSoftBrush}"
                             Visibility="{Binding IsLoading,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
                         <Grid>
@@ -386,120 +353,128 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Border Style="{StaticResource DbSkeletonCircleStyle}" Width="20" Height="20" Margin="0,0,12,0"/>
+                            <Border Style="{StaticResource PgSkeletonCircleStyle}" Width="20" Height="20" Margin="0,0,12,0"/>
                             <StackPanel Grid.Column="1">
-                                <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="180" HorizontalAlignment="Left"/>
-                                <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="8" Width="260" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/>
+                                <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="12" Width="180" HorizontalAlignment="Left"/>
+                                <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="8" Width="260" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/>
                             </StackPanel>
                         </Grid>
                     </Border>
-                    <Border Style="{StaticResource DbStateBandStyle}"
-                            Background="{DynamicResource TintRedBrush}"
-                            BorderBrush="{DynamicResource DangerBrush}"
+                    <Border Style="{StaticResource PgStateBandStyle}"
+                            Background="{DynamicResource PgDangerSoftBrush}"
                             Visibility="{Binding HasError,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="{Binding ErrorMessage}"
-                                   Style="{StaticResource DbErrorTextStyle}"/>
+                                   Style="{StaticResource PgErrorTextStyle}"/>
                     </Border>
-                    <Border Style="{StaticResource DbStateBandStyle}"
-                            Padding="16,12"
-                            Background="{DynamicResource TintRedBrush}"
-                            BorderBrush="{DynamicResource DangerBrush}"
+                    <Border Style="{StaticResource PgAlertBandStyle}"
                             Visibility="{Binding HasOverdueInvoices,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap" Foreground="{DynamicResource DangerBrush}">
-                            <Run Text="{Binding OverdueCount, Mode=OneWay}"/>
-                            <Run Text=" overdue invoices — "/>
-                            <Run Text="{Binding OverdueAmountDisplay, Mode=OneWay}"/>
-                        </TextBlock>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0"
+                                       Text="&#xE7BA;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="{StaticResource PgFontGlyph}"
+                                       Foreground="{DynamicResource PgDangerBrush}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,12,0"/>
+                            <TextBlock Grid.Column="1"
+                                       Style="{StaticResource PgAlertBandTextStyle}"
+                                       VerticalAlignment="Center">
+                                <Run Text="{Binding OverdueCount, Mode=OneWay}"/>
+                                <Run Text=" overdue invoices — "/>
+                                <Run Text="{Binding OverdueAmountDisplay, Mode=OneWay}"/>
+                            </TextBlock>
+                        </Grid>
                     </Border>
                 </StackPanel>
 
-
-                <!-- ── SKELETON (visible when loading) ─────────────── -->
+                <!-- ══ SKELETON (visible while loading) ══════════════ -->
                 <StackPanel Grid.Row="2" Grid.RowSpan="3"
                             Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
-
-                    <Border Style="{StaticResource DbSkeletonBandStyle}">
+                    <Border Style="{StaticResource PgSkeletonBandStyle}">
                         <StackPanel>
-                            <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="16" Width="120" HorizontalAlignment="Left" Margin="0,0,0,4"/>
-                            <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="200" HorizontalAlignment="Left" Margin="0,0,0,12" Opacity="0.5"/>
-                            <ItemsControl Style="{StaticResource DbSkeletonKpiBandStyle}" ItemsPanel="{StaticResource DbSkeletonKpiBandPanel}">
-                                <Border Style="{StaticResource DbTileStyle}" Opacity="0.95"><StackPanel><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="30"/></Grid.ColumnDefinitions><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="72" HorizontalAlignment="Left"/><Border Grid.Column="1" Style="{StaticResource DbSkeletonCircleStyle}" Width="28" Height="28"/></Grid><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="22" Width="88" Margin="0,14,0,0" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="120" Margin="0,10,0,0" HorizontalAlignment="Left" Opacity="0.4"/></StackPanel></Border>
-                                <Border Style="{StaticResource DbTileStyle}"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="72" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="22" Width="88" Margin="0,14,0,0" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="120" Margin="0,10,0,0" HorizontalAlignment="Left" Opacity="0.4"/></StackPanel></Border>
-                                <Border Style="{StaticResource DbTileStyle}"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="72" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="22" Width="88" Margin="0,14,0,0" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="120" Margin="0,10,0,0" HorizontalAlignment="Left" Opacity="0.4"/></StackPanel></Border>
-                                <Border Style="{StaticResource DbTileStyle}"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="72" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="22" Width="88" Margin="0,14,0,0" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="120" Margin="0,10,0,0" HorizontalAlignment="Left" Opacity="0.4"/></StackPanel></Border>
+                            <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="16" Width="120" HorizontalAlignment="Left" Margin="0,0,0,4"/>
+                            <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="10" Width="200" HorizontalAlignment="Left" Margin="0,0,0,12" Opacity="0.5"/>
+                            <ItemsControl Style="{StaticResource PgSkeletonKpiBandStyle}" ItemsPanel="{StaticResource PgSkeletonKpiBandPanel}">
+                                <ContentControl ContentTemplate="{StaticResource PgSkeletonKpiTileTemplate}"/>
+                                <ContentControl ContentTemplate="{StaticResource PgSkeletonKpiTileTemplate}"/>
+                                <ContentControl ContentTemplate="{StaticResource PgSkeletonKpiTileTemplate}"/>
+                                <ContentControl ContentTemplate="{StaticResource PgSkeletonKpiTileTemplate}"/>
                             </ItemsControl>
                         </StackPanel>
                     </Border>
-
-                    <Grid Margin="0,0,0,14">
+                    <Grid Margin="0,0,0,16">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="1.2*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Style="{StaticResource DbCardStyle}" Margin="0,0,7,0">
-                            <ContentControl ContentTemplate="{StaticResource DbSkeletonChartTemplate}"/>
+                        <Border Grid.Column="0" Style="{StaticResource PgSkeletonCardStyle}" Margin="0,0,16,0">
+                            <ContentControl ContentTemplate="{StaticResource PgSkeletonChartTemplate}"/>
                         </Border>
-                        <Border Grid.Column="1" Style="{StaticResource DbCardStyle}" Margin="7,0,0,0">
+                        <Border Grid.Column="1" Style="{StaticResource PgSkeletonCardStyle}" Margin="16,0,0,0">
                             <StackPanel>
-                                <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="14" Width="90" HorizontalAlignment="Left" Margin="0,0,0,6"/>
-                                <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="120" HorizontalAlignment="Left" Margin="0,0,0,16" Opacity="0.5"/>
-                                <Grid Height="158"><Border Style="{StaticResource DbSkeletonCircleStyle}" Width="110" Height="110" HorizontalAlignment="Center" VerticalAlignment="Center"/></Grid>
+                                <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="14" Width="90" HorizontalAlignment="Left" Margin="0,0,0,6"/>
+                                <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="10" Width="120" HorizontalAlignment="Left" Margin="0,0,0,16" Opacity="0.5"/>
+                                <Grid Height="158"><Border Style="{StaticResource PgSkeletonCircleStyle}" Width="110" Height="110" HorizontalAlignment="Center" VerticalAlignment="Center"/></Grid>
                             </StackPanel>
                         </Border>
                     </Grid>
-
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1.2*"/>
                             <ColumnDefinition Width="2*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Style="{StaticResource DbCardStyle}" Margin="0,0,7,0">
-                            <ContentControl ContentTemplate="{StaticResource DbSkeletonChartTemplate}"/>
+                        <Border Grid.Column="0" Style="{StaticResource PgSkeletonCardStyle}" Margin="0,0,16,0">
+                            <ContentControl ContentTemplate="{StaticResource PgSkeletonChartTemplate}"/>
                         </Border>
-                        <Border Grid.Column="1" Style="{StaticResource DbCardStyle}" Margin="7,0,0,0">
+                        <Border Grid.Column="1" Style="{StaticResource PgSkeletonCardStyle}" Margin="16,0,0,0">
                             <StackPanel>
-                                <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="14" Width="120" HorizontalAlignment="Left" Margin="0,0,0,12"/>
-                                <Border Style="{StaticResource DbRowCardStyle}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Border Grid.Column="0" Style="{StaticResource DbSkeletonCircleStyle}" Margin="0,0,11,0"/><StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0"><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="140" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="180" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/></StackPanel><StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="56" HorizontalAlignment="Right"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="16" Width="48" Margin="0,6,0,0" HorizontalAlignment="Right" CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"/></StackPanel></Grid></Border>
-                                <Border Style="{StaticResource DbRowCardStyle}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Border Grid.Column="0" Style="{StaticResource DbSkeletonCircleStyle}" Margin="0,0,11,0"/><StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0"><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="140" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="180" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/></StackPanel><StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="56" HorizontalAlignment="Right"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="16" Width="48" Margin="0,6,0,0" HorizontalAlignment="Right" CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"/></StackPanel></Grid></Border>
-                                <Border Style="{StaticResource DbRowCardStyle}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Border Grid.Column="0" Style="{StaticResource DbSkeletonCircleStyle}" Margin="0,0,11,0"/><StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0"><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="140" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="180" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/></StackPanel><StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="56" HorizontalAlignment="Right"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="16" Width="48" Margin="0,6,0,0" HorizontalAlignment="Right" CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"/></StackPanel></Grid></Border>
+                                <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="14" Width="120" HorizontalAlignment="Left" Margin="0,0,0,12"/>
+                                <ContentControl ContentTemplate="{StaticResource PgSkeletonFeedRowTemplate}"/>
+                                <ContentControl ContentTemplate="{StaticResource PgSkeletonFeedRowTemplate}"/>
+                                <ContentControl ContentTemplate="{StaticResource PgSkeletonFeedRowTemplate}"/>
                             </StackPanel>
                         </Border>
                     </Grid>
-
                 </StackPanel>
 
-                <Grid Grid.Row="2" Margin="0,0,0,14" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                <!-- ══ KPI TILES + AGING MIX + STATS ═════════════════ -->
+                <Grid Grid.Row="2" Margin="0,0,0,16"
+                      Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="1.2*"/>
                         <ColumnDefinition Width="0.9*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource DbCardStyle}"
-                            Margin="0,0,18,0" >
+                    <Border Grid.Column="0" Style="{StaticResource PgCardStyle}" Margin="0,0,16,0">
                         <DockPanel>
-                            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,10">
                                 <TextBlock Text="{DynamicResource Dashboard.CollectionsPulse}"
-                                          />
+                                           Style="{StaticResource PgCardTitleStyle}"/>
                                 <TextBlock Text="{DynamicResource Dashboard.InvoicedVATPaidPending}"
-                                          />
+                                           Style="{StaticResource PgCardSubStyle}"
+                                           Margin="0,2,0,0"/>
                             </StackPanel>
-                            <ItemsControl Style="{StaticResource DbKpiBandStyle}"
+                            <ItemsControl Style="{StaticResource PgKpiBandStyle}"
                                           ItemsSource="{Binding KpiTiles}"
-                                          ItemTemplate="{StaticResource DbKpiTileTemplate}"
-                                          ItemsPanel="{StaticResource DbKpiBandPanel}"/>
+                                          ItemTemplate="{StaticResource PgKpiTileTemplate}"
+                                          ItemsPanel="{StaticResource PgKpiBandPanel}"/>
                         </DockPanel>
                     </Border>
 
-                    <Border Grid.Column="1" Style="{StaticResource DbCardStyle}"
-                            Margin="0,0,18,0">
+                    <Border Grid.Column="1" Style="{StaticResource PgCardStyle}" Margin="0,0,16,0">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Dashboard.AgeingMix}"
-                                      />
+                                       Style="{StaticResource PgCardTitleStyle}"/>
                             <TextBlock Text="{DynamicResource Dashboard.OverdueAmountsBracket}"
-                                      />
+                                       Style="{StaticResource PgCardSubStyle}"
+                                       Margin="0,2,0,10"/>
                             <donut:DonutChartControl Height="150"
                                                      Slices="{Binding AgingMixSlices}"
                                                      HoleLabel="AGE"
@@ -509,60 +484,66 @@
                     </Border>
 
                     <StackPanel Grid.Column="2">
-                        <Border Style="{StaticResource DbCardStyle}" Margin="0,0,0,18" Padding="16,12">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource Common.Overdue}"
-                                          />
-                                <TextBlock Text="{Binding OverdueCount}">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock" BasedOn="{StaticResource DbKpiValueStyle}">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding HasOverdueInvoices}" Value="True">
-                                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                                <TextBlock Text="{DynamicResource Dashboard.InvoicesPastTerms}"
-                                           Style="{StaticResource DbKpiFootStyle}"/>
-                            </StackPanel>
+                        <Border Style="{StaticResource PgCardStyle}" Margin="0,0,16,0" Padding="16,12">
+                            <Grid>
+                                <Border Style="{StaticResource PgAlertBarStyle}"
+                                        Background="{DynamicResource PgDangerBrush}"
+                                        Visibility="{Binding HasOverdueInvoices,
+                                                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                <StackPanel Margin="10,0,0,0">
+                                    <TextBlock Text="{DynamicResource Common.Overdue}"
+                                               Style="{StaticResource PgStatLabelStyle}"/>
+                                    <TextBlock Text="{Binding OverdueCount}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource PgStatValueStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding HasOverdueInvoices}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource PgDangerBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Text="{DynamicResource Dashboard.InvoicesPastTerms}"
+                                               Style="{StaticResource PgStatFootStyle}"/>
+                                </StackPanel>
+                            </Grid>
                         </Border>
-                        <Border Style="{StaticResource DbCardStyle}" Padding="16,12">
+                        <Border Style="{StaticResource PgCardStyle}" Padding="16,12">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Dashboard.OverdueAED}"
-                                           Style="{StaticResource DbKpiLabelStyle}"/>
+                                           Style="{StaticResource PgStatLabelStyle}"/>
                                 <Viewbox HorizontalAlignment="Left" Stretch="Uniform"
                                          StretchDirection="DownOnly" Margin="0,8,0,4">
                                     <TextBlock Text="{Binding OverdueAmountDisplay}"
-                                               Style="{StaticResource DbKpiValueStyle}"
-                                               Margin="0"
-                                               Foreground="{DynamicResource WarningBrush}"/>
+                                               FontSize="{StaticResource PgFontStatValue}"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource PgWarnBrush}"/>
                                 </Viewbox>
                             </StackPanel>
                         </Border>
                     </StackPanel>
                 </Grid>
 
-                <!-- ROW: revenue chart (wide) + recent invoices (widened
-                     list column — 1.2* instead of 1*) -->
-                <Grid Grid.Row="3" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                <!-- ══ REVENUE + RECENT INVOICES ═════════════════════ -->
+                <Grid Grid.Row="3"
+                      Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1.6*"/>
                         <ColumnDefinition Width="1.2*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource DbCardStyle}" Margin="0,0,18,0">
+                    <Border Grid.Column="0" Style="{StaticResource PgCardStyle}" Margin="0,0,16,0">
                         <DockPanel>
-                            <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                            <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
                                 <TextBlock Text="{DynamicResource Dashboard.RevenueTrend}"
-                                           Style="{StaticResource DbSectionTitleStyle}"/>
+                                           Style="{StaticResource PgCardTitleStyle}"/>
                                 <TextBlock Text="{Binding RevenueChartTitle}"
-                                           Style="{StaticResource DbMetaStyle}"
+                                           Style="{StaticResource PgMetaStyle}"
                                            HorizontalAlignment="Right"/>
                             </Grid>
                             <Grid>
-                                <Border Style="{StaticResource DbChartWellStyle}"
+                                <Border Style="{StaticResource PgChartWellStyle}"
                                         Visibility="{Binding HasRevenueData,
                                             Converter={StaticResource BoolToVisibilityConverter}}">
                                     <trend:TrendChartControl
@@ -570,42 +551,42 @@
                                         SeriesKind="Bar"
                                         ValuePrefix="AED "
                                         EmptyMessage="No revenue recorded yet."
-                                        SeriesBrush="{DynamicResource AccentBrush}"
-                                        SeriesEndBrush="{DynamicResource AccentDarkBrush}"
-                                        GridBrush="{DynamicResource DividerBrush}"
-                                        LabelBrush="{DynamicResource TextTertiaryBrush}"/>
+                                        SeriesBrush="{DynamicResource PgAccentBrush}"
+                                        SeriesEndBrush="{DynamicResource PgAccentHoverBrush}"
+                                        GridBrush="{DynamicResource PgHairlineBrush}"
+                                        LabelBrush="{DynamicResource PgText3Brush}"/>
                                 </Border>
                                 <Border Padding="0,40"
                                         Visibility="{Binding HasRevenueData,
                                             Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                     <StackPanel HorizontalAlignment="Center">
                                         <TextBlock Text="&#xE9D9;"
-                                                   Style="{StaticResource DbEmptyGlyphStyle}"/>
+                                                   Style="{StaticResource PgEmptyGlyphStyle}"/>
                                         <TextBlock Text="{DynamicResource Dashboard.NoRevenueDataYet}"
-                                                   Style="{StaticResource DbEmptyTextStyle}"/>
+                                                   Style="{StaticResource PgEmptyTextStyle}"/>
                                     </StackPanel>
                                 </Border>
                             </Grid>
                         </DockPanel>
                     </Border>
 
-                    <Border Grid.Column="1" Style="{StaticResource DbCardStyle}">
+                    <Border Grid.Column="1" Style="{StaticResource PgCardStyle}">
                         <DockPanel>
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="{DynamicResource Dashboard.RecentInvoices}"
-                                           Style="{StaticResource DbSectionTitleStyle}"/>
+                                           Style="{StaticResource PgCardTitleStyle}"/>
                                 <TextBlock Text="{DynamicResource Dashboard.LatestActivity}"
-                                           Style="{StaticResource DbMetaStyle}"
+                                           Style="{StaticResource PgMetaStyle}"
                                            HorizontalAlignment="Right"/>
                             </Grid>
                             <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                MaxHeight="400"
+                                          MaxHeight="400"
                                           HorizontalScrollBarVisibility="Disabled"
                                           behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
                                           Visibility="{Binding HasRecentInvoices,
                                               Converter={StaticResource BoolToVisibilityConverter}}">
-                                <ItemsControl Style="{StaticResource DbFeedItemsStyle}"
-                                          ItemsSource="{Binding RecentInvoices}"
+                                <ItemsControl Style="{StaticResource PgFeedItemsStyle}"
+                                              ItemsSource="{Binding RecentInvoices}"
                                               ItemTemplate="{StaticResource TiRecentInvoiceTemplate}"/>
                             </ScrollViewer>
                             <Border Padding="0,40"
@@ -613,38 +594,40 @@
                                         Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="&#xE8EF;"
-                                               Style="{StaticResource DbEmptyGlyphStyle}"/>
+                                               Style="{StaticResource PgEmptyGlyphStyle}"/>
                                     <TextBlock Text="{DynamicResource Dashboard.NoInvoicesYet}"
-                                               Style="{StaticResource DbEmptyTextStyle}"/>
+                                               Style="{StaticResource PgEmptyTextStyle}"/>
                                 </StackPanel>
                             </Border>
                         </DockPanel>
                     </Border>
                 </Grid>
 
-                <!-- ROW: top customers + ageing brackets — even split -->
-                <Grid Grid.Row="4" Margin="0,20,0,0" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                <!-- ══ TOP CUSTOMERS + AGING BRACKETS ════════════════ -->
+                <Grid Grid.Row="4" Margin="0,16,0,0"
+                      Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource DbCardStyle}" Margin="0,0,18,0">
+                    <Border Grid.Column="0" Style="{StaticResource PgCardStyle}" Margin="0,0,16,0">
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="{DynamicResource Dashboard.TopCustomers}"
-                                           Style="{StaticResource DbSectionTitleStyle}"/>
+                                           Style="{StaticResource PgCardTitleStyle}"/>
                                 <TextBlock Text="{DynamicResource Dashboard.InvoicedAmountLast12Months}"
-                                           Style="{StaticResource DbSectionSubStyle}"/>
+                                           Style="{StaticResource PgCardSubStyle}"
+                                           Margin="0,2,0,0"/>
                             </StackPanel>
                             <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                MaxHeight="400"
-                                behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
+                                          MaxHeight="400"
+                                          behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
                                           HorizontalScrollBarVisibility="Disabled"
                                           Visibility="{Binding HasTopCustomers,
                                               Converter={StaticResource BoolToVisibilityConverter}}">
-                                <ItemsControl Style="{StaticResource DbFeedItemsStyle}"
-                                          ItemsSource="{Binding TopCustomers}"
+                                <ItemsControl Style="{StaticResource PgFeedItemsStyle}"
+                                              ItemsSource="{Binding TopCustomers}"
                                               ItemTemplate="{StaticResource TiTopCustomerTemplate}"/>
                             </ScrollViewer>
                             <Border Padding="0,30"
@@ -652,30 +635,31 @@
                                         Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="&#xE735;"
-                                               Style="{StaticResource DbEmptyGlyphStyle}"/>
+                                               Style="{StaticResource PgEmptyGlyphStyle}"/>
                                     <TextBlock Text="{DynamicResource Dashboard.NoCustomerData}"
-                                               Style="{StaticResource DbEmptyTextStyle}"/>
+                                               Style="{StaticResource PgEmptyTextStyle}"/>
                                 </StackPanel>
                             </Border>
                         </DockPanel>
                     </Border>
 
-                    <Border Grid.Column="1" Style="{StaticResource DbCardStyle}" Margin="18,0,0,0">
+                    <Border Grid.Column="1" Style="{StaticResource PgCardStyle}">
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="{DynamicResource Dashboard.AgeingBrackets}"
-                                           Style="{StaticResource DbSectionTitleStyle}"/>
+                                           Style="{StaticResource PgCardTitleStyle}"/>
                                 <TextBlock Text="{DynamicResource Dashboard.OverdueAmountsGroupedAge}"
-                                           Style="{StaticResource DbSectionSubStyle}"/>
+                                           Style="{StaticResource PgCardSubStyle}"
+                                           Margin="0,2,0,0"/>
                             </StackPanel>
                             <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                MaxHeight="400"
-                                behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
+                                          MaxHeight="400"
+                                          behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
                                           HorizontalScrollBarVisibility="Disabled"
                                           Visibility="{Binding HasAgingData,
                                               Converter={StaticResource BoolToVisibilityConverter}}">
-                                <ItemsControl Style="{StaticResource DbFeedItemsStyle}"
-                                          ItemsSource="{Binding AgingBrackets}"
+                                <ItemsControl Style="{StaticResource PgFeedItemsStyle}"
+                                              ItemsSource="{Binding AgingBrackets}"
                                               ItemTemplate="{StaticResource TiAgingRowTemplate}"/>
                             </ScrollViewer>
                             <Border Padding="0,30"
@@ -683,10 +667,10 @@
                                         Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="&#xE73E;"
-                                               Style="{StaticResource DbEmptyGlyphStyle}"
-                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                               Style="{StaticResource PgEmptyGlyphStyle}"
+                                               Foreground="{DynamicResource PgOkBrush}"/>
                                     <TextBlock Text="{DynamicResource Dashboard.NoOverdueInvoices}"
-                                               Style="{StaticResource DbEmptyTextStyle}"/>
+                                               Style="{StaticResource PgEmptyTextStyle}"/>
                                 </StackPanel>
                             </Border>
                         </DockPanel>
