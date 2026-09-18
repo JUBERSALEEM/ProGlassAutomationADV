@@ -127,7 +127,7 @@
                                 SnapsToDevicePixels="True">
                             <TextBlock x:Name="Label"
                                        Text="{Binding TabTitle}"
-                                       FontSize="11.5"
+                                       FontSize="{DynamicResource PgFontMeta}"
                                        FontWeight="SemiBold"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource PgText2Brush}"/>
@@ -216,7 +216,7 @@
                  already shown, bold, by the selected segment. -->
             <TextBlock Grid.Column="0"
                        Text="{Binding ActivePage.TabSubtitle}"
-                       FontSize="13"
+                       FontSize="{DynamicResource PgFontBody}"
                        FontWeight="Medium"
                        VerticalAlignment="Center"
                        Margin="2,0,18,0"

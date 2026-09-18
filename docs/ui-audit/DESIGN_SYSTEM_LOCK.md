@@ -48,7 +48,7 @@ centrally in `Themes/Styles/PagePatterns.xaml` (merged in `App.xaml` after
 | 8 | **Data table** | `ErpDataGridStyle` family or `LineItemsTableStyle` family (DataGridStyles); list rows `ModuleListRowStyle`; KPI-strip lists `ModuleListShellStyle`. |
 | 9 | **Dialog** | `Dialog*` styles (DialogStyles): Title/Subtitle/Body/Hint/FieldLabel/Footer/CloseButton/SectionCard; `AppToolTipStyle`. |
 | 10 | **Empty state** | Shared `Controls/EmptyState/EmptyStateControl` (icon + title + hint + optional action). No ad-hoc "no data" borders. |
-| 11 | **Loading state** | `LoadingPanelStyle` + `LoadingProgressBarStyle` (thin indeterminate bar) + `LoadingLabelStyle` (`Common.Loading` i18n). Industrial: no spinners/blur. |
+| 11 | **Loading state** | Canonical: shared `Controls/LoadingState/LoadingStateControl` (Message property; used across core ERP lists/details). Lightweight inline alternative: `LoadingPanelStyle` + `LoadingProgressBarStyle` + `LoadingLabelStyle` (`Common.Loading` i18n). Industrial: no spinners/blur. |
 | 12 | **Action buttons** | Pill family: `PrimaryPillButton` / `OutlinedPillButton` / `SuccessPillButton` / `DangerButton` / `TabPillButton`; row actions: `RowPrimary/Outlined/Success/DangerButton`; reports: `ReportToolbar*/ReportExport*`; exports: `ExportButtonStyle`. |
 | 13 | **Status indicators** | `StatusPill{Accent,Success,Warning,Danger,Info,Neutral}Style`, `PriorityPill*`, `TagPillStyle`, `TrendingBadge*` (PillStyles). Colour = pill; never bare coloured text. |
 | 14 | **Navigation** | `ModuleTabStripStyle`/`ModuleTabButtonStyle` or `PillTabControlStyle`/`PillTabItemStyle` (ModuleTabStyles); list tabs `ModuleListTabInactiveStyle`; shell nav = MainWindow/Pg shell. |
@@ -82,6 +82,34 @@ style chains.
 | `Views/About/AboutIos26Theme.xaml` (12) | About's "Ios26" showcase section — intentionally personal-styled (P5 documents) |
 | `Views/Login/AuthSurfaceStyles.xaml` (5) | Login is the one pre-shell surface with its own glass treatment |
 | `PrintableInvoiceView.xaml` (18 radii literals) | **Print surface**: geometry is print-locked pt-derived values, not theme chrome — intentionally static |
+
+MERIDIAN dashboard literals (verified 2026-09-18, P2 — kept static, structural):
+`TiDashboardView` severity bars `CornerRadius=4/2.5` = half the bar height
+(8px/5px capsule — proportional control internals, not theme radii) ·
+`OverviewDashboardView` Factory Pulse `FontSize=26` = pre-scale design size
+inside a `Viewbox` (rendered size is layout-driven) · `DashboardView` tab
+pill `CornerRadius=7` and user-chip tile `CornerRadius=6` = custom template
+control internals. **Tokenized in P2** (exact-value, zero visual change,
+now density-responsive): `DashboardView` tab label → `PgFontMeta` (11.5),
+module subtitle → `PgFontBody` (13).
+
+## Phase 2 convergence record (core ERP, 2026-09-18)
+
+Census evidence that the core ERP modules (Inquiry, PI, JO, DN, TI,
+SheetStore, Statements/Reports) were **already converged by the prior
+clean-list pass** and were verified, not re-worked:
+
+- 10+ screens use the shared `EmptyStateControl`; `LoadingStateControl` is
+  the canonical loading surface (PI lists, JO/DN details, …).
+- `DnSectionStyles`/`TiSectionStyles` are thin module layers **BasedOn the
+  shared bases** (`GridNumericCell`, `Button.Ghost`, `Typography.Label`,
+  `SurfaceDetailStyle`) — correct architecture, kept.
+- Module hub pages (JO/PI/TI/DN) carry their title in the MERIDIAN module
+  bar (DashboardView); tab strips use the shared pill/tab styles;
+  list/detail chrome uses ListPage/DataGrid/Dialog shared styles.
+- P2 implementation delta: 2 typography tokenizations in
+  `DashboardView.xaml` (see above). Everything else verified compliant or
+  exempt.
 
 Anything else that looks local will be evaluated in Phases 2–6 and either
 migrated to the shared pattern or documented here with a reason.

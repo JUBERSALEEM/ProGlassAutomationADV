@@ -81,11 +81,18 @@
   "modernization": {
     "phase_1": {
       "status": "IMPLEMENTED",
-      "commit": "pending",
+      "commit": "f6702ea",
       "added": "Themes/Styles/PagePatterns.xaml (13 keys: page surface, page header, toolbar band, loading state, error banner)",
       "doc": "docs/ui-audit/DESIGN_SYSTEM_LOCK.md (14-pattern standard + exemptions + recipe)",
       "gate": "321 files, 0 ERROR / 22 WARN / 2 NOTE"
     },
-    "phase_2_9": "pending"
+    "phase_2_9": "pending",
+    "phase_2": {
+      "status": "IMPLEMENTED",
+      "commit": "pending",
+      "delta": "DashboardView.xaml: 2 typography literals tokenized (tab label->PgFontMeta, subtitle->PgFontBody, exact-value zero visual change)",
+      "verified": "core ERP already ~90% converged by prior pass (evidence in DESIGN_SYSTEM_LOCK.md \u00a7Phase 2 convergence record); Dn/Ti section styles = thin module layers BasedOn shared bases (kept); MERIDIAN structural literals documented as exempt",
+      "gate": "321 files 0E/22W/2N; DashboardView contract 11/2/2/1 preserved"
+    }
   }
 }
