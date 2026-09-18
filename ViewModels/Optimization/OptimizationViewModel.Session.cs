@@ -435,8 +435,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
             Pieces.Clear();
             foreach (var p in pieces)
             {
+                // Phase 2: an empty glass ref STAYS empty — the run groups it
+                // as "(unlabelled glass)" instead of silently reassigning the
+                // row to clear glass on restore. Known refs are canonicalised
+                // like every other entry point (and legacy sessions' mixed
+                // casing groups consistently with new imports).
                 var restored = NewPieceRow(
-                    string.IsNullOrWhiteSpace(p.GlassRef) ? "6mm clear ft glass" : p.GlassRef,
+                    CompositionKey.Normalize(p.GlassRef),
                     p.PieceLabel ?? string.Empty,
                     p.W, p.H, p.Qty);
                 restored.Position = p.Position ?? string.Empty;
@@ -447,7 +452,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
             Stocks.Clear();
             foreach (var st in stocks)
             {
-                Stocks.Add(new StockEntryVm(st.W, st.H, st.Composition ?? string.Empty, st.Source ?? string.Empty)
+                // Same canonical key as the restored rows — a legacy session's
+                // mixed-case rack tag must still route to its group.
+                Stocks.Add(new StockEntryVm(st.W, st.H,
+                    CompositionKey.Normalize(st.Composition), st.Source ?? string.Empty)
                 {
                     AvailableText = string.IsNullOrWhiteSpace(st.Available) ? "99999999" : st.Available,
                     IsUsedInRun = st.IsUsedInRun

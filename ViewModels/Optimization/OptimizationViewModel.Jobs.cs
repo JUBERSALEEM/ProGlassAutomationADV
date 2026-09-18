@@ -57,6 +57,24 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public string AreaLabel { get; set; } = "0 m²";
             public string SpecCountLabel { get; set; } = "0 specs";
 
+            /// <summary>Distribution-engine import warnings for this job
+            /// ("row N has no quantity — produced as 1 piece", skipped panes,
+            /// unparsed spec names…). Set once when the option is built,
+            /// before the card is bound, so no change notification needed.</summary>
+            public List<string> Warnings { get; } = new();
+            public bool HasWarnings => Warnings.Count > 0;
+            public string WarningLabel => string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                "{0} warning(s)", Warnings.Count);
+            public string WarningSummary => Warnings.Count == 0
+                ? string.Empty
+                : string.Join(" ", Warnings.Distinct());
+
+            /// <summary>Card badge visibility — the app has no
+            /// BooleanToVisibility resource, so the VM exposes Visibility
+            /// directly (it already references System.Windows).</summary>
+            public System.Windows.Visibility WarningVisibility =>
+                Warnings.Count > 0 ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+
             /// <summary>Multi-select: tick any number of jobs and combine
             /// their panes (e.g. two jobs whose low-e outers merge into ONE
             /// cutting group).</summary>
@@ -299,12 +317,22 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 var all = await repo.GetAllAsync().ConfigureAwait(false);
                 var options = new List<JobOptionVm>();
 
-                foreach (var jo in all
+                // Phase 3: the list is capped at the 100 most recent jobs —
+                // every card runs the distribution engine, so an unbounded
+                // list rebuilds the whole picker on every refresh. The cap
+                // already existed but was silent; when it engages, the status
+                // line now says how many jobs it is showing (a silent cap
+                // reads as "jobs disappeared").
+                const int jobListDisplayCap = 100;
+                var eligible = all
                     .Where(j => j != null && !j.IsVoid
                         && !JobOrderStatusValues.Is(j.Status, JobOrderStatusValues.Draft)
                         && !voidedPis.Contains(j.SourceProformaId ?? string.Empty))
                     .OrderByDescending(j => j.UpdatedAt)
-                    .Take(100))
+                    .ToList();
+                int totalEligible = eligible.Count;
+
+                foreach (var jo in eligible.Take(jobListDisplayCap))
                 {
                     var snapshot = JobOrderMapper.DeserializeSnapshot(jo);
                     var invoice = snapshot?.EmbeddedInvoice;
@@ -320,6 +348,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         SourceProformaId = jo.SourceProformaId ?? string.Empty,
                         CustomerName = jo.CustomerName
                     };
+
+                    // Surface the distribution engine's import warnings
+                    // (previously discarded): a row with no quantity becomes
+                    // 1 piece, a row without W2/H2 loses its inner pane, an
+                    // unparseable spec name loses treatment routing — each of
+                    // these changes the cutting list silently.
+                    opt.Warnings.AddRange(plan.Warnings);
 
                     // ── Step 4/5 spec build-up (outer → ASP → inner) ─────
                     // Each spec group becomes a strip of layer boxes using
@@ -355,9 +390,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
                                 .ToList();
                             if (paneItems.Count == 0) continue;
 
-                            string composition = string.IsNullOrWhiteSpace(occ.Composition)
-                                ? group.SelectedSpecName ?? string.Empty
-                                : occ.Composition;
+                            // Phase 2: canonical composition — the same glass
+                            // spelled slightly differently across two jobs
+                            // used to split into two cutting groups (and lose
+                            // its dedicated rack). Normalize at the source.
+                            string composition = CompositionKey.Normalize(
+                                string.IsNullOrWhiteSpace(occ.Composition)
+                                    ? group.SelectedSpecName ?? string.Empty
+                                    : occ.Composition);
 
                             var layer = new BuildUpLayerVm
                             {
@@ -422,9 +462,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             {
                                 var o = occurrences.FirstOrDefault(x => x.Slot == slot);
                                 if (o == null) return string.Empty;
-                                return string.IsNullOrWhiteSpace(o.Composition)
-                                    ? (group.SelectedSpecName ?? string.Empty)
-                                    : o.Composition;
+                                // Phase 2: same canonical key as the cutting
+                                // list rows — rack tag and group key must be
+                                // byte-identical for routing to match.
+                                return CompositionKey.Normalize(
+                                    string.IsNullOrWhiteSpace(o.Composition)
+                                        ? (group.SelectedSpecName ?? string.Empty)
+                                        : o.Composition);
                             }
 
                             if (group.OuterSheetWidthMm > 0 && group.OuterSheetHeightMm > 0)
@@ -468,12 +512,24 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 {
                     dispatcher.Invoke(() =>
                     {
+                        // Phase 3: ticked jobs must survive a refresh. Capture
+                        // the tick set from the OLD rows before the list is
+                        // rebuilt, and re-apply it on the replacements BEFORE
+                        // the property hooks are attached — otherwise each
+                        // re-tick fires OnJobSelectionChanged (which rebuilds
+                        // the whole breakdown) once per job mid-rebuild.
+                        var keepSelectedIds = new HashSet<string>(
+                            AvailableJobs.Where(j => j.IsSelected).Select(j => j.JobOrderId),
+                            StringComparer.Ordinal);
+
                         foreach (var old in AvailableJobs)
                             old.PropertyChanged -= OnJobSelectionChanged;
 
                         AvailableJobs.Clear();
                         foreach (var o in options)
                         {
+                            if (keepSelectedIds.Contains(o.JobOrderId))
+                                o.IsSelected = true;
                             o.PropertyChanged += OnJobSelectionChanged;
                             AvailableJobs.Add(o);
                         }
@@ -481,18 +537,41 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         RefreshJobsFilter();
                         RebuildSelectedJobBreakdown();
                         RefreshKpis();
+
+                        // Import warnings (skipped rows, defaulted
+                        // quantities, unparsed specs) used to be discarded
+                        // after the distribution engine produced them —
+                        // the operator saw the wrong cutting list with no
+                        // explanation. They now count on this status line
+                        // and on each job card.
+                        int totalWarnings = options.Sum(o => o.Warnings.Count);
+                        // Phase 3: say how many of how many — a silent cap
+                        // reads as missing jobs.
+                        string truncationNote = totalEligible > jobListDisplayCap
+                            ? string.Format(CultureInfo.InvariantCulture,
+                                " Showing the {0} most recent of {1}.",
+                                jobListDisplayCap, totalEligible)
+                            : string.Empty;
                         JobsStatusText = options.Count == 0
                             ? "No confirmed job orders with cutting pieces yet."
                             : string.Format(CultureInfo.InvariantCulture,
-                                "{0} confirmed job order(s) ready.", options.Count);
+                                "{0} confirmed job order(s) ready.{1}{2}",
+                                options.Count,
+                                totalWarnings > 0
+                                    ? string.Format(CultureInfo.InvariantCulture,
+                                        " {0} import warning(s) — see the job cards.", totalWarnings)
+                                    : string.Empty,
+                                truncationNote);
 
-                        // 2026-09-14: AUTO-TRIGGER — as soon as the job
-                        // section has data, the reference calibration job
-                        // loads itself. The Pieces.Count guard keeps a
-                        // manual Refresh from clobbering a list the
-                        // operator already edited or cleared on purpose.
-                        if (options.Count > 0 && Pieces.Count == 0)
-                            LoadReferenceJob();
+                        // 2026-09-14 AUTO-TRIGGER REMOVED (Phase 1 data
+                        // integrity): the reference calibration job used to
+                        // load itself whenever the list was empty. Its 152
+                        // benchmark pieces then mixed with a real job's
+                        // panes — untracked "job order" specs in the cutting
+                        // list, and when the glass strings matched they were
+                        // merged straight into the real job's cutting group.
+                        // The reference job is now reachable only through its
+                        // explicit button, which says exactly what it loads.
                     });
                 }
             }
@@ -660,6 +739,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             int addedPieces = 0;
             int skipped = 0;
+            int merged = 0;
             foreach (var layer in selected)
             {
                 foreach (var (glass, label, w, h, qty) in layer.Pieces)
@@ -667,14 +747,40 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     string wText = w.ToString(CultureInfo.InvariantCulture);
                     string hText = h.ToString(CultureInfo.InvariantCulture);
 
-                    // Guard against double-import: identical glass × size rows
-                    // already in the cutting list are skipped, so clicking
-                    // "Add selected panes" twice never duplicates the list.
-                    bool exists = Pieces.Any(p =>
-                        string.Equals(p.GlassRef, glass, StringComparison.OrdinalIgnoreCase) &&
-                        string.Equals(p.PieceLabel, label, StringComparison.OrdinalIgnoreCase) &&
-                        p.WidthText == wText && p.HeightText == hText);
-                    if (exists) { skipped++; continue; }
+                    // Guard against double-import — but the key MUST include
+                    // the pane position: an equal-size same-glass DGU has
+                    // identical outer and inner rows (same glass, label and
+                    // size), and keying without position silently dropped the
+                    // inner pane on the first import.
+                    PieceEntryVm? existing = null;
+                    foreach (var p in Pieces)
+                    {
+                        if (string.Equals(p.GlassRef, glass, StringComparison.OrdinalIgnoreCase)
+                            && string.Equals(p.PieceLabel, label, StringComparison.OrdinalIgnoreCase)
+                            && p.WidthText == wText && p.HeightText == hText
+                            && string.Equals(p.Position, layer.Position, StringComparison.OrdinalIgnoreCase))
+                        {
+                            existing = p;
+                            break;
+                        }
+                    }
+                    if (existing != null)
+                    {
+                        int existingQty = int.TryParse(existing.QtyText, NumberStyles.Integer,
+                            CultureInfo.InvariantCulture, out int eq) ? eq : 0;
+                        if (existingQty == qty)
+                        {
+                            // True duplicate (same job re-imported): skip.
+                            skipped++;
+                            continue;
+                        }
+                        // Same pane arriving with a different quantity —
+                        // a second job's identical pane, or a corrected Step 5
+                        // qty. Merge and say so; never fail silently.
+                        existing.QtyText = (existingQty + qty).ToString(CultureInfo.InvariantCulture);
+                        merged++;
+                        continue;
+                    }
 
                     var row = NewPieceRow(glass, label, wText, hText,
                         qty.ToString(CultureInfo.InvariantCulture));
@@ -690,13 +796,20 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 .Select(l => l.Title)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
+            string extras = string.Join(" ",
+                skipped > 0
+                    ? string.Format(CultureInfo.InvariantCulture,
+                        "{0} identical row(s) skipped.", skipped)
+                    : string.Empty,
+                merged > 0
+                    ? string.Format(CultureInfo.InvariantCulture,
+                        "{0} row(s) merged into existing rows (quantities added — check the total).", merged)
+                    : string.Empty);
             RunMessage = string.Format(CultureInfo.InvariantCulture,
                 "Added {0} pane layer(s) → {1} pieces in {2} cutting group(s): {3}.{4}",
                 selected.Count, addedPieces, compositions.Count,
                 string.Join(" · ", compositions),
-                skipped > 0
-                    ? " " + skipped.ToString(CultureInfo.InvariantCulture) + " already-imported row(s) skipped."
-                    : string.Empty);
+                string.IsNullOrWhiteSpace(extras) ? string.Empty : " " + extras);
         }
 
         /// <summary>

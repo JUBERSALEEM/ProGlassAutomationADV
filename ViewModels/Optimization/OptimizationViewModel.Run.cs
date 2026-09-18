@@ -281,6 +281,21 @@ namespace ProGlassAutomation.ViewModels.Optimization
             var rotation = RotationEnabled ? RotationPolicy.Free90 : RotationPolicy.Locked;
             var groups = BuildCuttingGroups(pieces);
 
+            // Phase 2: stamp the run with the single selected job order, so
+            // the Step 6 / Step 9 feed can refuse to apply these figures to
+            // an unrelated quote (the structural join — spec number + side +
+            // sheet size — matches across documents that share a rack size).
+            // Multi-job runs have no single identity and stay shared, as
+            // before; a Step 5 host sets its own DocumentKey before calling
+            // here and is never overwritten (no jobs are selected there).
+            var selectedJoIds = AvailableJobs
+                .Where(j => j.IsSelected)
+                .Select(j => j.JobOrderId)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            if (selectedJoIds.Count == 1)
+                DocumentKey = selectedJoIds[0];
+
             // SIZES dropdown: optimize ONE pane group at a time when a
             // specific composition (outer / inner / …) is selected.
             if (!string.Equals(_selectedCuttingGroup, AllCuttingGroups, StringComparison.OrdinalIgnoreCase))
@@ -306,6 +321,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
             RunScaleLabel = string.Format(CultureInfo.InvariantCulture,
                 "{0} cutting group(s) · {1} part(s) · SETTINGS level {2}",
                 groups.Count, totalParts, SelectedEffortLevel);
+            // The engine tiers per GROUP (a group over 2,000 parts goes to
+            // the partitioned path even inside a mostly-small run), so the
+            // architecture line is keyed on the largest group, not the total.
+            RunArchitectureLabel = BuildRunArchitectureLabel(
+                stage, groups.Max(g => g.Pieces.Count), effort);
             RunProgressPercent = 0;
             RunProgressDetail = stage == "OPTIMIZE"
                 ? "Preparing multi-start search…"
@@ -322,16 +342,27 @@ namespace ProGlassAutomation.ViewModels.Optimization
         }
 
         /// <summary>Groups the piece list by glass composition — one pack run
-        /// each. Keys are trimmed so the run composition exactly matches the
-        /// SIZES merge, the STOCKS rack tags and the industrial report.</summary>
+        /// each. Grouping uses the CANONICAL composition key (Phase 2), so
+        /// "6mm clear ft glass" and "6mm clear ft" are one group again; the
+        /// displayed label keeps the first original spelling. This is the
+        /// defensive net for rows that bypass the import-time normalisation
+        /// (hand-typed pieces on the PARTS list).</summary>
         private static List<(string Composition, List<CutPiece> Pieces)> BuildCuttingGroups(List<CutPiece> pieces)
         {
             return pieces
-                .GroupBy(p => string.IsNullOrWhiteSpace(p.GlassRef)
-                        ? "(unlabelled glass)" : p.GlassRef.Trim(),
-                    StringComparer.OrdinalIgnoreCase)
+                .GroupBy(p =>
+                {
+                    string key = CompositionKey.Normalize(p.GlassRef);
+                    return key.Length == 0 ? "(unlabelled glass)" : key;
+                })
                 .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase)
-                .Select(g => (g.Key, g.ToList()))
+                .Select(g =>
+                {
+                    string label = g.Key == "(unlabelled glass)"
+                        ? "(unlabelled glass)"
+                        : g.First().GlassRef.Trim();
+                    return (label, g.ToList());
+                })
                 .ToList();
         }
 
@@ -593,9 +624,21 @@ namespace ProGlassAutomation.ViewModels.Optimization
             int totalProblems = runs.Sum(r => r.ProblemCount);
 
             string rotationLabel = rotation == RotationPolicy.Free90 ? "rotation ON" : "rotation LOCKED";
+            // Phase 3: when the run is scoped to exactly ONE confirmed job
+            // order, say which — Step 6 and the operator need to know the
+            // result belongs to JO-2026-004 and not to whatever job was
+            // ticked before. Multi-job and Step-5 runs stay unattributed.
+            var singleJob = SelectedJobs
+                .Select(j => j.JobOrderId)
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            string jobScope = singleJob.Count == 1
+                ? " · " + singleJob[0]
+                : string.Empty;
             ResultStage = stage == "OPTIMIZE"
-                ? $"OPTIMIZE · level {SelectedEffortLevel} · {rotationLabel} · {runs.Count} cutting group(s)"
-                : $"QUICK · {rotationLabel} · {runs.Count} cutting group(s)";
+                ? $"OPTIMIZE · level {SelectedEffortLevel} · {rotationLabel} · {runs.Count} cutting group(s){jobScope}"
+                : $"QUICK · {rotationLabel} · {runs.Count} cutting group(s){jobScope}";
             // Stamps the SETTINGS level onto this result and, when this run was
             // an upgrade of a previous QUICK result, reports what it bought.
             UpdateUpgradeSummary(stage, totalSheets);

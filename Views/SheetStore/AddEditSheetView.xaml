@@ -100,7 +100,8 @@
                           Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
                           ToolTip="{DynamicResource SheetStore.EGClearFloatGuardianClimaguard70}"
                           IsEditable="True"
-                          IsTextSearchEnabled="True"/>
+                          IsTextSearchEnabled="True"
+                          behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"/>
 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -114,7 +115,8 @@
                                   ItemsSource="{Binding ThicknessOptions}"
                                   Text="{Binding ThicknessText, UpdateSourceTrigger=PropertyChanged}"
                                   IsEditable="True"
-                                  IsTextSearchEnabled="True"/>
+                                  IsTextSearchEnabled="True"
+                                  behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="{DynamicResource ProformaInvoice.Color}" Style="{StaticResource Typography.Label}"/>
@@ -122,7 +124,8 @@
                                   ItemsSource="{Binding ColorOptions}"
                                   Text="{Binding Color, UpdateSourceTrigger=PropertyChanged}"
                                   IsEditable="True"
-                                  IsTextSearchEnabled="True"/>
+                                  IsTextSearchEnabled="True"
+                                  behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"/>
                     </StackPanel>
                 </Grid>
 
@@ -138,7 +141,8 @@
                                   ItemsSource="{Binding WidthOptions}"
                                   Text="{Binding WidthText, UpdateSourceTrigger=PropertyChanged}"
                                   IsEditable="True"
-                                  IsTextSearchEnabled="True"/>
+                                  IsTextSearchEnabled="True"
+                                  behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="{DynamicResource SheetStore.HeightMm}" Style="{StaticResource Typography.Label}"/>
@@ -146,7 +150,8 @@
                                   ItemsSource="{Binding HeightOptions}"
                                   Text="{Binding HeightText, UpdateSourceTrigger=PropertyChanged}"
                                   IsEditable="True"
-                                  IsTextSearchEnabled="True"/>
+                                  IsTextSearchEnabled="True"
+                                  behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"/>
                     </StackPanel>
                 </Grid>
 
@@ -155,7 +160,8 @@
                           ItemsSource="{Binding SupplierOptions}"
                           Text="{Binding Supplier, UpdateSourceTrigger=PropertyChanged}"
                           IsEditable="True"
-                          IsTextSearchEnabled="True"/>
+                          IsTextSearchEnabled="True"
+                          behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"/>
 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -166,17 +172,20 @@
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="{DynamicResource SheetStore.PurchasePriceSQM}" Style="{StaticResource Typography.Label}"/>
                         <TextBox Style="{StaticResource Input.TextBox}"
+                                 behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                  Text="{Binding PurchasePriceText, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="{DynamicResource SheetStore.SELLPriceSQM}" Style="{StaticResource Typography.Label}"/>
                         <TextBox Style="{StaticResource Input.TextBox}"
+                                 behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                  Text="{Binding SellPriceText, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                 </Grid>
 
                 <TextBlock Text="{DynamicResource SheetStore.StockQuantity}" Style="{StaticResource Typography.Label}"/>
                 <TextBox Style="{StaticResource Input.TextBox}"
+                         behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                          Text="{Binding StockText, UpdateSourceTrigger=PropertyChanged}"/>
 
             </StackPanel>

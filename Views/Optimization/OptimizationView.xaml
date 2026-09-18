@@ -79,7 +79,7 @@
                                 <ComboBox ItemsSource="{Binding StageStrategies}"
                                           SelectedItem="{Binding SelectedStageStrategy}"
                                           Style="{StaticResource OptComboStyle}" Width="250" VerticalAlignment="Center"
-                                          ToolTip="Select cutting strategy: Stage 1 (Quick), Stage 2 (Multi-Order Grid), Stage 3 (Stratified Smart Search), Stage 4 (Best-Split/Sheet-Fill), or Stage 5 (Deep Smart Placement)"/>
+                                          ToolTip="Select cutting strategy: Stage 1 (single deterministic pass, same as QUICK), Stage 2 (3-ordering grid + Best-Split / Sheet-Fill / Wall-Seed / Smart Placement), Stage 3 (4 orderings × 3 splits + MaxRects + beam-corrected Best-Split), Stage 4 (all 6 orderings × 3 splits × 4 deterministic shuffles + vertical Smart Placement + widened beam), or Stage 5 (deep search: all 6 orderings × 3 splits × 7 shuffles + MaxRects over 6 orderings + widened beam)"/>
                             </StackPanel>
                         </Border>
 
@@ -90,7 +90,7 @@
                         <Button Content="Run Optimize" Style="{StaticResource PrimaryPillButton}"
                                 Command="{Binding RunOptimizeCommand}" IsEnabled="{Binding CanRun}"
                                 Height="36" Padding="18,0"
-                                ToolTip="Multi-start search, effort level 1–5 — best utilization wins"/>
+                                ToolTip="Multi-candidate search at the SETTINGS level (1–5) — every complete plan competes and the best wins by fewest unplaced, then fewest sheets, then highest utilization"/>
                         <Button Content="Cancel" Style="{StaticResource OutlinedPillButton}"
                                 Command="{Binding CancelRunCommand}" IsEnabled="{Binding CanCancel}"
                                 Height="36" Padding="14,0" Margin="8,0,0,0"
@@ -386,9 +386,11 @@
                                 </Border>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                     <TextBlock Text="SCALE ARCHITECTURE" Style="{StaticResource OptHeader}" FontSize="10"/>
-                                    <TextBlock Text="Stratified Proportional Batches (K=400)"
+                                    <TextBlock Text="{Binding RunArchitectureLabel}"
                                                FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               TextTrimming="CharacterEllipsis"
+                                               ToolTip="{Binding RunArchitectureLabel}"/>
                                 </StackPanel>
                             </Grid>
                         </Border>

@@ -72,7 +72,7 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Common.Price}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding OuterBasePrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
+                                <TextBox Text="{Binding OuterBasePrice, Converter={StaticResource DecimalTypingConverter}, ConverterParameter=0.##, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
@@ -97,7 +97,7 @@
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="{DynamicResource ProformaInvoice.SpacerSQM}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding SpacerPrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
+                                <TextBox Text="{Binding SpacerPrice, Converter={StaticResource DecimalTypingConverter}, ConverterParameter=0.##, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource Step4InputStyle}"
                                          ToolTip="{DynamicResource ProformaInvoice.SpacerSqm0MeansRate}"/>
                             </StackPanel>
@@ -138,7 +138,7 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Common.Price}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding LamOuterBasePrice, StringFormat={}{0:0.##}}"/>
+                                <TextBox Text="{Binding LamOuterBasePrice, Converter={StaticResource DecimalTypingConverter}, ConverterParameter=0.##}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
@@ -174,12 +174,12 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource ProformaInvoice.SoldSqm}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding InterlayerSellPrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
+                                <TextBox Text="{Binding InterlayerSellPrice, Converter={StaticResource DecimalTypingConverter}, ConverterParameter=0.##, UpdateSourceTrigger=PropertyChanged}"
                                          ToolTip="{DynamicResource ProformaInvoice.SoldSqm}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="{DynamicResource ProformaInvoice.BoughtSqm}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding InterlayerBuyPrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
+                                <TextBox Text="{Binding InterlayerBuyPrice, Converter={StaticResource DecimalTypingConverter}, ConverterParameter=0.##, UpdateSourceTrigger=PropertyChanged}"
                                          ToolTip="{DynamicResource ProformaInvoice.BoughtSqm}"/>
                             </StackPanel>
                         </Grid>
@@ -220,7 +220,7 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Common.Price}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding LamInnerBasePrice, StringFormat={}{0:0.##}}"/>
+                                <TextBox Text="{Binding LamInnerBasePrice, Converter={StaticResource DecimalTypingConverter}, ConverterParameter=0.##}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
@@ -238,11 +238,11 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource ProformaInvoice.Yield}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}"/>
+                                <TextBox Text="{Binding YieldFactor, Converter={StaticResource DecimalTypingConverter}, ConverterParameter=0.##}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="{DynamicResource ProformaInvoice.Margin}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding MarginProfitPercent, StringFormat={}{0:0.##}}"/>
+                                <TextBox Text="{Binding MarginProfitPercent, Converter={StaticResource DecimalTypingConverter}, ConverterParameter=0.##}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="4">
                                 <TextBlock Text="{DynamicResource ProformaInvoice.PanelExtra}" Style="{StaticResource ModuleFieldLabelStyle}"/>
@@ -274,11 +274,11 @@
                                 <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Text="{Binding OuterCuttingCost, StringFormat={}{0:0.##}}"
+                            <TextBox Text="{Binding OuterCuttingCost, Converter={StaticResource DecimalTypingConverter}, ConverterParameter=0.##}"
                                      Style="{StaticResource Step4InputStyle}" ToolTip="{DynamicResource ProformaInvoice.OuterCut}"/>
-                            <TextBox Grid.Column="2" Text="{Binding LamOuterCuttingCost, StringFormat={}{0:0.##}}"
+                            <TextBox Grid.Column="2" Text="{Binding LamOuterCuttingCost, Converter={StaticResource DecimalTypingConverter}, ConverterParameter=0.##}"
                                      Style="{StaticResource Step4InputStyle}" ToolTip="{DynamicResource ProformaInvoice.LamOuterCut}"/>
-                            <TextBox Grid.Column="4" Text="{Binding LamInnerCuttingCost, StringFormat={}{0:0.##}}"
+                            <TextBox Grid.Column="4" Text="{Binding LamInnerCuttingCost, Converter={StaticResource DecimalTypingConverter}, ConverterParameter=0.##}"
                                      Style="{StaticResource Step4InputStyle}" ToolTip="{DynamicResource ProformaInvoice.LamInnerCut}"/>
                         </Grid>
                         <TextBlock Text="{DynamicResource Nav.Tempering}" Style="{StaticResource ModuleFieldLabelStyle}"/>
@@ -288,11 +288,11 @@
                                 <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Text="{Binding OuterTemperingCost, StringFormat={}{0:0.##}}"
+                            <TextBox Text="{Binding OuterTemperingCost, Converter={StaticResource DecimalTypingConverter}, ConverterParameter=0.##}"
                                      Style="{StaticResource Step4InputStyle}" ToolTip="{DynamicResource ProformaInvoice.OuterTemper}"/>
-                            <TextBox Grid.Column="2" Text="{Binding LamOuterTemperingCost, StringFormat={}{0:0.##}}"
+                            <TextBox Grid.Column="2" Text="{Binding LamOuterTemperingCost, Converter={StaticResource DecimalTypingConverter}, ConverterParameter=0.##}"
                                      Style="{StaticResource Step4InputStyle}" ToolTip="{DynamicResource ProformaInvoice.LamOuterTemper}"/>
-                            <TextBox Grid.Column="4" Text="{Binding LamInnerTemperingCost, StringFormat={}{0:0.##}}"
+                            <TextBox Grid.Column="4" Text="{Binding LamInnerTemperingCost, Converter={StaticResource DecimalTypingConverter}, ConverterParameter=0.##}"
                                      Style="{StaticResource Step4InputStyle}" ToolTip="{DynamicResource ProformaInvoice.LamInnerTemper}"/>
                         </Grid>
                         <Grid>

@@ -83,6 +83,16 @@
                                                             <TextBlock Text="{Binding SpecCountLabel}" FontSize="{DynamicResource FontSize.Caption}"
                                                                        FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SuccessBrush}"/>
                                                         </Border>
+                                                        <!-- Import warnings: skipped rows, defaulted quantities,
+                                                             unparsed specs — the cutting list for this job is NOT
+                                                             exactly what Step 5 says until these are read. -->
+                                                        <Border Visibility="{Binding WarningVisibility}"
+                                                                Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource Radius.Small}" Padding="8,3" Margin="6,0,0,0"
+                                                                Style="{StaticResource SurfacePrimaryStyle}"
+                                                                ToolTip="{Binding WarningSummary, Mode=OneWay}">
+                                                            <TextBlock Text="{Binding WarningLabel}" FontSize="{DynamicResource FontSize.Caption}"
+                                                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource WarningBrush}"/>
+                                                        </Border>
                                                     </StackPanel>
                                                 </StackPanel>
                                             </Grid>
