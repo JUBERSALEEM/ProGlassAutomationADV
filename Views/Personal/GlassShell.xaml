@@ -5,6 +5,7 @@
     xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
     xmlns:globalSearch="clr-namespace:ProGlassAutomation.Controls.GlobalSearch"
     xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels.Dashboard"
+    xmlns:vmPi="clr-namespace:ProGlassAutomation.ViewModels.ProformaInvoice"
     xmlns:pv="clr-namespace:ProGlassAutomation.Views.Personal">
 
     <!-- ═══ PERSONAL VIEW ROUTING (GB-P4…) ═════════════════════════════
@@ -19,6 +20,9 @@
     <UserControl.Resources>
         <DataTemplate DataType="{x:Type vm:OverviewDashboardViewModel}">
             <pv:PersonalDashboardView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmPi:ProformaInvoiceViewModel}">
+            <pv:PersonalProformaInvoiceView/>
         </DataTemplate>
     </UserControl.Resources>
 

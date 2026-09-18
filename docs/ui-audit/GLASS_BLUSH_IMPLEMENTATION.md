@@ -106,6 +106,16 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   3. Reference "invoice table" rendered as the RecentActivity glass table (the same data set the Professional view shows in its recent-documents card, table-form per the reference).
 - **Build:** NOT RUN (.NET SDK unavailable). Runtime screenshot fidelity: NOT YET VERIFIED (GB-P16 tooling).
 
+### glass-02 — Proforma Invoice (GB-P5)
+- **Status:** ✅ STATIC VERIFIED · RUNTIME NOT VERIFIED (no .NET SDK) · VISUALLY NOT YET VERIFIED.
+- **Architecture:** Personal view fork `Views/Personal/PersonalProformaInvoiceView.xaml` on the **same `ProformaInvoiceViewModel`** (routed: `case "ProformaInvoice": CurrentViewModel = ProformaInvoiceVM` — verified; scoped DataTemplate in GlassShell).
+- **Components used:** GlassCard header (back + actions), **9-step glowing stepper strip** (GlassBlush wizard step: completed = soft-success + check, active = accent-deep + cyan glow — same `IsCompleted`/`IsActive` data logic as Professional), glass step panel (same 9 step views, same `CurrentStepNumber` triggers), glass footer with `GlassBlush.Progress` (ProgressPercent), GlassButton/GlassButtonSoft.
+- **Contract preserved:** IsListView/IsWizardView modes, NewFromInquiryCommand/NewInvoiceCommand/BackToListCommand/GoToStepCommand/PreviousStepCommand/NextStepCommand, Step1VM…Step9VM, CurrentStepNumber, ProgressPercent, StepProgressText, WizardSteps (StationCode/RailLabel/Subtitle/IsCompleted/IsActive), ALL AutomationIds (NewFromInquiryButton, NewInvoiceButton, BackButton, ContinueButton), i18n (ProformaInvoice.*, Action.Back).
+- **Deviations (documented):**
+  1. The nine step panels host the SAME Professional step views inside the glass step panel — the business form content keeps its existing form styling (forking all 9 step forms would duplicate the module's business UI; the glass composition = shell/strip/panel/progress). This is the "shared components express the mockup" path for the step content.
+  2. Saved-invoices list (list mode) hosts the SAME `SavedInvoicesListView` inside a glass card (same reason).
+- **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
+
 ## Phase status
 
 | Phase | Status | Commit |
@@ -114,7 +124,8 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-P2 shell | ✅ STATIC VERIFIED (shell + styles; runtime NOT VERIFIED — no .NET SDK) | `GB-P2` |
 | GB-P3 shared components (21/21) | ✅ STATIC VERIFIED (runtime NOT VERIFIED — no .NET SDK) | `GB-P3` |
 | GB-P4 dashboard (glass-01) | ✅ STATIC VERIFIED (PersonalDashboardView + shell routing; runtime NOT VERIFIED) | `GB-P4` |
-| GB-P5…P13 screens (9) | pending | — |
+| GB-P5 proforma invoice (glass-02) | ✅ STATIC VERIFIED (PersonalProformaInvoiceView + 9-step glow strip; runtime NOT VERIFIED) | `GB-P5` |
+| GB-P6…P13 screens (8) | pending | — |
 | GB-P14 Professional↔Personal switch | pending | — |
 | GB-P15 global visual consistency | pending | — |
 | GB-P16 runtime screenshot fidelity | **NOT RUN — no WPF runtime in this environment** (tooling to be delivered) | — |
