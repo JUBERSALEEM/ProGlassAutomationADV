@@ -413,6 +413,28 @@ namespace ProGlassAutomation.Services.Optimization
             // exactly what was skipped and why, next to the sheet count.
             if (scale.IsReduced) final.ScaleNotes.Add(scale.Summary);
 
+            // Industrial safety net: a plan that fails validation must never
+            // reach a cut file. Fall back to the quick pass, which is an
+            // independent single-pass engine; if even that fails (should be
+            // impossible), keep the original and say so explicitly.
+            var problems = ValidateResult(final, pieces);
+            if (problems.Count > 0)
+            {
+                var quick = PackQuick(pieces, stocks, margins, rotation);
+                var quickProblems = ValidateResult(quick, pieces);
+                if (quickProblems.Count == 0)
+                {
+                    final.ScaleNotes.Add($"WARNING: selected plan failed layout validation " +
+                        $"({problems[0]}); replaced with validated quick pass.");
+                    final = quick;
+                }
+                else
+                {
+                    final.ScaleNotes.Add($"WARNING: layout validation failed " +
+                        $"({problems[0]}; {problems.Count} issue(s)) — result not re-run.");
+                }
+            }
+
             progress?.Report(OptimizeProgress.Of("done", comboList.Count, comboList.Count,
                 $"{final.Sheets.Count} sheets"));
             return final;
@@ -857,6 +879,79 @@ namespace ProGlassAutomation.Services.Optimization
         /// is what keeps every legacy path bit-identical.</summary>
         internal static bool Keepable(int w, int h, int minBreakout) =>
             minBreakout <= 0 || (w >= minBreakout && h >= minBreakout);
+
+        /// <summary>
+        /// Industrial safety net: verify a finished plan before it can reach a
+        /// cut file. Checks, per sheet: pieces within the usable rectangle,
+        /// piece dimensions matching their source CutPiece (rotation allowed),
+        /// no two pieces overlapping, and no piece placed twice (reference
+        /// identity). Also checks placed+unplaced account for every input
+        /// piece. Returns a list of problems; empty list = valid plan.
+        /// This is the guard that would have caught the double-claimed
+        /// free-rect defect (overlapping placements in consolidated sheets).
+        /// </summary>
+        internal static List<string> ValidateResult(OptimizationResult result, IReadOnlyList<CutPiece> pieces)
+        {
+            var problems = new List<string>();
+            if (result == null) { problems.Add("null result"); return problems; }
+
+            var seen = new HashSet<CutPiece>();
+            long placedArea = 0;
+            foreach (var sheet in result.Sheets)
+            {
+                for (int a = 0; a < sheet.Pieces.Count; a++)
+                {
+                    var pa = sheet.Pieces[a];
+                    var src = pa.Piece;
+                    bool dimOk = src != null &&
+                        ((pa.WidthMm == src.WidthMm && pa.HeightMm == src.HeightMm) ||
+                         (src.AllowRotate && pa.WidthMm == src.HeightMm && pa.HeightMm == src.WidthMm));
+                    if (!dimOk)
+                        problems.Add($"Sheet {sheet.SheetNo} piece {a + 1}: placed {pa.WidthMm}x{pa.HeightMm} does not match source dims");
+                    if (src != null && !seen.Add(src))
+                        problems.Add($"Sheet {sheet.SheetNo} piece {a + 1}: piece placed more than once");
+                    if (pa.X < sheet.UsableX || pa.Y < sheet.UsableY ||
+                        pa.X + pa.WidthMm > sheet.UsableX + sheet.UsableWidth ||
+                        pa.Y + pa.HeightMm > sheet.UsableY + sheet.UsableHeight)
+                    {
+                        problems.Add($"Sheet {sheet.SheetNo} piece {a + 1}: escapes usable rect at {pa.X},{pa.Y} {pa.WidthMm}x{pa.HeightMm}");
+                        continue; // out-of-bounds pieces break the overlap test's meaning
+                    }
+                    placedArea += (long)pa.WidthMm * pa.HeightMm;
+                    for (int b = a + 1; b < sheet.Pieces.Count; b++)
+                    {
+                        var pb = sheet.Pieces[b];
+                        if (pa.X < pb.X + pb.WidthMm && pb.X < pa.X + pa.WidthMm &&
+                            pa.Y < pb.Y + pb.HeightMm && pb.Y < pa.Y + pa.HeightMm)
+                        {
+                            problems.Add($"Sheet {sheet.SheetNo}: pieces {a + 1} and {b + 1} overlap " +
+                                $"({pa.X},{pa.Y} {pa.WidthMm}x{pa.HeightMm}) vs ({pb.X},{pb.Y} {pb.WidthMm}x{pb.HeightMm})");
+                        }
+                    }
+                }
+            }
+
+            long expectedArea = 0;
+            var unplacedSet = new HashSet<CutPiece>();
+            foreach (var up in result.Unplaced)
+            {
+                if (up != null)
+                {
+                    unplacedSet.Add(up);
+                    expectedArea += (long)up.WidthMm * up.HeightMm;
+                }
+            }
+            foreach (var p in pieces)
+            {
+                if (!unplacedSet.Contains(p) && !seen.Contains(p))
+                    problems.Add($"Piece missing from plan: {p.PieceLabel}");
+            }
+            if (pieces.Count != result.Unplaced.Count + result.Sheets.Sum(s => s.Pieces.Count))
+                problems.Add($"Piece accounting mismatch: input {pieces.Count}, placed " +
+                    $"{result.Sheets.Sum(s => s.Pieces.Count)} + unplaced {result.Unplaced.Count}");
+
+            return problems;
+        }
 
         /// <summary>
         /// Commits a placement: consumes the host free rectangle and splits

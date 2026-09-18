@@ -291,10 +291,18 @@ namespace ProGlassAutomation.Services.Optimization
                     next.Add(r);
                     continue;
                 }
-                if (p.X > r.X) next.Add(new FreeRect(r.X, r.Y, p.X - r.X, r.H));
-                if (p.X + pw < r.X + r.W) next.Add(new FreeRect(p.X + pw, r.Y, r.X + r.W - (p.X + pw), r.H));
-                if (p.Y > r.Y) next.Add(new FreeRect(r.X, r.Y, r.W, p.Y - r.Y));
-                if (p.Y + ph < r.Y + r.H) next.Add(new FreeRect(r.X, p.Y + ph, r.W, r.Y + r.H - (p.Y + ph)));
+                // Frame decomposition (clipped to the rect) — see
+                // ReconstructFreeRects in GuillotinePacker.Partitioned.cs.
+                // The old 4-strips code double-claimed corners, letting two
+                // later placements occupy the same space.
+                int ix = Math.Max(p.X, r.X);
+                int iy = Math.Max(p.Y, r.Y);
+                int ix2 = Math.Min(p.X + pw, r.X + r.W);
+                int iy2 = Math.Min(p.Y + ph, r.Y + r.H);
+                if (iy > r.Y) next.Add(new FreeRect(r.X, r.Y, r.W, iy - r.Y));
+                if (iy2 < r.Y + r.H) next.Add(new FreeRect(r.X, iy2, r.W, r.Y + r.H - iy2));
+                if (ix > r.X) next.Add(new FreeRect(r.X, iy, ix - r.X, iy2 - iy));
+                if (ix2 < r.X + r.W) next.Add(new FreeRect(ix2, iy, r.X + r.W - ix2, iy2 - iy));
             }
             PruneFree(next);
             target.Free.Clear();

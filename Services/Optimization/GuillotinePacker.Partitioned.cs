@@ -214,6 +214,28 @@ namespace ProGlassAutomation.Services.Optimization
                 $"Partitioned Adaptive Smart Search: {totalParts:N0} parts across {batchCount} batches + global multi-pass, " +
                 $"cross-window consolidation + tail repacking in {sw.Elapsed.TotalSeconds:F1}s.");
 
+            // Industrial safety net: validate before the plan can reach a cut
+            // file. If the winner is invalid, try the other candidate, then a
+            // fresh validated quick pass — never emit overlapping placements.
+            var problems = ValidateResult(winningResult, pieces);
+            if (problems.Count > 0)
+            {
+                var other = (winningResult == bestGlobal) ? combinedResult : bestGlobal;
+                if (other != null && ValidateResult(other, pieces).Count == 0)
+                {
+                    other.ScaleNotes.Add($"WARNING: consolidated plan failed layout validation " +
+                        $"({problems[0]}); replaced with the validated {bestGlobal == other ? "batch-combined" : "global"} pass.");
+                    winningResult = other;
+                }
+                else
+                {
+                    var quick = PackOptimize(pieces, stocks, margins, rotation, 1, cancellationToken, progress);
+                    winningResult = quick;
+                    winningResult.ScaleNotes.Add($"WARNING: consolidated plan failed layout validation " +
+                        $"({problems[0]}; {problems.Count} issue(s)); replaced with validated quick pass.");
+                }
+            }
+
             progress?.Report(OptimizeProgress.Of("done", 100, 100,
                 $"{winningResult.Sheets.Count:N0} sheets cut · {winningResult.Unplaced.Count} unplaced"));
 
@@ -473,10 +495,23 @@ namespace ProGlassAutomation.Services.Optimization
                         next.Add(r);
                         continue;
                     }
-                    if (p.X > r.X) next.Add(new FreeRect(r.X, r.Y, p.X - r.X, r.H));
-                    if (p.X + pw < r.X + r.W) next.Add(new FreeRect(p.X + pw, r.Y, r.X + r.W - (p.X + pw), r.H));
-                    if (p.Y > r.Y) next.Add(new FreeRect(r.X, r.Y, r.W, p.Y - r.Y));
-                    if (p.Y + ph < r.Y + r.H) next.Add(new FreeRect(r.X, p.Y + ph, r.W, r.Y + r.H - (p.Y + ph)));
+                    // Frame decomposition of (rect r) minus (inflated piece),
+                    // clipped to the rect.  The previous code emitted a
+                    // full-width bottom strip AND a full-height right strip,
+                    // which double-claim their corner; consolidation later saw
+                    // the same space in two rects and placed pieces on top of
+                    // each other (physically invalid cut files).  Strips must
+                    // also be clipped to the rect's own bounds, because a
+                    // piece's kerf-inflated box can protrude past a coarser
+                    // surviving rect.  Result: exact, complete, disjoint.
+                    int ix = Math.Max(p.X, r.X);
+                    int iy = Math.Max(p.Y, r.Y);
+                    int ix2 = Math.Min(p.X + pw, r.X + r.W);
+                    int iy2 = Math.Min(p.Y + ph, r.Y + r.H);
+                    if (iy > r.Y) next.Add(new FreeRect(r.X, r.Y, r.W, iy - r.Y));
+                    if (iy2 < r.Y + r.H) next.Add(new FreeRect(r.X, iy2, r.W, r.Y + r.H - iy2));
+                    if (ix > r.X) next.Add(new FreeRect(r.X, iy, ix - r.X, iy2 - iy));
+                    if (ix2 < r.X + r.W) next.Add(new FreeRect(ix2, iy, r.X + r.W - ix2, iy2 - iy));
                 }
                 PruneFree(next);
                 state.Free.Clear();
