@@ -15,14 +15,14 @@
       - Radius: Small=6, Medium=10, Large=12, XLarge=16, 2XLarge=20, Full=12, Control=12, Card=12, Dialog=16, Chip=12, Tab=12, Input=12, Panel=14, etc. (standard control surface = 12px; 999 capsules removed 2026-09-14)
       - Border: Thin=1, Default=1, Strong=1.5
       - Spacing: Xs=4, Sm=8, Md=12, Lg=16, Xl=24, 2Xl=32, 3Xl=40, Page, Card, Tile, Gutter
-      - Density: DbPageMargin, DbCardPadding, DbTilePadding, DbGutter, DbGutterHalfMargin, DbKpiTileMinHeight, DbChartMinHeight (published by ThemeManager.ApplyDisplayDensity)
+      - Density: Density.* keys + runtime Density* (published by ThemeManager.ApplyDisplayDensity). Dashboard geometry is now the Pg* ladder in Themes/Professional/ProfessionalCore.xaml (MERIDIAN Phase 7).
       - Shadows: Soft, Medium, Large, XLarge, Card, Popup, Dialog
       - Surfaces: Primary, Secondary, Detail, Elevated, Kpi, Glass (with BackgroundBrush, BorderBrush, BorderThickness, CornerRadius, Padding, Effect)
       - Colors: PrimaryForeground, SecondaryForeground, MutedForeground, Accent, Success, Warning, Danger, Tint*, Background, etc.
       - Special: PaperBrush (#FFFFFF for printable), Splash, Chart, AboutGlow, Wizard
     STYLES:
       - SurfacePrimaryStyle, SurfaceSecondaryStyle, SurfaceDetailStyle, SurfaceElevatedStyle, SurfaceKpiStyle, SurfaceGlassStyle
-      - Aliases: DbCardStyle, DbRowCardStyle, DbPipelineCardStyle, ModuleSectionCardStyle, CardStyle, SectionCardStyle, StatCardStyle, etc. all BasedOn Surface*
+      - Aliases: ModuleSectionCardStyle, CardStyle, SectionCardStyle, StatCardStyle, etc. all BasedOn Surface* (Db* aliases retired in MERIDIAN Phase 7)
       - Typography: DisplayStyle, H1Style, H2Style, H3Style, TitleStyle, SubtitleStyle, BodyStyle, BodySmallStyle, LabelStyle, CaptionStyle, KpiStyle, ButtonTextStyle, NavigationStyle, DataGridStyle, etc.
       - Buttons: PrimaryButtonStyle, SecondaryButtonStyle, ModuleToolbarPrimaryButtonStyle, ModuleToolbarSecondaryButtonStyle, AccentChip, OutlinedPill, Ghost, etc.
       - Inputs: TextBoxStyle, ComboBoxStyle, IntInputStyle, DecimalInputStyle, etc.
@@ -302,16 +302,10 @@
     <sys:Double x:Key="Density.KpiTileMinHeight">86</sys:Double>
     <sys:Double x:Key="Density.ChartMinHeight">220</sys:Double>
 
-    <!-- Db* aliases (modern dashboard grammar) — CONCRETE Compact-density
-         fallbacks. ThemeManager.ApplyDisplayDensity republishes every Db* key
-         on Application resources at startup, so the saved density always wins. -->
-    <Thickness x:Key="DbPageMargin">10,6,10,6</Thickness>
-    <Thickness x:Key="DbCardPadding">14,13,14,13</Thickness>
-    <Thickness x:Key="DbTilePadding">10,8,10,8</Thickness>
-    <sys:Double x:Key="DbGutter">8</sys:Double>
-    <Thickness x:Key="DbGutterHalfMargin">4</Thickness>
-    <sys:Double x:Key="DbKpiTileMinHeight">80</sys:Double>
-    <sys:Double x:Key="DbChartMinHeight">180</sys:Double>
+    <!-- MERIDIAN PHASE 7 (2026-09-18): the Db* dashboard grammar retired
+         here. Dashboards now use the Pg* tokens from
+         Themes/Professional/ProfessionalCore.xaml, republished per
+         Density by ThemeManager.ApplyDisplayDensity. -->
 
     <!-- ═══════════════════════════════════════════════════════════════
          7. SHADOWS — ONE CANONICAL
@@ -493,13 +487,10 @@
     <Style x:Key="ListRowCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}"/>
     <Style x:Key="CardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
     <Style x:Key="SectionCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
-    <Style x:Key="SoftCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}"/>
-    <Style x:Key="DashCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
-    <Style x:Key="IndustrialDashboardCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
-    <Style x:Key="IndustrialDashboardRowCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}"/>
-    <Style x:Key="DbCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
-    <Style x:Key="DbRowCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}"/>
-    <Style x:Key="DbPipelineCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <!-- MERIDIAN PHASE 7: SoftCardStyle/DashCardStyle/IndustrialDashboard*/
+         Db* surface aliases removed — zero consumers after the dashboard
+         rewrite. (SoftCardStyle still lives in Styles/DashboardStyles.xaml
+         for the three non-dashboard views that consume it.) -->
     <Style x:Key="ErpKpiSurfaceStyle" TargetType="Border" BasedOn="{StaticResource SurfaceKpiStyle}"/>
     <Style x:Key="ErpInlineStatusSurfaceStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}"/>
     <Style x:Key="ErpEmptyStateSurfaceStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}"/>
@@ -1020,11 +1011,6 @@
     </Style>
     <Style x:Key="Pill.Primary" TargetType="Border" BasedOn="{StaticResource Chip.Primary}"/>
 
-    <!-- Aliases -->
-    <Style x:Key="DbChipStyle" TargetType="Border" BasedOn="{StaticResource Chip.Primary}"/>
-    <Style x:Key="DbBadgeStyle" TargetType="Border" BasedOn="{StaticResource Badge.Primary}"/>
-    <Style x:Key="DbPillStyle" TargetType="Border" BasedOn="{StaticResource Pill.Primary}"/>
-
     <!-- ═══════════════════════════════════════════════════════════════
          16. NAVIGATION — ONE CANONICAL
     ═══════════════════════════════════════════════════════════════ -->
@@ -1045,16 +1031,12 @@
     <SolidColorBrush x:Key="State.PressedBrush" Color="#220369A1"/>
 
     <!-- ═══════════════════════════════════════════════════════════════
-         18. DASHBOARD GRAMMAR — ALIASES TO CANONICAL
+         (section 18 retired — see note below)
     ═══════════════════════════════════════════════════════════════ -->
-    <Style x:Key="DbTileStyle" TargetType="Border" BasedOn="{StaticResource SurfaceKpiStyle}"/>
-    <Style x:Key="DbSectionHeadStyle" TargetType="StackPanel">
-        <Setter Property="Margin" Value="0,0,0,12"/>
-    </Style>
-    <Style x:Key="DbKpiLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
-    <Style x:Key="DbKpiValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Kpi}"/>
-    <Style x:Key="DbKpiFootStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
-    <Style x:Key="DbGlyphStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Icon}"/>
+    <!-- MERIDIAN PHASE 7 (2026-09-18): DbTileStyle, DbSectionHeadStyle,
+         DbKpiLabelStyle, DbKpiValueStyle, DbKpiFootStyle, DbGlyphStyle
+         removed — the dashboard grammar this section aliased was retired
+         with Styles/DashboardKit.xaml; every consumer now uses Pg* keys. -->
 
 
     <!-- Auto-generated color tokens for remaining hardcoded hex in Views -->

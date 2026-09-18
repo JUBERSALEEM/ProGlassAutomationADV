@@ -1,5 +1,21 @@
 # MERIDIAN — Full UI Rewrite: Phase Plan (0 → 100)
 
+> ## STATUS: ALL 8 PHASES COMPLETE (2026-09-18)
+>
+> | Phase | Scope | Commit |
+> |---|---|---|
+> | 0 | Pg* design system (ProfessionalCore/Shell, both themes) | `bc2db8a` |
+> | 1 | MainWindow top bar + sidebar | `120b67c` |
+> | 2 | DashboardView module bar | `b1d3395` |
+> | 3 | Overview dashboard | `affb659` |
+> | 4 | Sheet Store + Proforma | `5dae9e1` |
+> | 5 | Job Order + Delivery Note | `d5f10e8` |
+> | 6 | Tax Invoice + Statement | `42082fa` |
+> | 7 | Old-kit retirement + density rewiring | (this phase) |
+>
+> Every phase verified: XML well-formed, binding/command/x:Name/i18n inventory diff vs HEAD
+> = zero missing, no `Db*` references in any rewritten view.
+
 **Scope:** complete 0→100 rewrite of the UI for **all 7 dashboard modules + the MainWindow
 shell (top bar + sidebar)**. Every view is rewritten from scratch on the new design language.
 **What survives:** the *dynamic* layer only — every `Binding`, `Command`, `x:Name` referenced by
@@ -37,7 +53,7 @@ Light/Dark toggle. This mockup is the acceptance reference: the shipped views mu
 | `--ac / --ach / --aci / --acs` | `PgAccentBrush`, `PgAccentHoverBrush`, `PgAccentInkBrush`, `PgAccentSoftBrush` | brand |
 | `--ok/--oks, --wn/--wns, --dg/--dgs` | `PgOkBrush/Soft`, `PgWarnBrush/Soft`, `PgDangerBrush/Soft` | status (status-only colour policy) |
 | radii / spacing | `PgCardRadius` 12 · `PgTileRadius` 9 · `PgCtrlRadius` 8 · `PgGutter` 16 · `PgPagePadding` 24 | geometry |
-| type | `PgFontPage` 20 · `PgFontCard` 13 · `PgFontKpi` 26 · `PgFontBody` 13 · `PgFontLabel` 11 · `PgFontCaption` 11.5 | 6-step scale, tabular figures |
+| type | `PgFontHero` 20 · `PgFontCardTitle` 13 · `PgFontCardSub` 11.5 · `PgFontKpiValue` 22 · `PgFontKpiLabel` 10.5 · `PgFontBody` 13 · `PgFontBodySm` 11 · `PgFontMeta` 11.5 · `PgFontGlyph` 15 · `PgFontStatValue` 24 | the scale, tabular figures (final key set shipped in Phase 0) |
 
 Style keys: `PgCard`, `PgTile`, `PgWell`, `PgRowCard`, `PgSectionTitle`, `PgCardTitle`,
 `PgKpiValue/Label/Foot`, `PgHeroTitle/Subtitle`, `PgChip`, `PgLiveChip`, `PgBtnPrimary`,
@@ -117,13 +133,26 @@ shell: `PgTopIconButton`, `PgTopPill`, `PgBrand`, `PgSearchFrame`, `PgSidebarGro
   `OpenPdfCommand` + `ShareCommand` with `IsEnabled={Binding HasPdf}`).
 - **Commit + push.**
 
-## Phase 7 — Consolidation & cleanup
-- Grep-verify zero remaining consumers of the old `Db*`/`Soft*`/`Industrial*` keys outside
-  non-dashboard views (Tax Invoice detail screens keep their own `CardStyle` — untouched).
-- Retire the dead old dashboard keys from `DashboardKit.xaml` / `DashboardStyles.xaml` (only the
-  keys with zero consumers; aliased consumers get migrated first).
-- Final consistency pass: radii/gutters/type uniform, skeleton states match the new cards,
-  `README` note in `Themes/Professional/` documenting the system.
+## Phase 7 — Consolidation & cleanup (DONE)
+What was actually retired, key by key (consumer-verified before deletion):
+- **`Styles/DashboardKit.xaml` — deleted** (all 57 `Db*` keys had zero external consumers).
+  Its `App.xaml` merge entry removed.
+- **`Styles/DashboardStyles.xaml` — trimmed 51 → 2 keys.** Kept, with the exact consumers:
+  `SectionTitle` → `Views/Reports/OrderReport/Review/ReviewStep.xaml`;
+  `SoftCardStyle` → `Controls/Reporting/MixPanel.xaml`,
+  `Views/Reports/DeliveryReport/DeliveryReportView.xaml`,
+  `Views/Specifications/SpecificationsCenterView.xaml` (+ 2 private support tokens).
+- **`Themes/Styles/GlobalDesignSystem.xaml`** — dead `Db*` declarations removed (density
+  fallbacks, surface aliases, chip/badge/pill aliases, section-18 grammar aliases).
+- **`Services/ThemeManager.Part2.cs`** — the dead `Db*` dashboard-density writes replaced by
+  a live `Pg*` ladder (Spacious 16/92/212 → Compact 10/68/152), and all 7 dashboards now
+  read `{DynamicResource PgPageMargin}` so the Density setting keeps reflowing them
+  (feature parity with the old kit).
+- **`Tests/Theme/ResourceTokenTypeTests.cs`** — the `DbGutterHalfMargin` pinning test
+  rewritten as a retirement guard (`DbGutterHalf` / `DbGutterHalfMargin` must stay gone).
+- **Verified:** every `StaticResource` key in the app still resolves to a declaration;
+  no `Db*` declaration or consumer remains in any XAML (the i18n key
+  `Settings.DbFileMigrationbackupsRecreateCurrent` is unrelated); XML well-formed ×14.
 - **Commit + push.**
 
 ---

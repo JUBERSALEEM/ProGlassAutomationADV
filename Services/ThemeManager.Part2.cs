@@ -263,36 +263,41 @@ namespace ProGlassAutomation.Services
             foreach (var pair in FontSizeDefaults(resources))
                 resources[pair.Key] = Math.Round(pair.Value * typeScale * 2.0) / 2.0;
 
-            // ── DASHBOARD DENSITY (2026-09-13): Db* tokens now follow Density
-            // so dashboards scale with Compact/Normal/Comfortable/Spacious.
-            // Previously DbPageMargin=20,16,20,20 was fixed, so Compact mode
-            // had no effect on dashboards.
-            double gutter;
-            double kpiMinH;
-            double chartMinH;
+            // ── DASHBOARD DENSITY (2026-09-18, MERIDIAN): the seven
+            // dashboards now scale through the Pg* tokens. The old Db*
+            // ladder was retired with the old kit (Phase 7) — its keys had
+            // zero consumers left. Re-anchored to the Meridian base scale
+            // (gutter 16, KPI min 92, chart min 212 at Spacious); the
+            // relative steps follow the old ladder. Views read these with
+            // DynamicResource, so the saved density always wins.
+            double pgGutter;
+            double pgKpiMinH;
+            double pgChartMinH;
+            Thickness pgPageMargin;
             switch (key)
             {
-                // Re-anchored with the control ladder above: Spacious takes the
-                // old Compact numbers, the rest descend from there.
                 case "Spacious":
-                    gutter = 8; kpiMinH = 80; chartMinH = 180; break;
+                    pgGutter = 16; pgKpiMinH = 92; pgChartMinH = 212;
+                    pgPageMargin = new Thickness(24, 20, 24, 24);
+                    break;
                 case "Comfortable":
-                    gutter = 7; kpiMinH = 72; chartMinH = 164; break;
+                    pgGutter = 14; pgKpiMinH = 84; pgChartMinH = 192;
+                    pgPageMargin = new Thickness(20, 16, 20, 20);
+                    break;
                 case "Normal":
-                    gutter = 6; kpiMinH = 64; chartMinH = 150; break;
-                default:
-                    gutter = 5; kpiMinH = 58; chartMinH = 136; break;
+                    pgGutter = 12; pgKpiMinH = 76; pgChartMinH = 172;
+                    pgPageMargin = new Thickness(16, 12, 16, 16);
+                    break;
+                default: // Compact
+                    pgGutter = 10; pgKpiMinH = 68; pgChartMinH = 152;
+                    pgPageMargin = new Thickness(12, 10, 12, 12);
+                    break;
             }
-            // Dashboard cards are intentionally a touch larger than module cards
-            var dbCardPad = new Thickness(cardPad.Left + 6, cardPad.Top + 7, cardPad.Right + 6, cardPad.Bottom + 7);
-            var dbTilePad = new Thickness(stripPad.Left, stripPad.Top + 2, stripPad.Right, stripPad.Bottom + 2);
-            resources["DbPageMargin"] = pageMargin;
-            resources["DbCardPadding"] = dbCardPad;
-            resources["DbTilePadding"] = dbTilePad;
-            resources["DbGutter"] = gutter;
-            resources["DbGutterHalfMargin"] = new Thickness(gutter / 2.0);
-            resources["DbKpiTileMinHeight"] = kpiMinH;
-            resources["DbChartMinHeight"] = chartMinH;
+            resources["PgPageMargin"] = pgPageMargin;
+            resources["PgGutter"] = new Thickness(pgGutter);
+            resources["PgGutterHalfMargin"] = new Thickness(pgGutter / 2.0);
+            resources["PgKpiTileMinHeight"] = pgKpiMinH;
+            resources["PgChartMinHeight"] = pgChartMinH;
 
             // ProGlassLayout.* canonical density vocabulary (LayoutTokens.xaml
             // holds only concrete fallbacks — live density must come from here

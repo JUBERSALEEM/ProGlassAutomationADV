@@ -12,11 +12,12 @@
 
      PREFIX CONTRACT
      ───────────────
-     Every key here is prefixed Pg (Meridian). The old Db* / Soft* /
-     Industrial* grammar in Styles/DashboardKit.xaml +
-     Styles/DashboardStyles.xaml stays untouched until Phase 7, so the
-     app remains fully functional (in the old look) after this file is
-     merged. Rewritten pages reference ONLY Pg* keys.
+     Every key here is prefixed Pg (Meridian). PHASE 7 (2026-09-18) is
+     complete: the old Db* / Soft* / Industrial* grammar is retired —
+     Styles/DashboardKit.xaml was deleted and
+     Styles/DashboardStyles.xaml reduced to the two keys three
+     non-dashboard views still consume. All 7 dashboards + the module
+     bar + the shell reference ONLY Pg* keys.
 
      MODEL CONTRACTS BOUND HERE (property names are FROZEN — see the
      models, do not rename):
@@ -41,8 +42,8 @@
     <Thickness x:Key="PgTilePadding">12,13,12,15</Thickness>
     <Thickness x:Key="PgRowPadding">11,10</Thickness>
     <Thickness x:Key="PgGutter">16,16,16,16</Thickness>
-    <!-- Half-gutter for tile strips (see the ERR-F4C120 note in
-         DashboardKit.xaml — this must stay a Thickness). -->
+    <!-- Half-gutter for tile strips (ERR-F4C120 lesson — this must
+         stay a Thickness, never a Double). -->
     <Thickness x:Key="PgGutterHalfMargin">8</Thickness>
 
     <CornerRadius x:Key="PgCardRadius">12</CornerRadius>

@@ -188,7 +188,7 @@
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
 
-            <Grid Margin="{StaticResource PgPageMargin}">
+            <Grid Margin="{DynamicResource PgPageMargin}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>  <!-- hero -->
                     <RowDefinition Height="Auto"/>  <!-- state bands -->

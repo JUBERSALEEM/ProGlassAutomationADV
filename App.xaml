@@ -146,44 +146,34 @@
                      Tax Invoice). -->
                 <ResourceDictionary Source="Styles/ContextMenuStyles.xaml"/>
 
-                <!-- Shared dashboard chrome for all 7 module dashboards.
-                     Previously each dashboard declared its own local
-                     SolidColorBrush resources with hardcoded hex (44 in
-                     total, including #FFFFFF card surfaces), so those
-                     cards stayed light-coloured when the app switched to
-                     the dark theme. Everything here resolves through
-                     DynamicResource against keys present in BOTH themes. -->
+                <!-- MERIDIAN PHASE 7 (2026-09-18): the dashboard kit is
+                     retired. All 7 module dashboards + the module bar now
+                     use the Pg* grammar below. This file keeps only the
+                     two keys still consumed by non-dashboard views
+                     (SectionTitle → ReviewStep.xaml; SoftCardStyle →
+                     MixPanel / DeliveryReportView /
+                     SpecificationsCenterView). Styles/DashboardKit.xaml
+                     (the 2026-09-08 Db* grammar) was deleted — every one
+                     of its 57 keys had zero consumers left. -->
                 <ResourceDictionary Source="Styles/DashboardStyles.xaml"/>
-
-                <!-- ── THE DASHBOARD GRAMMAR (2026-09-08) ──
-                     One design language for all seven module dashboards,
-                     replacing the three stacked generations (Dash*, Soft*,
-                     IndustrialDashboard*) that made the pages disagree on
-                     card weight, page margin, KPI tile shape and type
-                     scale. Merged AFTER DashboardStyles.xaml because it
-                     BasedOn's SurfacePrimaryStyle / SurfaceDetailStyle from
-                     DesignTokens.xaml and reads the Text* scale from
-                     TypeScaleTokens.xaml, both of which are merged above.
-                     Dashboard pages must use Db* keys only. ── -->
-                <ResourceDictionary Source="Styles/DashboardKit.xaml"/>
 
                 <!-- ═══════════════════════════════════════════════════════
                      MERIDIAN (Pg*) — the full 0→100 UI rewrite system.
-                     New parallel design language for the shell + all 7
-                     dashboards. Purely ADDITIVE: nothing existing changes
-                     until a rewritten view opts in, so the app stays fully
-                     functional in the old look until Phase 7 retires the
-                     old keys. Order matters: Core (geometry + dashboard
-                     grammar) before Shell (top bar + sidebar, which reads
-                     the core tokens). Merged after DashboardKit so the old
-                     kit's BasedOn chains still resolve.
+                     One design language for the shell + all 7 dashboards:
+                     geometry, type scale, semantic brushes, card/KPI/feed
+                     grammar, skeleton + empty states, buttons. Order
+                     matters: Core (geometry + dashboard grammar) before
+                     Shell (top bar + sidebar, which reads the core
+                     tokens). Page margins read {DynamicResource
+                     PgPageMargin} so ThemeManager.ApplyDisplayDensity
+                     republishes them live per Density setting.
                 ═══════════════════════════════════════════════════════ -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Professional/ProfessionalCore.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/Professional/ProfessionalShell.xaml"/>
 
                 <!-- ProGlass Design System COMPONENT TOKEN LAYER.
                      Merged AFTER Button/Pill/Tab/Input/Dialog/LiquidGlass/
-                     PiIndustrial/ListPage/DashboardKit so BasedOn aliases
+                     PiIndustrial/ListPage/Professional so BasedOn aliases
                      (Ghost, Toggle, KPI, DatePicker, Dialog) resolve. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ComponentTokens.xaml"/>
 
