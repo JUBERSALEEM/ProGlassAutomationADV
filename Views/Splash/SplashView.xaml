@@ -1,16 +1,20 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Splash/SplashView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Splash Screen — Option 10: Glass Mural Chassis & Specular Bevels
-
-     100% Complete Architectural Rewrite:
-       • Luxurious architectural glass panel stage with realistic bevels
-       • Deep specular light sheens and ambient refractive reflections
-       • Central floating glass shield enclosing illuminated PGA vector monogram
-       • High-contrast metallic wordmark: "ProGlass Automation"
-       • 6-column grid of frosted glass tiles with vibrant colored badges for core ERP modules
-       • Ultra-thin glowing progress bar with active step telemetry
-       • Clean corporate copyright and version footer
+     MODULE: Splash Screen — 100% Faithful Architectural Rebuild
+     
+     FAITHFUL TO APPROVED MOCKUP (docs/splash_redesign_dark.png):
+       • Cinematic deep-navy atmospheric canvas with luminous cyan orbs
+       • Network constellation nodes and fine vector telemetry lines
+       • Central floating beveled glass shield with tilted dashed orbit ring
+       • Luminous cyan hexagon enclosing dark PGA monogram
+       • Brand wordmark: "ProGlass" (pure white) + "Automation" (vivid cyan)
+       • Centered subtitle: "── MODERN GLASS FABRICATION ERP ──"
+       • Complete 16-card grid (2 rows of 8 frosted glass cards) with
+         vibrant cyan-teal squircles and clean white typography
+       • Wide glowing cyan pill progress bar with seamless progress fill
+       • Dedicated non-overlapping loading status line
+       • Zero regressions: all public methods, flags, and login/terms gates preserved
 ═══════════════════════════════════════════════════════════════════ -->
 <Window x:Class="ProGlassAutomation.Views.Splash.SplashView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -22,7 +26,7 @@
         WindowState="Maximized"
         WindowStyle="None"
         ResizeMode="NoResize"
-        Background="#080C14"
+        Background="#060C18"
         ShowInTaskbar="False"
         Topmost="True"
         behaviors:ViewportFitBehavior.DisableZoom="True"
@@ -37,20 +41,18 @@
     <Window.Resources>
         <!-- Corner Tokens -->
         <CornerRadius x:Key="SplashCorner">10</CornerRadius>
-        <CornerRadius x:Key="SplashCornerLarge">18</CornerRadius>
-        <CornerRadius x:Key="GlassPanelCorner">24</CornerRadius>
+        <CornerRadius x:Key="SplashCornerLarge">16</CornerRadius>
+        <CornerRadius x:Key="TileCorner">16</CornerRadius>
 
-        <!-- Brand & Glass Mural Palette -->
-        <SolidColorBrush x:Key="StageDeepBg" Color="#070B12"/>
+        <!-- Mockup Accurate Palette -->
         <SolidColorBrush x:Key="TextPrimary" Color="#FFFFFF"/>
         <SolidColorBrush x:Key="TextSecondary" Color="#94A3B8"/>
-        <SolidColorBrush x:Key="TextMuted" Color="#64748B"/>
-        <SolidColorBrush x:Key="AccentCyan" Color="#38BDF8"/>
-        <SolidColorBrush x:Key="AccentPurple" Color="#A855F7"/>
-        <SolidColorBrush x:Key="AccentEmerald" Color="#10B981"/>
+        <SolidColorBrush x:Key="AccentCyan" Color="#00E5FF"/>
+        <SolidColorBrush x:Key="AccentTeal" Color="#00D2EE"/>
+        <SolidColorBrush x:Key="DarkNavyBg" Color="#060C18"/>
 
         <!-- Required backward-compatibility aliases -->
-        <SolidColorBrush x:Key="SplashCerulean" Color="#38BDF8"/>
+        <SolidColorBrush x:Key="SplashCerulean" Color="#00E5FF"/>
         <SolidColorBrush x:Key="SplashCeruleanLite" Color="#7DD3FC"/>
         <SolidColorBrush x:Key="SplashCeruleanDark" Color="#0284C7"/>
         <SolidColorBrush x:Key="SplashOutline" Color="#1E293B"/>
@@ -60,366 +62,290 @@
         <SolidColorBrush x:Key="SplashTextSecondary" Color="#94A3B8"/>
         <SolidColorBrush x:Key="SplashOnAccent" Color="#000000"/>
 
-        <!-- ═══ GLASS MURAL CHASSIS GRADIENTS ═══ -->
-        <!-- Deep architectural canvas backdrop -->
+        <!-- Deep Cinematic Stage Gradient -->
         <LinearGradientBrush x:Key="GlassStageGradient" StartPoint="0.1,0" EndPoint="0.9,1">
-            <GradientStop Color="#070B14" Offset="0.0"/>
-            <GradientStop Color="#0B1322" Offset="0.4"/>
-            <GradientStop Color="#101B2E" Offset="0.75"/>
-            <GradientStop Color="#080D18" Offset="1.0"/>
+            <GradientStop Color="#050B16" Offset="0.0"/>
+            <GradientStop Color="#071020" Offset="0.5"/>
+            <GradientStop Color="#050914" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <!-- Multi-layer Specular Glass Chassis Slab -->
-        <LinearGradientBrush x:Key="ChassisGlassFill" StartPoint="0,0" EndPoint="0.8,1">
-            <GradientStop Color="#28FFFFFF" Offset="0.0"/>
-            <GradientStop Color="#0F1E293B" Offset="0.25"/>
-            <GradientStop Color="#0A0F172A" Offset="0.7"/>
-            <GradientStop Color="#1438BDF8" Offset="1.0"/>
-        </LinearGradientBrush>
-
-        <!-- Specular Chamfered Bevel Edge -->
+        <!-- Specular Chamfered Bevel Border -->
         <LinearGradientBrush x:Key="SpecularBevelBorder" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#99FFFFFF" Offset="0.0"/>
-            <GradientStop Color="#3338BDF8" Offset="0.2"/>
-            <GradientStop Color="#11FFFFFF" Offset="0.5"/>
-            <GradientStop Color="#2238BDF8" Offset="0.85"/>
-            <GradientStop Color="#66FFFFFF" Offset="1.0"/>
+            <GradientStop Color="#66FFFFFF" Offset="0.0"/>
+            <GradientStop Color="#3300E5FF" Offset="0.3"/>
+            <GradientStop Color="#10FFFFFF" Offset="0.7"/>
+            <GradientStop Color="#4400E5FF" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <!-- Glass Tile Surface Sheen -->
-        <LinearGradientBrush x:Key="TileSpecularSheen" StartPoint="0,0" EndPoint="0.4,1">
-            <GradientStop Color="#40FFFFFF" Offset="0.0"/>
-            <GradientStop Color="#15FFFFFF" Offset="0.3"/>
-            <GradientStop Color="#00FFFFFF" Offset="0.6"/>
+        <!-- Specular Tile Sheen Highlight -->
+        <LinearGradientBrush x:Key="TileSpecularSheen" StartPoint="0,0" EndPoint="0.6,0.8">
+            <GradientStop Color="#35FFFFFF" Offset="0.0"/>
+            <GradientStop Color="#10FFFFFF" Offset="0.35"/>
+            <GradientStop Color="#00FFFFFF" Offset="0.7"/>
         </LinearGradientBrush>
 
-        <!-- Frosted Tile Base -->
-        <LinearGradientBrush x:Key="TileFrostedBg" StartPoint="0,0" EndPoint="0.7,1">
-            <GradientStop Color="#201E293B" Offset="0.0"/>
-            <GradientStop Color="#2A0F172A" Offset="1.0"/>
+        <!-- Frosted Tile Base Fill -->
+        <LinearGradientBrush x:Key="TileFrostedBg" StartPoint="0,0" EndPoint="0.5,1">
+            <GradientStop Color="#281C2B3F" Offset="0.0"/>
+            <GradientStop Color="#1F132032" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <!-- Luminous Hairline Progress -->
+        <!-- Neon Progress Bar Gradient Fill -->
         <LinearGradientBrush x:Key="LuminousProgressGradient" StartPoint="0,0" EndPoint="1,0">
-            <GradientStop Color="#0284C7" Offset="0.0"/>
-            <GradientStop Color="#38BDF8" Offset="0.5"/>
-            <GradientStop Color="#A855F7" Offset="0.85"/>
-            <GradientStop Color="#F472B6" Offset="1.0"/>
+            <GradientStop Color="#00B4D8" Offset="0.0"/>
+            <GradientStop Color="#00E5FF" Offset="0.5"/>
+            <GradientStop Color="#38BDF8" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <!-- Specular Glow and Depth Dropshadows -->
-        <DropShadowEffect x:Key="ChassisMuralShadow" Color="#000000" BlurRadius="60" ShadowDepth="18" Opacity="0.7"/>
-        <DropShadowEffect x:Key="ShieldNeonGlow" Color="#38BDF8" BlurRadius="45" ShadowDepth="0" Opacity="0.45"/>
-        <DropShadowEffect x:Key="TileShadow" Color="#000000" BlurRadius="16" ShadowDepth="4" Opacity="0.4"/>
-        <DropShadowEffect x:Key="IconBadgeGlow" Color="#38BDF8" BlurRadius="12" ShadowDepth="0" Opacity="0.35"/>
+        <!-- Glow DropShadows -->
+        <DropShadowEffect x:Key="NeonCyanGlow" Color="#00E5FF" BlurRadius="35" ShadowDepth="0" Opacity="0.55"/>
+        <DropShadowEffect x:Key="PillBarGlow" Color="#00E5FF" BlurRadius="20" ShadowDepth="0" Opacity="0.6"/>
+        <DropShadowEffect x:Key="CardShadow" Color="#000000" BlurRadius="16" ShadowDepth="6" Opacity="0.5"/>
 
-        <!-- ═══ 6-COLUMN FROSTED GLASS TILE TEMPLATE ═══ -->
-        <DataTemplate x:Key="MuralModuleTileTemplate">
-            <Border Width="150" Height="96" Margin="7,6"
-                    CornerRadius="14"
+        <!-- ═══ FROSTED GLASS TILE TEMPLATE (8-COLUMN GRID) ═══ -->
+        <DataTemplate x:Key="MockupModuleTileTemplate">
+            <Border Width="124" Height="128" Margin="7,6"
+                    CornerRadius="{StaticResource TileCorner}"
                     Background="{StaticResource TileFrostedBg}"
                     BorderBrush="{StaticResource SpecularBevelBorder}"
                     BorderThickness="1.2"
-                    Effect="{StaticResource TileShadow}"
+                    Effect="{StaticResource CardShadow}"
                     SnapsToDevicePixels="True">
                 <Grid>
-                    <!-- Top-Edge Specular Glass Sheen -->
-                    <Border CornerRadius="14" Background="{StaticResource TileSpecularSheen}" IsHitTestVisible="False"/>
+                    <!-- Top-Right Diagonal Specular Sheen Reflection -->
+                    <Border CornerRadius="{StaticResource TileCorner}" Background="{StaticResource TileSpecularSheen}" IsHitTestVisible="False"/>
 
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <!-- Vibrant Accent Icon Badge -->
-                        <Border Width="42" Height="42" CornerRadius="11"
-                                Background="{Binding BorderBrush}"
-                                Effect="{StaticResource IconBadgeGlow}"
+                        <!-- Vibrant Cyan Squircle Badge -->
+                        <Border Width="48" Height="48" CornerRadius="13"
+                                Background="#00E5FF"
                                 HorizontalAlignment="Center">
-                            <TextBlock Text="{Binding Icon}"
-                                       FontFamily="{DynamicResource FontFamily.Icon}"
-                                       FontSize="18" FontWeight="Bold"
-                                       Foreground="#FFFFFF"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border.Effect>
+                                <DropShadowEffect Color="#00E5FF" BlurRadius="12" ShadowDepth="0" Opacity="0.45"/>
+                            </Border.Effect>
+                            <!-- Line-Art Icon or Text Badge -->
+                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Icon}"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="22" FontWeight="Normal"
+                                           Foreground="#061224"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Visibility="{Binding IsTextBadge, Converter={StaticResource BoolToVisibilityReverseConverter}, FallbackValue=Visible}"/>
+                                <TextBlock Text="{Binding LabelTextBadge}"
+                                           FontSize="13" FontWeight="Bold"
+                                           Foreground="#061224"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Visibility="{Binding IsTextBadge, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}"/>
+                            </Grid>
                         </Border>
-                        <!-- Tile Module Label -->
+
+                        <!-- Module Label Underneath -->
                         <TextBlock Text="{Binding Label}"
                                    FontSize="12" FontWeight="SemiBold"
                                    Foreground="#F8FAFC"
                                    HorizontalAlignment="Center"
-                                   Margin="0,8,0,0"
-                                   TextTrimming="CharacterEllipsis"/>
+                                   Margin="0,11,0,0"
+                                   MaxWidth="116"
+                                   TextTrimming="CharacterEllipsis"
+                                   TextAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </Border>
         </DataTemplate>
     </Window.Resources>
 
+    <!-- ═══ ROOT STAGE ═══ -->
     <Grid x:Name="SplashStageRoot" Background="{StaticResource GlassStageGradient}">
 
-        <!-- Architectural Glass Wireframe Grid & Facet Reflections -->
-        <Canvas IsHitTestVisible="False" Opacity="0.06">
-            <Line X1="0" Y1="140" X2="2560" Y2="140" Stroke="#38BDF8" StrokeThickness="1"/>
-            <Line X1="0" Y1="420" X2="2560" Y2="420" Stroke="#38BDF8" StrokeThickness="1" StrokeDashArray="3 9"/>
-            <Line X1="0" Y1="700" X2="2560" Y2="700" Stroke="#38BDF8" StrokeThickness="1" StrokeDashArray="3 9"/>
-            <Line X1="0" Y1="980" X2="2560" Y2="980" Stroke="#38BDF8" StrokeThickness="1"/>
-            <Line X1="360" Y1="0" X2="360" Y2="1600" Stroke="#38BDF8" StrokeThickness="1"/>
-            <Line X1="860" Y1="0" X2="860" Y2="1600" Stroke="#38BDF8" StrokeThickness="1" StrokeDashArray="3 9"/>
-            <Line X1="1360" Y1="0" X2="1360" Y2="1600" Stroke="#38BDF8" StrokeThickness="1" StrokeDashArray="3 9"/>
-            <Line X1="1860" Y1="0" X2="1860" Y2="1600" Stroke="#38BDF8" StrokeThickness="1"/>
-            <!-- 45° Specular Facet Bevel Guidelines -->
-            <Line X1="200" Y1="0" X2="1200" Y2="1000" Stroke="#FFFFFF" StrokeThickness="1" StrokeDashArray="6 12" Opacity="0.5"/>
-            <Line X1="900" Y1="0" X2="1900" Y2="1000" Stroke="#FFFFFF" StrokeThickness="1" StrokeDashArray="6 12" Opacity="0.5"/>
+        <!-- Atmospheric Mesh: Luminous Glow Orbs (Left, Right, Bottom-Left, Center) -->
+        <Canvas IsHitTestVisible="False">
+            <!-- Top-Center Ambient Glow Behind PGA -->
+            <Ellipse Width="650" Height="400" Canvas.Left="363" Canvas.Top="-50" Fill="#1E00E5FF" IsHitTestVisible="False">
+                <Ellipse.Effect>
+                    <BlurEffect Radius="140" RenderingBias="Performance"/>
+                </Ellipse.Effect>
+            </Ellipse>
+
+            <!-- Top-Right Atmospheric Glow Orb -->
+            <Ellipse x:Name="OrbRightShape" Width="700" Height="700" Canvas.Right="-200" Canvas.Top="-200" Fill="#1A00E5FF" IsHitTestVisible="False">
+                <Ellipse.Effect>
+                    <BlurEffect Radius="160" RenderingBias="Performance"/>
+                </Ellipse.Effect>
+            </Ellipse>
+
+            <!-- Bottom-Left Atmospheric Glow Orb -->
+            <Ellipse x:Name="OrbLeftShape" Width="700" Height="700" Canvas.Left="-220" Canvas.Bottom="-220" Fill="#1800B4D8" IsHitTestVisible="False">
+                <Ellipse.Effect>
+                    <BlurEffect Radius="160" RenderingBias="Performance"/>
+                </Ellipse.Effect>
+            </Ellipse>
+
+            <!-- Constellation Network Graphic (Left & Right Vectors) -->
+            <Canvas Canvas.Left="0" Canvas.Top="0" Width="400" Height="768" Opacity="0.32" IsHitTestVisible="False">
+                <Path Stroke="#00E5FF" StrokeThickness="0.8"
+                      Data="M-40,250 L120,380 L60,540 L160,620 L30,720 M120,380 L220,440 L160,620 M60,540 L-20,680 M220,440 L310,510"/>
+                <Ellipse Width="6" Height="6" Fill="#00E5FF" Canvas.Left="117" Canvas.Top="377"/>
+                <Ellipse Width="5" Height="5" Fill="#00E5FF" Canvas.Left="58" Canvas.Top="538"/>
+                <Ellipse Width="7" Height="7" Fill="#00E5FF" Canvas.Left="157" Canvas.Top="617"/>
+                <Ellipse Width="5" Height="5" Fill="#00E5FF" Canvas.Left="218" Canvas.Top="438"/>
+                <Ellipse Width="6" Height="6" Fill="#00E5FF" Canvas.Left="307" Canvas.Top="507"/>
+            </Canvas>
+
+            <Canvas Canvas.Right="0" Canvas.Top="0" Width="450" Height="768" Opacity="0.32" IsHitTestVisible="False">
+                <Path Stroke="#00E5FF" StrokeThickness="0.8"
+                      Data="M480,80 L350,160 L240,110 L160,240 L280,310 M350,160 L380,300 L280,310 M280,310 L390,440"/>
+                <Ellipse Width="6" Height="6" Fill="#00E5FF" Canvas.Left="347" Canvas.Top="157"/>
+                <Ellipse Width="5" Height="5" Fill="#00E5FF" Canvas.Left="238" Canvas.Top="108"/>
+                <Ellipse Width="6" Height="6" Fill="#00E5FF" Canvas.Left="157" Canvas.Top="237"/>
+                <Ellipse Width="7" Height="7" Fill="#00E5FF" Canvas.Left="277" Canvas.Top="307"/>
+                <Ellipse Width="5" Height="5" Fill="#00E5FF" Canvas.Left="377" Canvas.Top="297"/>
+                <Ellipse Width="6" Height="6" Fill="#00E5FF" Canvas.Left="387" Canvas.Top="437"/>
+            </Canvas>
         </Canvas>
 
-        <!-- Ambient Refractive Optical Glow Orbs -->
-        <Ellipse x:Name="OrbRightShape" Width="720" Height="720"
-                 Fill="#1C38BDF8"
-                 HorizontalAlignment="Right" VerticalAlignment="Top"
-                 Margin="0,-220,-220,0" IsHitTestVisible="False">
-            <Ellipse.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform x:Name="OrbRightScale" ScaleX="1" ScaleY="1"/>
-                    <TranslateTransform x:Name="OrbRightMove" X="0" Y="0"/>
-                </TransformGroup>
-            </Ellipse.RenderTransform>
-        </Ellipse>
-        <Ellipse x:Name="OrbLeftShape" Width="640" Height="640"
-                 Fill="#18A855F7"
-                 HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                 Margin="-180,0,0,-180" IsHitTestVisible="False">
-            <Ellipse.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform x:Name="OrbLeftScale" ScaleX="1" ScaleY="1"/>
-                    <TranslateTransform x:Name="OrbLeftMove" X="0" Y="0"/>
-                </TransformGroup>
-            </Ellipse.RenderTransform>
-        </Ellipse>
-        <Ellipse x:Name="HeroGlowOrb" Width="820" Height="820"
-                 Fill="#1A38BDF8"
-                 HorizontalAlignment="Center" VerticalAlignment="Center"
-                 IsHitTestVisible="False">
-            <Ellipse.RenderTransform>
-                <ScaleTransform x:Name="HeroGlowScale" ScaleX="1" ScaleY="1"/>
-            </Ellipse.RenderTransform>
-        </Ellipse>
-
-        <!-- Retained elements for code-behind API compatibility -->
+        <!-- Backward-compatibility hooks (Hidden, zero layout cost) -->
         <Rectangle x:Name="ConstellationRect" Visibility="Collapsed"/>
         <Ellipse x:Name="OrbitRingRotate" Visibility="Collapsed"/>
+        <Border x:Name="TopLeftBadge" Visibility="Collapsed"/>
+        <Border x:Name="TopCenterPill" Visibility="Collapsed"/>
+        <Border x:Name="TopRightBadge" Visibility="Collapsed"/>
 
-        <!-- ═══════════════════════════════════════════════════════════
-             POSTER — GLASS MURAL CHASSIS & SPECULAR BEVELS
-        ═══════════════════════════════════════════════════════════════ -->
-        <Grid x:Name="PosterHost" Margin="36,24">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <!-- Top Trust Badges -->
-                <RowDefinition Height="*"/>
-                <!-- Center Glass Mural Chassis -->
-                <RowDefinition Height="Auto"/>
-                <!-- Footer -->
-            </Grid.RowDefinitions>
+        <!-- ═══ MAIN HERO POSTER HOST ═══ -->
+        <Grid x:Name="PosterHost" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+            <StackPanel HorizontalAlignment="Center">
 
-            <!-- ── TOP TRUST BADGES ─────────────────────────────────── -->
-            <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                <!-- ── 1. CENTRAL FLOATING GLASS SHIELD & TILTED DOTTED ORBIT RING ── -->
+                <Grid HorizontalAlignment="Center" Margin="0,0,0,22">
+                    <!-- Tilted Dashed Orbit Ring Around Shield -->
+                    <Path Stroke="#00E5FF" StrokeThickness="1.5" StrokeDashArray="4 4" Opacity="0.55"
+                          HorizontalAlignment="Center" VerticalAlignment="Center" Margin="-60,-15,-60,-15"
+                          Data="M 0,35 A 130,42 0 1 1 260,35 A 130,42 0 1 1 0,35">
+                        <Path.RenderTransform>
+                            <RotateTransform Angle="-14" CenterX="130" CenterY="35"/>
+                        </Path.RenderTransform>
+                    </Path>
 
-                <!-- Left: UAE Manufacturing Standard -->
-                <Border x:Name="TopLeftBadge"
-                        Background="#1E0F172A"
-                        BorderBrush="{StaticResource SpecularBevelBorder}"
-                        BorderThickness="1" CornerRadius="8"
-                        Padding="14,7" HorizontalAlignment="Left" Opacity="0">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="&#xE774;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="12" Foreground="{StaticResource AccentCyan}" Margin="0,0,8,0"/>
-                        <TextBlock Text="{DynamicResource Splash.MadeInIndia}" FontSize="11" FontWeight="Bold" Foreground="#F8FAFC"/>
-                    </StackPanel>
-                </Border>
+                    <!-- Central Floating Glass Shield -->
+                    <Border x:Name="LogoBorder"
+                            Width="116" Height="116"
+                            CornerRadius="24"
+                            Background="#26102138"
+                            BorderBrush="{StaticResource SpecularBevelBorder}"
+                            BorderThickness="1.6"
+                            Effect="{StaticResource NeonCyanGlow}"
+                            Opacity="0">
+                        <Border.RenderTransform>
+                            <ScaleTransform x:Name="LogoScale" ScaleX="0.92" ScaleY="0.92" CenterX="58" CenterY="58"/>
+                        </Border.RenderTransform>
+                        <Grid>
+                            <!-- Top Specular Highlight Sheen -->
+                            <Border CornerRadius="24" Background="{StaticResource TileSpecularSheen}" IsHitTestVisible="False"/>
 
-                <!-- Center: Enterprise Edition -->
-                <Border x:Name="TopCenterPill"
-                        Background="#1E0F172A"
-                        BorderBrush="{StaticResource SpecularBevelBorder}"
-                        BorderThickness="1" CornerRadius="8"
-                        Padding="18,7" HorizontalAlignment="Center" Opacity="0">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="&#xE735;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="12" Foreground="{StaticResource AccentCyan}" Margin="0,0,8,0"/>
-                        <TextBlock FontSize="11" FontWeight="Bold" Foreground="{StaticResource AccentCyan}">
-                            <Run Text="{DynamicResource Splash.Enterprise}"/>
-                            <Run Text=" · "/>
-                            <Run Text="{DynamicResource Splash.V}"/>
-                            <Run Text="{x:Static updates:AppInfo.Version}"/>
-                        </TextBlock>
-                    </StackPanel>
-                </Border>
-
-                <!-- Right: Offline Secure Vault -->
-                <Border x:Name="TopRightBadge"
-                        Background="#1E0F172A"
-                        BorderBrush="{StaticResource SpecularBevelBorder}"
-                        BorderThickness="1" CornerRadius="8"
-                        Padding="14,7" HorizontalAlignment="Right" Opacity="0">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="&#xE72E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="12" Foreground="{StaticResource AccentEmerald}" Margin="0,0,8,0"/>
-                        <TextBlock Text="{DynamicResource Splash.OfflineSecure}" FontSize="11" FontWeight="Bold" Foreground="#F8FAFC"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
-
-            <!-- ── CENTER: ARCHITECTURAL GLASS MURAL CHASSIS ────────── -->
-            <Border Grid.Row="1"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    MaxWidth="1040"
-                    Background="{StaticResource ChassisGlassFill}"
-                    BorderBrush="{StaticResource SpecularBevelBorder}"
-                    BorderThickness="1.5"
-                    CornerRadius="{StaticResource GlassPanelCorner}"
-                    Effect="{StaticResource ChassisMuralShadow}"
-                    Padding="44,36">
-                <StackPanel>
-
-                    <!-- Top Glass Header: Floating Shield & Metallic Wordmark -->
-                    <Grid Margin="0,0,0,24">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Central Floating Glass Shield with Glowing PGA Monogram -->
-                        <Border x:Name="LogoBorder" Grid.Column="0"
-                                Width="96" Height="96"
-                                Background="#2A0F172A"
-                                BorderBrush="{StaticResource SpecularBevelBorder}"
-                                BorderThickness="2"
-                                CornerRadius="20"
-                                Effect="{StaticResource ShieldNeonGlow}"
-                                VerticalAlignment="Center"
-                                Opacity="0">
-                            <Border.RenderTransform>
-                                <ScaleTransform x:Name="LogoScale" ScaleX="0.92" ScaleY="0.92" CenterX="48" CenterY="48"/>
-                            </Border.RenderTransform>
-                            <Grid>
-                                <!-- Top-edge specular highlight -->
-                                <Border CornerRadius="20" Background="{StaticResource TileSpecularSheen}"/>
-
-                                <!-- Vector PGA Hexagonal Architectural Prism -->
-                                <Viewbox Width="56" Height="56" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Grid Width="72" Height="72">
-                                        <Path Stroke="{StaticResource AccentCyan}"
-                                              StrokeThickness="3.5"
-                                              StrokeLineJoin="Round"
-                                              Data="M20,5 L52,5 L68,36 L52,67 L20,67 L4,36 Z"/>
-                                        <TextBlock Text="PGA"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"
-                                                   FontSize="20" FontWeight="Bold"
-                                                   Foreground="#FFFFFF"/>
-                                    </Grid>
-                                </Viewbox>
+                            <!-- Inner Cyan Hexagonal Badge with Dark Navy PGA Monogram -->
+                            <Grid Width="74" Height="78" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Polygon Points="37,0 74,21 74,57 37,78 0,57 0,21"
+                                         Fill="#00E5FF"
+                                         Stroke="{StaticResource SpecularBevelBorder}"
+                                         StrokeThickness="1"/>
+                                <TextBlock Text="PGA"
+                                           FontSize="22" FontWeight="Black"
+                                           Foreground="#061224"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Margin="0,1,0,0"/>
                             </Grid>
-                        </Border>
+                        </Grid>
+                    </Border>
+                </Grid>
 
-                        <!-- Wordmark & Architectural Subtitle -->
-                        <StackPanel Grid.Column="1" Margin="24,0,0,0" VerticalAlignment="Center">
-                            <TextBlock x:Name="AppNameText"
-                                       FontSize="34" FontWeight="Bold"
-                                       Opacity="0">
-                                <TextBlock.RenderTransform>
-                                    <TranslateTransform x:Name="AppNameTranslate" Y="12"/>
-                                </TextBlock.RenderTransform>
-                                <Run Text="ProGlass " Foreground="{StaticResource TextPrimary}"/>
-                                <Run Text="Automation" Foreground="{StaticResource AccentCyan}"/>
-                            </TextBlock>
+                <!-- ── 2. WORDMARK & TAGLINE ── -->
+                <StackPanel HorizontalAlignment="Center" Margin="0,0,0,28">
+                    <!-- High-Contrast Title: ProGlass (White) + Automation (Electric Cyan) -->
+                    <TextBlock x:Name="AppNameText"
+                               FontSize="38" FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Opacity="0">
+                        <TextBlock.RenderTransform>
+                            <TranslateTransform x:Name="AppNameTranslate" Y="12"/>
+                        </TextBlock.RenderTransform>
+                        <Run Text="ProGlass " Foreground="{StaticResource TextPrimary}"/>
+                        <Run Text="Automation" Foreground="{StaticResource AccentCyan}"/>
+                    </TextBlock>
 
-                            <TextBlock x:Name="TaglineText"
-                                       Text="{DynamicResource Splash.MadeInIndiaDesc}"
-                                       FontSize="13" FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextSecondary}"
-                                       Margin="0,4,0,0"
-                                       Opacity="0"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- Beveled Glass Divider -->
-                    <Border Height="1" Background="{StaticResource SpecularBevelBorder}" Margin="0,0,0,22"/>
-
-                    <!-- ═══ 6-COLUMN GRID OF FROSTED GLASS TILES (Mural Chassis Layout) ═══ -->
-                    <ItemsControl x:Name="FeaturePanel"
-                                  ItemTemplate="{StaticResource MuralModuleTileTemplate}"
-                                  HorizontalAlignment="Center"
-                                  Opacity="0"
-                                  Margin="0,0,0,24">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <UniformGrid Columns="6"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                    </ItemsControl>
-
-                    <!-- Luminous Hairline Progress Bar & Diagnostic Telemetry Strip -->
-                    <Grid Margin="0,0,0,10">
+                    <!-- Subtitle with Flanking Thin Accent Lines: ── MODERN GLASS FABRICATION ERP ── -->
+                    <Grid HorizontalAlignment="Center" Margin="0,8,0,0">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-
-                        <StackPanel x:Name="LoadingStrip" Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock x:Name="LoadingText"
-                                       Text="{DynamicResource Splash.Starting}"
-                                       FontSize="12" FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextSecondary}"/>
-                            <TextBlock x:Name="LoadingDots"
-                                       Text=""
-                                       FontSize="12" FontWeight="Bold"
-                                       Foreground="{StaticResource AccentCyan}"/>
-                        </StackPanel>
-
-                        <TextBlock Grid.Column="1"
-                                   Text="PRECISION ARCHITECTURE · 100% OPERATIONAL"
-                                   FontSize="10" FontWeight="Bold"
-                                   Foreground="{StaticResource AccentCyan}"
+                        <Rectangle Grid.Column="0" Width="46" Height="1" Fill="#475569" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                        <TextBlock x:Name="TaglineText" Grid.Column="1"
+                                   Text="MODERN GLASS FABRICATION ERP"
+                                   FontSize="12" FontWeight="SemiBold"
+                                   Foreground="#94A3B8"
+                                   Opacity="0"
                                    VerticalAlignment="Center"/>
+                        <Rectangle Grid.Column="2" Width="46" Height="1" Fill="#475569" VerticalAlignment="Center" Margin="14,0,0,0"/>
                     </Grid>
-
-                    <Grid x:Name="ProgressTrack" Height="3.5" HorizontalAlignment="Stretch">
-                        <Border Height="3.5" CornerRadius="2" Background="#261E293B"/>
-                        <Border x:Name="ProgressFill" Height="3.5" Width="0" HorizontalAlignment="Left" CornerRadius="2" Background="{StaticResource LuminousProgressGradient}"/>
-                    </Grid>
-
                 </StackPanel>
-            </Border>
 
-            <!-- ── FOOTER: Slim Translucent Beveled Badge ────────────── -->
-            <Border Grid.Row="2"
-                    HorizontalAlignment="Center"
-                    Padding="18,7"
-                    CornerRadius="8"
-                    Background="#1E0F172A"
-                    BorderBrush="{StaticResource SpecularBevelBorder}"
-                    BorderThickness="1">
-                <TextBlock FontSize="11" Foreground="{StaticResource TextMuted}" HorizontalAlignment="Center">
-                    <Run Text="{DynamicResource Splash.Copyright}"/>
-                    <Run Text=" · "/>
-                    <Run Text="{DynamicResource Splash.V}"/>
-                    <Run Text="{x:Static updates:AppInfo.Version}"/>
-                    <Run Text=" · Architectural Glass Production &amp; Nesting Engine"/>
-                </TextBlock>
-            </Border>
+                <!-- ── 3. 16 FROSTED GLASS MODULE CARDS (8 COLUMNS × 2 ROWS) ── -->
+                <ItemsControl x:Name="FeaturePanel"
+                              ItemTemplate="{StaticResource MockupModuleTileTemplate}"
+                              HorizontalAlignment="Center"
+                              Opacity="0"
+                              Margin="0,0,0,32">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="8"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+
+                <!-- ── 4. GLOWING CYAN NEON PILL PROGRESS BAR ── -->
+                <Grid Width="640" Height="20" HorizontalAlignment="Center" Margin="0,0,0,12">
+                    <!-- Dark Translucent Track -->
+                    <Border Height="20" CornerRadius="10"
+                            Background="#18152538"
+                            BorderBrush="#2800E5FF"
+                            BorderThickness="1"/>
+
+                    <!-- Luminous Neon Cyan Fill Pill -->
+                    <Grid x:Name="ProgressTrack" Height="20" HorizontalAlignment="Stretch">
+                        <Border x:Name="ProgressFill"
+                                Height="20" Width="0"
+                                HorizontalAlignment="Left"
+                                CornerRadius="10"
+                                Background="{StaticResource LuminousProgressGradient}"
+                                Effect="{StaticResource PillBarGlow}"/>
+                    </Grid>
+                </Grid>
+
+                <!-- ── 5. NON-OVERLAPPING STATUS & TELEMETRY FOOTER ── -->
+                <StackPanel x:Name="LoadingStrip" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock x:Name="LoadingText"
+                               Text="{DynamicResource Splash.Starting}"
+                               FontSize="12" FontWeight="SemiBold"
+                               Foreground="#94A3B8"/>
+                    <TextBlock x:Name="LoadingDots"
+                               Text=""
+                               FontSize="12" FontWeight="Bold"
+                               Foreground="{StaticResource AccentCyan}"/>
+                </StackPanel>
+
+            </StackPanel>
         </Grid>
 
-        <!-- ═══ LOGIN GATE ═══ -->
+        <!-- ═══ MODAL LOGIN & SETUP GATES ═══ -->
         <Grid x:Name="LoginHost" Visibility="Collapsed" Opacity="0" Panel.ZIndex="11">
             <login:LoginPanel x:Name="LoginGate"/>
         </Grid>
 
-        <!-- ═══ FIRST-RUN SETUP GATE ═══ -->
         <Grid x:Name="SetupHost" Visibility="Collapsed" Opacity="0" Panel.ZIndex="12">
             <login:FirstRunSetupPanel x:Name="SetupGate"/>
         </Grid>
 
-        <!-- ═══ TERMS GATE (UAE Legal Terms Intact) ═══ -->
+        <!-- ═══ TERMS GATE ═══ -->
         <Grid x:Name="TermsPanel" Background="{StaticResource GlassStageGradient}" Visibility="Collapsed" Opacity="0" Panel.ZIndex="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -430,7 +356,7 @@
             <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,46,0,0">
                 <TextBlock Text="{DynamicResource Splash.TermsTitle}" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{StaticResource TextPrimary}">
                     <TextBlock.Effect>
-                        <DropShadowEffect Color="#38BDF8" BlurRadius="18" ShadowDepth="0" Opacity="0.35"/>
+                        <DropShadowEffect Color="#00E5FF" BlurRadius="18" ShadowDepth="0" Opacity="0.35"/>
                     </TextBlock.Effect>
                 </TextBlock>
                 <TextBlock Text="{DynamicResource Splash.UaeIntro}" FontSize="14" HorizontalAlignment="Center" Margin="0,6,0,0" Foreground="{StaticResource TextSecondary}"/>
