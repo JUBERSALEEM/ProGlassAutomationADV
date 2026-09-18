@@ -130,9 +130,32 @@
     },
     "phase_7": {
       "status": "IMPLEMENTED",
-      "commit": "pending",
+      "commit": "3b1125d",
       "delta": "theme/layout separation contract added to PERSONAL_UI_ARCHITECTURE.md; verified: 0 view forks, 0 layout keys in family publishers (120 keys audited), 0 theme-branching business views; no XAML changes needed",
       "gate": "verification phase; validator unchanged 321 files 0E/22W/2N"
+    },
+    "phase_9": {
+      "status": "IMPLEMENTED",
+      "commit": "pending",
+      "delta": "all 321 XAML classified: 17 MODERNIZED / 291 COMPLIANT / 12 EXEMPT / 1 BLOCKED; FILE_CLASSIFICATION.{md,json} written",
+      "artifact": "docs/ui-audit/FILE_CLASSIFICATION.{md,json}"
     }
+  },
+  "final_status": {
+    "xaml_total": 321,
+    "modernized": 17,
+    "compliant": 291,
+    "exempt": 12,
+    "blocked": 1,
+    "dynamic_resource_markers": 17437,
+    "static_resource_markers": 8630,
+    "hardcoded_theme_values_views": "53 literals (15 FontSize + 38 CornerRadius) \u2014 ALL documented structural keeps; 9 real hex (Splash material recipe)",
+    "validation": "321 files 0 ERROR / 22 WARN / 2 NOTE (legacy-only findings, untouched per protocol)",
+    "build": "NOT RUN \u2014 .NET SDK unavailable",
+    "tests": "NOT RUN \u2014 .NET SDK unavailable",
+    "theme_runtime": "NOT VERIFIED (static verification only)",
+    "density_runtime": "NOT VERIFIED (static verification only)",
+    "dpi": "runtime NOT VERIFIED; static window-floor + scaling-mechanism verification PASS",
+    "personal_ui_architecture": "verified (0 forks, 0 layout keys in families, 0 theme-branching views)"
   }
 }

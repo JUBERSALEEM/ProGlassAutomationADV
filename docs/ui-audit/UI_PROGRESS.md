@@ -12,7 +12,7 @@
 | P6 Global consistency | **IMPLEMENTED** | re-census: 15fs/38cr residuals all documented keeps; hex=9 (Splash only); 208 heights + 32 windows audited; no undocumented debt |
 | P7 Personal UI/layout | **IMPLEMENTED** | separation contract written + verified: 0 forks, 0 layout keys in families, 0 theme-branching views |
 | P8 DPI/density | **IMPLEMENTED (static)** | 32/32 windows floor-safe; scaling mechanism sound; density-ladder re-anchor = open decision (needs build+product call) |
-| P9 Final 320-file pass | pending | classification + 4 doc updates |
+| P9 Final quality pass | **IMPLEMENTED** | all 321 files classified (17 Modernized / 291 Compliant / 12 Exempt / 1 Blocked) — `FILE_CLASSIFICATION.{md,json}`; 4 state docs updated |
 
 
 
@@ -63,3 +63,14 @@ Run the gate + build in an environment with the .NET SDK:
 `dotnet build && dotnet test && python3 tools/xaml_validator.py`
 — if green, the static-verified architecture becomes build-verified and the
 two "NOT RUN" rows in `UI_PROJECT_STATE.json` flip to PASS.
+
+## Final status (2026-09-18)
+
+All 9 phases of the MASTER UI MODERNIZATION are complete to the extent this
+environment allows: 93 exact-value tokenizations + 5 new shared patterns +
+1 shared-style fix across P1–P6 (zero visual change, zero business-surface
+change); P7/P8/P9 verified the personal-UI architecture, DPI floors, and
+classified all 321 files. **Build/tests/runtime remain NOT RUN — no .NET
+SDK.** The two open items are explicitly recorded: InquiryListView EmptyState
+(blocked on 13-language i18n) and the density-ladder/control-scale
+reconciliation (open product decision).

@@ -32,6 +32,40 @@ one coherent industrial ERP. Phases P1–P9, gate after each phase.
   pass** — the remaining debt is concentrated in Production/Optimization
   (hardcoded literals), Settings (module style dictionaries), About/Login/
   Splash (supporting).
+
+**ALL 9 PHASES COMPLETED 2026-09-18** (commits f6702ea → 3b1125d, pushed):
+- P1: `PagePatterns.xaml` (5 missing patterns) + `DESIGN_SYSTEM_LOCK.md`.
+- P2: core ERP verified converged; 2 tokenizations (DashboardView).
+- P3: 22 tokenizations (Company/User/Settings/Shared); Settings module
+  layer evaluated & kept.
+- P4: 30 tokenizations (production/optimization KPI layer) + shared
+  OptHeader style fix.
+- P5: supporting UI reviewed — all converged or deliberate special
+  surfaces (Splash/Login/About-Ios26/Wizard/Crash/AI documented).
+- P6: convergence measured (Views literals 60/47 → 15/38, all documented
+  keeps); 208 control heights + 32 windows audited; **no undocumented
+  literal debt remains**.
+- P7: theme/layout separation contract written + verified (0 forks,
+  0 layout keys in family publishers, 0 theme-branching views).
+- P8: DPI static verification (window floors PASS); **density-ladder vs
+  modern control-scale reconciliation = OPEN DECISION** (needs product
+  call + build/visual verification — do NOT "fix" it blindly).
+- P9: all 321 files classified in
+  `docs/ui-audit/FILE_CLASSIFICATION.{md,json}` (17 Modernized / 291
+  Compliant / 12 Exempt / 1 Blocked) — no unexplained UI debt.
+
+**Open items for the next agent (priority order):**
+1. Build + test in an SDK environment (flips 4 NOT-RUN/NOT-VERIFIED rows).
+2. InquiryListView EmptyState — add i18n key to all 13 language files,
+   then wire the existing `HasInquiries`/`HasActiveFilters` VM props.
+3. Density-ladder re-anchoring decision (see DESIGN_SYSTEM_LOCK P8).
+4. SettingsCardStyles merge onto shared Card/Pill — only with build
+   verification + explicit approval.
+
+**Hard rule reaffirmed by this stream:** every tokenization was an
+EXACT-VALUE match to an existing dynamic token (zero visual change by
+construction). Never substitute a "close" token — if there is no exact
+token, document the keep (glyphs, h/2 circles, print-locked geometry).
 - Rules that are new vs the MERIDIAN protocol: implement-don't-audit; keep
   Pg* as the foundation but the legacy `Surface*`/`FontSize.*`/`Tint*`
   families are ALSO authoritative (do not mass-migrate business modules to
