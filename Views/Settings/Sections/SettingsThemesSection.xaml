@@ -487,7 +487,7 @@
                         <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                    Text="Wallpapers and background scenes are managed centrally in Appearance to keep your workspace streamlined."/>
                         <Button Style="{StaticResource RowOutlinedButton}" Height="30" Padding="14,0" HorizontalAlignment="Left" Margin="0,8,0,0"
-                                Command="{Binding DataContext.SwitchSettingsPageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="Appearance"
+                                Command="{Binding SwitchSettingsPageCommand}" CommandParameter="Appearance"
                                 Content="Open Wallpapers in Appearance"/>
                     </StackPanel>
                 </Border>

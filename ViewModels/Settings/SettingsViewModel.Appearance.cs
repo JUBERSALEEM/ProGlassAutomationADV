@@ -243,7 +243,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 if (_config?.Appearance == null) return;
                 if (_config.Appearance.SplashStyle == value) return;
                 _config.Appearance.SplashStyle = value;
-                ScheduleDebouncedSave(auditTheme: true);
+                ScheduleDebouncedSave();
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(SelectedSplashStyleName));
                 OnPropertyChanged(nameof(SelectedSplashStyleDescription));
