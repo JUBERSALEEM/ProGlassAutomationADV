@@ -482,9 +482,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     // evaluates up to 147 complete plans and keeps one, so without
                     // this a better sheet count is unexplainable — and an
                     // unexplainable improvement is one nobody trusts.
-                    if (string.Equals(result.Strategy, GuillotinePacker.SmartStrategyLabel,
-                            StringComparison.Ordinal) && !smartWins.Contains(composition))
-                        smartWins.Add(composition);
+                    string winningStrat = !string.IsNullOrWhiteSpace(result.Strategy)
+                        ? result.Strategy
+                        : (stage == "OPTIMIZE" ? "MULTI-START" : "QUICK SHELF");
+                    if (!smartWins.Contains($"{composition} [{winningStrat}]"))
+                        smartWins.Add($"{composition} [{winningStrat}]");
 
                     double glass = result.Sheets.Sum(s => s.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm));
                     double stockArea = result.Sheets.Sum(s => (long)s.Stock.WidthMm * s.Stock.HeightMm);
@@ -526,8 +528,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (smartWins.Count > 0)
                 {
                     string smartNote = string.Format(CultureInfo.InvariantCulture,
-                        "Smart placement won {0} of {1} cutting group(s): {2}.",
-                        smartWins.Count, runs.Count, string.Join(", ", smartWins));
+                        "Strategy breakdown: {0}.", string.Join(", ", smartWins));
                     RunMessage = string.IsNullOrWhiteSpace(RunMessage)
                         ? smartNote
                         : RunMessage + " " + smartNote;

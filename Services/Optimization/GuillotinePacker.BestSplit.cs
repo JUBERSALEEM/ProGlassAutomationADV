@@ -179,7 +179,7 @@ namespace ProGlassAutomation.Services.Optimization
 
             ConsolidateAll(sheets, margins, rotation, SplitMode.HorizontalFirst,
                   consolidationSweeps, cancellationToken: cancellationToken);
-            return FinishFromSheets(sheets, unplaced, rotation);
+            return FinishFromSheets(sheets, unplaced, rotation, "BEST-SPLIT");
         }
 
         /// <summary>
@@ -301,11 +301,11 @@ namespace ProGlassAutomation.Services.Optimization
             }
 
             if (winner == null)
-                return FinishFromSheets(new List<SheetState>(), start, rotation);
+                return FinishFromSheets(new List<SheetState>(), start, rotation, "BEST-SPLIT-BEAM");
 
             ConsolidateAll(winner, margins, rotation, SplitMode.HorizontalFirst,
                 cancellationToken: cancellationToken);
-            return FinishFromSheets(winner, new List<CutPiece>(), rotation);
+            return FinishFromSheets(winner, new List<CutPiece>(), rotation, "BEST-SPLIT-BEAM");
         }
     }
 }

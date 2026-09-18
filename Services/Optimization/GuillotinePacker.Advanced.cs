@@ -15,9 +15,10 @@ namespace ProGlassAutomation.Services.Optimization
     public static partial class GuillotinePacker
     {
         private static OptimizationResult FinishFromSheets(
-            List<SheetState> sheets, List<CutPiece> unplaced, RotationPolicy rotation)
+            List<SheetState> sheets, List<CutPiece> unplaced, RotationPolicy rotation,
+            string strategy = "")
         {
-            var result = new OptimizationResult { Rotation = rotation };
+            var result = new OptimizationResult { Rotation = rotation, Strategy = strategy };
             foreach (var p in unplaced) result.Unplaced.Add(p);
             SortSheetsFullestFirst(sheets);
             for (int i = 0; i < sheets.Count; i++)
@@ -136,7 +137,7 @@ namespace ProGlassAutomation.Services.Optimization
 
             ConsolidateAll(sheets, margins, rotation, split, consolidationSweeps,
                 cancellationToken: cancellationToken);
-            return FinishFromSheets(sheets, unplaced, rotation);
+            return FinishFromSheets(sheets, unplaced, rotation, "SHEET-FILL");
         }
 
         /// <summary>
@@ -210,7 +211,7 @@ namespace ProGlassAutomation.Services.Optimization
 
             ConsolidateAll(sheets, margins, rotation, split, consolidationSweeps,
                 cancellationToken: cancellationToken);
-            return FinishFromSheets(sheets, leftover, rotation);
+            return FinishFromSheets(sheets, leftover, rotation, "WALL-SEED");
         }
 
         /// <summary>
@@ -243,7 +244,7 @@ namespace ProGlassAutomation.Services.Optimization
             // Rebuild guillotine free-rects is not required; MaxRects
             // placements live on Layout.Pieces. Consolidation uses
             // TryPlace (guillotine) so skip it here — just sort.
-            return FinishFromSheets(sheets, unplaced, rotation);
+            return FinishFromSheets(sheets, unplaced, rotation, "MAXRECTS-BSSF");
         }
 
         private static bool MaxRectsPlace(

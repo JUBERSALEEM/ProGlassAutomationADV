@@ -504,6 +504,7 @@ namespace ProGlassAutomation.Services.Optimization
                 cancellationToken: cancellationToken, ctx: ctx);
             SortSheetsFullestFirst(sheets);
 
+            result.Strategy = $"GRID ({split})";
             for (int i = 0; i < sheets.Count; i++)
                 result.Sheets.Add(sheets[i].Layout);
             for (int i = 0; i < result.Sheets.Count; i++)
