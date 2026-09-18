@@ -143,6 +143,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             public string Composition { get; set; } = string.Empty;
             public string Thickness { get; set; } = string.Empty;
+            public string StockSize { get; set; } = string.Empty;
             public string PieceCount { get; set; } = string.Empty;
             public string Sheets { get; set; } = string.Empty;
             public string Utilization { get; set; } = string.Empty;
@@ -650,14 +651,19 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     unplacedSeen - unplacedListed)
                 : string.Empty;
 
-            // Per-cutting-group breakdown (composition → sheets / util / waste).
+            // Per-cutting-group breakdown (composition → sheets / util / waste / stock size).
             GroupResults.Clear();
             foreach (var r in runs)
             {
+                string stockSummary = string.Join(", ", r.Result.Sheets
+                    .Select(s => string.Format(CultureInfo.InvariantCulture, "{0}×{1}", s.Stock.WidthMm, s.Stock.HeightMm))
+                    .Distinct());
+
                 GroupResults.Add(new CuttingGroupResultVm
                 {
                     Composition = r.Composition,
                     Thickness = r.Thickness,
+                    StockSize = string.IsNullOrWhiteSpace(stockSummary) ? "—" : stockSummary,
                     PieceCount = r.PieceCount.ToString(CultureInfo.InvariantCulture),
                     Sheets = r.SheetsLabel,
                     Utilization = r.UtilizationPct.ToString("0.0", CultureInfo.InvariantCulture) + "%",

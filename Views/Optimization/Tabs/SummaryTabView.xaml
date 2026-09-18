@@ -110,11 +110,12 @@
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="100"/>
+                                                            <ColumnDefinition Width="80"/>
+                                                            <ColumnDefinition Width="80"/>
                                                             <ColumnDefinition Width="90"/>
                                                             <ColumnDefinition Width="90"/>
-                                                            <ColumnDefinition Width="90"/>
-                                                            <ColumnDefinition Width="90"/>
-                                                            <ColumnDefinition Width="90"/>
+                                                            <ColumnDefinition Width="80"/>
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel Grid.Column="0" Margin="0,0,10,0">
                                                             <TextBlock Text="{Binding Composition}" FontSize="{DynamicResource FontSize.Body}"
@@ -124,26 +125,31 @@
                                                                        Visibility="{Binding HasNote, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="1">
+                                                            <TextBlock Text="STOCK USED"/>
+                                                            <TextBlock Text="{Binding StockSize}" FontSize="{DynamicResource FontSize.Body}"
+                                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="2">
                                                             <TextBlock Text="PIECES"/>
                                                             <TextBlock Text="{Binding PieceCount}" FontSize="{DynamicResource FontSize.Body}"
                                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                         </StackPanel>
-                                                        <StackPanel Grid.Column="2">
+                                                        <StackPanel Grid.Column="3">
                                                             <TextBlock Text="SHEETS"/>
                                                             <TextBlock Text="{Binding Sheets}" FontSize="{DynamicResource FontSize.Body}"
                                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                         </StackPanel>
-                                                        <StackPanel Grid.Column="3">
+                                                        <StackPanel Grid.Column="4">
                                                             <TextBlock Text="UTILIZATION"/>
                                                             <TextBlock Text="{Binding Utilization}" FontSize="{DynamicResource FontSize.Body}"
                                                                        Foreground="{DynamicResource SuccessBrush}"/>
                                                         </StackPanel>
-                                                        <StackPanel Grid.Column="4">
+                                                        <StackPanel Grid.Column="5">
                                                             <TextBlock Text="OFFCUT"/>
                                                             <TextBlock Text="{Binding Waste}" FontSize="{DynamicResource FontSize.Body}"
                                                                        Foreground="{DynamicResource TextTertiaryBrush}"/>
                                                         </StackPanel>
-                                                        <StackPanel Grid.Column="5">
+                                                        <StackPanel Grid.Column="6">
                                                             <TextBlock Text="UNPLACED"/>
                                                             <TextBlock Text="{Binding Unplaced}" FontSize="{DynamicResource FontSize.Body}"
                                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>

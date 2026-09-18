@@ -598,21 +598,23 @@
                                     <StackPanel>
                                         <Grid Margin="0,0,0,6">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="1.6*"/>
-                                                <ColumnDefinition Width="0.7*"/>
-                                                <ColumnDefinition Width="0.7*"/>
-                                                <ColumnDefinition Width="0.7*"/>
-                                                <ColumnDefinition Width="0.9*"/>
-                                                <ColumnDefinition Width="0.9*"/>
+                                                <ColumnDefinition Width="1.5*"/>
+                                                <ColumnDefinition Width="0.6*"/>
+                                                <ColumnDefinition Width="1.1*"/>
+                                                <ColumnDefinition Width="0.6*"/>
+                                                <ColumnDefinition Width="0.6*"/>
                                                 <ColumnDefinition Width="0.8*"/>
+                                                <ColumnDefinition Width="0.8*"/>
+                                                <ColumnDefinition Width="0.7*"/>
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="0" Text="CUTTING GROUP" Style="{StaticResource OptHeader}"/>
                                             <TextBlock Grid.Column="1" Text="THK" Style="{StaticResource OptHeader}"/>
-                                            <TextBlock Grid.Column="2" Text="PIECES" Style="{StaticResource OptHeader}"/>
-                                            <TextBlock Grid.Column="3" Text="SHEETS" Style="{StaticResource OptHeader}"/>
-                                            <TextBlock Grid.Column="4" Text="UTILIZATION" Style="{StaticResource OptHeader}"/>
-                                            <TextBlock Grid.Column="5" Text="WASTE" Style="{StaticResource OptHeader}"/>
-                                            <TextBlock Grid.Column="6" Text="UNPLACED" Style="{StaticResource OptHeader}"/>
+                                            <TextBlock Grid.Column="2" Text="STOCK USED" Style="{StaticResource OptHeader}"/>
+                                            <TextBlock Grid.Column="3" Text="PIECES" Style="{StaticResource OptHeader}"/>
+                                            <TextBlock Grid.Column="4" Text="SHEETS" Style="{StaticResource OptHeader}"/>
+                                            <TextBlock Grid.Column="5" Text="UTILIZATION" Style="{StaticResource OptHeader}"/>
+                                            <TextBlock Grid.Column="6" Text="WASTE" Style="{StaticResource OptHeader}"/>
+                                            <TextBlock Grid.Column="7" Text="UNPLACED" Style="{StaticResource OptHeader}"/>
                                         </Grid>
                                         <ItemsControl ItemsSource="{Binding GroupResults}">
                                             <ItemsControl.ItemTemplate>
@@ -620,21 +622,23 @@
                                                     <StackPanel>
                                                         <Grid Margin="0,3">
                                                             <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="1.6*"/>
-                                                                <ColumnDefinition Width="0.7*"/>
-                                                                <ColumnDefinition Width="0.7*"/>
-                                                                <ColumnDefinition Width="0.7*"/>
-                                                                <ColumnDefinition Width="0.9*"/>
-                                                                <ColumnDefinition Width="0.9*"/>
+                                                                <ColumnDefinition Width="1.5*"/>
+                                                                <ColumnDefinition Width="0.6*"/>
+                                                                <ColumnDefinition Width="1.1*"/>
+                                                                <ColumnDefinition Width="0.6*"/>
+                                                                <ColumnDefinition Width="0.6*"/>
                                                                 <ColumnDefinition Width="0.8*"/>
+                                                                <ColumnDefinition Width="0.8*"/>
+                                                                <ColumnDefinition Width="0.7*"/>
                                                             </Grid.ColumnDefinitions>
-                                                            <TextBlock Grid.Column="0" Text="{Binding Composition}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                                            <TextBlock Grid.Column="0" Text="{Binding Composition}" Style="{StaticResource LineItemsReadonlyStyle}" HorizontalAlignment="Left" TextTrimming="CharacterEllipsis"/>
                                                             <TextBlock Grid.Column="1" Text="{Binding Thickness}" Style="{StaticResource LineItemsReadonlyStyle}"/>
-                                                            <TextBlock Grid.Column="2" Text="{Binding PieceCount}" Style="{StaticResource LineItemsReadonlyStyle}"/>
-                                                            <TextBlock Grid.Column="3" Text="{Binding Sheets}" Style="{StaticResource LineItemsReadonlyStyle}"/>
-                                                            <TextBlock Grid.Column="4" Text="{Binding Utilization}" Style="{StaticResource LineItemsReadonlyStyle}"/>
-                                                            <TextBlock Grid.Column="5" Text="{Binding Waste}" Style="{StaticResource LineItemsReadonlyStyle}"/>
-                                                            <TextBlock Grid.Column="6" Text="{Binding Unplaced}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                                            <TextBlock Grid.Column="2" Text="{Binding StockSize}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                                            <TextBlock Grid.Column="3" Text="{Binding PieceCount}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                                            <TextBlock Grid.Column="4" Text="{Binding Sheets}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                                            <TextBlock Grid.Column="5" Text="{Binding Utilization}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                                            <TextBlock Grid.Column="6" Text="{Binding Waste}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                                            <TextBlock Grid.Column="7" Text="{Binding Unplaced}" Style="{StaticResource LineItemsReadonlyStyle}"/>
                                                         </Grid>
                                                         <TextBlock Text="{Binding Note}"
                                                                    FontSize="{DynamicResource FontSize.BodySmall}"

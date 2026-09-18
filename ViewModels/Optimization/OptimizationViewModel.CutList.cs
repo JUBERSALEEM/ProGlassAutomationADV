@@ -137,6 +137,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 group.SelectedGlassType = CutListGlassTypeOptions[0];
             }
 
+            // Ensure specifications repository is wired from ServiceProvider so the dropdown is populated
+            if (group.Specifications == null && App.ServiceProvider != null)
+            {
+                group.Specifications = App.ServiceProvider.GetService(
+                    typeof(Services.ProformaInvoice.SpecificationsRepository.ISpecificationsRepository))
+                    as Services.ProformaInvoice.SpecificationsRepository.ISpecificationsRepository;
+            }
+
             return group;
         }
 
