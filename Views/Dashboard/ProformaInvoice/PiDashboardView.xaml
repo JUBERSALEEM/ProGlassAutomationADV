@@ -1,12 +1,10 @@
 <!-- ═══════════════════════════════════════════════════════════════════
-     PROFORMA INVOICE DASHBOARD — on the shared dashboard grammar.
+     FILE: Views/Dashboard/ProformaInvoice/PiDashboardView.xaml
+     SYSTEM: MERIDIAN — Phase 4 full rewrite (2026-09-18)
 
-     Grammar: Styles/DashboardKit.xaml (Db* keys only).
-     Cards use Surface.Primary.CornerRadius (Appearance slider).
-     Contract: hero → states → KPI band → primary visual → detail.
-
-     Bindings unchanged: KpiCards, StatusBars, StatusMixSlices,
+     Bindings preserved: KpiCards, StatusBars, StatusMixSlices,
      TopCustomerBars, HasChartData, plus the DashboardPageBase states.
+     All i18n keys unchanged.
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Dashboard.ProformaInvoice.PiDashboardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -31,51 +29,48 @@
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
 
-            <Grid Margin="{DynamicResource DbPageMargin}">
+            <Grid Margin="{StaticResource PgPageMargin}">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>  <!-- hero -->
+                    <RowDefinition Height="Auto"/>  <!-- state bands -->
+                    <RowDefinition Height="Auto"/>  <!-- KPI band / skeleton -->
+                    <RowDefinition Height="Auto"/>  <!-- status bars + mix -->
+                    <RowDefinition Height="Auto"/>  <!-- top customers -->
                 </Grid.RowDefinitions>
 
-                <!-- ── hero ────────────────────────────────────────── -->
-                <Grid Grid.Row="0" Margin="0,0,0,16">
+                <!-- ══ HERO ════════════════════════════════════════ -->
+                <Grid Grid.Row="0" Margin="0,0,0,18">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
                         <TextBlock Text="{DynamicResource Module.ProformaInvoice}"
-                                   Style="{StaticResource DbTitleStyle}"/>
+                                   Style="{StaticResource PgHeroTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Dashboard.QuotePipelineStatusDistributionTopCustomers}"
-                                   Style="{StaticResource DbSubtitleStyle}"/>
+                                   Style="{StaticResource PgHeroSubStyle}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal"
                                 VerticalAlignment="Center" Margin="12,0,0,0">
-                        <Border Style="{StaticResource DbChipStyle}" Margin="0,0,10,0">
-                            <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="7" Height="7" Margin="0,0,6,0"
+                        <Border Style="{StaticResource PgLiveChipStyle}" Margin="0,0,10,0">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Ellipse Width="7" Height="7" Margin="0,0,8,0"
                                          VerticalAlignment="Center"
-                                         Fill="{DynamicResource SuccessBrush}"/>
+                                         Fill="{DynamicResource PgOkBrush}"/>
                                 <TextBlock Text="{DynamicResource Common.Live}"
-                                           FontSize="{DynamicResource FontSize.BodySmall}"
-                                           FontWeight="{DynamicResource Weight.SemiBold}"
-                                           VerticalAlignment="Center"
-                                           Foreground="{DynamicResource SuccessBrush}"/>
+                                           Style="{StaticResource PgLiveTextStyle}"
+                                           VerticalAlignment="Center"/>
                             </StackPanel>
                         </Border>
                         <TextBlock Text="{Binding LastRefreshed}"
-                                   Style="{StaticResource DbMetaStyle}"/>
+                                   Style="{StaticResource PgMetaStyle}"/>
                     </StackPanel>
                 </Grid>
 
-                <!-- ── loading + error ─────────────────────────────── -->
-                                <StackPanel Grid.Row="1">
-                    <Border Style="{StaticResource DbStateBandStyle}"
-                            Background="{DynamicResource TintBlueBrush}"
-                            BorderBrush="{DynamicResource InfoBrush}"
+                <!-- ══ STATE BANDS ═══════════════════════════════════ -->
+                <StackPanel Grid.Row="1">
+                    <Border Style="{StaticResource PgStateBandStyle}"
+                            Background="{DynamicResource PgAccentSoftBrush}"
                             Visibility="{Binding IsLoading,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
                         <Grid>
@@ -83,145 +78,138 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Border Style="{StaticResource DbSkeletonCircleStyle}" Width="20" Height="20" Margin="0,0,12,0"/>
+                            <Border Style="{StaticResource PgSkeletonCircleStyle}" Width="20" Height="20" Margin="0,0,12,0"/>
                             <StackPanel Grid.Column="1">
-                                <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="180" HorizontalAlignment="Left"/>
-                                <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="8" Width="260" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/>
+                                <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="12" Width="180" HorizontalAlignment="Left"/>
+                                <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="8" Width="260" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/>
                             </StackPanel>
                         </Grid>
                     </Border>
-                    <Border Style="{StaticResource DbStateBandStyle}"
-                            Background="{DynamicResource TintRedBrush}"
-                            BorderBrush="{DynamicResource DangerBrush}"
+                    <Border Style="{StaticResource PgStateBandStyle}"
+                            Background="{DynamicResource PgDangerSoftBrush}"
                             Visibility="{Binding HasError,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="{Binding ErrorMessage}"
-                                   Style="{StaticResource DbErrorTextStyle}"/>
+                                   Style="{StaticResource PgErrorTextStyle}"/>
                     </Border>
                 </StackPanel>
 
-                <!-- ── KPI band ────────────────────────────────────── -->
-
-                <!-- ── SKELETON (visible when loading) ─────────────── -->
+                <!-- ══ SKELETON (visible while loading) ══════════════ -->
                 <StackPanel Grid.Row="2" Grid.RowSpan="3"
                             Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
-
-                    <Border Style="{StaticResource DbSkeletonBandStyle}">
+                    <Border Style="{StaticResource PgSkeletonBandStyle}">
                         <StackPanel>
-                            <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="16" Width="120" HorizontalAlignment="Left" Margin="0,0,0,4"/>
-                            <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="200" HorizontalAlignment="Left" Margin="0,0,0,12" Opacity="0.5"/>
-                            <ItemsControl Style="{StaticResource DbSkeletonKpiBandStyle}" ItemsPanel="{StaticResource DbSkeletonKpiBandPanel}">
-                                <Border Style="{StaticResource DbTileStyle}" Opacity="0.95"><StackPanel><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="30"/></Grid.ColumnDefinitions><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="72" HorizontalAlignment="Left"/><Border Grid.Column="1" Style="{StaticResource DbSkeletonCircleStyle}" Width="28" Height="28"/></Grid><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="22" Width="88" Margin="0,14,0,0" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="120" Margin="0,10,0,0" HorizontalAlignment="Left" Opacity="0.4"/></StackPanel></Border>
-                                <Border Style="{StaticResource DbTileStyle}"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="72" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="22" Width="88" Margin="0,14,0,0" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="120" Margin="0,10,0,0" HorizontalAlignment="Left" Opacity="0.4"/></StackPanel></Border>
-                                <Border Style="{StaticResource DbTileStyle}"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="72" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="22" Width="88" Margin="0,14,0,0" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="120" Margin="0,10,0,0" HorizontalAlignment="Left" Opacity="0.4"/></StackPanel></Border>
-                                <Border Style="{StaticResource DbTileStyle}"><StackPanel><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="12" Width="72" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="22" Width="88" Margin="0,14,0,0" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="120" Margin="0,10,0,0" HorizontalAlignment="Left" Opacity="0.4"/></StackPanel></Border>
+                            <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="16" Width="120" HorizontalAlignment="Left" Margin="0,0,0,4"/>
+                            <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="10" Width="200" HorizontalAlignment="Left" Margin="0,0,0,12" Opacity="0.5"/>
+                            <ItemsControl Style="{StaticResource PgSkeletonKpiBandStyle}" ItemsPanel="{StaticResource PgSkeletonKpiBandPanel}">
+                                <ContentControl ContentTemplate="{StaticResource PgSkeletonKpiTileTemplate}"/>
+                                <ContentControl ContentTemplate="{StaticResource PgSkeletonKpiTileTemplate}"/>
+                                <ContentControl ContentTemplate="{StaticResource PgSkeletonKpiTileTemplate}"/>
+                                <ContentControl ContentTemplate="{StaticResource PgSkeletonKpiTileTemplate}"/>
                             </ItemsControl>
                         </StackPanel>
                     </Border>
-
-                    <Grid Margin="0,0,0,14">
+                    <Grid Margin="0,0,0,16">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="1.2*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Style="{StaticResource DbCardStyle}" Margin="0,0,7,0">
-                            <ContentControl ContentTemplate="{StaticResource DbSkeletonChartTemplate}"/>
+                        <Border Grid.Column="0" Style="{StaticResource PgSkeletonCardStyle}" Margin="0,0,16,0">
+                            <ContentControl ContentTemplate="{StaticResource PgSkeletonChartTemplate}"/>
                         </Border>
-                        <Border Grid.Column="1" Style="{StaticResource DbCardStyle}" Margin="7,0,0,0">
+                        <Border Grid.Column="1" Style="{StaticResource PgSkeletonCardStyle}" Margin="16,0,0,0">
                             <StackPanel>
-                                <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="14" Width="90" HorizontalAlignment="Left" Margin="0,0,0,6"/>
-                                <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="120" HorizontalAlignment="Left" Margin="0,0,0,16" Opacity="0.5"/>
-                                <Grid Height="158"><Border Style="{StaticResource DbSkeletonCircleStyle}" Width="110" Height="110" HorizontalAlignment="Center" VerticalAlignment="Center"/></Grid>
+                                <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="14" Width="90" HorizontalAlignment="Left" Margin="0,0,0,6"/>
+                                <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="10" Width="120" HorizontalAlignment="Left" Margin="0,0,0,16" Opacity="0.5"/>
+                                <Grid Height="158"><Border Style="{StaticResource PgSkeletonCircleStyle}" Width="110" Height="110" HorizontalAlignment="Center" VerticalAlignment="Center"/></Grid>
                             </StackPanel>
                         </Border>
                     </Grid>
-
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1.2*"/>
                             <ColumnDefinition Width="2*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Style="{StaticResource DbCardStyle}" Margin="0,0,7,0">
-                            <ContentControl ContentTemplate="{StaticResource DbSkeletonChartTemplate}"/>
+                        <Border Grid.Column="0" Style="{StaticResource PgSkeletonCardStyle}" Margin="0,0,16,0">
+                            <ContentControl ContentTemplate="{StaticResource PgSkeletonChartTemplate}"/>
                         </Border>
-                        <Border Grid.Column="1" Style="{StaticResource DbCardStyle}" Margin="7,0,0,0">
+                        <Border Grid.Column="1" Style="{StaticResource PgSkeletonCardStyle}" Margin="16,0,0,0">
                             <StackPanel>
-                                <Border Style="{StaticResource DbSkeletonBlockStyle}" Height="14" Width="120" HorizontalAlignment="Left" Margin="0,0,0,12"/>
-                                <Border Style="{StaticResource DbRowCardStyle}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Border Grid.Column="0" Style="{StaticResource DbSkeletonCircleStyle}" Margin="0,0,11,0"/><StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0"><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="140" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="180" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/></StackPanel><StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="56" HorizontalAlignment="Right"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="16" Width="48" Margin="0,6,0,0" HorizontalAlignment="Right" CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"/></StackPanel></Grid></Border>
-                                <Border Style="{StaticResource DbRowCardStyle}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Border Grid.Column="0" Style="{StaticResource DbSkeletonCircleStyle}" Margin="0,0,11,0"/><StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0"><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="140" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="180" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/></StackPanel><StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="56" HorizontalAlignment="Right"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="16" Width="48" Margin="0,6,0,0" HorizontalAlignment="Right" CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"/></StackPanel></Grid></Border>
-                                <Border Style="{StaticResource DbRowCardStyle}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Border Grid.Column="0" Style="{StaticResource DbSkeletonCircleStyle}" Margin="0,0,11,0"/><StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0"><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="140" HorizontalAlignment="Left"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="10" Width="180" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/></StackPanel><StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="13" Width="56" HorizontalAlignment="Right"/><Border Style="{StaticResource DbSkeletonBlockStyle}" Height="16" Width="48" Margin="0,6,0,0" HorizontalAlignment="Right" CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"/></StackPanel></Grid></Border>
+                                <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="14" Width="120" HorizontalAlignment="Left" Margin="0,0,0,12"/>
+                                <ContentControl ContentTemplate="{StaticResource PgSkeletonFeedRowTemplate}"/>
+                                <ContentControl ContentTemplate="{StaticResource PgSkeletonFeedRowTemplate}"/>
+                                <ContentControl ContentTemplate="{StaticResource PgSkeletonFeedRowTemplate}"/>
                             </StackPanel>
                         </Border>
                     </Grid>
-
                 </StackPanel>
 
-                <Border Grid.Row="2" Style="{StaticResource DbCardStyle}" Margin="0,0,0,14" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                <!-- ══ KPI BAND ══════════════════════════════════════ -->
+                <Border Grid.Row="2" Style="{StaticResource PgCardStyle}" Margin="0,0,0,16"
+                        Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <StackPanel>
-                        <StackPanel Style="{StaticResource DbSectionHeadStyle}">
-                            <TextBlock Text="{DynamicResource Dashboard.QuotePulse}"
-                                       Style="{StaticResource DbSectionTitleStyle}"/>
-                            <TextBlock Text="{DynamicResource Dashboard.PipelineVolumeConfirmation}"
-                                       Style="{StaticResource DbSectionSubStyle}"/>
-                        </StackPanel>
-                        <ItemsControl Style="{StaticResource DbKpiBandStyle}"
+                        <TextBlock Text="{DynamicResource Dashboard.QuotePulse}"
+                                   Style="{StaticResource PgCardTitleStyle}"
+                                   Margin="0,0,0,2"/>
+                        <TextBlock Text="{DynamicResource Dashboard.PipelineVolumeConfirmation}"
+                                   Style="{StaticResource PgCardSubStyle}"
+                                   Margin="0,2,0,12"/>
+                        <ItemsControl Style="{StaticResource PgKpiBandStyle}"
                                       ItemsSource="{Binding KpiCards}"
-                                      ItemsPanel="{StaticResource DbKpiBandPanel}"
-                                      ItemTemplate="{StaticResource DbKpiTileTemplate}"/>
+                                      ItemsPanel="{StaticResource PgKpiBandPanel}"
+                                      ItemTemplate="{StaticResource PgKpiTileTemplate}"/>
                     </StackPanel>
                 </Border>
 
-                <!-- ── status distribution + mix ───────────────────── -->
-                <Grid Grid.Row="3" Margin="0,0,0,14" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                <!-- ══ STATUS DISTRIBUTION + MIX ═════════════════════ -->
+                <Grid Grid.Row="3" Margin="0,0,0,16"
+                      Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="1.2*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource DbCardStyle}"
-                            Margin="0,0,7,0">
+                    <Border Grid.Column="0" Style="{StaticResource PgCardStyle}" Margin="0,0,16,0">
                         <DockPanel>
-                            <Grid DockPanel.Dock="Top" Margin="0,0,0,12">
+                            <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
                                 <TextBlock Text="{DynamicResource Dashboard.StatusDistribution}"
-                                           Style="{StaticResource DbSectionTitleStyle}"/>
+                                           Style="{StaticResource PgCardTitleStyle}"/>
                                 <TextBlock Text="{DynamicResource Dashboard.InvoicesGroupedCurrentStatus}"
-                                           Style="{StaticResource DbMetaStyle}"
+                                           Style="{StaticResource PgMetaStyle}"
                                            HorizontalAlignment="Right"/>
                             </Grid>
                             <Grid>
-                                <Border Style="{StaticResource DbChartWellStyle}"
+                                <Border Style="{StaticResource PgChartWellStyle}"
                                         Visibility="{Binding HasChartData,
                                             Converter={StaticResource BoolToVisibilityConverter}}">
                                     <trend:TrendChartControl
                                         Points="{Binding StatusBars}"
                                         SeriesKind="Bar"
-                                        SeriesBrush="{DynamicResource AccentBrush}"
-                                        SeriesEndBrush="{DynamicResource AccentDarkBrush}"
-                                        GridBrush="{DynamicResource DividerBrush}"
-                                        LabelBrush="{DynamicResource TextTertiaryBrush}"
+                                        SeriesBrush="{DynamicResource PgAccentBrush}"
+                                        SeriesEndBrush="{DynamicResource PgAccentHoverBrush}"
+                                        GridBrush="{DynamicResource PgHairlineBrush}"
+                                        LabelBrush="{DynamicResource PgText3Brush}"
                                         EmptyMessage=""/>
                                 </Border>
                                 <StackPanel VerticalAlignment="Center" Margin="0,32"
                                             Visibility="{Binding HasChartData,
                                                 Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                     <TextBlock Text="&#xE8A5;"
-                                               Style="{StaticResource DbEmptyGlyphStyle}"/>
+                                               Style="{StaticResource PgEmptyGlyphStyle}"/>
                                     <TextBlock Text="{DynamicResource Dashboard.NoInvoicesYet}"
-                                               Style="{StaticResource DbEmptyTextStyle}"/>
+                                               Style="{StaticResource PgEmptyTextStyle}"/>
                                 </StackPanel>
                             </Grid>
                         </DockPanel>
                     </Border>
 
-                    <Border Grid.Column="1" Style="{StaticResource DbCardStyle}"
-                            Margin="7,0,0,0">
+                    <Border Grid.Column="1" Style="{StaticResource PgCardStyle}" Margin="16,0,0,0">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource DbSectionHeadStyle}">
-                                <TextBlock Text="{DynamicResource Dashboard.StatusMix}"
-                                           Style="{StaticResource DbSectionTitleStyle}"/>
-                                <TextBlock Text="{DynamicResource Dashboard.CountQuotes}"
-                                           Style="{StaticResource DbSectionSubStyle}"/>
-                            </StackPanel>
+                            <TextBlock Text="{DynamicResource Dashboard.StatusMix}"
+                                       Style="{StaticResource PgCardTitleStyle}"/>
+                            <TextBlock Text="{DynamicResource Dashboard.CountQuotes}"
+                                       Style="{StaticResource PgCardSubStyle}"
+                                       Margin="0,2,0,10"/>
                             <donut:DonutChartControl Height="158"
                                                      Slices="{Binding StatusMixSlices}"
                                                      HoleLabel="{DynamicResource Dashboard.Status}"
@@ -231,36 +219,37 @@
                     </Border>
                 </Grid>
 
-                <!-- ── top customers ───────────────────────────────── -->
-                <Border Grid.Row="4" Style="{StaticResource DbCardStyle}" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                <!-- ══ TOP CUSTOMERS ═════════════════════════════════ -->
+                <Border Grid.Row="4" Style="{StaticResource PgCardStyle}"
+                        Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <DockPanel>
-                        <Grid DockPanel.Dock="Top" Margin="0,0,0,12">
+                        <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
                             <TextBlock Text="{DynamicResource Dashboard.TopCustomers}"
-                                       Style="{StaticResource DbSectionTitleStyle}"/>
+                                       Style="{StaticResource PgCardTitleStyle}"/>
                             <TextBlock Text="{DynamicResource Dashboard.RankedTotalInvoiceValueVATInclusive}"
-                                       Style="{StaticResource DbMetaStyle}"
+                                       Style="{StaticResource PgMetaStyle}"
                                        HorizontalAlignment="Right"/>
                         </Grid>
                         <Grid>
-                            <Border Style="{StaticResource DbChartWellStyle}"
+                            <Border Style="{StaticResource PgChartWellStyle}"
                                     Visibility="{Binding HasChartData,
                                         Converter={StaticResource BoolToVisibilityConverter}}">
                                 <trend:TrendChartControl
                                     Points="{Binding TopCustomerBars}"
                                     SeriesKind="Bar"
-                                    SeriesBrush="{DynamicResource AccentBrush}"
-                                    SeriesEndBrush="{DynamicResource AccentDarkBrush}"
-                                    GridBrush="{DynamicResource DividerBrush}"
-                                    LabelBrush="{DynamicResource TextTertiaryBrush}"
+                                    SeriesBrush="{DynamicResource PgAccentBrush}"
+                                    SeriesEndBrush="{DynamicResource PgAccentHoverBrush}"
+                                    GridBrush="{DynamicResource PgHairlineBrush}"
+                                    LabelBrush="{DynamicResource PgText3Brush}"
                                     EmptyMessage=""/>
                             </Border>
                             <StackPanel VerticalAlignment="Center" Margin="0,32"
                                         Visibility="{Binding HasChartData,
                                             Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                 <TextBlock Text="&#xE7EE;"
-                                           Style="{StaticResource DbEmptyGlyphStyle}"/>
+                                           Style="{StaticResource PgEmptyGlyphStyle}"/>
                                 <TextBlock Text="{DynamicResource Dashboard.NoCustomerDataYet}"
-                                           Style="{StaticResource DbEmptyTextStyle}"/>
+                                           Style="{StaticResource PgEmptyTextStyle}"/>
                             </StackPanel>
                         </Grid>
                     </DockPanel>
