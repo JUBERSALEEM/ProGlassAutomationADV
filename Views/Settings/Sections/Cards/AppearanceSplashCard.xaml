@@ -12,6 +12,15 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
     <Border Style="{StaticResource SettingsPageCardStyle}">
         <StackPanel>
             <Grid Margin="0,0,0,12">
