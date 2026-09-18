@@ -43,6 +43,17 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public string Theme { get; set; } = "Light";
 
         /// <summary>
+        /// UI experience family (2026-09-18, GB-P14): "Professional"
+        /// (default) or "Personal" (the Glass Blush second experience).
+        /// Additive config — older config.json files hydrate to the
+        /// "Professional" default via ConfigService.Load's null-coalescing
+        /// pass. The MainViewModel reads this once at startup and persists
+        /// it on every switch so the choice survives a restart without
+        /// relaunching the app.
+        /// </summary>
+        public string UiExperience { get; set; } = "Professional";
+
+        /// <summary>
         /// "Normal (Industrial)" (displayed "Industrial") | "Monet" |
         /// "Crystal Fluid" (displayed "iPhone 17 Pro Max") | "iOS 26" —
         /// see VisualThemeEngine for what each does. 2026-09-13

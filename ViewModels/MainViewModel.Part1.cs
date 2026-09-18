@@ -267,6 +267,11 @@ namespace ProGlassAutomation.ViewModels
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CurrentModuleTitle));
                 UpdateAiScreenContext();
+                // GB-P14: republish the experience-scoped content hosts
+                // (ProfessionalContent/PersonalContent) so module
+                // navigation follows the active experience. No-op unless
+                // the Personal UI switch is in play.
+                UpdateExperienceContent();
             }
         }
 

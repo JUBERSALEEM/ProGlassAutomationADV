@@ -1,6 +1,6 @@
 # XAML Safety Validation Report (Phase 17 gate)
 
-**Generated:** 2026-09-18 · **Files checked:** 321 · **ERROR 0 / WARN 22 / NOTE 2**
+**Generated:** 2026-09-18 · **Files checked:** 330 · **ERROR 0 / WARN 22 / NOTE 2**
 
 **Legend:** W1 malformed · W2 dup x:Name · W3 dup x:Key · W4 dup attribute · W5 static declared-after-use · W6 static unresolved in parse scope · W7 dynamic unresolved & not runtime-published · W8 invalid numeric syntax · W9 Min>Max · W10 single-child violation · W11 Items+ItemsSource · W12 grid out-of-bounds (auto-extends) · W14 missing code-behind · W15 FindName missing · W16 unauthorized static on runtime token · W17 hardcoded hex in view. W3 duplicate x:Key is WARN (WPF last-wins shadowing, latent). W7 covers keys published at runtime by Services (ThemeManager, PrintTokenService, …).
 

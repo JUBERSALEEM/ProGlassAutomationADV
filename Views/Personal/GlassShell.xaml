@@ -383,6 +383,14 @@
                                     Orientation="Horizontal"
                                     VerticalAlignment="Center"
                                     Margin="16,0,0,0">
+                            <!-- GB-P14: mirror of the Professional switch —
+                                 back to the Professional experience (live,
+                                 persisted, no restart; module state kept). -->
+                            <Button Style="{StaticResource GlassBlush.TopIconButton}"
+                                    Content="&#xE731;"
+                                    ToolTip="Professional UI"
+                                    Command="{Binding ToggleExperienceCommand}"
+                                    AutomationProperties.AutomationId="Shell.ExperienceSwitchPersonal"/>
                             <Button Style="{StaticResource GlassBlush.TopIconButton}"
                                     Content="&#xEA8F;"
                                     ToolTip="Notifications"
@@ -409,9 +417,16 @@
                     </Grid>
                 </Border>
 
-                <!-- MODULE CONTENT (same views, same routing) -->
+                <!-- MODULE CONTENT (same views, same routing).
+                     GB-P14: bound to PersonalContent (== CurrentViewModel
+                     while Personal is active; null otherwise → no
+                     Personal view instance exists in Professional mode,
+                     so exactly one module view instance is live).
+                     Templates for forked modules resolve to the Personal
+                     (glass) views in this shell's resources; un-forked
+                     modules fall back to their Professional views. -->
                 <ContentControl x:Name="GlassContentHost"
-                                Content="{Binding CurrentViewModel}"
+                                Content="{Binding PersonalContent}"
                                 Margin="{DynamicResource GlassBlush.PagePadding}"/>
             </DockPanel>
         </Grid>

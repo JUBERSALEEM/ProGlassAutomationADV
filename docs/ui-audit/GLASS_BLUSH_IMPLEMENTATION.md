@@ -146,6 +146,23 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   2. Auto-scroll uses a CollectionChanged → ScrollToEnd in view code-behind (chat UX plumbing; no business logic).
 - **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
 
+## GB-P14 — Professional ↔ Personal experience switch (the enabler)
+- **Status:** ✅ STATIC VERIFIED · BUILD NOT RUN (no .NET SDK) · RUNTIME NOT VERIFIED.
+- **Architecture (live, persisted, no restart):**
+  - `AppearanceSettings.UiExperience` ("Professional" default | "Personal") — additive config field; old `config.json` hydrates to the default via `ConfigService.Load`'s null-coalescing pass. Persisted via `ConfigService.SaveDebounced` on every switch (same pattern as the Appearance settings).
+  - New partial `ViewModels/MainViewModel.Experience.cs`:
+    - `IsPersonalExperience` / `IsProfessionalExperience` — loaded once via a null-safe field initializer (settled before the ctor's first `CurrentViewModel` assignment).
+    - `ProfessionalContent` / `PersonalContent` — the two experience-scoped module-host bindings. **Exactly one is non-null at a time ⇒ exactly ONE module view instance exists** (no double instantiation / double data loads).
+    - `UpdateExperienceContent()` — called from the `CurrentViewModel` setter (ONE added line in `MainViewModel.Part1.cs`, additive, documented in-line) so navigation follows the active experience.
+    - `ToggleExperienceCommand` — lazy, no ctor edit.
+  - `MainWindow.xaml`: GlassShell added (RowSpan 2, ZIndex 30, visible ⇔ `IsPersonalExperience`); Professional top bar, content card (now bound to `ProfessionalContent`) and drawer/dim overlay collapse in Personal mode; Professional AI overlay hidden in Personal mode (Personal shell hosts `PersonalAiChatView` on the same `AiChatVM`); read-only banner + license overlay + agent chat remain in both modes (safety surfaces).
+  - `GlassShell.xaml`: content host now bound to `PersonalContent`; mirror toggle button in the glass top bar (`ToggleExperienceCommand`).
+  - Toggle affordances: Professional top bar `Shell.ExperienceSwitch` (E771) + Personal top bar `Shell.ExperienceSwitchPersonal` (E731).
+- **State semantics:** the module VM (`CurrentViewModel`) is untouched — switching experiences preserves module state (selected document, filters, loaded data); only the VIEW is recreated ("safe shell recreation"). Documented per the master prompt's fallback allowance.
+- **Template resolution in the Personal shell:** forked modules (Dashboard, PI, JobOrder, ProductionControlCenter, AI) resolve to their Personal glass views via `GlassShell`-scoped DataTemplates; **un-forked modules fall back to their Professional views** (template lookup walks up to `MainWindow.Window.Resources`) — functional, documented hybrid; Personal coverage grows as GB-P8…P12 land.
+- **Known limitation (→ GB-P15):** the MainWindow-level popups (user-switch / notifications / settings quick panel) are anchored to the Professional top-bar buttons; in Personal mode they still open but anchor to window origin. Personal-side popup anchors are a GB-P15 item.
+- **Verification:** XML well-formed (MainWindow + GlassShell); brace/paren balance on all touched C# (delta vs HEAD clean); xaml_validator 0 ERROR. BUILD/TESTS NOT RUN, RUNTIME NOT VERIFIED.
+
 ## Phase status
 
 | Phase | Status | Commit |
@@ -158,8 +175,8 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-P6 job order (glass-03) | ✅ STATIC VERIFIED (PersonalJobOrderView + glass tab strip + status timeline; runtime NOT VERIFIED) | `GB-P6` |
 | GB-P7 production control (glass-04) | ✅ STATIC VERIFIED (PersonalProductionControlCenterView, night palette; runtime NOT VERIFIED) | `GB-P7` |
 | GB-P13 ai assistant (glass-10) | ✅ STATIC VERIFIED (PersonalAiChatView, glass bubbles + chip rail; runtime NOT VERIFIED) | `GB-P13` |
+| GB-P14 experience switch (live, persisted) | ✅ STATIC VERIFIED (single-view-instance design, safe shell recreation; BUILD NOT RUN) | `GB-P14` |
 | GB-P8…P12 screens (5) | pending | — |
-| GB-P14 Professional↔Personal switch | pending | — |
-| GB-P15 global visual consistency | pending | — |
+| GB-P15 global visual consistency | pending (incl. Personal-side popup anchors + error-bubble variant) | — |
 | GB-P16 runtime screenshot fidelity | **NOT RUN — no WPF runtime in this environment** (tooling to be delivered) | — |
 | GB-P17 DPI/a11y/performance | pending (static parts only) | — |
