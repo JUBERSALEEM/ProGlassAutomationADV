@@ -124,9 +124,15 @@
     },
     "phase_8": {
       "status": "IMPLEMENTED (static verification only)",
-      "commit": "pending",
+      "commit": "e310aea",
       "delta": "window floors verified (32/32 safe); DPI scaling mechanism sound (DIP + DynamicResource tokens + Pg density reflow); density-ladder re-anchoring recorded as OPEN DECISION (needs product call + build/visual verification)",
       "runtime": "Theme runtime / density / DPI runtime behaviour NOT VERIFIED (no SDK)"
+    },
+    "phase_7": {
+      "status": "IMPLEMENTED",
+      "commit": "pending",
+      "delta": "theme/layout separation contract added to PERSONAL_UI_ARCHITECTURE.md; verified: 0 view forks, 0 layout keys in family publishers (120 keys audited), 0 theme-branching business views; no XAML changes needed",
+      "gate": "verification phase; validator unchanged 321 files 0E/22W/2N"
     }
   }
 }

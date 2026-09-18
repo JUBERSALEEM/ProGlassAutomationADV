@@ -112,3 +112,37 @@ final re-published values through DynamicResource.
 - Runtime re-tint behaviour: **NOT VERIFIED in this environment** (no .NET
   SDK — BUILD NOT EXECUTED, app not runnable). The pipeline order above is
   read from source, not observed running.
+
+## 7. Theme vs Layout — separation contract (Phase 7, 2026-09-18)
+
+**Theme = appearance. Layout = arrangement. The axes are orthogonal and
+must stay orthogonal.**
+
+| Axis | Authority | May change at runtime |
+|---|---|---|
+| Appearance | family painters (`VisualThemeEngine*`) publish 120 appearance keys (brushes, effects, radii, shadows) via DynamicResource | yes — live re-tint |
+| Layout | view grid structure (per-module UX) + density tokens (`DensityPageMargin/CardPadding/RowHeight/ControlHeight`, runtime-published) + window floors (`ThemedDialogWindow` MinWidth 420/MinHeight 160, NoResize) | density only — never the family |
+
+**Structural enforcement (verified 2026-09-18):**
+1. **No view forks.** Zero view files named for a theme/persona
+   (no `Professional*View`, `Personal*View`, `Ios*View` business views).
+   One XAML per business surface (320-row inventory).
+2. **Families publish appearance only.** All 120 keys published by
+   `VisualThemeEngine*` (Part1–3, Ios26, Monet paths) were audited:
+   **zero layout keys** (no Margin/Padding/Width/Height/Row/Column/
+   Spacing). A personal family can never rearrange a screen.
+3. **No theme-branching XAML.** Business views never reference family
+   names (`Monet`/`CrystalFluid`/`LiquidGlass`/`Ios26`/`Ocean` appear
+   only in the About showcase and the Settings appearance-picker cards —
+   the two surfaces that exist to display/select the families).
+4. **Layout differences are layout tokens, not theme forks:** compact vs
+   dense is the runtime density ladder (ThemeManager), not a theme; the
+   MERIDIAN Pg plane is a *pattern* plane (shared styles), not a view
+   variant.
+
+**Adding a new layout experience** (if ever required): add layout tokens
+(density-style, ThemeManager-published) + optional shared layout styles —
+never duplicate a view. A new *appearance* experience: follow §5.
+
+Phase 7 gate: all four checks above pass; no XAML changes required
+(architecture already holds). BUILD NOT EXECUTED — .NET SDK unavailable.

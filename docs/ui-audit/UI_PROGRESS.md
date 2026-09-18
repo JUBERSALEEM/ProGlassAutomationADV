@@ -10,7 +10,7 @@
 | P4 Operations/Production | **IMPLEMENTED** | 30 exact-value tokenizations (KPI values/labels/icons) + shared OptHeader style fix; structural keeps documented |
 | P5 Supporting | **IMPLEMENTED** | full review: all surfaces converged or deliberate special surface; hex = material/brand constants documented; InquiryListView EmptyState BLOCKED (needs i18n key in 13 langs) |
 | P6 Global consistency | **IMPLEMENTED** | re-census: 15fs/38cr residuals all documented keeps; hex=9 (Splash only); 208 heights + 32 windows audited; no undocumented debt |
-| P7 Personal UI/layout | pending | verify theme=appearance vs layout=arrangement separation; no forks (inventory-backed) |
+| P7 Personal UI/layout | **IMPLEMENTED** | separation contract written + verified: 0 forks, 0 layout keys in families, 0 theme-branching views |
 | P8 DPI/density | **IMPLEMENTED (static)** | 32/32 windows floor-safe; scaling mechanism sound; density-ladder re-anchor = open decision (needs build+product call) |
 | P9 Final 320-file pass | pending | classification + 4 doc updates |
 
