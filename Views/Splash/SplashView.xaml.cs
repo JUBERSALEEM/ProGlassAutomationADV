@@ -261,62 +261,68 @@ namespace ProGlassAutomation.Views.Splash
             _loadingDotsTimer.Start();
         }
 
-        // ══════════════════════════════════════════════════════════════════
+                // ══════════════════════════════════════════════════════════════════
         //  TERMS & CONDITIONS GATE
         // ══════════════════════════════════════════════════════════════════
 
-        public const string TermsVersion = "2026.1";
-        private readonly SplashTermsViewModel _termsVm = new();
+        public const string TermsVersion = "2026-08-UAE-1";
+        private readonly TermsGateViewModel _termsVm = new();
 
-        public static bool HasAcceptedCurrentTerms
-        {
-            get
-            {
-                try
-                {
-                    var cfg = App.Config;
-                    if (cfg != null && !string.IsNullOrWhiteSpace(cfg.AcceptedTermsVersion))
-                        return cfg.AcceptedTermsVersion == TermsVersion;
+        /// <summary>True after the user explicitly accepted the terms (forwarded from TermsGateViewModel).</summary>
+        public bool TermsAccepted => _termsVm.TermsAccepted;
 
-                    string path = Path.Combine(
-                        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                        "ProGlassAutomation", "terms_accepted.dat");
-                    return File.Exists(path) && File.ReadAllText(path).Trim() == TermsVersion;
-                }
-                catch (System.Exception ex)
-                {
-                    ProGlassAutomation.Services.Logging.AppLogService.Debug("[SplashView.xaml] HasAcceptedCurrentTerms: " + ExceptionMessages.Deep(ex));
-                    return false;
-                }
-            }
-        }
+        public event Action? TermsAcceptedEvent;
+        public event Action? TermsResolved;
+        public bool SignedIn { get; private set; }
 
-        public static void RecordAcceptance()
+        private static string TermsMarkerPath => Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "ProGlassAutomation", "terms-accepted.txt");
+
+        public static bool HasAcceptedCurrentTerms()
         {
             try
             {
-                var cfg = App.Config;
-                if (cfg != null)
-                {
-                    cfg.AcceptedTermsVersion = TermsVersion;
-                    ConfigService.Save(cfg);
-                }
-
-                string dir = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "ProGlassAutomation");
-                Directory.CreateDirectory(dir);
-                File.WriteAllText(Path.Combine(dir, "terms_accepted.dat"), TermsVersion);
+                if (!File.Exists(TermsMarkerPath)) return false;
+                foreach (var line in File.ReadAllLines(TermsMarkerPath))
+                    if (line.StartsWith("version=", StringComparison.Ordinal) &&
+                        line["version=".Length..].Trim() == TermsVersion)
+                        return true;
+                return false;
             }
-            catch (System.Exception ex)
+            catch
             {
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("[SplashView.xaml] RecordAcceptance: " + ExceptionMessages.Deep(ex));
+                return false;
             }
         }
 
-        public event Action? TermsAccepted;
-        public event Action? TermsResolved;
-        public bool SignedIn { get; private set; }
+        private void RecordAcceptance()
+        {
+            try
+            {
+                var dir = Path.GetDirectoryName(TermsMarkerPath);
+                if (!string.IsNullOrEmpty(dir))
+                    Directory.CreateDirectory(dir);
+
+                File.WriteAllText(
+                    TermsMarkerPath,
+                    $"version={TermsVersion}" + Environment.NewLine +
+                    $"acceptedUtc={DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}Z" + Environment.NewLine +
+                    $"machine={Environment.MachineName}" + Environment.NewLine +
+                    $"windowsUser={Environment.UserName}" + Environment.NewLine);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    "Could not record terms acceptance: " + ExceptionMessages.Deep(ex),
+                    new LogContext
+                    {
+                        Module = "Startup",
+                        Class = nameof(SplashView),
+                        Operation = "RecordAcceptance"
+                    });
+            }
+        }
 
         public void ShowTermsGate()
         {

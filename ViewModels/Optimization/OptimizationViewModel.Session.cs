@@ -678,7 +678,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 {
                     Composition = byComp.Key,
                     Thickness = byComp.First().Thickness,
-                    StockSize = string.Join(", ", byComp.Select(x => $"{x.StockWidth}×{x.StockHeight}").Distinct()),
+                    StockSize = string.Join(", ", byComp.Select(x => $"{x.W}×{x.H}").Distinct()),
                     PieceCount = byComp.Sum(x => x.Pieces).ToString(CultureInfo.InvariantCulture),
                     Sheets = byComp.Sum(x => x.Sheets).ToString(CultureInfo.InvariantCulture),
                     Utilization = util.ToString("0.0", CultureInfo.InvariantCulture) + "%",
