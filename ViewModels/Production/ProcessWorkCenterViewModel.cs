@@ -120,10 +120,9 @@ namespace ProGlassAutomation.ViewModels.Production
                 return;
             }
 
-            long total = execs.Sum(e => (long)Math.Max(1, e.Qty));
-            long done = execs.Where(e => string.Equals(e.Status, "Completed", StringComparison.OrdinalIgnoreCase) ||
-                                         string.Equals(e.Status, "Ready", StringComparison.OrdinalIgnoreCase))
-                             .Sum(e => (long)Math.Max(1, e.Qty));
+            long total = execs.Sum(e => (long)Math.Max(1, e.QtyRequired));
+            long done = execs.Where(e => e.Status == (int)Models.Production.WorkItemStatus.Completed)
+                             .Sum(e => (long)Math.Max(1, e.QtyDone));
             long balance = total - done;
 
             TotalScheduledPcs = total;
@@ -131,9 +130,9 @@ namespace ProGlassAutomation.ViewModels.Production
             BalancePendingPcs = balance >= 0 ? balance : 0;
             StageCompletionPct = TotalScheduledPcs > 0 ? Math.Round((double)CompletedDonePcs * 100.0 / TotalScheduledPcs, 1) : 0.0;
 
-            TotalScheduledSqm = Math.Round(TotalScheduledPcs * 1.575, 1);
-            CompletedDoneSqm = Math.Round(CompletedDonePcs * 1.575, 1);
-            BalancePendingSqm = Math.Round(BalancePendingPcs * 1.575, 1);
+            TotalScheduledSqm = Math.Round((double)TotalScheduledPcs * 1.575, 1);
+            CompletedDoneSqm = Math.Round((double)CompletedDonePcs * 1.575, 1);
+            BalancePendingSqm = Math.Round((double)BalancePendingPcs * 1.575, 1);
         }
 
         // ── Filters ──────────────────────────────────────────────────────

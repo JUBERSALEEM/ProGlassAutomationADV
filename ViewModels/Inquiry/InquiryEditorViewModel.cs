@@ -2,6 +2,7 @@ using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.Inquiry;
 using ProGlassAutomation.Models.MasterData;
 using ProGlassAutomation.Services.Inquiry;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.MasterData.Repository;
 using ProGlassAutomation.Utilities;
 using System;

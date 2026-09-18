@@ -9,6 +9,7 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Theme;
+using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

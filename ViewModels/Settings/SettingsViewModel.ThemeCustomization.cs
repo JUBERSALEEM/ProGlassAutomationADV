@@ -29,6 +29,7 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Theme;
 using System;
 using System.Windows;

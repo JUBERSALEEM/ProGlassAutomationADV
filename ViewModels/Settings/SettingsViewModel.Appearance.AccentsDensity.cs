@@ -281,17 +281,26 @@ namespace ProGlassAutomation.ViewModels.Settings
             }
         }
 
+        private string? _customAccentStatusOverride;
+
         /// <summary>Validation hint under the hex field.</summary>
         public string CustomAccentStatus
         {
             get
             {
+                if (!string.IsNullOrWhiteSpace(_customAccentStatusOverride))
+                    return _customAccentStatusOverride;
                 if (string.IsNullOrWhiteSpace(_customAccentHex))
                     return "Type a colour like #7C3AED and press APPLY.";
                 return ProGlassAutomation.Services.Theme.AccentPresets
                     .TryParseHex(_customAccentHex) != null
                     ? "Ready — every surface, tint and Monet glass will adapt to this colour."
                     : "Not a recognised colour — use #RGB or #RRGGBB.";
+            }
+            set
+            {
+                _customAccentStatusOverride = value;
+                OnPropertyChanged();
             }
         }
 

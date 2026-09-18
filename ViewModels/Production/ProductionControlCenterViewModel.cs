@@ -98,7 +98,7 @@ namespace ProGlassAutomation.ViewModels.Production
                 return;
             }
 
-            string targetProcess = SelectedStageTab switch
+            string targetStage = SelectedStageTab switch
             {
                 0 => "Cutting",
                 1 => "Tempering",
@@ -106,13 +106,13 @@ namespace ProGlassAutomation.ViewModels.Production
                 _ => "All"
             };
 
-            var filtered = targetProcess == "All"
+            var filtered = targetStage == "All"
                 ? items
-                : items.Where(i => string.Equals(i.Process, targetProcess, StringComparison.OrdinalIgnoreCase)).ToList();
+                : items.Where(i => string.Equals(i.StageLabel, targetStage, StringComparison.OrdinalIgnoreCase) ||
+                                   string.Equals(i.Stage.ToString(), targetStage, StringComparison.OrdinalIgnoreCase)).ToList();
 
             long total = filtered.Count;
-            long done = filtered.Count(i => string.Equals(i.Readiness, "Completed", StringComparison.OrdinalIgnoreCase) ||
-                                            string.Equals(i.Readiness, "ReadyForDelivery", StringComparison.OrdinalIgnoreCase));
+            long done = filtered.Count(i => i.Readiness == Models.Production.Control.ProductionReadiness.Completed);
             long balance = total - done;
 
             TotalScheduledPcs = total > 0 ? total : items.Count;
