@@ -1,0 +1,689 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         GLASS BLUSH — SHARED GLASS COMPONENTS (GB-P3, 2026-09-18)
+
+         The Personal UI component library. Every value comes from the
+         GlassBlush.* token plane (GB-P1) via DynamicResource; every
+         composition-specific element from the references is expressed
+         here ONCE and reused by all ten Personal screens:
+
+           badge / status dot · stepper strip (glass-02 9 steps)
+           timeline (glass-03 / glass-06) · progress bar (glass-05/07)
+           glass DataGrid (glass-01/02/03/06/07) · section header + icon chip
+           glass text box / combo box · chart card + legend
+           metric readout (glass-04) · empty state · dialog card
+           chat bubbles (glass-10) · suggestion chip (glass-10)
+
+         WPF SAFETY: single-child Border/ScrollViewer, no
+         Items+ItemsSource conflicts, no duplicate x:Key, effects shared
+         from GlassShellStyles (GB-P2).
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- ── STATUS DOT + BADGE ────────────────────────────────────────── -->
+    <Style x:Key="GlassBlush.StatusDot" TargetType="Ellipse">
+        <Setter Property="Width" Value="8"/>
+        <Setter Property="Height" Value="8"/>
+        <Setter Property="Fill" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+        <Setter Property="Effect" Value="{StaticResource GlassBlush.GlowAccent}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="GlassBlush.Badge" TargetType="ContentControl">
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Border Background="{DynamicResource GlassBlush.SurfaceFaint}"
+                            BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                            BorderThickness="1"
+                            CornerRadius="999"
+                            Padding="10,4"
+                            SnapsToDevicePixels="True">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Ellipse Width="8" Height="8"
+                                     Fill="{DynamicResource GlassBlush.AccentGlow}"
+                                     VerticalAlignment="Center"
+                                     Margin="0,0,7,0"/>
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ── STEPPER (glass-02: glowing step strip) ──────────────────────
+         Tag = "done" | "active" | "todo" (default). Content = label. -->
+    <Style x:Key="GlassBlush.StepperTrack" TargetType="Rectangle">
+        <Setter Property="Height" Value="2"/>
+        <Setter Property="Fill" Value="{DynamicResource GlassBlush.BorderSoft}"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="Margin" Value="0,17,0,0"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
+    </Style>
+
+    <Style x:Key="GlassBlush.StepperItem" TargetType="ContentControl">
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <StackPanel>
+                        <Border x:Name="Dot"
+                                Width="{DynamicResource GlassBlush.StepperDiameter}"
+                                Height="{DynamicResource GlassBlush.StepperDiameter}"
+                                CornerRadius="18"
+                                Background="{DynamicResource GlassBlush.SurfaceFaint}"
+                                BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                                BorderThickness="1"
+                                HorizontalAlignment="Center"
+                                SnapsToDevicePixels="True">
+                            <TextBlock x:Name="Num"
+                                       Text="{TemplateBinding Tag}"
+                                       FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="{TemplateBinding Content}"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,7,0,0"
+                                   TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Tag" Value="done">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ContentControl">
+                            <StackPanel>
+                                <Border Width="36" Height="36" CornerRadius="18"
+                                        Background="{DynamicResource GlassBlush.AccentSoft}"
+                                        BorderBrush="{DynamicResource GlassBlush.AccentGlow}"
+                                        BorderThickness="1"
+                                        HorizontalAlignment="Center"
+                                        SnapsToDevicePixels="True">
+                                    <TextBlock Text="&#xE73E;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="14"
+                                               Foreground="{DynamicResource GlassBlush.AccentGlow}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="{TemplateBinding Content}"
+                                           FontSize="11"
+                                           Foreground="{DynamicResource GlassBlush.Text}"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,7,0,0"
+                                           TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+            <Trigger Property="Tag" Value="active">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ContentControl">
+                            <StackPanel>
+                                <Border Width="36" Height="36" CornerRadius="18"
+                                        Background="{DynamicResource GlassBlush.AccentDeep}"
+                                        BorderBrush="{DynamicResource GlassBlush.AccentGlow}"
+                                        BorderThickness="1"
+                                        Effect="{StaticResource GlassBlush.GlowAccent}"
+                                        HorizontalAlignment="Center"
+                                        SnapsToDevicePixels="True">
+                                    <TextBlock Text="{TemplateBinding Tag}"
+                                               FontSize="13" FontWeight="Bold"
+                                               Foreground="{DynamicResource GlassBlush.OnAccent}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="{TemplateBinding Content}"
+                                           FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource GlassBlush.Text}"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,7,0,0"
+                                           TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- ── TIMELINE (glass-03 schedule / glass-06 route) ───────────────
+         Tag = "done" | "active" | "todo" (default). Content = body. -->
+    <Style x:Key="GlassBlush.TimelineItem" TargetType="ContentControl">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Grid Margin="0,0,0,22">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <!-- vertical line (connects consecutive items) -->
+                        <Rectangle Grid.Column="0"
+                                   Width="2"
+                                   HorizontalAlignment="Center"
+                                   Fill="{DynamicResource GlassBlush.BorderSoft}"
+                                   IsHitTestVisible="False"/>
+                        <Border Grid.Column="0"
+                                x:Name="Dot"
+                                Width="12" Height="12"
+                                CornerRadius="6"
+                                Background="{DynamicResource GlassBlush.SurfaceFaint}"
+                                BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                                BorderThickness="1"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Top"
+                                Margin="0,4,0,0"
+                                SnapsToDevicePixels="True"/>
+                        <ContentPresenter Grid.Column="1" Margin="14,0,0,0"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Tag" Value="done">
+                <Setter TargetName="Dot" Property="Background" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                <Setter TargetName="Dot" Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                <Setter TargetName="Dot" Property="Effect" Value="{StaticResource GlassBlush.GlowAccent}"/>
+            </Trigger>
+            <Trigger Property="Tag" Value="active">
+                <Setter TargetName="Dot" Property="Background" Value="{DynamicResource GlassBlush.AccentDeep}"/>
+                <Setter TargetName="Dot" Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                <Setter TargetName="Dot" Property="Effect" Value="{StaticResource GlassBlush.GlowAccent}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- ── PROGRESS BAR (glass-05 stock / glass-07 aging) ──────────────
+         Native PART_Track sizing preserved; glass skin. -->
+    <Style x:Key="GlassBlush.Progress" TargetType="ProgressBar">
+        <Setter Property="Height" Value="10"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassBlush.Accent}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ProgressBar">
+                    <Border CornerRadius="5"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                            BorderThickness="1"
+                            SnapsToDevicePixels="True">
+                        <Grid ClipToBounds="True">
+                            <Border x:Name="PART_Track"
+                                    HorizontalAlignment="Left"
+                                    CornerRadius="5">
+                                <Border CornerRadius="5"
+                                        Margin="1"
+                                        Background="{TemplateBinding Foreground}"
+                                        Effect="{StaticResource GlassBlush.GlowAccent}"/>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ── GLASS TABLE (DataGrid) ──────────────────────────────────────
+         Sub-styles (GridHeader/GridCell/GridRow) are declared first and
+         referenced with DynamicResource; keys are prefix-safe so the
+         in-file W5 first-use check stays clean. Virtualization stays ON
+         (Recycling) — the glass skin adds no per-row effects. -->
+    <Style x:Key="GlassBlush.GridHeader" TargetType="DataGridColumnHeader">
+        <Setter Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassBlush.TextMuted}"/>
+        <Setter Property="FontSize" Value="{DynamicResource GlassBlush.FontLabel}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Padding" Value="12,0"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.BorderSoft}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DataGridColumnHeader">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GlassBlush.GridCell" TargetType="DataGridCell">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+        <Setter Property="FontSize" Value="{DynamicResource GlassBlush.FontBody}"/>
+        <Setter Property="Padding" Value="12,0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DataGridCell">
+                    <Border Background="Transparent" Padding="0" SnapsToDevicePixels="True">
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="GlassBlush.GridRow" TargetType="DataGridRow">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{DynamicResource GlassBlush.AccentSoft}"/>
+                <Setter Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="GlassBlush.DataGrid" TargetType="DataGrid">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="RowBackground" Value="Transparent"/>
+        <Setter Property="AlternatingRowBackground" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+        <Setter Property="FontSize" Value="{DynamicResource GlassBlush.FontBody}"/>
+        <Setter Property="RowHeight" Value="44"/>
+        <Setter Property="GridLinesVisibility" Value="None"/>
+        <Setter Property="HeadersVisibility" Value="Column"/>
+        <Setter Property="SelectionMode" Value="Single"/>
+        <Setter Property="SelectionUnit" Value="FullRow"/>
+        <Setter Property="AutoGenerateColumns" Value="False"/>
+        <Setter Property="CanUserAddRows" Value="False"/>
+        <Setter Property="CanUserDeleteRows" Value="False"/>
+        <Setter Property="CanUserResizeRows" Value="False"/>
+        <Setter Property="IsReadOnly" Value="True"/>
+        <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True"/>
+        <Setter Property="VirtualizingPanel.VirtualizationMode" Value="Recycling"/>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+        <Setter Property="HorizontalScrollBarVisibility" Value="Disabled"/>
+        <Setter Property="ColumnHeaderStyle" Value="{DynamicResource GlassBlush.GridHeader}"/>
+        <Setter Property="CellStyle" Value="{DynamicResource GlassBlush.GridCell}"/>
+        <Setter Property="RowStyle" Value="{DynamicResource GlassBlush.GridRow}"/>
+    </Style>
+
+    <!-- ── SECTION HEADER + ICON CHIP ────────────────────────────────── -->
+    <Style x:Key="GlassBlush.SectionTitle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource GlassBlush.FontHeading}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+    </Style>
+
+    <Style x:Key="GlassBlush.SectionSubtitle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource GlassBlush.FontCaption}"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassBlush.TextMuted}"/>
+        <Setter Property="Margin" Value="0,3,0,0"/>
+    </Style>
+
+    <Style x:Key="GlassBlush.IconChip" TargetType="ContentControl">
+        <Setter Property="Width" Value="36"/>
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Border Background="{DynamicResource GlassBlush.SurfaceFaint}"
+                            BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GlassBlush.IconChipGlyph" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassBlush.TextMuted}"/>
+    </Style>
+
+    <!-- ── GLASS TEXT FIELD ──────────────────────────────────────────── -->
+    <Style x:Key="GlassBlush.TextBox" TargetType="TextBox">
+        <Setter Property="Height" Value="{DynamicResource GlassBlush.ControlHeight}"/>
+        <Setter Property="Padding" Value="16,0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+        <Setter Property="SelectionBrush" Value="{DynamicResource GlassBlush.AccentSoft}"/>
+        <Setter Property="FontSize" Value="{DynamicResource GlassBlush.FontBody}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.BorderSoft}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="Bg"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="{DynamicResource GlassBlush.SmallRadius}"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                        <ScrollViewer x:Name="PART_ContentHost"
+                                      VerticalAlignment="Center"
+                                      Margin="0"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassBlush.Surface}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ── GLASS COMBO BOX ───────────────────────────────────────────── -->
+    <Style x:Key="GlassBlush.ComboBox" TargetType="ComboBox">
+        <Setter Property="Height" Value="{DynamicResource GlassBlush.ControlHeight}"/>
+        <Setter Property="MinWidth" Value="160"/>
+        <Setter Property="Padding" Value="16,0"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+        <Setter Property="FontSize" Value="{DynamicResource GlassBlush.FontBody}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.BorderSoft}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <ToggleButton x:Name="ToggleButton"
+                                      Background="{TemplateBinding Background}"
+                                      IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                      ClickMode="Press">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border x:Name="Bg"
+                                            Background="{TemplateBinding Background}"
+                                            BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                                            BorderThickness="1"
+                                            CornerRadius="{DynamicResource GlassBlush.SmallRadius}"
+                                            SnapsToDevicePixels="True">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="36"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="&#xE70D;"
+                                                       FontFamily="Segoe MDL2 Assets"
+                                                       FontSize="12"
+                                                       Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
+                        <ContentPresenter x:Name="ContentSite"
+                                          IsHitTestVisible="False"
+                                          Content="{TemplateBinding SelectionBoxItem}"
+                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                          ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center"
+                                          HorizontalAlignment="Left"/>
+                        <Popup x:Name="Popup"
+                               Placement="Bottom"
+                               IsOpen="{TemplateBinding IsDropDownOpen}"
+                               AllowsTransparency="True"
+                               Focusable="False"
+                               PopupAnimation="Slide">
+                            <Border MinWidth="{TemplateBinding ActualWidth}"
+                                    MaxHeight="320"
+                                    Margin="0,6,0,0"
+                                    Background="{DynamicResource GlassBlush.SurfaceStrong}"
+                                    BorderBrush="{DynamicResource GlassBlush.Border}"
+                                    BorderThickness="1"
+                                    CornerRadius="{DynamicResource GlassBlush.SmallRadius}"
+                                    Effect="{StaticResource GlassBlush.CardShadowFx}">
+                                <ScrollViewer Margin="4" VerticalScrollBarVisibility="Auto">
+                                    <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="ComboBoxItem">
+                    <Setter Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+                    <Setter Property="FontSize" Value="{DynamicResource GlassBlush.FontBody}"/>
+                    <Setter Property="Padding" Value="14,9"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ComboBoxItem">
+                                <Border x:Name="Bg"
+                                        Background="Transparent"
+                                        CornerRadius="10"
+                                        Padding="{TemplateBinding Padding}"
+                                        Margin="2,1">
+                                    <ContentPresenter VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassBlush.AccentSoft}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ── CHART CARD + LEGEND ───────────────────────────────────────── -->
+    <Style x:Key="GlassBlush.ChartCard" TargetType="ContentControl"
+           BasedOn="{StaticResource GlassBlush.GlassCard}">
+        <Setter Property="MinHeight" Value="220"/>
+    </Style>
+
+    <Style x:Key="GlassBlush.LegendDot" TargetType="Ellipse">
+        <Setter Property="Width" Value="10"/>
+        <Setter Property="Height" Value="10"/>
+        <Setter Property="Fill" Value="{DynamicResource GlassBlush.Accent}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="GlassBlush.LegendLabel" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource GlassBlush.FontCaption}"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassBlush.TextMuted}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="8,0,18,0"/>
+    </Style>
+
+    <!-- ── METRIC READOUT (glass-04 big numbers) ───────────────────────
+         Content = value · Tag = unit/label. -->
+    <Style x:Key="GlassBlush.Metric" TargetType="ContentControl"
+           BasedOn="{StaticResource GlassBlush.KpiCard}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="{DynamicResource GlassBlush.CardRadius}"
+                            Padding="{TemplateBinding Padding}"
+                            Effect="{StaticResource GlassBlush.CardShadowFx}"
+                            SnapsToDevicePixels="True">
+                        <Grid>
+                            <Border CornerRadius="{DynamicResource GlassBlush.CardRadius}"
+                                    Background="{DynamicResource GlassBlush.Sheen}"
+                                    IsHitTestVisible="False"/>
+                            <StackPanel>
+                                <TextBlock Text="{TemplateBinding Content}"
+                                           FontSize="{DynamicResource GlassBlush.FontKpi}"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource GlassBlush.Text}"
+                                           FontFeatures="tnum"
+                                           TextOptions.TextFormattingMode="Display"/>
+                                <TextBlock Text="{TemplateBinding Tag}"
+                                           FontSize="{DynamicResource GlassBlush.FontCaption}"
+                                           Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                           Margin="0,6,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ── EMPTY STATE ─────────────────────────────────────────────────
+         Tag = MDL2 glyph · Content = title. -->
+    <Style x:Key="GlassBlush.EmptyState" TargetType="ContentControl">
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Border Width="56" Height="56" CornerRadius="28"
+                                Background="{DynamicResource GlassBlush.SurfaceFaint}"
+                                BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                                BorderThickness="1"
+                                HorizontalAlignment="Center"
+                                SnapsToDevicePixels="True">
+                            <TextBlock Text="{TemplateBinding Tag}"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="22"
+                                       Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="{TemplateBinding Content}"
+                                   FontSize="{DynamicResource GlassBlush.FontHeading}"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource GlassBlush.Text}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,14,0,0"/>
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ── DIALOG CARD + TITLE + CLOSE ───────────────────────────────── -->
+    <Style x:Key="GlassBlush.DialogCard" TargetType="ContentControl"
+           BasedOn="{StaticResource GlassBlush.GlassCard}">
+        <Setter Property="MinWidth" Value="480"/>
+        <Setter Property="MaxWidth" Value="720"/>
+    </Style>
+
+    <Style x:Key="GlassBlush.DialogTitle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+    </Style>
+
+    <Style x:Key="GlassBlush.DialogCloseButton" TargetType="Button"
+           BasedOn="{StaticResource GlassBlush.TopIconButton}">
+        <Setter Property="Width" Value="32"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <!-- ── CHAT BUBBLES (glass-10) ───────────────────────────────────── -->
+    <Style x:Key="GlassBlush.ChatBubbleAssistant" TargetType="ContentControl">
+        <Setter Property="MaxWidth" Value="640"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="Margin" Value="0,4"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Border Background="{DynamicResource GlassBlush.Surface}"
+                            BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                            BorderThickness="1"
+                            CornerRadius="18"
+                            Padding="16,12"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GlassBlush.ChatBubbleUser" TargetType="ContentControl">
+        <Setter Property="MaxWidth" Value="640"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="Margin" Value="0,4"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Border Background="{DynamicResource GlassBlush.AccentDeep}"
+                            BorderBrush="{DynamicResource GlassBlush.AccentGlow}"
+                            BorderThickness="1"
+                            CornerRadius="18"
+                            Padding="16,12"
+                            Effect="{StaticResource GlassBlush.GlowAccent}"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ── SUGGESTION CHIP (glass-10) ────────────────────────────────── -->
+    <Style x:Key="GlassBlush.SuggestionChip" TargetType="Button"
+           BasedOn="{StaticResource GlassBlush.GlassButtonSoft}">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="14,0"/>
+        <Setter Property="FontSize" Value="{DynamicResource GlassBlush.FontCaption}"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+    </Style>
+
+</ResourceDictionary>

@@ -98,7 +98,7 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 |---|---|---|
 | GB-P1 tokens + visual foundation | ✅ STATIC VERIFIED (tokens authored from measurements; runtime NOT VERIFIED — no .NET SDK) | `GB-P1` |
 | GB-P2 shell | ✅ STATIC VERIFIED (shell + styles; runtime NOT VERIFIED — no .NET SDK) | `GB-P2` |
-| GB-P3 shared components | pending | — |
+| GB-P3 shared components (21/21) | ✅ STATIC VERIFIED (runtime NOT VERIFIED — no .NET SDK) | `GB-P3` |
 | GB-P4…P13 screens (10) | pending | — |
 | GB-P14 Professional↔Personal switch | pending | — |
 | GB-P15 global visual consistency | pending | — |
