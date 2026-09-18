@@ -312,8 +312,8 @@ namespace ProGlassAutomation.Services.Theme.Engine
                 if (!string.IsNullOrWhiteSpace(p.Density))
                     ThemeManager.ApplyDisplayDensity(p.Density);
 
-                ThemeManager.ApplyGradientsPreference(p.UseGradients);
-                ThemeManager.ApplyOutlinePreference(p.UseDefinedOutline);
+                ThemeManager.ApplyGradientPreference(p.UseGradients);
+                ThemeManager.ApplyOutline(p.UseDefinedOutline);
 
                 return true;
             }
