@@ -126,6 +126,16 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   2. List/god-view/activity/detail host the SAME Professional sub-views inside glass cards (documented hybrid — business content untouched; glass composition = tab strip, timeline, cards).
 - **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
 
+### glass-04 — Production Control Center (GB-P7)
+- **Status:** ✅ STATIC VERIFIED · RUNTIME NOT VERIFIED (no .NET SDK) · VISUALLY NOT YET VERIFIED.
+- **Architecture:** Personal view fork `Views/Personal/PersonalProductionControlCenterView.xaml` on the **same `ProductionControlCenterViewModel`** (routed: `case "ProductionControlCenter": CurrentViewModel = ProductionControlCenterVM` — verified). **NIGHT palette**: the measured `GlassBlushNight.*` token set (midnight background `#070C32`, navy glass `#152B50` @25%, neon cyan `#4FD1E8`) applied via **view-scoped `GbNight*` styles** (BasedOn the shared glass components) — no shared-token changes, Professional untouched.
+- **Components used (night variants):** GbNightCard (header/readouts/tables/detail/analytics), GbNightButton/GbNightButtonSoft (Load/Cancel + 8 stage commands), GbNightTab (3-pillar stage ribbon: Cutting/Tempering/DGU, same `Is*Tab` OneWay + `Select*TabCommand`), GbNightTextBox/GbNightComboBox (filter row), GbNightDataGrid + GbNightGridHeader/Cell/Row (virtualized master queue 13 cols, 3 mini queues, 6 analytics tables), GlassBlush.Progress (stage completion).
+- **Contract preserved:** ALL metrics (TotalScheduled/CompletedDone/BalancePending Pcs+Sqm, StageCompletionPct), filters (Search/Readiness/Priority/DueRisk options + selected), all 9 stage commands (Start/Complete/Pause/Resume/Hold/ReleaseHold/Assign/SetPriority/Load/Cancel), Queue SelectedItem TwoWay, Executable/Blocked/Qc/Rework queues, JobProgress/ProcessProgress/QueuePressure/WorkstationLoad/Workstations, selected-item labels (Detail/Traceability/Material/Qc), HasProgress/ProgressLabel, Title/Subtitle.
+- **Deviations (documented):**
+  1. Reference "work center tiles" rendered as the 3 glowing readout cards + stage ribbon (the VM's tile data is the queue/workstation tables below — no tile model to invent).
+  2. Night palette is screen-scoped (only this module is dark in the reference); the rest of the Personal shell stays light-sapphire per refs 01/02/03/05–10.
+- **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
+
 ## Phase status
 
 | Phase | Status | Commit |
@@ -136,7 +146,8 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-P4 dashboard (glass-01) | ✅ STATIC VERIFIED (PersonalDashboardView + shell routing; runtime NOT VERIFIED) | `GB-P4` |
 | GB-P5 proforma invoice (glass-02) | ✅ STATIC VERIFIED (PersonalProformaInvoiceView + 9-step glow strip; runtime NOT VERIFIED) | `GB-P5` |
 | GB-P6 job order (glass-03) | ✅ STATIC VERIFIED (PersonalJobOrderView + glass tab strip + status timeline; runtime NOT VERIFIED) | `GB-P6` |
-| GB-P7…P13 screens (7) | pending | — |
+| GB-P7 production control (glass-04) | ✅ STATIC VERIFIED (PersonalProductionControlCenterView, night palette; runtime NOT VERIFIED) | `GB-P7` |
+| GB-P8…P13 screens (6) | pending | — |
 | GB-P14 Professional↔Personal switch | pending | — |
 | GB-P15 global visual consistency | pending | — |
 | GB-P16 runtime screenshot fidelity | **NOT RUN — no WPF runtime in this environment** (tooling to be delivered) | — |
