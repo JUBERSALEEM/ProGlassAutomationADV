@@ -139,6 +139,24 @@ namespace ProGlassAutomation.Services
             // About scale from the value just written; the ratios are the
             // mockup's own, so the default still renders the approved design.
             AboutSurfaceTokens.Publish(resources, radius);
+
+            // ── MERIDIAN RADIUS SCALE (2026-09-18): the Pg* dashboards
+            // consume {DynamicResource Pg*Radius} (dynamic flip, 2026-09-18).
+            // The old kit's cards followed Surface.Primary.CornerRadius from
+            // this same authority; Meridian authored a 12/9/8/10/7
+            // card/tile/control/icon/icon-sm scale. Republish it
+            // PROPORTIONALLY off the slider (factor = radius/12) so the
+            // Appearance slider keeps affecting the Meridian views while the
+            // authored hierarchy is preserved — at the default 12 every value
+            // is exactly the authored value (zero visual change).
+            // PgChipRadius (999 capsule) is structural and intentionally not
+            // scaled.
+            double rFactor = radius / 12.0;
+            resources["PgCardRadius"] = new CornerRadius(radius);
+            resources["PgTileRadius"] = new CornerRadius(Math.Max(3, Math.Round(9 * rFactor)));
+            resources["PgCtrlRadius"] = new CornerRadius(Math.Max(3, Math.Round(8 * rFactor)));
+            resources["PgIconRadius"] = new CornerRadius(Math.Max(3, Math.Round(10 * rFactor)));
+            resources["PgIconSmRadius"] = new CornerRadius(Math.Max(2, Math.Round(7 * rFactor)));
         }
 
         /// <summary>
@@ -263,36 +281,52 @@ namespace ProGlassAutomation.Services
             foreach (var pair in FontSizeDefaults(resources))
                 resources[pair.Key] = Math.Round(pair.Value * typeScale * 2.0) / 2.0;
 
-            // ── DASHBOARD DENSITY (2026-09-13): Db* tokens now follow Density
-            // so dashboards scale with Compact/Normal/Comfortable/Spacious.
-            // Previously DbPageMargin=20,16,20,20 was fixed, so Compact mode
-            // had no effect on dashboards.
-            double gutter;
-            double kpiMinH;
-            double chartMinH;
+            // ── DASHBOARD DENSITY (2026-09-18, MERIDIAN): the seven
+            // dashboards now scale through the Pg* tokens. The old Db*
+            // ladder was retired with the old kit (Phase 7) — its keys had
+            // zero consumers left. Re-anchored to the Meridian base scale
+            // (gutter 16, KPI min 92, chart min 212 at Spacious); the
+            // relative steps follow the old ladder. Views read these with
+            // DynamicResource, so the saved density always wins.
+            double pgGutter;
+            double pgKpiMinH;
+            double pgChartMinH;
+            Thickness pgPageMargin;
             switch (key)
             {
-                // Re-anchored with the control ladder above: Spacious takes the
-                // old Compact numbers, the rest descend from there.
                 case "Spacious":
-                    gutter = 8; kpiMinH = 80; chartMinH = 180; break;
+                    pgGutter = 16; pgKpiMinH = 92; pgChartMinH = 212;
+                    pgPageMargin = new Thickness(24, 20, 24, 24);
+                    break;
                 case "Comfortable":
-                    gutter = 7; kpiMinH = 72; chartMinH = 164; break;
+                    pgGutter = 14; pgKpiMinH = 84; pgChartMinH = 192;
+                    pgPageMargin = new Thickness(20, 16, 20, 20);
+                    break;
                 case "Normal":
-                    gutter = 6; kpiMinH = 64; chartMinH = 150; break;
-                default:
-                    gutter = 5; kpiMinH = 58; chartMinH = 136; break;
+                    pgGutter = 12; pgKpiMinH = 76; pgChartMinH = 172;
+                    pgPageMargin = new Thickness(16, 12, 16, 16);
+                    break;
+                default: // Compact
+                    pgGutter = 10; pgKpiMinH = 68; pgChartMinH = 152;
+                    pgPageMargin = new Thickness(12, 10, 12, 12);
+                    break;
             }
-            // Dashboard cards are intentionally a touch larger than module cards
-            var dbCardPad = new Thickness(cardPad.Left + 6, cardPad.Top + 7, cardPad.Right + 6, cardPad.Bottom + 7);
-            var dbTilePad = new Thickness(stripPad.Left, stripPad.Top + 2, stripPad.Right, stripPad.Bottom + 2);
-            resources["DbPageMargin"] = pageMargin;
-            resources["DbCardPadding"] = dbCardPad;
-            resources["DbTilePadding"] = dbTilePad;
-            resources["DbGutter"] = gutter;
-            resources["DbGutterHalfMargin"] = new Thickness(gutter / 2.0);
-            resources["DbKpiTileMinHeight"] = kpiMinH;
-            resources["DbChartMinHeight"] = chartMinH;
+            resources["PgPageMargin"] = pgPageMargin;
+            resources["PgGutter"] = new Thickness(pgGutter);
+            resources["PgGutterHalfMargin"] = new Thickness(pgGutter / 2.0);
+            resources["PgKpiTileMinHeight"] = pgKpiMinH;
+            resources["PgChartMinHeight"] = pgChartMinH;
+
+            // ── MERIDIAN TYPE SCALE (2026-09-18): the Pg* dashboards consume
+            // {DynamicResource PgFont*}/{PgTopFont*} (the density flip in
+            // ProfessionalCore/Shell + the 9 rewritten views). Scale that
+            // family off the pristine authored values with the same typeScale
+            // as FontSize.*, so dashboard typography reflows with Density
+            // exactly like the old kit's DynamicResource FontSize.* did.
+            // Pristine capture happens once (see PgFontDefaults) so repeated
+            // density changes never compound.
+            foreach (var pair in PgFontDefaults(resources))
+                resources[pair.Key] = Math.Round(pair.Value * typeScale * 2.0) / 2.0;
 
             // ProGlassLayout.* canonical density vocabulary (LayoutTokens.xaml
             // holds only concrete fallbacks — live density must come from here
@@ -358,6 +392,46 @@ namespace ProGlassAutomation.Services
                 if (resources[key] is double value) captured[key] = value;
 
             _fontSizeDefaults = captured;
+            return captured;
+        }
+
+        /// <summary>
+        /// MERIDIAN (2026-09-18) typography tokens published by
+        /// <c>Themes/Professional/ProfessionalCore.xaml</c> (PgFont*) and
+        /// <c>ProfessionalShell.xaml</c> (PgTopFont*). Listed explicitly so a
+        /// new token shows up as a review-time gap rather than silently
+        /// staying at one fixed size. <c>ApplyDisplayDensity</c> scales this
+        /// family by <c>typeScale</c> so the Pg dashboards' type reflows with
+        /// Density (they read the keys via DynamicResource after the 2026-09-18
+        /// dynamic flip).
+        /// </summary>
+        private static readonly string[] PgFontTokenKeys =
+        {
+            "PgFontHero", "PgFontHeroSub", "PgFontCardTitle", "PgFontCardSub",
+            "PgFontKpiValue", "PgFontKpiLabel", "PgFontKpiFoot",
+            "PgFontStatValue", "PgFontStatLabel", "PgFontStatFoot",
+            "PgFontStageValue", "PgFontStageName", "PgFontStageFoot",
+            "PgFontBody", "PgFontBodySm", "PgFontMeta", "PgFontBtn",
+            "PgFontGlyph", "PgFontGlyphSm",
+            "PgTopFont", "PgTopFontBtn", "PgTopFontCap",
+        };
+
+        private static Dictionary<string, double>? _pgFontDefaults;
+
+        /// <summary>
+        /// Pristine MERIDIAN <c>PgFont*</c>/<c>PgTopFont*</c> values, captured
+        /// on first density application and cached, so repeated density or
+        /// theme changes scale from the authored value and never compound.
+        /// </summary>
+        private static Dictionary<string, double> PgFontDefaults(ResourceDictionary resources)
+        {
+            if (_pgFontDefaults is not null) return _pgFontDefaults;
+
+            var captured = new Dictionary<string, double>(StringComparer.Ordinal);
+            foreach (var key in PgFontTokenKeys)
+                if (resources[key] is double value) captured[key] = value;
+
+            _pgFontDefaults = captured;
             return captured;
         }
 
