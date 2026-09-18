@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProGlass Automation — "Meridian" Full UI Rewrite · 8-Screen Mockup</title>
+<style>
+/* ═════════════════════════════════════════════════════════════════════
+   MERIDIAN — full professional redesign of the ProGlass shell + dashboards.
+   This mockup previews EVERY screen the rewrite will produce:
+     S1 Shell (new sidebar + top bar) · S2 Overview · S3 Sheet Store
+     S4 Proforma · S5 Job Orders · S6 Delivery · S7 Tax Invoice · S8 Statement
+   Every token maps 1:1 to a new WPF resource key (Pg*) added in Phase 0.
+   ═════════════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#F5F7FA;        /* PgPageBrush        */
+  --sf:#FFFFFF;        /* PgSurfaceBrush     */
+  --sf2:#F8FAFC;       /* PgSurface2Brush    */
+  --sf3:#EFF3F8;       /* PgSurface3Brush    */
+  --ln:#E3E8EF;        /* PgHairlineBrush    */
+  --ln2:#CBD4E0;       /* PgHairlineStrong   */
+  --t1:#101828;        /* PgText1Brush       */
+  --t2:#4A5568;        /* PgText2Brush       */
+  --t3:#8A94A6;        /* PgText3Brush       */
+  --ac:#0F6FA8;        /* PgAccentBrush      */
+  --ach:#1485C6;       /* PgAccentHover      */
+  --aci:#0B5D89;       /* PgAccentInk        */
+  --acs:#EAF3FA;       /* PgAccentSoft       */
+  --ok:#0E8F62; --oks:#E7F6F0;   /* PgOk / PgOkSoft      */
+  --wn:#C77700; --wns:#FBF3E4;   /* PgWarn / PgWarnSoft  */
+  --dg:#D23B3B; --dgs:#FBEAEA;   /* PgDanger / PgDangerSoft*/
+  --r-card:12px; --r-tile:9px; --r-ctrl:8px; --gutter:16px;
+}
+[data-theme="dark"]{
+  --bg:#0D131C; --sf:#141C28; --sf2:#0F1622; --sf3:#1B2634;
+  --ln:#223045; --ln2:#2E3F59;
+  --t1:#F2F6FA; --t2:#A5B1C2; --t3:#67748B;
+  --ac:#46A0D8; --ach:#6BB4E3; --aci:#93CCED; --acs:#112434;
+  --ok:#34D399; --oks:#0C231C;
+  --wn:#F5A524; --wns:#241B0D;
+  --dg:#F87171; --dgs:#261214;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",system-ui,-apple-system,"Inter",Roboto,Arial,sans-serif;background:var(--bg);color:var(--t1);font-size:13px;-webkit-font-smoothing:antialiased}
+.num{font-variant-numeric:tabular-nums}
+
+/* ── mockup chrome ── */
+.mbar{position:sticky;top:0;z-index:60;height:44px;display:flex;align-items:center;gap:10px;padding:0 14px;background:var(--t1);color:var(--bg);overflow-x:auto}
+.mbar .mt{font-weight:700;font-size:12.5px;white-space:nowrap}
+.mbar .mn{font-size:11px;opacity:.55;white-space:nowrap}
+.mbar .sp{flex:1}
+.mtab{border:0;background:transparent;color:var(--bg);opacity:.6;font:600 11.5px/1 inherit;font-family:inherit;padding:8px 11px;border-radius:7px;cursor:pointer;white-space:nowrap}
+.mtab:hover{opacity:.9}
+.mtab.on{background:rgba(255,255,255,.14);opacity:1}
+.tseg{display:flex;background:rgba(255,255,255,.1);border-radius:8px;padding:2px;flex:none}
+.tseg button{border:0;background:transparent;color:var(--bg);font:600 11px/1 inherit;font-family:inherit;padding:6px 10px;border-radius:6px;cursor:pointer;opacity:.65}
+.tseg button.on{background:var(--bg);color:var(--t1);opacity:1}
+
+/* ── app frame ── */
+.app{display:flex;height:calc(100vh - 44px);min-height:640px}
+.screen{display:none;width:100%}
+.screen.on{display:flex}
+
+/* ── top bar ── */
+.topbar{flex:none;width:100%;display:flex;align-items:center;gap:12px;height:52px;padding:0 16px;background:var(--sf);border-bottom:1px solid var(--ln);position:relative;z-index:20}
+.tb-burger{width:34px;height:34px;border-radius:var(--r-ctrl);border:1px solid transparent;background:transparent;color:var(--t2);display:grid;place-items:center;cursor:pointer}
+.tb-burger:hover{background:var(--sf3);color:var(--t1)}
+.tb-brand{display:flex;align-items:center;gap:10px;cursor:pointer}
+.tb-logo{width:30px;height:30px;border-radius:8px;background:var(--ac);display:grid;place-items:center;color:#fff;font:800 11px/1 inherit;letter-spacing:.02em}
+.tb-brand b{font-size:13.5px;letter-spacing:-.01em}
+.tb-brand small{display:block;font-size:9.5px;font-weight:600;color:var(--t3);letter-spacing:.08em;margin-top:1px}
+.tb-search{flex:1;max-width:460px;margin:0 10px;height:34px;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--sf2);border:1px solid var(--ln);border-radius:var(--r-ctrl);color:var(--t3)}
+.tb-search kbd{margin-left:auto;font:600 10px/1 ui-monospace,monospace;border:1px solid var(--ln);border-radius:4px;padding:3px 5px;background:var(--sf)}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:6px}
+.tb-ib{width:34px;height:34px;border-radius:var(--r-ctrl);border:1px solid transparent;background:transparent;color:var(--t2);display:grid;place-items:center;cursor:pointer;position:relative}
+.tb-ib:hover{background:var(--sf3);color:var(--t1)}
+.tb-ib .dot{position:absolute;top:7px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--dg);border:1.5px solid var(--sf)}
+.tb-pill{height:34px;display:flex;align-items:center;gap:8px;padding:0 11px;background:var(--sf2);border:1px solid var(--ln);border-radius:var(--r-ctrl)}
+.tb-pill .ic{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:#fff;background:var(--ac);flex:none}
+.tb-pill .ic.ok{background:var(--ok)}
+.tb-pill .cap{font-size:9.5px;font-weight:600;color:var(--t3);line-height:1.1}
+.tb-pill .ttl{font-size:11.5px;font-weight:600;line-height:1.15}
+.tb-ai{height:34px;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--acs);border:1px solid var(--ac);border-radius:999px;cursor:pointer;font-weight:700;font-size:10.5px;color:var(--aci)}
+.tb-ai i{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:pl 2s infinite}
+@keyframes pl{0%,100%{opacity:1}50%{opacity:.3}}
+.tb-user{display:flex;align-items:center;gap:8px;height:34px;padding:3px 10px 3px 4px;background:transparent;border:1px solid var(--ln);border-radius:var(--r-ctrl);cursor:pointer}
+.tb-user:hover{background:var(--sf3)}
+.tb-user .av{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--ac),var(--aci));color:#fff;display:grid;place-items:center;font:700 10px/1 inherit}
+.tb-user .nm{font-size:11.5px;font-weight:600;line-height:1.15;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-user .rl{font-size:9.5px;color:var(--t3);line-height:1.1}
+
+/* ── sidebar ── */
+.sidebar{width:258px;flex:none;background:var(--sf);border-right:1px solid var(--ln);display:flex;flex-direction:column;overflow-y:auto;padding:12px 10px 14px}
+.sb-grp{font:700 9.5px/1 inherit;letter-spacing:.11em;color:var(--t3);padding:16px 10px 7px}
+.sb-grp:first-child{padding-top:6px}
+.sb-it{display:flex;align-items:center;gap:10px;height:40px;padding:0 9px;border-radius:9px;color:var(--t2);cursor:pointer;font-weight:500;position:relative}
+.sb-it:hover{background:var(--sf3);color:var(--t1)}
+.sb-it .ic{width:28px;height:28px;border-radius:8px;background:var(--sf3);display:grid;place-items:center;flex:none;color:var(--t2)}
+.sb-it.on{background:var(--acs);color:var(--aci);font-weight:600;box-shadow:inset 3px 0 0 var(--ac)}
+.sb-it.on .ic{background:var(--ac);color:#fff}
+.sb-it .chev{margin-left:auto;opacity:.5;transition:transform .18s}
+.sb-it.open .chev{transform:rotate(90deg);opacity:1}
+.sb-sub{margin:2px 0 6px 24px;border-left:1px solid var(--ln);padding-left:6px}
+.sb-sub .sb-it{height:34px;font-size:12.5px}
+.sb-sub .sb-it .dot{width:5px;height:5px;border-radius:50%;background:var(--t3);flex:none}
+.sb-sub .sb-it.on .dot{background:var(--ac)}
+.sb-sub .sb-it .ic{display:none}
+.sb-foot{margin-top:auto;padding:10px;border:1px solid var(--ln);border-radius:10px;background:var(--sf2);cursor:pointer}
+.sb-foot .l{display:flex;justify-content:space-between;font-size:10.5px;font-weight:600;color:var(--t2);margin-bottom:7px}
+.sb-foot .bar{height:5px;border-radius:3px;background:var(--ln);overflow:hidden}
+.sb-foot .bar i{display:block;height:100%;width:62%;background:var(--ac);border-radius:3px}
+.sb-foot .v{font-size:10px;color:var(--t3);margin-top:6px}
+
+/* ── content ── */
+.content{flex:1;min-width:0;overflow-y:auto;padding:20px 24px 30px;display:flex;flex-direction:column;gap:var(--gutter)}
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:var(--r-card);padding:18px;min-width:0}
+.card .head{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+.card .head h3{font:600 13px/1.35 inherit;letter-spacing:.01em}
+.card .head .sub{font:400 11.5px/1.4 inherit;color:var(--t3);min-width:0}
+.card .head .link{margin-left:auto;font:600 11.5px/1 inherit;color:var(--ac);text-decoration:none;white-space:nowrap;cursor:pointer}
+
+/* hero */
+.hero{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.hero h1{font:650 20px/1.25 inherit;letter-spacing:-.015em}
+.hero p{font:400 12.5px/1.45 inherit;color:var(--t2);margin-top:3px}
+.hero .acts{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.live{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border-radius:999px;background:var(--oks);color:var(--ok);font:700 10.5px/1 inherit;letter-spacing:.05em}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pl 2s infinite}
+.rtime{font:400 11.5px/1 inherit;color:var(--t3);align-self:center}
+.btn{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 14px;border-radius:var(--r-ctrl);font:600 12px/1 inherit;font-family:inherit;cursor:pointer;border:1px solid var(--ln);background:var(--sf);color:var(--t1);white-space:nowrap}
+.btn:hover{border-color:var(--ln2);background:var(--sf3)}
+.btn.pri{background:var(--ac);border-color:var(--ac);color:#fff}
+.btn.pri:hover{background:var(--ach)}
+.btn svg{flex:none}
+
+/* pipeline */
+.pipeline{display:grid;grid-template-columns:repeat(5,1fr)}
+.stage{position:relative;padding:2px 14px 2px 0;display:flex;flex-direction:column;gap:3px;min-width:0}
+.stage+.stage{padding-left:14px}
+.stage+.stage::before{content:"";position:absolute;left:0;top:20px;width:14px;height:2px;background:var(--ln)}
+.stage+.stage.dg::before{background:var(--dg)} .stage+.stage.wn::before{background:var(--wn)}
+.s-ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;margin-bottom:7px;background:var(--sf2);border:1px solid var(--ln);color:var(--t2)}
+.stage.dg .s-ic{background:var(--dgs);border-color:transparent;color:var(--dg);box-shadow:0 0 0 2px var(--dgs)}
+.stage.wn .s-ic{background:var(--wns);border-color:transparent;color:var(--wn);box-shadow:0 0 0 2px var(--wns)}
+.stage.ok .s-ic{background:var(--oks);border-color:transparent;color:var(--ok);box-shadow:0 0 0 2px var(--oks)}
+.s-nm{font:600 10.5px/1 inherit;letter-spacing:.06em;color:var(--t2);text-transform:uppercase}
+.s-vl{font:700 20px/1.15 inherit;letter-spacing:-.01em}
+.s-ft{font:400 11.5px/1.35 inherit;color:var(--t3)}
+.stage.dg .s-ft{color:var(--dg);font-weight:600}.stage.wn .s-ft{color:var(--wn);font-weight:600}.stage.ok .s-ft{color:var(--ok)}
+
+/* rows */
+.row{display:grid;gap:var(--gutter);min-width:0}
+.r-a{grid-template-columns:minmax(0,48fr) minmax(0,30fr) minmax(0,22fr)}
+.r-b{grid-template-columns:minmax(0,55fr) minmax(0,45fr)}
+.r-c{grid-template-columns:repeat(4,minmax(0,1fr))}
+.r-21{grid-template-columns:minmax(0,55fr) minmax(0,45fr)}
+.r-3{grid-template-columns:minmax(0,2fr) minmax(0,1.2fr) minmax(0,.9fr)}
+.stack{display:flex;flex-direction:column;gap:var(--gutter);min-width:0}
+
+/* KPI tiles */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.tiles.c2{grid-template-columns:repeat(2,1fr)}
+.tile{position:relative;background:var(--sf2);border:1px solid var(--ln);border-radius:var(--r-tile);padding:12px 13px 12px 15px;min-width:0}
+.tile.alert{border-color:transparent;box-shadow:inset 3px 0 0 var(--dg)}
+.tile .top{display:flex;align-items:center;gap:8px}
+.tile .tic{width:24px;height:24px;border-radius:7px;background:var(--sf);border:1px solid var(--ln);display:grid;place-items:center;color:var(--t2);flex:none}
+.tile.alert .tic{background:var(--dgs);border-color:transparent;color:var(--dg)}
+.tile .tl{font:600 10.5px/1.35 inherit;letter-spacing:.045em;color:var(--t3);text-transform:uppercase;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.tile .tv{font:700 22px/1.2 inherit;letter-spacing:-.015em;margin-top:7px;white-space:nowrap}
+.tile.alert .tv{color:var(--dg)}
+.tile .tf{font:400 11px/1.4 inherit;color:var(--t3);margin-top:3px}
+
+/* pulse + stats */
+.pulse .big .v{font:700 26px/1.15 inherit;letter-spacing:-.02em;white-space:nowrap}
+.pulse .big .h{font:400 11.5px/1.4 inherit;color:var(--t3);margin-top:6px}
+.spark{display:flex;align-items:flex-end;gap:4px;height:64px;flex:none}
+.spark i{width:9px;border-radius:3px 3px 0 0;background:var(--ac);opacity:.5}
+.spark i:last-child{background:var(--aci);opacity:1}
+.stat{flex:1;display:flex;flex-direction:column;justify-content:center;padding:15px 16px;position:relative}
+.stat .k{font:600 10.5px/1.4 inherit;letter-spacing:.07em;color:var(--t3);text-transform:uppercase}
+.stat .v{font:700 24px/1.15 inherit;letter-spacing:-.015em;margin-top:5px}
+.stat.alert .v{color:var(--dg)}.stat.warn .v{color:var(--wn)}
+.stat.alert::before,.stat.warn::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:2px}
+.stat.alert::before{background:var(--dg)}.stat.warn::before{background:var(--wn)}
+.stat .f{font:400 11px/1.4 inherit;color:var(--t3);margin-top:4px}
+
+/* charts */
+.well{background:var(--sf2);border:1px solid var(--ln);border-radius:var(--r-tile);padding:12px}
+.bars{display:flex;align-items:flex-end;gap:12px;height:196px;padding:12px 6px 0}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;min-width:0}
+.bar .val{font:600 10.5px/1 inherit;color:var(--t3)}
+.bar .fill{width:100%;max-width:46px;border-radius:4px 4px 0 0;background:var(--ac);opacity:.85}
+.bar:last-child .fill{background:var(--aci);opacity:1}
+.bar .mo{font:400 11px/1.3 inherit;color:var(--t3);padding-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.hbars{display:flex;flex-direction:column;gap:12px;padding-top:4px}
+.hb{min-width:0}
+.hb .l{display:flex;justify-content:space-between;font:500 11.5px/1.4 inherit;color:var(--t2);margin-bottom:5px}
+.hb .l b{color:var(--t1);font-variant-numeric:tabular-nums}
+.hb .tr{height:8px;border-radius:4px;background:var(--ln);overflow:hidden}
+.hb .tr i{display:block;height:100%;background:var(--ac);border-radius:4px}
+.hb .tr i.hi{background:var(--aci)}
+.donutwrap{display:flex;gap:18px;align-items:center}
+.legend{display:flex;flex-direction:column;gap:9px;min-width:0}
+.legend .li{display:flex;align-items:center;gap:8px;font:400 12px/1.4 inherit;color:var(--t2);min-width:0}
+.legend .li i{width:9px;height:9px;border-radius:3px;flex:none}
+.legend .li b{margin-left:auto;font:600 12px/1 inherit;color:var(--t1);white-space:nowrap}
+
+/* feed + list rows */
+.feed{display:flex;flex-direction:column}
+.fr{display:flex;align-items:center;gap:11px;padding:10px 2px;border-top:1px solid var(--ln);min-width:0}
+.fr:first-child{border-top:0;padding-top:2px}
+.fr .fi{width:28px;height:28px;border-radius:8px;flex:none;display:grid;place-items:center;background:var(--sf2);border:1px solid var(--ln);color:var(--t2)}
+.fr .ft{min-width:0}
+.fr .ft b{display:block;font:600 12.5px/1.35 inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fr .ft span{display:block;font:400 11px/1.4 inherit;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fr time,.fr .amt{margin-left:auto;flex:none;font:600 11.5px/1.3 inherit;color:var(--t3)}
+.fr .amt{color:var(--t1)}
+.pill{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;font:700 10px/1 inherit;letter-spacing:.03em}
+.pill.ok{background:var(--oks);color:var(--ok)}
+.pill.wn{background:var(--wns);color:var(--wn)}
+.pill.dg{background:var(--dgs);color:var(--dg)}
+.pill.in{background:var(--acs);color:var(--aci)}
+
+/* invoice / statement rows */
+.docrow{display:flex;align-items:center;gap:12px;padding:11px 2px;border-top:1px solid var(--ln);min-width:0;cursor:pointer}
+.docrow:first-child{border-top:0}
+.docrow:hover{background:var(--sf2);border-radius:8px}
+.docrow .d-ic{width:34px;height:34px;border-radius:9px;flex:none;display:grid;place-items:center;background:var(--sf2);border:1px solid var(--ln);color:var(--t2)}
+.docrow .d-ic.ok{background:var(--oks);border-color:transparent;color:var(--ok)}
+.docrow .d-ic.wn{background:var(--wns);border-color:transparent;color:var(--wn)}
+.docrow .d-ic.dg{background:var(--dgs);border-color:transparent;color:var(--dg)}
+.docrow .d-mid{min-width:0;flex:1}
+.docrow .d-mid b{display:block;font:600 12.5px/1.35 inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.docrow .d-mid span{display:block;font:400 11px/1.45 inherit;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.docrow .d-right{text-align:right;flex:none}
+.docrow .d-right .a{font:700 12.5px/1.3 inherit;white-space:nowrap}
+.docrow .d-right .p{margin-top:4px}
+.rk{width:24px;height:24px;border-radius:7px;flex:none;display:grid;place-items:center;font:700 10.5px/1 inherit;color:#fff}
+.rk1{background:var(--aci)}.rk2{background:var(--ac);opacity:.8}.rk3{background:var(--ac);opacity:.6}
+.aging .a-row{padding:10px 0;border-top:1px solid var(--ln);min-width:0}
+.aging .a-row:first-child{border-top:0}
+.aging .a-l{display:flex;justify-content:space-between;align-items:baseline;font:500 12px/1.4 inherit;color:var(--t2);margin-bottom:6px}
+.aging .a-l b{color:var(--t1)}
+.aging .a-l b.wn{color:var(--wn)}.aging .a-l b.dg{color:var(--dg)}.aging .a-l b.ok{color:var(--ok)}
+.aging .tr{height:7px;border-radius:4px;background:var(--ln);overflow:hidden}
+.aging .tr i{display:block;height:100%;border-radius:4px}
+.alert-band{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:var(--r-tile);background:var(--dgs);border:1px solid var(--dg);color:var(--dg);font:600 12px/1.45 inherit}
+.empty{padding:36px 12px;text-align:center;color:var(--t3);font:400 12px/1.5 inherit}
+
+@media (max-width:1200px){
+  .r-a,.r-3{grid-template-columns:1fr 1fr}
+  .r-b,.r-21,.r-c{grid-template-columns:1fr}
+  .tiles{grid-template-columns:1fr 1fr}
+  .pipeline{grid-template-columns:1fr 1fr;gap:12px 0}
+  .stage+.stage::before{display:none}
+  .sidebar{width:220px}
+}
+</style>
+</head>
+<body>
+
+<div class="mbar">
+  <span class="mt">ProGlass · MERIDIAN rewrite</span>
+  <span class="mn">8 screens · all bindings preserved · Phase 0→7 plan in REWRITE_PHASES.md</span>
+  <span class="sp"></span>
+  <button class="mtab on" data-s="1">1 · Shell</button>
+  <button class="mtab" data-s="2">2 · Overview</button>
+  <button class="mtab" data-s="3">3 · Sheet Store</button>
+  <button class="mtab" data-s="4">4 · Proforma</button>
+  <button class="mtab" data-s="5">5 · Job Orders</button>
+  <button class="mtab" data-s="6">6 · Delivery</button>
+  <button class="mtab" data-s="7">7 · Tax Invoice</button>
+  <button class="mtab" data-s="8">8 · Statement</button>
+  <div class="tseg"><button class="on" onclick="th('light')">Light</button><button onclick="th('dark')">Dark</button></div>
+</div>
+
+<!-- ═══════════════ SCREEN 1 · SHELL (new sidebar + top bar) ═══════════════ -->
+<div class="screen on" id="s1"><div class="app" style="width:100%">
+  <div class="topbar" data-tb="Dashboard"></div>
+  <aside class="sidebar" data-sb="Dashboard"></aside>
+  <div class="content">
+    <div class="hero">
+      <div><h1>Factory Pulse</h1><p>Operational analytics — invoices, jobs, delivery, stock</p></div>
+      <div class="acts"><span class="live"><i></i>LIVE</span><span class="rtime">Last refreshed 18 Sep 2026, 14:32</span></div>
+    </div>
+    <div class="card">
+      <div class="head"><h3>Pipeline volume and confirmation</h3><span class="sub">Where the work is stuck — live counts per handoff</span><a class="link">View all</a></div>
+      <div class="pipeline" data-pipe></div>
+    </div>
+    <div class="row r-a">
+      <div class="card pulse">
+        <div class="head"><h3>Factory Pulse</h3><span class="sub">Total sales</span></div>
+        <div style="display:flex;gap:16px;align-items:flex-end">
+          <div class="big" style="min-width:0"><div class="v num">AED 1,284,530</div><div class="h">This month · AED 412,300</div></div>
+          <div class="spark" style="margin-left:auto"><i style="height:38%"></i><i style="height:44%"></i><i style="height:35%"></i><i style="height:52%"></i><i style="height:60%"></i><i style="height:48%"></i><i style="height:74%"></i></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="head"><h3>Delivery mix</h3><span class="sub">Notes and remaining pcs</span></div>
+        <div class="donutwrap"><svg width="128" height="128" viewBox="0 0 132 132"><g transform="rotate(-90 66 66)"><circle cx="66" cy="66" r="52" fill="none" stroke="var(--sf3)" stroke-width="15"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--ac)" stroke-width="15" stroke-dasharray="202 326.7"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--ach)" stroke-width="15" stroke-dasharray="85 326.7" stroke-dashoffset="-206" opacity=".7"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--ach)" stroke-width="15" stroke-dasharray="38.5 326.7" stroke-dashoffset="-295" opacity=".4"/></g><text x="66" y="63" text-anchor="middle" style="font:700 17px inherit" fill="var(--t1)">456</text><text x="66" y="78" text-anchor="middle" style="font:600 8.5px inherit;letter-spacing:.08em" fill="var(--t3)">MIX · PCS</text></svg>
+        <div class="legend"><span class="li"><i style="background:var(--ac)"></i>Delivered<b class="num">283</b></span><span class="li"><i style="background:var(--ach);opacity:.7"></i>In transit<b class="num">114</b></span><span class="li"><i style="background:var(--ach);opacity:.4"></i>Pending<b class="num">59</b></span></div></div>
+      </div>
+      <div class="stack">
+        <div class="card stat"><span class="k">In Production</span><span class="v num">24</span></div>
+        <div class="card stat alert"><span class="k">Overdue</span><span class="v num">3</span></div>
+        <div class="card stat warn"><span class="k">Pending PCS</span><span class="v num">48</span></div>
+      </div>
+    </div>
+    <div class="row r-b">
+      <div class="card">
+        <div class="head"><h3>Revenue trend</h3><span class="sub">By invoiced amount, last 6 months</span></div>
+        <div class="well"><div class="bars">
+          <div class="bar"><span class="val num">386k</span><div class="fill" style="height:56%"></div><span class="mo">Apr</span></div>
+          <div class="bar"><span class="val num">402k</span><div class="fill" style="height:58%"></div><span class="mo">May</span></div>
+          <div class="bar"><span class="val num">355k</span><div class="fill" style="height:51%"></div><span class="mo">Jun</span></div>
+          <div class="bar"><span class="val num">428k</span><div class="fill" style="height:62%"></div><span class="mo">Jul</span></div>
+          <div class="bar"><span class="val num">461k</span><div class="fill" style="height:67%"></div><span class="mo">Aug</span></div>
+          <div class="bar"><span class="val num">412k</span><div class="fill" style="height:60%"></div><span class="mo">Sep</span></div>
+        </div></div>
+      </div>
+      <div class="card">
+        <div class="head"><h3>Recent documents</h3><a class="link">View all</a></div>
+        <div class="feed">
+          <div class="fr"><span class="fi">📄</span><span class="ft"><b>PI-2026-041 · New proforma</b><span>Al Bahar Trading</span></span><time>09:14</time></div>
+          <div class="fr"><span class="fi">🏭</span><span class="ft"><b>JO-2026-004 · Moved to production</b><span>76 pcs · low-e DGU</span></span><time>10:02</time></div>
+          <div class="fr"><span class="fi">🚚</span><span class="ft"><b>DN-2026-019 · Dispatched</b><span>120 pcs · Emirates Glass LLC</span></span><time>11:27</time></div>
+          <div class="fr"><span class="fi">🧾</span><span class="ft"><b>TI-2026-033 · Invoiced</b><span>AED 48,250.00 · VAT inclusive</span></span><time>12:41</time></div>
+          <div class="fr"><span class="fi">📑</span><span class="ft"><b>ST-2026-011 · Statement generated</b><span>Al Bahar Trading · 3 invoices</span></span><time>13:58</time></div>
+        </div>
+      </div>
+    </div>
+    <div class="row r-c">
+      <div class="card"><div class="head"><h3 style="font:600 10.5px/1.4 inherit;letter-spacing:.07em;text-transform:uppercase;color:var(--t3)">Sales</h3></div>
+        <div class="tiles c2" data-tiles='[["Total Sales","AED 1,284,530",""],["Invoices","128",""],["This Month","AED 412,300",""],["Approved","96",""]]'></div></div>
+      <div class="card"><div class="head"><h3 style="font:600 10.5px/1.4 inherit;letter-spacing:.07em;text-transform:uppercase;color:var(--t3)">Production</h3></div>
+        <div class="tiles c2" data-tiles='[["In Production","24",""],["Overdue","3","alert"],["Completed MTD","18",""],["Total Jobs","214",""]]'></div></div>
+      <div class="card"><div class="head"><h3 style="font:600 10.5px/1.4 inherit;letter-spacing:.07em;text-transform:uppercase;color:var(--t3)">Sheet Store</h3></div>
+        <div class="tiles c2" data-tiles='[["Stock Value","AED 2,318,400",""],["Low Stock","6","alert"],["Sheet Types","42",""],["Total Sheets","1,284",""]]'></div></div>
+      <div class="card"><div class="head"><h3 style="font:600 10.5px/1.4 inherit;letter-spacing:.07em;text-transform:uppercase;color:var(--t3)">Delivery</h3></div>
+        <div class="tiles c2" data-tiles='[["Preparing","4",""],["Dispatched","5",""],["Delivered Today","120 pcs",""],["Pending Balance","48 pcs","alert"]]'></div></div>
+    </div>
+  </div>
+</div></div>
+
+<!-- ═══════════════ SCREEN 3 · SHEET STORE ═══════════════ -->
+<div class="screen" id="s3"><div class="app" style="width:100%">
+  <div class="topbar" data-tb="SheetStore"></div>
+  <aside class="sidebar" data-sb="SheetStore"></aside>
+  <div class="content">
+    <div class="hero"><div><h1>Sheet Store</h1><p>Live snapshot of glass sheet stock, value and coverage</p></div>
+      <div class="acts"><span class="live"><i></i>LIVE</span><span class="rtime">Last refreshed 18 Sep 2026, 14:32</span></div></div>
+    <div class="card"><div class="head"><h3>Stock pulse</h3><span class="sub">Types, value, coverage and alerts</span></div>
+      <div class="tiles" data-tiles='[["Stock Value","AED 2,318,400",""],["Total Sheets","1,284",""],["Sheet Types","42",""],["Low Stock","6","alert"]]' data-foot='["at sell price","available now","active SKUs","below reorder level"]'></div></div>
+    <div class="row r-21">
+      <div class="card"><div class="head"><h3>Available SQM by category</h3><span class="sub" style="margin-left:auto">Balance sheets</span></div>
+        <div class="well"><div class="bars">
+          <div class="bar"><span class="val num">642</span><div class="fill" style="height:88%"></div><span class="mo">Clear</span></div>
+          <div class="bar"><span class="val num">418</span><div class="fill" style="height:58%"></div><span class="mo">Low-E</span></div>
+          <div class="bar"><span class="val num">286</span><div class="fill" style="height:40%"></div><span class="mo">Obscure</span></div>
+          <div class="bar"><span class="val num">194</span><div class="fill" style="height:27%"></div><span class="mo">Tempered</span></div>
+          <div class="bar"><span class="val num">88</span><div class="fill" style="height:12%"></div><span class="mo">Laminated</span></div>
+        </div></div></div>
+      <div class="card"><div class="head"><h3>Category mix</h3><span class="sub">Available SQM by glass category</span></div>
+        <div class="donutwrap"><svg width="128" height="128" viewBox="0 0 132 132"><g transform="rotate(-90 66 66)"><circle cx="66" cy="66" r="52" fill="none" stroke="var(--sf3)" stroke-width="15"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--ac)" stroke-width="15" stroke-dasharray="140 326.7"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--ach)" stroke-width="15" stroke-dasharray="90 326.7" stroke-dashoffset="-144" opacity=".7"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--ach)" stroke-width="15" stroke-dasharray="60 326.7" stroke-dashoffset="-238" opacity=".45"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--ach)" stroke-width="15" stroke-dasharray="33 326.7" stroke-dashoffset="-302" opacity=".22"/></g><text x="66" y="63" text-anchor="middle" style="font:700 15px inherit" fill="var(--t1)">1,628</text><text x="66" y="78" text-anchor="middle" style="font:600 8.5px inherit;letter-spacing:.08em" fill="var(--t3)">SQM</text></svg>
+        <div class="legend"><span class="li"><i style="background:var(--ac)"></i>Clear<b class="num">642</b></span><span class="li"><i style="background:var(--ach);opacity:.7"></i>Low-E<b class="num">418</b></span><span class="li"><i style="background:var(--ach);opacity:.45"></i>Obscure<b class="num">286</b></span><span class="li"><i style="background:var(--ach);opacity:.22"></i>Other<b class="num">282</b></span></div></div></div>
+    </div>
+  </div>
+</div></div>
+
+<!-- ═══════════════ SCREEN 4 · PROFORMA ═══════════════ -->
+<div class="screen" id="s4"><div class="app" style="width:100%">
+  <div class="topbar" data-tb="ProformaInvoice"></div>
+  <aside class="sidebar" data-sb="ProformaInvoice"></aside>
+  <div class="content">
+    <div class="hero"><div><h1>Proforma Invoice</h1><p>Quote pipeline, status distribution and top customers</p></div>
+      <div class="acts"><span class="live"><i></i>LIVE</span><span class="rtime">Last refreshed 18 Sep 2026, 14:32</span></div></div>
+    <div class="card"><div class="head"><h3>Quote pulse</h3><span class="sub">Pipeline volume and confirmation</span></div>
+      <div class="tiles" data-tiles='[["Total Quotes","214",""],["Draft","32",""],["Approved","96",""],["Converted","58",""]]' data-foot='["all time","in progress","signed off","to job order"]'></div></div>
+    <div class="row r-21">
+      <div class="card"><div class="head"><h3>Status distribution</h3><span class="sub" style="margin-left:auto">Invoices grouped by current status</span></div>
+        <div class="well"><div class="bars">
+          <div class="bar"><span class="val num">32</span><div class="fill" style="height:22%"></div><span class="mo">Draft</span></div>
+          <div class="bar"><span class="val num">96</span><div class="fill" style="height:66%"></div><span class="mo">Approved</span></div>
+          <div class="bar"><span class="val num">58</span><div class="fill" style="height:40%"></div><span class="mo">Accepted</span></div>
+          <div class="bar"><span class="val num">18</span><div class="fill" style="height:12%"></div><span class="mo">Declined</span></div>
+          <div class="bar"><span class="val num">58</span><div class="fill" style="height:40%"></div><span class="mo">Converted</span></div>
+        </div></div></div>
+      <div class="card"><div class="head"><h3>Status mix</h3><span class="sub">Count of quotes</span></div>
+        <div class="donutwrap"><svg width="128" height="128" viewBox="0 0 132 132"><g transform="rotate(-90 66 66)"><circle cx="66" cy="66" r="52" fill="none" stroke="var(--sf3)" stroke-width="15"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--ac)" stroke-width="15" stroke-dasharray="108 326.7"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--ach)" stroke-width="15" stroke-dasharray="59 326.7" stroke-dashoffset="-112" opacity=".7"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--ach)" stroke-width="15" stroke-dasharray="58 326.7" stroke-dashoffset="-175" opacity=".45"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--ach)" stroke-width="15" stroke-dasharray="98 326.7" stroke-dashoffset="-237" opacity=".25"/></g><text x="66" y="63" text-anchor="middle" style="font:700 15px inherit" fill="var(--t1)">214</text><text x="66" y="78" text-anchor="middle" style="font:600 8.5px inherit;letter-spacing:.08em" fill="var(--t3)">QUOTES</text></svg>
+        <div class="legend"><span class="li"><i style="background:var(--ac)"></i>Approved<b class="num">96</b></span><span class="li"><i style="background:var(--ach);opacity:.7"></i>Accepted<b class="num">58</b></span><span class="li"><i style="background:var(--ach);opacity:.45"></i>Converted<b class="num">58</b></span><span class="li"><i style="background:var(--ach);opacity:.25"></i>Draft + declined<b class="num">50</b></span></div></div></div>
+    </div>
+    <div class="card"><div class="head"><h3>Top customers</h3><span class="sub" style="margin-left:auto">Ranked by total invoice value · VAT inclusive</span></div>
+      <div class="hbars">
+        <div class="hb"><div class="l"><span>Al Bahar Trading</span><b class="num">AED 486,200</b></div><div class="tr"><i class="hi" style="width:92%"></i></div></div>
+        <div class="hb"><div class="l"><span>Emirates Glass LLC</span><b class="num">AED 391,450</b></div><div class="tr"><i style="width:75%"></i></div></div>
+        <div class="hb"><div class="l"><span>Desert Window Systems</span><b class="num">AED 264,800</b></div><div class="tr"><i style="width:51%"></i></div></div>
+        <div class="hb"><div class="l"><span>Gulf Fabricators</span><b class="num">AED 187,300</b></div><div class="tr"><i style="width:36%"></i></div></div>
+        <div class="hb"><div class="l"><span>Oman Interiors</span><b class="num">AED 121,900</b></div><div class="tr"><i style="width:24%"></i></div></div>
+      </div></div>
+  </div>
+</div></div>
+
+<!-- ═══════════════ SCREEN 5 · JOB ORDERS ═══════════════ -->
+<div class="screen" id="s5"><div class="app" style="width:100%">
+  <div class="topbar" data-tb="JobOrder"></div>
+  <aside class="sidebar" data-sb="JobOrder"></aside>
+  <div class="content">
+    <div class="hero"><div><h1>Job Orders</h1><p>Production workload, priority mix and recent job activity</p></div>
+      <div class="acts"><span class="live"><i></i>LIVE</span><span class="rtime">Last refreshed 18 Sep 2026, 14:32</span></div></div>
+    <div class="card"><div class="head"><h3>Production pulse</h3><span class="sub">Live job counts across the floor</span></div>
+      <div class="tiles" data-tiles='[["In Production","24",""],["Overdue","3","alert"],["Completed MTD","18",""],["Total Jobs","214",""]]' data-foot='["active now","need attention","this month","all time"]'></div></div>
+    <div class="row r-21">
+      <div class="card"><div class="head"><h3>Workload by status</h3><span class="sub" style="margin-left:auto">Jobs grouped by current status</span></div>
+        <div class="well"><div class="bars">
+          <div class="bar"><span class="val num">24</span><div class="fill" style="height:80%"></div><span class="mo">In production</span></div>
+          <div class="bar"><span class="val num">9</span><div class="fill" style="height:30%"></div><span class="mo">Queued</span></div>
+          <div class="bar"><span class="val num">6</span><div class="fill" style="height:20%"></div><span class="mo">On hold</span></div>
+          <div class="bar"><span class="val num">18</span><div class="fill" style="height:60%"></div><span class="mo">Completed MTD</span></div>
+          <div class="bar"><span class="val num">157</span><div class="fill" style="height:100%"></div><span class="mo">Closed</span></div>
+        </div></div></div>
+      <div class="card"><div class="head"><h3>Status mix</h3><span class="sub">Job order count</span></div>
+        <div class="donutwrap"><svg width="128" height="128" viewBox="0 0 132 132"><g transform="rotate(-90 66 66)"><circle cx="66" cy="66" r="52" fill="none" stroke="var(--sf3)" stroke-width="15"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--ac)" stroke-width="15" stroke-dasharray="165 326.7"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--ach)" stroke-width="15" stroke-dasharray="36 326.7" stroke-dashoffset="-169" opacity=".7"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--ach)" stroke-width="15" stroke-dasharray="58 326.7" stroke-dashoffset="-209" opacity=".45"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--ach)" stroke-width="15" stroke-dasharray="63 326.7" stroke-dashoffset="-271" opacity=".25"/></g><text x="66" y="63" text-anchor="middle" style="font:700 15px inherit" fill="var(--t1)">214</text><text x="66" y="78" text-anchor="middle" style="font:600 8.5px inherit;letter-spacing:.08em" fill="var(--t3)">JOBS</text></svg>
+        <div class="legend"><span class="li"><i style="background:var(--ac)"></i>In production<b class="num">24</b></span><span class="li"><i style="background:var(--ach);opacity:.7"></i>Queued<b class="num">9</b></span><span class="li"><i style="background:var(--ach);opacity:.45"></i>On hold<b class="num">6</b></span><span class="li"><i style="background:var(--ach);opacity:.25"></i>Closed<b class="num">175</b></span></div></div></div>
+    </div>
+    <div class="row r-21">
+      <div class="card"><div class="head"><h3>Priority</h3><span class="sub" style="margin-left:auto">High / medium / low</span></div>
+        <div class="well"><div class="bars">
+          <div class="bar"><span class="val num">6</span><div class="fill" style="height:44%;background:var(--wn);opacity:1"></div><span class="mo">High</span></div>
+          <div class="bar"><span class="val num">11</span><div class="fill" style="height:81%;background:var(--ac);opacity:1"></div><span class="mo">Medium</span></div>
+          <div class="bar"><span class="val num">7</span><div class="fill" style="height:51%;background:var(--aci);opacity:1"></div><span class="mo">Low</span></div>
+        </div></div></div>
+      <div class="card"><div class="head"><h3>Recent job orders</h3><span class="sub" style="margin-left:auto">Latest activity</span></div>
+        <div class="feed">
+          <div class="fr"><span class="fi">🏭</span><span class="ft"><b>JO-2026-004 · Low-e DGU — 76 pcs</b><span>Al Bahar Trading · In production</span></span><span class="pill in">ACTIVE</span></div>
+          <div class="fr"><span class="fi">🏭</span><span class="ft"><b>JO-2026-003 · Tempered — 42 pcs</b><span>Emirates Glass LLC · In production</span></span><span class="pill dg">OVERDUE</span></div>
+          <div class="fr"><span class="fi">✅</span><span class="ft"><b>JO-2026-002 · Clear DGU — 64 pcs</b><span>Desert Window Systems · Completed</span></span><span class="pill ok">DONE</span></div>
+          <div class="fr"><span class="fi">🏭</span><span class="ft"><b>JO-2026-001 · Obscure — 12 pcs</b><span>Gulf Fabricators · Queued</span></span><span class="pill wn">QUEUED</span></div>
+        </div></div>
+    </div>
+  </div>
+</div></div>
+
+<!-- ═══════════════ SCREEN 6 · DELIVERY ═══════════════ -->
+<div class="screen" id="s6"><div class="app" style="width:100%">
+  <div class="topbar" data-tb="DeliveryNote"></div>
+  <aside class="sidebar" data-sb="DeliveryNote"></aside>
+  <div class="content">
+    <div class="hero"><div><h1>Deliveries</h1><p>Dispatch flow, delivery balance and recent movements</p></div>
+      <div class="acts"><span class="live"><i></i>LIVE</span><span class="rtime">Last refreshed 18 Sep 2026, 14:32</span></div></div>
+    <div class="card"><div class="head"><h3>Dispatch pulse</h3><span class="sub">Notes, pending pcs and returns</span></div>
+      <div class="tiles" data-tiles='[["Preparing","4",""],["Dispatched","5",""],["Delivered Today","120 pcs",""],["Pending Balance","48 pcs","alert"]]' data-foot='["being packed","in transit","pcs out today","pcs not received"]'></div></div>
+    <div class="row r-21">
+      <div class="card"><div class="head"><h3>Status distribution</h3><span class="sub" style="margin-left:auto">Notes grouped by current status</span></div>
+        <div class="well"><div class="bars">
+          <div class="bar"><span class="val num">4</span><div class="fill" style="height:30%"></div><span class="mo">Preparing</span></div>
+          <div class="bar"><span class="val num">5</span><div class="fill" style="height:38%"></div><span class="mo">Dispatched</span></div>
+          <div class="bar"><span class="val num">28</span><div class="fill" style="height:100%"></div><span class="mo">Delivered</span></div>
+          <div class="bar"><span class="val num">2</span><div class="fill" style="height:15%"></div><span class="mo">Returned</span></div>
+        </div></div></div>
+      <div class="card"><div class="head"><h3>Delivery mix</h3><span class="sub">Delivery note count</span></div>
+        <div class="donutwrap"><svg width="128" height="128" viewBox="0 0 132 132"><g transform="rotate(-90 66 66)"><circle cx="66" cy="66" r="52" fill="none" stroke="var(--sf3)" stroke-width="15"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--ac)" stroke-width="15" stroke-dasharray="223 326.7"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--ach)" stroke-width="15" stroke-dasharray="50 326.7" stroke-dashoffset="-227" opacity=".7"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--ach)" stroke-width="15" stroke-dasharray="39 326.7" stroke-dashoffset="-281" opacity=".45"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--ach)" stroke-width="15" stroke-dasharray="10 326.7" stroke-dashoffset="-324" opacity=".25"/></g><text x="66" y="63" text-anchor="middle" style="font:700 15px inherit" fill="var(--t1)">41</text><text x="66" y="78" text-anchor="middle" style="font:600 8.5px inherit;letter-spacing:.08em" fill="var(--t3)">NOTES</text></svg>
+        <div class="legend"><span class="li"><i style="background:var(--ac)"></i>Delivered<b class="num">28</b></span><span class="li"><i style="background:var(--ach);opacity:.7"></i>Dispatched<b class="num">5</b></span><span class="li"><i style="background:var(--ach);opacity:.45"></i>Preparing<b class="num">4</b></span><span class="li"><i style="background:var(--ach);opacity:.25"></i>Returned<b class="num">2</b></span></div></div></div>
+    </div>
+    <div class="row r-21">
+      <div class="card"><div class="head"><h3>By type</h3><span class="sub" style="margin-left:auto">Dummy / split / master</span></div>
+        <div class="well"><div class="bars">
+          <div class="bar"><span class="val num">31</span><div class="fill" style="height:100%;background:var(--ac);opacity:1"></div><span class="mo">Master</span></div>
+          <div class="bar"><span class="val num">7</span><div class="fill" style="height:23%;background:var(--ach);opacity:1"></div><span class="mo">Split</span></div>
+          <div class="bar"><span class="val num">3</span><div class="fill" style="height:10%;background:var(--aci);opacity:1"></div><span class="mo">Dummy</span></div>
+        </div></div></div>
+      <div class="card"><div class="head"><h3>Recent deliveries</h3><span class="sub" style="margin-left:auto">Latest activity</span></div>
+        <div class="feed">
+          <div class="fr"><span class="fi">🚚</span><span class="ft"><b>DN-2026-019 · 120 pcs dispatched</b><span>Emirates Glass LLC</span></span><time>11:27</time></div>
+          <div class="fr"><span class="fi">📦</span><span class="ft"><b>DN-2026-020 · Preparing 46 pcs</b><span>Al Bahar Trading</span></span><time>09:40</time></div>
+          <div class="fr"><span class="fi">✅</span><span class="ft"><b>DN-2026-018 · Delivered 84 pcs</b><span>Gulf Fabricators</span></span><time>Yesterday</time></div>
+          <div class="fr"><span class="fi">↩️</span><span class="ft"><b>DN-2026-014 · Return 6 pcs</b><span>Oman Interiors</span></span><time>15 Sep</time></div>
+        </div></div>
+    </div>
+  </div>
+</div></div>
+
+<!-- ═══════════════ SCREEN 7 · TAX INVOICE ═══════════════ -->
+<div class="screen" id="s7"><div class="app" style="width:100%">
+  <div class="topbar" data-tb="TaxInvoice"></div>
+  <aside class="sidebar" data-sb="TaxInvoice"></aside>
+  <div class="content">
+    <div class="hero"><div><h1>Tax Invoices</h1><p>Revenue, ageing and collection health</p></div>
+      <div class="acts"><span class="live"><i></i>LIVE</span><button class="btn pri">＋ New Invoice</button><button class="btn">View</button></div></div>
+    <div class="alert-band">⚠ <span><b class="num">5</b> overdue invoices — <b class="num">AED 86,400.00</b> past payment terms</span></div>
+    <div class="row r-3">
+      <div class="card"><div class="head"><h3>Collections pulse</h3><span class="sub">Invoiced, VAT, paid and pending</span></div>
+        <div class="tiles c2" data-tiles='[["Total Invoiced","AED 1,284,530",""],["VAT","AED 229,415",""],["Paid","AED 1,198,130",""],["Pending","AED 86,400","alert"]]' data-foot='["year to date","15% included","collected","awaiting payment"]'></div></div>
+      <div class="card"><div class="head"><h3>Ageing mix</h3><span class="sub">Overdue amounts by bracket</span></div>
+        <div class="donutwrap"><svg width="118" height="118" viewBox="0 0 132 132"><g transform="rotate(-90 66 66)"><circle cx="66" cy="66" r="52" fill="none" stroke="var(--sf3)" stroke-width="15"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--wn)" stroke-width="15" stroke-dasharray="133 326.7"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--dg)" stroke-width="15" stroke-dasharray="95 326.7" stroke-dashoffset="-137"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--aci)" stroke-width="15" stroke-dasharray="98 326.7" stroke-dashoffset="-236" opacity=".8"/></g><text x="66" y="63" text-anchor="middle" style="font:700 14px inherit" fill="var(--t1)">86.4k</text><text x="66" y="78" text-anchor="middle" style="font:600 8.5px inherit;letter-spacing:.08em" fill="var(--t3)">AGE</text></svg>
+        <div class="legend"><span class="li"><i style="background:var(--aci);opacity:.8"></i>1–30 days<b class="num">32k</b></span><span class="li"><i style="background:var(--wn)"></i>31–60 days<b class="num">43k</b></span><span class="li"><i style="background:var(--dg)"></i>60+ days<b class="num">11k</b></span></div></div></div>
+      <div class="stack">
+        <div class="card stat alert"><span class="k">Overdue</span><span class="v num">5</span><span class="f">invoices past terms</span></div>
+        <div class="card stat warn"><span class="k">Overdue AED</span><span class="v num">86,400</span></div>
+      </div>
+    </div>
+    <div class="row r-21">
+      <div class="card"><div class="head"><h3>Revenue trend</h3><span class="sub" style="margin-left:auto">By invoiced amount</span></div>
+        <div class="well"><div class="bars">
+          <div class="bar"><span class="val num">182k</span><div class="fill" style="height:40%"></div><span class="mo">Apr</span></div>
+          <div class="bar"><span class="val num">204k</span><div class="fill" style="height:45%"></div><span class="mo">May</span></div>
+          <div class="bar"><span class="val num">176k</span><div class="fill" style="height:39%"></div><span class="mo">Jun</span></div>
+          <div class="bar"><span class="val num">231k</span><div class="fill" style="height:51%"></div><span class="mo">Jul</span></div>
+          <div class="bar"><span class="val num">248k</span><div class="fill" style="height:55%"></div><span class="mo">Aug</span></div>
+          <div class="bar"><span class="val num">243k</span><div class="fill" style="height:54%"></div><span class="mo">Sep</span></div>
+        </div></div></div>
+      <div class="card"><div class="head"><h3>Recent invoices</h3><span class="sub" style="margin-left:auto">Latest activity</span></div>
+        <div class="feed">
+          <div class="docrow"><span class="d-ic ok">✓</span><span class="d-mid"><b>TI-2026-033</b><span>Emirates Glass LLC · 12 Sep 2026</span></span><span class="d-right"><span class="a num">AED 48,250.00</span><br><span class="p"><span class="pill ok">PAID</span></span></span></div>
+          <div class="docrow"><span class="d-ic">📤</span><span class="d-mid"><b>TI-2026-032</b><span>Al Bahar Trading · 09 Sep 2026</span></span><span class="d-right"><span class="a num">AED 36,900.00</span><br><span class="p"><span class="pill in">ISSUED</span></span></span></div>
+          <div class="docrow"><span class="d-ic dg">⚠</span><span class="d-mid"><b>TI-2026-028</b><span>Gulf Fabricators · 28 Aug 2026</span></span><span class="d-right"><span class="a num">AED 21,400.00</span><br><span class="p"><span class="pill dg">OVERDUE</span></span></span></div>
+          <div class="docrow"><span class="d-ic">📝</span><span class="d-mid"><b>TI-2026-034</b><span>Desert Window Systems · 18 Sep 2026</span></span><span class="d-right"><span class="a num">AED 12,750.00</span><br><span class="p"><span class="pill wn">DRAFT</span></span></span></div>
+        </div></div>
+    </div>
+    <div class="row r-21">
+      <div class="card"><div class="head"><h3>Top customers</h3><span class="sub" style="margin-left:auto">By invoiced amount, last 12 months</span></div>
+        <div class="feed">
+          <div class="docrow" style="cursor:default"><span class="rk rk1">1</span><span class="d-mid" style="flex:1"><b>Al Bahar Trading</b><span>38 invoices</span></span><span class="d-right"><span class="a num">AED 486,200</span></span></div>
+          <div class="docrow" style="cursor:default"><span class="rk rk2">2</span><span class="d-mid" style="flex:1"><b>Emirates Glass LLC</b><span>29 invoices</span></span><span class="d-right"><span class="a num">AED 391,450</span></span></div>
+          <div class="docrow" style="cursor:default"><span class="rk rk3">3</span><span class="d-mid" style="flex:1"><b>Desert Window Systems</b><span>21 invoices</span></span><span class="d-right"><span class="a num">AED 264,800</span></span></div>
+        </div></div>
+      <div class="card"><div class="head"><h3>Ageing brackets</h3><span class="sub" style="margin-left:auto">Overdue amounts grouped by age</span></div>
+        <div class="aging">
+          <div class="a-row"><div class="a-l"><span>1–30 days · 2 invoices</span><b class="num wn">AED 32,000</b></div><div class="tr"><i style="width:55%;background:var(--aci)"></i></div></div>
+          <div class="a-row"><div class="a-l"><span>31–60 days · 2 invoices</span><b class="num wn">AED 43,000</b></div><div class="tr"><i style="width:74%;background:var(--wn)"></i></div></div>
+          <div class="a-row"><div class="a-l"><span>60+ days · 1 invoice</span><b class="num dg">AED 11,400</b></div><div class="tr"><i style="width:19%;background:var(--dg)"></i></div></div>
+        </div></div>
+    </div>
+  </div>
+</div></div>
+
+<!-- ═══════════════ SCREEN 8 · STATEMENT ═══════════════ -->
+<div class="screen" id="s8"><div class="app" style="width:100%">
+  <div class="topbar" data-tb="StatementGenerator"></div>
+  <aside class="sidebar" data-sb="StatementGenerator"></aside>
+  <div class="content">
+    <div class="hero"><div><h1>Statements</h1><p>Customer balances, outstanding value and collection risk</p></div>
+      <div class="acts"><span class="live"><i></i>LIVE</span><button class="btn pri">＋ New Statement</button><button class="btn">View</button></div></div>
+    <div class="row r-3">
+      <div class="card"><div class="head"><h3>Statement pulse</h3><span class="sub">Statements, invoiced, outstanding and overdue</span></div>
+        <div class="tiles c2" data-tiles='[["Total Statements","41",""],["Total Invoiced","AED 1,284,530",""],["Outstanding","AED 86,400","alert"],["Overdue AED","AED 41,200","alert"]]' data-foot='["generated","year to date","awaiting payment","past terms"]'></div></div>
+      <div class="card"><div class="head"><h3>Collection mix</h3><span class="sub">Collected vs outstanding vs overdue</span></div>
+        <div class="donutwrap"><svg width="118" height="118" viewBox="0 0 132 132"><g transform="rotate(-90 66 66)"><circle cx="66" cy="66" r="52" fill="none" stroke="var(--sf3)" stroke-width="15"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--ok)" stroke-width="15" stroke-dasharray="253 326.7"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--wn)" stroke-width="15" stroke-dasharray="54 326.7" stroke-dashoffset="-257"/><circle cx="66" cy="66" r="52" fill="none" stroke="var(--dg)" stroke-width="15" stroke-dasharray="19 326.7" stroke-dashoffset="-315"/></g><text x="66" y="63" text-anchor="middle" style="font:700 13px inherit" fill="var(--t1)">AED</text><text x="66" y="78" text-anchor="middle" style="font:600 8.5px inherit;letter-spacing:.06em" fill="var(--t3)">BALANCES</text></svg>
+        <div class="legend"><span class="li"><i style="background:var(--ok)"></i>Collected<b class="num">1.19M</b></span><span class="li"><i style="background:var(--wn)"></i>Outstanding<b class="num">86.4k</b></span><span class="li"><i style="background:var(--dg)"></i>Overdue<b class="num">41.2k</b></span></div></div></div>
+      <div class="card stat alert"><span class="k">Overdue</span><span class="v num">AED 41,200</span><span class="f">past payment terms</span></div>
+    </div>
+    <div class="card">
+      <div class="head"><h3>Recent statements</h3><a class="link">View all</a></div>
+      <div class="feed">
+        <div class="docrow"><span class="d-ic">1</span><span class="d-mid"><b>ST-2026-011 · Al Bahar Trading</b><span>Invoiced <b class="num">AED 386,400</b> · Outstanding <b class="num" style="color:var(--wn)">AED 42,150</b> · Overdue <b class="num" style="color:var(--dg)">AED 18,900</b></span></span><span class="d-mid" style="flex:none"><span style="font-size:10.5px;color:var(--t3)">3 invoices · 13 Sep 2026</span></span><span class="d-right"><button class="btn" style="height:28px">PDF</button><button class="btn" style="height:28px;padding:0 10px">⤴</button></span></div>
+        <div class="docrow"><span class="d-ic" style="background:var(--sf2);border-color:var(--ln)">2</span><span class="d-mid"><b>ST-2026-010 · Emirates Glass LLC</b><span>Invoiced <b class="num">AED 291,800</b> · Outstanding <b class="num" style="color:var(--wn)">AED 22,600</b></span></span><span class="d-mid" style="flex:none"><span style="font-size:10.5px;color:var(--t3)">2 invoices · 11 Sep 2026</span></span><span class="d-right"><button class="btn" style="height:28px">PDF</button><button class="btn" style="height:28px;padding:0 10px">⤴</button></span></div>
+        <div class="docrow"><span class="d-ic" style="background:var(--sf2);border-color:var(--ln)">3</span><span class="d-mid"><b>ST-2026-009 · Gulf Fabricators</b><span>Invoiced <b class="num">AED 187,300</b> · Outstanding <b class="num" style="color:var(--wn)">AED 14,200</b> · Overdue <b class="num" style="color:var(--dg)">AED 22,300</b></span></span><span class="d-mid" style="flex:none"><span style="font-size:10.5px;color:var(--t3)">4 invoices · 08 Sep 2026</span></span><span class="d-right"><button class="btn" style="height:28px">PDF</button><button class="btn" style="height:28px;padding:0 10px">⤴</button></span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<script>
+/* ── shared chrome (top bar + sidebar), identical on every screen ── */
+const NAV=[
+ {g:"MAIN",items:[{k:"Dashboard",ic:"▦"}]},
+ {g:"INVENTORY",items:[{k:"SheetStore",ic:"▤"},{k:"Specifications",ic:"✦"}]},
+ {g:"SALES",group:"SalesGroup",toggle:true,items:[{k:"Inquiry",ic:"✎"},{k:"ProformaInvoice",ic:"📄"},{k:"JobOrder",ic:"🏭"},{k:"TaxInvoice",ic:"🧾"}]},
+ {g:"PRODUCTION",group:"ProductionGroup",toggle:true,open:true,items:[{k:"Optimization",ic:"◷"},{k:"ProcessWorkCenter"},{k:"ProductionControlCenter"},{k:"Cutting"},{k:"HolesCutouts"},{k:"Polish"},{k:"EdgeDeletion"},{k:"Mitring"},{k:"Tempering"},{k:"Pairing"},{k:"DoublingLamination"}]},
+ {g:"DISPATCH",group:"DispatchGroup",toggle:true,items:[{k:"DeliveryNote",ic:"🚚"}]},
+ {g:"FINANCE",group:"FinanceGroup",toggle:true,items:[{k:"StatementGenerator",ic:"📑"},{k:"OrderReport"},{k:"JobProfitability"},{k:"VatSubmission"}]},
+ {g:"REPORTS",group:"ReportsGroup",toggle:true,items:[{k:"SalesReport"},{k:"PiReport"},{k:"JoReport"},{k:"DeliveryReport"},{k:"TaxInvoiceReport"},{k:"StatementReport"}]},
+ {g:"MASTER DATA",group:"MasterDataGroup",toggle:true,items:[{k:"CompanyCenter",ic:"🏢"},{k:"UserCenter",ic:"👤"}]},
+ {g:"SYSTEM",group:"SystemGroup",toggle:true,items:[{k:"SystemCenter",ic:"⚙"},{k:"Diagnostics",ic:""}]}
+];
+function esc(s){return s}
+function itemHtml(it,active,sub){
+ const on=it.k===active?' on':'';
+ return `<div class="sb-it${on}${sub?'':' '}${it.k}">${sub?'<span class="dot"></span>':`<span class="ic">${it.ic||'▫'}</span>`}<span>${it.k}</span></div>`;
+}
+function buildSidebar(el){
+ const active=el.dataset.sb;
+ let h='';
+ for(const g of NAV){
+   h+=`<div class="sb-grp">${g.g}</div>`;
+   if(g.toggle){
+     const open=g.open;
+     h+=`<div class="sb-it${open?' open':''}"><span class="ic">${g.items[0].ic||'▫'}</span><span>${g.g.charAt(0)+g.g.slice(1).toLowerCase()==='Sales'?'Sales Orders':g.g.charAt(0)+g.g.slice(1).toLowerCase()==='Production'?'Production Items':g.g.charAt(0)+g.g.slice(1).toLowerCase()==='Dispatch'?'Dispatch':g.g.charAt(0)+g.g.slice(1).toLowerCase()==='Finance'?'Finance & Accounting':g.g.charAt(0)+g.g.slice(1).toLowerCase()==='Reports'?'Reports':g.g.charAt(0)+g.g.slice(1).toLowerCase()==='Master data'?'Master Data Items':'System'}</span><span class="chev">›</span></div>`;
+     if(open) h+=`<div class="sb-sub">${g.items.map(it=>itemHtml(it,active,true)).join('')}</div>`;
+   } else {
+     h+=g.items.map(it=>itemHtml(it,active,false)).join('');
+   }
+ }
+ h+=`<div class="sb-foot"><div class="l"><span>Storage</span><span class="num">62%</span></div><div class="bar"><i></i></div><div class="v">31.2 GB of 50 GB used · breakdown →</div></div>`;
+ el.innerHTML=h;
+}
+function buildTopbar(el){
+ const mod=el.dataset.tb;
+ el.innerHTML=`
+  <div class="tb-burger" title="Toggle menu">☰</div>
+  <div class="tb-brand"><div class="tb-logo">PG</div><div><b>ProGlass</b><small>AUTOMATION SUITE</small></div></div>
+  <div class="tb-search">🔍 Search invoices, jobs, customers…<kbd>Ctrl K</kbd></div>
+  <div class="tb-right">
+    <div class="tb-ib" title="Toggle theme">◐</div>
+    <div class="tb-ib" title="AI chat">✦</div>
+    <div class="tb-ai"><i></i>AI AGENT</div>
+    <div class="tb-pill"><span class="ic">🕐</span><span><span class="cap">Saturday</span><br><span class="ttl num">18 Sep · 14:32</span></span></div>
+    <div class="tb-pill"><span class="ic ok">🌐</span><span><span class="ttl">Online</span></span></div>
+    <div class="tb-ib" title="Notifications">🔔<span class="dot"></span></div>
+    <div class="tb-ib" title="Settings">⚙</div>
+    <div class="tb-ib" title="Screenshot">📷</div>
+    <div class="tb-ib" title="Record">●</div>
+    <div class="tb-user"><span class="av">JS</span><span><span class="nm">Jubert Saleem</span><br><span class="rl">Administrator</span></span></div>
+  </div>`;
+}
+function buildTiles(el){
+ const t=JSON.parse(el.dataset.tiles);
+ const f=el.dataset.foot?JSON.parse(el.dataset.foot):[];
+ el.innerHTML=t.map((x,i)=>`<div class="tile${x[2]?' '+x[2]:''}"><div class="top"><span class="tl">${x[0]}</span></div><div class="tv num">${x[1]}</div>${f[i]?`<div class="tf">${f[i]}</div>`:''}</div>`).join('');
+}
+function buildPipe(el){
+ el.innerHTML=`
+  <div class="stage"><div class="s-ic">📄</div><span class="s-nm">Quote</span><span class="s-vl num">128</span><span class="s-ft">96 approved · 32 draft</span></div>
+  <div class="stage dg"><div class="s-ic">🏭</div><span class="s-nm">Production</span><span class="s-vl num">24</span><span class="s-ft">3 overdue</span></div>
+  <div class="stage wn"><div class="s-ic">🚚</div><span class="s-nm">Delivery</span><span class="s-vl num">9</span><span class="s-ft">120 pcs pending</span></div>
+  <div class="stage dg"><div class="s-ic">🧾</div><span class="s-nm">Invoice</span><span class="s-vl num">87</span><span class="s-ft">5 past terms</span></div>
+  <div class="stage ok"><div class="s-ic">💳</div><span class="s-nm">Payment</span><span class="s-vl num">74</span><span class="s-ft">23 awaiting</span></div>`;
+}
+document.querySelectorAll('[data-sb]').forEach(buildSidebar);
+document.querySelectorAll('[data-tb]').forEach(buildTopbar);
+document.querySelectorAll('[data-tiles]').forEach(buildTiles);
+document.querySelectorAll('[data-pipe]').forEach(buildPipe);
+document.querySelectorAll('.mtab').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.mtab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  document.getElementById('s'+b.dataset.s).classList.add('on');
+});
+function th(t){
+  document.documentElement.setAttribute('data-theme',t);
+  document.querySelectorAll('.tseg button').forEach((x,i)=>x.classList.toggle('on',(i===0)===(t==='light')));
+}
+</script>
+</body>
+</html>
