@@ -191,12 +191,10 @@ namespace ProGlassAutomation.Services.Optimization
             // number of sheets. Applying the same size-based sweep cap keeps a
             // very large group from hanging here too. Below LargeThreshold the
             // cap is unlimited, so QUICK stays bit-identical.
-            var scale = ScaleProfile.For(pieces.Count, 1);
-            int window = pieces.Count > ScaleProfile.HugeThreshold ? 128
-                       : pieces.Count > ScaleProfile.LargeThreshold ? 256
-                       : int.MaxValue;
+            var plan = OptimizationSearchGovernor.PlanForQuick(pieces.Count);
+            int window = plan.OpenSheetWindow;
             return RunPass(Sort(pieces, OrderBy.Area), stocks, margins, rotation, split,
-                cancellationToken, scale.ConsolidationSweeps, progress, window);
+                cancellationToken, plan.MaxConsolidationSweeps, progress, window);
         }
 
         /// <summary>
@@ -219,10 +217,7 @@ namespace ProGlassAutomation.Services.Optimization
                 throw new ArgumentException("At least one stock size is required.", nameof(stocks));
             if (margins == null) throw new ArgumentNullException(nameof(margins));
 
-            // Decides how much search this group can afford. For every group
-            // the calibration benchmark covers this returns ScaleTier.Standard
-            // with unlimited caps, so the combo list below is unchanged and the
-            // results stay bit-identical.
+            var plan = OptimizationSearchGovernor.PlanForOptimize(pieces.Count, effortLevel);
             var scale = ScaleProfile.For(pieces.Count, effortLevel);
 
             if (pieces.Count == 0)
@@ -242,11 +237,9 @@ namespace ProGlassAutomation.Services.Optimization
             };
 
             IEnumerable<(OrderBy o, SplitMode s, int shuffle)> combos;
-            if (pieces.Count > ScaleProfile.HugeThreshold && effortLevel > 1)
+            if (plan.ForceFullGrid && effortLevel > 1)
             {
-                // Huge-job multi-candidate grid: try all 6 orderings × 3 splits (18 windowed candidates)
-                // instead of only a single guess! With the 128-sheet window, each pass is fast (O(128*N)),
-                // allowing a full multi-candidate search to complete in ~1-2s for 30,000+ parts.
+                // Adaptive multi-candidate grid: evaluate orderings × splits
                 combos = orderings.SelectMany(o => splits.Select(s => (o, s, 0)));
             }
             else if (effortLevel <= 1)
@@ -315,11 +308,9 @@ namespace ProGlassAutomation.Services.Optimization
                 // itself: real per-part progress instead of one 0% → 100%
                 // jump. Multi-candidate runs keep the candidate-level reports
                 // above, which are already smooth, and pay no per-part cost.
-                int window = pieces.Count > ScaleProfile.HugeThreshold ? 128
-                           : pieces.Count > ScaleProfile.LargeThreshold ? 256
-                           : int.MaxValue;
+                int window = plan.OpenSheetWindow;
                 var candidate = RunPass(ordered, stocks, margins, rotation, split,
-                    cancellationToken, scale.ConsolidationSweeps,
+                    cancellationToken, plan.MaxConsolidationSweeps,
                     comboList.Count == 1 ? progress : null, window);
                 best = Better(best, candidate);
             }

@@ -175,11 +175,6 @@ namespace ProGlassAutomation.Services.Optimization
     /// </summary>
     public sealed class ScaleProfile
     {
-        /// <summary>Above this many parts in one group, breadth is trimmed.</summary>
-        public const int LargeThreshold = 2000;
-        /// <summary>Above this many parts, only the minimum search is run.</summary>
-        public const int HugeThreshold = 20000;
-
         public ScaleProfile(int pieceCount, int requestedEffort, ScaleTier tier,
             int shuffleCap, bool allowBeam, int maxRectsOrderings, int consolidationSweeps)
         {
@@ -197,61 +192,48 @@ namespace ProGlassAutomation.Services.Optimization
         public ScaleTier Tier { get; }
         /// <summary>Maximum number of deterministic shuffles per ordering/split pair.</summary>
         public int ShuffleCap { get; }
-        /// <summary>Beam search copies the whole open-sheet list per candidate,
-        /// which is O(sheets^2). Disabled above the standard band.</summary>
+        /// <summary>Beam search copies the whole open-sheet list per candidate.</summary>
         public bool AllowBeam { get; }
         /// <summary>How many orderings the MaxRects candidate may run.</summary>
         public int MaxRectsOrderings { get; }
-        /// <summary>Consolidation restarts its sweep after every improvement, so
-        /// an unbounded loop is O(parts x sheets^2). Capped above the standard band.</summary>
+        /// <summary>Consolidation sweeps cap.</summary>
         public int ConsolidationSweeps { get; }
 
         /// <summary>True when any search breadth was reduced because of size.</summary>
         public bool IsReduced => Tier != ScaleTier.Standard;
-        /// <summary>
-        /// Sheet-fill, wall-seed, best-split and its beam are SHEET-AT-A-TIME:
-        /// every placement re-scans the whole remaining part list, and best-split
-        /// does that three times per sheet, once per split rule. Their cost is
-        /// therefore quadratic in the job rather than linear like the ordering
-        /// passes — at 30,000 parts across roughly 1,000 sheets they amount to
-        /// billions of placement attempts, which is a run that does not come back
-        /// and reads to the operator as a crashed application. Above the huge
-        /// threshold they are dropped; the linear passes, MaxRects and
-        /// consolidation still run, and Summary says so.
-        /// </summary>
+
+        /// <summary>Whether sheet-at-a-time quadratic strategies are allowed.</summary>
         public bool AllowQuadraticStrategies => Tier != ScaleTier.Huge;
 
         public static ScaleProfile For(int pieceCount, int requestedEffort)
         {
-            if (pieceCount <= LargeThreshold)
-                return new ScaleProfile(pieceCount, requestedEffort, ScaleTier.Standard,
-                    int.MaxValue, true, int.MaxValue, int.MaxValue);
+            var plan = OptimizationSearchGovernor.PlanForOptimize(pieceCount, requestedEffort);
+            var tier = plan.Tier switch
+            {
+                SearchTier.Full => ScaleTier.Standard,
+                SearchTier.Narrowed => ScaleTier.Large,
+                _ => ScaleTier.Huge
+            };
 
-            if (pieceCount <= HugeThreshold)
-                return new ScaleProfile(pieceCount, requestedEffort, ScaleTier.Large,
-                    1, false, 3, 2);
-
-            return new ScaleProfile(pieceCount, requestedEffort, ScaleTier.Huge,
-                0, false, 1, 1);
+            return new ScaleProfile(
+                pieceCount,
+                requestedEffort,
+                tier,
+                plan.ShuffleCap,
+                plan.Tier == SearchTier.Full,
+                plan.MaxRectOrders,
+                plan.MaxConsolidationSweeps);
         }
 
         /// <summary>Plain-language description of what was reduced and why.</summary>
-        public string Summary => Tier switch
+        public string Summary
         {
-            ScaleTier.Standard =>
-                $"{PieceCount} parts: full search at effort {RequestedEffort}.",
-            ScaleTier.Large =>
-                $"{PieceCount} parts exceeds {LargeThreshold}, so the search was narrowed to " +
-                $"finish: deterministic shuffles capped at {ShuffleCap}, beam search off, " +
-                $"MaxRects orderings capped at {MaxRectsOrderings}, consolidation sweeps capped " +
-                $"at {ConsolidationSweeps}. All orderings and split rules are still tried.",
-            _ =>
-                $"Packing all {PieceCount:N0} parts — high-throughput search (over {HugeThreshold:N0}): " +
-                $"full order × split grid (18 candidates), 128-sheet packing window, {MaxRectsOrderings} MaxRects " +
-                $"ordering, {ConsolidationSweeps} consolidation sweep — no shuffles, no beam, no sheet-fill / " +
-                $"wall-seed / best-split: those are quadratic in the job size and would not finish. " +
-                $"Split the job into smaller groups for a deeper search."
-        };
+            get
+            {
+                var plan = OptimizationSearchGovernor.PlanForOptimize(PieceCount, RequestedEffort);
+                return !string.IsNullOrWhiteSpace(plan.Note) ? plan.Note : $"{PieceCount} parts: adaptive search at effort {RequestedEffort}.";
+            }
+        }
     }
 
     /// <summary>Progress checkpoint reported by the optimizer. Emitted between

@@ -256,12 +256,17 @@ namespace ProGlassAutomation.Services.Optimization
         {
             OptimizationResult best = null;
 
+            // Within a stratified batch, the sheet window is set to int.MaxValue
+            // so all anchors, mediums, and fillers within this batch can pack together
+            // without premature plate closure.
+            int batchWindow = int.MaxValue;
+
             // Strategy 1: High-throughput Area pass with active open-sheet window
             var areaPass = RunPass(
                 Sort(batchPieces, OrderBy.Area),
                 stocks, margins, rotation, SplitMode.HorizontalFirst,
                 cancellationToken, consolidationSweeps: 2, progress: null,
-                openSheetWindow: config.OpenSheetWindow);
+                openSheetWindow: batchWindow);
             best = Better(best, areaPass);
 
             // Strategy 2: MaxSide pass with LongerLeftover split
@@ -272,7 +277,7 @@ namespace ProGlassAutomation.Services.Optimization
                     Sort(batchPieces, OrderBy.MaxSide),
                     stocks, margins, rotation, SplitMode.LongerLeftover,
                     cancellationToken, consolidationSweeps: 2, progress: null,
-                    openSheetWindow: config.OpenSheetWindow);
+                    openSheetWindow: batchWindow);
                 best = Better(best, maxSidePass);
             }
 
@@ -284,7 +289,7 @@ namespace ProGlassAutomation.Services.Optimization
                 var shufflePass1 = RunPass(
                     shuffled1, stocks, margins, rotation, SplitMode.VerticalFirst,
                     cancellationToken, consolidationSweeps: 1, progress: null,
-                    openSheetWindow: config.OpenSheetWindow);
+                    openSheetWindow: batchWindow);
                 best = Better(best, shufflePass1);
 
                 if (effortLevel >= 4)
@@ -294,7 +299,7 @@ namespace ProGlassAutomation.Services.Optimization
                     var shufflePass2 = RunPass(
                         shuffled2, stocks, margins, rotation, SplitMode.HorizontalFirst,
                         cancellationToken, consolidationSweeps: 1, progress: null,
-                        openSheetWindow: config.OpenSheetWindow);
+                        openSheetWindow: batchWindow);
                     best = Better(best, shufflePass2);
                 }
             }
