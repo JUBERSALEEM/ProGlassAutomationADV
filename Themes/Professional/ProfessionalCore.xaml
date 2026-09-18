@@ -1,0 +1,973 @@
+<!-- ═══════════════════════════════════════════════════════════════════════
+     FILE: Themes/Professional/ProfessionalCore.xaml
+     PROJECT: ProGlassAutomation
+     SYSTEM: MERIDIAN — the full 0→100 UI rewrite design system
+
+     DASHBOARD CORE — geometry, type scale, surfaces, chips, buttons,
+     the KPI tile, the feed row, the pipeline rail, four states and the
+     skeleton set. Every colour resolves through {DynamicResource Pg*}
+     tokens defined in BOTH theme dictionaries (LightTheme.xaml /
+     DarkTheme.xaml), so the runtime Light/Dark swap re-tints this whole
+     system live.
+
+     PREFIX CONTRACT
+     ───────────────
+     Every key here is prefixed Pg (Meridian). The old Db* / Soft* /
+     Industrial* grammar in Styles/DashboardKit.xaml +
+     Styles/DashboardStyles.xaml stays untouched until Phase 7, so the
+     app remains fully functional (in the old look) after this file is
+     merged. Rewritten pages reference ONLY Pg* keys.
+
+     MODEL CONTRACTS BOUND HERE (property names are FROZEN — see the
+     models, do not rename):
+       • KpiCardModel      Icon (emoji) · Title · DisplayValue · SubLabel
+                           · IsAlert · BadgeColor/TintColor (brush keys)
+       • KpiTileModel      Icon (MDL2) · Label(=Title) · DisplayValue
+                           · Accent · IsAlert(→BadgeColor)
+       • ActivityFeedItem  Icon · Title · SubTitle · ValueDisplay ·
+                           StatusLabel · StatusColor · TintColor (keys)
+       • WorkflowStageModel Glyph · Name · ValueDisplay · Foot ·
+                           AccentKey (key) · IsActive · IsFirst
+═══════════════════════════════════════════════════════════════════════ -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         1 · GEOMETRY (theme-independent)
+    ═══════════════════════════════════════════════════════════════ -->
+    <Thickness x:Key="PgPageMargin">24,20,24,24</Thickness>
+    <Thickness x:Key="PgCardPadding">18,16</Thickness>
+    <Thickness x:Key="PgTilePadding">12,13,12,15</Thickness>
+    <Thickness x:Key="PgRowPadding">11,10</Thickness>
+    <Thickness x:Key="PgGutter">16,16,16,16</Thickness>
+    <!-- Half-gutter for tile strips (see the ERR-F4C120 note in
+         DashboardKit.xaml — this must stay a Thickness). -->
+    <Thickness x:Key="PgGutterHalfMargin">8</Thickness>
+
+    <CornerRadius x:Key="PgCardRadius">12</CornerRadius>
+    <CornerRadius x:Key="PgTileRadius">9</CornerRadius>
+    <CornerRadius x:Key="PgCtrlRadius">8</CornerRadius>
+    <CornerRadius x:Key="PgChipRadius">999</CornerRadius>
+    <CornerRadius x:Key="PgIconRadius">10</CornerRadius>
+    <CornerRadius x:Key="PgIconSmRadius">7</CornerRadius>
+
+    <sys:Double x:Key="PgKpiTileMinHeight">92</sys:Double>
+    <sys:Double x:Key="PgChartMinHeight">212</sys:Double>
+
+    <!-- The Meridian type scale — 6 steps, one per role. -->
+    <sys:Double x:Key="PgFontHero">20</sys:Double>
+    <sys:Double x:Key="PgFontHeroSub">12.5</sys:Double>
+    <sys:Double x:Key="PgFontCardTitle">13</sys:Double>
+    <sys:Double x:Key="PgFontCardSub">11.5</sys:Double>
+    <sys:Double x:Key="PgFontKpiValue">22</sys:Double>
+    <sys:Double x:Key="PgFontKpiLabel">10.5</sys:Double>
+    <sys:Double x:Key="PgFontKpiFoot">11</sys:Double>
+    <sys:Double x:Key="PgFontStatValue">24</sys:Double>
+    <sys:Double x:Key="PgFontStatLabel">10.5</sys:Double>
+    <sys:Double x:Key="PgFontStatFoot">11</sys:Double>
+    <sys:Double x:Key="PgFontStageValue">20</sys:Double>
+    <sys:Double x:Key="PgFontStageName">10.5</sys:Double>
+    <sys:Double x:Key="PgFontStageFoot">11.5</sys:Double>
+    <sys:Double x:Key="PgFontBody">13</sys:Double>
+    <sys:Double x:Key="PgFontBodySm">11</sys:Double>
+    <sys:Double x:Key="PgFontMeta">11.5</sys:Double>
+    <sys:Double x:Key="PgFontBtn">12</sys:Double>
+    <sys:Double x:Key="PgFontGlyph">15</sys:Double>
+    <sys:Double x:Key="PgFontGlyphSm">13</sys:Double>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         2 · TYPE ROLES — one style per role, no literals in pages.
+    ═══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="PgHeroTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontHero}"/>
+        <Setter Property="FontWeight" Value="650"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText1Brush}"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <Style x:Key="PgHeroSubStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontHeroSub}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText2Brush}"/>
+        <Setter Property="Margin" Value="0,3,0,0"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style x:Key="PgCardTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontCardTitle}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText1Brush}"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <Style x:Key="PgCardSubStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontCardSub}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText3Brush}"/>
+        <Setter Property="Margin" Value="0,2,0,0"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <!-- "View all" link on a card head. -->
+    <Style x:Key="PgCardLinkStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontCardSub}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgAccentBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+
+    <Style x:Key="PgMetaStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontMeta}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText3Brush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="PgKpiLabelStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontKpiLabel}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText3Brush}"/>
+        <Setter Property="TextWrapping" Value="NoWrap"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        <Setter Property="MaxHeight" Value="30"/>
+    </Style>
+
+    <Style x:Key="PgKpiValueStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontKpiValue}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText1Brush}"/>
+        <Setter Property="TextAlignment" Value="Left"/>
+    </Style>
+
+    <Style x:Key="PgKpiFootStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontKpiFoot}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText3Brush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="Margin" Value="0,3,0,0"/>
+    </Style>
+
+    <!-- Compact stat card (pulse column / overdue / outstanding). -->
+    <Style x:Key="PgStatLabelStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontStatLabel}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText3Brush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style x:Key="PgStatValueStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontStatValue}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText1Brush}"/>
+        <Setter Property="Margin" Value="0,5,0,0"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <Style x:Key="PgStatFootStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontStatFoot}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText3Brush}"/>
+        <Setter Property="Margin" Value="0,4,0,0"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style x:Key="PgStageNameStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontStageName}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText2Brush}"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        <Setter Property="Margin" Value="9,0,0,0"/>
+    </Style>
+
+    <Style x:Key="PgStageValueStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontStageValue}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText1Brush}"/>
+        <Setter Property="Margin" Value="0,7,0,0"/>
+    </Style>
+
+    <Style x:Key="PgStageFootStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontStageFoot}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText3Brush}"/>
+        <Setter Property="Margin" Value="0,3,0,0"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <Style x:Key="PgBodyStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontBody}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText1Brush}"/>
+    </Style>
+
+    <Style x:Key="PgBodySmStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontBodySm}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText3Brush}"/>
+    </Style>
+
+    <!-- Feed / document row text. -->
+    <Style x:Key="PgRowTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontCardSub}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText1Brush}"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <Style x:Key="PgRowSubStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontKpiFoot}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText3Brush}"/>
+        <Setter Property="Margin" Value="0,2,0,0"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <Style x:Key="PgRowValueStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontCardSub}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText1Brush}"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+    </Style>
+
+    <!-- Segoe MDL2 Assets glyph. KpiCardModel emoji fall back to
+         Segoe UI Emoji per-glyph, exactly like the old Db glyph. -->
+    <Style x:Key="PgGlyphStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+        <Setter Property="FontSize" Value="{StaticResource PgFontGlyph}"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="PgGlyphSmStyle" TargetType="TextBlock" BasedOn="{StaticResource PgGlyphStyle}">
+        <Setter Property="FontSize" Value="{StaticResource PgFontGlyphSm}"/>
+    </Style>
+
+    <!-- "LIVE" chip text. -->
+    <Style x:Key="PgLiveTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontKpiLabel}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgOkBrush}"/>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         3 · SURFACES — one card, one tile, one row, one well.
+    ═══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="PgCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource PgSurfaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource PgHairlineBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{StaticResource PgCardRadius}"/>
+        <Setter Property="Padding" Value="{StaticResource PgCardPadding}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="MinWidth" Value="0"/>
+    </Style>
+
+    <!-- KPI tile: flat surface-2, hairline edge, no shadow. -->
+    <Style x:Key="PgTileStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource PgSurface2Brush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource PgHairlineBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{StaticResource PgTileRadius}"/>
+        <Setter Property="Padding" Value="{StaticResource PgTilePadding}"/>
+        <Setter Property="MinHeight" Value="{StaticResource PgKpiTileMinHeight}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="MinWidth" Value="0"/>
+    </Style>
+
+    <!-- Standalone row card (used where rows are individual cards). -->
+    <Style x:Key="PgRowCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource PgSurfaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource PgHairlineBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{StaticResource PgCardRadius}"/>
+        <Setter Property="Padding" Value="{StaticResource PgRowPadding}"/>
+        <Setter Property="Margin" Value="0,0,0,8"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- Chart well: charts sit directly on the card in Meridian — the
+         well only contributes spacing, never a nested box. -->
+    <Style x:Key="PgChartWellStyle" TargetType="Border">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="6,0"/>
+        <Setter Property="MinHeight" Value="{StaticResource PgChartMinHeight}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- Inset well for grouped sub-content (aging rows, bars). -->
+    <Style x:Key="PgWellStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource PgSurface2Brush}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource PgTileRadius}"/>
+        <Setter Property="Padding" Value="12"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         4 · CHIPS, PILLS, BADGES
+    ═══════════════════════════════════════════════════════════════ -->
+    <!-- Generic info chip (refreshed stamp, counts). -->
+    <Style x:Key="PgChipStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource PgSurface2Brush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource PgHairlineBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{StaticResource PgCtrlRadius}"/>
+        <Setter Property="Padding" Value="9,4"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- LIVE indicator pill: soft-ok fill, 30px tall, pulsing dot. -->
+    <Style x:Key="PgLiveChipStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource PgOkSoftBrush}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource PgChipRadius}"/>
+        <Setter Property="Padding" Value="12,0"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- Status pill inside feed rows (StatusLabel). -->
+    <Style x:Key="PgPillStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="{StaticResource PgChipRadius}"/>
+        <Setter Property="Padding" Value="8,3"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+    </Style>
+
+    <Style x:Key="PgPillTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontKpiLabel}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgAccentInkBrush}"/>
+    </Style>
+
+    <!-- 3px status bar used on alert stat cards / tiles. -->
+    <Style x:Key="PgAlertBarStyle" TargetType="Border">
+        <Setter Property="Width" Value="3"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+        <Setter Property="Margin" Value="0,12"/>
+        <Setter Property="CornerRadius" Value="2"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         5 · BUTTONS — Tag carries an optional MDL2 glyph (empty Tag
+         collapses the glyph, same contract as the old Db buttons).
+    ═══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="PgBtnGhostStyle" TargetType="Button">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="14,0"/>
+        <Setter Property="Margin" Value="0,0,8,0"/>
+        <Setter Property="Background" Value="{DynamicResource PgSurfaceBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText1Brush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource PgHairlineBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="FontSize" Value="{StaticResource PgFontBtn}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Root"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{StaticResource PgCtrlRadius}"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center">
+                            <TextBlock x:Name="Glyph"
+                                       Text="{TemplateBinding Tag}"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="{StaticResource PgFontGlyphSm}"
+                                       Margin="0,0,7,0"
+                                       VerticalAlignment="Center"
+                                       Foreground="{TemplateBinding Foreground}"/>
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Tag" Value="{x:Null}">
+                            <Setter TargetName="Glyph" Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
+                        <Trigger Property="Tag" Value="">
+                            <Setter TargetName="Glyph" Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource PgSurface3Brush}"/>
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource PgHairlineStrongBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource PgHairlineBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Opacity" Value="0.45"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="PgBtnPrimaryStyle" TargetType="Button"
+           BasedOn="{StaticResource PgBtnGhostStyle}">
+        <Setter Property="Background" Value="{DynamicResource PgAccentBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource PgAccentBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgAccentInkBrush}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Root"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{StaticResource PgCtrlRadius}"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center">
+                            <TextBlock x:Name="Glyph"
+                                       Text="{TemplateBinding Tag}"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="{StaticResource PgFontGlyphSm}"
+                                       Margin="0,0,7,0"
+                                       VerticalAlignment="Center"
+                                       Foreground="{TemplateBinding Foreground}"/>
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Tag" Value="{x:Null}">
+                            <Setter TargetName="Glyph" Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
+                        <Trigger Property="Tag" Value="">
+                            <Setter TargetName="Glyph" Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource PgAccentHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Root" Property="Opacity" Value="0.9"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Opacity" Value="0.45"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Small square action button inside a row (PDF / share). -->
+    <Style x:Key="PgBtnRowIconStyle" TargetType="Button">
+        <Setter Property="Width" Value="28"/>
+        <Setter Property="Height" Value="28"/>
+        <Setter Property="Margin" Value="0,0,6,0"/>
+        <Setter Property="Background" Value="{DynamicResource PgSurfaceBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText2Brush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource PgHairlineBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Root"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{StaticResource PgIconSmRadius}"
+                            SnapsToDevicePixels="True">
+                        <TextBlock Text="{TemplateBinding Content}"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="{StaticResource PgFontGlyphSm}"
+                                   Foreground="{TemplateBinding Foreground}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource PgSurface3Brush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource PgText1Brush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource PgHairlineBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Opacity" Value="0.45"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         6 · THE ONE KPI TILE
+         Serves BOTH KPI models via the KpiTileModel aliases
+         (Title / SubLabel / BadgeColor). Meridian treatment: neutral
+         icon chip (colour flood removed), uppercase label, big value,
+         quiet footnote. IsAlert adds the 3px danger edge + danger
+         value + soft-danger chip — alert reads by shape, not flood.
+    ═══════════════════════════════════════════════════════════════ -->
+    <DataTemplate x:Key="PgKpiTileTemplate">
+        <Border Style="{StaticResource PgTileStyle}">
+            <Grid>
+                <!-- 3px left status edge (alerts only) -->
+                <Border x:Name="AlertEdge"
+                        Style="{StaticResource PgAlertBarStyle}"
+                        Margin="0,10"
+                        Background="{DynamicResource PgDangerBrush}"
+                        Opacity="0"/>
+
+                <Grid Margin="13,0,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   Text="{Binding Title}"
+                                   Style="{StaticResource PgKpiLabelStyle}"/>
+                        <Border x:Name="Chip"
+                                Grid.Column="1"
+                                Width="24" Height="24"
+                                CornerRadius="{StaticResource PgIconSmRadius}"
+                                Margin="8,0,0,0"
+                                Background="{DynamicResource PgSurfaceBrush}"
+                                BorderBrush="{DynamicResource PgHairlineBrush}"
+                                BorderThickness="1"
+                                VerticalAlignment="Center">
+                            <TextBlock x:Name="ChipIcon"
+                                       Text="{Binding Icon}"
+                                       Style="{StaticResource PgGlyphSmStyle}"
+                                       Foreground="{DynamicResource PgText2Brush}"/>
+                        </Border>
+                    </Grid>
+
+                    <Viewbox Grid.Row="1"
+                             HorizontalAlignment="Left"
+                             Stretch="Uniform"
+                             StretchDirection="DownOnly"
+                             Margin="0,7,0,0">
+                        <TextBlock x:Name="Value"
+                                   Text="{Binding DisplayValue}"
+                                   Style="{StaticResource PgKpiValueStyle}"/>
+                    </Viewbox>
+
+                    <TextBlock Grid.Row="2"
+                               Text="{Binding SubLabel}"
+                               Style="{StaticResource PgKpiFootStyle}"/>
+                </Grid>
+            </Grid>
+        </Border>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsAlert}" Value="True">
+                <Setter TargetName="AlertEdge" Property="Opacity" Value="1"/>
+                <Setter TargetName="Chip" Property="Background" Value="{DynamicResource PgDangerSoftBrush}"/>
+                <Setter TargetName="Chip" Property="BorderBrush" Value="Transparent"/>
+                <Setter TargetName="ChipIcon" Property="Foreground" Value="{DynamicResource PgDangerBrush}"/>
+                <Setter TargetName="Value" Property="Foreground" Value="{DynamicResource PgDangerBrush}"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!-- KPI band host: 4-up strip (TI's 5th tile wraps to a full-width
+         quarter on row two — identical to the old kit's geometry rule). -->
+    <ItemsPanelTemplate x:Key="PgKpiBandPanel">
+        <UniformGrid Columns="4"/>
+    </ItemsPanelTemplate>
+
+    <Style x:Key="PgKpiBandStyle" TargetType="ItemsControl">
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Margin" Value="{StaticResource PgGutterHalfMargin}"/>
+                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         7 · THE ONE FEED ROW
+         Bound to ActivityFeedItem. Rows sit inside a card separated by
+         hairlines (table rhythm) instead of stacked floating cards.
+         Status chip + pill come from the model's brush KEYS.
+    ═══════════════════════════════════════════════════════════════ -->
+    <DataTemplate x:Key="PgFeedRowTemplate">
+        <Border Background="Transparent"
+                BorderBrush="{DynamicResource PgHairlineBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="{StaticResource PgRowPadding}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0"
+                        Width="34" Height="34"
+                        CornerRadius="{StaticResource PgTileRadius}"
+                        VerticalAlignment="Center"
+                        Margin="0,0,12,0"
+                        Background="{Binding TintColor, Converter={StaticResource BrushKeyConverter}}"
+                        BorderBrush="{DynamicResource PgHairlineBrush}"
+                        BorderThickness="1">
+                    <TextBlock Text="{Binding Icon}"
+                               Style="{StaticResource PgGlyphStyle}"
+                               Foreground="{Binding StatusColor, Converter={StaticResource BrushKeyConverter}}"/>
+                </Border>
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0">
+                    <TextBlock Text="{Binding Title}" Style="{StaticResource PgRowTitleStyle}"/>
+                    <TextBlock Text="{Binding SubTitle}" Style="{StaticResource PgRowSubStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" VerticalAlignment="Center" MinWidth="70">
+                    <TextBlock Text="{Binding ValueDisplay}" Style="{StaticResource PgRowValueStyle}"/>
+                    <Border Style="{StaticResource PgPillStyle}"
+                            Margin="0,5,0,0"
+                            Background="{Binding StatusColor, Converter={StaticResource BrushKeyConverter}}">
+                        <TextBlock Text="{Binding StatusLabel}"
+                                   Style="{StaticResource PgPillTextStyle}"/>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+    <Style x:Key="PgFeedItemsStyle" TargetType="ItemsControl">
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         8 · THE FOUR STATES
+    ═══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="PgStateBandStyle" TargetType="Border" BasedOn="{StaticResource PgCardStyle}">
+        <Setter Property="Padding" Value="16,12"/>
+        <Setter Property="Margin" Value="0,0,0,14"/>
+    </Style>
+
+    <Style x:Key="PgStateTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontBody}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText2Brush}"/>
+    </Style>
+
+    <Style x:Key="PgErrorTextStyle" TargetType="TextBlock" BasedOn="{StaticResource PgStateTextStyle}">
+        <Setter Property="Foreground" Value="{DynamicResource PgDangerBrush}"/>
+    </Style>
+
+    <!-- Soft warning / info alert band (TI overdue, St overdue). -->
+    <Style x:Key="PgAlertBandStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource PgDangerSoftBrush}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource PgTileRadius}"/>
+        <Setter Property="Padding" Value="14,12"/>
+        <Setter Property="Margin" Value="0,0,0,14"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="PgAlertBandTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontBodySm}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText1Brush}"/>
+    </Style>
+
+    <Style x:Key="PgEmptyGlyphStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+        <Setter Property="FontSize" Value="30"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText3Brush}"/>
+        <Setter Property="Opacity" Value="0.55"/>
+    </Style>
+
+    <Style x:Key="PgEmptyTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource PgFontBody}"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{DynamicResource PgText3Brush}"/>
+        <Setter Property="Margin" Value="0,10,0,0"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="TextAlignment" Value="Center"/>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         9 · WORKFLOW PIPELINE (Overview)
+         Quote → Production → Delivery → Invoice → Payment. Bound to
+         WorkflowStageModel. Neutral stage; IsActive = filled accent
+         chip (per the model's own contract) + coloured connector and
+         foot so the overload reads without colour-only signalling.
+    ═══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="PgPipelineCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="0,2,14,2"/>
+        <Setter Property="MinHeight" Value="96"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="PgPipelineConnectorStyle" TargetType="Border">
+        <Setter Property="Height" Value="2"/>
+        <Setter Property="Width" Value="14"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Background" Value="{DynamicResource PgHairlineBrush}"/>
+        <Setter Property="CornerRadius" Value="1"/>
+    </Style>
+
+    <!-- One stage: fixed connector column + content. -->
+    <DataTemplate x:Key="PgPipelineStageTemplate">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border x:Name="Connector"
+                    Grid.Column="0"
+                    Style="{StaticResource PgPipelineConnectorStyle}"
+                    Margin="0,0,0,0"
+                    VerticalAlignment="Center"
+                    Visibility="{Binding IsFirst, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+
+            <Border Grid.Column="1" Style="{StaticResource PgPipelineCardStyle}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border x:Name="Chip"
+                                Width="38" Height="38"
+                                CornerRadius="{StaticResource PgIconRadius}"
+                                VerticalAlignment="Center"
+                                Background="{DynamicResource PgSurface2Brush}"
+                                BorderBrush="{DynamicResource PgHairlineBrush}"
+                                BorderThickness="1"
+                                SnapsToDevicePixels="True">
+                            <TextBlock x:Name="ChipIcon"
+                                       Text="{Binding Glyph}"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="{StaticResource PgFontGlyph}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource PgText2Brush}"/>
+                        </Border>
+                        <TextBlock Text="{Binding Name}"
+                                   Style="{StaticResource PgStageNameStyle}"
+                                   VerticalAlignment="Center"
+                                   TextAlignment="Left"
+                                   Margin="9,0,0,0"/>
+                    </Grid>
+
+                    <TextBlock Text="{Binding ValueDisplay}"
+                               Style="{StaticResource PgStageValueStyle}"/>
+                    <TextBlock x:Name="Foot"
+                               Text="{Binding Foot}"
+                               Style="{StaticResource PgStageFootStyle}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+        <DataTemplate.Triggers>
+            <!-- Overloaded stage: filled chip (model contract: alert
+                 renders as a filled glyph chip) + coloured connector
+                 and foot so the overload reads without colour alone. -->
+            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                <Setter TargetName="Connector" Property="Background"
+                        Value="{Binding AccentKey, Converter={StaticResource BrushKeyConverter}}"/>
+                <Setter TargetName="Chip" Property="Background"
+                        Value="{Binding AccentKey, Converter={StaticResource BrushKeyConverter}}"/>
+                <Setter TargetName="Chip" Property="BorderBrush" Value="Transparent"/>
+                <Setter TargetName="ChipIcon" Property="Foreground"
+                        Value="{DynamicResource PgAccentInkBrush}"/>
+                <Setter TargetName="Foot" Property="Foreground"
+                        Value="{Binding AccentKey, Converter={StaticResource BrushKeyConverter}}"/>
+                <Setter TargetName="Foot" Property="FontWeight" Value="SemiBold"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <ItemsPanelTemplate x:Key="PgPipelinePanel">
+        <UniformGrid Columns="5"/>
+    </ItemsPanelTemplate>
+
+    <Style x:Key="PgPipelineItemsStyle" TargetType="ItemsControl">
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                    <Setter Property="MinWidth" Value="120"/>
+                    <Setter Property="Margin" Value="0,0,4,0"/>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Skeleton variant: explicit ContentControl children host their own
+         template (same container-type rule as the old kit). -->
+    <Style x:Key="PgPipelineSkeletonItemsStyle" TargetType="ItemsControl"
+           BasedOn="{StaticResource PgPipelineItemsStyle}">
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="ContentControl">
+                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                    <Setter Property="MinWidth" Value="120"/>
+                    <Setter Property="Margin" Value="0,0,4,0"/>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         10 · SKELETON LOADING — opacity pulse, ReducedMotion-safe.
+    ═══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="PgSkeletonBlockStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource PgHairlineBrush}"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Opacity" Value="0.55"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Style.Triggers>
+            <EventTrigger RoutedEvent="Loaded">
+                <BeginStoryboard>
+                    <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                         From="0.35" To="0.75" Duration="0:0:0.9">
+                            <DoubleAnimation.EasingFunction>
+                                <SineEase EasingMode="EaseInOut"/>
+                            </DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="PgSkeletonCircleStyle" TargetType="Border"
+           BasedOn="{StaticResource PgSkeletonBlockStyle}">
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Width" Value="32"/>
+        <Setter Property="Height" Value="32"/>
+    </Style>
+
+    <Style x:Key="PgSkeletonCardStyle" TargetType="Border" BasedOn="{StaticResource PgCardStyle}">
+        <Setter Property="Background" Value="{DynamicResource PgSurfaceBrush}"/>
+        <Setter Property="Opacity" Value="0.9"/>
+    </Style>
+
+    <DataTemplate x:Key="PgSkeletonKpiTileTemplate">
+        <Border Style="{StaticResource PgTileStyle}" Opacity="0.95">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="24"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="12" Width="72" HorizontalAlignment="Left"/>
+                    <Border Grid.Column="1" Style="{StaticResource PgSkeletonCircleStyle}" Width="24" Height="24"/>
+                </Grid>
+                <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="22" Width="88" Margin="0,14,0,0" HorizontalAlignment="Left"/>
+                <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="10" Width="120" Margin="0,10,0,0" HorizontalAlignment="Left" Opacity="0.4"/>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+
+    <ItemsPanelTemplate x:Key="PgSkeletonKpiBandPanel">
+        <UniformGrid Columns="4"/>
+    </ItemsPanelTemplate>
+
+    <Style x:Key="PgSkeletonKpiBandStyle" TargetType="ItemsControl"
+           BasedOn="{StaticResource PgKpiBandStyle}"/>
+
+    <DataTemplate x:Key="PgSkeletonChartTemplate">
+        <Border Style="{StaticResource PgChartWellStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid VerticalAlignment="Bottom" Height="120">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Style="{StaticResource PgSkeletonBlockStyle}" Width="22" Height="40" VerticalAlignment="Bottom" Margin="0,0,6,0"/>
+                    <Border Grid.Column="1" Style="{StaticResource PgSkeletonBlockStyle}" Width="22" Height="72" VerticalAlignment="Bottom" Margin="0,0,6,0"/>
+                    <Border Grid.Column="2" Style="{StaticResource PgSkeletonBlockStyle}" Width="22" Height="56" VerticalAlignment="Bottom" Margin="0,0,6,0"/>
+                    <Border Grid.Column="3" Style="{StaticResource PgSkeletonBlockStyle}" Width="22" Height="90" VerticalAlignment="Bottom" Margin="0,0,6,0"/>
+                    <Border Grid.Column="4" Style="{StaticResource PgSkeletonBlockStyle}" Width="22" Height="64" VerticalAlignment="Bottom" Margin="0,0,6,0"/>
+                    <Border Grid.Column="5" Style="{StaticResource PgSkeletonBlockStyle}" Width="22" Height="100" VerticalAlignment="Bottom"/>
+                </Grid>
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,12,0,0">
+                    <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="8" Width="48" Margin="0,0,12,0"/>
+                    <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="8" Width="48" Margin="0,0,12,0"/>
+                    <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="8" Width="48"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+    <DataTemplate x:Key="PgSkeletonFeedRowTemplate">
+        <Border Style="{StaticResource PgRowCardStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource PgSkeletonCircleStyle}" Margin="0,0,12,0"/>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0">
+                    <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="13" Width="140" HorizontalAlignment="Left"/>
+                    <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="10" Width="180" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="13" Width="56" HorizontalAlignment="Right"/>
+                    <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="16" Width="48" Margin="0,6,0,0" HorizontalAlignment="Right" CornerRadius="{StaticResource PgChipRadius}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+    <DataTemplate x:Key="PgSkeletonPipelineStageTemplate">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="0" Style="{StaticResource PgPipelineConnectorStyle}" Opacity="0.3"/>
+            <Border Grid.Column="1" Style="{StaticResource PgPipelineCardStyle}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" Style="{StaticResource PgSkeletonCircleStyle}" CornerRadius="{StaticResource PgIconRadius}"/>
+                        <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="11" Width="64" Margin="9,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>
+                    <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="18" Width="72" Margin="0,12,0,0" HorizontalAlignment="Left"/>
+                    <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="10" Width="96" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </DataTemplate>
+
+    <Style x:Key="PgSkeletonBandStyle" TargetType="Border" BasedOn="{StaticResource PgCardStyle}">
+        <Setter Property="Margin" Value="0,0,0,14"/>
+    </Style>
+
+</ResourceDictionary>

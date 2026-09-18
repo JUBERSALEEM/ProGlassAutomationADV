@@ -167,6 +167,20 @@
                      Dashboard pages must use Db* keys only. ── -->
                 <ResourceDictionary Source="Styles/DashboardKit.xaml"/>
 
+                <!-- ═══════════════════════════════════════════════════════
+                     MERIDIAN (Pg*) — the full 0→100 UI rewrite system.
+                     New parallel design language for the shell + all 7
+                     dashboards. Purely ADDITIVE: nothing existing changes
+                     until a rewritten view opts in, so the app stays fully
+                     functional in the old look until Phase 7 retires the
+                     old keys. Order matters: Core (geometry + dashboard
+                     grammar) before Shell (top bar + sidebar, which reads
+                     the core tokens). Merged after DashboardKit so the old
+                     kit's BasedOn chains still resolve.
+                ═══════════════════════════════════════════════════════ -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Professional/ProfessionalCore.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Professional/ProfessionalShell.xaml"/>
+
                 <!-- ProGlass Design System COMPONENT TOKEN LAYER.
                      Merged AFTER Button/Pill/Tab/Input/Dialog/LiquidGlass/
                      PiIndustrial/ListPage/DashboardKit so BasedOn aliases
