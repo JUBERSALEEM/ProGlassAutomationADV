@@ -136,6 +136,16 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   2. Night palette is screen-scoped (only this module is dark in the reference); the rest of the Personal shell stays light-sapphire per refs 01/02/03/05–10.
 - **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
 
+### glass-10 — AI Assistant (GB-P13)
+- **Status:** ✅ STATIC VERIFIED · RUNTIME NOT VERIFIED (no .NET SDK) · VISUALLY NOT YET VERIFIED.
+- **Architecture:** `Views/Personal/PersonalAiChatView.xaml` (+ code-behind = chat auto-scroll plumbing only) on the **same `AiChatViewModel`**. AI is an OVERLAY (not a module — mirrors Professional's `AiChatView` overlay in MainWindow). Hosted in GlassShell with the same `AiChatVM.IsOpen` visibility + `AiChatVM` DataContext; the Professional overlay is hidden when Personal is active (GB-P14).
+- **Components used:** GlassBlush.ChatBubbleUser (accent, right) / ChatBubbleAssistant (glass, left + provider footer via Runs: ProviderIcon · AI.Via · ProviderName · TimeLabel), GlassBlush.SuggestionChip rail (Suggestions + SuggestionCommand), GlassBlush.TextBox (CurrentInput), GlassButton (SendCommand), TopIconButton (VoiceInputCommand/ClearChatCommand/ToggleChatCommand), glass empty state (AI.HelloIMProglassAI + hint).
+- **Contract preserved:** Messages (ChatMessage immutable model), Suggestions, CurrentInput, HasMessages, ActiveProviderSubtitle, all 5 commands, all AI.* i18n keys.
+- **Deviations (documented):**
+  1. Error-state bubble (IsError) renders as the assistant glass bubble (the Professional view has a dedicated red bubble; a GbChatBubbleError variant is a candidate for the GB-P15 consistency pass — no data difference).
+  2. Auto-scroll uses a CollectionChanged → ScrollToEnd in view code-behind (chat UX plumbing; no business logic).
+- **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
+
 ## Phase status
 
 | Phase | Status | Commit |
@@ -147,7 +157,8 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-P5 proforma invoice (glass-02) | ✅ STATIC VERIFIED (PersonalProformaInvoiceView + 9-step glow strip; runtime NOT VERIFIED) | `GB-P5` |
 | GB-P6 job order (glass-03) | ✅ STATIC VERIFIED (PersonalJobOrderView + glass tab strip + status timeline; runtime NOT VERIFIED) | `GB-P6` |
 | GB-P7 production control (glass-04) | ✅ STATIC VERIFIED (PersonalProductionControlCenterView, night palette; runtime NOT VERIFIED) | `GB-P7` |
-| GB-P8…P13 screens (6) | pending | — |
+| GB-P13 ai assistant (glass-10) | ✅ STATIC VERIFIED (PersonalAiChatView, glass bubbles + chip rail; runtime NOT VERIFIED) | `GB-P13` |
+| GB-P8…P12 screens (5) | pending | — |
 | GB-P14 Professional↔Personal switch | pending | — |
 | GB-P15 global visual consistency | pending | — |
 | GB-P16 runtime screenshot fidelity | **NOT RUN — no WPF runtime in this environment** (tooling to be delivered) | — |
