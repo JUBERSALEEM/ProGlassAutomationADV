@@ -97,6 +97,10 @@
                 <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidControls.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidStyles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidNavigation.xaml"/>
+                <!-- Glass Blush — Personal UI family plane (GB-P1, 2026-09-18).
+                     Measured token plane for the second ProGlass experience.
+                     Managed keys are republished by the family painter (GB-P14). -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/GlassBlush/GlassBlushTokens.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidDataGrid.xaml"/>
                 <!-- Phase 11: CrystalFluidScrollBar.xaml un-merged — keys unused outside the file. File kept on disk until Phase 12. -->
                 <!-- Industrial list-page chrome (PI / JO / DN / TI) -->

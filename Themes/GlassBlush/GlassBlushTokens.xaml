@@ -1,0 +1,179 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         GLASS BLUSH — PERSONAL UI VISUAL FOUNDATION (GB-P1, 2026-09-18)
+
+         The second ProGlass UI experience. Visual source of truth: the 10
+         reference PNGs (glass-01 … glass-10, 1408×768). Every value below
+         is MEASURED from those references (method + raw data recorded in
+         docs/ui-audit/GLASS_BLUSH_IMPLEMENTATION.md §GB-P1).
+
+         ARCHITECTURE (mirrors the Crystal Fluid family plane):
+           * Authored values live HERE (like CrystalFluidColors.xaml).
+           * The family painter (GB-P14) republishes the managed keys
+             (accent, glass opacity, background) at runtime from the
+             Appearance settings — so this plane stays fully configurable.
+           * ALL consumers MUST use DynamicResource (never StaticResource)
+             for these keys — the W16 gate enforces the runtime-owned set.
+
+         PERFORMANCE LAW (§23): no effect is applied per-row; glows live on
+         accent containers only; the atmospheric background is 3 cheap
+         brushes (1 gradient + 2 radial orbs), no bitmaps, no live blur.
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- ── COLORS (measured) ─────────────────────────────────────────── -->
+    <Color x:Key="GlassBlush.BackgroundDeepColor">#FF021543</Color>   <!-- bg bottom-left (srgb 2,21,67) -->
+    <Color x:Key="GlassBlush.BackgroundColor">#FF023D85</Color>       <!-- bg mid (measured family) -->
+    <Color x:Key="GlassBlush.BackgroundAzureColor">#FF02448E</Color>  <!-- bg upper (srgb 2,68,142) -->
+    <Color x:Key="GlassBlush.BackgroundGlowColor">#FF2285B7</Color>   <!-- top-right azure glow (srgb 34,133,183) -->
+    <Color x:Key="GlassBlush.OrbColor">#802285B7</Color>              <!-- soft cyan radial orbs -->
+    <Color x:Key="GlassBlush.EdgeOrbColor">#5902448E</Color>          <!-- faint bottom-left orb -->
+
+    <Color x:Key="GlassBlush.SurfaceColor">#48FFFFFF</Color>          <!-- glass card fill ≈28% white (measured) -->
+    <Color x:Key="GlassBlush.SurfaceStrongColor">#59FFFFFF</Color>    <!-- KPI/summary cards ≈35% white -->
+    <Color x:Key="GlassBlush.SurfaceFaintColor">#2EFFFFFF</Color>     <!-- 18% — subtle inner layers -->
+    <Color x:Key="GlassBlush.SurfacePressedColor">#33FFFFFF</Color>
+
+    <Color x:Key="GlassBlush.BorderColor">#73FFFFFF</Color>           <!-- 45% translucent white -->
+    <Color x:Key="GlassBlush.BorderSoftColor">#40FFFFFF</Color>       <!-- 25% -->
+    <Color x:Key="GlassBlush.SheenColor">#99FFFFFF</Color>            <!-- sheen top edge -->
+    <Color x:Key="GlassBlush.SheenFadeColor">#2EFFFFFF</Color>
+
+    <Color x:Key="GlassBlush.TextColor">#FFF5FAFF</Color>
+    <Color x:Key="GlassBlush.TextMutedColor">#FFA9C3E6</Color>        <!-- ice blue -->
+    <Color x:Key="GlassBlush.TextFaintColor">#CCB7CFEA</Color>
+
+    <Color x:Key="GlassBlush.AccentColor">#FF2FA8D8</Color>           <!-- azure-cyan (measured family) -->
+    <Color x:Key="GlassBlush.AccentGlowColor">#FF57C7F0</Color>
+    <Color x:Key="GlassBlush.AccentDeepColor">#FF1B7FB0</Color>
+    <Color x:Key="GlassBlush.AccentSoftColor">#662FA8D8</Color>       <!-- 40% accent fills -->
+    <Color x:Key="GlassBlush.OnAccentColor">#FFFFFFFF</Color>
+
+    <Color x:Key="GlassBlush.SuccessColor">#FF34D399</Color>          <!-- mint -->
+    <Color x:Key="GlassBlush.SuccessSoftColor">#5934D399</Color>
+    <Color x:Key="GlassBlush.WarningColor">#FFFBBF24</Color>          <!-- amber -->
+    <Color x:Key="GlassBlush.WarningSoftColor">#59FBBF24</Color>
+    <Color x:Key="GlassBlush.DangerColor">#FFF87171</Color>           <!-- coral -->
+    <Color x:Key="GlassBlush.DangerSoftColor">#59F87171</Color>
+    <Color x:Key="GlassBlush.InfoColor">#FF38BDF8</Color>
+    <Color x:Key="GlassBlush.InfoSoftColor">#5938BDF8</Color>
+
+    <!-- ── NIGHT PALETTE (glass-04 — production control only) ────────── -->
+    <Color x:Key="GlassBlushNight.BackgroundColor">#FF070C32</Color>  <!-- measured srgb(7,12,50) -->
+    <Color x:Key="GlassBlushNight.BackgroundGlowColor">#FF123059</Color>
+    <Color x:Key="GlassBlushNight.SurfaceColor">#40152B50</Color>     <!-- measured tile #152B50 @25% -->
+    <Color x:Key="GlassBlushNight.SurfaceStrongColor">#66152B50</Color>
+    <Color x:Key="GlassBlushNight.BorderColor">#597FD4E8</Color>      <!-- cyan-tinted border -->
+    <Color x:Key="GlassBlushNight.AccentColor">#FF4FD1E8</Color>      <!-- neon cyan (measured family) -->
+    <Color x:Key="GlassBlushNight.AccentGlowColor">#FF7FE3F2</Color>
+    <Color x:Key="GlassBlushNight.TextColor">#FFF2FAFF</Color>
+    <Color x:Key="GlassBlushNight.TextMutedColor">#FF9FB6D8</Color>
+
+    <!-- ── BRUSHES (managed set — the family painter may republish) ──── -->
+    <SolidColorBrush x:Key="GlassBlush.Surface" Color="{StaticResource GlassBlush.SurfaceColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.SurfaceStrong" Color="{StaticResource GlassBlush.SurfaceStrongColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.SurfaceFaint" Color="{StaticResource GlassBlush.SurfaceFaintColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.SurfacePressed" Color="{StaticResource GlassBlush.SurfacePressedColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.Border" Color="{StaticResource GlassBlush.BorderColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.BorderSoft" Color="{StaticResource GlassBlush.BorderSoftColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.Text" Color="{StaticResource GlassBlush.TextColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.TextMuted" Color="{StaticResource GlassBlush.TextMutedColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.TextFaint" Color="{StaticResource GlassBlush.TextFaintColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.Accent" Color="{StaticResource GlassBlush.AccentColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.AccentGlow" Color="{StaticResource GlassBlush.AccentGlowColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.AccentDeep" Color="{StaticResource GlassBlush.AccentDeepColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.AccentSoft" Color="{StaticResource GlassBlush.AccentSoftColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.OnAccent" Color="{StaticResource GlassBlush.OnAccentColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.Success" Color="{StaticResource GlassBlush.SuccessColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.SuccessSoft" Color="{StaticResource GlassBlush.SuccessSoftColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.Warning" Color="{StaticResource GlassBlush.WarningColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.WarningSoft" Color="{StaticResource GlassBlush.WarningSoftColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.Danger" Color="{StaticResource GlassBlush.DangerColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.DangerSoft" Color="{StaticResource GlassBlush.DangerSoftColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.Info" Color="{StaticResource GlassBlush.InfoColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.InfoSoft" Color="{StaticResource GlassBlush.InfoSoftColor}"/>
+
+    <!-- Night brushes -->
+    <SolidColorBrush x:Key="GlassBlushNight.Background" Color="{StaticResource GlassBlushNight.BackgroundColor}"/>
+    <SolidColorBrush x:Key="GlassBlushNight.Surface" Color="{StaticResource GlassBlushNight.SurfaceColor}"/>
+    <SolidColorBrush x:Key="GlassBlushNight.SurfaceStrong" Color="{StaticResource GlassBlushNight.SurfaceStrongColor}"/>
+    <SolidColorBrush x:Key="GlassBlushNight.Border" Color="{StaticResource GlassBlushNight.BorderColor}"/>
+    <SolidColorBrush x:Key="GlassBlushNight.Accent" Color="{StaticResource GlassBlushNight.AccentColor}"/>
+    <SolidColorBrush x:Key="GlassBlushNight.AccentGlow" Color="{StaticResource GlassBlushNight.AccentGlowColor}"/>
+    <SolidColorBrush x:Key="GlassBlushNight.Text" Color="{StaticResource GlassBlushNight.TextColor}"/>
+    <SolidColorBrush x:Key="GlassBlushNight.TextMuted" Color="{StaticResource GlassBlushNight.TextMutedColor}"/>
+
+    <!-- ── ATMOSPHERIC BACKGROUND (3 cheap layers, no bitmap) ───────────
+         Reference: dark sapphire bottom-left → azure glow top-right +
+         soft cyan radial orb top-right + faint orb bottom-left.        -->
+    <LinearGradientBrush x:Key="GlassBlush.Background" StartPoint="0,1" EndPoint="1,0"
+                         MappingMode="Absolute">
+        <GradientStop Color="{StaticResource GlassBlush.BackgroundDeepColor}" Offset="0"/>
+        <GradientStop Color="{StaticResource GlassBlush.BackgroundColor}" Offset="0.45"/>
+        <GradientStop Color="{StaticResource GlassBlush.BackgroundAzureColor}" Offset="0.78"/>
+        <GradientStop Color="{StaticResource GlassBlush.BackgroundGlowColor}" Offset="1"/>
+    </LinearGradientBrush>
+    <RadialGradientBrush x:Key="GlassBlush.OrbTopRight" MappingMode="Absolute"
+                         Center="0.85,0.1" RadiusX="0.55" RadiusY="0.45">
+        <GradientStop Color="{StaticResource GlassBlush.OrbColor}" Offset="0"/>
+        <GradientStop Color="#002285B7" Offset="1"/>
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="GlassBlush.OrbBottomLeft" MappingMode="Absolute"
+                         Center="0.12,0.92" RadiusX="0.5" RadiusY="0.4">
+        <GradientStop Color="{StaticResource GlassBlush.EdgeOrbColor}" Offset="0"/>
+        <GradientStop Color="#0002448E" Offset="1"/>
+    </RadialGradientBrush>
+
+    <!-- Card sheen: 135° white highlight top edge → transparent -->
+    <LinearGradientBrush x:Key="GlassBlush.Sheen" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource GlassBlush.SheenColor}" Offset="0"/>
+        <GradientStop Color="{StaticResource GlassBlush.SheenFadeColor}" Offset="0.25"/>
+        <GradientStop Color="#00FFFFFF" Offset="0.6"/>
+    </LinearGradientBrush>
+
+    <!-- ── GEOMETRY (measured) ───────────────────────────────────────── -->
+    <CornerRadius x:Key="GlassBlush.CardRadius">22</CornerRadius>
+    <CornerRadius x:Key="GlassBlush.SectionRadius">26</CornerRadius>
+    <CornerRadius x:Key="GlassBlush.SmallRadius">14</CornerRadius>
+    <CornerRadius x:Key="GlassBlush.PillRadius">999</CornerRadius>
+    <CornerRadius x:Key="GlassBlush.TileRadius">18</CornerRadius>
+
+    <Thickness x:Key="GlassBlush.PagePadding">44</Thickness>
+    <Thickness x:Key="GlassBlush.CardGap">24</Thickness>
+    <Thickness x:Key="GlassBlush.CardPadding">20</Thickness>
+    <Thickness x:Key="GlassBlush.ControlGap">12</Thickness>
+    <Thickness x:Key="GlassBlush.RowGap">10</Thickness>
+    <Thickness x:Key="GlassBlush.BorderThickness">1</Thickness>
+
+    <sys:Double x:Key="GlassBlush.SidebarWidth">140</sys:Double>
+    <sys:Double x:Key="GlassBlush.TopBarHeight">72</sys:Double>
+    <sys:Double x:Key="GlassBlush.KpiHeight">110</sys:Double>
+    <sys:Double x:Key="GlassBlush.ControlHeight">44</sys:Double>
+    <sys:Double x:Key="GlassBlush.StepperDiameter">36</sys:Double>
+    <sys:Double x:Key="GlassBlush.NavIconDiameter">40</sys:Double>
+    <sys:Double x:Key="GlassBlush.IconButtonDiameter">40</sys:Double>
+    <sys:Double x:Key="GlassBlush.TimelineDotDiameter">16</sys:Double>
+    <sys:Double x:Key="GlassBlush.GaugeDiameter">180</sys:Double>
+
+    <!-- ── GLASS / GLOW PARAMETERS ───────────────────────────────────── -->
+    <sys:Double x:Key="GlassBlush.GlassOpacity">0.28</sys:Double>
+    <sys:Double x:Key="GlassBlush.GlassOpacityStrong">0.35</sys:Double>
+    <sys:Double x:Key="GlassBlush.BorderOpacity">0.45</sys:Double>
+    <sys:Double x:Key="GlassBlush.GlowOpacity">0.55</sys:Double>
+    <sys:Double x:Key="GlassBlush.BlurAmount">18</sys:Double>   <!-- shadow/soften radius; NOT a live blur -->
+    <sys:Double x:Key="GlassBlush.SheenAngle">135</sys:Double>
+
+    <!-- ── TYPOGRAPHY SCALE (measured from references) ───────────────── -->
+    <sys:Double x:Key="GlassBlush.FontKpi">40</sys:Double>
+    <sys:Double x:Key="GlassBlush.FontKpiSmall">32</sys:Double>
+    <sys:Double x:Key="GlassBlush.FontTitle">26</sys:Double>
+    <sys:Double x:Key="GlassBlush.FontHeading">20</sys:Double>
+    <sys:Double x:Key="GlassBlush.FontBody">15</sys:Double>
+    <sys:Double x:Key="GlassBlush.FontCaption">13</sys:Double>
+    <sys:Double x:Key="GlassBlush.FontLabel">12</sys:Double>
+    <sys:Double x:Key="GlassBlush.FontMeta">11.5</sys:Double>
+
+</ResourceDictionary>
