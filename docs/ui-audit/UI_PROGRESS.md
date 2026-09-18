@@ -11,7 +11,7 @@
 | P5 Supporting | **IMPLEMENTED** | full review: all surfaces converged or deliberate special surface; hex = material/brand constants documented; InquiryListView EmptyState BLOCKED (needs i18n key in 13 langs) |
 | P6 Global consistency | **IMPLEMENTED** | re-census: 15fs/38cr residuals all documented keeps; hex=9 (Splash only); 208 heights + 32 windows audited; no undocumented debt |
 | P7 Personal UI/layout | pending | verify theme=appearance vs layout=arrangement separation; no forks (inventory-backed) |
-| P8 DPI/density | pending | static analysis of fixed dims + density-token adoption |
+| P8 DPI/density | **IMPLEMENTED (static)** | 32/32 windows floor-safe; scaling mechanism sound; density-ladder re-anchor = open decision (needs build+product call) |
 | P9 Final 320-file pass | pending | classification + 4 doc updates |
 
 

@@ -271,3 +271,26 @@ Global audits performed (findings → decisions):
 - **Empty states:** 22 screens use `EmptyStateControl`; the sole gap
   (InquiryListView) is blocked on an i18n key (Phase 5 record).
 - **Dialogs:** all 22 ThemedDialogWindow dialogs use shared Dialog* chrome.
+
+## Phase 8 record (responsive / DPI / density, 2026-09-18 — static verification only)
+
+Environment constraint: no .NET SDK → no rendered 1080p/1440p/4K or
+100/125/150/200% passes possible here. What was verified statically:
+
+- **Scaling mechanism is sound:** the app is DPI-unaware-safe by
+  construction — WPF scales DIP layouts; all chrome rides DynamicResource
+  tokens (brushes/radii/typography) so per-DPI rendering uses the same
+  layout at scaled size. Pg dashboards additionally reflow via
+  `DensityPageMargin` + the Pg type scale (runtime-published, 2026-09-18 fix).
+- **Window floors verified** (Phase 6): no window collapses (base-class
+  MinWidth/MinHeight + NoResize defaults cover all 32).
+- **No clipping hotspots introduced by this stream** (all changes are
+  token-for-value swaps; no tree restructures).
+- **Density ladder re-anchoring = OPEN DECISION (not implemented):**
+  the 18–26px ladder predates the 26/32/34/40 modern control scale.
+  Reconciling (or re-anchoring the ladder to the modern scale) changes
+  runtime appearance for the 5 density-driven views + 3 shared button
+  styles and MUST be done with build + visual verification and a product
+  call. Recorded here so it is not "discovered" (and blindly fixed) later.
+
+Theme runtime / density / DPI runtime behaviour: **NOT VERIFIED** (no SDK).

@@ -118,9 +118,15 @@
     },
     "phase_6": {
       "status": "IMPLEMENTED",
-      "commit": "pending",
+      "commit": "750f6b9",
       "delta": "re-census: Views literals 60fs/47cr -> 15fs/38cr, ALL residuals documented structural keeps; real view hex = 9 (Splash material recipe only); 208 control heights audited (two-authority architecture documented, NOT blindly merged); 32 windows MinWidth-safe; no undocumented literal debt remains",
       "gate": "no XAML changes (measure+audit phase); validator unchanged 321 files 0E/22W/2N"
+    },
+    "phase_8": {
+      "status": "IMPLEMENTED (static verification only)",
+      "commit": "pending",
+      "delta": "window floors verified (32/32 safe); DPI scaling mechanism sound (DIP + DynamicResource tokens + Pg density reflow); density-ladder re-anchoring recorded as OPEN DECISION (needs product call + build/visual verification)",
+      "runtime": "Theme runtime / density / DPI runtime behaviour NOT VERIFIED (no SDK)"
     }
   }
 }
