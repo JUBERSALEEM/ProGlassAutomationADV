@@ -1,0 +1,80 @@
+{
+  "generated": "2026-09-18",
+  "protocol": "MERIDIAN \u2014 Release-Safe WPF UI Engineering (25 phases)",
+  "branch": "arena/01a0b4a8-proglassautomationadv",
+  "base_commit": "97160501c4f1fbcf9eef0d4f0d99ee7ff59fb68a",
+  "head_commit": "177efed",
+  "working_tree": "clean",
+  "counts": {
+    "xaml_files": 320,
+    "xaml_cs_codebehind": 244,
+    "windows": 34,
+    "pages": 0,
+    "usercontrols": 201,
+    "resource_dictionaries": 83,
+    "xml_parse_errors": 0,
+    "dynamic_resource_markers": 17437,
+    "static_resource_markers": 8630,
+    "hardcoded_hex_total": 1108,
+    "hardcoded_hex_files": 22,
+    "hex_policy": "all in token definitions (Themes/Styles) + 2 legacy views (AgentChatView 3, SplashView 9); W17 gate NOTE-level",
+    "meridian_files_zero_gate_findings": 13
+  },
+  "phases": {
+    "Ph0_baseline_verification": "DONE \u2014 all prior claims re-verified vs HEAD (157 Pg* keys, inventory, merge order); 6.8/10 static baseline 2026-09-14 recorded",
+    "Ph1_xaml_inventory": "DONE \u2014 tools/ui_inventory.py, 320-row master matrix (brief's '500+' was never true)",
+    "Ph2_view_matrix": "DONE \u2014 docs/ui-audit/UI_VIEW_INVENTORY.{md,json}",
+    "Ph3_meridian_change_audit": "DONE \u2014 tools/meridian_audit.py + MERIDIAN_CHANGE_AUDIT.md + DYNAMIC_STATIC_AUDIT.md (post-fix verdicts: typography DYNAMIC-PARITY, zero static PgFont consumers; borders = documented intentional-static waiver)",
+    "Ph4_functional_surface_preservation": "DONE \u2014 9/9 contract re-verified vs HEAD: bindings/commands/x:Names/handlers/templates/converters/i18n preserved; sole Bg relocation documented (no code-behind ref)",
+    "Ph5_structural_safety": "DONE (static) \u2014 W1/W10/W11/W12 gates green repo-wide",
+    "Ph6_property_safety": "DONE (static) \u2014 W2/W3/W4/W8/W9 gates green repo-wide",
+    "Ph7_resource_safety": "DONE (static) \u2014 W5/W6/W7/W13-equivalent (parse) gates; 22 legacy WARNs documented",
+    "Ph8_namespace_class_safety": "DONE (static) \u2014 W14/W15 gates green",
+    "Ph9_pg_consumption": "DONE \u2014 7 dashboards + shell consume Pg* via shared ProfessionalCore/Shell styles; no per-view duplication of KPI/card/row grammar",
+    "Ph10_no_new_local_styles": "DONE \u2014 new view chrome goes to shared Pg* styles; local styles only where module-specific (documented in inventory LOCAL-STYLE-FAMILY column)",
+    "Ph11_industrial_layout": "DONE \u2014 dense workflow-oriented dashboards, zero decorative excess (mockups/ = acceptance reference)",
+    "Ph12_personal_ui_architecture": "DONE \u2014 docs/ui-audit/PERSONAL_UI_ARCHITECTURE.md (theme plane only, zero view forks, family pipeline, Pg-plane coexistence)",
+    "Ph13_shared_fix_over_n_edits": "DONE \u2014 one allowlisted converter + one ThemeManager republish instead of N ad-hoc view edits",
+    "Ph14_small_batches": "DONE \u2014 5 logical commits (census / rewrite / fix / gate / merge) + OPT isolation, no giant commit",
+    "Ph15_build_gate": "NOT RUN \u2014 no .NET SDK in environment; BUILD NOT EXECUTED",
+    "Ph16_tests": "NOT RUN \u2014 no .NET SDK in environment; TESTS NOT RUN; no test deleted/weakened (retirement guard ADDED)",
+    "Ph17_static_analysis_gate": "DONE \u2014 tools/xaml_validator.py, 320 files, 0 ERROR / 22 WARN / 2 NOTE, exit 0; report committed",
+    "Ph18_ui_regression_gate": "NOT RUN \u2014 requires running app (no SDK); static structural gate (Ph17) is the substitute on record",
+    "Ph19_dpi_resolution_gate": "NOT RUN \u2014 requires running app (no SDK); density republish logic verified by source inspection only",
+    "Ph20_full_diff_review": "DONE \u2014 every hunk of the 18 tracked files reviewed during Ph3/Ph4; post-flip re-verified 2026-09-18",
+    "Ph21_commit_gates_green": "DONE \u2014 all runnable gates green before commit; build gate recorded as NOT RUN, not claimed",
+    "Ph22_logical_granularity": "DONE \u2014 commit log below",
+    "Ph23_ui_progress": "DONE \u2014 docs/ui-audit/UI_PROGRESS.md",
+    "Ph24_agent_handoff": "DONE \u2014 docs/ui-audit/AGENT_HANDOFF.md",
+    "Ph25_project_state": "DONE \u2014 this file"
+  },
+  "commits": {
+    "this_stream": [
+      "2dea95f docs(ui): Phase 1-3 audit census, baseline and audit tooling",
+      "ce4b153 ui: professional design system + 0->100 dashboard rewrite (7 modules)",
+      "aebf21f fix(theme): republish Pg typography/density/radius tokens at runtime",
+      "b44567f test(xaml): Phase 17 static-analysis gate + baseline validation report",
+      "177efed merge: restore original MERIDIAN phase lineage (ba70ea0..14140ed) for provenance",
+      "62e1f03 docs(ui): Phase 12 personal-UI architecture + Phases 23-25 state docs (amended within itself - see head_note)"
+    ],
+    "carried_over": "fe760e4 fix(opt): preserve carried-over uncommitted optimization workstream (build unverified, separate stream)",
+    "restored_lineage": "8300042..14140ed original MERIDIAN phase commits (absorbed via 177efed; content superseded by ce4b153+aebf21f)"
+  },
+  "verification": {
+    "xaml_static_validation": "PASS \u2014 0 ERROR / 22 WARN / 2 NOTE, 320 files (legacy-only findings)",
+    "functional_contract_9_views": "PASS \u2014 9/9 preserved vs HEAD (Bg relocation documented, no code-behind ref)",
+    "csharp_integrity": "PASS (static) \u2014 braces/parens balanced, restored region byte-identical to HEAD, zero Db* refs",
+    "build": "NOT RUN \u2014 no .NET SDK in environment",
+    "tests": "NOT RUN \u2014 no .NET SDK in environment",
+    "runtime_theme_density": "NOT VERIFIED \u2014 source-inspected only; app cannot run here",
+    "dpi_resolution": "NOT RUN \u2014 requires running app"
+  },
+  "known_issues_legacy_only": [
+    "22 W7 dangling DynamicResources in untouched legacy views (WPF silent no-op, not crash): Ios26TileBadgeBrush, ShadowHeavy, FontSize.TitleLarge, SurfaceBrush, Chart.*.Alpha, Radius.Top.Large, Transparent",
+    "6 W5 declared-after-use StaticResources that resolve at app level (EmptyState/StatCard IconFont, GlobalDesignSystem Tab.Inactive, DiagnosticsView EmojiToGlyph, SettingsView SettingsPageTemplateSelector)",
+    "1 W3 duplicate x:Key SettingsCardMargin in SettingsView (identical values, last-wins no-op)",
+    "2 W17 NOTE: legacy hex in AgentChatView (3) + SplashView (9)",
+    "PrintableInvoiceView print surface: Print.* tokens published at runtime by PrintTokenService (validated into W7 runtime set \u2014 0 findings)"
+  ],
+  "head_note": "this commit (the docs batch) is the actual branch head - a commit cannot carry its own SHA; parent is 177efed. Confirm with: git log -1"
+}
