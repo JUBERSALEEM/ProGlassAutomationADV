@@ -115,8 +115,8 @@
                                 <TextBlock Text="&#xE790;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="13" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Grid.Column="1" Margin="10,0,8,0" VerticalAlignment="Center">
-                                <TextBlock Text="THEME STUDIO" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
-                                <TextBlock Text="Family, light/dark, and crystal glass" FontSize="10" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                <TextBlock Text="THEME STUDIO" FontSize="{DynamicResource FontSize.Label}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="Family, light/dark, and crystal glass" FontSize="{DynamicResource FontSize.Badge}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                             </StackPanel>
                             <Button Grid.Column="2" Style="{StaticResource PrimaryPillButton}" Height="28" Padding="12,0"
                                     Command="{Binding DataContext.OpenSettingsPageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="Themes"

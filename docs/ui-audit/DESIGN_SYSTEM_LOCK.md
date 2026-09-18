@@ -141,3 +141,38 @@ migrated to the shared pattern or documented here with a reason.
   findings are untouched (per protocol §13).
 - All PagePatterns keys resolve (verified against repo declarations).
 - BUILD NOT EXECUTED — .NET SDK unavailable. Runtime appearance NOT VERIFIED.
+
+## Phase 3 convergence record (masters/data management, 2026-09-18)
+
+Scope: CompanyCenter, UserCenter, SpecificationsCenter, SystemCenter,
+Settings (53 files), Shared panels.
+
+Implementation delta — **22 literals tokenized, all exact-value (zero
+visual change)**, across 6 files:
+
+| File | Changes |
+|---|---|
+| CompanyCenterView | chip radii 10 → `Radius.Medium` ×2 · chip labels 10 → `FontSize.Badge` ×2 · status 11 → `FontSize.Label` |
+| UserCenterView | same pattern ×4 · status 11 → `FontSize.Label` |
+| SettingsThemesSection | chip radii 12 → `ControlCornerRadius` ×2 · chip labels 11 → `FontSize.Chip` ×2 |
+| AppearancePreviewTile | radii 12 → `ControlCornerRadius` ×2 · labels 11 → `FontSize.Chip` ×2 |
+| AppearanceSplashCard | radius 12 → `ControlCornerRadius` · label 11 → `FontSize.Chip` |
+| QuickSettingsPanel | kicker 11 → `FontSize.Label` · sub 10 → `FontSize.Badge` |
+
+Structural keeps (documented, not theme chrome):
+- Avatar circles `CornerRadius=22` (CC/UC, 44px = h/2) · status dots
+  5/6 (h/2) · Theme Studio icon tile 15 (30px = h/2) — circles are
+  proportional control internals.
+- Icon-glyph sizes 13/14 (`&#xE73E;`/`&#xE790;` checkmarks) — no
+  13/14-px icon token exists in `FontSize.*` (`FontSize.Icon`=16);
+  forcing `Body` would be semantically wrong and `Icon` a visual change.
+
+Settings module evaluation (no change, documented):
+`SettingsCardStyles` (47 keys) + `SettingsSectionStyles` (12) are a
+self-contained module design layer — the bulk are spacing constants
+(`SettingsGap*/StackGap*/InlineGap*`) plus a card/tile/chip/segment
+grammar with its own internal BasedOn chain (zero BasedOn on app-shared
+styles; values are DynamicResource). Merging its 50 consumer sections
+onto app-shared Card/Pill styles is a large refactor that is NOT safe
+without build verification — kept as a documented future candidate
+(needs explicit approval + SDK).

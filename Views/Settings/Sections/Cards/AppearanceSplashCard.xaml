@@ -36,8 +36,8 @@
                     <TextBlock Text="Select between 10 corporate glass architectures or automatically cycle on every system boot."
                                Style="{StaticResource SettingsCardHeaderNoteStyle}" Margin="0,4,0,0"/>
                 </StackPanel>
-                <Border Grid.Column="1" Background="{DynamicResource TintBlueBrush}" CornerRadius="12" Padding="10,4" VerticalAlignment="Top">
-                    <TextBlock Text="10 Corporate Presets" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                <Border Grid.Column="1" Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4" VerticalAlignment="Top">
+                    <TextBlock Text="10 Corporate Presets" FontSize="{DynamicResource FontSize.Chip}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                 </Border>
             </Grid>
 

@@ -180,11 +180,11 @@
                                         </StackPanel>
 
                                         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="12" Padding="10,4" Margin="0,0,6,0">
-                                                <TextBlock Text="Active Accent" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                            <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4" Margin="0,0,6,0">
+                                                <TextBlock Text="Active Accent" FontSize="{DynamicResource FontSize.Chip}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                             </Border>
-                                            <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="12" Padding="10,4">
-                                                <TextBlock Text="WCAG AAA" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                            <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4">
+                                                <TextBlock Text="WCAG AAA" FontSize="{DynamicResource FontSize.Chip}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                                             </Border>
                                         </StackPanel>
 

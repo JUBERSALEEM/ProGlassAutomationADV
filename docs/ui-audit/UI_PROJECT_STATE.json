@@ -89,10 +89,17 @@
     "phase_2_9": "pending",
     "phase_2": {
       "status": "IMPLEMENTED",
-      "commit": "pending",
+      "commit": "25518ff",
       "delta": "DashboardView.xaml: 2 typography literals tokenized (tab label->PgFontMeta, subtitle->PgFontBody, exact-value zero visual change)",
       "verified": "core ERP already ~90% converged by prior pass (evidence in DESIGN_SYSTEM_LOCK.md \u00a7Phase 2 convergence record); Dn/Ti section styles = thin module layers BasedOn shared bases (kept); MERIDIAN structural literals documented as exempt",
       "gate": "321 files 0E/22W/2N; DashboardView contract 11/2/2/1 preserved"
+    },
+    "phase_3": {
+      "status": "IMPLEMENTED",
+      "commit": "pending",
+      "delta": "22 literals tokenized (exact-value) across CompanyCenter, UserCenter, SettingsThemes, AppearancePreviewTile, AppearanceSplashCard, QuickSettingsPanel; 8 structural keeps documented (circles h/2, glyph sizes without exact token)",
+      "settings_module": "SettingsCardStyles(47)+SettingsSectionStyles(12) evaluated: self-contained module layer, kept; full merge = future candidate needing build verification",
+      "gate": "321 files 0E/22W/2N; 6-file contract clean (bindings/commands/x:Name/handlers/i18n all preserved)"
     }
   }
 }

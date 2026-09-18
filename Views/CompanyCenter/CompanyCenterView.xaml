@@ -165,16 +165,16 @@
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="10" Padding="8,2" Margin="0,0,6,0">
-                                                    <TextBlock Text="Verified TRN" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                                <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,2" Margin="0,0,6,0">
+                                                    <TextBlock Text="Verified TRN" FontSize="{DynamicResource FontSize.Badge}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                                                 </Border>
-                                                <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="10" Padding="8,2">
-                                                    <TextBlock FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">
+                                                <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,2">
+                                                    <TextBlock FontSize="{DynamicResource FontSize.Badge}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">
                                                         <Run Text="{Binding UsageCount, Mode=OneWay}"/><Run Text=" Invoices"/>
                                                     </TextBlock>
                                                 </Border>
                                             </StackPanel>
-                                            <TextBlock Grid.Column="1" Text="{Binding Status}" FontSize="11" FontWeight="Medium"
+                                            <TextBlock Grid.Column="1" Text="{Binding Status}" FontSize="{DynamicResource FontSize.Label}" FontWeight="Medium"
                                                        Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
                                         </Grid>
                                     </Border>
