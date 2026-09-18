@@ -96,10 +96,16 @@
     },
     "phase_3": {
       "status": "IMPLEMENTED",
-      "commit": "pending",
+      "commit": "42e6140",
       "delta": "22 literals tokenized (exact-value) across CompanyCenter, UserCenter, SettingsThemes, AppearancePreviewTile, AppearanceSplashCard, QuickSettingsPanel; 8 structural keeps documented (circles h/2, glyph sizes without exact token)",
       "settings_module": "SettingsCardStyles(47)+SettingsSectionStyles(12) evaluated: self-contained module layer, kept; full merge = future candidate needing build verification",
       "gate": "321 files 0E/22W/2N; 6-file contract clean (bindings/commands/x:Name/handlers/i18n all preserved)"
+    },
+    "phase_4": {
+      "status": "IMPLEMENTED",
+      "commit": "pending",
+      "delta": "30 content literals tokenized (exact-value) in ProcessWorkCenter, ProductionControlCenter, Optimization, SummaryTab + shared OptHeader style FontSize 11->FontSize.Label; structural keeps documented (avatar/circles, chip radii, glyph sizes, progress pill, template internals)",
+      "gate": "321 files 0E/22W/2N; 5-file contract clean"
     }
   }
 }

@@ -48,7 +48,7 @@
                                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12" Margin="0,0,10,0">
                                     <StackPanel>
                                         <TextBlock Text="SHEETS REQUIRED" Style="{StaticResource OptHeader}"/>
-                                        <TextBlock Text="{Binding ResultSheets}" FontSize="24" FontWeight="{DynamicResource Weight.Bold}"
+                                        <TextBlock Text="{Binding ResultSheets}" FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </Border>
@@ -59,7 +59,7 @@
                                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12" Margin="0,0,10,0">
                                     <StackPanel>
                                         <TextBlock Text="YIELD / UTILIZATION" Style="{StaticResource OptHeader}"/>
-                                        <TextBlock Text="{Binding ResultUtilization}" FontSize="24" FontWeight="{DynamicResource Weight.Bold}"
+                                        <TextBlock Text="{Binding ResultUtilization}" FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource SuccessBrush}" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </Border>
@@ -70,7 +70,7 @@
                                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12" Margin="0,0,10,0">
                                     <StackPanel>
                                         <TextBlock Text="OFFCUT / SCRAP" Style="{StaticResource OptHeader}"/>
-                                        <TextBlock Text="{Binding ResultWaste}" FontSize="24" FontWeight="{DynamicResource Weight.Bold}"
+                                        <TextBlock Text="{Binding ResultWaste}" FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource WarningBrush}" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </Border>
@@ -81,7 +81,7 @@
                                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12" Margin="0,0,10,0">
                                     <StackPanel>
                                         <TextBlock Text="UNPLACED PIECES" Style="{StaticResource OptHeader}"/>
-                                        <TextBlock Text="{Binding ResultUnplaced}" FontSize="24" FontWeight="{DynamicResource Weight.Bold}"
+                                        <TextBlock Text="{Binding ResultUnplaced}" FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </Border>

@@ -7,7 +7,7 @@
 | P1 Design system lock | **IMPLEMENTED** | `PagePatterns.xaml` (13 keys, 5 missing patterns: page surface / header / toolbar / loading / error banner) + `DESIGN_SYSTEM_LOCK.md` (14-pattern standard, token families, exemptions, recipe). Gate: 321 files 0E/22W/2N. |
 | P2 Core ERP | **IMPLEMENTED** | verified already converged (evidence recorded); delta = 2 typography tokenizations in DashboardView (exact-value); MERIDIAN structural literals documented as exempt |
 | P3 Masters/Settings | **IMPLEMENTED** | 22 exact-value tokenizations (Company/User/Settings themes/appearance tiles/QuickSettings); 8 structural keeps documented; SettingsCardStyles module layer evaluated & kept (merge = future candidate) |
-| P4 Operations/Production | pending | largest literal debt: ProcessWorkCenter (15 fs), ProductionControlCenter (14 fs), Optimization (8 fs), SummaryTab (4 fs) |
+| P4 Operations/Production | **IMPLEMENTED** | 30 exact-value tokenizations (KPI values/labels/icons) + shared OptHeader style fix; structural keeps documented |
 | P5 Supporting | pending | About Ios26 (12 styles), Login AuthSurface (5), Wizard (5), Splash, AI chat, CrashReport |
 | P6 Global consistency | pending | re-census after P2–P5 |
 | P7 Personal UI/layout | pending | verify theme=appearance vs layout=arrangement separation; no forks (inventory-backed) |

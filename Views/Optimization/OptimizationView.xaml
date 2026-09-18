@@ -40,7 +40,7 @@
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="OPTIMIZATION STUDIO" Style="{StaticResource ModulePageTitleStyle}" VerticalAlignment="Center"/>
                             <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="4" Padding="6,2" Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="50K+ ADAPTIVE ENGINE" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="50K+ ADAPTIVE ENGINE" FontSize="{DynamicResource FontSize.Badge}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                             </Border>
                         </StackPanel>
                         <TextBlock Text="Cutting plans that minimize waste — pieces in, sheets out, verified layouts."
@@ -294,7 +294,7 @@
                                            Foreground="{DynamicResource AccentBrush}"
                                            VerticalAlignment="Center" Margin="0,0,8,0"/>
                                 <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="ELAPSED TIME" Style="{StaticResource OptHeader}" FontSize="10"/>
+                                    <TextBlock Text="ELAPSED TIME" Style="{StaticResource OptHeader}" FontSize="{DynamicResource FontSize.Badge}"/>
                                     <TextBlock Text="{Binding RunElapsedLabel}"
                                                FontSize="{DynamicResource FontSize.Body}"
                                                FontWeight="{DynamicResource Weight.Bold}"
@@ -359,7 +359,7 @@
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="SELECTED STRATEGY STAGE" Style="{StaticResource OptHeader}" FontSize="10"/>
+                                    <TextBlock Text="SELECTED STRATEGY STAGE" Style="{StaticResource OptHeader}" FontSize="{DynamicResource FontSize.Badge}"/>
                                     <TextBlock Text="{Binding SelectedStageStrategy}" TextTrimming="CharacterEllipsis"
                                                FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
@@ -385,7 +385,7 @@
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="SCALE ARCHITECTURE" Style="{StaticResource OptHeader}" FontSize="10"/>
+                                    <TextBlock Text="SCALE ARCHITECTURE" Style="{StaticResource OptHeader}" FontSize="{DynamicResource FontSize.Badge}"/>
                                     <TextBlock Text="{Binding RunArchitectureLabel}"
                                                FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"

@@ -176,3 +176,41 @@ styles; values are DynamicResource). Merging its 50 consumer sections
 onto app-shared Card/Pill styles is a large refactor that is NOT safe
 without build verification — kept as a documented future candidate
 (needs explicit approval + SDK).
+
+## Phase 4 convergence record (operations/production, 2026-09-18)
+
+Scope: Production (ProcessWorkCenter, ProductionControlCenter,
+ProductionStationBody), Optimization (OptimizationView, SummaryTabView).
+
+**30 content literals tokenized, all exact-value (zero visual change)** —
+the operator KPI/label layer now rides the dynamic type scale:
+
+| Literal | Token | Sites |
+|---|---|---|
+| 10px kicker/chip labels | `FontSize.Badge` | 6 (PWC, PCC, OptimizationView ×4 incl. 3 OptHeader captions) |
+| 16px KPI status icons | `FontSize.Icon` | 6 (PWC ×3, PCC ×3) |
+| 20px KPI count values | `TextTitleLarge` | 6 (PWC ×3, PCC ×3) |
+| 22px utilization % | `TextHeadline` | 2 (PWC, PCC) |
+| 11px m² sub-values | `FontSize.Label` | 6 (PWC ×3, PCC ×3) |
+| 24px optimization results | `FontSize.Kpi` | 4 (SummaryTabView) |
+
+**Shared-component fix (one edit over N):** the shared `OptHeader` style
+(`Themes/Styles/OptimizationStyles.xaml`) carried a hardcoded
+`FontSize 11` setter — tokenized to `FontSize.Label` (11, exact), so every
+OptHeader consumer is now density-aware.
+
+Structural keeps (documented, control internals — no exact token /
+proportional): 48px avatar circle (r24) + its 20px brand glyph · 4px
+kicker-chip radii (no radius token between XSmall3/Small6) · 14px & 18px
+section icon glyphs (no icon token at those sizes; `FontSize.Icon`=16) ·
+14px progress track r7 (full pill, h/2) · `OptimizationStyles` control-
+template internals (r8/r6 radii, 13px icon glyph — consistent by
+construction as the same control is reused).
+
+`ProductionStationBody` local styles = thin module layer BasedOn the
+shared `GodViewHeaderStyle` (kept, correct architecture).
+
+Phase gate: validator 321 files 0 ERROR / 22 WARN / 2 NOTE · 5-file
+functional contract clean (bindings/commands/x:Name/handlers preserved;
+residual literals = exactly the documented structural keeps).
+BUILD NOT EXECUTED — .NET SDK unavailable; TESTS NOT RUN.
