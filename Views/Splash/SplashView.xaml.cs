@@ -83,36 +83,13 @@ namespace ProGlassAutomation.Views.Splash
                 return brush;
             }
 
-            // 2026-08-25 redesign: module glyphs follow the ACTIVE accent
-            // instead of a hard-coded blue ramp, so the splash adapts to
-            // whatever theme/accent the operator chose. The type is first
-            // touched when App builds the splash (after themes apply), so
-            // the lookup is safe here.
-            static System.Windows.Media.Brush AccentGlyph()
-            {
-                if (System.Windows.Application.Current?.TryFindResource("AccentBrush")
-                        is System.Windows.Media.Brush b)
-                {
-                    if (b.IsFrozen) return b;
-                    if (b.CanFreeze)
-                    {
-                        var c = b.Clone();
-                        c.Freeze();
-                        return c;
-                    }
-                    return b;
-                }
-                return Frozen(0x60, 0xA5, 0xFA); // brand blue fallback
-            }
+            var cyan = Frozen(0x02, 0x84, 0xC7);
+            var purple = Frozen(0x7C, 0x3A, 0xED);
+            var emerald = Frozen(0x05, 0x96, 0x69);
+            var amber = Frozen(0xD9, 0x77, 0x06);
+            var blue = Frozen(0x25, 0x63, 0xEB);
+            var rose = Frozen(0xDB, 0x27, 0x77);
 
-            var glyph = AccentGlyph();
-
-            // Splash module showcase — mirrors the REAL application module
-            // set (MainWindow sidebar), not a hard-coded list. Labels are
-            // resolved from the live Nav.* localization resources so the
-            // splash is correct in every shipped language; glyphs match the
-            // sidebar's Segoe MDL2 icons. Shown as frosted glass tiles in a
-            // centered WrapPanel (see FeaturePanel in the XAML).
             static string Nav(string key, string fallback)
             {
                 if (System.Windows.Application.Current?
@@ -122,24 +99,21 @@ namespace ProGlassAutomation.Views.Splash
                 return fallback;
             }
 
+            // High-fidelity 6-column ERP glass core grid matching Option 10
             return new[]
             {
-                new FeatureItem("\uE80F", Nav("Dashboard",          "Dashboard"),     glyph),
-                new FeatureItem("\uE7B8", Nav("SheetStore",         "Sheet Store"),   glyph),
-                new FeatureItem("\uE8F1", Nav("Specifications",     "Specifications"),glyph),
-                new FeatureItem("\uE721", Nav("Inquiry",            "Inquiry"),       glyph),
-                new FeatureItem("\uE8A5", Nav("ProformaInvoice",    "Proforma"),      glyph),
-                new FeatureItem("\uE9D9", Nav("JobOrder",           "Job Order"),     glyph),
-                new FeatureItem("\uE8C7", Nav("TaxInvoice",         "Tax Invoice"),   glyph),
-                new FeatureItem("\uE8C6", Nav("ProductionItems",    "Production"),    glyph),
-                new FeatureItem("\uE9CE", Nav("Optimization",       "Optimization"),  glyph),
-                new FeatureItem("\uE7F4", Nav("Dispatch",           "Dispatch"),      glyph),
-                new FeatureItem("\uE8F7", Nav("StatementGenerator", "Statements"),    glyph),
-                new FeatureItem("\uE9F9", Nav("Reports",            "Reports"),       glyph),
-                new FeatureItem("\uE90E", Nav("JobProfitability",   "Profitability"), glyph),
-                new FeatureItem("\uE8C8", Nav("VatSubmission",      "VAT"),           glyph),
-                new FeatureItem("\uE822", Nav("MasterDataItems",    "Master Data"),   glyph),
-                new FeatureItem("\uE713", Nav("System",             "System"),        glyph),
+                new FeatureItem("\uE80F", Nav("Dashboard",          "Dashboard"),     cyan),
+                new FeatureItem("\uE7B8", Nav("SheetStore",         "Sheet Store"),   purple),
+                new FeatureItem("\uE721", Nav("Inquiry",            "Inquiry"),       emerald),
+                new FeatureItem("\uE8A5", Nav("ProformaInvoice",    "Proforma"),      blue),
+                new FeatureItem("\uE9D9", Nav("JobOrder",           "Job Order"),     rose),
+                new FeatureItem("\uE8C7", Nav("TaxInvoice",         "Tax Invoice"),   amber),
+                new FeatureItem("\uE8C6", Nav("ProductionItems",    "Production"),    cyan),
+                new FeatureItem("\uE9CE", Nav("Optimization",       "Optimization"),  purple),
+                new FeatureItem("\uE7F4", Nav("Dispatch",           "Dispatch"),      emerald),
+                new FeatureItem("\uE8F7", Nav("StatementGenerator", "Statements"),    blue),
+                new FeatureItem("\uE9F9", Nav("Reports",            "Reports"),       rose),
+                new FeatureItem("\uE713", Nav("System",             "System"),        amber),
             };
         }
 
