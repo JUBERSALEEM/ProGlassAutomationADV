@@ -1,0 +1,390 @@
+<UserControl
+    x:Class="ProGlassAutomation.Views.Personal.GlassShell"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+    xmlns:globalSearch="clr-namespace:ProGlassAutomation.Controls.GlobalSearch">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         GLASS BLUSH — PERSONAL UI SHELL (GB-P2, 2026-09-18)
+
+         The second ProGlass experience. Visual source of truth:
+         glass-01 … glass-10 (1408×768 references).
+
+         CONTRACT:
+           • DataContext = the SAME MainViewModel instance the Professional
+             chrome binds (navigation, search, popups — zero duplication).
+           • Nav commands = MainViewModel.NavigateCommand + CommandParameter
+             (identical module keys → identical business routing).
+           • Active-module detection = StringEqualsMultiConverter
+             (CommandParameter vs CurrentModuleKey) — Professional mechanism.
+           • Accordion group "GlassSidebar" is independent of
+             Professional's "Sidebar" group (window-scoped registry).
+           • Content host = {Binding CurrentViewModel} — the same module
+             views render here; Personal screen compositions arrive in
+             GB-P4…P13 via those views' own chrome.
+         ═══════════════════════════════════════════════════════════════ -->
+
+    <Grid>
+        <!-- ATMOSPHERIC BACKGROUND — 3 cheap layers (measured gradient +
+             top-right azure orb + bottom-left deep orb). No bitmap, no
+             live blur. -->
+        <Rectangle Fill="{DynamicResource GlassBlush.Background}" IsHitTestVisible="False"/>
+        <Rectangle Fill="{DynamicResource GlassBlush.OrbTopRight}" IsHitTestVisible="False"/>
+        <Rectangle Fill="{DynamicResource GlassBlush.OrbBottomLeft}" IsHitTestVisible="False"/>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ── SIDEBAR RAIL (140px) ────────────────────────────────── -->
+            <Border Grid.Column="0" Style="{StaticResource GlassBlush.Sidebar}">
+                <DockPanel>
+                    <!-- BRAND (click = About, command preserved) -->
+                    <Button DockPanel.Dock="Top"
+                            Style="{StaticResource GlassBlush.TopIconButton}"
+                            Command="{Binding LogoClickCommand}"
+                            ToolTip="ProGlass"
+                            Margin="0,14,0,10">
+                        <Border Width="42" Height="42"
+                                CornerRadius="14"
+                                Background="{DynamicResource GlassBlush.AccentSoft}"
+                                BorderBrush="{DynamicResource GlassBlush.AccentGlow}"
+                                BorderThickness="1"
+                                Effect="{StaticResource GlassBlush.GlowAccent}">
+                            <TextBlock Text="PG"
+                                       FontSize="15" FontWeight="Bold"
+                                       Foreground="{DynamicResource GlassBlush.AccentGlow}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                    </Button>
+
+                    <!-- NAV (same items, keys, commands as Professional.
+                         Settings + user live in the top bar — same as
+                         Professional, so no new i18n keys are introduced) -->
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  Padding="0,4">
+                        <StackPanel Margin="0,0,0,10">
+
+                            <TextBlock Text="{DynamicResource Nav.GroupMain}"
+                                       Style="{StaticResource GlassBlush.NavGroupLabel}"/>
+                            <Button Style="{StaticResource GlassBlush.NavItem}"
+                                    Content="{DynamicResource Nav.Dashboard}"
+                                    Tag="&#xE80F;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="Dashboard"/>
+
+                            <TextBlock Text="{DynamicResource Nav.GroupInventory}"
+                                       Style="{StaticResource GlassBlush.NavGroupLabel}"/>
+                            <Button Style="{StaticResource GlassBlush.NavItem}"
+                                    Content="{DynamicResource Nav.SheetStore}"
+                                    Tag="&#xE7B8;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="SheetStore"/>
+                            <Button Style="{StaticResource GlassBlush.NavItem}"
+                                    Content="{DynamicResource Nav.Specifications}"
+                                    Tag="&#xE8F1;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="Specifications"/>
+
+                            <TextBlock Text="{DynamicResource Nav.GroupSales}"
+                                       Style="{StaticResource GlassBlush.NavGroupLabel}"/>
+                            <StackPanel>
+                                <ToggleButton x:Name="SalesGroupPersonal"
+                                              Style="{StaticResource GlassBlush.NavGroupToggle}"
+                                              Content="{DynamicResource Nav.SalesOrders}"
+                                              Tag="&#xE8A5;"
+                                              behaviors:AccordionBehavior.Group="GlassSidebar"/>
+                                <Border Style="{StaticResource GlassBlush.SubList}"
+                                        Visibility="{Binding IsChecked, ElementName=SalesGroupPersonal,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.Inquiry}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Inquiry"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.ProformaInvoice}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="ProformaInvoice"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.JobOrder}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="JobOrder"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.TaxInvoice}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="TaxInvoice"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <TextBlock Text="{DynamicResource Nav.GroupProduction}"
+                                       Style="{StaticResource GlassBlush.NavGroupLabel}"/>
+                            <StackPanel>
+                                <ToggleButton x:Name="ProductionGroupPersonal"
+                                              Style="{StaticResource GlassBlush.NavGroupToggle}"
+                                              Content="{DynamicResource Nav.ProductionItems}"
+                                              Tag="&#xE8C6;"
+                                              behaviors:AccordionBehavior.Group="GlassSidebar"/>
+                                <Border Style="{StaticResource GlassBlush.SubList}"
+                                        Visibility="{Binding IsChecked, ElementName=ProductionGroupPersonal,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.Optimization}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Optimization"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="Process Work Center"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="ProcessWorkCenter"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="Production Control Center"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="ProductionControlCenter"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.Cutting}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Cutting"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.HolesCutouts}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="HolesCutouts"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.Polish}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Polish"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.EdgeDeletion}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="EdgeDeletion"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.Mitring}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Mitring"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.Tempering}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Tempering"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.Pairing}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Pairing"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.DoublingLamination}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="DoublingLamination"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <TextBlock Text="{DynamicResource Nav.GroupDispatch}"
+                                       Style="{StaticResource GlassBlush.NavGroupLabel}"/>
+                            <StackPanel>
+                                <ToggleButton x:Name="DispatchGroupPersonal"
+                                              Style="{StaticResource GlassBlush.NavGroupToggle}"
+                                              Content="{DynamicResource Nav.Dispatch}"
+                                              Tag="&#xE7F4;"
+                                              behaviors:AccordionBehavior.Group="GlassSidebar"/>
+                                <Border Style="{StaticResource GlassBlush.SubList}"
+                                        Visibility="{Binding IsChecked, ElementName=DispatchGroupPersonal,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.DeliveryNote}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="DeliveryNote"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <TextBlock Text="{DynamicResource Nav.GroupFinance}"
+                                       Style="{StaticResource GlassBlush.NavGroupLabel}"/>
+                            <StackPanel>
+                                <ToggleButton x:Name="FinanceGroupPersonal"
+                                              Style="{StaticResource GlassBlush.NavGroupToggle}"
+                                              Content="{DynamicResource Nav.FinanceAccounting}"
+                                              Tag="&#xE90E;"
+                                              behaviors:AccordionBehavior.Group="GlassSidebar"/>
+                                <Border Style="{StaticResource GlassBlush.SubList}"
+                                        Visibility="{Binding IsChecked, ElementName=FinanceGroupPersonal,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.StatementGenerator}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="StatementGenerator"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="Report Generator"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="OrderReport"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.JobProfitability}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="JobProfitability"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.VatSubmission}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="VatSubmission"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <TextBlock Text="{DynamicResource Nav.GroupReports}"
+                                       Style="{StaticResource GlassBlush.NavGroupLabel}"/>
+                            <StackPanel>
+                                <ToggleButton x:Name="ReportsGroupPersonal"
+                                              Style="{StaticResource GlassBlush.NavGroupToggle}"
+                                              Content="{DynamicResource Nav.Reports}"
+                                              Tag="&#xE9F9;"
+                                              behaviors:AccordionBehavior.Group="GlassSidebar"/>
+                                <Border Style="{StaticResource GlassBlush.SubList}"
+                                        Visibility="{Binding IsChecked, ElementName=ReportsGroupPersonal,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.Overview}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="SalesReport"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.ProformaInvoice}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="PiReport"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.JobOrder}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="JoReport"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.Delivery}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="DeliveryReport"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.TaxInvoice}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="TaxInvoiceReport"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.Statement}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="StatementReport"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <TextBlock Text="{DynamicResource Nav.GroupMasterData}"
+                                       Style="{StaticResource GlassBlush.NavGroupLabel}"/>
+                            <StackPanel>
+                                <ToggleButton x:Name="MasterDataGroupPersonal"
+                                              Style="{StaticResource GlassBlush.NavGroupToggle}"
+                                              Content="{DynamicResource Nav.MasterDataItems}"
+                                              Tag="&#xE822;"
+                                              behaviors:AccordionBehavior.Group="GlassSidebar"/>
+                                <Border Style="{StaticResource GlassBlush.SubList}"
+                                        Visibility="{Binding IsChecked, ElementName=MasterDataGroupPersonal,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.CompanyCenter}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="CompanyCenter"/>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.UserCenter}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="UserCenter"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <TextBlock Text="{DynamicResource Nav.GroupSystem}"
+                                       Style="{StaticResource GlassBlush.NavGroupLabel}"/>
+                            <StackPanel>
+                                <ToggleButton x:Name="SystemGroupPersonal"
+                                              Style="{StaticResource GlassBlush.NavGroupToggle}"
+                                              Content="{DynamicResource Nav.System}"
+                                              Tag="&#xE713;"
+                                              behaviors:AccordionBehavior.Group="GlassSidebar"/>
+                                <Border Style="{StaticResource GlassBlush.SubList}"
+                                        Visibility="{Binding IsChecked, ElementName=SystemGroupPersonal,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource GlassBlush.NavSubItem}"
+                                                Content="{DynamicResource Nav.SystemCenter}"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="SystemCenter"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <!-- ── MAIN COLUMN ─────────────────────────────────────────── -->
+            <DockPanel Grid.Column="1">
+                <!-- TOP BAR -->
+                <Border DockPanel.Dock="Top" Style="{StaticResource GlassBlush.TopBar}">
+                    <Grid Margin="24,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0"
+                                   Text="{Binding CurrentModuleTitle}"
+                                   Style="{StaticResource GlassBlush.PageTitle}"
+                                   Margin="0,0,24,0"/>
+
+                        <!-- GLOBAL SEARCH (existing control, existing VM) -->
+                        <globalSearch:GlobalSearchBar Grid.Column="1"
+                                                      MinWidth="280"
+                                                      MaxWidth="520"
+                                                      HorizontalAlignment="Stretch"
+                                                      Margin="0,8"
+                                                      VerticalAlignment="Center"
+                                                      DataContext="{Binding GlobalSearchVM}"/>
+
+                        <!-- RIGHT ICON CLUSTER (same commands as Professional) -->
+                        <StackPanel Grid.Column="2"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center"
+                                    Margin="16,0,0,0">
+                            <Button Style="{StaticResource GlassBlush.TopIconButton}"
+                                    Content="&#xEA8F;"
+                                    ToolTip="Notifications"
+                                    Command="{Binding TogglePopupCommand}"
+                                    CommandParameter="Notifications"/>
+                            <Button Style="{StaticResource GlassBlush.TopIconButton}"
+                                    Content="&#xE8F2;"
+                                    ToolTip="AI Assistant"
+                                    Command="{Binding AiChatVM.ToggleChatCommand}"/>
+                            <Button Style="{StaticResource GlassBlush.TopIconButton}"
+                                    Content="&#xE793;"
+                                    ToolTip="Theme"
+                                    Command="{Binding ToggleThemeCommand}"/>
+                            <Button Style="{StaticResource GlassBlush.TopIconButton}"
+                                    Content="&#xE713;"
+                                    ToolTip="Settings"
+                                    Command="{Binding ShowSettingsCommand}"/>
+                            <Button Style="{StaticResource GlassBlush.TopIconButton}"
+                                    Content="&#xE77B;"
+                                    ToolTip="Account"
+                                    Command="{Binding TogglePopupCommand}"
+                                    CommandParameter="UserSwitch"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- MODULE CONTENT (same views, same routing) -->
+                <ContentControl x:Name="GlassContentHost"
+                                Content="{Binding CurrentViewModel}"
+                                Margin="{DynamicResource GlassBlush.PagePadding}"/>
+            </DockPanel>
+        </Grid>
+    </Grid>
+</UserControl>

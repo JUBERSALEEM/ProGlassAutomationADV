@@ -32,6 +32,9 @@
     <Color x:Key="GlassBlush.OrbColor">#802285B7</Color>              <!-- soft cyan radial orbs -->
     <Color x:Key="GlassBlush.EdgeOrbColor">#5902448E</Color>          <!-- faint bottom-left orb -->
 
+    <Color x:Key="GlassBlush.RailColor">#CC011847</Color>             <!-- sidebar rail (measured srgb 1,24,71 @80%) -->
+    <Color x:Key="GlassBlush.CardShadowColor">#FF02103A</Color>       <!-- deep navy shadow colour -->
+
     <Color x:Key="GlassBlush.SurfaceColor">#48FFFFFF</Color>          <!-- glass card fill ≈28% white (measured) -->
     <Color x:Key="GlassBlush.SurfaceStrongColor">#59FFFFFF</Color>    <!-- KPI/summary cards ≈35% white -->
     <Color x:Key="GlassBlush.SurfaceFaintColor">#2EFFFFFF</Color>     <!-- 18% — subtle inner layers -->
@@ -73,6 +76,8 @@
     <Color x:Key="GlassBlushNight.TextMutedColor">#FF9FB6D8</Color>
 
     <!-- ── BRUSHES (managed set — the family painter may republish) ──── -->
+    <SolidColorBrush x:Key="GlassBlush.Rail" Color="{StaticResource GlassBlush.RailColor}"/>
+    <SolidColorBrush x:Key="GlassBlush.CardShadow" Color="{StaticResource GlassBlush.CardShadowColor}"/>
     <SolidColorBrush x:Key="GlassBlush.Surface" Color="{StaticResource GlassBlush.SurfaceColor}"/>
     <SolidColorBrush x:Key="GlassBlush.SurfaceStrong" Color="{StaticResource GlassBlush.SurfaceStrongColor}"/>
     <SolidColorBrush x:Key="GlassBlush.SurfaceFaint" Color="{StaticResource GlassBlush.SurfaceFaintColor}"/>

@@ -1,0 +1,493 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         GLASS BLUSH — PERSONAL UI SHELL STYLES (GB-P2, 2026-09-18)
+
+         Visual source of truth: glass-01 … glass-10 references.
+         Mirrors the ProfessionalShell.xaml pattern:
+           • every colour resolves through {DynamicResource GlassBlush.*}
+             tokens (family-painter managed → GB-P14 live retinting)
+           • active-module detection = DataTrigger + MultiBinding
+             StringEqualsMultiConverter on (CommandParameter,
+             DataContext.CurrentModuleKey) — SAME mechanism as
+             Professional (no new detection logic)
+           • BounceHover micro-motion reused from Professional
+           • nav commands = the SAME MainViewModel.NavigateCommand +
+             CommandParameter — zero business-logic duplication
+
+         PERFORMANCE: effects are shared resource instances (deliberately
+         NOT frozen — the GB-P14 family painter may retune them at runtime);
+         glow is applied to accent chips only, never to list rows.
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- ── shared effects (frozen, shared instances) ─────────────────── -->
+    <DropShadowEffect x:Key="GlassBlush.GlowAccent"
+                      Color="{DynamicResource GlassBlush.AccentGlowColor}"
+                      BlurRadius="18" ShadowDepth="0" Opacity="0.55" IsDirectionalLightOnly="False">
+    </DropShadowEffect>
+    <DropShadowEffect x:Key="GlassBlush.CardShadowFx"
+                      Color="{DynamicResource GlassBlush.CardShadowColor}"
+                      BlurRadius="24" ShadowDepth="10" Opacity="0.35">
+    </DropShadowEffect>
+
+    <!-- ── SIDEBAR (140px dark glass rail) ───────────────────────────── -->
+    <Style x:Key="GlassBlush.Sidebar" TargetType="Border">
+        <Setter Property="Width" Value="{DynamicResource GlassBlush.SidebarWidth}"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="Background" Value="{DynamicResource GlassBlush.Rail}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.BorderSoft}"/>
+        <Setter Property="BorderThickness" Value="0,0,1,0"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="GlassBlush.NavGroupLabel" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="9.5"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassBlush.TextFaint}"/>
+        <Setter Property="Margin" Value="16,16,16,6"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+    </Style>
+
+    <!-- NAV ITEM — 40×40 glass icon chip + 11px label (measured rail).
+         Active: accent-soft fill, accent-glow border + cyan glow. -->
+    <Style x:Key="GlassBlush.NavItem" TargetType="Button">
+        <Setter Property="behaviors:BounceHover.IsEnabled" Value="True"/>
+        <Setter Property="behaviors:BounceHover.HoverScale" Value="1.04"/>
+        <Setter Property="behaviors:BounceHover.PressScale" Value="0.96"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Margin" Value="12,3"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg"
+                            Background="Transparent"
+                            CornerRadius="16"
+                            Padding="8,7"
+                            SnapsToDevicePixels="True">
+                        <StackPanel>
+                            <Border x:Name="Chip"
+                                    Width="{DynamicResource GlassBlush.NavIconDiameter}"
+                                    Height="{DynamicResource GlassBlush.NavIconDiameter}"
+                                    CornerRadius="14"
+                                    Background="{DynamicResource GlassBlush.SurfaceFaint}"
+                                    BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                                    BorderThickness="1"
+                                    HorizontalAlignment="Center"
+                                    SnapsToDevicePixels="True">
+                                <TextBlock x:Name="Icon"
+                                           Text="{TemplateBinding Tag}"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="17"
+                                           Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock x:Name="Label"
+                                       Text="{TemplateBinding Content}"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,5,0,1"
+                                       TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
+                            <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+                            <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassBlush.Surface}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Chip" Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                        </Trigger>
+                        <!-- Active module (mechanism = Professional's) -->
+                        <DataTrigger Value="True">
+                            <DataTrigger.Binding>
+                                <MultiBinding Converter="{StaticResource StringEqualsMultiConverter}">
+                                    <Binding Path="CommandParameter" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                    <Binding Path="DataContext.CurrentModuleKey" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                </MultiBinding>
+                            </DataTrigger.Binding>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassBlush.AccentSoft}"/>
+                            <Setter TargetName="Chip" Property="Background" Value="{DynamicResource GlassBlush.AccentDeep}"/>
+                            <Setter TargetName="Chip" Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                            <Setter TargetName="Chip" Property="Effect" Value="{StaticResource GlassBlush.GlowAccent}"/>
+                            <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource GlassBlush.OnAccent}"/>
+                            <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+                            <Setter TargetName="Label" Property="FontWeight" Value="SemiBold"/>
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- NAV SUB-ITEM — mini row (32px chip + 10.5px label), indented. -->
+    <Style x:Key="GlassBlush.NavSubItem" TargetType="Button">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Margin" Value="18,1.5"/>
+        <Setter Property="Height" Value="34"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg"
+                            Background="Transparent"
+                            CornerRadius="10"
+                            Padding="6,0"
+                            SnapsToDevicePixels="True">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border x:Name="Chip"
+                                    Width="10" Height="10"
+                                    CornerRadius="5"
+                                    Background="{DynamicResource GlassBlush.SurfaceFaint}"
+                                    VerticalAlignment="Center"
+                                    Margin="4,0,10,0"
+                                    SnapsToDevicePixels="True"/>
+                            <TextBlock x:Name="Label"
+                                       Text="{TemplateBinding Content}"
+                                       FontSize="10.5"
+                                       Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                       VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
+                            <Setter TargetName="Chip" Property="Background" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                            <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
+                        </Trigger>
+                        <!-- Active module (mechanism = Professional's) -->
+                        <DataTrigger Value="True">
+                            <DataTrigger.Binding>
+                                <MultiBinding Converter="{StaticResource StringEqualsMultiConverter}">
+                                    <Binding Path="CommandParameter" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                    <Binding Path="DataContext.CurrentModuleKey" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                </MultiBinding>
+                            </DataTrigger.Binding>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassBlush.AccentSoft}"/>
+                            <Setter TargetName="Chip" Property="Background" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                            <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+                            <Setter TargetName="Label" Property="FontWeight" Value="SemiBold"/>
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- GROUP TOGGLE — like NavItem + rotating chevron (0→90°). -->
+    <Style x:Key="GlassBlush.NavGroupToggle" TargetType="ToggleButton">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Margin" Value="12,3"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="Bg"
+                            Background="Transparent"
+                            CornerRadius="16"
+                            Padding="8,7"
+                            SnapsToDevicePixels="True">
+                        <Grid>
+                            <Border x:Name="Chip"
+                                    Width="{DynamicResource GlassBlush.NavIconDiameter}"
+                                    Height="{DynamicResource GlassBlush.NavIconDiameter}"
+                                    CornerRadius="14"
+                                    Background="{DynamicResource GlassBlush.SurfaceFaint}"
+                                    BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                                    BorderThickness="1"
+                                    HorizontalAlignment="Center"
+                                    SnapsToDevicePixels="True">
+                                <TextBlock x:Name="Icon"
+                                           Text="{TemplateBinding Tag}"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="17"
+                                           Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock x:Name="Label"
+                                       Text="{TemplateBinding Content}"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,5,0,1"
+                                       TextTrimming="CharacterEllipsis"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
+                            <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+                            <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Chip" Property="Background" Value="{DynamicResource GlassBlush.AccentSoft}"/>
+                            <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                            <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GlassBlush.SubList" TargetType="Border">
+        <Setter Property="Margin" Value="0,0,0,4"/>
+    </Style>
+
+    <!-- ── TOP BAR (72px glass band) ─────────────────────────────────── -->
+    <Style x:Key="GlassBlush.TopBar" TargetType="Border">
+        <Setter Property="Height" Value="{DynamicResource GlassBlush.TopBarHeight}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassBlush.Surface}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.BorderSoft}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="GlassBlush.PageTitle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource GlassBlush.FontHeading}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+    </Style>
+
+    <Style x:Key="GlassBlush.SearchPill" TargetType="Border">
+        <Setter Property="Height" Value="{DynamicResource GlassBlush.ControlHeight}"/>
+        <Setter Property="MinWidth" Value="280"/>
+        <Setter Property="MaxWidth" Value="520"/>
+        <Setter Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.BorderSoft}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="999"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- 40×40 glass icon button (MDL2 glyph in Content). -->
+    <Style x:Key="GlassBlush.TopIconButton" TargetType="Button">
+        <Setter Property="Width" Value="{DynamicResource GlassBlush.IconButtonDiameter}"/>
+        <Setter Property="Height" Value="{DynamicResource GlassBlush.IconButtonDiameter}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassBlush.TextMuted}"/>
+        <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Margin" Value="3,0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg"
+                            Background="Transparent"
+                            CornerRadius="14"
+                            BorderBrush="Transparent"
+                            BorderThickness="1"
+                            SnapsToDevicePixels="True">
+                        <TextBlock Text="{TemplateBinding Content}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource GlassBlush.BorderSoft}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassBlush.Surface}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ── GLASS CARD BASE (every Personal surface) ────────────────────
+         ContentControl template: glass fill + 1px translucent border +
+         135° sheen + deep-navy soft shadow. Single child (the content). -->
+    <Style x:Key="GlassBlush.GlassCard" TargetType="ContentControl">
+        <Setter Property="Background" Value="{DynamicResource GlassBlush.Surface}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.Border}"/>
+        <Setter Property="Padding" Value="{DynamicResource GlassBlush.CardPadding}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="{DynamicResource GlassBlush.CardRadius}"
+                            Padding="{TemplateBinding Padding}"
+                            Effect="{StaticResource GlassBlush.CardShadowFx}"
+                            SnapsToDevicePixels="True">
+                        <Grid>
+                            <!-- 135° sheen (top-left highlight → transparent) -->
+                            <Border CornerRadius="{DynamicResource GlassBlush.CardRadius}"
+                                    Background="{DynamicResource GlassBlush.Sheen}"
+                                    IsHitTestVisible="False"/>
+                            <ContentPresenter/>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- KPI / summary card — stronger glass (35% white, measured). -->
+    <Style x:Key="GlassBlush.KpiCard" TargetType="ContentControl"
+           BasedOn="{StaticResource GlassBlush.GlassCard}">
+        <Setter Property="Background" Value="{DynamicResource GlassBlush.SurfaceStrong}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.Border}"/>
+    </Style>
+
+    <!-- Faint inner layer (18% white) — nested panels, rows. -->
+    <Style x:Key="GlassBlush.InsetCard" TargetType="ContentControl"
+           BasedOn="{StaticResource GlassBlush.GlassCard}">
+        <Setter Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.BorderSoft}"/>
+    </Style>
+
+    <!-- ── STATUS PILL (ContentControl: put a TextBlock inside) ──────── -->
+    <Style x:Key="GlassBlush.Pill" TargetType="ContentControl">
+        <Setter Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.BorderSoft}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="999"
+                            Padding="14,6"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ── GLASS BUTTONS ─────────────────────────────────────────────── -->
+    <Style x:Key="GlassBlush.GlassButton" TargetType="Button">
+        <Setter Property="Height" Value="{DynamicResource GlassBlush.ControlHeight}"/>
+        <Setter Property="Padding" Value="22,0"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassBlush.OnAccent}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassBlush.Accent}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+        <Setter Property="FontSize" Value="{DynamicResource GlassBlush.FontBody}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="999"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                            <Setter TargetName="Bg" Property="Effect" Value="{StaticResource GlassBlush.GlowAccent}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassBlush.AccentDeep}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource GlassBlush.Text}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.45"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GlassBlush.GlassButtonSoft" TargetType="Button"
+           BasedOn="{StaticResource GlassBlush.GlassButton}">
+        <Setter Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.BorderSoft}"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+    </Style>
+
+    <!-- Round add/icon button (glass-05 / glass-06 “+” circles). -->
+    <Style x:Key="GlassBlush.RoundIconButton" TargetType="Button">
+        <Setter Property="Width" Value="44"/>
+        <Setter Property="Height" Value="44"/>
+        <Setter Property="Background" Value="{DynamicResource GlassBlush.Accent}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassBlush.OnAccent}"/>
+        <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="22"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                            <Setter TargetName="Bg" Property="Effect" Value="{StaticResource GlassBlush.GlowAccent}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassBlush.AccentDeep}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource GlassBlush.Text}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>
