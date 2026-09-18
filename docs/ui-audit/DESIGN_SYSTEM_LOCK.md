@@ -238,3 +238,36 @@ it requires a **new i18n key in all 13 language files** (no suitable
 `Inquiry.No*` key exists; other lists use `Dashboard.No*Yet` keys) — i18n
 translation work + visual verification are outside a static-safe scope.
 VM already exposes `HasInquiries`/`HasActiveFilters` for the binding.
+
+## Phase 6 convergence record (global consistency pass, 2026-09-18)
+
+Re-ran `tools/pattern_census.py` after P2–P5. Measurements:
+
+| Metric | Before (P1) | After P2–P5 | Status |
+|---|---|---|---|
+| Views hardcoded FontSize | 60 | **15** | all 15 = documented structural keeps (glyphs without exact token, Viewbox-scaled pulse) |
+| Views hardcoded CornerRadius | 47 | **38** | all 38 = documented structural keeps (h/2 circles, pill h/2, chip r4 without token, print-locked 18) |
+| Real hardcoded hex in Views | — | **9** | all in SplashView (material alpha recipe; the other "hex hits" in Views are XML comments) |
+| Shared-chrome adoption | — | high | lists/tables/dialogs/inputs/buttons/pills/empty-states ride shared styles |
+
+No further safe literal work remains — every residual has a documented
+reason (see the per-phase records above). **No undocumented UI literal debt
+exists in Views.**
+
+Global audits performed (findings → decisions):
+- **Control heights:** 208 explicit `Height` values (20–40px band) across 64
+  files. The app has TWO height authorities: (a) the runtime density ladder
+  (`DensityButtonHeight` 20–26 · `DensityInputHeight` 18–24 — used by the
+  data-dense views and 3 shared button styles), and (b) the modern pill/input
+  scale (26/32/34/40 — shared `*PillButton`/`Modern*Style` heights). Replacing
+  (b) with (a) would shrink modern controls ~40% at Normal density — a
+  visible regression. **Decision: keep both; reconciling them is a product +
+  build-verified change (see Phase 8 decision record). Not changed blindly.**
+- **Windows/MinWidth:** 32 windows audited — 24 set MinWidth explicitly; the
+  8 that don't are safe: 7 dialogs inherit the `ThemedDialogWindow` base
+  (MinWidth 420 / MinHeight 160 / ResizeMode NoResize default) and
+  LoginWindow is NoResize fixed 1280×800. No window can collapse below its
+  designed size.
+- **Empty states:** 22 screens use `EmptyStateControl`; the sole gap
+  (InquiryListView) is blocked on an i18n key (Phase 5 record).
+- **Dialogs:** all 22 ThemedDialogWindow dialogs use shared Dialog* chrome.

@@ -109,12 +109,18 @@
     },
     "phase_5": {
       "status": "IMPLEMENTED",
-      "commit": "pending",
+      "commit": "6852362",
       "delta": "review of all supporting surfaces: converged or deliberate special surface (Splash/Login/About-Ios26/Wizard/Crash/AI); hex documented as material/brand constants; zero visual changes (nothing to safely change)",
       "blocked": [
         "InquiryListView EmptyState \u2014 needs new i18n key in 13 languages (HasInquiries/HasActiveFilters VM props ready)"
       ],
       "gate": "no XAML changes; validator unchanged 321 files 0E/22W/2N"
+    },
+    "phase_6": {
+      "status": "IMPLEMENTED",
+      "commit": "pending",
+      "delta": "re-census: Views literals 60fs/47cr -> 15fs/38cr, ALL residuals documented structural keeps; real view hex = 9 (Splash material recipe only); 208 control heights audited (two-authority architecture documented, NOT blindly merged); 32 windows MinWidth-safe; no undocumented literal debt remains",
+      "gate": "no XAML changes (measure+audit phase); validator unchanged 321 files 0E/22W/2N"
     }
   }
 }

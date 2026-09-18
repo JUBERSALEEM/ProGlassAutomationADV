@@ -1,6 +1,6 @@
 {
  "generated": "2026-09-18",
- "files": 320,
+ "files": 321,
  "rows": [
   {
    "file": "App.xaml",
@@ -1194,7 +1194,7 @@
    "file": "Themes/Styles/OptimizationStyles.xaml",
    "module": "Themes",
    "fams": {
-    "FontSize": 1,
+    "FontSize": 2,
     "FontFamily": 1,
     "Surface": 1
    },
@@ -1206,6 +1206,32 @@
    "shared": [],
    "patterns": [
     "section_card",
+    "error"
+   ]
+  },
+  {
+   "file": "Themes/Styles/PagePatterns.xaml",
+   "module": "Themes",
+   "fams": {
+    "FontSize": 4,
+    "X": 2,
+    "Border": 2,
+    "Weight": 1,
+    "Common": 1
+   },
+   "fams_bare_top5": {},
+   "local_styles": 11,
+   "local_templates": 0,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
+   "shared": [
+    "Pill"
+   ],
+   "patterns": [
+    "header",
+    "toolbar",
+    "empty",
+    "loading",
     "error"
    ]
   },
@@ -1830,10 +1856,10 @@
    "file": "Views/CompanyCenter/CompanyCenterView.xaml",
    "module": "Views",
    "fams": {
-    "FontSize": 17,
+    "FontSize": 20,
     "CompanyCenter": 14,
     "Weight": 10,
-    "Radius": 4,
+    "Radius": 6,
     "Action": 3,
     "Border": 3,
     "FontFamily": 2,
@@ -1844,8 +1870,8 @@
    "fams_bare_top5": {},
    "local_styles": 0,
    "local_templates": 0,
-   "hard_fontsize": 3,
-   "hard_corner": 3,
+   "hard_fontsize": 0,
+   "hard_corner": 1,
    "shared": [
     "Button",
     "Pill"
@@ -1913,7 +1939,7 @@
    "fams_bare_top5": {},
    "local_styles": 0,
    "local_templates": 1,
-   "hard_fontsize": 2,
+   "hard_fontsize": 0,
    "hard_corner": 2,
    "shared": [
     "Pill"
@@ -2971,7 +2997,7 @@
    "file": "Views/Optimization/OptimizationView.xaml",
    "module": "Views",
    "fams": {
-    "FontSize": 20,
+    "FontSize": 24,
     "Weight": 13,
     "FontFamily": 9,
     "Surface": 1
@@ -2979,7 +3005,7 @@
    "fams_bare_top5": {},
    "local_styles": 0,
    "local_templates": 0,
-   "hard_fontsize": 8,
+   "hard_fontsize": 4,
    "hard_corner": 2,
    "shared": [
     "Button",
@@ -3116,14 +3142,14 @@
    "file": "Views/Optimization/Tabs/SummaryTabView.xaml",
    "module": "Views",
    "fams": {
-    "FontSize": 21,
+    "FontSize": 25,
     "Weight": 8,
     "FontFamily": 1
    },
    "fams_bare_top5": {},
    "local_styles": 0,
    "local_templates": 0,
-   "hard_fontsize": 4,
+   "hard_fontsize": 0,
    "hard_corner": 1,
    "shared": [
     "Button"
@@ -3310,19 +3336,20 @@
    "module": "Views",
    "fams": {
     "Weight": 14,
-    "FontFamily": 7,
-    "FontSize": 6
+    "FontSize": 13,
+    "FontFamily": 7
    },
    "fams_bare_top5": {},
    "local_styles": 0,
    "local_templates": 0,
-   "hard_fontsize": 15,
+   "hard_fontsize": 4,
    "hard_corner": 2,
    "shared": [
     "DataGrid",
     "Pill"
    ],
    "patterns": [
+    "header",
     "section_card",
     "form_field",
     "table"
@@ -3332,7 +3359,7 @@
    "file": "Views/Production/ProductionControlCenterView.xaml",
    "module": "Views",
    "fams": {
-    "FontSize": 8,
+    "FontSize": 15,
     "Weight": 8,
     "FontFamily": 6,
     "Surface": 1
@@ -3340,13 +3367,14 @@
    "fams_bare_top5": {},
    "local_styles": 1,
    "local_templates": 0,
-   "hard_fontsize": 14,
+   "hard_fontsize": 3,
    "hard_corner": 1,
    "shared": [
     "DataGrid",
     "Pill"
    ],
    "patterns": [
+    "header",
     "toolbar",
     "section_card",
     "form_field",
@@ -5406,7 +5434,7 @@
    "module": "Views",
    "fams": {
     "Settings": 35,
-    "FontSize": 16,
+    "FontSize": 18,
     "Border": 3,
     "Radius": 1,
     "FontFamily": 1
@@ -5414,8 +5442,8 @@
    "fams_bare_top5": {},
    "local_styles": 0,
    "local_templates": 0,
-   "hard_fontsize": 3,
-   "hard_corner": 3,
+   "hard_fontsize": 1,
+   "hard_corner": 1,
    "shared": [
     "Pill",
     "Card",
@@ -5783,7 +5811,7 @@
    "file": "Views/Settings/Sections/Cards/AppearancePreviewTile.xaml",
    "module": "Views",
    "fams": {
-    "FontSize": 3,
+    "FontSize": 5,
     "Settings": 2,
     "Border": 2,
     "Radius": 1,
@@ -5792,8 +5820,8 @@
    "fams_bare_top5": {},
    "local_styles": 0,
    "local_templates": 0,
-   "hard_fontsize": 3,
-   "hard_corner": 3,
+   "hard_fontsize": 1,
+   "hard_corner": 1,
    "shared": [
     "Pill",
     "Card",
@@ -5826,14 +5854,14 @@
    "file": "Views/Settings/Sections/Cards/AppearanceSplashCard.xaml",
    "module": "Views",
    "fams": {
-    "FontSize": 2,
+    "FontSize": 3,
     "Weight": 1
    },
    "fams_bare_top5": {},
    "local_styles": 0,
    "local_templates": 0,
-   "hard_fontsize": 1,
-   "hard_corner": 1,
+   "hard_fontsize": 0,
+   "hard_corner": 0,
    "shared": [
     "Card",
     "Section"
@@ -6419,7 +6447,7 @@
    "file": "Views/Shared/QuickSettingsPanel.xaml",
    "module": "Views",
    "fams": {
-    "FontSize": 2,
+    "FontSize": 4,
     "Border": 1,
     "Radius": 1,
     "Shell": 1,
@@ -6430,7 +6458,7 @@
    "fams_bare_top5": {},
    "local_styles": 0,
    "local_templates": 0,
-   "hard_fontsize": 3,
+   "hard_fontsize": 1,
    "hard_corner": 1,
    "shared": [
     "Button",
@@ -7250,25 +7278,25 @@
    "file": "Views/UserCenter/UserCenterView.xaml",
    "module": "Views",
    "fams": {
+    "FontSize": 21,
     "UserCenter": 20,
-    "FontSize": 18,
     "Weight": 11,
     "SystemCenter": 4,
+    "Radius": 3,
     "FontFamily": 2,
     "Login": 2,
     "Border": 1,
     "Module": 1,
     "Shell": 1,
     "Action": 1,
-    "Radius": 1,
     "CompanyCenter": 1,
     "Sharing": 1
    },
    "fams_bare_top5": {},
    "local_styles": 0,
    "local_templates": 0,
-   "hard_fontsize": 3,
-   "hard_corner": 3,
+   "hard_fontsize": 0,
+   "hard_corner": 1,
    "shared": [
     "Pill"
    ],
@@ -7367,27 +7395,29 @@
    "sta": 41
   },
   "Themes": {
-   "files": 66,
-   "local_styles": 630,
+   "files": 67,
+   "local_styles": 641,
    "local_templates": 10,
    "hard_fontsize": 1,
    "hard_corner": 11,
    "fams": {
     "Radius": 88,
-    "Border": 59,
-    "FontSize": 49,
+    "Border": 61,
+    "FontSize": 54,
     "Surface": 25,
-    "Weight": 21,
+    "Weight": 22,
     "FontFamily": 17,
     "Space": 11,
     "Density": 7,
     "Print": 2,
+    "X": 2,
     "Shell": 2,
     "Action": 1,
-    "State": 1
+    "State": 1,
+    "Common": 1
    },
-   "dyn": 1291,
-   "sta": 844
+   "dyn": 1314,
+   "sta": 853
   },
   "Tools": {
    "files": 3,
@@ -7406,10 +7436,10 @@
    "files": 235,
    "local_styles": 139,
    "local_templates": 33,
-   "hard_fontsize": 60,
-   "hard_corner": 47,
+   "hard_fontsize": 15,
+   "hard_corner": 38,
    "fams": {
-    "FontSize": 2417,
+    "FontSize": 2452,
     "Weight": 1780,
     "Settings": 502,
     "Reports": 460,
@@ -7417,7 +7447,7 @@
     "ProformaInvoice": 388,
     "FontFamily": 387,
     "Common": 327,
-    "Radius": 289,
+    "Radius": 293,
     "Print": 206,
     "DeliveryNote": 162,
     "SheetStore": 122,
@@ -7454,7 +7484,7 @@
     "Lock": 3,
     "Attachments": 1
    },
-   "dyn": 15696,
+   "dyn": 15750,
    "sta": 7498
   }
  }

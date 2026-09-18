@@ -9,7 +9,7 @@
 | P3 Masters/Settings | **IMPLEMENTED** | 22 exact-value tokenizations (Company/User/Settings themes/appearance tiles/QuickSettings); 8 structural keeps documented; SettingsCardStyles module layer evaluated & kept (merge = future candidate) |
 | P4 Operations/Production | **IMPLEMENTED** | 30 exact-value tokenizations (KPI values/labels/icons) + shared OptHeader style fix; structural keeps documented |
 | P5 Supporting | **IMPLEMENTED** | full review: all surfaces converged or deliberate special surface; hex = material/brand constants documented; InquiryListView EmptyState BLOCKED (needs i18n key in 13 langs) |
-| P6 Global consistency | pending | re-census after P2–P5 |
+| P6 Global consistency | **IMPLEMENTED** | re-census: 15fs/38cr residuals all documented keeps; hex=9 (Splash only); 208 heights + 32 windows audited; no undocumented debt |
 | P7 Personal UI/layout | pending | verify theme=appearance vs layout=arrangement separation; no forks (inventory-backed) |
 | P8 DPI/density | pending | static analysis of fixed dims + density-token adoption |
 | P9 Final 320-file pass | pending | classification + 4 doc updates |
