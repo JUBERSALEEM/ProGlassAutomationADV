@@ -64,10 +64,10 @@ namespace ProGlassAutomation.Services.Optimization
     public static class OptimizationSearchGovernor
     {
         /// <summary>Above this many parts (per group) the search narrows.</summary>
-        public const int NarrowedAboveParts = 2000;
+        public const int NarrowedAboveParts = 10000;
 
         /// <summary>Above this many parts (per group) the high-throughput plan runs.</summary>
-        public const int MinimumAboveParts = 20000;
+        public const int MinimumAboveParts = 50000;
 
         public static SearchTier TierFor(int pieceCount) =>
             pieceCount > MinimumAboveParts ? SearchTier.Minimum
