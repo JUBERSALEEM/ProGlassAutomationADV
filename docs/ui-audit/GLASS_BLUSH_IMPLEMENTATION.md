@@ -116,6 +116,16 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   2. Saved-invoices list (list mode) hosts the SAME `SavedInvoicesListView` inside a glass card (same reason).
 - **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
 
+### glass-03 — Job Order (GB-P6)
+- **Status:** ✅ STATIC VERIFIED · RUNTIME NOT VERIFIED (no .NET SDK) · VISUALLY NOT YET VERIFIED.
+- **Architecture:** Personal view fork `Views/Personal/PersonalJobOrderView.xaml` on the **same `JobOrderViewModel`** (routed: `case "JobOrder": CurrentViewModel = JobOrderVM` — verified). Three glass tab pills (Workspace/God View/Activity) with the same `SwitchTabCommand` + `IsWorkspaceTab/IsGodViewTab/IsActivityTab` visibility pattern (two-button pattern preserved).
+- **Components used:** GlassButton/GlassButtonSoft tab pills, GlassCard list host (SavedJobOrdersListView), **glass status timeline** (real `StatusOptions` + `SelectedStatus` from JobOrderDetailViewModel; active stage = cyan glow via the same StringEqualsMultiConverter mechanism), GlassCard detail host (the same `JobOrderDetailView` unified page), GlassCard god-view + activity hosts.
+- **Contract preserved:** SwitchTabCommand (Workspace/GodView/Activity params), IsListView/IsDetailView, ListVM/DetailVM/GodViewVM/ActivityVM, all detail commands (BackToList, CreateDeliveryNote, OpenMasterDn, ExportPdf/Excel/Csv, Share, Save), JobOrderId/SourceProformaId/ConvertedDisplay/GrandTotalDisplay/StatusLabel/StatusBrushKey/StatusOptions/SelectedStatus, IsLoading/HasError/ErrorMessage, i18n (Common.Workspace/Activity, DeliveryNote.*, JobOrder.*). SwitchDetailTabCommand stays on the VM unrendered (Demo Hub dependency — same as Professional).
+- **Deviations (documented):**
+  1. The reference 4-stage glow timeline is rendered from the VM's `StatusOptions` list with the active stage glowing; per-stage "completed" state is not exposed by the VM (no stage index), so non-active stages render as pending (no state fabrication).
+  2. List/god-view/activity/detail host the SAME Professional sub-views inside glass cards (documented hybrid — business content untouched; glass composition = tab strip, timeline, cards).
+- **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
+
 ## Phase status
 
 | Phase | Status | Commit |
@@ -125,7 +135,8 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-P3 shared components (21/21) | ✅ STATIC VERIFIED (runtime NOT VERIFIED — no .NET SDK) | `GB-P3` |
 | GB-P4 dashboard (glass-01) | ✅ STATIC VERIFIED (PersonalDashboardView + shell routing; runtime NOT VERIFIED) | `GB-P4` |
 | GB-P5 proforma invoice (glass-02) | ✅ STATIC VERIFIED (PersonalProformaInvoiceView + 9-step glow strip; runtime NOT VERIFIED) | `GB-P5` |
-| GB-P6…P13 screens (8) | pending | — |
+| GB-P6 job order (glass-03) | ✅ STATIC VERIFIED (PersonalJobOrderView + glass tab strip + status timeline; runtime NOT VERIFIED) | `GB-P6` |
+| GB-P7…P13 screens (7) | pending | — |
 | GB-P14 Professional↔Personal switch | pending | — |
 | GB-P15 global visual consistency | pending | — |
 | GB-P16 runtime screenshot fidelity | **NOT RUN — no WPF runtime in this environment** (tooling to be delivered) | — |

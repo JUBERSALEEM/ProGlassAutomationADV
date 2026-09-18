@@ -1,0 +1,239 @@
+<UserControl x:Class="ProGlassAutomation.Views.Personal.PersonalJobOrderView"
+             TextOptions.TextHintingMode="Fixed"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:list="clr-namespace:ProGlassAutomation.Views.JobOrder.SavedJobOrdersList"
+             xmlns:detail="clr-namespace:ProGlassAutomation.Views.JobOrder.JobOrderDetail"
+             xmlns:godview="clr-namespace:ProGlassAutomation.Views.JobOrder.GodView"
+             xmlns:sharedViews="clr-namespace:ProGlassAutomation.Views.Shared"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         GB-P6 — GLASS BLUSH JOB ORDER (glass-03 reference)
+
+         PERSONAL view fork on the SAME JobOrderViewModel (3 tabs:
+         Workspace / God View / Activity — same SwitchTabCommand + tab
+         booleans). The detail workspace adds a GLASS STATUS TIMELINE
+         (derived from the VM's real StatusOptions + SelectedStatus)
+         above the SAME JobOrderDetailView; list/god/activity host the
+         SAME sub-views in glass cards. Every binding, command, i18n key
+         and tooltip preserved from Views/JobOrder/JobOrderView.xaml +
+         Views/JobOrder/JobOrderDetail/JobOrderDetailView.xaml.
+         (SwitchDetailTabCommand stays on the VM, unrendered — same as
+         Professional; the Demo Hub still calls it.)
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <UserControl.Resources>
+        <!-- glass status stage (string option; active when == SelectedStatus) -->
+        <DataTemplate x:Key="GbJoStageTemplate">
+            <ContentControl Margin="0,0,18,0" Width="150">
+                <ContentControl.Template>
+                    <ControlTemplate TargetType="ContentControl">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Border x:Name="Dot"
+                                    Width="30" Height="30"
+                                    CornerRadius="15"
+                                    Background="{DynamicResource GlassBlush.SurfaceFaint}"
+                                    BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                                    BorderThickness="1"
+                                    HorizontalAlignment="Center"
+                                    SnapsToDevicePixels="True">
+                                <Ellipse Width="10" Height="10"
+                                         x:Name="Inner"
+                                         Fill="{DynamicResource GlassBlush.TextFaint}"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock x:Name="Lbl"
+                                       Grid.Row="1"
+                                       Text="{Binding}"
+                                       FontSize="11" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,7,0,0"
+                                       TextTrimming="CharacterEllipsis"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <DataTrigger Value="True">
+                                <DataTrigger.Binding>
+                                    <MultiBinding Converter="{StaticResource StringEqualsMultiConverter}">
+                                        <Binding/>
+                                        <!-- nearest ancestor = the timeline ItemsControl,
+                                             whose DataContext is JobOrderDetailViewModel -->
+                                        <Binding Path="DataContext.SelectedStatus"
+                                                 RelativeSource="{RelativeSource AncestorType=ItemsControl}"/>
+                                    </MultiBinding>
+                                </DataTrigger.Binding>
+                                <Setter TargetName="Dot" Property="Background" Value="{DynamicResource GlassBlush.AccentDeep}"/>
+                                <Setter TargetName="Dot" Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                                <Setter TargetName="Dot" Property="Effect" Value="{StaticResource GlassBlush.GlowAccent}"/>
+                                <Setter TargetName="Inner" Property="Fill" Value="{DynamicResource GlassBlush.OnAccent}"/>
+                                <Setter TargetName="Lbl" Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
+                                <Setter TargetName="Lbl" Property="FontWeight" Value="Bold"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </ContentControl.Template>
+            </ContentControl>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══ GLASS TAB STRIP (Workspace / God View / Activity) ══════ -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,24">
+            <Button Command="{Binding SwitchTabCommand}" CommandParameter="Workspace"
+                    Content="{DynamicResource Common.Workspace}"
+                    ToolTip="{DynamicResource DeliveryNote.OpenDocumentWorkspace}"
+                    Style="{StaticResource GlassBlush.GlassButtonSoft}"
+                    Margin="0,0,12,0" Height="36"
+                    Visibility="{Binding IsWorkspaceTab, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+            <Button Command="{Binding SwitchTabCommand}" CommandParameter="Workspace"
+                    Content="{DynamicResource Common.Workspace}"
+                    ToolTip="{DynamicResource DeliveryNote.OpenDocumentWorkspace}"
+                    Style="{StaticResource GlassBlush.GlassButton}"
+                    Margin="0,0,12,0" Height="36"
+                    Visibility="{Binding IsWorkspaceTab, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <Button Command="{Binding SwitchTabCommand}" CommandParameter="GodView"
+                    Content="{DynamicResource DeliveryNote.GODVIEW}"
+                    ToolTip="{DynamicResource DeliveryNote.CrossDocumentOverview}"
+                    Style="{StaticResource GlassBlush.GlassButtonSoft}"
+                    Margin="0,0,12,0" Height="36"
+                    Visibility="{Binding IsGodViewTab, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+            <Button Command="{Binding SwitchTabCommand}" CommandParameter="GodView"
+                    Content="{DynamicResource DeliveryNote.GODVIEW}"
+                    ToolTip="{DynamicResource DeliveryNote.CrossDocumentOverview}"
+                    Style="{StaticResource GlassBlush.GlassButton}"
+                    Margin="0,0,12,0" Height="36"
+                    Visibility="{Binding IsGodViewTab, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <Button Command="{Binding SwitchTabCommand}" CommandParameter="Activity"
+                    Content="{DynamicResource Common.Activity}"
+                    ToolTip="{DynamicResource DeliveryNote.ActivityTrailModule}"
+                    Style="{StaticResource GlassBlush.GlassButtonSoft}"
+                    Margin="0,0,12,0" Height="36"
+                    Visibility="{Binding IsActivityTab, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+            <Button Command="{Binding SwitchTabCommand}" CommandParameter="Activity"
+                    Content="{DynamicResource Common.Activity}"
+                    ToolTip="{DynamicResource DeliveryNote.ActivityTrailModule}"
+                    Style="{StaticResource GlassBlush.GlassButton}"
+                    Height="36"
+                    Visibility="{Binding IsActivityTab, Converter={StaticResource BoolToVisibilityConverter}}"/>
+        </StackPanel>
+
+        <!-- ══ TAB CONTENT ════════════════════════════════════════════ -->
+        <Grid Grid.Row="1">
+
+            <!-- WORKSPACE (list ↔ detail) -->
+            <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsWorkspaceTab}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+                <ContentControl Content="{Binding ListVM}" Visibility="Collapsed">
+                    <ContentControl.Style>
+                        <Style TargetType="ContentControl">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsListView}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ContentControl.Style>
+                    <ContentControl.ContentTemplate>
+                        <DataTemplate>
+                            <ContentControl Style="{StaticResource GlassBlush.GlassCard}">
+                                <list:SavedJobOrdersListView/>
+                            </ContentControl>
+                        </DataTemplate>
+                    </ContentControl.ContentTemplate>
+                </ContentControl>
+
+                <ContentControl Content="{Binding DetailVM}" Visibility="Collapsed">
+                    <ContentControl.Style>
+                        <Style TargetType="ContentControl">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsDetailView}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ContentControl.Style>
+                    <ContentControl.ContentTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <!-- glass status timeline (real StatusOptions + SelectedStatus) -->
+                                <ContentControl Style="{StaticResource GlassBlush.GlassCard}" Margin="0,0,0,24">
+                                    <ItemsControl ItemsSource="{Binding StatusOptions}"
+                                                  ItemTemplate="{StaticResource GbJoStageTemplate}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                    </ItemsControl>
+                                </ContentControl>
+                                <!-- the SAME unified detail page inside the glass panel -->
+                                <ContentControl Style="{StaticResource GlassBlush.GlassCard}">
+                                    <detail:JobOrderDetailView/>
+                                </ContentControl>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ContentControl.ContentTemplate>
+                </ContentControl>
+            </Grid>
+
+            <!-- GOD VIEW TAB -->
+            <godview:JobOrderGodView DataContext="{Binding GodViewVM}">
+                <godview:JobOrderGodView.Style>
+                    <Style TargetType="godview:JobOrderGodView">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DataContext.IsGodViewTab,
+                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                         Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </godview:JobOrderGodView.Style>
+            </godview:JobOrderGodView>
+
+            <!-- ACTIVITY TAB -->
+            <sharedViews:SectionActivityView DataContext="{Binding ActivityVM}">
+                <sharedViews:SectionActivityView.Style>
+                    <Style TargetType="sharedViews:SectionActivityView">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DataContext.IsActivityTab,
+                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                         Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </sharedViews:SectionActivityView.Style>
+            </sharedViews:SectionActivityView>
+        </Grid>
+    </Grid>
+</UserControl>
