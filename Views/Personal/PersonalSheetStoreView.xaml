@@ -1,0 +1,362 @@
+<UserControl x:Class="ProGlassAutomation.Views.Personal.PersonalSheetStoreView"
+             TextOptions.TextHintingMode="Fixed"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:conv="clr-namespace:ProGlassAutomation.Converters"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         GB-P8 — GLASS BLUSH SHEET STORE (glass-05 reference)
+
+         References the SAME SheetStoreViewModel: Sheets (GlassSheet:
+         ThicknessMm/Color/SizeDisplay/Stock/Used/Balance), Items
+         (consumables), SearchText, TotalStock/TotalSellingValue/
+         LowStockCount, HasSheets/IsEmpty, SelectedSheet +
+         SelectSheetCommand, AddCommand, ShowGlassCommand/
+         ShowConsumablesCommand (IsGlassView/IsConsumablesView).
+         Light-sapphire palette (glass-05 is NOT the night reference —
+         glass-04 is). Card grid replaces the Professional row list per
+         the reference; selection = glowing accent border.
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <UserControl.Resources>
+        <conv:StockLevelBrushConverter x:Key="GbStockLevelBrush"/>
+
+        <!-- Sheet card — glass card + selected-glow trigger -->
+        <Style x:Key="GbSheetCard" TargetType="ContentControl"
+               BasedOn="{StaticResource GlassBlush.GlassCard}">
+            <Style.Triggers>
+                <DataTrigger Value="True">
+                    <DataTrigger.Binding>
+                        <MultiBinding Converter="{StaticResource ReferenceEqualityConverter}">
+                            <Binding Path="DataContext.SelectedSheet"
+                                     RelativeSource="{RelativeSource AncestorType=ItemsControl}"/>
+                            <Binding/>
+                        </MultiBinding>
+                    </DataTrigger.Binding>
+                    <Setter Property="Background" Value="{DynamicResource GlassBlush.SurfaceStrong}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Mode tab (Glass | Consumables) -->
+        <Style x:Key="GbModeTab" TargetType="Button"
+               BasedOn="{StaticResource GlassBlush.GlassButtonSoft}">
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Padding" Value="18,8"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══ HEADER (title + search + add) ════════════════════════ -->
+        <ContentControl Grid.Row="0" Style="{StaticResource GlassBlush.GlassCard}"
+                        Margin="0,0,0,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="Sheet Store"
+                           FontSize="{DynamicResource GlassBlush.FontTitle}"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource GlassBlush.Text}"
+                           VerticalAlignment="Center"/>
+
+                <!-- search -->
+                <Grid Grid.Column="2" Width="260" Height="44" Margin="0,0,12,0">
+                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource GlassBlush.TextBox}"
+                             VerticalAlignment="Center"
+                             HorizontalContentAlignment="Left"
+                             Padding="34,0,12,0"/>
+                    <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets"
+                               FontSize="14"
+                               Foreground="{DynamicResource GlassBlush.TextMuted}"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Left"
+                               Margin="14,0,0,0"
+                               IsHitTestVisible="False"/>
+                </Grid>
+
+                <!-- add (glowing, per reference) -->
+                <Button Grid.Column="3"
+                        Style="{StaticResource GlassBlush.GlassButton}"
+                        Width="44" Height="44"
+                        Padding="0"
+                        Command="{Binding AddCommand}"
+                        ToolTip="Add sheet">
+                    <Grid>
+                        <Ellipse Width="44" Height="44"
+                                 Fill="{DynamicResource GlassBlush.AccentDeep}"/>
+                        <Ellipse Width="44" Height="44"
+                                 Stroke="{DynamicResource GlassBlush.AccentGlow}"
+                                 StrokeThickness="1.5"
+                                 Effect="{StaticResource GlassBlush.GlowAccent}"/>
+                        <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets"
+                                   FontSize="18"
+                                   Foreground="{DynamicResource GlassBlush.Text}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+                </Button>
+            </Grid>
+        </ContentControl>
+
+        <!-- ══ KPI TILES (reference: Total Sheets / Value / Low Stock) -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
+            <ContentControl Style="{StaticResource GlassBlush.KpiCard}" Width="180" Margin="0,0,16,0">
+                <StackPanel>
+                    <TextBlock Text="Total Sheets"
+                               FontSize="{DynamicResource GlassBlush.FontCaption}"
+                               Foreground="{DynamicResource GlassBlush.TextMuted}"/>
+                    <TextBlock Text="{Binding TotalStock}"
+                               FontSize="{DynamicResource GlassBlush.FontKpi}"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource GlassBlush.Text}"
+                               Margin="0,6,0,0"/>
+                </StackPanel>
+            </ContentControl>
+            <ContentControl Style="{StaticResource GlassBlush.KpiCard}" Width="180" Margin="0,0,16,0">
+                <StackPanel>
+                    <TextBlock Text="Value"
+                               FontSize="{DynamicResource GlassBlush.FontCaption}"
+                               Foreground="{DynamicResource GlassBlush.TextMuted}"/>
+                    <TextBlock Text="{Binding TotalSellingValue, StringFormat=AED {0:N0}}"
+                               FontSize="{DynamicResource GlassBlush.FontKpi}"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource GlassBlush.Text}"
+                               Margin="0,6,0,0"/>
+                </StackPanel>
+            </ContentControl>
+            <ContentControl Style="{StaticResource GlassBlush.KpiCard}" Width="180">
+                <StackPanel>
+                    <TextBlock Text="Low Stock"
+                               FontSize="{DynamicResource GlassBlush.FontCaption}"
+                               Foreground="{DynamicResource GlassBlush.TextMuted}"/>
+                    <TextBlock Text="{Binding LowStockCount}"
+                               FontSize="{DynamicResource GlassBlush.FontKpi}"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource GlassBlush.Danger}"
+                               Margin="0,6,0,0"/>
+                </StackPanel>
+            </ContentControl>
+        </StackPanel>
+
+        <!-- ══ MODE TABS (Glass | Consumables — same VM toggle) ═════ -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,14">
+            <Button Style="{StaticResource GbModeTab}"
+                    Content="Glass"
+                    Command="{Binding ShowGlassCommand}">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource GbModeTab}">
+                        <Setter Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsGlassView}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource GlassBlush.AccentSoft}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            <Button Style="{StaticResource GbModeTab}"
+                    Content="Consumables"
+                    Command="{Binding ShowConsumablesCommand}">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource GbModeTab}">
+                        <Setter Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsConsumablesView}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource GlassBlush.AccentSoft}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
+
+        <!-- ══ CARD GRID (glass-05) ═════════════════════════════════ -->
+        <Grid Grid.Row="3">
+            <!-- Glass sheets -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          Visibility="{Binding IsGlassView,
+                                    Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid>
+                    <!-- empty state -->
+                    <ContentControl Style="{StaticResource GlassBlush.EmptyState}"
+                                    Tag="&#xE7B8;"
+                                    Content="No sheets in stock"
+                                    Visibility="{Binding IsEmpty,
+                                              Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                    <ItemsControl ItemsSource="{Binding Sheets}"
+                                  Visibility="{Binding HasSheets,
+                                            Converter={StaticResource BoolToVisibilityConverter}}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <ContentControl Style="{StaticResource GbSheetCard}"
+                                                Width="252"
+                                                Margin="0,0,16,16"
+                                                Cursor="Hand"
+                                                behaviors:ClickToCommandBehavior.Command="{Binding DataContext.SelectSheetCommand,
+                                                                                      RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                behaviors:ClickToCommandBehavior.CommandParameter="{Binding}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="112"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- glass pane illustration (pure vector, no per-row effects) -->
+                                        <Grid Grid.Row="0" Margin="14,12,14,0">
+                                            <Path Fill="#66DFF4FF"
+                                                  Stroke="#B3FFFFFF"
+                                                  StrokeThickness="1"
+                                                  Data="M 18,74 L 92,26 L 196,44 L 122,92 Z"/>
+                                            <Path Fill="#33FFFFFF"
+                                                  Data="M 40,70 L 96,38 L 140,46 L 84,78 Z"/>
+                                            <Path Stroke="#80FFFFFF"
+                                                  StrokeThickness="1"
+                                                  Data="M 18,74 L 122,92 L 122,100 L 18,82 Z"
+                                                  Fill="#2E9FD8F0"/>
+                                        </Grid>
+
+                                        <!-- info -->
+                                        <StackPanel Grid.Row="1" Margin="0,10,0,0">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0"
+                                                           FontSize="{DynamicResource GlassBlush.FontHeading}"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource GlassBlush.Text}"
+                                                           VerticalAlignment="Center">
+                                                    <Run Text="{Binding ThicknessMm, Mode=OneWay}"/><Run Text="mm "/><Run Text="{Binding Color, Mode=OneWay}"/>
+                                                </TextBlock>
+                                                <ContentControl Grid.Column="1"
+                                                                Style="{StaticResource GlassBlush.Pill}"
+                                                                Content="{Binding Stock}"/>
+                                            </Grid>
+                                            <TextBlock Text="{Binding SizeDisplay}"
+                                                       FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                                       Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                                       Margin="0,4,0,8"/>
+                                            <ProgressBar Style="{StaticResource GlassBlush.Progress}"
+                                                         Height="6"
+                                                         Minimum="0"
+                                                         Maximum="{Binding Stock}"
+                                                         Value="{Binding Balance}"
+                                                         IsEnabled="False">
+                                                <ProgressBar.Style>
+                                                    <Style TargetType="ProgressBar" BasedOn="{StaticResource GlassBlush.Progress}">
+                                                        <Setter Property="Height" Value="6"/>
+                                                        <Setter Property="Foreground">
+                                                            <Setter.Value>
+                                                                <MultiBinding Converter="{StaticResource GbStockLevelBrush}">
+                                                                    <Binding Path="Balance"/>
+                                                                    <Binding Path="Stock"/>
+                                                                </MultiBinding>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Style>
+                                                </ProgressBar.Style>
+                                            </ProgressBar>
+                                        </StackPanel>
+                                    </Grid>
+                                </ContentControl>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </ScrollViewer>
+
+            <!-- Consumables (secondary VM mode — same Items collection) -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          Visibility="{Binding IsConsumablesView,
+                                    Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid>
+                    <ContentControl Style="{StaticResource GlassBlush.EmptyState}"
+                                    Tag="&#xE7B8;"
+                                    Content="No consumables"
+                                    Visibility="{Binding HasItems,
+                                              Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+
+                    <ItemsControl ItemsSource="{Binding Items}"
+                                  Margin="0,0,0,24">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <ContentControl Style="{StaticResource GlassBlush.GlassCard}"
+                                                Margin="0,0,0,12"
+                                                Padding="18,14">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Name}"
+                                                       FontSize="{DynamicResource GlassBlush.FontHeading}"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource GlassBlush.Text}"/>
+                                            <TextBlock Text="{Binding PartNumber}"
+                                                       FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                                       Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                                       Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <ContentControl Grid.Column="1"
+                                                        Style="{StaticResource GlassBlush.Pill}"
+                                                        Content="{Binding Stock}"
+                                                        Margin="0,0,12,0"
+                                                        VerticalAlignment="Center"/>
+                                        <Ellipse Grid.Column="2" Width="10" Height="10"
+                                                 VerticalAlignment="Center"
+                                                 Fill="{DynamicResource GlassBlush.Danger}">
+                                            <Ellipse.Style>
+                                                <Style TargetType="Ellipse">
+                                                    <Setter Property="Fill" Value="Transparent"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsLowStock}" Value="True">
+                                                            <Setter Property="Fill" Value="{DynamicResource GlassBlush.Danger}"/>
+                                                            <Setter Property="Effect" Value="{StaticResource GlassBlush.GlowAccent}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Ellipse.Style>
+                                        </Ellipse>
+                                    </Grid>
+                                </ContentControl>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

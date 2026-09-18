@@ -146,6 +146,18 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   2. Auto-scroll uses a CollectionChanged → ScrollToEnd in view code-behind (chat UX plumbing; no business logic).
 - **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
 
+### glass-05 — Sheet Store (GB-P8)
+- **Status:** ✅ STATIC VERIFIED · RUNTIME NOT VERIFIED (no .NET SDK) · VISUALLY NOT YET VERIFIED.
+- **Architecture:** `Views/Personal/PersonalSheetStoreView.xaml` (InitializeComponent only) on the **same `SheetStoreViewModel`** (routed: `case "SheetStore"` → SheetStoreVM — verified). Light-sapphire palette (glass-05 is NOT the night reference; only glass-04 is night).
+- **Components used:** GlassBlush.GlassCard (header + rows), GlassBlush.KpiCard ×3 (Total Sheets → `TotalStock`, Value → `TotalSellingValue` "AED {0:N0}", Low Stock → `LowStockCount` in Danger), GlassBlush.GlassButton (glowing + add), GlassBlush.TextBox (search → `SearchText`), GlassBlush.Pill (per-sheet stock count), GlassBlush.Progress (per-sheet stock bar, tinted by balance ratio), GlassBlush.EmptyState.
+- **New UI-only helper:** `Converters/StockLevelBrushConverter.cs` (pure presentation mapping balance/stock → GlassBlush.Success ≥0.60 / Warning ≥0.30 / Danger below; MultiBinding {Balance, Stock}; fails soft). Declared view-locally — no shared-file change.
+- **Reference fidelity:** card grid (5-up wrap, 252px cards) with vector glass-pane illustration (pure paths/gradients — no per-row effects), title = `{ThicknessMm}mm {Color}`, dimensions = `SizeDisplay`, quantity pill = `Stock`, stock bar = `Balance`/`Stock` (colored by ratio). Selected card = glowing accent border via `ReferenceEqualityConverter` MultiBinding vs `SelectedSheet` (Professional's exact selection mechanism).
+- **Contract preserved:** `Sheets`/`Items` collections, `SearchText`, `AddCommand`, `SelectSheetCommand` (click, same command+parameter), `ShowGlassCommand`/`ShowConsumablesCommand` + `IsGlassView`/`IsConsumablesView` tab pair, `HasSheets`/`IsEmpty`/`HasItems` states, all 7 KPI sources (3 shown per reference; the remaining 4 stay in the Professional KPI strip).
+- **Deviations (documented):**
+  1. Professional row-list + 7-wide KPI strip + filters/sort combo row + right slide detail panel + add/edit inline workspace are Professional-mode surfaces not shown in the glass-05 reference; the Personal view renders the reference surface (card grid) only. `OpenEditPanelCommand` (double-click) is therefore not wired in the Personal view — add/edit + detail panel are reached in Professional mode. Selection/add/search/mode-toggle fully wired.
+  2. Card grid uses a WrapPanel `ItemsControl` (cards, not a virtualizing DataGrid) — sheet lists are card-bounded in the reference; virtualized DataGrid remains in Professional mode (performance rule honored there).
+- **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
+
 ## GB-P14 — Professional ↔ Personal experience switch (the enabler)
 - **Status:** ✅ STATIC VERIFIED · BUILD NOT RUN (no .NET SDK) · RUNTIME NOT VERIFIED.
 - **Architecture (live, persisted, no restart):**
@@ -176,7 +188,8 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-P7 production control (glass-04) | ✅ STATIC VERIFIED (PersonalProductionControlCenterView, night palette; runtime NOT VERIFIED) | `GB-P7` |
 | GB-P13 ai assistant (glass-10) | ✅ STATIC VERIFIED (PersonalAiChatView, glass bubbles + chip rail; runtime NOT VERIFIED) | `GB-P13` |
 | GB-P14 experience switch (live, persisted) | ✅ STATIC VERIFIED (single-view-instance design, safe shell recreation; BUILD NOT RUN) | `GB-P14` |
-| GB-P8…P12 screens (5) | pending | — |
+| GB-P8 sheet store (glass-05) | ✅ STATIC VERIFIED (PersonalSheetStoreView, glass card grid; runtime NOT VERIFIED) | `GB-P8` |
+| GB-P9…P12 screens (4) | pending | — |
 | GB-P15 global visual consistency | pending (incl. Personal-side popup anchors + error-bubble variant) | — |
 | GB-P16 runtime screenshot fidelity | **NOT RUN — no WPF runtime in this environment** (tooling to be delivered) | — |
 | GB-P17 DPI/a11y/performance | pending (static parts only) | — |

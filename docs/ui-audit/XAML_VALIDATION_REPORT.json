@@ -1,9 +1,9 @@
 {
  "generated": "2026-09-18",
- "files": 330,
+ "files": 331,
  "errors": 0,
  "warns": 22,
- "notes": 2,
+ "notes": 3,
  "findings": [
   {
    "file": "Agent/UI/AgentChatView.xaml",
@@ -64,6 +64,12 @@
    "level": "WARN",
    "code": "W7",
    "msg": "DynamicResource 'ShadowHeavy' declared nowhere & not runtime-published"
+  },
+  {
+   "file": "Views/Personal/PersonalSheetStoreView.xaml",
+   "level": "NOTE",
+   "code": "W17",
+   "msg": "5 hardcoded hex value(s) in view"
   },
   {
    "file": "Views/Production/ProductionControlCenterView.xaml",

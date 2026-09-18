@@ -8,6 +8,7 @@
     xmlns:vmPi="clr-namespace:ProGlassAutomation.ViewModels.ProformaInvoice"
     xmlns:vmJo="clr-namespace:ProGlassAutomation.ViewModels.JobOrder"
     xmlns:vmProd="clr-namespace:ProGlassAutomation.ViewModels.Production"
+    xmlns:vmSheetStore="clr-namespace:ProGlassAutomation.ViewModels.SheetStore"
     xmlns:pv="clr-namespace:ProGlassAutomation.Views.Personal">
 
     <!-- ═══ PERSONAL VIEW ROUTING (GB-P4…) ═════════════════════════════
@@ -31,6 +32,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmProd:ProductionControlCenterViewModel}">
             <pv:PersonalProductionControlCenterView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmSheetStore:SheetStoreViewModel}">
+            <pv:PersonalSheetStoreView/>
         </DataTemplate>
     </UserControl.Resources>
 
