@@ -260,45 +260,84 @@
                                FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource Ios26TextTitleBrush}"
                                Margin="0,0,0,16"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                        <TextBlock Text="01"
-                                   FontSize="{DynamicResource Ios26FontSizeStat}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource Ios26NumberBrush}"
-                                   VerticalAlignment="Center"/>
-                        <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Clean Code" FontSize="{DynamicResource Ios26FontSizeSubtitle}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource Ios26TextTitleBrush}"/>
-                            <TextBlock Text="— Readable and maintainable" FontSize="{DynamicResource Ios26FontSizeSmall}"
-                                       Foreground="{DynamicResource Ios26TextMutedBrush}"
-                                       Margin="0,3,0,0"/>
-                        </StackPanel>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                        <TextBlock Text="02"
-                                   FontSize="{DynamicResource Ios26FontSizeStat}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource Ios26NumberBrush}"
-                                   VerticalAlignment="Center"/>
-                        <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Test Driven" FontSize="{DynamicResource Ios26FontSizeSubtitle}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource Ios26TextTitleBrush}"/>
-                            <TextBlock Text="— Unit tests always" FontSize="{DynamicResource Ios26FontSizeSmall}"
-                                       Foreground="{DynamicResource Ios26TextMutedBrush}"
-                                       Margin="0,3,0,0"/>
-                        </StackPanel>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="03"
-                                   FontSize="{DynamicResource Ios26FontSizeStat}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource Ios26NumberBrush}"
-                                   VerticalAlignment="Center"/>
-                        <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Continuous" FontSize="{DynamicResource Ios26FontSizeSubtitle}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource Ios26TextTitleBrush}"/>
-                            <TextBlock Text="— Deployment automated" FontSize="{DynamicResource Ios26FontSizeSmall}"
-                                       Foreground="{DynamicResource Ios26TextMutedBrush}"
-                                       Margin="0,3,0,0"/>
-                        </StackPanel>
-                    </StackPanel>
+
+                    <!-- Principle 01 -->
+                    <Border Style="{StaticResource Ios26InnerTileStyle}" Margin="0,0,0,10" Padding="14,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Width="38" Height="38" CornerRadius="19"
+                                    Background="{DynamicResource Ios26TileBadgeBrush}"
+                                    BorderBrush="{DynamicResource Ios26TileBorderBrush}" BorderThickness="1"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="01"
+                                           FontSize="{DynamicResource Ios26FontSizeSubtitle}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource Ios26AccentBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Deterministic Precision" FontSize="{DynamicResource Ios26FontSizeBody}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                                <TextBlock Text="Every formula produces identical financial and cutting math without hidden race conditions." FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                           Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                           TextWrapping="Wrap" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Principle 02 -->
+                    <Border Style="{StaticResource Ios26InnerTileStyle}" Margin="0,0,0,10" Padding="14,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Width="38" Height="38" CornerRadius="19"
+                                    Background="{DynamicResource Ios26TileBadgeBrush}"
+                                    BorderBrush="{DynamicResource Ios26TileBorderBrush}" BorderThickness="1"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="02"
+                                           FontSize="{DynamicResource Ios26FontSizeSubtitle}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource Ios26AccentBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Modular Domain Isolation" FontSize="{DynamicResource Ios26FontSizeBody}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                                <TextBlock Text="Independent repository boundaries limit blast radius across production and invoicing." FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                           Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                           TextWrapping="Wrap" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Principle 03 -->
+                    <Border Style="{StaticResource Ios26InnerTileStyle}" Padding="14,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Width="38" Height="38" CornerRadius="19"
+                                    Background="{DynamicResource Ios26TileBadgeBrush}"
+                                    BorderBrush="{DynamicResource Ios26TileBorderBrush}" BorderThickness="1"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="03"
+                                           FontSize="{DynamicResource Ios26FontSizeSubtitle}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource Ios26AccentBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Automated Quality &amp; CI" FontSize="{DynamicResource Ios26FontSizeBody}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                                <TextBlock Text="Continuous verification with zero warnings tolerance and 1,800+ test assertions." FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                           Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                           TextWrapping="Wrap" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                 </StackPanel>
             </Border>
         </Grid>

@@ -448,10 +448,11 @@
         </EventTrigger>
     </Window.Triggers>
 
-    <Grid Background="{DynamicResource PageBg}">
+    <Grid x:Name="SplashStageRoot" Background="{DynamicResource PageBg}">
 
         <!-- Constellation network texture (subtle, theme-aware) -->
-        <Rectangle Fill="{DynamicResource ConstellationBrush}"
+        <Rectangle x:Name="ConstellationRect"
+                   Fill="{DynamicResource ConstellationBrush}"
                    IsHitTestVisible="False"
                    Opacity="0.35"/>
 

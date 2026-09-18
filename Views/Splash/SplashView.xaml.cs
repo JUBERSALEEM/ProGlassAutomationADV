@@ -147,6 +147,8 @@ namespace ProGlassAutomation.Views.Splash
         {
             InitializeComponent();
 
+            ApplyConfiguredSplashStyle();
+
             // Populate the frosted module chip strip once.
             FeaturePanel.ItemsSource = _features;
 
@@ -167,6 +169,49 @@ namespace ProGlassAutomation.Views.Splash
 
             Loaded += SplashView_Loaded;
             Unloaded += SplashView_Unloaded;
+        }
+
+        private void ApplyConfiguredSplashStyle()
+        {
+            try
+            {
+                var cfg = App.Config;
+                int style = ProGlassAutomation.Services.Splash.SplashThemeManager.ResolveActiveStyle(cfg);
+                var (top, mid, bottom, accent) = ProGlassAutomation.Services.Splash.SplashThemeManager.GetPaletteForStyle(style);
+
+                var bg = new LinearGradientBrush
+                {
+                    StartPoint = new Point(0.05, 0),
+                    EndPoint = new Point(0.85, 1)
+                };
+                bg.GradientStops.Add(new GradientStop(top, 0.0));
+                bg.GradientStops.Add(new GradientStop(mid, 0.45));
+                bg.GradientStops.Add(new GradientStop(bottom, 1.0));
+                bg.Freeze();
+
+                SplashStageRoot.Background = bg;
+
+                var accentBrush = new SolidColorBrush(accent);
+                accentBrush.Freeze();
+
+                Resources["SplashCerulean"] = accentBrush;
+                Resources["SplashCeruleanLite"] = accentBrush;
+                Resources["SplashCeruleanDark"] = accentBrush;
+
+                // For Minimalist / Cyber Monolith, tune constellation grid visibility
+                if (style == 3) // Minimalist
+                {
+                    ConstellationRect.Opacity = 0.12;
+                }
+                else if (style == 6) // Cyber Monolith
+                {
+                    ConstellationRect.Opacity = 0.55;
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug("[SplashView] ApplyConfiguredSplashStyle fallback: " + ex.Message);
+            }
         }
 
         // ══════════════════════════════════════════════════════════════════

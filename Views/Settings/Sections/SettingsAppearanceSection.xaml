@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/Sections/SettingsAppearanceSection.xaml
      PROJECT: ProGlassAutomation
      MODULE: Settings v2 — APPEARANCE page (redesigned Aug 2026)
@@ -66,6 +66,9 @@
 
                 <!-- ═══ CARD — WALLPAPERS ═══ -->
                 <cards:AppearanceWallpapersCard/>
+
+                <!-- ═══ CARD — SPLASH SCREEN THEMES ═══ -->
+                <cards:AppearanceSplashCard/>
 
                 <!-- ═══ CARD — LANGUAGE &amp; CURRENCY ═══ -->
                 <cards:AppearanceLanguageCard/>

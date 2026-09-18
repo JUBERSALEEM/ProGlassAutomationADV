@@ -166,6 +166,27 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public string WindowBackdrop { get; set; } = "Off";
 
         /// <summary>
+        /// Splash Screen Style / Theme variant:
+        /// 0 = "Auto (Cycle on Boot)"
+        /// 1 = "Cinematic Ambient Mesh"
+        /// 2 = "Crystal Glassmorphism"
+        /// 3 = "Executive Minimalist"
+        /// 4 = "Industrial CAD Blueprint"
+        /// 5 = "iOS26 Liquid Stage"
+        /// 6 = "Cyber Industrial Monolith"
+        /// 7 = "Nordic Frosted Slate"
+        /// 8 = "Dynamic Aurora Gradient"
+        /// 9 = "High-Density Operations"
+        /// 10 = "Glass Mural Chassis"
+        /// </summary>
+        public int SplashStyle { get; set; } = 0;
+
+        /// <summary>
+        /// Track the last boot splash index to cycle automatically.
+        /// </summary>
+        public int LastBootSplashIndex { get; set; } = 1;
+
+        /// <summary>
         /// Per-module wallpapers, keyed by WallpaperModules constants
         /// (e.g. "ProformaInvoice"). Missing entries = no wallpaper.
         /// </summary>

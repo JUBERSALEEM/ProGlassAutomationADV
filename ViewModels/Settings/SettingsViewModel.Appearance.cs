@@ -227,5 +227,35 @@ namespace ProGlassAutomation.ViewModels.Settings
                 OnPropertyChanged();
             }
         }
+
+        // ══════════════════════════════════════════════════════════════
+        //  SPLASH SCREEN STYLE / ROTATION SETTINGS
+        // ══════════════════════════════════════════════════════════════
+
+        public IReadOnlyList<ProGlassAutomation.Services.Splash.SplashStyleOption> SplashStyleOptions =>
+            ProGlassAutomation.Services.Splash.SplashThemeManager.AvailableStyles;
+
+        public int SelectedSplashStyle
+        {
+            get => _config?.Appearance?.SplashStyle ?? 0;
+            set
+            {
+                if (_config?.Appearance == null) return;
+                if (_config.Appearance.SplashStyle == value) return;
+                _config.Appearance.SplashStyle = value;
+                ScheduleDebouncedSave(auditTheme: true);
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SelectedSplashStyleName));
+                OnPropertyChanged(nameof(SelectedSplashStyleDescription));
+            }
+        }
+
+        public string SelectedSplashStyleName =>
+            ProGlassAutomation.Services.Splash.SplashThemeManager.AvailableStyles
+                .FirstOrDefault(s => s.Id == SelectedSplashStyle)?.Name ?? "Auto (Cycle on Boot)";
+
+        public string SelectedSplashStyleDescription =>
+            ProGlassAutomation.Services.Splash.SplashThemeManager.AvailableStyles
+                .FirstOrDefault(s => s.Id == SelectedSplashStyle)?.Description ?? "";
     }
 }
