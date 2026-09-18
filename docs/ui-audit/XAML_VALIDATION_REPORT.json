@@ -1,0 +1,153 @@
+{
+ "generated": "2026-09-18",
+ "files": 320,
+ "errors": 0,
+ "warns": 22,
+ "notes": 2,
+ "findings": [
+  {
+   "file": "Agent/UI/AgentChatView.xaml",
+   "level": "NOTE",
+   "code": "W17",
+   "msg": "3 hardcoded hex value(s) in view"
+  },
+  {
+   "file": "Controls/EmptyState/EmptyStateControl.xaml",
+   "level": "WARN",
+   "code": "W5",
+   "msg": "StaticResource 'IconFont' declared after first use in file"
+  },
+  {
+   "file": "Controls/StatCard/StatCardControl.xaml",
+   "level": "WARN",
+   "code": "W5",
+   "msg": "StaticResource 'IconFont' declared after first use in file"
+  },
+  {
+   "file": "Themes/Styles/GlobalDesignSystem.xaml",
+   "level": "WARN",
+   "code": "W5",
+   "msg": "StaticResource 'Tab.Inactive' declared after first use in file"
+  },
+  {
+   "file": "Views/About/Sections/DeveloperSection.xaml",
+   "level": "WARN",
+   "code": "W7",
+   "msg": "DynamicResource 'Ios26TileBadgeBrush' declared nowhere & not runtime-published"
+  },
+  {
+   "file": "Views/About/Sections/DeveloperSection.xaml",
+   "level": "WARN",
+   "code": "W7",
+   "msg": "DynamicResource 'Ios26TileBadgeBrush' declared nowhere & not runtime-published"
+  },
+  {
+   "file": "Views/About/Sections/DeveloperSection.xaml",
+   "level": "WARN",
+   "code": "W7",
+   "msg": "DynamicResource 'Ios26TileBadgeBrush' declared nowhere & not runtime-published"
+  },
+  {
+   "file": "Views/Diagnostics/DiagnosticsView.xaml",
+   "level": "WARN",
+   "code": "W5",
+   "msg": "StaticResource 'EmojiToGlyph' declared after first use in file"
+  },
+  {
+   "file": "Views/Diagnostics/DiagnosticsView.xaml",
+   "level": "WARN",
+   "code": "W5",
+   "msg": "StaticResource 'EmojiToGlyph' declared after first use in file"
+  },
+  {
+   "file": "Views/Optimization/OptimizationView.xaml",
+   "level": "WARN",
+   "code": "W7",
+   "msg": "DynamicResource 'ShadowHeavy' declared nowhere & not runtime-published"
+  },
+  {
+   "file": "Views/Production/ProductionControlCenterView.xaml",
+   "level": "WARN",
+   "code": "W7",
+   "msg": "DynamicResource 'FontSize.TitleLarge' declared nowhere & not runtime-published"
+  },
+  {
+   "file": "Views/ProformaInvoice/Step7PrintPreview/PrintPreviewView.xaml",
+   "level": "WARN",
+   "code": "W7",
+   "msg": "DynamicResource 'SurfaceBrush' declared nowhere & not runtime-published"
+  },
+  {
+   "file": "Views/ProformaInvoice/Step9ProfitLoss/SheetProfitabilityView.xaml",
+   "level": "WARN",
+   "code": "W7",
+   "msg": "DynamicResource 'Chart.IndigoBrush.Alpha1A.5E' declared nowhere & not runtime-published"
+  },
+  {
+   "file": "Views/ProformaInvoice/Step9ProfitLoss/SheetProfitabilityView.xaml",
+   "level": "WARN",
+   "code": "W7",
+   "msg": "DynamicResource 'Chart.LimeBrush.Alpha1A.30' declared nowhere & not runtime-published"
+  },
+  {
+   "file": "Views/ProformaInvoice/Step9ProfitLoss/SheetProfitabilityView.xaml",
+   "level": "WARN",
+   "code": "W7",
+   "msg": "DynamicResource 'Chart.MintBrush.Alpha1A' declared nowhere & not runtime-published"
+  },
+  {
+   "file": "Views/ProformaInvoice/Step9ProfitLoss/SheetProfitabilityView.xaml",
+   "level": "WARN",
+   "code": "W7",
+   "msg": "DynamicResource 'Chart.NavyBrush.Alpha1A.F6' declared nowhere & not runtime-published"
+  },
+  {
+   "file": "Views/Reports/StatementGenerator/Preview/PreviewStep.xaml",
+   "level": "WARN",
+   "code": "W7",
+   "msg": "DynamicResource 'Radius.Top.Large' declared nowhere & not runtime-published"
+  },
+  {
+   "file": "Views/Reports/StatementGenerator/Preview/PreviewStep.xaml",
+   "level": "WARN",
+   "code": "W7",
+   "msg": "DynamicResource 'Radius.Top.Large' declared nowhere & not runtime-published"
+  },
+  {
+   "file": "Views/Settings/SettingsView.xaml",
+   "level": "WARN",
+   "code": "W3",
+   "msg": "duplicate x:Key 'SettingsCardMargin' \u2014 later declaration shadows the earlier one (latent bug)"
+  },
+  {
+   "file": "Views/Settings/SettingsView.xaml",
+   "level": "WARN",
+   "code": "W5",
+   "msg": "StaticResource 'SettingsPageTemplateSelector' declared after first use in file"
+  },
+  {
+   "file": "Views/Splash/SplashView.xaml",
+   "level": "WARN",
+   "code": "W7",
+   "msg": "DynamicResource 'Transparent' declared nowhere & not runtime-published"
+  },
+  {
+   "file": "Views/Splash/SplashView.xaml",
+   "level": "WARN",
+   "code": "W7",
+   "msg": "DynamicResource 'Transparent' declared nowhere & not runtime-published"
+  },
+  {
+   "file": "Views/Splash/SplashView.xaml",
+   "level": "WARN",
+   "code": "W7",
+   "msg": "DynamicResource 'Transparent' declared nowhere & not runtime-published"
+  },
+  {
+   "file": "Views/Splash/SplashView.xaml",
+   "level": "NOTE",
+   "code": "W17",
+   "msg": "9 hardcoded hex value(s) in view"
+  }
+ ]
+}
