@@ -172,6 +172,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
         private void OnGlassChanged()
         {
             if (_suspendSheetStoreRefresh) return;
+            // Invalidate any refresh that was already in flight for the
+            // PREVIOUS colour/thickness. Without this bump a slow store read
+            // for the old selection can finish after the new one and rewrite
+            // the size list / sheet W-H / base price back to the stale
+            // values — the "Step 4 not syncing with Sheet Store" report.
+            _sheetStoreEpoch++;
             FireAndForget(RefreshFromStoreAsync);
         }
 

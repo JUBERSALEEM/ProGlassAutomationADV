@@ -863,6 +863,7 @@
                                 <TextBlock Text="PURCHASE / SQM"/>
                                 <TextBox Text="{Binding PurchasePriceText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.AcceptDecimals="True"
+                                         behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                          Style="{StaticResource DetailEntry}"/>
                                 <TextBlock Text="{Binding PurchasePriceError}"
                                            Visibility="{Binding HasPurchasePriceError,
@@ -872,6 +873,7 @@
                                 <TextBlock Text="SELL / SQM"/>
                                 <TextBox Text="{Binding SellPriceText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.AcceptDecimals="True"
+                                         behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                          Style="{StaticResource DetailEntry}"/>
                                 <TextBlock Text="{Binding SellPriceError}"
                                            Visibility="{Binding HasSellPriceError,
@@ -881,6 +883,7 @@
                                 <TextBlock Text="STOCK (SHEETS)"/>
                                 <TextBox Text="{Binding StockText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
+                                         behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                          Style="{StaticResource DetailEntry}"/>
                                 <TextBlock Text="{Binding StockError}"
                                            Visibility="{Binding HasStockError,

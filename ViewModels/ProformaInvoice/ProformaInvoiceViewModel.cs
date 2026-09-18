@@ -626,7 +626,16 @@ public ProformaInvoiceViewModel() : this(
             if (CurrentStepNumber < 5)
                 return;
 
+            // CurrentSpecFingerprint covers the FULL section selection
+            // (spec name, glass type, panes, sheets, rate). Without it only
+            // rate-visible changes propagated: a same-price glass swap, a
+            // sheet-size switch or a colour change left Step 5 on the stale
+            // type/spec until the next navigation — the "not force updating
+            // / not syncing properly" report. The fingerprint only raises
+            // when the hash actually changes, so a re-sync is skipped when
+            // Step 4 is untouched.
             if (e.PropertyName is nameof(Step4PricingEstimator.PricingEstimatorViewModel.EstimatedRatePerSqm)
+                or nameof(Step4PricingEstimator.PricingEstimatorViewModel.CurrentSpecFingerprint)
                 or nameof(Step4PricingEstimator.PricingEstimatorViewModel.SelectedGlassType)
                 or null
                 or "")

@@ -306,6 +306,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
             RunScaleLabel = string.Format(CultureInfo.InvariantCulture,
                 "{0} cutting group(s) · {1} part(s) · SETTINGS level {2}",
                 groups.Count, totalParts, SelectedEffortLevel);
+            // The engine tiers per GROUP (a group over 2,000 parts goes to
+            // the partitioned path even inside a mostly-small run), so the
+            // architecture line is keyed on the largest group, not the total.
+            RunArchitectureLabel = BuildRunArchitectureLabel(
+                stage, groups.Max(g => g.Pieces.Count), effort);
             RunProgressPercent = 0;
             RunProgressDetail = stage == "OPTIMIZE"
                 ? "Preparing multi-start search…"

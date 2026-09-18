@@ -253,6 +253,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         private void OnOuterGlassChanged()
         {
             if (_suspendSheetStoreRefresh) return;
+            // Invalidate any in-flight refresh for the previous outer
+            // selection so a slow store read cannot rewrite the size list /
+            // W-H / price with stale values (shared epoch covers both sides;
+            // a discarded inner refresh is harmless — its glass is unchanged).
+            _sheetStoreEpoch++;
             FireAndForget(RefreshOuterFromStoreAsync);
         }
 
@@ -260,6 +265,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         private void OnInnerGlassChanged()
         {
             if (_suspendSheetStoreRefresh) return;
+            _sheetStoreEpoch++;
             FireAndForget(RefreshInnerFromStoreAsync);
         }
 

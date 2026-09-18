@@ -288,12 +288,16 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Legacy_results_carry_no_strategy_so_nothing_reading_them_changes()
+        public void Quick_results_name_the_pass_that_produced_them()
         {
+            // QUICK is a single deterministic shelf pass — the label must say
+            // exactly that, not the generic grid tag a multi-start candidate
+            // carries. The operator reads this on the result screen, so the
+            // name and the algorithm must agree.
             var quick = GuillotinePacker.PackQuick(
                 MixedJob(), new List<StockSize> { Rack() }, Margins(), RotationPolicy.Free90);
 
-            Assert.Equal("", quick.Strategy);
+            Assert.Equal("QUICK SHELF (Area / HorizontalFirst)", quick.Strategy);
         }
 
         [Fact]
@@ -402,7 +406,10 @@ namespace ProGlassAutomation.Tests.Agent
             var level1 = GuillotinePacker.PackOptimize(pieces, stocks, margins, RotationPolicy.Free90, 1);
 
             Assert.Equal(quick.SheetsUsed, level1.SheetsUsed);
-            Assert.Equal("", level1.Strategy);
+            // Effort 1 must be the SAME single deterministic pass as QUICK —
+            // the strongest proof that no smart candidate sneaked in is that
+            // both results carry the same single-pass label.
+            Assert.Equal(quick.Strategy, level1.Strategy);
         }
 
         // ── result builders for the audit tests ─────────────────────────

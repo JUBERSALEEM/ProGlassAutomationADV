@@ -193,8 +193,14 @@ namespace ProGlassAutomation.Services.Optimization
             // cap is unlimited, so QUICK stays bit-identical.
             var plan = OptimizationSearchGovernor.PlanForQuick(pieces.Count);
             int window = plan.OpenSheetWindow;
-            return RunPass(Sort(pieces, OrderBy.Area), stocks, margins, rotation, split,
+            var result = RunPass(Sort(pieces, OrderBy.Area), stocks, margins, rotation, split,
                 cancellationToken, plan.MaxConsolidationSweeps, progress, window);
+            // Name the pass it actually was. The generic "GRID (...)" default
+            // from RunPass would read as a multi-start grid, but QUICK is a
+            // single deterministic shelf pass — the operator must be able to
+            // tell them apart on the result.
+            result.Strategy = $"QUICK SHELF (Area / {split})";
+            return result;
         }
 
         /// <summary>
@@ -303,6 +309,20 @@ namespace ProGlassAutomation.Services.Optimization
                 var candidate = RunPass(ordered, stocks, margins, rotation, split,
                     cancellationToken, plan.MaxConsolidationSweeps,
                     comboList.Count == 1 ? progress : null, window);
+                // Tag with the EXACT candidate this plan came from — the
+                // ordering and (for effort 4/5) the deterministic shuffle
+                // index. RunPass's default "GRID ({split})" hides the
+                // ordering, so a winning shuffled pass was indistinguishable
+                // from the plain one in the "Strategy breakdown" line.
+                //
+                // Effort 1 runs exactly the QUICK pass (that is the contract
+                // Benchmark_OptimizeStage_NeverRegressesQuick is built on),
+                // so it carries the same label QUICK does — a one-candidate
+                // run is not a grid.
+                candidate.Strategy = comboList.Count == 1
+                    ? $"QUICK SHELF ({order} / {split})"
+                    : $"GRID ({order} / {split}" +
+                      (shuffle > 0 ? $" / shuffle {shuffle}" : "") + ")";
                 best = Better(best, candidate);
             }
 

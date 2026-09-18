@@ -67,7 +67,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 // Recalculate rate when glass type changes
                 RecalculateEstimatedRate();
                 if (!_isRestoringSnapshot)
+                {
                     UpdateCurrentCalculationSectionSnapshot();
+                    // The snapshot now carries the NEW glass type. Panel edits
+                    // raise the fingerprint through OnAnyPanelPropertyChanged,
+                    // but a pure glass-type switch edits no panel property —
+                    // without this the hash (and therefore the Step 5
+                    // force-sync) would not fire whenever the estimated rate
+                    // happens to be unchanged, leaving Step 5 on the old type.
+                    NotifySpecFingerprintChanged();
+                }
             }
         }
 

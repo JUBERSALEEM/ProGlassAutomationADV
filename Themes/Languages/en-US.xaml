@@ -497,7 +497,7 @@
     <sys:String x:Key="Dg.Rate">RATE</sys:String>
     <sys:String x:Key="Dg.RemoveSpec">Remove spec group</sys:String>
     <sys:String x:Key="Dg.RunOptimize">OPTIMIZE</sys:String>
-    <sys:String x:Key="Dg.RunOptimizeTip">Deepest multi-start search over this Step 5 grid — best utilization wins, and it takes longer.</sys:String>
+    <sys:String x:Key="Dg.RunOptimizeTip">Deepest multi-candidate search over this Step 5 grid (search level 5) — every complete plan competes: fewest unplaced, then fewest sheets, then highest utilization. It takes longer.</sys:String>
     <sys:String x:Key="Dg.RunQuick">QUICK</sys:String>
     <sys:String x:Key="Dg.RunQuickTip">One fast cutting pass over this Step 5 grid — Step 6 then reads real sheet qty and utilization from it.</sys:String>
     <sys:String x:Key="Dg.Specification">SPECIFICATION</sys:String>
