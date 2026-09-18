@@ -103,9 +103,18 @@
     },
     "phase_4": {
       "status": "IMPLEMENTED",
-      "commit": "pending",
+      "commit": "55d4f59",
       "delta": "30 content literals tokenized (exact-value) in ProcessWorkCenter, ProductionControlCenter, Optimization, SummaryTab + shared OptHeader style FontSize 11->FontSize.Label; structural keeps documented (avatar/circles, chip radii, glyph sizes, progress pill, template internals)",
       "gate": "321 files 0E/22W/2N; 5-file contract clean"
+    },
+    "phase_5": {
+      "status": "IMPLEMENTED",
+      "commit": "pending",
+      "delta": "review of all supporting surfaces: converged or deliberate special surface (Splash/Login/About-Ios26/Wizard/Crash/AI); hex documented as material/brand constants; zero visual changes (nothing to safely change)",
+      "blocked": [
+        "InquiryListView EmptyState \u2014 needs new i18n key in 13 languages (HasInquiries/HasActiveFilters VM props ready)"
+      ],
+      "gate": "no XAML changes; validator unchanged 321 files 0E/22W/2N"
     }
   }
 }

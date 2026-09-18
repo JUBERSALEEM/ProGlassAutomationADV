@@ -8,7 +8,7 @@
 | P2 Core ERP | **IMPLEMENTED** | verified already converged (evidence recorded); delta = 2 typography tokenizations in DashboardView (exact-value); MERIDIAN structural literals documented as exempt |
 | P3 Masters/Settings | **IMPLEMENTED** | 22 exact-value tokenizations (Company/User/Settings themes/appearance tiles/QuickSettings); 8 structural keeps documented; SettingsCardStyles module layer evaluated & kept (merge = future candidate) |
 | P4 Operations/Production | **IMPLEMENTED** | 30 exact-value tokenizations (KPI values/labels/icons) + shared OptHeader style fix; structural keeps documented |
-| P5 Supporting | pending | About Ios26 (12 styles), Login AuthSurface (5), Wizard (5), Splash, AI chat, CrashReport |
+| P5 Supporting | **IMPLEMENTED** | full review: all surfaces converged or deliberate special surface; hex = material/brand constants documented; InquiryListView EmptyState BLOCKED (needs i18n key in 13 langs) |
 | P6 Global consistency | pending | re-census after P2–P5 |
 | P7 Personal UI/layout | pending | verify theme=appearance vs layout=arrangement separation; no forks (inventory-backed) |
 | P8 DPI/density | pending | static analysis of fixed dims + density-token adoption |

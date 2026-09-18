@@ -214,3 +214,27 @@ Phase gate: validator 321 files 0 ERROR / 22 WARN / 2 NOTE · 5-file
 functional contract clean (bindings/commands/x:Name/handlers preserved;
 residual literals = exactly the documented structural keeps).
 BUILD NOT EXECUTED — .NET SDK unavailable; TESTS NOT RUN.
+
+## Phase 5 convergence record (supporting UI, 2026-09-18)
+
+Scope: wizards, dialogs, reports, attachments, AI/Agent, Login, About,
+Splash, CrashReports, Shared overlays. **Review outcome: converged or
+deliberate special surface everywhere; zero visual changes required.**
+
+| Surface | Verdict | Reason |
+|---|---|---|
+| Statement wizard (`WizardStyles`, 19 keys) | deliberate special surface | numbered-step shell (PrimaryGradient/Nav buttons/shadows); self-contained, DynamicResource values; kept per §No-cosmetic-overdesign |
+| Login (`AuthSurfaceStyles`, 18 keys) | deliberate special surface | pre-shell brand glass (orbs, liquid card, frost/ice); login is the app's showcase moment |
+| Splash (30 local keys + 8 hex) | deliberate special surface | cinematic brand surface; the 8 hex values are **material alpha recipe** (white/gray sheen layers #00FFFFFF…#4CFFFFFF) — identical in Light/Dark, not theme-controlled; documented exempt |
+| About "Ios26" section (`AboutIos26Theme`, 12 keys) | deliberate special surface | intentionally personal-styled showcase (Ios-17 lineage); 3 avatar circles r19 = h/2 structural |
+| AI chat (`AiChatView`, 3 BasedOn `SurfacePrimaryStyle` + chat grammar) | converged | bounce-dot/send-button grammar is chat-specific; 3 hex = **AI brand palette** (indigo #6366F1/#3730A3) + high-signal listening red #B91C1C — kept (tokenizing needs visual sign-off; documented) |
+| Crash dialog (`CrashReportDialogStyles`, 2 buttons) | deliberate special surface | **crash dialog must be readable in unknown app state** — self-contained by design (2026-09-14 fix removed a broken implicit BasedOn); documented |
+| Report hub / statements / dialogs / overlays (1–2 local styles each) | converged module layers | module-specific grammar (nav buttons, tinted KPI cards, approval radio, rate inputs, spec headers, HUD buttons), all DynamicResource values, no shared 1:1 duplicate |
+| Dialog windows (22 ThemedDialogWindow) | verified | use shared Dialog*/AppToolTip styles; sizing covered in Phase 8 |
+
+**Blocked item (documented, not worked blindly):** `InquiryListView` is the
+only core list without an `EmptyStateControl` (all others have one). Adding
+it requires a **new i18n key in all 13 language files** (no suitable
+`Inquiry.No*` key exists; other lists use `Dashboard.No*Yet` keys) — i18n
+translation work + visual verification are outside a static-safe scope.
+VM already exposes `HasInquiries`/`HasActiveFilters` for the binding.
