@@ -3,7 +3,24 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
-    xmlns:globalSearch="clr-namespace:ProGlassAutomation.Controls.GlobalSearch">
+    xmlns:globalSearch="clr-namespace:ProGlassAutomation.Controls.GlobalSearch"
+    xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels.Dashboard"
+    xmlns:pv="clr-namespace:ProGlassAutomation.Views.Personal">
+
+    <!-- ═══ PERSONAL VIEW ROUTING (GB-P4…) ═════════════════════════════
+         The Personal shell hosts the SAME MainViewModel / module VMs as
+         Professional. These DataTemplates — scoped to THIS control's
+         resource scope — remap each module VM to its Personal view ONLY
+         when rendered inside the GlassShell. Professional's implicit
+         templates (app-level) are untouched; Professional chrome still
+         renders the Professional views. One module = one template = the
+         same ViewModel (zero business-logic duplication).
+         Each new Personal screen (GB-P4…P13) adds exactly one template. -->
+    <UserControl.Resources>
+        <DataTemplate DataType="{x:Type vm:OverviewDashboardViewModel}">
+            <pv:PersonalDashboardView/>
+        </DataTemplate>
+    </UserControl.Resources>
 
     <!-- ═══════════════════════════════════════════════════════════════
          GLASS BLUSH — PERSONAL UI SHELL (GB-P2, 2026-09-18)

@@ -92,6 +92,20 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 
 ---
 
+## Per-screen records
+
+### glass-01 — Dashboard Overview (GB-P4)
+- **Status:** ✅ STATIC VERIFIED · RUNTIME NOT VERIFIED (no .NET SDK) · VISUALLY NOT YET VERIFIED (no runtime capture possible).
+- **Architecture:** Personal view fork `Views/Personal/PersonalDashboardView.xaml` (+ minimal code-behind, no logic) referencing the **same `OverviewDashboardViewModel`**. Routed from the Personal shell via a scoped `DataTemplate` in `GlassShell.xaml` resources — Professional's app-level templates and view are untouched.
+- **Components used:** GlassKpiCard (4 floating KPI cards), ChartCard + TrendChartControl (revenue bar), ChartCard + DonutChartControl (delivery mix), GlassCard + InsetCard pipeline stages (WorkflowStages), GlassCard + GlassDataGrid (RecentActivity, virtualized), GlassButton/GlassButtonSoft (module actions), StatusDot + live pulse, Skeleton (4-state contract: loading/error/empty/data preserved).
+- **Contract preserved:** all bindings (SalesTiles/ProductionTiles/DeliveryTiles/InventoryTiles, MonthlySalesBars, DeliveryMixSlices, WorkflowStages, RecentActivity, LastRefreshed, IsLoading/HasError/ErrorMessage/HasRecentActivity, InProductionDisplay…), commands (NewInvoiceCommand, ViewJobsCommand, ViewDeliveriesCommand), chart control properties, i18n keys (Dashboard.*, Common.*).
+- **KPI selection (measured 4 headline cards):** SalesTiles[0] Total Sales · ProductionTiles[0] In Production · DeliveryTiles[1] Dispatched · InventoryTiles[0] Stock Value.
+- **Deviations (documented):**
+  1. Per-screen top-bar actions (Add Invoice etc. in the reference top bar) rendered as a slim action row under the shared glass top bar — the shared shell keeps generic chrome; screen-specific actions live in the content. No functionality lost.
+  2. KPI sparklines from the reference not rendered — the VM exposes no per-KPI spark series (PulseSpark is pulse-only); no data fabrication.
+  3. Reference "invoice table" rendered as the RecentActivity glass table (the same data set the Professional view shows in its recent-documents card, table-form per the reference).
+- **Build:** NOT RUN (.NET SDK unavailable). Runtime screenshot fidelity: NOT YET VERIFIED (GB-P16 tooling).
+
 ## Phase status
 
 | Phase | Status | Commit |
@@ -99,7 +113,8 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-P1 tokens + visual foundation | ✅ STATIC VERIFIED (tokens authored from measurements; runtime NOT VERIFIED — no .NET SDK) | `GB-P1` |
 | GB-P2 shell | ✅ STATIC VERIFIED (shell + styles; runtime NOT VERIFIED — no .NET SDK) | `GB-P2` |
 | GB-P3 shared components (21/21) | ✅ STATIC VERIFIED (runtime NOT VERIFIED — no .NET SDK) | `GB-P3` |
-| GB-P4…P13 screens (10) | pending | — |
+| GB-P4 dashboard (glass-01) | ✅ STATIC VERIFIED (PersonalDashboardView + shell routing; runtime NOT VERIFIED) | `GB-P4` |
+| GB-P5…P13 screens (9) | pending | — |
 | GB-P14 Professional↔Personal switch | pending | — |
 | GB-P15 global visual consistency | pending | — |
 | GB-P16 runtime screenshot fidelity | **NOT RUN — no WPF runtime in this environment** (tooling to be delivered) | — |
