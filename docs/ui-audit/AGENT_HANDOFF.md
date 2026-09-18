@@ -16,6 +16,28 @@ original MERIDIAN + OPT commit lineages were recovered from the remote and are
 in history (merge `177efed`). **No .NET SDK exists in this sandbox: build and
 tests have NEVER been run here — never claim PASS for them.**
 
+## 0b. MASTER UI MODERNIZATION (started 2026-09-18, baseline 5de4bc6)
+
+New task layer on top of the MERIDIAN baseline: modernize ALL 320 XAML into
+one coherent industrial ERP. Phases P1–P9, gate after each phase.
+- **P1 DONE**: `Themes/Styles/PagePatterns.xaml` added (page surface, header,
+  toolbar, loading, error banner — the 5 patterns with no shared home) and
+  merged in `App.xaml`; `docs/ui-audit/DESIGN_SYSTEM_LOCK.md` is the
+  authoritative 14-pattern standard + token families + exemptions + the
+  per-screen modernization recipe. Gate: 321 files 0E/22W/2N.
+- Census: `tools/pattern_census.py` → `docs/ui-audit/PATTERN_CENSUS.json`
+  (per-file local styles / hardcoded FontSize / hardcoded CornerRadius /
+  shared-chrome adoption). **Key finding: the core ERP modules (Inquiry, PI,
+  JO, DN, TI, SheetStore, Reports) were already largely converged by a prior
+  pass** — the remaining debt is concentrated in Production/Optimization
+  (hardcoded literals), Settings (module style dictionaries), About/Login/
+  Splash (supporting).
+- Rules that are new vs the MERIDIAN protocol: implement-don't-audit; keep
+  Pg* as the foundation but the legacy `Surface*`/`FontSize.*`/`Tint*`
+  families are ALSO authoritative (do not mass-migrate business modules to
+  Pg* colours — that would break the personal family re-tint); never chase
+  the 24 legacy warnings.
+
 ## 1. Where everything is
 
 | Artifact | Path |

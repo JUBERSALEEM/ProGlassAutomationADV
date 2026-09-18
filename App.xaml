@@ -71,6 +71,12 @@
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/PillStyles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/CardStyles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/SharedSectionStyles.xaml"/>
+                <!-- MASTER MODERNIZATION Phase 1 (2026-09-18): app-wide
+                     page-level patterns that previously had no shared
+                     home (page surface, page header, toolbar band,
+                     loading state, error banner). Purely additive,
+                     DynamicResource-only, no BasedOn chains. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/PagePatterns.xaml"/>
                 <!-- CRYSTAL FLUID "Ios-17pm" token plane (P1 2026-09-05).
                      Authored source-of-truth trio, load order per the
                      theme master (colors → brushes → metrics; brushes

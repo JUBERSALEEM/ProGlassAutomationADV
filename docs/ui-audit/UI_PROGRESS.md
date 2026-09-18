@@ -1,5 +1,21 @@
 # UI Engineering Progress (release-safe protocol)
 
+# MASTER UI MODERNIZATION (2026-09-18, baseline 5de4bc6)
+
+| Phase | Status | Result |
+|---|---|---|
+| P1 Design system lock | **IMPLEMENTED** | `PagePatterns.xaml` (13 keys, 5 missing patterns: page surface / header / toolbar / loading / error banner) + `DESIGN_SYSTEM_LOCK.md` (14-pattern standard, token families, exemptions, recipe). Gate: 321 files 0E/22W/2N. |
+| P2 Core ERP | pending | census: core ERP already ~90% converged (prior clean-list pass); remaining = literal tokenization + module style-dict evaluation |
+| P3 Masters/Settings | pending | debt concentrated: SettingsCardStyles (47 local styles), Settings themes section literals, CompanyCenter/UserCenter literals |
+| P4 Operations/Production | pending | largest literal debt: ProcessWorkCenter (15 fs), ProductionControlCenter (14 fs), Optimization (8 fs), SummaryTab (4 fs) |
+| P5 Supporting | pending | About Ios26 (12 styles), Login AuthSurface (5), Wizard (5), Splash, AI chat, CrashReport |
+| P6 Global consistency | pending | re-census after P2–P5 |
+| P7 Personal UI/layout | pending | verify theme=appearance vs layout=arrangement separation; no forks (inventory-backed) |
+| P8 DPI/density | pending | static analysis of fixed dims + density-token adoption |
+| P9 Final 320-file pass | pending | classification + 4 doc updates |
+
+
+
 **Branch:** `arena/01a0b4a8-proglassautomationadv` · **Updated:** 2026-09-18 ·
 **State file:** `UI_PROJECT_STATE.json` (machine-readable) · **Handoff:** `AGENT_HANDOFF.md`
 

@@ -1,12 +1,12 @@
 {
   "generated": "2026-09-18",
-  "protocol": "MERIDIAN \u2014 Release-Safe WPF UI Engineering (25 phases)",
+  "protocol": "MASTER UI MODERNIZATION \u2014 320-XAML Industrial ERP Transformation (9 phases) \u2014 supersedes the 25-phase MERIDIAN audit protocol, builds on its baseline 5de4bc6",
   "branch": "arena/01a0b4a8-proglassautomationadv",
   "base_commit": "97160501c4f1fbcf9eef0d4f0d99ee7ff59fb68a",
   "head_commit": "177efed",
   "working_tree": "clean",
   "counts": {
-    "xaml_files": 320,
+    "xaml_files": 321,
     "xaml_cs_codebehind": 244,
     "windows": 34,
     "pages": 0,
@@ -18,7 +18,8 @@
     "hardcoded_hex_total": 1108,
     "hardcoded_hex_files": 22,
     "hex_policy": "all in token definitions (Themes/Styles) + 2 legacy views (AgentChatView 3, SplashView 9); W17 gate NOTE-level",
-    "meridian_files_zero_gate_findings": 13
+    "meridian_files_zero_gate_findings": 13,
+    "xaml_files_note": "320 + PagePatterns.xaml (Phase 1 shared pattern dictionary)"
   },
   "phases": {
     "Ph0_baseline_verification": "DONE \u2014 all prior claims re-verified vs HEAD (157 Pg* keys, inventory, merge order); 6.8/10 static baseline 2026-09-14 recorded",
@@ -76,5 +77,15 @@
     "2 W17 NOTE: legacy hex in AgentChatView (3) + SplashView (9)",
     "PrintableInvoiceView print surface: Print.* tokens published at runtime by PrintTokenService (validated into W7 runtime set \u2014 0 findings)"
   ],
-  "head_note": "this commit (the docs batch) is the actual branch head - a commit cannot carry its own SHA; parent is 177efed. Confirm with: git log -1"
+  "head_note": "this commit (the docs batch) is the actual branch head - a commit cannot carry its own SHA; parent is 177efed. Confirm with: git log -1",
+  "modernization": {
+    "phase_1": {
+      "status": "IMPLEMENTED",
+      "commit": "pending",
+      "added": "Themes/Styles/PagePatterns.xaml (13 keys: page surface, page header, toolbar band, loading state, error banner)",
+      "doc": "docs/ui-audit/DESIGN_SYSTEM_LOCK.md (14-pattern standard + exemptions + recipe)",
+      "gate": "321 files, 0 ERROR / 22 WARN / 2 NOTE"
+    },
+    "phase_2_9": "pending"
+  }
 }
