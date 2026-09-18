@@ -115,8 +115,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     && i.WidthMm > 0 && i.HeightMm > 0)
                 .ToList();
 
-            Pieces.Clear();
-            Stocks.Clear();
+            // Phase 3: build the new list FIRST and clear the current one
+            // only after it validates. The old code cleared Pieces/Stocks up
+            // front — when Run() then refused the inputs, the operator was
+            // left with an empty module and a status message.
+            var newPieces = new List<PieceEntryVm>();
+            var newStocks = new List<StockEntryVm>();
 
             int piecesAdded = 0;
             int racksAdded = 0;
@@ -225,7 +229,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             sizeGroup.Key.HeightMm.ToString(CultureInfo.InvariantCulture),
                             qty.ToString(CultureInfo.InvariantCulture));
                         row.Position = occ.Position;
-                        Pieces.Add(row);
+                        newPieces.Add(row);
                         piecesAdded += qty;
                     }
                 }
@@ -237,7 +241,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (group.OuterSheetWidthMm > 0 && group.OuterSheetHeightMm > 0)
                 {
                     string outerComp = ComposeForSlot(PaneSlot.Pane1);
-                    racksAdded += AddStep5Rack(rackSeen,
+                    racksAdded += AddStep5Rack(rackSeen, newStocks,
                         group.OuterSheetWidthMm, group.OuterSheetHeightMm,
                         outerComp,
                         specLabel + " outer", group.OuterSheetPricePerSqm,
@@ -250,7 +254,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (group.InnerSheetWidthMm > 0 && group.InnerSheetHeightMm > 0)
                 {
                     string innerComp = ComposeForSlot(PaneSlot.Pane2);
-                    racksAdded += AddStep5Rack(rackSeen,
+                    racksAdded += AddStep5Rack(rackSeen, newStocks,
                         group.InnerSheetWidthMm, group.InnerSheetHeightMm,
                         innerComp,
                         specLabel + " inner", group.InnerSheetPricePerSqm,
@@ -284,7 +288,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     {
                         continue;
                     }
-                    storeRacks += AddStep5Rack(rackSeen, sheetW, sheetH, comp,
+                    storeRacks += AddStep5Rack(rackSeen, newStocks, sheetW, sheetH, comp,
                         "Sheet Store cross-check", group.OuterSheetPricePerSqm,
                         group.GroupNumber, "Outer");
                     rackedKeys.Add(compKey(group.GroupNumber, comp));
@@ -298,19 +302,25 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
             racksAdded += storeRacks;
 
-            if (Pieces.Count == 0)
+            if (newPieces.Count == 0)
             {
                 message = "No cutting rows found on Step 5 — enter pane sizes and quantities first.";
                 return false;
             }
 
-            if (Stocks.Count == 0)
+            if (newStocks.Count == 0)
             {
                 message = "The Step 5 specs have no sheet sizes, so there is no rack to cut against — "
                     + "set the outer/inner sheet size on Step 4 first. "
                     + "The Sheet Store had no stocked size for these glass colours either.";
                 return false;
             }
+
+            // Validated — and only now is the current pool replaced.
+            Pieces.Clear();
+            foreach (var p in newPieces) Pieces.Add(p);
+            Stocks.Clear();
+            foreach (var s in newStocks) Stocks.Add(s);
 
             // Step 5 has no SETTINGS tab, so the two buttons carry fixed depths:
             // QUICK is one deterministic pass, OPTIMIZE the deepest search.
@@ -405,6 +415,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// </remarks>
         private int AddStep5Rack(
             HashSet<(int W, int H, string C)> seen,
+            List<StockEntryVm> target,
             int widthMm, int heightMm, string composition, string source,
             decimal pricePerSqm, int specNumber, string side)
         {
@@ -413,7 +424,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             string comp = (composition ?? string.Empty).Trim();
             if (!seen.Add((widthMm, heightMm, comp))) return 0;
 
-            Stocks.Add(new StockEntryVm(
+            target.Add(new StockEntryVm(
                 widthMm.ToString(CultureInfo.InvariantCulture),
                 heightMm.ToString(CultureInfo.InvariantCulture),
                 comp,

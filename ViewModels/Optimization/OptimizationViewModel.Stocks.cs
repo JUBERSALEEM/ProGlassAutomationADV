@@ -211,8 +211,24 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             var sheets = SelectedJobs.SelectMany(j => j.Step4Sheets).ToList();
 
+            // Phase 3: manual racks survive a selection change. The old
+            // behaviour deleted a hand-added rack the moment the operator
+            // ticked or unticked a job (documented in code, still a
+            // data-loss trap mid-work). Step 4 racks are still fully
+            // replaced — only provenance "manual" is kept.
+            var manualRacks = Stocks
+                .Where(s => string.Equals(s.SourceLabel, "manual", StringComparison.OrdinalIgnoreCase))
+                .ToList();
             Stocks.Clear();
+            foreach (var m in manualRacks) Stocks.Add(m);
+
             var seen = new HashSet<(int W, int H, string C)>();
+            foreach (var m in manualRacks)
+            {
+                if (int.TryParse(m.WidthText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int mw)
+                    && int.TryParse(m.HeightText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int mh))
+                    seen.Add((mw, mh, (m.Composition ?? string.Empty).Trim()));
+            }
             foreach (var (w, h, composition, source, pricePerSqm, specNumber, side) in sheets)
             {
                 if (w <= 0 || h <= 0) continue;

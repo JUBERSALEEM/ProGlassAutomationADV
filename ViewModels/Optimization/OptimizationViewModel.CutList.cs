@@ -610,7 +610,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
             if (rows == null || rows.Count == 0) return;
             if (!HasResult) return;
 
-            int stamped = StampRows(rows, CostingRows);
+            // Phase 3: scope the join to THIS list's composition. Every row
+            // of one cut list cuts from one composition, so a result row from
+            // a different glass group that happens to share a size must not
+            // count toward this list's QTY USED.
+            int stamped = StampRows(rows, CostingRows, ResolveCutListComposition());
             CutListStatus = string.Format(CultureInfo.InvariantCulture,
                 "{0} of {1} row(s) matched the last run — QTY USED and OPT % are read from it.",
                 stamped, rows.Count);
@@ -624,14 +628,26 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// <returns>How many rows found at least one matching result.</returns>
         public static int StampRows(
             IEnumerable<GlassItemRow>? rows,
-            IEnumerable<CostingRowVm>? results)
+            IEnumerable<CostingRowVm>? results,
+            string? rowComposition = null)
         {
             if (rows == null || results == null) return 0;
+
+            // Phase 3: when the caller knows the list's composition, result
+            // rows from OTHER glass groups are excluded — the old size-only
+            // join summed two groups' pieces whenever they shared a size
+            // (low-e outer + another spec at 1057×2489 showed both totals on
+            // every row).
+            string rowComp = CompositionKey.Normalize(rowComposition);
+            bool compScoped = rowComp.Length > 0;
 
             var bySize = new Dictionary<(int W, int H), (int Pieces, decimal Glass, decimal Stock)>();
             foreach (CostingRowVm? result in results)
             {
                 if (result == null || result.WidthMm <= 0 || result.HeightMm <= 0) continue;
+                if (compScoped && !string.Equals(
+                        CompositionKey.Normalize(result.Composition), rowComp, StringComparison.Ordinal))
+                    continue;
                 var key = (result.WidthMm, result.HeightMm);
                 bySize.TryGetValue(key, out (int Pieces, decimal Glass, decimal Stock) acc);
                 bySize[key] = (acc.Pieces + result.PieceCount,

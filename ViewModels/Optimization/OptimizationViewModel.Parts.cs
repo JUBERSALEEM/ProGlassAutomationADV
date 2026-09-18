@@ -50,10 +50,37 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public bool TryParse(out int width, out int height, out int qty)
             {
                 width = height = qty = 0;
-                return int.TryParse(WidthText, NumberStyles.Integer, CultureInfo.InvariantCulture, out width) &&
-                       int.TryParse(HeightText, NumberStyles.Integer, CultureInfo.InvariantCulture, out height) &&
-                       int.TryParse(QtyText, NumberStyles.Integer, CultureInfo.InvariantCulture, out qty) &&
-                       width > 0 && height > 0 && qty > 0;
+                return ParsePositiveInt(WidthText, out width)
+                    && ParsePositiveInt(HeightText, out height)
+                    && ParsePositiveInt(QtyText, out qty);
+            }
+
+            /// <summary>
+            /// Positive-integer parsing that also accepts integer-valued
+            /// decimals: "12" and "12.0" parse, "12.5" and "0" do not.
+            /// The app formats sizes with invariant decimals in places, and
+            /// an operator who types a half-millimetre must get a clean
+            /// validation message — not a row that dies later inside an
+            /// unguarded Convert.ToInt32.
+            /// </summary>
+            private static bool ParsePositiveInt(string? text, out int value)
+            {
+                value = 0;
+                if (string.IsNullOrWhiteSpace(text)) return false;
+                text = text.Trim();
+
+                if (int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out int direct))
+                    return direct > 0;
+
+                if (double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double d))
+                {
+                    if (d > 0 && d == Math.Floor(d) && d <= int.MaxValue)
+                    {
+                        value = (int)d;
+                        return true;
+                    }
+                }
+                return false;
             }
         }
 

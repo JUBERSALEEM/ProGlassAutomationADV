@@ -624,9 +624,21 @@ namespace ProGlassAutomation.ViewModels.Optimization
             int totalProblems = runs.Sum(r => r.ProblemCount);
 
             string rotationLabel = rotation == RotationPolicy.Free90 ? "rotation ON" : "rotation LOCKED";
+            // Phase 3: when the run is scoped to exactly ONE confirmed job
+            // order, say which — Step 6 and the operator need to know the
+            // result belongs to JO-2026-004 and not to whatever job was
+            // ticked before. Multi-job and Step-5 runs stay unattributed.
+            var singleJob = SelectedJobs
+                .Select(j => j.JobOrderId)
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            string jobScope = singleJob.Count == 1
+                ? " · " + singleJob[0]
+                : string.Empty;
             ResultStage = stage == "OPTIMIZE"
-                ? $"OPTIMIZE · level {SelectedEffortLevel} · {rotationLabel} · {runs.Count} cutting group(s)"
-                : $"QUICK · {rotationLabel} · {runs.Count} cutting group(s)";
+                ? $"OPTIMIZE · level {SelectedEffortLevel} · {rotationLabel} · {runs.Count} cutting group(s){jobScope}"
+                : $"QUICK · {rotationLabel} · {runs.Count} cutting group(s){jobScope}";
             // Stamps the SETTINGS level onto this result and, when this run was
             // an upgrade of a previous QUICK result, reports what it bought.
             UpdateUpgradeSummary(stage, totalSheets);

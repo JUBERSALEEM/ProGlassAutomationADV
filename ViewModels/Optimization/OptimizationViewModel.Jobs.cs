@@ -317,12 +317,22 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 var all = await repo.GetAllAsync().ConfigureAwait(false);
                 var options = new List<JobOptionVm>();
 
-                foreach (var jo in all
+                // Phase 3: the list is capped at the 100 most recent jobs —
+                // every card runs the distribution engine, so an unbounded
+                // list rebuilds the whole picker on every refresh. The cap
+                // already existed but was silent; when it engages, the status
+                // line now says how many jobs it is showing (a silent cap
+                // reads as "jobs disappeared").
+                const int jobListDisplayCap = 100;
+                var eligible = all
                     .Where(j => j != null && !j.IsVoid
                         && !JobOrderStatusValues.Is(j.Status, JobOrderStatusValues.Draft)
                         && !voidedPis.Contains(j.SourceProformaId ?? string.Empty))
                     .OrderByDescending(j => j.UpdatedAt)
-                    .Take(100))
+                    .ToList();
+                int totalEligible = eligible.Count;
+
+                foreach (var jo in eligible.Take(jobListDisplayCap))
                 {
                     var snapshot = JobOrderMapper.DeserializeSnapshot(jo);
                     var invoice = snapshot?.EmbeddedInvoice;
@@ -502,12 +512,24 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 {
                     dispatcher.Invoke(() =>
                     {
+                        // Phase 3: ticked jobs must survive a refresh. Capture
+                        // the tick set from the OLD rows before the list is
+                        // rebuilt, and re-apply it on the replacements BEFORE
+                        // the property hooks are attached — otherwise each
+                        // re-tick fires OnJobSelectionChanged (which rebuilds
+                        // the whole breakdown) once per job mid-rebuild.
+                        var keepSelectedIds = new HashSet<string>(
+                            AvailableJobs.Where(j => j.IsSelected).Select(j => j.JobOrderId),
+                            StringComparer.Ordinal);
+
                         foreach (var old in AvailableJobs)
                             old.PropertyChanged -= OnJobSelectionChanged;
 
                         AvailableJobs.Clear();
                         foreach (var o in options)
                         {
+                            if (keepSelectedIds.Contains(o.JobOrderId))
+                                o.IsSelected = true;
                             o.PropertyChanged += OnJobSelectionChanged;
                             AvailableJobs.Add(o);
                         }
@@ -523,15 +545,23 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         // explanation. They now count on this status line
                         // and on each job card.
                         int totalWarnings = options.Sum(o => o.Warnings.Count);
+                        // Phase 3: say how many of how many — a silent cap
+                        // reads as missing jobs.
+                        string truncationNote = totalEligible > jobListDisplayCap
+                            ? string.Format(CultureInfo.InvariantCulture,
+                                " Showing the {0} most recent of {1}.",
+                                jobListDisplayCap, totalEligible)
+                            : string.Empty;
                         JobsStatusText = options.Count == 0
                             ? "No confirmed job orders with cutting pieces yet."
                             : string.Format(CultureInfo.InvariantCulture,
-                                "{0} confirmed job order(s) ready.{1}",
+                                "{0} confirmed job order(s) ready.{1}{2}",
                                 options.Count,
                                 totalWarnings > 0
                                     ? string.Format(CultureInfo.InvariantCulture,
                                         " {0} import warning(s) — see the job cards.", totalWarnings)
-                                    : string.Empty);
+                                    : string.Empty,
+                                truncationNote);
 
                         // 2026-09-14 AUTO-TRIGGER REMOVED (Phase 1 data
                         // integrity): the reference calibration job used to
