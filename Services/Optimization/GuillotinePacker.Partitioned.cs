@@ -565,9 +565,10 @@ namespace ProGlassAutomation.Services.Optimization
                     for (int si = sheetStates.Count - 1; si >= 0; si--)
                     {
                         var host = sheetStates[si];
-                        if (host.Layout.UtilizationPct < 75.0 && TryPlaceCore(host, piece, RotationPolicy.Free90, out var candidate))
+                        var cand = default(CandidatePlacement);
+                        if (host.Layout.UtilizationPct < 75.0m && TryPlaceCore(host, piece, RotationPolicy.Free90, out cand))
                         {
-                            Commit(host, candidate.Materialize(piece), margins, SplitMode.LongerLeftover);
+                            Commit(host, cand.Materialize(piece), margins, SplitMode.LongerLeftover);
                             placed = true;
                             break;
                         }
