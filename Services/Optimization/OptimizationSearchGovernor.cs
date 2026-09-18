@@ -129,10 +129,10 @@ namespace ProGlassAutomation.Services.Optimization
             return new SearchPlan
             {
                 Tier = SearchTier.Minimum,
-                FillWallSplits = FirstSplitOnly,
-                ShuffleCap = effortLevel >= 5 ? 1 : 0,
+                FillWallSplits = AllSplits,
+                ShuffleCap = effortLevel >= 5 ? 3 : (effortLevel >= 4 ? 2 : 0),
                 ForceFullGrid = true,
-                MaxRectOrders = 1,
+                MaxRectOrders = effortLevel >= 4 ? 3 : 1,
                 MaxConsolidationSweeps = 3,
                 MaxDonorAttempts = 2000,
                 OpenSheetWindow = int.MaxValue,

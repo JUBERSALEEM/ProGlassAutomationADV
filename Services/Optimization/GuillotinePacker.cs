@@ -237,12 +237,7 @@ namespace ProGlassAutomation.Services.Optimization
             };
 
             IEnumerable<(OrderBy o, SplitMode s, int shuffle)> combos;
-            if (plan.ForceFullGrid && effortLevel > 1)
-            {
-                // Adaptive multi-candidate grid: evaluate orderings × splits
-                combos = orderings.SelectMany(o => splits.Select(s => (o, s, 0)));
-            }
-            else if (effortLevel <= 1)
+            if (effortLevel <= 1)
                 // Must mirror PackQuick exactly: Benchmark_OptimizeStage_
                 // NeverRegressesQuick asserts OPTIMIZE <= QUICK.
                 combos = new[] { (OrderBy.Area, SplitMode.HorizontalFirst, 0) };
@@ -253,11 +248,7 @@ namespace ProGlassAutomation.Services.Optimization
             else
             {
                 int shuffles = effortLevel >= 5 ? 6 : 3;
-                // Shuffles are the dominant multiplier at effort 5 (7x on top
-                // of 6 orderings x 3 splits = 126 passes). Capping them is the
-                // cheapest breadth reduction available: it keeps every ordering
-                // and every split rule and only drops the randomized restarts.
-                shuffles = System.Math.Min(shuffles, scale.ShuffleCap);
+                shuffles = System.Math.Min(shuffles, plan.ShuffleCap);
                 combos = orderings.SelectMany(o => splits.SelectMany(s =>
                     Enumerable.Range(0, shuffles + 1).Select(k => (o, s, k))));
             }
@@ -315,25 +306,19 @@ namespace ProGlassAutomation.Services.Optimization
                 best = Better(best, candidate);
             }
 
-            // SCALE FIX 5: the sheet-at-a-time strategies are quadratic in the
-            // job — every placement re-scans the whole remaining part list, and
-            // RunBestSplit does that three times per sheet, once per split rule.
-            // At 30,000 parts across roughly 1,000 sheets that is billions of
-            // placement attempts: a run that does not come back, which the
-            // operator experiences as a crashed application. ScaleProfile
-            // already told them "only the minimum search was run"; now the code
-            // agrees with it. Everything here stays available up to the Huge
-            // threshold, and the linear passes, MaxRects and consolidation still
-            // run beyond it.
-            if (effortLevel >= 2 && scale.AllowQuadraticStrategies)
+            // With windowed candidate scanning, advanced strategies (BestSplit, SheetFill,
+            // WallSeed, SmartPlacement) run in bounded O(K * N) time across all tiers.
+            if (effortLevel >= 2)
             {
+                int windowSize = scale.Tier == ScaleTier.Huge ? 300 : scale.Tier == ScaleTier.Large ? 400 : int.MaxValue;
+
                 foreach (var split in splits)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     best = Better(best, RunSheetFill(pieces, stocks, margins, rotation, split,
-                        scale.ConsolidationSweeps, cancellationToken));
+                        scale.ConsolidationSweeps, cancellationToken, windowSize));
                     best = Better(best, RunWallSeed(pieces, stocks, margins, rotation, split,
-                        scale.ConsolidationSweeps, cancellationToken));
+                        scale.ConsolidationSweeps, cancellationToken, windowSize));
                 }
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -341,7 +326,7 @@ namespace ProGlassAutomation.Services.Optimization
                 // This is the candidate that takes the Clear group from 17
                 // sheets to the owner's reference 16.
                 best = Better(best, RunBestSplit(pieces, stocks, margins, rotation,
-                    scale.ConsolidationSweeps, cancellationToken));
+                    scale.ConsolidationSweeps, cancellationToken, windowSize));
 
                 // ── SMART PLACEMENT ──────────────────────────
                 // Capacity-preserving placement, per-placement split choice and
@@ -354,16 +339,16 @@ namespace ProGlassAutomation.Services.Optimization
                     "Smart placement: capacity-preserving, breakout-aware"));
                 best = Better(best, PackSmart(pieces, stocks, margins, rotation,
                     SplitMode.HorizontalFirst, scale.ConsolidationSweeps, cancellationToken,
-                    progress: null, candidateWindowSize: scale.Tier == ScaleTier.Huge ? 300 : scale.Tier == ScaleTier.Large ? 400 : int.MaxValue));
+                    progress: null, candidateWindowSize: windowSize));
 
-                if (effortLevel >= 4 && (scale.Tier == ScaleTier.Standard || scale.Tier == ScaleTier.Large))
+                if (effortLevel >= 4)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     progress?.Report(OptimizeProgress.Of("smart", comboList.Count + 1, smartTotal,
                         "Smart placement: vertical-split preference"));
                     best = Better(best, PackSmart(pieces, stocks, margins, rotation,
                         SplitMode.VerticalFirst, scale.ConsolidationSweeps, cancellationToken,
-                        progress: null, candidateWindowSize: scale.Tier == ScaleTier.Large ? 400 : int.MaxValue));
+                        progress: null, candidateWindowSize: windowSize));
                 }
             }
 

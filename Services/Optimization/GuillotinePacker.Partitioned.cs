@@ -127,6 +127,12 @@ namespace ProGlassAutomation.Services.Optimization
                     stocks, margins, rotation, SplitMode.HorizontalFirst,
                     cancellationToken, consolidationSweeps: 1);
                 bestGlobal = Better(bestGlobal, globalShuffle2);
+
+                // Run global windowed SmartPlacement
+                var smartGlobal = PackSmart(pieces, stocks, margins, rotation,
+                    SplitMode.HorizontalFirst, consolidationSweeps: 1, cancellationToken: cancellationToken,
+                    candidateWindowSize: 300);
+                bestGlobal = Better(bestGlobal, smartGlobal);
             }
 
             if (effortLevel >= 5)
@@ -137,6 +143,12 @@ namespace ProGlassAutomation.Services.Optimization
                     stocks, margins, rotation, SplitMode.LongerLeftover,
                     cancellationToken, consolidationSweeps: 1);
                 bestGlobal = Better(bestGlobal, globalShuffle3);
+
+                // Run global windowed BestSplit
+                var bestSplitGlobal = RunBestSplit(pieces, stocks, margins, rotation,
+                    consolidationSweeps: 1, cancellationToken: cancellationToken,
+                    candidateWindowSize: 300);
+                bestGlobal = Better(bestGlobal, bestSplitGlobal);
             }
 
             // 3. Assemble Consolidated Global Result
