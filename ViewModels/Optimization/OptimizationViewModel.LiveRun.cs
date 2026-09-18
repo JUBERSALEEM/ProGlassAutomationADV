@@ -331,6 +331,20 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // not left to wonder why the sheet count moved.
             if (sheetNotes.Count > 0)
                 message += " " + string.Join(" ", sheetNotes);
+
+            // Distribution warnings were previously discarded here too: a Step 5
+            // row with no quantity silently becomes 1 piece, a row without W2/H2
+            // loses its inner pane. The operator must see that on the status
+            // line, not discover it as a wrong sheet count later.
+            if (plan.Warnings.Count > 0)
+            {
+                var distinct = plan.Warnings.Distinct().ToList();
+                var shown = distinct.Take(3);
+                message += " Import warnings: " + string.Join(" | ", shown)
+                    + (distinct.Count > 3
+                        ? string.Format(CultureInfo.InvariantCulture, " (+{0} more)", distinct.Count - 3)
+                        : string.Empty);
+            }
             return true;
         }
 
